@@ -13,7 +13,9 @@
     <meta property="og:description" content="Poslouchej hudbu, sleduj klipy a čti texty" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="/" />
-    <link rel="shortcut icon" href="obrazky/skeliico.ico" />
+    <link rel="shortcut icon" href="/img/IMG_0090.JPG" />
+    <link rel="icon" href="/img/IMG_0090.JPG" type="image/jpeg" sizes="150x150" />
+    <link rel="apple-touch-icon" href="/img/IMG_0090.JPG" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
