@@ -11,12 +11,11 @@
     if (in != null) { t.load(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8)); }
   } catch (Exception ignore) {}
 
+<%@ page import="com.github.skeliit.Db" %>
   // Load DB overrides and persist missing keys into DB for the current language
   java.sql.Connection _c = null;
   try {
-    Class.forName("org.mariadb.jdbc.Driver");
-    String _url = "jdbc:mariadb://localhost:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4";
-    _c = java.sql.DriverManager.getConnection(_url, "Skeli", "skeli");
+    _c = Db.get();
     // fetch existing translations
     java.util.Map<String,String> db = new java.util.HashMap<>();
     try (java.sql.PreparedStatement ps = _c.prepareStatement("SELECT k, v FROM translations WHERE lang = ?")) {

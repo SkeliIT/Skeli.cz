@@ -19,12 +19,6 @@ import java.sql.*;
 
 @WebServlet(name = "YouTubeSyncServlet", urlPatterns = {"/admin/sync"})
 public class YouTubeSyncServlet extends HttpServlet {
-    private Connection getConn() throws SQLException {
-        String mariadbUrl = "jdbc:mariadb://localhost:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4";
-        String user = "Skeli";
-        String password = "skeli";
-        return DriverManager.getConnection(mariadbUrl, user, password);
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -53,7 +47,7 @@ public class YouTubeSyncServlet extends HttpServlet {
             resp.getWriter().write("YouTube sync missing configuration (env or /WEB-INF/youtube.properties)");
             return;
         }
-        try (Connection conn = getConn()) {
+        try (Connection conn = Db.get()) {
             syncChannel(conn, apiKey, channelId);
             resp.getWriter().write("OK");
         } catch (Exception e) {

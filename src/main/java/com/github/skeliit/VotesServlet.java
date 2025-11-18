@@ -11,12 +11,6 @@ import java.sql.*;
 
 @WebServlet(name = "VotesServlet", urlPatterns = {"/vote"})
 public class VotesServlet extends HttpServlet {
-    private Connection getConn() throws SQLException {
-        String mariadbUrl = "jdbc:mariadb://localhost:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4";
-        String user = "Skeli";
-        String password = "skeli";
-        return DriverManager.getConnection(mariadbUrl, user, password);
-    }
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
@@ -29,7 +23,7 @@ public class VotesServlet extends HttpServlet {
         }
         int lyricId = Integer.parseInt(lyricIdStr);
         int vote = "up".equals(action) ? 1 : -1;
-        try (Connection conn = getConn()) {
+        try (Connection conn = Db.get()) {
             try (PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO lyrics_votes (lyric_id, user_id, vote) VALUES (?, ?, ?) " +
                     "ON DUPLICATE KEY UPDATE vote = VALUES(vote)")) {

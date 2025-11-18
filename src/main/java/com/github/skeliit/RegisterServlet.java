@@ -22,12 +22,6 @@ import jakarta.mail.internet.MimeMessage;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
 public class RegisterServlet extends HttpServlet {
-    private Connection getConn() throws SQLException {
-        String mariadbUrl = "jdbc:mariadb://localhost:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4";
-        String user = "Skeli";
-        String password = "skeli";
-        return DriverManager.getConnection(mariadbUrl, user, password);
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -47,7 +41,7 @@ public class RegisterServlet extends HttpServlet {
         }
         String hash = BCrypt.hashpw(password, BCrypt.gensalt());
         Integer newUserId = null;
-        try (Connection conn = getConn();
+        try (Connection conn = Db.get();
              PreparedStatement ps = conn.prepareStatement("INSERT INTO users (username, email, password_hash, role, created_at) VALUES (?, ?, ?, 'USER', NOW())", Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, username);
             ps.setString(2, email);
