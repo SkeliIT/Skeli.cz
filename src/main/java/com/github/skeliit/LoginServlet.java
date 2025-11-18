@@ -13,12 +13,6 @@ import java.sql.*;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
-    private Connection getConn() throws SQLException {
-        String mariadbUrl = "jdbc:mariadb://localhost:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4";
-        String user = "Skeli";
-        String password = "skeli";
-        return DriverManager.getConnection(mariadbUrl, user, password);
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -33,7 +27,7 @@ public class LoginServlet extends HttpServlet {
             resp.sendRedirect("login.jsp");
             return;
         }
-        try (Connection conn = getConn();
+        try (Connection conn = Db.get();
              PreparedStatement ps = conn.prepareStatement("SELECT id, password_hash, role FROM users WHERE username = ?")) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {

@@ -21,12 +21,6 @@ import java.util.UUID;
 @WebServlet(name = "UploadAvatarServlet", urlPatterns = {"/profile/avatar-legacy"})
 @MultipartConfig(maxFileSize = 10 * 1024 * 1024, maxRequestSize = 15 * 1024 * 1024)
 public class UploadAvatarServlet extends HttpServlet {
-    private Connection getConn() throws SQLException {
-        String mariadbUrl = "jdbc:mariadb://localhost:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4";
-        String user = "Skeli";
-        String password = "skeli";
-        return DriverManager.getConnection(mariadbUrl, user, password);
-    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -50,7 +44,7 @@ public class UploadAvatarServlet extends HttpServlet {
             in.transferTo(out);
         }
         String relPath = "/uploads/avatars/" + fname;
-        try (Connection conn = getConn(); PreparedStatement ps = conn.prepareStatement("UPDATE users SET avatar_url=? WHERE id=?")) {
+        try (Connection conn = Db.get(); PreparedStatement ps = conn.prepareStatement("UPDATE users SET avatar_url=? WHERE id=?")) {
             ps.setString(1, relPath);
             ps.setInt(2, userId);
             ps.executeUpdate();

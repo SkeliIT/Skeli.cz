@@ -13,17 +13,11 @@ import java.util.Base64;
 
 @WebServlet(name = "ForgotPasswordServlet", urlPatterns = {"/forgot"})
 public class ForgotPasswordServlet extends HttpServlet {
-    private Connection getConn() throws SQLException {
-        String mariadbUrl = "jdbc:mariadb://localhost:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4";
-        String user = "Skeli";
-        String password = "skeli";
-        return DriverManager.getConnection(mariadbUrl, user, password);
-    }
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String username = req.getParameter("username");
         if (username == null) { resp.sendRedirect("forgot.jsp"); return; }
-        try (Connection conn = getConn()) {
+        try (Connection conn = Db.get()) {
             Integer userId = null;
             try (PreparedStatement ps = conn.prepareStatement("SELECT id FROM users WHERE username=?")) {
                 ps.setString(1, username);

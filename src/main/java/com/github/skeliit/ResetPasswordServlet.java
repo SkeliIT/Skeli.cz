@@ -12,18 +12,12 @@ import java.sql.*;
 
 @WebServlet(name = "ResetPasswordServlet", urlPatterns = {"/reset"})
 public class ResetPasswordServlet extends HttpServlet {
-    private Connection getConn() throws SQLException {
-        String mariadbUrl = "jdbc:mariadb://localhost:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4";
-        String user = "Skeli";
-        String password = "skeli";
-        return DriverManager.getConnection(mariadbUrl, user, password);
-    }
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String token = req.getParameter("token");
         String password = req.getParameter("password");
         if (token == null || password == null || password.length() < 8) { resp.sendRedirect("reset.jsp?token="+token); return; }
-        try (Connection conn = getConn()) {
+        try (Connection conn = Db.get()) {
             Integer userId = null;
             try (PreparedStatement ps = conn.prepareStatement("SELECT user_id FROM password_resets WHERE token=? AND expires_at>NOW()")) {
                 ps.setString(1, token);
