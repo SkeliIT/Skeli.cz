@@ -1,3 +1,4 @@
+<%@ page import="com.github.skeliit.Db" %>
 <%-- i18n loader: sets request attribute 't' as java.util.Properties --%>
 <%
   String lang = request.getParameter("lang");
@@ -11,7 +12,6 @@
     if (in != null) { t.load(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8)); }
   } catch (Exception ignore) {}
 
-<%@ page import="com.github.skeliit.Db" %>
   // Load DB overrides and persist missing keys into DB for the current language
   java.sql.Connection _c = null;
   try {
