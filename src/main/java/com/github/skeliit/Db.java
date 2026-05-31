@@ -22,7 +22,7 @@ public final class Db {
         dotenv = env;
         
         // Get credentials from .env or system environment
-        URL = getEnv("DB_URL", "jdbc:mariadb://127.0.0.1:3307/skeliweb?useUnicode=true&characterEncoding=utf8mb4");
+        URL = getEnv("DB_URL", "jdbc:mariadb://127.0.0.1:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4");
         USER = getEnv("DB_USER", "skeli");
         PASS = getEnv("DB_PASS", null);
     }

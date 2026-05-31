@@ -47,6 +47,24 @@ Additional CLI overrides (use local credentials without editing pom.xml):
 mvn -q -Dflyway.url=jdbc:mysql://localhost:3306/skeliweb -Dflyway.user={{DB_USER}} -Dflyway.password={{DB_PASSWORD}} flyway:migrate
 ```
 
+- Update process
+Code changes and patches:
+  1. Update sources in `src/main/java`, `src/main/webapp`, or `src/main/resources`.
+  2. Add any DB schema changes as a new Flyway migration SQL file in `src/main/resources/db/migration` using the next `V{n}__description.sql` version.
+  3. Rebuild the WAR:
+```bash path=null start=null
+mvn -q clean package
+```
+  4. Apply database migrations on the target environment before deploying the new WAR:
+```bash path=null start=null
+mvn -q -Dflyway.url=jdbc:mysql://<host>:<port>/<database> -Dflyway.user=<user> -Dflyway.password=<pass> flyway:migrate
+```
+  5. Deploy `target/SkeliCZ-1.0-SNAPSHOT.war` to the servlet container, or restart `mvn -q jetty:run` for development.
+
+  Notes:
+  - Always increase Flyway migration version when schema changes are required.
+  - For production updates, run Flyway before restarting the app so the new schema is ready.
+
 - Tests
 There are no tests in this repo. If tests are added under src/test/java, you can run them with:
 ```bash path=null start=null

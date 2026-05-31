@@ -117,6 +117,13 @@ body.light .texts-list a:visited {
 .auth-card label { font-weight:600; }
 .auth-card button[type=submit] { padding:10px 14px; border:1px solid var(--panel-border); border-radius:8px; background:rgba(0,0,0,0.20); color:var(--text); cursor:pointer; }
 body.light .auth-card button[type=submit] { background:rgba(0,0,0,0.06); color:#111; }
+.auth-card .form-alert { background: rgba(220, 38, 38, 0.12); border: 1px solid rgba(220, 38, 38, 0.24); color: #f5f3f4; padding: 14px 16px; border-radius: 12px; }
+.auth-card .form-success { background: rgba(56, 161, 105, 0.15); border: 1px solid rgba(56, 161, 105, 0.3); color: #e9f8f2; padding: 14px 16px; border-radius: 12px; margin-bottom: 10px; }
+body.light .auth-card .form-success { background: rgba(223, 240, 216, 0.8); border-color: rgba(56, 161, 105, 0.3); color: #1d462f; }
+.auth-card .form-alert ul { margin: 8px 0 0 18px; padding: 0; }
+.auth-card .form-alert li { margin-bottom: 6px; }
+.auth-card .form-note { margin: 0; font-size: 0.92em; color: rgba(231, 233, 234, 0.85); }
+body.light .auth-card .form-alert { background: rgba(254, 226, 226, 0.65); border-color: rgba(220, 38, 38, 0.30); color: #2f1b1b; }
 
 /* ============================================
    SKELI.CZ - Page Specific Styles
@@ -227,3 +234,150 @@ body.light .texts-list a {
 body.light .texts-list a:visited {
   color: #111 !important;
 }
+
+/* Donate page styles */
+.donate-page {
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  padding: 40px 12px 60px;
+}
+
+.donate-card {
+  width: min(100%, 980px);
+  background: rgba(0, 0, 0, 0.40);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(18px);
+}
+
+.donate-intro {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.donate-title {
+  margin: 0 0 10px;
+  font-family: "Bruno Ace SC", sans-serif;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  letter-spacing: 0.18em;
+  color: var(--accent);
+}
+
+.donate-description {
+  margin: 0 auto;
+  max-width: 720px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+}
+
+.donate-grid {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 860px) {
+  .donate-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.donate-section {
+  position: relative;
+  background: rgba(0, 0, 0, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+  overflow: hidden;
+}
+
+.donate-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 215, 0, 0.65) 50%, transparent 100%);
+  opacity: 0.6;
+}
+
+.donate-section h3 {
+  position: relative;
+  margin: 0 0 18px;
+  color: var(--accent);
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.donate-section p,
+.donate-section ul {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.donate-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+.donate-section li {
+  margin: 0;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.donate-section li + li {
+  margin-top: 12px;
+}
+
+.donate-section li:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 215, 0, 0.28);
+}
+
+.donate-section a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.donate-section a:hover {
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--accent);
+  text-decoration: underline;
+}
+
+body.light .donate-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+body.light .donate-section {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+body.light .donate-description,
+body.light .donate-section p,
+body.light .donate-section li {
+  color: #111;
+}
+
+body.light .donate-section li {
+  background: rgba(255, 255, 255, 0.88);
+}
+

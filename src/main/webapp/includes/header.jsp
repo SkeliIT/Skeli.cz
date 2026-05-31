@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+  String ctx = request.getContextPath();
+  if (ctx == null) {
+    ctx = "";
+  }
+  String assetVersion = "1.0.1";
+%>
   <html lang="cs-cz">
 
   <head>
@@ -13,8 +20,8 @@
     <meta property="og:description" content="Poslouchej hudbu, sleduj klipy a čti texty" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="/" />
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="<%= ctx %>/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="<%= ctx %>/favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,9 +34,9 @@
     <link rel="stylesheet" type="text/css"
       href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
     <!-- Skeli.cz CSS -->
-    <link rel="stylesheet" href="/css/base.css?v=1.0.0">
-    <link rel="stylesheet" href="/css/components.css?v=1.0.0">
-    <link rel="stylesheet" href="/css/pages.css?v=1.0.0">
+    <link rel="stylesheet" href="<%= ctx %>/css/base.css?v=<%= assetVersion %>">
+    <link rel="stylesheet" href="<%= ctx %>/css/components.css?v=<%= assetVersion %>">
+    <link rel="stylesheet" href="<%= ctx %>/css/pages.css?v=<%= assetVersion %>">
     <!-- Light theme extra transparency overrides -->
     <style>
       body.light {
@@ -47,6 +54,32 @@
 
       body.light .sp-minbar {
         background: rgba(255, 255, 255, 0.75);
+      }
+
+      /* Global soft top fade for main panel (removes sharp edge) */
+      main {
+        background: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.22) 0%,
+          var(--panel) 56px,
+          var(--panel) 100%
+        );
+        border-top-color: transparent;
+      }
+
+      body.light main {
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.48) 0%,
+          var(--panel) 56px,
+          var(--panel) 100%
+        );
+      }
+
+      /* Donate headline - more subtle size */
+      .donate-title {
+        font-size: clamp(1.45rem, 2.5vw, 2.2rem);
+        letter-spacing: 0.09em;
       }
 
       @media (max-width: 600px) {
@@ -117,6 +150,8 @@
     <!-- Slick Carousel JS -->
     <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
     <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
+  </head>
+  <body>
       <% String __csrf=(String) session.getAttribute("csrf"); if (__csrf==null) {
         __csrf=java.util.UUID.randomUUID().toString(); session.setAttribute("csrf", __csrf); }
         request.setAttribute("csrf", __csrf); %>
@@ -130,17 +165,17 @@
 
           <h1 class="comforter-brush-regular">SKELOSQUAD</h1>
           <nav id="mainNav" class="bruno-ace-sc-regular">
-            <a href="/index.jsp">
+            <a href="<%= ctx %>/index.jsp">
               <%= ((java.util.Properties)request.getAttribute("t")).getProperty("menu.home","Home") %>
             </a>
-            <a href="/bio.jsp">
+            <a href="<%= ctx %>/bio.jsp">
               <%= ((java.util.Properties)request.getAttribute("t")).getProperty("menu.about","About") %>
             </a>
-            <a href="/music.jsp">
+            <a href="<%= ctx %>/music.jsp">
               <%= ((java.util.Properties)request.getAttribute("t")).getProperty("menu.music","Music") %>
             </a>
-            <a href="/aktuality.jsp">Aktuality</a>
-            <a href="/texty.jsp">
+            <a href="<%= ctx %>/aktuality.jsp">Aktuality</a>
+            <a href="<%= ctx %>/texty.jsp">
               <%= ((java.util.Properties)request.getAttribute("t")).getProperty("menu.lyrics","Lyrics") %>
             </a>
           </nav>
@@ -148,7 +183,7 @@
             style="position:absolute; top:10px; right:14px; font-size:0.8em; display:flex; gap:6px; align-items:center;">
             <% String currentUser=(String) session.getAttribute("username"); String currentRole=(String)
               session.getAttribute("role"); %>
-              <a href="/donate.jsp" class="bruno-ace-sc-regular"
+              <a href="<%= ctx %>/donate.jsp" class="bruno-ace-sc-regular"
                 style="color:#CC2B2B; font-weight:600; padding:3px 8px; display:inline-flex; align-items:center; gap:6px;"
                 title="Donate"><i class="fa-solid fa-heart"></i><span
                   style="font-size:0.95em; letter-spacing:.3px;">Donate</span></a>
@@ -170,12 +205,12 @@
                 </ul>
               </div>
               <% if (currentUser==null) { %>
-                <a href="/login.jsp" class="bruno-ace-sc-regular"
+                <a href="<%= ctx %>/login.jsp" class="bruno-ace-sc-regular"
                   style="color:white; padding:3px 8px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
                   title="Přihlásit"><i class="fa-solid fa-right-to-bracket"></i><span
                     style="font-size:0.95em; letter-spacing:.3px;">Login</span></a>
                 <span style="color:rgba(255,255,255,0.5);">|</span>
-                <a href="/register.jsp" class="bruno-ace-sc-regular"
+                <a href="<%= ctx %>/register.jsp" class="bruno-ace-sc-regular"
                   style="color:white; padding:3px 8px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
                   title="Registrace"><i class="fa-solid fa-user-plus"></i><span
                     style="font-size:0.95em; letter-spacing:.3px;">Register</span></a>
@@ -186,13 +221,13 @@
                           <% } %></span>
                     <div class="user-dropdown"
                       style="display:none; position:absolute; right:0; top:100%; background:var(--panel-strong); border:1px solid var(--panel-border); border-radius:8px; padding:6px; min-width:140px; z-index:1000;">
-                      <a href="/profile.jsp" style="display:block; padding:6px 8px; text-decoration:none;">Profil</a>
-                      <a href="/uzivatel.jsp"
+                      <a href="<%= ctx %>/profile.jsp" style="display:block; padding:6px 8px; text-decoration:none;">Profil</a>
+                      <a href="<%= ctx %>/uzivatel.jsp"
                         style="display:block; padding:6px 8px; text-decoration:none;">Nastavení</a>
-                      <% if ("ADMIN".equals(currentRole)) { %><a href="/admin.jsp" class="admin"
+                      <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"
                           style="display:block; padding:6px 8px; text-decoration:none;">Admin</a>
                         <% } %>
-                          <a href="/logout" style="display:block; padding:6px 8px; text-decoration:none;">Odhlásit</a>
+                          <a href="<%= ctx %>/logout" style="display:block; padding:6px 8px; text-decoration:none;">Odhlásit</a>
                     </div>
                   </div>
                   <% } %>
@@ -344,7 +379,7 @@
               document.querySelectorAll('header nav a').forEach(a => {
                 try {
                   const href = a.getAttribute('href') || '';
-                  const normalized = href.split('?')[0];
+                  const normalized = (href.split('?')[0] || '').split('/').pop() || '';
                   if (!normalized) return;
                   const isActive = ((cur === '' || cur === '/') && (normalized === '/' || normalized === 'index.jsp')) || (cur === normalized || (location.pathname.endsWith('/') && normalized === 'index.jsp'));
                   a.classList.toggle('active', isActive);

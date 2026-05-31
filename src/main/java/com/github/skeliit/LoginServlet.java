@@ -23,8 +23,10 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
-        if (username == null || password == null) {
-            resp.sendRedirect("login.jsp");
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            req.setAttribute("loginError", I18n.getText(req, "auth.error.fillAll", "Vyplňte prosím jméno i heslo."));
+            req.setAttribute("username", username);
+            req.getRequestDispatcher("/login.jsp").forward(req, resp);
             return;
         }
         try (Connection conn = Db.get();
@@ -57,6 +59,8 @@ public class LoginServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        resp.sendRedirect("login.jsp");
+        req.setAttribute("loginError", I18n.getText(req, "auth.error.invalidCredentials", "Neplatné uživatelské jméno nebo heslo."));
+        req.setAttribute("username", username);
+        req.getRequestDispatcher("/login.jsp").forward(req, resp);
     }
 }
