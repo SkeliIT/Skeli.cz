@@ -12,12 +12,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(name = "AdminSongsServlet", urlPatterns = {"/admin/songs"})
+@WebServlet(name = "AdminSongsServlet", urlPatterns = { "/admin/songs" })
 public class AdminSongsServlet extends HttpServlet {
-    private Connection getConn() throws SQLException {
-        return Db.get();
-    }
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Object role = req.getSession().getAttribute("role");
@@ -26,7 +22,7 @@ public class AdminSongsServlet extends HttpServlet {
             return;
         }
 
-        try (Connection conn = getConn()) {
+        try (Connection conn = Db.get()) {
             List<SongOverview> songs = fetchSongsOverview(conn);
             req.setAttribute("songs", songs);
             req.getRequestDispatcher("/admin_songs.jsp").forward(req, resp);
@@ -47,7 +43,7 @@ public class AdminSongsServlet extends HttpServlet {
                 "ORDER BY s.year DESC, s.name ASC";
 
         try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 SongOverview song = new SongOverview();
                 song.id = rs.getInt("id");

@@ -19,9 +19,7 @@
   <section class="donate-section">
     <h3>💰 Možnosti</h3>
     <ul>
-      <li>💳 PayPal: <a href="https://www.paypal.me/Skeli" target="_blank" rel="noopener">paypal.me/Skeli</a></li>
-      <li>☕ Buy Me a Coffee: <a href="https://buymeacoffee.com/skeli" target="_blank" rel="noopener">buymeacoffee.com/skeli</a></li>
-      <li>🔒 Kartou (Stripe): <a href="#" onclick="alert('Doplníme Stripe link'); return false;">Připravujeme</a></li>
+      <li>💳 Revolut: <a href="https://revolut.me/skelimc" target="_blank" rel="noopener">revolut.me/skelimc</a></li>
     </ul>
   </section>
 

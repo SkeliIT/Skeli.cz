@@ -75,7 +75,7 @@ html, body {
 
 body {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-  background: var(--bg) url('/img/IMG_0090.JPG') center center/cover no-repeat fixed;
+  background: var(--bg) url('/img/IMG_0090.webp') center center/cover no-repeat fixed;
   color: var(--text);
   margin: 0;
   padding: 0;
@@ -131,6 +131,8 @@ main {
   border-radius: 10px;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
   border: 1px solid var(--panel-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* Footer */

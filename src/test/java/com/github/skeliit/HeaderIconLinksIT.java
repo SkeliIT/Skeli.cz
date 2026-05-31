@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HeaderIconLinksIT {
     private WebDriver driver;
     private static final String BASE_URL = "http://localhost:8080";
-    private static final String ICON_PATH = "/img/IMG_0090.JPG";
+    private static final String ICON_PATH = "/img/IMG_0090.webp";
     private static final String EXPECTED_ICON_URL = BASE_URL + ICON_PATH;
 
     @BeforeEach

@@ -32,10 +32,35 @@
   (function(){
     const k='cookieConsent'; const v=localStorage.getItem(k);
     if(!v) document.getElementById('cookieBar').style.display='block';
-    document.getElementById('cookieAccept').onclick=function(){ localStorage.setItem(k,'true'); document.getElementById('cookieBar').style.display='none'; document.dispatchEvent(new Event('consent-granted')); };
-    document.getElementById('cookieReject').onclick=function(){ localStorage.setItem(k,'false'); document.getElementById('cookieBar').style.display='none'; };
+    document.getElementById('cookieAccept').onclick=function(){ localStorage.setItem(k,'true'); document.getElementById('cookieBar').style.display='none'; document.dispatchEvent(new Event('consent-granted')); if(window._paq) window._paq.push(['setConsentGiven']); };
+    document.getElementById('cookieReject').onclick=function(){ localStorage.setItem(k,'false'); document.getElementById('cookieBar').style.display='none'; if(window._paq) window._paq.push(['forgetConsentGiven']); };
   })();
 </script>
+<!-- Matomo -->
+<script>
+  var _paq = window._paq = window._paq || [];
+  _paq.push(['requireConsent']);
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="https://matomo.vitexsoftware.com/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '18']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+  /* honor existing cookie consent */
+  if(localStorage.getItem('cookieConsent')==='true'){ _paq.push(['setConsentGiven']); }
+  document.addEventListener('consent-granted', function(){ _paq.push(['setConsentGiven']); });
+  /* track PJAX soft navigations */
+  document.addEventListener('pjax:done', function(e){
+    _paq.push(['setCustomUrl', e.detail && e.detail.url ? e.detail.url : location.href]);
+    _paq.push(['setDocumentTitle', document.title]);
+    _paq.push(['trackPageView']);
+  });
+</script>
+<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://matomo.vitexsoftware.com/matomo.php?idsite=18&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+<!-- End Matomo Code -->
 
 </body>
 </html>
