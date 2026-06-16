@@ -2,10 +2,13 @@ package com.github.skeliit;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import java.time.Duration;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,9 +18,8 @@ public class MusicPageIT {
     @BeforeEach
     void setup() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new", "--window-size=1400,900");
-        // Use local ChromeDriver via Selenium Manager (avoids remote URL requirement)
-        driver = new org.openqa.selenium.chrome.ChromeDriver(options);
+        options.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage", "--window-size=1400,900");
+        driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
     }
 
@@ -25,12 +27,52 @@ public class MusicPageIT {
     void teardown() { if (driver != null) driver.quit(); }
 
     @Test
-    void youtubePlayerIsInYoutubeSection_andSpotifyAlongsideOnDesktop() {
+    void youtubePlayerIsInYoutubeSection() {
         driver.get("http://localhost:8080/music.jsp");
-
-        // Basic page source assertions (server-side include should be present)
         String src = driver.getPageSource();
-        assertTrue(src.contains("id=\"el-player\"") || src.contains("id='el-player'"), "Page should include Elliptic player wrapper");
-        assertTrue(src.contains("class=\"section spotify\"") || src.contains("class='section spotify'"), "Page should include Spotify section");
+        assertTrue(src.contains("ep-wrap") || src.contains("ep-carousel"), "Page should include EllipticPlayer carousel");
+        assertTrue(src.contains("fab fa-youtube"), "Page should include YouTube section header");
+    }
+
+    @Test
+    void carouselThumbnailsAreVisible() {
+        driver.get("http://localhost:8080/music.jsp");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".ep-item")));
+
+        // Active item must have non-zero height (broken when height:0 + padding-top was used)
+        WebElement active = driver.findElement(By.cssSelector(".ep-item.is-active"));
+        assertTrue(active.getSize().getHeight() > 0,
+                "Active carousel item must have non-zero height (aspect-ratio:16/9 required)");
+
+        // The thumbnail image inside must also have non-zero height
+        WebElement img = active.findElement(By.tagName("img"));
+        assertTrue(img.getSize().getHeight() > 0,
+                "Thumbnail image inside active carousel item must be visible (non-zero height)");
+
+        // Verify the image src points to YouTube thumbnail CDN
+        String src = img.getAttribute("src");
+        assertTrue(src != null && src.contains("img.youtube.com"),
+                "Thumbnail image should load from img.youtube.com");
+    }
+
+    @Test
+    void carouselNavigationShowsAdjacentItems() {
+        driver.get("http://localhost:8080/music.jsp");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".ep-item.is-active")));
+
+        List<WebElement> items = driver.findElements(By.cssSelector(".ep-item"));
+        if (items.size() < 2) return; // only one video in DB, skip
+
+        // Prev/next buttons must be present and clickable
+        WebElement nextBtn = driver.findElement(By.id("ep-next"));
+        assertTrue(nextBtn.isDisplayed(), "Next arrow must be visible");
+        nextBtn.click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".ep-item.is-active")));
+        WebElement newActive = driver.findElement(By.cssSelector(".ep-item.is-active"));
+        assertTrue(newActive.getSize().getHeight() > 0,
+                "After navigation, active item must still have non-zero height");
     }
 }

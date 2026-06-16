@@ -10,6 +10,7 @@ target/
 # Local config
 src/main/webapp/WEB-INF/youtube.properties
 .env
+demo/db-dump/
 
 # OS
 .DS_Store
