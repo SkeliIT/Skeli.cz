@@ -134,13 +134,22 @@ mvn -q -Dflyway.cleanDisabled=true flyway:migrate
 ### Social feed API
 Tabulka: `social_posts` (viz Flyway `V26__social_posts.sql`).
 
-- GET `/api/social-posts?limit=10` → poslední příspěvky (IG/FB).
-- POST `/api/social-posts?token=$SOCIAL_TOKEN` → ingest z webhooku (Make/Zapier).
+- `GET /api/social-posts?limit=12&offset=0` → stránkovaný seznam příspěvků.
+- `GET /api/social-posts?onePerSource=true` → jeden nejnovější příspěvek za každý zdroj (widget na homepage).
+- `POST /api/social-posts?token=$SOCIAL_TOKEN` → ingest z webhooku (Make/Zapier).
   - JSON body:
     ```json
     {"source":"instagram","postId":"1789","permalink":"https://instagram.com/p/...","image":"https://...jpg","caption":"New drop","createdAt":"2025-11-01T00:00:00Z"}
     ```
   - Nastav env `SOCIAL_TOKEN` pro autorizaci POSTu.
+
+### Aktuality (novinky)
+- `/aktuality.jsp` zobrazuje všechny příspěvky ze sociálních sítí s tlačítkem „Načíst další" (stránkování přes `offset`).
+- Domovská stránka (`/index.jsp`) zobrazuje jeden nejnovější příspěvek od každého zdroje.
+
+### EllipticPlayer carousel
+- Karusel náhledů (`.ep-item`) používá `aspect-ratio: 16/9` pro správné zobrazení náhledových obrázků.
+- Responzivní: na mobilech (`<800px`) zobrazuje 3 položky (prev, active, next), krajní (prev2, next2) jsou skryty.
 
 ### Dev run (DB + server)
 ```sh

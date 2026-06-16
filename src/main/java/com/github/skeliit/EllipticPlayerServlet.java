@@ -95,10 +95,15 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println(
                                 ".ep-layout{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:auto auto;gap:10px;align-items:start;}");
                 out.println("@media (max-width: 800px){");
-                out.println("  .ep-layout{ display: flex !important; flex-direction: column !important; gap: 30px !important; }");
-                out.println("  .ep-frame-wrap, .ep-carousel, .ep-comments { grid-column: auto !important; grid-row: auto !important; width: 100% !important; max-width: 100% !important; position: relative !important; left: auto !important; top: auto !important; transform: none !important; }");
-                out.println("  .ep-carousel { padding: 4% 12% !important; margin-top: 20px !important; }");
-                out.println("  .ep-viewport { padding-top: 50% !important; }");
+                out.println("  .ep-layout{ display: flex !important; flex-direction: column !important; align-items: stretch !important; gap: 30px !important; }");
+                out.println("  .ep-left, .ep-frame-wrap, .ep-carousel, .ep-comments { grid-column: auto !important; grid-row: auto !important; width: 100% !important; max-width: 100% !important; position: relative !important; left: auto !important; top: auto !important; transform: none !important; }");
+                out.println("  .ep-carousel { padding: 4% 6% !important; margin-top: 20px !important; }");
+                out.println("  .ep-viewport { padding-top: 60% !important; }");
+                out.println("  .ep-item { width: 60% !important; }");
+                out.println("  .ep-item.is-active { width: 76% !important; }");
+                out.println("  .ep-item.is-prev, .ep-item.is-next { width: 48% !important; }");
+                out.println("  .ep-item.is-prev2, .ep-item.is-next2 { display: none !important; }");
+                out.println("  .ep-arrow { width: 38px !important; height: 38px !important; font-size: 130% !important; }");
                 out.println("}");
                 out.println(".ep-left{}\n");
                 out.println(
@@ -108,7 +113,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                                 ".ep-carousel{position:relative;margin-top:14px;padding:3% 14%;background:rgba(0,0,0,0.3);border:1px solid var(--panel-border);border-radius:12px;grid-column:1;grid-row:2;}");
                 out.println(".ep-viewport{position:relative;width:100%;height:0;padding-top:30%;overflow:hidden;}");
                 out.println(
-                                ".ep-item{position:absolute;top:50%;transform:translate(-50%,-50%);transition:transform .45s ease, opacity .45s ease, box-shadow .45s ease, filter .45s ease;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;width:40%;height:0;padding-top:22.5%;background:#000;border:2px solid transparent;}");
+                                ".ep-item{position:absolute;top:50%;transform:translate(-50%,-50%);transition:transform .45s ease, opacity .45s ease, box-shadow .45s ease, filter .45s ease;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;width:40%;aspect-ratio:16/9;background:#000;border:2px solid transparent;}");
                 out.println(".ep-item img{width:100%;height:100%;object-fit:cover;display:block;}");
                 out.println(
                                 ".ep-title{position:absolute;left:0;right:0;bottom:0;padding:3% 3%;background:linear-gradient(transparent,rgba(0,0,0,0.7));color:#fff;font-size:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}");

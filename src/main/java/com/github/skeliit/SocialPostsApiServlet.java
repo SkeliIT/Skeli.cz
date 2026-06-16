@@ -39,13 +39,31 @@ public class SocialPostsApiServlet extends HttpServlet {
             lang = "cs";
         System.out.println("[SocialPostsApi] Language from session: " + lang);
 
-        String sql = "SELECT id, source, lang, post_id, permalink, image_url, caption, created_at " +
-                "FROM social_posts WHERE lang = ? ORDER BY created_at DESC, id DESC LIMIT ?";
+        boolean onePerSource = "true".equalsIgnoreCase(req.getParameter("onePerSource"));
+        int offset = 0;
+        try {
+            offset = Math.max(0, Integer.parseInt(req.getParameter("offset")));
+        } catch (Exception ignore) {
+        }
+
+        String sql;
+        if (onePerSource) {
+            sql = "SELECT s.id, s.source, s.lang, s.post_id, s.permalink, s.image_url, s.caption, s.created_at " +
+                    "FROM social_posts s " +
+                    "INNER JOIN (SELECT source, MAX(id) AS max_id FROM social_posts WHERE lang = ? GROUP BY source) sub ON s.id = sub.max_id " +
+                    "ORDER BY s.created_at DESC";
+        } else {
+            sql = "SELECT id, source, lang, post_id, permalink, image_url, caption, created_at " +
+                    "FROM social_posts WHERE lang = ? ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?";
+        }
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode arr = mapper.createArrayNode();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, lang);
-            ps.setInt(2, limit);
+            if (!onePerSource) {
+                ps.setInt(2, limit);
+                ps.setInt(3, offset);
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     ObjectNode o = mapper.createObjectNode();
