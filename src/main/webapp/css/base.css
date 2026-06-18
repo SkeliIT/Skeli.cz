@@ -20,8 +20,8 @@ body.light {
   --bg: #f6f6f6;
   --text: #111;
   /* soften whites in light theme to blend with red background */
-  --panel: rgba(255, 255, 255, 0.88);
-  --panel-strong: rgba(255, 255, 255, 0.94);
+  --panel: rgba(255, 255, 255, 0.68);
+  --panel-strong: rgba(255, 255, 255, 0.82);
   --panel-border: rgba(0, 0, 0, 0.18);
   --accent: #a37b00;
 }
@@ -126,13 +126,28 @@ main {
   width: calc(100vw - 60px);
   max-width: none;
   margin: 30px auto;
-  background: var(--panel);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.22) 0%,
+    var(--panel) 56px,
+    var(--panel) 100%
+  );
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
   border: 1px solid var(--panel-border);
+  border-top-color: transparent;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+body.light main {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.48) 0%,
+    var(--panel) 56px,
+    var(--panel) 100%
+  );
 }
 
 /* Footer */

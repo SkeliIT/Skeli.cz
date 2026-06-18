@@ -36,10 +36,6 @@
 
   <section style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.20); margin-top:14px;">
     <h3 class="bruno-ace-sc-regular">Moje příspěvky</h3>
-    <style>
-      .profile-posts a{ color: var(--text); text-decoration:none; }
-      .profile-posts a:hover{ color: var(--accent); text-shadow:0 0 8px var(--accent); }
-    </style>
     <div style="overflow:auto;" class="profile-posts">
       <table style="width:100%; border-collapse:collapse;">
         <thead>

@@ -23,25 +23,6 @@
     </a>
   </section>
 
-  <style>
-    .news-grid { display:grid; grid-template-columns: 2fr 1fr; gap:16px; margin-top:18px; }
-    @media (max-width: 800px){ .news-grid { grid-template-columns: 1fr; } }
-    .card { background: var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:16px; box-shadow: 0 6px 18px rgba(0,0,0,0.20); }
-    .videos { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
-    .video { position:relative; background: rgba(0,0,0,0.55); border:1px solid var(--panel-border); border-radius:10px; overflow:hidden; color: var(--text); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
-    .video:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
-    .video img { width:100%; height:128px; object-fit:cover; display:block; }
-    .video .meta { padding:8px; font-size:0.95em; }
-    .video .share-btn { position:absolute; right:8px; top:8px; border-radius:999px; border:1px solid var(--panel-border); background: rgba(0,0,0,0.35); color:#fff; padding:6px 10px; cursor:pointer; font-size:0.9em; }
-    .video .share-btn:hover { background: rgba(0,0,0,0.5); }
-    body.light .video .share-btn { background: rgba(0,0,0,0.10); color:#111; }
-    .newsletter input[type=email]{ width:100%; box-sizing:border-box; margin-bottom:8px; }
-    .newsletter button { background:transparent; border:1px solid var(--panel-border); color:var(--text); padding:6px 10px; border-radius:8px; cursor:pointer; }
-    .newsletter button:hover { background: rgba(255,255,255,0.08); }
-    .section:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.45) !important; }
-    body.light .section:first-child { background:rgba(0,0,0,0.08) !important; border-color: var(--panel-border) !important; }
-    body.light .section:not(:first-child) { background:rgba(0,0,0,0.06) !important; }
-  </style>
 
   <section class="news-grid">
     <div class="card">

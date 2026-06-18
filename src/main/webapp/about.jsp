@@ -9,14 +9,6 @@
     </div>
     <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.p1","Jsem Skeli – rapper, producent a nadšenec do webu. Baví mě tvořit hudbu i aplikace, které něco předají.") %></p>
   </section>
-  <style>
-    .about-card { background:rgba(0,0,0,0.65); border:1px solid var(--panel-border); border-radius:12px; padding:16px; transition: all 0.3s ease; }
-    .about-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.45); }
-    .about-card h3 { color: var(--accent); }
-    .about-card a { color: var(--accent); font-weight: 600; text-decoration: none; }
-    .about-card a:hover { text-shadow: 0 0 8px var(--accent); text-decoration: underline; }
-    body.light .about-card { background:rgba(255,255,255,0.85); border-color: rgba(0,0,0,0.15); }
-  </style>
   <section style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
     <div class="about-card">
       <h3><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.music.title","Music journey") %></h3>
