@@ -6,44 +6,6 @@
 <main class="avoid-footer">
     <h2 style="text-align:center;">Text</h2>
 
-    <style>
-      .layout { display:flex; gap:20px; }
-      .layout aside { width:32%; max-width:320px; position: sticky; top: 20px; align-self: flex-start; }
-      .layout section { flex:1; }
-      .song-list { list-style:none; padding:0; margin:0; }
-      .song-list li { margin: 6px 0; }
-.active { font-weight:bold; color: gold; }
-      .back { margin: 10px 0 20px; display:inline-block; }
-      .avoid-footer { padding-bottom: 220px; }
-.nav-top { margin-bottom: 20px; background: rgba(0,0,0,0.65); padding: 12px 16px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); overflow-x: auto; }
-      .nav-top h3 { color: #fff; margin-top:0; font-size:1em; }
-      .nav-top .song-list { display:flex; flex-wrap:wrap; gap: 10px 16px; }
-      .nav-top .song-list li { margin: 0; }
-      .nav-top .song-list a { color: #fff !important; font-weight: 600; text-decoration: none; transition: color .2s, text-shadow .2s; }
-      .nav-top .song-list a:visited { color: #fff !important; }
-      .nav-top .song-list a:hover { color: var(--accent) !important; text-shadow: 0 0 8px var(--accent); text-decoration: underline; }
-      .nav-top .song-list a.active { color: var(--accent) !important; font-weight: bold; text-shadow: 0 0 8px var(--accent); }
-      .nav-top .song-list li:not(:last-child)::after { content: " | "; color: rgba(255,255,255,0.5); margin: 0 6px; }
-      body.light .nav-top { background: rgba(255,255,255,0.85); border-color:rgba(0,0,0,0.15); }
-      body.light .nav-top h3 { color: #111; }
-      body.light .nav-top .song-list a { color: #111 !important; }
-      body.light .nav-top .song-list a:visited { color: #111 !important; }
-      body.light .nav-top .song-list li:not(:last-child)::after { color: rgba(0,0,0,0.4); }
-      .card { background: linear-gradient(180deg, rgba(255,255,255,0.50), rgba(255,255,255,0.40)); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); padding: 24px 28px; backdrop-filter: blur(4px); }
-      .card h3 { margin-top: 0; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.06); }
-      .card pre { background: transparent; margin: 0 auto; max-width: 60ch; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; text-align:center; font-weight: var(--fw); }
-      @media (min-width: 1100px){ .lyric-layout { display:grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:start; } }
-      .accent { border-left: 4px solid #ffd700; padding-left: 16px; }
-      /* Comments: high-contrast panel inside light lyric card */
-      .comments { margin-top:14px; background: rgba(0,0,0,0.70); color: var(--text); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px 16px; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
-      .comments h4 { margin: 0 0 10px; color: #fff; }
-      .comments .comment-item { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:10px; margin:8px 0; }
-      .comments .comment-item strong { color:#fff; }
-      .comments .comment-item .meta { color: rgba(255,255,255,0.75); }
-      body.light .comments { background: #ffffff; color:#111; border-color: rgba(0,0,0,0.12); }
-      body.light .comments h4 { color:#111; }
-      body.light .comments .comment-item { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.12); }
-    </style>
 
     <% String flash = request.getParameter("msg"); if (flash != null) { %>
       <div style="background:rgba(0,128,0,0.35); padding:8px 10px; border-radius:8px; margin-bottom:10px; text-align:center;">Komentář <%= ("deleted".equals(flash)?"odstraněn":("updated".equals(flash)?"upraven":"přidán")) %>.</div>
@@ -177,21 +139,6 @@
                                       <strong><%= up %></strong> / <strong><%= down %></strong>
                                     </span>
                                   </div>
-                                  <style>
-                                    .btn-vote { width:40px; height:40px; border-radius:9999px; border:1px solid var(--panel-border); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; backdrop-filter: blur(2px); transition: transform .12s ease, background-color .2s ease, box-shadow .2s ease, opacity .2s ease; }
-                                    .btn-vote i { pointer-events:none; }
-                                    /* Dark mode base */
-                                    .btn-vote { background: rgba(255,255,255,0.06); color:#fff; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
-                                    .btn-vote:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
-                                    .btn-vote:active { transform: translateY(0); opacity: .9; }
-                                    .btn-vote.up { border-color: rgba(0,255,170,0.35); }
-                                    .btn-vote.down { border-color: rgba(255,80,80,0.35); }
-                                    .btn-vote.up:hover { box-shadow: 0 8px 22px rgba(0,255,170,.25); }
-                                    .btn-vote.down:hover { box-shadow: 0 8px 22px rgba(255,80,80,.25); }
-                                    /* Light mode overrides */
-                                    body.light .btn-vote { background: rgba(0,0,0,0.06); color:#111; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
-                                    body.light .btn-vote:hover { background: rgba(0,0,0,0.12); }
-                                  </style>
 
                                   <div class="views" style="font-size:0.9em; color:#555;">
                                     <%

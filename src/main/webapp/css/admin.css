@@ -2,4 +2,39 @@
    SKELI.CZ - Admin Styles
    ============================================ */
 
-/* Admin tables and layouts will go here */
+/* Admin Page */
+.admin-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); gap:16px; }
+.admin-card { background: var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(0,0,0,.20); }
+.admin-card h3 { margin-top:0; }
+.admin-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.admin-actions a, .admin-actions button { background:transparent; border:1px solid var(--panel-border); color:var(--text); padding:8px 12px; border-radius:8px; cursor:pointer; text-decoration:none; }
+.admin-actions a:hover, .admin-actions button:hover { background: rgba(255,255,255,0.08); }
+
+/* Admin Users */
+table { width:100%; border-collapse: collapse; }
+th, td { padding:8px 10px; border-bottom:1px solid var(--panel-border); text-align:left; }
+th { opacity:.85; }
+.act { display:flex; gap:8px; }
+
+/* Admin Songs */
+.songs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+.songs-table th, .songs-table td {
+    border: 1px solid var(--panel-border);
+    padding: 10px;
+    text-align: left;
+}
+.songs-table th { background: rgba(0,0,0,0.3); font-weight: bold; }
+body.light .songs-table th { background: rgba(0,0,0,0.06); }
+.songs-table tr:hover { background: rgba(255,255,255,0.05); }
+body.light .songs-table tr:hover { background: rgba(0,0,0,0.04); }
+.indicator { display:inline-block; padding:2px 8px; border-radius:3px; margin:0 2px; font-size:0.9em; }
+.indicator.yes { background: rgba(0,255,0,0.18); color:#0f0; }
+.indicator.no { background: rgba(255,0,0,0.18); color:#f66; }
+.lang-flag { display:inline-block; padding:2px 6px; margin:0 2px; background: rgba(255,255,255,0.1); border-radius:3px; font-size:0.8em; text-transform:uppercase; }
+body.light .lang-flag { background: rgba(0,0,0,0.06); }
+.link-btn { color: var(--accent); text-decoration:none; padding:4px 8px; border:1px solid var(--accent); border-radius:3px; margin:0 4px; font-size:0.85em; display:inline-block; }
+.link-btn:hover { background: var(--accent); color:#000; }

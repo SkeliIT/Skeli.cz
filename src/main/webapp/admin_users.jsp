@@ -4,12 +4,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <main>
   <h2>Správa uživatelů</h2>
-  <style>
-    table { width:100%; border-collapse: collapse; }
-    th, td { padding:8px 10px; border-bottom:1px solid var(--panel-border); text-align:left; }
-    th { opacity:.85; }
-    .act { display:flex; gap:8px; }
-  </style>
   <%
     String role = (String) session.getAttribute("role");
     if (!"ADMIN".equals(role)) { out.println("<p>Pouze pro ADMIN.</p>"); } else {

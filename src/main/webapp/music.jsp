@@ -3,18 +3,6 @@
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-<style>
-.section { background: rgba(0,0,0,0.65); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px 18px; margin-bottom: 18px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); transition: all 0.3s ease; }
-  .section:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.45); }
-  .section.spotify { background: linear-gradient(135deg, rgba(204,43,43,0.35), rgba(0,0,0,0.65)); border-color: rgba(204,43,43,0.5); }
-  .section.youtube { background: linear-gradient(135deg, rgba(255,0,0,0.25), rgba(0,0,0,0.65)); border-color: rgba(255,0,0,0.4); }
-.section-title { margin: 0 0 10px; display:flex; align-items:center; justify-content:center; gap: 8px; font-weight:700; color: var(--accent); }
-.media-columns { display:block; }
-  .section-title .ico { font-size: 1.2em; }
-  body.light .section { background: rgba(255,255,255,0.85); border-color: rgba(0,0,0,0.15); }
-  body.light .section.spotify { background: linear-gradient(135deg, rgba(204,43,43,0.15), rgba(255,255,255,0.85)); }
-  body.light .section.youtube { background: linear-gradient(135deg, rgba(255,0,0,0.1), rgba(255,255,255,0.85)); }
-</style>
 
 <%
     String sql = "SELECT v.youtube_id, COALESCE(v.title, s.name, v.youtube_id) AS title, s.year " +

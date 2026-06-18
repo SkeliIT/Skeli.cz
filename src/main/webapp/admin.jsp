@@ -2,14 +2,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <main>
-  <style>
-    .admin-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); gap:16px; }
-    .admin-card { background: var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(0,0,0,.20); }
-    .admin-card h3 { margin-top:0; }
-    .admin-actions { display:flex; gap:8px; flex-wrap:wrap; }
-    .admin-actions a, .admin-actions button { background:transparent; border:1px solid var(--panel-border); color:var(--text); padding:8px 12px; border-radius:8px; cursor:pointer; text-decoration:none; }
-    .admin-actions a:hover, .admin-actions button:hover { background: rgba(255,255,255,0.08); }
-  </style>
   <h2>Admin</h2>
   <p>Tato sekce je dostupná pouze pro ADMIN.</p>
 

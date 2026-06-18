@@ -2,15 +2,6 @@
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <main>
-  <style>
-    .settings-wrap{display:flex;justify-content:center;align-items:center;min-height:70vh;}
-    .settings-shell{width:100%;max-width:800px;margin:0 auto;border:1px solid var(--panel-border);border-radius:14px;padding:12px;background:rgba(0,0,0,0.12);} 
-    body.light .settings-shell{background:rgba(0,0,0,0.06);} 
-    .settings-form{max-width:520px;margin:0 auto;}
-    .settings-form label{display:block;margin:8px 0;}
-    .settings-form input[type=text], .settings-form input[type=number], .settings-form textarea, .settings-form select{width:100%; box-sizing:border-box; border:1px solid var(--panel-border); border-radius:8px; padding:8px; background:rgba(0,0,0,0.12); color:var(--text);} 
-    body.light .settings-form input[type=text], body.light .settings-form input[type=number], body.light .settings-form textarea, body.light .settings-form select{background:rgba(0,0,0,0.06); color:#111;}
-  </style>
   <div class="settings-wrap">
   <div class="settings-shell">
   <h2 class="bruno-ace-sc-regular" style="text-align:center;margin-top:0;">Nastavení účtu</h2>

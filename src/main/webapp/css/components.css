@@ -103,7 +103,7 @@ body.light .lang-switch .menu a {
 }
 
 body.light .user-dropdown {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.86);
   border: 1px solid var(--panel-border);
 }
 
@@ -130,6 +130,10 @@ body.light .user-dropdown a.admin {
   border-top: 1px solid var(--panel-border);
   box-shadow: 0 -12px 30px rgba(0, 0, 0, .45);
   display: none;
+}
+
+body.light .sp-bar {
+  background: rgba(255, 255, 255, 0.80);
 }
 
 .sp-inner {
@@ -183,6 +187,10 @@ body.light .user-dropdown a.admin {
   gap: 8px;
 }
 
+body.light .sp-minbar {
+  background: rgba(255, 255, 255, 0.75);
+}
+
 .sp-minbar i.fa-spotify {
   color: #FF0000;
 }
@@ -192,16 +200,79 @@ body.light .user-dropdown a.admin {
 }
 
 body.light .sp-bar {
-  background: rgba(255,255,255,0.92);
   box-shadow: 0 -12px 30px rgba(0, 0, 0, .20);
 }
 
 body.light .sp-minbar {
-  background: rgba(255, 255, 255, 0.9);
   color: #111;
   border-color: rgba(0, 0, 0, 0.15);
 }
 
 body.light .sp-hide:hover {
   background: rgba(255, 255, 255, 1);
+}
+
+/* Header & Navigation Extras */
+header {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Hamburger Menu Styles */
+.menu-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  color: gold;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  position: absolute;
+  left: 14px;
+  top: 10px;
+  z-index: 1001;
+}
+
+@media (max-width: 850px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  header nav {
+    display: none;
+    flex-direction: column;
+    background: var(--panel-strong);
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--panel-border);
+    backdrop-filter: blur(15px);
+  }
+
+  header nav.open {
+    display: flex;
+  }
+
+  header nav a {
+    padding: 10px;
+    margin: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Clock & responsive fixes */
+@media (max-width: 600px) {
+  #topClock {
+    display: none !important;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1100px) {
+  #topClock {
+    font-size: 0.45em !important;
+    left: 10px !important;
+    top: 4px !important;
+  }
 }
