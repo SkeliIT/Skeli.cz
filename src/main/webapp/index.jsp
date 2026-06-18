@@ -4,29 +4,29 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <main>
-  <section style="text-align:center; padding:10px 0 6px;">
-    <h2 class="comforter-brush-regular" style="font-size:3rem; margin:0;">SKELOSQUAD</h2>
-    <p style="margin:6px 0 0;"><%= ((java.util.Properties)request.getAttribute("t")).getProperty("index.hero","Official website – music, lyrics, news.") %></p>
+  <section class="hero-section">
+    <h2 class="comforter-brush-regular">SKELOSQUAD</h2>
+    <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("index.hero","Official website – music, lyrics, news.") %></p>
   </section>
-  <section style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-top:14px;">
-    <a class="section" href="/music.jsp" style="text-decoration:none; color:inherit; background:rgba(204,43,43,0.25); border:1px solid rgba(204,43,43,0.4); border-radius:12px; padding:16px; transition: all 0.3s ease;">
+
+  <section class="tiles-grid">
+    <a class="section" href="/music.jsp">
       <h3><i class="fas fa-music"></i> <%= ((java.util.Properties)request.getAttribute("t")).getProperty("tile.music.title","Music") %></h3>
       <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("tile.music.desc","YouTube videos and Spotify playlist.") %></p>
     </a>
-    <a class="section" href="/texty.jsp" style="text-decoration:none; color:inherit; background:rgba(0,0,0,0.65); border:1px solid var(--panel-border); border-radius:12px; padding:16px; transition: all 0.3s ease;">
+    <a class="section" href="/texty.jsp">
       <h3><i class="fas fa-align-left"></i> <%= ((java.util.Properties)request.getAttribute("t")).getProperty("tile.lyrics.title","Lyrics") %></h3>
       <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("tile.lyrics.desc","Browse lyrics, vote and comment.") %></p>
     </a>
-    <a class="section" href="/about.jsp" style="text-decoration:none; color:inherit; background:rgba(0,0,0,0.65); border:1px solid var(--panel-border); border-radius:12px; padding:16px; transition: all 0.3s ease;">
+    <a class="section" href="/about.jsp">
       <h3><i class="fas fa-user"></i> <%= ((java.util.Properties)request.getAttribute("t")).getProperty("tile.about.title","About") %></h3>
       <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("tile.about.desc","Who I am and how I create.") %></p>
     </a>
   </section>
 
-
   <section class="news-grid">
     <div class="card">
-      <h3 class="bruno-ace-sc-regular" style="margin-top:0;">🗞️ <%= ((java.util.Properties)request.getAttribute("t")).getProperty("home.news","Novinky") %></h3>
+      <h3 class="bruno-ace-sc-regular">🗞️ <%= ((java.util.Properties)request.getAttribute("t")).getProperty("home.news","Novinky") %></h3>
       <div class="videos">
         <%
           String sql = "SELECT youtube_id, COALESCE(title, youtube_id) AS title, published_at FROM videos ORDER BY published_at DESC, id DESC LIMIT 3";
@@ -42,8 +42,8 @@
                   <a class="video" href="https://www.youtube.com/watch?v=<%= vid %>" target="_blank" rel="noopener">
                     <img src="https://img.youtube.com/vi/<%= vid %>/hqdefault.jpg" alt="<%= title %>">
                     <div class="meta">
-                      <div style="font-weight:600;"><%= title %></div>
-                      <div style="font-size:0.85em; opacity:0.8;"><%= dateStr %></div>
+                      <div><%= title %></div>
+                      <div><%= dateStr %></div>
                     </div>
                     <button type="button" class="share-btn" data-url="https://www.youtube.com/watch?v=<%= vid %>" title="Sdílet">Share</button>
                   </a>
@@ -63,9 +63,9 @@
         %>
       </div>
       <hr style="border-color:var(--panel-border); opacity:.4; margin:12px 0;">
-      <h4 class="bruno-ace-sc-regular" style="margin:6px 0 8px;">📣 Sociální sítě</h4>
-      <div id="home-social" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px;"></div>
-      <div style="text-align:right; margin-top:8px; font-size:.9em;"><a href="/aktuality.jsp" style="color:var(--text); opacity:.7;">Všechny aktuality →</a></div>
+      <h4 class="bruno-ace-sc-regular">📣 Sociální sítě</h4>
+      <div id="home-social" class="home-social-grid"></div>
+      <div class="all-news-link"><a href="/aktuality.jsp">Všechny aktuality →</a></div>
       <script>
         (async function(){
           try{
@@ -73,23 +73,23 @@
             const posts = await res.json(); if(!Array.isArray(posts)||!posts.length) return;
             const el = document.getElementById('home-social'); if(!el) return;
             el.innerHTML = posts.map(p=>{
-              const img = p.image?`<img src="\${p.image}" style='width:100%;height:120px;object-fit:cover;display:block;'>`:'';
+              const img = p.image?`<img src="\${p.image}" class="home-social-img">`:'';
               const cap = (p.caption||'').slice(0,120);
               const badge = p.source==='instagram'?'<i class="fab fa-instagram"></i>':(p.source==='facebook'?'<i class="fab fa-facebook"></i>':'📰');
-              return `<a href='\${p.permalink}' target='_blank' rel='noopener' style='text-decoration:none;color:inherit;border:1px solid var(--panel-border);border-radius:10px;overflow:hidden;background:rgba(0,0,0,0.55);display:block;position:relative;'>\${img}<span style='position:absolute;left:8px;top:8px;background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:6px;font-size:.85em;'>\${badge}</span><div style='padding:8px;font-size:.95em;'>\${cap}</div></a>`;
+              return `<a href="\${p.permalink}" target="_blank" rel="noopener" class="home-social-link">\${img}<span class="home-social-badge">\${badge}</span><div class="home-social-caption">\${cap}</div></a>`;
             }).join('');
           }catch(e){}
         })();
       </script>
     </div>
     <div class="card">
-      <h3 class="bruno-ace-sc-regular" style="margin-top:0;">🎤 <%= ((java.util.Properties)request.getAttribute("t")).getProperty("home.concerts","Koncerty") %></h3>
-      <ul style="margin:0; padding-left:18px;">
+      <h3 class="bruno-ace-sc-regular">🎤 <%= ((java.util.Properties)request.getAttribute("t")).getProperty("home.concerts","Koncerty") %></h3>
+      <ul class="concerts-list">
         <li><%= ((java.util.Properties)request.getAttribute("t")).getProperty("home.concerts.none","Zatím nejsou naplánovány žádné koncerty.") %></li>
       </ul>
       <hr style="border-color:var(--panel-border); opacity:.5;">
       <div class="newsletter">
-        <h4 style="margin:6px 0 8px;">📧 <%= ((java.util.Properties)request.getAttribute("t")).getProperty("home.newsletter.title","Novinky e-mailem") %></h4>
+        <h4>📧 <%= ((java.util.Properties)request.getAttribute("t")).getProperty("home.newsletter.title","Novinky e-mailem") %></h4>
         <form method="post" action="/newsletter/subscribe">
           <input type="hidden" name="csrf" value="<%= request.getAttribute("csrf") %>">
           <input type="email" name="email" placeholder="<%= ((java.util.Properties)request.getAttribute("t")).getProperty("home.newsletter.placeholder","Tvůj e-mail") %>" required>

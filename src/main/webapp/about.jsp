@@ -2,14 +2,14 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <main>
-  <section style="text-align:center; margin-bottom:18px;">
+  <section class="about-header">
     <h2 class="bruno-ace-sc-regular"><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.title","About me") %></h2>
-    <div style="display:flex; justify-content:center; margin: 12px 0;">
-      <img src="/img/IMG_0132.webp" alt="Skeli" style="width:220px;height:220px;border-radius:50%;object-fit:cover;box-shadow:0 12px 30px rgba(0,0,0,.35);border:2px solid var(--panel-border);" onerror="this.style.display='none'">
+    <div class="about-avatar-container">
+      <img src="/img/IMG_0132.webp" alt="Skeli" class="about-avatar" onerror="this.style.display='none'">
     </div>
     <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.p1","Jsem Skeli – rapper, producent a nadšenec do webu. Baví mě tvořit hudbu i aplikace, které něco předají.") %></p>
   </section>
-  <section style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+  <section class="about-grid">
     <div class="about-card">
       <h3><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.music.title","Music journey") %></h3>
       <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.music.text","From the first tracks to the current work. Find clips and playlists on the Music page.") %></p>
@@ -23,22 +23,23 @@
       <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.contact.email","E-mail") %>: <a href="mailto:skelimc@seznam.cz">skelimc@seznam.cz</a></p>
     </div>
   </section>
-  <section style="text-align:center; margin-top:18px;">
+  <section class="about-footer">
     <p> Sleduj novinky na mých sítích:</p>
-    <div style="font-size:3em; text-align:center;">
-        <a href="https://www.facebook.com/mcskeli/" target="_blank" style="margin:0 10px; color:inherit; text-decoration:none;">
-            <i class="fab fa-facebook" style="color:#4267B2;"></i>
+    <div class="social-icons-large">
+        <a href="https://www.facebook.com/mcskeli/" target="_blank">
+            <i class="fab fa-facebook icon-facebook"></i>
         </a>
-        <a href="https://www.instagram.com/skeli.official/" target="_blank" style="margin:0 10px; color:inherit; text-decoration:none;">
-            <i class="fab fa-instagram" style="color:#E1306C;"></i>
+        <a href="https://www.instagram.com/skeli.official/" target="_blank">
+            <i class="fab fa-instagram icon-instagram"></i>
         </a>
-        <a href="https://www.youtube.com/@Skeli" target="_blank" style="margin:0 10px; color:inherit; text-decoration:none;">
-            <i class="fab fa-youtube" style="color:#FF0000;"></i>
+        <a href="https://www.youtube.com/@Skeli" target="_blank">
+            <i class="fab fa-youtube icon-youtube"></i>
         </a>
-        <a href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl?si=93iNOmPtT8u2l163tTkKeQ" target="_blank" style="margin:0 10px; color:inherit; text-decoration:none;">
-            <i class="fab fa-spotify" style="color:#1DB954;"></i>
+        <a href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl?si=93iNOmPtT8u2l163tTkKeQ" target="_blank">
+            <i class="fab fa-spotify icon-spotify"></i>
         </a>
     </div>
+  </section>
 </main>
 
 <%@ include file="includes/footer.jsp" %>

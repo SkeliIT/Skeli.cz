@@ -90,25 +90,25 @@
                                   }
                                 }
         %>
-                                <div class="card accent lyric-layout">
+                                <div class="card accent lyric-layout lyric-card">
                                   <div>
                                     <h3><%= name %><% if (year != null) { %> (<%= year %>)<% } %></h3>
                                     <% if (yt != null && !yt.isEmpty()) { %>
-                                    <div style="background:var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:8px; box-shadow:0 6px 18px rgba(0,0,0,.20); position:relative; margin:10px auto 14px; width:50%; min-width:320px;">
-                                      <div style="position:relative; padding-top:28.125%;">
-                                        <iframe style="position:absolute; inset:0; width:100%; height:100%; border-radius:8px;" src="https://www.youtube.com/embed/<%= yt %>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                    <div class="video-container">
+                                      <div class="video-ratio">
+                                        <iframe src="https://www.youtube.com/embed/<%= yt %>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                                       </div>
                                     </div>
                                     <% } %>
-                                    <div style="background:var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,.20);">
-                                      <pre style="white-space: pre-wrap; font-family: 'Inter', system-ui, sans-serif; font-size: 1.05em; margin:0; text-align:center;"><%= words %></pre>
+                                    <div class="lyrics-box">
+                                      <pre><%= words %></pre>
                                     </div>
                                   </div>
                                   <div>
 
                                   <hr style="border:none; border-top:1px solid rgba(0,0,0,0.08); margin:16px 0;">
 
-                                  <div class="votes" style="margin-bottom:10px; display:flex; align-items:center; gap:10px;">
+                                  <div class="votes">
                                     <form method="post" action="vote" style="display:inline;">
                                       <input type="hidden" name="lyric_id" value="<%= activeId %>">
                                       <input type="hidden" name="action" value="up">
@@ -140,7 +140,7 @@
                                     </span>
                                   </div>
 
-                                  <div class="views" style="font-size:0.9em; color:#555;">
+                                  <div class="views views-count">
                                     <%
                                       long views = 0;
                                       try (PreparedStatement psViews = conn.prepareStatement(
@@ -170,11 +170,11 @@
                                           while (rsc.next()) {
                                             int __cid = rsc.getInt("id");
                                     %>
-                                              <div class="comment-item" style="display:flex; gap:10px; align-items:flex-start;">
-                                                <img src="<%= rsc.getString("avatar_url") != null ? rsc.getString("avatar_url") : "/img/avatar-default.png" %>" alt="avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                                              <div class="comment-item">
+                                                <img src="<%= rsc.getString("avatar_url") != null ? rsc.getString("avatar_url") : "/img/avatar-default.png" %>" alt="avatar" class="comment-avatar">
                                                 <div style="flex:1;">
                                                   <strong><%= rsc.getString("username") %></strong>
-                                                  <span class="meta" style="font-size:0.9em;">(<%= rsc.getTimestamp("created_at") %>)</span>
+                                                  <span class="meta comment-meta">(<%= rsc.getTimestamp("created_at") %>)</span>
                                                   <div id="c-body-<%= __cid %>"><%= rsc.getString("content") %></div>
                                                 <%
                                                   Integer uid2 = (Integer) session.getAttribute("userId");
@@ -204,8 +204,6 @@
                                                   <textarea name="content" rows="3" style="width:100%;"><%= __content %></textarea>
                                                     <input type="hidden" name="csrf" value="${csrf}">
                                                     <button type="submit">Uložit</button>
-                                      <button type="submit">👎</button>
-                                      <button type="submit">👍</button>
                                                 </form>
                                                 <%
                                                   }
@@ -227,8 +225,8 @@
                                         <input type="hidden" name="lyric_id" value="<%= activeId %>">
                                         <input type="hidden" name="csrf" value="${csrf}">
                                         <div style="position:relative;">
-                                          <textarea id="comment-textarea" name="content" rows="3" style="width:100%; font-family: 'Inter', system-ui, sans-serif; font-size:1.02em; border:1px solid var(--panel-border); border-radius:8px; padding:10px; background:rgba(0,0,0,0.12); color:inherit;" placeholder="Napište komentář... 😎" required></textarea>
-                                          <button type="button" id="emoji-btn" style="position:absolute; right:8px; top:8px; background:transparent; border:1px solid var(--panel-border); border-radius:6px; padding:4px 8px; cursor:pointer; font-size:1.2em;">😊</button>
+                                          <textarea id="comment-textarea" name="content" rows="3" class="comment-textarea" placeholder="Napište komentář... 😎" required></textarea>
+                                          <button type="button" id="emoji-btn" class="emoji-trigger">😊</button>
                                         </div>
                                         <button type="submit" style="margin-top:6px; padding:6px 10px; border:1px solid var(--panel-border); border-radius:8px; background:rgba(0,0,0,0.2); color:inherit;">Odeslat</button>
                                       </form>
