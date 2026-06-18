@@ -204,7 +204,7 @@
                   <li><a href="?lang=uk">Українська 🇺🇦</a></li>
                 </ul>
               </div>
-              <% if (currentUser==null) { %>
+             <!--  <% if (currentUser==null) { %>
                 <a href="<%= ctx %>/login.jsp" class="bruno-ace-sc-regular"
                   style="color:white; padding:3px 8px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
                   title="Přihlásit"><i class="fa-solid fa-right-to-bracket"></i><span
@@ -230,7 +230,7 @@
                           <a href="<%= ctx %>/logout" style="display:block; padding:6px 8px; text-decoration:none;">Odhlásit</a>
                     </div>
                   </div>
-                  <% } %>
+                  <% } %> -->
           </div>
         </header>
         <script>
