@@ -271,6 +271,11 @@
               <i class="fab fa-youtube" style="color:#FF0000;"></i> YouTube
             </a>
           </c:if>
+          <c:if test="${not empty lyric.appleMusicId}">
+            <a class="action-btn" href="https://music.apple.com/song/${lyric.appleMusicId}" target="_blank" rel="noopener" title="Otevřít na Apple Music">
+              <i class="fab fa-apple" style="color:#fc3c44;"></i> Apple Music
+            </a>
+          </c:if>
         </div>
         
         <div class="views-count">Návštěvy: ${lyric.views}</div>

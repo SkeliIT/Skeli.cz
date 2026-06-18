@@ -14,7 +14,7 @@ public class LyricDao {
         if (lang == null || lang.isEmpty()) lang = "cs";
         
         // First try to find lyric in requested language
-        String sql = "SELECT s.name AS song_name, s.year AS song_year, l.words, l.song_id, l.id, l.lang, " +
+        String sql = "SELECT s.name AS song_name, s.year AS song_year, s.apple_music_id, l.words, l.song_id, l.id, l.lang, " +
                 "(SELECT v.youtube_id FROM videos v WHERE v.song_id = l.song_id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt " +
                 "FROM lyrics l JOIN songs s ON s.id = l.song_id WHERE l.id = ? AND l.lang = ?";
         
@@ -26,7 +26,7 @@ public class LyricDao {
                 if (!rs.next()) {
                     // Fallback to Czech version if translation not found
                     try (PreparedStatement ps2 = c.prepareStatement(
-                            "SELECT s.name AS song_name, s.year AS song_year, l.words, l.song_id, l.id, l.lang, " +
+                            "SELECT s.name AS song_name, s.year AS song_year, s.apple_music_id, l.words, l.song_id, l.id, l.lang, " +
                             "(SELECT v.youtube_id FROM videos v WHERE v.song_id = l.song_id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt " +
                             "FROM lyrics l JOIN songs s ON s.id = l.song_id WHERE l.id = ? AND l.lang = 'cs'")) {
                         ps2.setInt(1, lyricId);
@@ -51,6 +51,7 @@ public class LyricDao {
         int y = rs.getInt("song_year"); v.year = rs.wasNull()? null : y;
         v.words = rs.getString("words");
         v.youtubeId = rs.getString("yt");
+        v.appleMusicId = rs.getString("apple_music_id");
         
         // YouTube fallback logic
         if (v.youtubeId == null || v.youtubeId.isBlank()) {
@@ -120,6 +121,58 @@ public class LyricDao {
                     out.add(cv);
                 }
                 return out;
+            }
+        }
+    }
+
+    public record LyricExportRow(int songId, String songName, Integer year, String lang, String words, String timedLyrics) {}
+
+    public List<LyricExportRow> listForExport() throws SQLException {
+        String sql = "SELECT s.id AS song_id, s.name AS song_name, s.year AS song_year, " +
+                "l.lang, l.words, l.timed_lyrics " +
+                "FROM lyrics l JOIN songs s ON s.id = l.song_id " +
+                "ORDER BY s.name ASC, l.lang ASC";
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            List<LyricExportRow> out = new ArrayList<>();
+            while (rs.next()) {
+                int y = rs.getInt("song_year");
+                out.add(new LyricExportRow(
+                        rs.getInt("song_id"),
+                        rs.getString("song_name"),
+                        rs.wasNull() ? null : y,
+                        rs.getString("lang"),
+                        rs.getString("words"),
+                        rs.getString("timed_lyrics")
+                ));
+            }
+            return out;
+        }
+    }
+
+    public void upsertAppleMusicLyrics(int songId, String plainText, String timedTtml, String lang) throws SQLException {
+        try (Connection c = Db.get()) {
+            try (PreparedStatement sel = c.prepareStatement("SELECT id FROM lyrics WHERE song_id=? AND lang=?")) {
+                sel.setInt(1, songId);
+                sel.setString(2, lang);
+                try (ResultSet rs = sel.executeQuery()) {
+                    if (rs.next()) {
+                        int id = rs.getInt(1);
+                        try (PreparedStatement upd = c.prepareStatement("UPDATE lyrics SET words=?, timed_lyrics=? WHERE id=?")) {
+                            upd.setString(1, plainText);
+                            upd.setString(2, timedTtml);
+                            upd.setInt(3, id);
+                            upd.executeUpdate();
+                        }
+                    } else {
+                        try (PreparedStatement ins = c.prepareStatement("INSERT INTO lyrics (song_id, lang, words, timed_lyrics, score) VALUES (?,?,?,?,0)")) {
+                            ins.setInt(1, songId);
+                            ins.setString(2, lang);
+                            ins.setString(3, plainText);
+                            ins.setString(4, timedTtml);
+                            ins.executeUpdate();
+                        }
+                    }
+                }
             }
         }
     }
