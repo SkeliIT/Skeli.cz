@@ -1,26 +1,34 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Novinky e-mailem</title>
-</head>
-<body>
-<h1>Přihlášení k odběru novinek</h1>
-<% if (request.getParameter("success") != null) { %>
-    <p style="color:green">Děkujeme, byl Vám zaslán potvrzovací e-mail s odkazem pro odhlášení.</p>
-<% } else if (request.getParameter("unsubscribed") != null) { %>
-    <p style="color:green">Odběr byl úspěšně zrušen a e-mail vymazán.</p>
-<% } else if (request.getParameter("error") != null) { %>
-    <p style="color:red">Chyba: <% out.print(request.getParameter("error")); %></p>
-<% } %>
-<form method="post" action="/newsletter/subscribe">
-    <label for="email">E-mail:</label>
-    <input type="email" name="email" id="email" required>
-    <button type="submit">Přihlásit se</button>
-</form>
-<p>Odesláním souhlasíte se zpracováním e-mailu pro zasílání novinek. <br>
-Kdykoli se můžete odhlásit pomocí odkazu v každém e-mailu. <br>
-Vaše adresa nebude sdílena s třetími stranami. <br>
-<a href="/gdpr.jsp">Zásady ochrany osobních údajů (GDPR)</a></p>
-</body>
-</html>
+<%@ include file="includes/header.jsp" %>
+
+<main>
+    <div class="auth-wrap">
+        <div class="auth-card">
+            <h2>Novinky e-mailem</h2>
+
+            <% if (request.getParameter("success") != null) { %>
+                <div class="form-success text-center">Děkujeme, byl Vám zaslán potvrzovací e-mail.</div>
+            <% } else if (request.getParameter("unsubscribed") != null) { %>
+                <div class="form-success text-center">Odběr byl úspěšně zrušen.</div>
+            <% } else if (request.getParameter("error") != null) { %>
+                <div class="form-alert text-center">Chyba: <% out.print(request.getParameter("error")); %></div>
+            <% } %>
+
+            <form method="post" action="/newsletter/subscribe">
+                <label for="email">E-mailová adresa</label>
+                <input type="email" name="email" id="email" placeholder="vas@email.cz" required>
+                <button type="submit">Přihlásit se k odběru</button>
+            </form>
+
+            <div class="auth-footer">
+                <p class="form-note">
+                    Odesláním souhlasíte se zpracováním e-mailu pro zasílání novinek.
+                    Kdykoli se můžete odhlásit pomocí odkazu v každém e-mailu.<br>
+                    <a href="/gdpr.jsp">Zásady ochrany osobních údajů (GDPR)</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%@ include file="includes/footer.jsp" %>

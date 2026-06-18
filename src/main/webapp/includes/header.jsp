@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "1.0.1";
+  String assetVersion = "1.0.2";
 %>
   <html lang="cs-cz">
 
@@ -50,9 +50,7 @@
         request.setAttribute("csrf", __csrf); %>
         <header>
 
-          <div id="topClock" class="bruno-ace-sc-regular"
-            style="position:absolute; left:14px; top:8px; font-size:0.525em; padding:3px 6px; border-radius:6px; background: rgba(0,0,0,0.20); opacity:0.45; box-shadow: 0 1px 6px rgba(0,0,0,.10);">
-          </div>
+          <div id="topClock" class="bruno-ace-sc-regular"></div>
 
           <button class="menu-toggle" id="menuToggle" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
 
@@ -72,24 +70,23 @@
               <%= ((java.util.Properties)request.getAttribute("t")).getProperty("menu.lyrics","Lyrics") %>
             </a>
           </nav>
-          <div class="top-controls"
-            style="position:absolute; top:10px; right:14px; font-size:0.8em; display:flex; gap:6px; align-items:center;">
+          <div class="top-controls">
             <% String currentUser=(String) session.getAttribute("username"); String currentRole=(String)
               session.getAttribute("role"); %>
-              <a href="<%= ctx %>/donate.jsp" class="bruno-ace-sc-regular"
-                style="color:#CC2B2B; font-weight:600; padding:3px 8px; display:inline-flex; align-items:center; gap:6px;"
-                title="Donate"><i class="fa-solid fa-heart"></i><span
-                  style="font-size:0.95em; letter-spacing:.3px;">Donate</span></a>
-              <button id="fontToggle" title="Tloušťka textu" class="bruno-ace-sc-regular"
-                style="background:transparent;border:1px solid rgba(255,215,0,0.4);color:#ffd700;padding:3px 8px;border-radius:6px;cursor:pointer;font-size:0.95em;display:inline-flex;align-items:center;gap:6px;"><i
-                  class="fa-solid fa-bold"></i></button>
-              <button id="themeToggle" title="Přepnout světlý/tmavý" class="bruno-ace-sc-regular"
-                style="background:transparent;border:1px solid rgba(255,215,0,0.4);color:#ffd700;padding:3px 8px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;"><i
-                  class="fa-solid fa-circle-half-stroke"></i></button>
+              <a href="<%= ctx %>/donate.jsp" class="bruno-ace-sc-regular donate-link" title="Donate">
+                <i class="fa-solid fa-heart"></i>
+                <span>Donate</span>
+              </a>
+              <button id="fontToggle" title="Tloušťka textu" class="bruno-ace-sc-regular control-btn bold-btn">
+                <i class="fa-solid fa-bold"></i>
+              </button>
+              <button id="themeToggle" title="Přepnout světlý/tmavý" class="bruno-ace-sc-regular control-btn">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+              </button>
               <div class="lang-switch">
-                <button class="lang-btn bruno-ace-sc-regular" title="Jazyk"
-                  style="background:transparent;border:1px solid rgba(255,215,0,0.4);color:#ffd700;padding:3px 8px;border-radius:6px;cursor:pointer;font-size:0.95em;display:inline-flex;align-items:center;gap:6px;"><i
-                    class="fa-solid fa-language"></i></button>
+                <button class="lang-btn bruno-ace-sc-regular control-btn" title="Jazyk">
+                  <i class="fa-solid fa-language"></i>
+                </button>
                 <ul class="menu">
                   <li><a href="?lang=cs">Čeština 🇨🇿</a></li>
                   <li><a href="?lang=en">English 🇬🇧</a></li>
@@ -97,33 +94,30 @@
                   <li><a href="?lang=uk">Українська 🇺🇦</a></li>
                 </ul>
               </div>
-             <!--  <% if (currentUser==null) { %>
-                <a href="<%= ctx %>/login.jsp" class="bruno-ace-sc-regular"
-                  style="color:white; padding:3px 8px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
-                  title="Přihlásit"><i class="fa-solid fa-right-to-bracket"></i><span
-                    style="font-size:0.95em; letter-spacing:.3px;">Login</span></a>
-                <span style="color:rgba(255,255,255,0.5);">|</span>
-                <a href="<%= ctx %>/register.jsp" class="bruno-ace-sc-regular"
-                  style="color:white; padding:3px 8px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
-                  title="Registrace"><i class="fa-solid fa-user-plus"></i><span
-                    style="font-size:0.95em; letter-spacing:.3px;">Register</span></a>
+              <% if (currentUser==null) { %>
+                <a href="<%= ctx %>/login.jsp" class="bruno-ace-sc-regular auth-link" title="Přihlásit">
+                  <i class="fa-solid fa-right-to-bracket"></i>
+                  <span>Login</span>
+                </a>
+                <span class="auth-sep">|</span>
+                <a href="<%= ctx %>/register.jsp" class="bruno-ace-sc-regular auth-link" title="Registrace">
+                  <i class="fa-solid fa-user-plus"></i>
+                  <span>Register</span>
+                </a>
                 <% } else { %>
-                  <div class="user-menu" style="position:relative; display:inline-block;">
-                    <span style="color:white; cursor:pointer; padding:3px 6px; font-size:0.95em;">👤 <%= currentUser %>
+                  <div class="user-menu">
+                    <span>👤 <%= currentUser %>
                         <% if ("ADMIN".equals(currentRole)) { %> <span style="color:var(--accent);">★</span>
                           <% } %></span>
-                    <div class="user-dropdown"
-                      style="display:none; position:absolute; right:0; top:100%; background:var(--panel-strong); border:1px solid var(--panel-border); border-radius:8px; padding:6px; min-width:140px; z-index:1000;">
-                      <a href="<%= ctx %>/profile.jsp" style="display:block; padding:6px 8px; text-decoration:none;">Profil</a>
-                      <a href="<%= ctx %>/uzivatel.jsp"
-                        style="display:block; padding:6px 8px; text-decoration:none;">Nastavení</a>
-                      <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"
-                          style="display:block; padding:6px 8px; text-decoration:none;">Admin</a>
+                    <div class="user-dropdown">
+                      <a href="<%= ctx %>/profile.jsp">Profil</a>
+                      <a href="<%= ctx %>/uzivatel.jsp">Nastavení</a>
+                      <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin">Admin</a>
                         <% } %>
-                          <a href="<%= ctx %>/logout" style="display:block; padding:6px 8px; text-decoration:none;">Odhlásit</a>
+                          <a href="<%= ctx %>/logout">Odhlásit</a>
                     </div>
                   </div>
-                  <% } %> -->
+                  <% } %>
           </div>
         </header>
         <script>

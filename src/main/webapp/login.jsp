@@ -17,13 +17,13 @@
           <input type="text" name="username" required value="<%= request.getAttribute("username") != null ? request.getAttribute("username") : "" %>" autocomplete="username"></label>
         <label><%= ((java.util.Properties)request.getAttribute("t")).getProperty("auth.label.password","Heslo") %><br>
           <input type="password" name="password" required autocomplete="current-password"></label>
-        <label style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+        <label class="checkbox-label">
           <input type="checkbox" name="remember" value="1"> <%= ((java.util.Properties)request.getAttribute("t")).getProperty("auth.label.remember","Zapamatovat na tomto zařízení") %>
         </label>
         <button type="submit"><%= ((java.util.Properties)request.getAttribute("t")).getProperty("auth.submit.login","Přihlásit") %></button>
       </form>
-      <p style="margin-top:12px; text-align:center; font-size:0.9em;">
-        <a href="/forgot.jsp" style="color:var(--accent); text-decoration:none;">
+      <p class="auth-footer">
+        <a href="/forgot.jsp">
           <%= ((java.util.Properties)request.getAttribute("t")).getProperty("login.forgot","Forgot your password?") %>
         </a>
       </p>

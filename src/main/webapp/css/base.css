@@ -24,6 +24,7 @@ body.light {
   --panel-strong: rgba(255, 255, 255, 0.82);
   --panel-border: rgba(0, 0, 0, 0.18);
   --accent: #a37b00;
+  background: var(--bg) url('/img/IMG_0132.webp') center center/cover no-repeat fixed;
 }
 
 body.dark {
@@ -128,8 +129,9 @@ main {
   margin: 30px auto;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.22) 0%,
-    var(--panel) 56px,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.3) 60px,
+    var(--panel) 180px,
     var(--panel) 100%
   );
   padding: 30px;
@@ -144,8 +146,9 @@ main {
 body.light main {
   background: linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0.48) 0%,
-    var(--panel) 56px,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.4) 60px,
+    var(--panel) 180px,
     var(--panel) 100%
   );
 }
