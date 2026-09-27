@@ -40,6 +40,16 @@ public class AdminVideoServlet extends HttpServlet {
                     ps.setString(2, title != null ? title : VideoTitles.fetch(youtubeId));
                     ps.executeUpdate();
                 }
+                // release date, so the home page "news" (newest first) places it right
+                java.sql.Timestamp released = VideoTitles.fetchUploadDate(youtubeId);
+                if (released != null) {
+                    try (PreparedStatement ps = conn.prepareStatement(
+                            "UPDATE videos SET published_at=? WHERE youtube_id=? AND published_at IS NULL")) {
+                        ps.setTimestamp(1, released);
+                        ps.setString(2, youtubeId);
+                        ps.executeUpdate();
+                    }
+                }
             }
             if (youtubeId != null && title != null) {
                 try (PreparedStatement ps = conn.prepareStatement("UPDATE videos SET title=? WHERE youtube_id=?")) {

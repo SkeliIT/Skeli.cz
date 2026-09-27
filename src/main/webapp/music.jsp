@@ -21,7 +21,7 @@
       // Every song (newest first) and then the clips that aren't linked to a song
       String discoSql =
           "SELECT s.name, s.year, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
-          "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.id LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview " +
+          "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview " +
           "FROM songs s " +
           "UNION ALL " +
           "SELECT v.title, NULL, NULL, v.youtube_id, 1, v.id, NULL FROM videos v WHERE v.song_id IS NULL " +

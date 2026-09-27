@@ -13,7 +13,7 @@
                 try (Connection conn = Db.get();
                          PreparedStatement ps = conn.prepareStatement(
                              "SELECT s.id AS song_id, s.name AS song_name, s.year AS song_year, s.preview_image_url, MIN(l.id) AS lyric_id, " +
-                             "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id LIMIT 1) AS youtube_id " +
+                             "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtube_id " +
                              "FROM lyrics l JOIN songs s ON s.id = l.song_id " +
                              "GROUP BY s.id, s.name, s.year, s.preview_image_url " +
                              "ORDER BY s.year DESC, s.name ASC"

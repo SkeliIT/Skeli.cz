@@ -31,7 +31,7 @@ public class VideoTitles implements ServletContextListener {
         Thread t = new Thread(() -> {
             try {
                 int n = fillMissing();
-                if (n > 0) sce.getServletContext().log("VideoTitles: filled " + n + " video title(s) from YouTube");
+                if (n > 0) sce.getServletContext().log("VideoTitles: filled " + n + " video title(s)/date(s) from YouTube");
             } catch (Exception e) {
                 sce.getServletContext().log("VideoTitles: could not fill titles", e);
             }
@@ -73,6 +73,56 @@ public class VideoTitles implements ServletContextListener {
             try (Connection c = Db.get();
                  PreparedStatement up = c.prepareStatement("UPDATE videos SET title=? WHERE youtube_id=? AND (title IS NULL OR title = '')")) {
                 up.setString(1, title);
+                up.setString(2, id);
+                filled += up.executeUpdate();
+            }
+        }
+        filled += fillMissingDates();
+        return filled;
+    }
+
+    private static final java.util.regex.Pattern UPLOAD_DATE =
+            java.util.regex.Pattern.compile("itemprop=\"uploadDate\" content=\"([^\"]+)\"");
+
+    /** Upload date from the public video page (no API key), or null. */
+    static java.sql.Timestamp fetchUploadDate(String youtubeId) {
+        try {
+            HttpURLConnection c = (HttpURLConnection) URI.create(
+                    "https://www.youtube.com/watch?v=" + URLEncoder.encode(youtubeId, StandardCharsets.UTF_8)).toURL().openConnection();
+            c.setConnectTimeout(3000);
+            c.setReadTimeout(5000);
+            c.setRequestProperty("Accept-Language", "en");
+            if (c.getResponseCode() != 200) return null;
+            String html;
+            try (InputStream in = c.getInputStream()) {
+                html = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            }
+            java.util.regex.Matcher m = UPLOAD_DATE.matcher(html);
+            if (!m.find()) return null;
+            return java.sql.Timestamp.from(java.time.OffsetDateTime.parse(m.group(1)).toInstant());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Release dates for clips that have none, so the home page "news" (newest clips
+     * first) isn't outranked by old clips that happen to carry a date.
+     */
+    static int fillMissingDates() throws Exception {
+        List<String> ids = new ArrayList<>();
+        try (Connection c = Db.get();
+             PreparedStatement ps = c.prepareStatement("SELECT youtube_id FROM videos WHERE published_at IS NULL");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) ids.add(rs.getString(1));
+        }
+        int filled = 0;
+        for (String id : ids) {
+            java.sql.Timestamp date = fetchUploadDate(id);
+            if (date == null) continue;
+            try (Connection c = Db.get();
+                 PreparedStatement up = c.prepareStatement("UPDATE videos SET published_at=? WHERE youtube_id=? AND published_at IS NULL")) {
+                up.setTimestamp(1, date);
                 up.setString(2, id);
                 filled += up.executeUpdate();
             }
