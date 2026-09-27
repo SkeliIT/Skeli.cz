@@ -56,7 +56,7 @@ public class SocialPostsApiServlet extends HttpServlet {
             // YouTube Shorts + social posts, newest first (offset pagination for load-more)
             sql =
                     "(SELECT id, 'youtube' COLLATE utf8mb4_czech_ci AS source," +
-                    " NULL COLLATE utf8mb4_czech_ci AS lang," +
+                    " CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_czech_ci AS lang," +
                     " CONVERT(youtube_id USING utf8mb4) COLLATE utf8mb4_czech_ci AS post_id," +
                     " CONVERT(CONCAT('https://www.youtube.com/shorts/', youtube_id) USING utf8mb4) COLLATE utf8mb4_czech_ci AS permalink," +
                     " CONVERT(CONCAT('https://i.ytimg.com/vi/', youtube_id, '/hqdefault.jpg') USING utf8mb4) COLLATE utf8mb4_czech_ci AS image_url," +
@@ -64,7 +64,10 @@ public class SocialPostsApiServlet extends HttpServlet {
                     " published_at AS created_at" +
                     " FROM shorts WHERE published_at IS NOT NULL)" +
                     " UNION ALL" +
-                    " (SELECT id, source, lang, post_id, permalink, image_url, caption, created_at" +
+                    // same collation on both sides of the UNION: the two tables may differ per server
+                    " (SELECT id, source COLLATE utf8mb4_czech_ci, lang COLLATE utf8mb4_czech_ci," +
+                    " post_id COLLATE utf8mb4_czech_ci, permalink COLLATE utf8mb4_czech_ci," +
+                    " image_url COLLATE utf8mb4_czech_ci, caption COLLATE utf8mb4_czech_ci, created_at" +
                     " FROM social_posts WHERE lang = ?)" +
                     " ORDER BY created_at DESC LIMIT ? OFFSET ?";
         }
