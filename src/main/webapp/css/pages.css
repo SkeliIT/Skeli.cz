@@ -1177,9 +1177,12 @@ html.bold-text body :where(.feature-card p, .side-card p, .about-card p, .news-t
 .thumb-split img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .thumb-split .split-top {
   z-index: 1;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 38%, transparent 62%);
-  mask-image: linear-gradient(to bottom, #000 0, #000 38%, transparent 62%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 46%, transparent 64%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 46%, transparent 64%);
 }
+/* the older clip fills only the lower part with a strip from its middle (faces,
+   title), which also skips the letterbox bars of old 4:3 clips */
+.thumb-split .split-bottom { top: 40%; bottom: auto; height: 60%; object-position: center 45%; }
 /* keep the dark bottom gradient of the card above both images */
 .song-thumb::after { z-index: 2; }
 /* "Remake · 2025" in the top half, "Originál · 2016" in the bottom half */
