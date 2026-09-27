@@ -168,6 +168,48 @@ public class LyricDao {
         }
     }
 
+    /** Plain lyrics of a song in one language, or null. */
+    public String getWords(int songId, String lang) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT words FROM lyrics WHERE song_id=? AND lang=? ORDER BY id LIMIT 1")) {
+            ps.setInt(1, songId);
+            ps.setString(2, lang);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString(1) : null;
+            }
+        }
+    }
+
+    /**
+     * Saves the plain lyrics of a song in one language (admin editor). Keeps any
+     * timed lyrics from Apple Music. Empty text removes that language.
+     */
+    public void saveWords(int songId, String lang, String words) throws SQLException {
+        try (Connection c = Db.get()) {
+            if (words == null || words.isBlank()) {
+                try (PreparedStatement del = c.prepareStatement("DELETE FROM lyrics WHERE song_id=? AND lang=?")) {
+                    del.setInt(1, songId);
+                    del.setString(2, lang);
+                    del.executeUpdate();
+                }
+                return;
+            }
+            try (PreparedStatement upd = c.prepareStatement("UPDATE lyrics SET words=? WHERE song_id=? AND lang=?")) {
+                upd.setString(1, words);
+                upd.setInt(2, songId);
+                upd.setString(3, lang);
+                if (upd.executeUpdate() > 0) return;
+            }
+            try (PreparedStatement ins = c.prepareStatement(
+                    "INSERT INTO lyrics (song_id, lang, words, score) VALUES (?, ?, ?, 0)")) {
+                ins.setInt(1, songId);
+                ins.setString(2, lang);
+                ins.setString(3, words);
+                ins.executeUpdate();
+            }
+        }
+    }
+
     public void upsertAppleMusicLyrics(int songId, String plainText, String timedTtml, String lang) throws SQLException {
         try (Connection c = Db.get()) {
             try (PreparedStatement sel = c.prepareStatement("SELECT id FROM lyrics WHERE song_id=? AND lang=?")) {

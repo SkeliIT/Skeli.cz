@@ -37,6 +37,12 @@
     </section>
 
     <section class="admin-card">
+      <h3>Texty písní</h3>
+      <p><a class="link-btn" href="/admin/lyrics">Otevřít editor textů</a></p>
+      <p class="text-dim">Vlož nebo uprav text kterékoli písně (CS/EN/DE/UK). Songy bez textu jsou v seznamu nahoře.</p>
+    </section>
+
+    <section class="admin-card">
       <h3>Přehled písní</h3>
       <p><a href="/admin/songs">Zobrazit tabulku písní</a> – status textů (jazyky) a videí.</p>
     </section>

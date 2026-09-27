@@ -118,3 +118,30 @@ body.light .lang-flag { background: rgba(0,0,0,0.06); }
 body.light .report-actions .btn-dismiss { background: transparent; color: var(--text); border: 1px solid var(--panel-border); }
 .report-actions .btn-dismiss:hover { border-color: var(--accent); filter: none; }
 .report-text { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); }
+
+/* Admin: lyrics editor */
+.lyrics-editor-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; align-items: start; }
+.lyrics-song-list, .lyrics-edit { padding: 20px; }
+.lyrics-song-list h3 { font-size: var(--fs-h4); margin: 18px 0 10px; }
+.lyrics-song-list h3:first-child { margin-top: 0; }
+.lyrics-song-list ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.lyrics-song-list li a { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 10px; border: 1px solid transparent; color: var(--text); }
+.lyrics-song-list li a:hover { border-color: var(--panel-border); text-decoration: none; }
+.lyrics-song-list li a.active { border-color: var(--accent); background: var(--accent-soft); }
+.lyrics-song-list li a.missing .ls-meta { color: #ffb84d; }
+.ls-name { font-size: var(--fs-card); }
+.ls-meta { font-size: var(--fs-small); color: var(--text-dim); }
+.ls-video { margin: 0 0 6px; }
+.ls-video button { width: 100%; justify-content: flex-start; text-align: left; font-size: var(--fs-small); padding: 7px 12px; }
+.ls-video .fa-youtube { color: var(--youtube); }
+.ls-new { display: flex; flex-direction: column; gap: 8px; }
+.lyrics-edit h3 { display: flex; align-items: center; gap: 12px; }
+.lyrics-langs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.lyrics-langs a { padding: 5px 14px; border-radius: 999px; border: 1px solid var(--panel-border); color: var(--text-dim); font-size: var(--fs-small); }
+.lyrics-langs a.active { border-color: var(--accent); color: var(--accent); }
+.lyrics-langs a:hover { text-decoration: none; color: var(--text); }
+.lyrics-langs .lyrics-view { margin-left: auto; border-color: transparent; }
+.lyrics-edit textarea { min-height: 480px; resize: vertical; font-family: var(--font-body); font-size: 0.95rem; line-height: 1.7; }
+.lyrics-edit form { display: flex; flex-direction: column; gap: 10px; }
+.lyrics-edit form button { align-self: flex-end; }
+@media (max-width: 900px) { .lyrics-editor-layout { grid-template-columns: 1fr; } }

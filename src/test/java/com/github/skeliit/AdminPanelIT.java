@@ -175,6 +175,44 @@ public class AdminPanelIT extends UiTestSupport {
         }
     }
 
+    @Test
+    @DisplayName("Lyrics editor: new song, text saved and shown, clip turned into a song")
+    void lyricsEditor() throws Exception {
+        String songName = "IT Lyrics " + uniq();
+        String youtubeId = "it" + uniq();
+        update("INSERT INTO videos (youtube_id, title) VALUES (?, 'Skeli - IT Clip OFFICIAL VIDEO')", youtubeId);
+        try {
+            driver.get(BASE_URL + "/admin/lyrics");
+            driver.findElement(By.cssSelector(".ls-new input[name=name]")).sendKeys(songName);
+            driver.findElement(By.cssSelector(".ls-new input[name=year]")).sendKeys("2026");
+            clickAndWaitReload(driver.findElement(By.cssSelector(".ls-new button")), false);
+            int songId = queryInt("SELECT id FROM songs WHERE name=?", songName);
+            assertTrue(driver.getCurrentUrl().contains("song=" + songId));
+
+            String text = "První řádek\nDruhý řádek\n\nRefrén";
+            WebElement ta = driver.findElement(By.cssSelector(".lyrics-edit textarea[name=words]"));
+            ta.sendKeys(text);
+            clickAndWaitReload(driver.findElement(By.cssSelector(".lyrics-edit button[type=submit]")), false);
+            assertEquals(text, queryString("SELECT words FROM lyrics WHERE song_id=? AND lang='cs'", songId));
+            assertFalse(driver.findElements(By.cssSelector(".form-success")).isEmpty());
+
+            int lyricId = queryInt("SELECT id FROM lyrics WHERE song_id=? AND lang='cs'", songId);
+            driver.get(BASE_URL + "/lyrics/" + lyricId);
+            assertTrue(driver.findElement(By.cssSelector(".lyrics-text")).getText().contains("Druhý řádek"));
+
+            driver.get(BASE_URL + "/admin/lyrics");
+            WebElement clip = driver.findElement(By.xpath(
+                    "//form[contains(@class,'ls-video')][.//input[@name='youtube_id'][@value='" + youtubeId + "']]//button"));
+            clickAndWaitReload(clip, false);
+            assertEquals("IT Clip", queryString(
+                    "SELECT s.name FROM videos v JOIN songs s ON s.id=v.song_id WHERE v.youtube_id=?", youtubeId));
+        } finally {
+            update("DELETE FROM lyrics WHERE song_id IN (SELECT id FROM songs WHERE name IN (?, 'IT Clip'))", songName);
+            update("DELETE FROM videos WHERE youtube_id=?", youtubeId);
+            update("DELETE FROM songs WHERE name IN (?, 'IT Clip')", songName);
+        }
+    }
+
     private WebElement userRow(String username) {
         return driver.findElement(By.xpath("//table[contains(@class,'admin-table')]//tr[td[normalize-space()='"
                 + username + "']]"));
