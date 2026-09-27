@@ -23,14 +23,15 @@
     </section>
 
     <section class="admin-card">
-      <h3>Upravit / napojit video</h3>
+      <h3>Přidat / upravit song a video</h3>
+      <p class="text-dim">Song, který není na tvém kanálu (feat, cizí kanál, jen Spotify…): vlož odkaz na video a název songu – objeví se v Diskografii. Bez odkazu se přidá song bez videa.</p>
       <form method="post" action="/admin/video" style="display:grid; gap:8px;">
         <input type="hidden" name="csrf" value="${csrf}">
-        <label>YouTube ID: <input name="youtube_id" required></label>
-        <label>Název (přepíše title v DB): <input name="title"></label>
-        <label>Song name (vytvoří/propojí): <input name="song_name"></label>
+        <label>Odkaz na YouTube nebo ID videa: <input name="youtube_id" placeholder="https://www.youtube.com/watch?v=…"></label>
+        <label>Název videa (nepovinné – jinak se vezme z YouTube): <input name="title"></label>
+        <label>Název songu (vytvoří nebo propojí): <input name="song_name"></label>
         <label>Rok: <input name="year" type="number" min="1900" max="2100"></label>
-        <label>Napojit na lyric ID: <input name="lyric_id" type="number" min="1"></label>
+        <label>Napojit na text (lyric ID): <input name="lyric_id" type="number" min="1"></label>
         <button type="submit">Uložit</button>
       </form>
     </section>

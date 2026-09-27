@@ -18,9 +18,10 @@ public class AdminVideoServlet extends HttpServlet {
             resp.setStatus(403);
             return;
         }
-        String youtubeId = req.getParameter("youtube_id");
-        String title = req.getParameter("title");
-        String songName = req.getParameter("song_name");
+        // a bare ID or any YouTube link (watch?v=, youtu.be/, shorts/, embed/)
+        String youtubeId = youtubeId(req.getParameter("youtube_id"));
+        String title = trimToNull(req.getParameter("title"));
+        String songName = trimToNull(req.getParameter("song_name"));
         String yearStr = req.getParameter("year");
         String lyricIdStr = req.getParameter("lyric_id");
         Integer year = null;
@@ -30,7 +31,17 @@ public class AdminVideoServlet extends HttpServlet {
             } catch (Exception ignored) {
             }
         try (Connection conn = Db.get()) {
-            if (title != null) {
+            // a video that isn't in the DB yet (e.g. from someone else's channel) is added;
+            // the title comes from the form or else from YouTube
+            if (youtubeId != null) {
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "INSERT IGNORE INTO videos (youtube_id, title) VALUES (?, ?)")) {
+                    ps.setString(1, youtubeId);
+                    ps.setString(2, title != null ? title : VideoTitles.fetch(youtubeId));
+                    ps.executeUpdate();
+                }
+            }
+            if (youtubeId != null && title != null) {
                 try (PreparedStatement ps = conn.prepareStatement("UPDATE videos SET title=? WHERE youtube_id=?")) {
                     ps.setString(1, title);
                     ps.setString(2, youtubeId);
@@ -50,7 +61,8 @@ public class AdminVideoServlet extends HttpServlet {
                     }
                 }
             }
-            if (songId != null) {
+            // without a video the song is simply added to the discography
+            if (songId != null && youtubeId != null) {
                 try (PreparedStatement ps = conn.prepareStatement("UPDATE videos SET song_id=? WHERE youtube_id=?")) {
                     ps.setInt(1, songId);
                     ps.setString(2, youtubeId);
@@ -94,5 +106,21 @@ public class AdminVideoServlet extends HttpServlet {
             }
         }
         return null;
+    }
+
+    private static String trimToNull(String v) {
+        return v == null || v.isBlank() ? null : v.trim();
+    }
+
+    private static final java.util.regex.Pattern YT_LINK = java.util.regex.Pattern.compile(
+            "(?:v=|youtu\\.be/|/shorts/|/embed/|/live/)([A-Za-z0-9_-]{6,20})");
+
+    /** The video ID from a bare ID or a YouTube link; null if there is none. */
+    static String youtubeId(String input) {
+        String v = trimToNull(input);
+        if (v == null) return null;
+        if (v.matches("[A-Za-z0-9_-]{6,20}")) return v;
+        java.util.regex.Matcher m = YT_LINK.matcher(v);
+        return m.find() ? m.group(1) : null;
     }
 }

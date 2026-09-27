@@ -143,6 +143,38 @@ public class AdminPanelIT extends UiTestSupport {
         }
     }
 
+    @Test
+    @DisplayName("A video from another channel (pasted as a link) and a song without video appear in the discography")
+    void addOutsideSongsToDiscography() throws Exception {
+        String youtubeId = "it" + uniq();
+        String withVideo = "IT Feat " + uniq();
+        String noVideo = "IT Spotify only " + uniq();
+        try {
+            driver.get(BASE_URL + "/admin.jsp");
+            driver.findElement(By.cssSelector("form[action='/admin/video'] input[name=youtube_id]"))
+                    .sendKeys("https://youtu.be/" + youtubeId + "?si=x");
+            driver.findElement(By.cssSelector("form[action='/admin/video'] input[name=title]")).sendKeys("Other channel clip");
+            driver.findElement(By.cssSelector("form[action='/admin/video'] input[name=song_name]")).sendKeys(withVideo);
+            driver.findElement(By.cssSelector("form[action='/admin/video'] input[name=year]")).sendKeys("2024");
+            clickAndWaitReload(driver.findElement(By.cssSelector("form[action='/admin/video'] button[type=submit]")), false);
+
+            assertEquals(withVideo, queryString(
+                    "SELECT s.name FROM videos v JOIN songs s ON s.id = v.song_id WHERE v.youtube_id=?", youtubeId));
+
+            driver.findElement(By.cssSelector("form[action='/admin/video'] input[name=song_name]")).sendKeys(noVideo);
+            clickAndWaitReload(driver.findElement(By.cssSelector("form[action='/admin/video'] button[type=submit]")), false);
+            assertTrue(exists("SELECT 1 FROM songs WHERE name=?", noVideo));
+
+            driver.get(BASE_URL + "/music.jsp");
+            String disco = driver.findElement(By.cssSelector(".discography")).getText();
+            assertTrue(disco.contains(withVideo), "song with outside video listed");
+            assertTrue(disco.contains(noVideo), "song without video listed");
+        } finally {
+            update("DELETE FROM videos WHERE youtube_id=?", youtubeId);
+            update("DELETE FROM songs WHERE name IN (?, ?)", withVideo, noVideo);
+        }
+    }
+
     private WebElement userRow(String username) {
         return driver.findElement(By.xpath("//table[contains(@class,'admin-table')]//tr[td[normalize-space()='"
                 + username + "']]"));
