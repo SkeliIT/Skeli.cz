@@ -21,10 +21,10 @@
       // Every song (newest first) and then the clips that aren't linked to a song
       String discoSql =
           "SELECT s.name, s.year, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
-          "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.id LIMIT 1) AS yt, 0 AS grp, s.id AS ord " +
+          "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.id LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview " +
           "FROM songs s " +
           "UNION ALL " +
-          "SELECT v.title, NULL, NULL, v.youtube_id, 1, v.id FROM videos v WHERE v.song_id IS NULL " +
+          "SELECT v.title, NULL, NULL, v.youtube_id, 1, v.id, NULL FROM videos v WHERE v.song_id IS NULL " +
           "ORDER BY grp, year DESC, ord DESC";
       try (Connection conn = Db.get();
            PreparedStatement ps = conn.prepareStatement(discoSql);
@@ -38,6 +38,7 @@
           int lyricId = rs.getInt("lyric_id");
           boolean hasLyrics = !rs.wasNull() && lyricId > 0;
           String yt = rs.getString("yt");
+          String preview = com.github.skeliit.WebUtils.safeUrl(rs.getString("preview"), null);
           String nameHtml = com.github.skeliit.WebUtils.escapeHtml(name);
           String ytHtml = yt == null ? null : com.github.skeliit.WebUtils.escapeHtml(yt);
           String mainHref = hasLyrics ? "/lyrics/" + lyricId : (yt != null ? "https://www.youtube.com/watch?v=" + ytHtml : null);
@@ -47,6 +48,8 @@
         <a class="song-thumb" <% if (mainHref != null) { %>href="<%= mainHref %>"<% if (!hasLyrics) { %> target="_blank" rel="noopener"<% } } %> aria-label="<%= nameHtml %>">
           <% if (yt != null) { %>
             <img src="https://img.youtube.com/vi/<%= ytHtml %>/mqdefault.jpg" alt="" loading="lazy">
+          <% } else if (preview != null) { %>
+            <img src="<%= com.github.skeliit.WebUtils.escapeHtml(preview) %>" alt="" loading="lazy">
           <% } else { %>
             <span class="song-thumb-placeholder"><i class="fa-solid fa-music"></i></span>
           <% } %>

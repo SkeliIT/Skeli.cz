@@ -12,10 +12,10 @@
             try {
                 try (Connection conn = Db.get();
                          PreparedStatement ps = conn.prepareStatement(
-                             "SELECT s.id AS song_id, s.name AS song_name, s.year AS song_year, MIN(l.id) AS lyric_id, " +
+                             "SELECT s.id AS song_id, s.name AS song_name, s.year AS song_year, s.preview_image_url, MIN(l.id) AS lyric_id, " +
                              "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id LIMIT 1) AS youtube_id " +
                              "FROM lyrics l JOIN songs s ON s.id = l.song_id " +
-                             "GROUP BY s.id, s.name, s.year " +
+                             "GROUP BY s.id, s.name, s.year, s.preview_image_url " +
                              "ORDER BY s.year DESC, s.name ASC"
                          );
                          ResultSet rs = ps.executeQuery()) {
@@ -37,11 +37,14 @@
                             int lyricId = rs.getInt("lyric_id");
                             if (rs.wasNull() || lyricId <= 0) continue;
                             String youtubeId = rs.getString("youtube_id");
+                            String preview = com.github.skeliit.WebUtils.safeUrl(rs.getString("preview_image_url"), null);
         %>
                             <a class="song-card" href="/lyrics/<%= lyricId %>">
                                 <div class="song-thumb">
                                 <% if (youtubeId != null && !youtubeId.isEmpty()) { %>
                                     <img src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+                                <% } else if (preview != null) { %>
+                                    <img src="<%= com.github.skeliit.WebUtils.escapeHtml(preview) %>" alt="" loading="lazy">
                                 <% } else { %>
                                     <span class="song-thumb-placeholder"><i class="fa-solid fa-music"></i></span>
                                 <% } %>

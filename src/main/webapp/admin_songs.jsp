@@ -99,7 +99,7 @@
               <a href="/music.jsp" class="link-btn" target="_blank">Video</a>
             </c:if>
             <c:if test="${song.hasLyrics}">
-              <a href="/lyrics/${song.id}" class="link-btn" target="_blank">Text</a>
+              <a href="/admin/lyrics?song=${song.id}" class="link-btn">Text</a>
             </c:if>
           </td>
         </tr>

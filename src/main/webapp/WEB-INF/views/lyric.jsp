@@ -8,12 +8,15 @@
     <a class="lyric-back" href="/texty.jsp"><i class="fa-solid fa-arrow-left"></i> <%= t.getProperty("lyrics.back") %></a>
     <ul class="lyric-nav">
       <c:forEach items="${songs}" var="s">
+        <%-- only songs that have lyrics; the others would link to nothing --%>
+        <c:if test="${not empty s.firstLyricId}">
         <li>
           <a href="${pageContext.request.contextPath}/lyrics/${s.firstLyricId}"
              class="${(lyric != null && lyric.songId == s.id) ? 'active' : ''}">
             <c:out value="${s.name}"/>
           </a>
         </li>
+        </c:if>
       </c:forEach>
     </ul>
   </nav>
@@ -27,40 +30,55 @@
         <c:if test="${not empty lyric.year}"><span class="song-year">${lyric.year}</span></c:if>
       </header>
 
-      <!-- Video + listen links (sticky sidebar on desktop) -->
-      <aside class="lyric-side">
-        <c:if test="${not empty lyric.youtubeId}">
-          <div class="content-box video-box">
-            <div class="video-wrapper" id="ytFacade" data-yt="<c:out value='${lyric.youtubeId}'/>">
-              <button type="button" class="yt-facade" aria-label="<%= t.getProperty("lyric.openYoutube","Přehrát video") %>">
-                <c:choose>
-                  <c:when test="${not empty lyric.previewImageUrl}">
-                    <img class="yt-facade-img" src="<c:out value='${lyric.previewImageUrl}'/>" alt="">
-                  </c:when>
-                  <c:otherwise>
-                    <img class="yt-facade-img" src="https://i.ytimg.com/vi/<c:out value='${lyric.youtubeId}'/>/hqdefault.jpg" alt="">
-                  </c:otherwise>
-                </c:choose>
-                <span class="yt-facade-play" aria-hidden="true"><i class="fab fa-youtube"></i></span>
-              </button>
-            </div>
+      <!-- Video (or the song's preview photo) above the lyrics -->
+      <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
+      <div class="lyric-media">
+      <c:choose>
+      <c:when test="${not empty lyric.youtubeId}">
+        <div class="content-box video-box">
+          <div class="video-wrapper" id="ytFacade" data-yt="<c:out value='${lyric.youtubeId}'/>">
+            <button type="button" class="yt-facade" aria-label="<%= t.getProperty("lyric.openYoutube","Přehrát video") %>">
+              <c:choose>
+                <c:when test="${not empty lyric.previewImageUrl}">
+                  <img class="yt-facade-img" src="<c:out value='${lyric.previewImageUrl}'/>" alt="">
+                </c:when>
+                <c:otherwise>
+                  <img class="yt-facade-img" src="https://i.ytimg.com/vi/<c:out value='${lyric.youtubeId}'/>/hqdefault.jpg" alt="">
+                </c:otherwise>
+              </c:choose>
+              <span class="yt-facade-play" aria-hidden="true"><i class="fab fa-youtube"></i></span>
+            </button>
           </div>
-          <script>
-          (function(){
-            var box = document.getElementById('ytFacade');
-            if (!box) return;
-            box.querySelector('.yt-facade').addEventListener('click', function(){
-              var iframe = document.createElement('iframe');
-              iframe.src = 'https://www.youtube.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
-              iframe.setAttribute('frameborder', '0');
-              iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
-              iframe.setAttribute('allowfullscreen', '');
-              box.innerHTML = '';
-              box.appendChild(iframe);
-            });
-          })();
-          </script>
-        </c:if>
+        </div>
+        <script>
+        (function(){
+          var box = document.getElementById('ytFacade');
+          if (!box) return;
+          box.querySelector('.yt-facade').addEventListener('click', function(){
+            var iframe = document.createElement('iframe');
+            iframe.src = 'https://www.youtube.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
+            iframe.setAttribute('frameborder', '0');
+            iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+            iframe.setAttribute('allowfullscreen', '');
+            box.innerHTML = '';
+            box.appendChild(iframe);
+          });
+        })();
+        </script>
+      </c:when>
+      <c:otherwise>
+        <div class="content-box video-box">
+          <div class="video-wrapper">
+            <img class="yt-facade-img" src="<c:out value='${lyric.previewImageUrl}'/>" alt="">
+          </div>
+        </div>
+      </c:otherwise>
+      </c:choose>
+      </div>
+      </c:if>
+
+      <!-- Listen links (sticky sidebar on desktop) -->
+      <aside class="lyric-side">
 
         <div class="content-box lyric-links">
           <div class="action-buttons">
