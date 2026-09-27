@@ -1071,3 +1071,56 @@ body.light .about-page .about-intro { background: rgba(255, 255, 255, 0.68); }
 .lyric-page .lyric-media .video-wrapper { box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7); }
 /* a preview photo without a video fills the same 16:9 frame */
 .lyric-page .video-wrapper > .yt-facade-img { position: absolute; inset: 0; }
+
+/* ---------- Songs with several clips (original + remake) ---------- */
+.disco-versions { padding: 0 18px 14px; }
+.disco-versions summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  font-size: var(--fs-small);
+  color: var(--text-dim);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.disco-versions summary::-webkit-details-marker { display: none; }
+.disco-versions summary:hover { color: var(--accent); border-color: var(--accent); }
+.disco-versions summary .fa-chevron-down { font-size: 0.8em; transition: transform .2s; }
+.disco-versions[open] summary .fa-chevron-down { transform: rotate(180deg); }
+.disco-versions ul { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.disco-versions li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  font-size: var(--fs-card);
+}
+.disco-versions li a:hover { border-color: var(--accent); text-decoration: none; }
+.disco-versions img { width: 64px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.disco-versions li span { flex: 1; min-width: 0; }
+.disco-versions .fa-youtube { color: var(--youtube); }
+
+/* Lyric page: version tabs above the clip */
+.clip-versions { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.clip-version,
+body.light .clip-version {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  color: var(--text-dim);
+  font-size: var(--fs-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.clip-version .fa-youtube { color: var(--youtube); }
+.clip-version:hover { color: var(--text); }
+.clip-version.active,
+body.light .clip-version.active { color: var(--accent); border-color: var(--accent); }

@@ -20,12 +20,17 @@
     <%
       // Every song (newest first) and then the clips that aren't linked to a song
       String discoSql =
-          "SELECT s.name, s.year, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
+          // a song with several clips (original + remake) is dated and sorted by its newest clip
+          "SELECT s.name, CASE WHEN (SELECT COUNT(*) FROM videos v WHERE v.song_id = s.id) > 1 " +
+          "         THEN (SELECT YEAR(MAX(v.published_at)) FROM videos v WHERE v.song_id = s.id) ELSE s.year END AS year, " +
+          "       (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
           "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview " +
           "FROM songs s " +
           "UNION ALL " +
           "SELECT v.title, NULL, NULL, v.youtube_id, 1, v.id, NULL FROM videos v WHERE v.song_id IS NULL " +
           "ORDER BY grp, year DESC, ord DESC";
+      java.util.Map<Integer, java.util.List<com.github.skeliit.model.SongClip>> clipsBySong =
+          com.github.skeliit.model.SongClip.bySong();
       try (Connection conn = Db.get();
            PreparedStatement ps = conn.prepareStatement(discoSql);
            ResultSet rs = ps.executeQuery()) {
@@ -64,6 +69,23 @@
           <% if (yt != null) { %><a class="disco-youtube" href="https://www.youtube.com/watch?v=<%= ytHtml %>" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a><% } %>
           <a class="disco-spotify" href="<%= spotifyHref %>" target="_blank" rel="noopener" title="Spotify" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
         </div>
+        <%
+          java.util.List<com.github.skeliit.model.SongClip> versions = isSong ? clipsBySong.get(rs.getInt("ord")) : null;
+          if (versions != null && versions.size() > 1) {
+        %>
+        <details class="disco-versions">
+          <summary><%= versions.size() %> <%= t.getProperty("music.versions") %> <i class="fa-solid fa-chevron-down"></i></summary>
+          <ul>
+          <% for (com.github.skeliit.model.SongClip clip : versions) { String cid = com.github.skeliit.WebUtils.escapeHtml(clip.youtubeId); %>
+            <li><a href="https://www.youtube.com/watch?v=<%= cid %>" target="_blank" rel="noopener">
+              <img src="https://img.youtube.com/vi/<%= cid %>/mqdefault.jpg" alt="" loading="lazy">
+              <span><%= com.github.skeliit.WebUtils.escapeHtml(clip.label(t)) %></span>
+              <i class="fab fa-youtube"></i>
+            </a></li>
+          <% } %>
+          </ul>
+        </details>
+        <% } %>
       </article>
     <%
         }

@@ -35,6 +35,21 @@
       <div class="lyric-media">
       <c:choose>
       <c:when test="${not empty lyric.youtubeId}">
+        <%
+          @SuppressWarnings("unchecked")
+          java.util.List<com.github.skeliit.model.SongClip> clipList =
+              (java.util.List<com.github.skeliit.model.SongClip>) request.getAttribute("clips");
+          if (clipList != null && clipList.size() > 1) {
+        %>
+        <div class="clip-versions" role="tablist">
+          <% for (int ci = 0; ci < clipList.size(); ci++) { com.github.skeliit.model.SongClip clip = clipList.get(ci); %>
+            <button type="button" role="tab" class="clip-version<%= ci == 0 ? " active" : "" %>"
+                    aria-selected="<%= ci == 0 %>" data-yt="<%= com.github.skeliit.WebUtils.escapeHtml(clip.youtubeId) %>">
+              <i class="fab fa-youtube"></i> <%= com.github.skeliit.WebUtils.escapeHtml(clip.label(t)) %>
+            </button>
+          <% } %>
+        </div>
+        <% } %>
         <div class="content-box video-box">
           <div class="video-wrapper" id="ytFacade" data-yt="<c:out value='${lyric.youtubeId}'/>">
             <button type="button" class="yt-facade" aria-label="<%= t.getProperty("lyric.openYoutube","Přehrát video") %>">
@@ -54,14 +69,39 @@
         (function(){
           var box = document.getElementById('ytFacade');
           if (!box) return;
-          box.querySelector('.yt-facade').addEventListener('click', function(){
-            var iframe = document.createElement('iframe');
-            iframe.src = 'https://www.youtube.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
-            iframe.setAttribute('frameborder', '0');
-            iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
-            iframe.setAttribute('allowfullscreen', '');
-            box.innerHTML = '';
-            box.appendChild(iframe);
+          var label = '<%= com.github.skeliit.WebUtils.escapeJs(com.github.skeliit.WebUtils.escapeHtml(t.getProperty("lyric.openYoutube","Přehrát video"))) %>';
+          // clicking the thumbnail swaps in the real YouTube player
+          function bind() {
+            var btn = box.querySelector('.yt-facade');
+            if (!btn) return;
+            btn.addEventListener('click', function(){
+              var iframe = document.createElement('iframe');
+              iframe.src = 'https://www.youtube.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
+              iframe.setAttribute('frameborder', '0');
+              iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+              iframe.setAttribute('allowfullscreen', '');
+              box.innerHTML = '';
+              box.appendChild(iframe);
+            });
+          }
+          bind();
+          // version tabs (original / remake): show the chosen clip's thumbnail again
+          document.querySelectorAll('.clip-version').forEach(function(tab){
+            tab.addEventListener('click', function(){
+              var id = tab.getAttribute('data-yt');
+              if (!/^[A-Za-z0-9_-]{6,20}$/.test(id)) return;
+              document.querySelectorAll('.clip-version').forEach(function(o){
+                o.classList.toggle('active', o === tab);
+                o.setAttribute('aria-selected', o === tab ? 'true' : 'false');
+              });
+              box.setAttribute('data-yt', id);
+              box.innerHTML = '<button type="button" class="yt-facade" aria-label="' + label + '">'
+                + '<img class="yt-facade-img" src="https://i.ytimg.com/vi/' + id + '/hqdefault.jpg" alt="">'
+                + '<span class="yt-facade-play" aria-hidden="true"><i class="fab fa-youtube"></i></span></button>';
+              bind();
+              var yt = document.querySelector('.lyric-links a[href*="youtube.com/watch"]');
+              if (yt) yt.href = 'https://www.youtube.com/watch?v=' + id;
+            });
           });
         })();
         </script>
