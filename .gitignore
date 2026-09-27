@@ -42,6 +42,8 @@ hs_err_pid*
 replay_pid*
 
 /src/main/webapp/uploads/avatars/
+/src/main/webapp/uploads/social/
+/src/main/webapp/uploads/song-previews/
 
 # Secrets
 .webui_secret_key

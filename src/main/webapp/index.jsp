@@ -129,7 +129,8 @@
       const el = document.getElementById('home-social');
       if(!el) return;
       const esc = v => String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-      const safeUrl = u => /^https?:\/\//i.test(u||'') ? esc(u) : '#';
+      // http(s) links, or paths on this site (downloaded Instagram images); never "//host" or "javascript:"
+      const safeUrl = u => /^(https?:\/\/|\/(?!\/))/i.test(u||'') ? esc(u) : '#';
       el.innerHTML = posts.map(p=>{
         const img = p.image?`<img src="\${safeUrl(p.image)}" class="home-social-img" alt="" loading="lazy">`:'';
         const cap = esc((p.caption||'').slice(0,120));

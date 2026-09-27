@@ -48,10 +48,11 @@ public class SocialPostsApiServlet extends HttpServlet {
 
         String sql;
         if (onePerSource) {
-            sql = "SELECT s.id, s.source, s.lang, s.post_id, s.permalink, s.image_url, s.caption, s.created_at " +
-                    "FROM social_posts s " +
-                    "INNER JOIN (SELECT source, MAX(id) AS max_id FROM social_posts WHERE lang = ? GROUP BY source) sub ON s.id = sub.max_id " +
-                    "ORDER BY s.created_at DESC";
+            // the newest post (by publish time, not insert order) of each source
+            sql = "SELECT id, source, lang, post_id, permalink, image_url, caption, created_at FROM (" +
+                    " SELECT s.*, ROW_NUMBER() OVER (PARTITION BY source ORDER BY created_at DESC, id DESC) AS rn" +
+                    " FROM social_posts s WHERE (lang = ? OR lang IS NULL)) x " +
+                    "WHERE rn = 1 ORDER BY created_at DESC";
         } else {
             // YouTube Shorts + social posts, newest first (offset pagination for load-more)
             sql =
@@ -68,7 +69,7 @@ public class SocialPostsApiServlet extends HttpServlet {
                     " (SELECT id, source COLLATE utf8mb4_czech_ci, lang COLLATE utf8mb4_czech_ci," +
                     " post_id COLLATE utf8mb4_czech_ci, permalink COLLATE utf8mb4_czech_ci," +
                     " image_url COLLATE utf8mb4_czech_ci, caption COLLATE utf8mb4_czech_ci, created_at" +
-                    " FROM social_posts WHERE lang = ?)" +
+                    " FROM social_posts WHERE (lang = ? OR lang IS NULL))" +
                     " ORDER BY created_at DESC LIMIT ? OFFSET ?";
         }
         ObjectMapper mapper = new ObjectMapper();

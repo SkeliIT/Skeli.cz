@@ -29,8 +29,9 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  // http(s) links, or paths on this site (downloaded Instagram images); never "//host" or "javascript:"
   function safeUrl(u) {
-    return /^https?:\/\//i.test(u || '') ? esc(u) : '#';
+    return /^(https?:\/\/|\/(?!\/))/i.test(u || '') ? esc(u) : '#';
   }
 
   function card(p) {

@@ -15,6 +15,14 @@
     </section>
 
     <section class="admin-card">
+      <h3>Synchronizace Instagramu</h3>
+      <div class="admin-actions">
+        <a class="admin-sync" href="/admin/instagram-sync">Spustit sync</a>
+      </div>
+      <p class="text-dim">Běží samo každou hodinu. Stáhne posledních 25 příspěvků ze skeli.official do Aktualit.</p>
+    </section>
+
+    <section class="admin-card">
       <h3>Upravit / napojit video</h3>
       <form method="post" action="/admin/video" style="display:grid; gap:8px;">
         <input type="hidden" name="csrf" value="${csrf}">
