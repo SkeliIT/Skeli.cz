@@ -348,8 +348,7 @@ body.light .lyric-page .lyric-nav a:hover { border-color: rgba(0, 0, 0, 0.22); b
   grid-template-columns: minmax(0, 1fr) 380px;
   grid-template-areas:
     "head     head"
-    "media    side"
-    "body     side"
+    "main     side"
     "comments side";
   gap: 22px;
   align-items: start;
@@ -364,8 +363,7 @@ body.light .lyric-page .lyric-nav a:hover { border-color: rgba(0, 0, 0, 0.22); b
   flex-direction: column;
   gap: 16px;
 }
-.lyric-media { grid-area: media; }
-.lyric-body { grid-area: body; }
+
 .lyric-comments { grid-area: comments; }
 
 .lyric-page .content-box { padding: 26px; }
@@ -413,7 +411,7 @@ body.light .lyric-page .lyric-nav a:hover { border-color: rgba(0, 0, 0, 0.22); b
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   font-family: var(--font-body);
-  font-size: 0.95rem;   /* between h4 and body: the main reading text */
+  font-size: calc(0.95rem * var(--lyric-scale, 1));   /* between h4 and body; A−/A+ change the scale */
   line-height: 1.9;
   font-weight: var(--fw);
   color: var(--text);
@@ -541,13 +539,13 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 @media (max-width: 960px) {
   .lyric-grid {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "head" "media" "side" "body" "comments";
+    grid-template-areas: "head" "main" "side" "comments";
   }
   .lyric-side { position: static; }
 }
 @media (max-width: 600px) {
   .lyric-page .content-box { padding: 20px; }
-  .lyric-page .lyrics-text pre { font-size: 0.85rem; line-height: 1.85; }
+  .lyric-page .lyrics-text pre { font-size: calc(0.85rem * var(--lyric-scale, 1)); line-height: 1.85; }
 }
 
 /* ---------- About ---------- */
@@ -1039,21 +1037,11 @@ body.light .about-page .about-intro { background: rgba(255, 255, 255, 0.68); }
   .about-page .about-intro { padding: 20px; }
 }
 
-/* Lyric page: the big video above the lyrics. Its frame fades out towards the
-   text below: the panel (background, border, blur) lives on a masked ::before,
-   the video itself stays fully visible. */
-.lyric-page .lyric-media .video-box {
-  position: relative;
-  z-index: 0;
-  padding: 10px 10px 34px;
-  margin: 0;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-.lyric-page .lyric-media .video-box::before {
+/* Lyric page: clip and lyrics share one frame (.lyric-main). The panel lives on a
+   masked ::before so the frame fades out at the bottom of the lyrics; the video
+   and the text themselves stay fully visible. */
+.lyric-main { grid-area: main; position: relative; z-index: 0; padding: 12px 12px 90px; }
+.lyric-main::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1061,14 +1049,68 @@ body.light .about-page .about-intro { background: rgba(255, 255, 255, 0.68); }
   border-radius: var(--radius);
   border: 1px solid var(--panel-border);
   background: var(--panel);
+  box-shadow: var(--shadow);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 55%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0, #000 55%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 200px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 200px), transparent 100%);
   pointer-events: none;
 }
-.lyric-page .lyric-media + .lyric-side { align-self: start; }
-.lyric-page .lyric-media .video-wrapper { box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7); }
+.lyric-page .lyric-main .video-box {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.lyric-page .lyric-main .clip-versions { margin: 4px 4px 12px; }
+.lyric-page .lyric-main .video-wrapper { box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7); }
+.lyric-page .lyric-body { padding: 26px 18px 0; }
+
+/* The playing clip scrolled out of view floats bottom-left (the Spotify card is bottom-right) */
+.lyric-page .video-wrapper.is-mini {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 9000;
+  width: min(360px, calc(100vw - 40px));
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.75);
+}
+.lyric-page .mini-close { display: none; }
+.lyric-page .video-wrapper.is-mini .mini-close,
+body.light .lyric-page .video-wrapper.is-mini .mini-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  cursor: pointer;
+}
+@media (max-width: 600px) {
+  .lyric-page .video-wrapper.is-mini { left: 12px; bottom: 12px; width: 62vw; }
+  .lyric-main { padding: 8px 8px 70px; }
+  .lyric-page .lyric-body { padding: 20px 10px 0; }
+}
+
+/* A− / A+ for the lyrics */
+.lyric-textsize { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; font-size: var(--fs-small); color: var(--text-dim); }
+.lyric-textsize .ts-btn,
+body.light .lyric-textsize .ts-btn { width: 38px; height: 32px; padding: 0; border-radius: 10px; border: 1px solid var(--panel-border); background: transparent; color: var(--text); font-size: var(--fs-card); }
+.lyric-textsize .ts-btn:hover { border-color: var(--accent); color: var(--accent); }
+
 /* a preview photo without a video fills the same 16:9 frame */
 .lyric-page .video-wrapper > .yt-facade-img { position: absolute; inset: 0; }
 
@@ -1124,3 +1166,37 @@ body.light .clip-version {
 .clip-version:hover { color: var(--text); }
 .clip-version.active,
 body.light .clip-version.active { color: var(--accent); border-color: var(--accent); }
+
+/* Card text in Oswald: medium instead of light in the easier-reading mode */
+html.bold-text body :where(.feature-card p, .side-card p, .about-card p, .news-title, .home-social-caption,
+  .donate-section li, .donate-section p, .lyric-page .comment-text, .ep-comment-text, .about-text p) { font-weight: 500; }
+
+/* Card thumbnail of a song with two versions: the newest clip on top fades out
+   at the middle into the older one below, so both are visible at a glance */
+.thumb-split { position: absolute; inset: 0; display: block; }
+.thumb-split img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.thumb-split .split-top {
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 38%, transparent 62%);
+  mask-image: linear-gradient(to bottom, #000 0, #000 38%, transparent 62%);
+}
+/* keep the dark bottom gradient of the card above both images */
+.song-thumb::after { z-index: 2; }
+/* "Remake · 2025" in the top half, "Originál · 2016" in the bottom half */
+.split-tag {
+  position: absolute;
+  left: 10px;
+  z-index: 3;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: var(--fs-small);
+  line-height: 1.4;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+.split-tag-top { top: 10px; }
+.split-tag-bottom { bottom: 10px; }

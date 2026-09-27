@@ -30,6 +30,8 @@
         <c:if test="${not empty lyric.year}"><span class="song-year">${lyric.year}</span></c:if>
       </header>
 
+      <!-- Video and lyrics share one frame that fades out at the bottom -->
+      <section class="lyric-main">
       <!-- Video (or the song's preview photo) above the lyrics -->
       <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
       <div class="lyric-media">
@@ -117,6 +119,15 @@
       </div>
       </c:if>
 
+
+      <!-- Lyrics Text -->
+      <article class="lyric-body">
+        <div class="lyrics-text">
+          <pre><c:out value="${lyric.words}"/></pre>
+        </div>
+      </article>
+      </section>
+
       <!-- Listen links (sticky sidebar on desktop) -->
       <aside class="lyric-side">
 
@@ -139,16 +150,14 @@
               </a>
             </c:if>
           </div>
+          <div class="lyric-textsize" role="group" aria-label="<%= t.getProperty("lyric.textSize") %>">
+            <span><%= t.getProperty("lyric.textSize") %></span>
+            <button type="button" class="ts-btn" data-step="-1" aria-label="<%= t.getProperty("lyric.textSmaller") %>" title="<%= t.getProperty("lyric.textSmaller") %>">A−</button>
+            <button type="button" class="ts-btn" data-step="1" aria-label="<%= t.getProperty("lyric.textBigger") %>" title="<%= t.getProperty("lyric.textBigger") %>">A+</button>
+          </div>
           <div class="views-count"><i class="fa-regular fa-eye"></i> <%= t.getProperty("lyric.views") %> ${lyric.views}</div>
         </div>
       </aside>
-
-      <!-- Lyrics Text -->
-      <article class="content-box lyric-body">
-        <div class="lyrics-text">
-          <pre><c:out value="${lyric.words}"/></pre>
-        </div>
-      </article>
 
       <!-- Votes & Comments Box -->
       <div class="content-box lyric-comments">
@@ -283,6 +292,52 @@
       centerActive();
       // measure again with the real font (Bruno Ace is wider than the fallback)
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(centerActive);
+    })();
+
+    // A playing clip that is scrolled out of view shrinks to a small player in the
+    // bottom-left corner, so it can be watched while reading long lyrics.
+    (function () {
+      const box = document.querySelector('.lyric-media .video-box');
+      const player = document.getElementById('ytFacade');
+      if (!box || !player || !('IntersectionObserver' in window)) return;
+      let dismissed = false;
+      function playing() { return !!player.querySelector('iframe'); }
+      function dock() {
+        player.classList.remove('is-mini');
+        box.style.minHeight = '';
+      }
+      new IntersectionObserver(function (entries) {
+        const visible = entries[0].isIntersecting;
+        if (visible) { dismissed = false; dock(); return; }
+        if (!playing() || dismissed) return;
+        box.style.minHeight = box.offsetHeight + 'px'; // keep the gap while the player floats
+        if (!player.querySelector('.mini-close')) {
+          const close = document.createElement('button');
+          close.type = 'button';
+          close.className = 'mini-close';
+          close.setAttribute('aria-label', '<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("player.hide")) %>');
+          close.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+          close.addEventListener('click', function () { dismissed = true; dock(); });
+          player.appendChild(close);
+        }
+        player.classList.add('is-mini');
+      }, { threshold: 0.15 }).observe(box);
+    })();
+
+    // A− / A+ for the lyrics, remembered in this browser
+    (function () {
+      const KEY = 'lyricScale';
+      let scale = 1;
+      try { scale = parseFloat(localStorage.getItem(KEY)) || 1; } catch (e) {}
+      function apply() { document.documentElement.style.setProperty('--lyric-scale', scale.toFixed(2)); }
+      apply();
+      document.querySelectorAll('.ts-btn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          scale = Math.min(1.8, Math.max(0.8, scale + 0.1 * Number(b.dataset.step)));
+          apply();
+          try { localStorage.setItem(KEY, scale.toFixed(2)); } catch (e) {}
+        });
+      });
     })();
 
     // Edit a comment in place (the pencil swaps the text for a small form) and open reply forms

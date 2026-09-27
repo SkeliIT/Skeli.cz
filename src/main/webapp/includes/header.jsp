@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "2.2.7";
+  String assetVersion = "2.2.9";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -78,7 +78,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Exo+2:wght@500&family=Oswald:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Exo+2:wght@500&family=Oswald:wght@300;500&display=swap" rel="stylesheet">
     <!-- Skeli.cz CSS -->
     <link rel="stylesheet" href="<%= ctx %>/css/base.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/components.css?v=<%= assetVersion %>">
@@ -181,12 +181,20 @@
         <script>
           (function () {
             const fwKey = 'fontWeight';
-            const body = document.body; const curFw = localStorage.getItem(fwKey) || '400';
-            document.documentElement.style.setProperty('--fw', curFw);
-            document.getElementById('fontToggle').addEventListener('click', () => {
-              const newFw = (getComputedStyle(document.documentElement).getPropertyValue('--fw').trim() === '400') ? '600' : '400';
-              document.documentElement.style.setProperty('--fw', newFw);
-              localStorage.setItem(fwKey, newFw);
+            // "B" = easier reading: bolder and slightly bigger text (see html.bold-text in base.css)
+            const body = document.body;
+            const fontBtn = document.getElementById('fontToggle');
+            function setBold(on) {
+              document.documentElement.classList.toggle('bold-text', on);
+              document.documentElement.style.setProperty('--fw', on ? '700' : '400');
+              fontBtn.classList.toggle('active', on);
+              fontBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            }
+            setBold(localStorage.getItem(fwKey) === '600' || localStorage.getItem(fwKey) === '700');
+            fontBtn.addEventListener('click', () => {
+              const on = !document.documentElement.classList.contains('bold-text');
+              setBold(on);
+              localStorage.setItem(fwKey, on ? '700' : '400');
             });
             const k = 'theme';
             const cur = localStorage.getItem(k) || 'dark';

@@ -51,7 +51,18 @@
     %>
       <article class="song-card disco-card">
         <a class="song-thumb" <% if (mainHref != null) { %>href="<%= mainHref %>"<% if (!hasLyrics) { %> target="_blank" rel="noopener"<% } } %> aria-label="<%= nameHtml %>">
-          <% if (yt != null) { %>
+          <%
+            java.util.List<com.github.skeliit.model.SongClip> thumbClips = isSong ? clipsBySong.get(rs.getInt("ord")) : null;
+            if (thumbClips != null && thumbClips.size() > 1) {
+              // two versions: the newest on top fading into the oldest below
+          %>
+            <span class="thumb-split">
+              <img class="split-bottom" src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(thumbClips.size() - 1).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+              <img class="split-top" src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(0).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+              <span class="split-tag split-tag-top"><%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(0).label(t)) %></span>
+              <span class="split-tag split-tag-bottom"><%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(thumbClips.size() - 1).label(t)) %></span>
+            </span>
+          <% } else if (yt != null) { %>
             <img src="https://img.youtube.com/vi/<%= ytHtml %>/mqdefault.jpg" alt="" loading="lazy">
           <% } else if (preview != null) { %>
             <img src="<%= com.github.skeliit.WebUtils.escapeHtml(preview) %>" alt="" loading="lazy">

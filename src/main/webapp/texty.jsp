@@ -9,6 +9,8 @@
     <div class="song-grid">
         <%
             boolean hadRows = false;
+            java.util.Map<Integer, java.util.List<com.github.skeliit.model.SongClip>> clipsBySong =
+                com.github.skeliit.model.SongClip.bySong();
             try {
                 try (Connection conn = Db.get();
                          PreparedStatement ps = conn.prepareStatement(
@@ -41,7 +43,18 @@
         %>
                             <a class="song-card" href="/lyrics/<%= lyricId %>">
                                 <div class="song-thumb">
-                                <% if (youtubeId != null && !youtubeId.isEmpty()) { %>
+                                <%
+                                  java.util.List<com.github.skeliit.model.SongClip> thumbClips = clipsBySong.get(rs.getInt("song_id"));
+                                  if (thumbClips != null && thumbClips.size() > 1) {
+                                    // two versions: the newest on top fading into the oldest below
+                                %>
+                                    <span class="thumb-split">
+                                      <img class="split-bottom" src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(thumbClips.size() - 1).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+                                      <img class="split-top" src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(0).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+                                      <span class="split-tag split-tag-top"><%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(0).label(t)) %></span>
+                                      <span class="split-tag split-tag-bottom"><%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(thumbClips.size() - 1).label(t)) %></span>
+                                    </span>
+                                <% } else if (youtubeId != null && !youtubeId.isEmpty()) { %>
                                     <img src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
                                 <% } else if (preview != null) { %>
                                     <img src="<%= com.github.skeliit.WebUtils.escapeHtml(preview) %>" alt="" loading="lazy">

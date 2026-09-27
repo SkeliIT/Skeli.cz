@@ -222,3 +222,10 @@ main > h2:first-child::after {
 @media (max-width: 600px) {
   main { padding: 24px 16px 120px; }
 }
+
+/* "B" button in the header: easier reading. Bruno Ace SC has one weight, so the
+   browser may synthesize the bold here; everything also grows a little. */
+html.bold-text { font-size: 108%; }
+html.bold-text body { font-synthesis-weight: auto; }
+html.bold-text body :where(p, li, pre, label, input, textarea, .comment-text, .news-title) { font-weight: 700; }
+.bold-btn.active { border-color: var(--accent); color: var(--accent); }
