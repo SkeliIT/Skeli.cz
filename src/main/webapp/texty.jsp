@@ -12,10 +12,11 @@
             try {
                 try (Connection conn = Db.get();
                          PreparedStatement ps = conn.prepareStatement(
-                             "SELECT s.id AS song_id, s.name AS song_name, s.year AS song_year, MIN(l.id) AS lyric_id, " +
+                             "SELECT s.id AS song_id, s.uuid AS song_uuid, s.name AS song_name, s.year AS song_year, " +
+                             "s.preview_image_url, MIN(l.id) AS lyric_id, " +
                              "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id LIMIT 1) AS youtube_id " +
                              "FROM lyrics l JOIN songs s ON s.id = l.song_id " +
-                             "GROUP BY s.id, s.name, s.year " +
+                             "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url " +
                              "ORDER BY s.year DESC, s.name ASC"
                          );
                          ResultSet rs = ps.executeQuery()) {
@@ -36,12 +37,23 @@
                             }
                             int lyricId = rs.getInt("lyric_id");
                             if (rs.wasNull() || lyricId <= 0) continue;
+                            String songUuid = rs.getString("song_uuid");
                             String youtubeId = rs.getString("youtube_id");
+                            String previewUrl = rs.getString("preview_image_url");
+                            String href = (songUuid != null && !songUuid.isBlank())
+                                    ? "/cs/song/" + songUuid
+                                    : "/lyrics/" + lyricId;
+                            String thumbSrc = null;
+                            if (previewUrl != null && !previewUrl.isBlank()) {
+                                thumbSrc = previewUrl;
+                            } else if (youtubeId != null && !youtubeId.isEmpty()) {
+                                thumbSrc = "https://img.youtube.com/vi/" + youtubeId + "/mqdefault.jpg";
+                            }
         %>
-                            <a class="song-card" href="/lyrics/<%= lyricId %>">
+                            <a class="song-card" href="<%= com.github.skeliit.WebUtils.escapeHtml(href) %>">
                                 <div class="song-thumb">
-                                <% if (youtubeId != null && !youtubeId.isEmpty()) { %>
-                                    <img src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+                                <% if (thumbSrc != null) { %>
+                                    <img src="<%= com.github.skeliit.WebUtils.escapeHtml(thumbSrc) %>" alt="" loading="lazy">
                                 <% } else { %>
                                     <span class="song-thumb-placeholder"><i class="fa-solid fa-music"></i></span>
                                 <% } %>

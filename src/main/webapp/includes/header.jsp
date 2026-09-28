@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "2.2.5";
+  String assetVersion = "2.3.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -42,8 +42,11 @@
   if (headDesc == null) headDesc = t.getProperty("meta.description");
   // Absolute URLs for search engines and link previews (never taken from the Host header)
   String siteBase = com.github.skeliit.WebUtils.baseUrl();
+  String canonicalPath = (String) request.getAttribute("canonicalPath");
   Object fwdUri = request.getAttribute("jakarta.servlet.forward.request_uri");
-  String headUrl = siteBase + (fwdUri != null ? fwdUri : request.getRequestURI());
+  String headUrl = siteBase + (canonicalPath != null
+      ? canonicalPath
+      : (fwdUri != null ? fwdUri : request.getRequestURI()));
   // error pages (404/500) must not end up in search results
   boolean headIsError = request.getAttribute("jakarta.servlet.error.status_code") != null;
   // link preview image/type: a page may set its own (a lyric page uses its video thumbnail)
@@ -54,6 +57,23 @@
     <meta name="description" content="<%= com.github.skeliit.WebUtils.escapeHtml(headDesc) %>" />
     <meta name="author" content="Skeli" />
     <% if (headIsError) { %><meta name="robots" content="noindex" /><% } else { %><link rel="canonical" href="<%= com.github.skeliit.WebUtils.escapeHtml(headUrl) %>" /><% } %>
+    <%
+      @SuppressWarnings("unchecked")
+      java.util.Map<String, String> hreflang = (java.util.Map<String, String>) request.getAttribute("hreflang");
+      if (hreflang != null) {
+        for (java.util.Map.Entry<String, String> e : hreflang.entrySet()) {
+          String href = siteBase + e.getValue();
+    %>
+    <link rel="alternate" hreflang="<%= com.github.skeliit.WebUtils.escapeHtml(e.getKey()) %>" href="<%= com.github.skeliit.WebUtils.escapeHtml(href) %>" />
+    <%
+        }
+        if (hreflang.containsKey("cs")) {
+    %>
+    <link rel="alternate" hreflang="x-default" href="<%= com.github.skeliit.WebUtils.escapeHtml(siteBase + hreflang.get("cs")) %>" />
+    <%
+        }
+      }
+    %>
     <meta property="og:site_name" content="Skeli" />
     <meta property="og:title" content="<%= com.github.skeliit.WebUtils.escapeHtml(headFullTitle) %>" />
     <meta property="og:description" content="<%= com.github.skeliit.WebUtils.escapeHtml(headDesc) %>" />

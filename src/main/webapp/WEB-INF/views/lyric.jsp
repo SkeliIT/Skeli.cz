@@ -267,7 +267,11 @@
       const btn = document.getElementById('shareLyric');
       if (!btn) return;
       btn.addEventListener('click', function () {
-        const url = location.href;
+        const uuid = '<c:out value="${lyric.songUuid}"/>';
+        const path = '<c:out value="${lyric.publicPath}"/>';
+        const url = path
+          ? (location.origin + path)
+          : (uuid ? (location.origin + '/cs/song/' + uuid) : location.href);
         if (navigator.share) { navigator.share({ title: document.title, url }).catch(() => {}); return; }
         navigator.clipboard.writeText(url).then(() => {
           const label = btn.querySelector('span'); const old = label.textContent;

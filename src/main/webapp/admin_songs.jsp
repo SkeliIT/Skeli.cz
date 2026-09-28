@@ -3,84 +3,55 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <main>
-  <h2>Přehled písní</h2>
-  <p><a href="/admin.jsp">← Zpět na admin</a></p>
+  <h2>Písně</h2>
+  <p class="admin-crumb"><a href="/admin.jsp">← Admin</a></p>
+  <p class="text-dim">Píseň je střed administrace — YouTube, Spotify, Apple Music a náhled se vážou k ní.</p>
 
   <c:if test="${not empty param.msg}">
-    <p class="admin-flash">
-      <c:choose>
-        <c:when test="${param.msg == 'preview_saved'}">Náhledový obrázek uložen.</c:when>
-        <c:when test="${param.msg == 'preview_deleted'}">Náhledový obrázek smazán.</c:when>
-        <c:when test="${param.msg == 'no_file'}">Nebyl vybrán žádný soubor.</c:when>
-        <c:when test="${param.msg == 'too_large'}">Soubor je příliš velký (max 5&nbsp;MB).</c:when>
-        <c:when test="${param.msg == 'invalid_image'}">Neplatný obrázek.</c:when>
-        <c:otherwise>${param.msg}</c:otherwise>
-      </c:choose>
-    </p>
+    <p class="admin-flash"><c:out value="${param.msg}"/></p>
   </c:if>
-
-  <p class="text-dim">Náhledový obrázek slouží pro Open Graph (sdílení odkazu) a jako placeholder před načtením YouTube videa.</p>
 
   <table class="songs-table">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Náhled</th>
+        <th></th>
         <th>Název</th>
         <th>Rok</th>
-        <th>Video</th>
+        <th>Média</th>
         <th>Text</th>
-        <th>Jazyky</th>
-        <th>Akce</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       <c:forEach var="song" items="${songs}">
         <tr>
-          <td>${song.id}</td>
-          <td class="song-preview-cell">
+          <td>
             <c:choose>
-              <c:when test="${not empty song.previewImageUrl}">
-                <img class="song-preview-thumb" src="${song.previewImageUrl}" alt="Náhled: ${song.name}">
+              <c:when test="${song.hasPreview}">
+                <img class="song-preview-thumb" src="<c:out value='${song.previewImageUrl}'/>" alt="">
               </c:when>
               <c:otherwise>
                 <span class="song-preview-empty">—</span>
               </c:otherwise>
             </c:choose>
-            <form method="post" action="/admin/songs/preview" enctype="multipart/form-data" class="song-preview-form">
-              <input type="hidden" name="csrf" value="${csrf}">
-              <input type="hidden" name="song_id" value="${song.id}">
-              <label class="song-preview-upload">
-                <input type="file" name="preview" accept="image/jpeg,image/png,image/webp" required>
-                <span>Nahrát</span>
-              </label>
-              <button type="submit">Uložit</button>
-            </form>
-            <c:if test="${not empty song.previewImageUrl}">
-              <form method="post" action="/admin/songs/preview" class="song-preview-form">
-                <input type="hidden" name="csrf" value="${csrf}">
-                <input type="hidden" name="song_id" value="${song.id}">
-                <input type="hidden" name="action" value="delete">
-                <button type="submit" class="btn-delete" onclick="return confirm('Smazat náhled?')">Smazat</button>
-              </form>
-            </c:if>
           </td>
-          <td>${song.name}</td>
-          <td>${song.year != null ? song.year : '-'}</td>
           <td>
-            <c:choose>
-              <c:when test="${song.hasVideo}">
-                <span class="indicator yes">✓</span>
-              </c:when>
-              <c:otherwise>
-                <span class="indicator no">✗</span>
-              </c:otherwise>
-            </c:choose>
+            <a href="/admin/song?uuid=${song.uuid}"><strong><c:out value="${song.name}"/></strong></a>
+            <div class="text-dim song-list-uuid" title="${song.uuid}"><c:out value="${song.uuid}"/></div>
+          </td>
+          <td>${song.year != null ? song.year : '—'}</td>
+          <td class="media-badges">
+            <span class="indicator ${song.hasVideo ? 'yes' : 'no'}" title="YouTube"><i class="fab fa-youtube"></i></span>
+            <span class="indicator ${song.hasSpotify ? 'yes' : 'no'}" title="Spotify"><i class="fab fa-spotify"></i></span>
+            <span class="indicator ${song.hasApple ? 'yes' : 'no'}" title="Apple Music"><i class="fab fa-apple"></i></span>
+            <span class="indicator ${song.hasPreview ? 'yes' : 'no'}" title="Náhled / OG"><i class="fa-regular fa-image"></i></span>
           </td>
           <td>
             <c:choose>
               <c:when test="${song.hasLyrics}">
-                <span class="indicator yes">✓</span>
+                <c:forEach var="lang" items="${song.languages}">
+                  <span class="lang-flag">${lang}</span>
+                </c:forEach>
               </c:when>
               <c:otherwise>
                 <span class="indicator no">✗</span>
@@ -88,18 +59,9 @@
             </c:choose>
           </td>
           <td>
-            <c:if test="${song.hasLyrics}">
-              <c:forEach var="lang" items="${song.languages}">
-                <span class="lang-flag">${lang}</span>
-              </c:forEach>
-            </c:if>
-          </td>
-          <td>
-            <c:if test="${song.hasVideo}">
-              <a href="/music.jsp" class="link-btn" target="_blank">Video</a>
-            </c:if>
-            <c:if test="${song.hasLyrics}">
-              <a href="/lyrics/${song.id}" class="link-btn" target="_blank">Text</a>
+            <a href="/admin/song?uuid=${song.uuid}" class="link-btn">Upravit</a>
+            <c:if test="${not empty song.uuid}">
+              <a href="/cs/song/${song.uuid}" class="link-btn" target="_blank">Text</a>
             </c:if>
           </td>
         </tr>

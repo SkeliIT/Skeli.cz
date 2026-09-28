@@ -20,11 +20,11 @@
     <%
       // Every song (newest first) and then the clips that aren't linked to a song
       String discoSql =
-          "SELECT s.name, s.year, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
+          "SELECT s.name, s.year, s.uuid, s.preview_image_url, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
           "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.id LIMIT 1) AS yt, 0 AS grp, s.id AS ord " +
           "FROM songs s " +
           "UNION ALL " +
-          "SELECT v.title, NULL, NULL, v.youtube_id, 1, v.id FROM videos v WHERE v.song_id IS NULL " +
+          "SELECT v.title, NULL, NULL, NULL, NULL, v.youtube_id, 1, v.id FROM videos v WHERE v.song_id IS NULL " +
           "ORDER BY grp, year DESC, ord DESC";
       try (Connection conn = Db.get();
            PreparedStatement ps = conn.prepareStatement(discoSql);
@@ -37,16 +37,24 @@
           Object yearObj = rs.getObject("year");
           int lyricId = rs.getInt("lyric_id");
           boolean hasLyrics = !rs.wasNull() && lyricId > 0;
+          String songUuid = isSong ? rs.getString("uuid") : null;
+          String previewUrl = isSong ? rs.getString("preview_image_url") : null;
           String yt = rs.getString("yt");
           String nameHtml = com.github.skeliit.WebUtils.escapeHtml(name);
           String ytHtml = yt == null ? null : com.github.skeliit.WebUtils.escapeHtml(yt);
-          String mainHref = hasLyrics ? "/lyrics/" + lyricId : (yt != null ? "https://www.youtube.com/watch?v=" + ytHtml : null);
+          String lyricsHref = hasLyrics
+              ? ((songUuid != null && !songUuid.isBlank()) ? "/cs/song/" + songUuid : "/lyrics/" + lyricId)
+              : null;
+          String mainHref = lyricsHref != null ? lyricsHref : (yt != null ? "https://www.youtube.com/watch?v=" + ytHtml : null);
           String spotifyHref = "https://open.spotify.com/search/" + java.net.URLEncoder.encode("Skeli " + name, "UTF-8").replace("+", "%20");
+          String thumbSrc = null;
+          if (previewUrl != null && !previewUrl.isBlank()) thumbSrc = previewUrl;
+          else if (yt != null) thumbSrc = "https://img.youtube.com/vi/" + ytHtml + "/mqdefault.jpg";
     %>
       <article class="song-card disco-card">
         <a class="song-thumb" <% if (mainHref != null) { %>href="<%= mainHref %>"<% if (!hasLyrics) { %> target="_blank" rel="noopener"<% } } %> aria-label="<%= nameHtml %>">
-          <% if (yt != null) { %>
-            <img src="https://img.youtube.com/vi/<%= ytHtml %>/mqdefault.jpg" alt="" loading="lazy">
+          <% if (thumbSrc != null) { %>
+            <img src="<%= com.github.skeliit.WebUtils.escapeHtml(thumbSrc) %>" alt="" loading="lazy">
           <% } else { %>
             <span class="song-thumb-placeholder"><i class="fa-solid fa-music"></i></span>
           <% } %>
@@ -57,7 +65,7 @@
         </div>
         <div class="disco-links">
           <%-- icons only, stacked on the right edge of the thumbnail; the name is in title/aria-label --%>
-          <% if (hasLyrics) { %><a class="disco-lyrics" href="/lyrics/<%= lyricId %>" title="<%= t.getProperty("music.link.lyrics") %>" aria-label="<%= t.getProperty("music.link.lyrics") %>"><i class="fa-solid fa-align-left"></i></a><% } %>
+          <% if (lyricsHref != null) { %><a class="disco-lyrics" href="<%= lyricsHref %>" title="<%= t.getProperty("music.link.lyrics") %>" aria-label="<%= t.getProperty("music.link.lyrics") %>"><i class="fa-solid fa-align-left"></i></a><% } %>
           <% if (yt != null) { %><a class="disco-youtube" href="https://www.youtube.com/watch?v=<%= ytHtml %>" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a><% } %>
           <a class="disco-spotify" href="<%= spotifyHref %>" target="_blank" rel="noopener" title="Spotify" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
         </div>

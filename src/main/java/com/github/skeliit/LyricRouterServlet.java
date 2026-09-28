@@ -49,6 +49,9 @@ public class LyricRouterServlet extends HttpServlet {
             req.setAttribute("pageDescription", firstLines(v.words, 160));
             // link previews: custom song image, else YouTube thumbnail
             req.setAttribute("pageType", "music.song");
+            if (v.songUuid != null && !v.songUuid.isBlank()) {
+                req.setAttribute("canonicalPath", v.getPublicPath());
+            }
             String pageImage = absoluteImage(v.previewImageUrl);
             if (pageImage == null && v.youtubeId != null && v.youtubeId.matches("[A-Za-z0-9_-]{6,20}")) {
                 pageImage = "https://i.ytimg.com/vi/" + v.youtubeId + "/hqdefault.jpg";

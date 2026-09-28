@@ -3,38 +3,36 @@
 
 <main>
   <h2>Admin</h2>
-  <p>Tato sekce je dostupná pouze pro ADMIN.</p>
+  <p>Středem je <strong>píseň</strong> — na ni se vážou texty, YouTube, Spotify, Apple Music a náhledový obrázek.</p>
 
   <div class="admin-grid">
+    <section class="admin-card admin-card-wide admin-hero-card">
+      <h3>Písně</h3>
+      <p>Správa katalogu: média, náhled (Open Graph), texty.</p>
+      <div class="admin-actions">
+        <a class="admin-sync" href="/admin/songs">Otevřít katalog písní</a>
+      </div>
+    </section>
+
     <section class="admin-card">
       <h3>Synchronizace YouTube</h3>
       <div class="admin-actions">
         <a class="admin-sync" href="/admin/sync">Spustit sync</a>
       </div>
-      <p style="opacity:.8; font-size:.95em;">Načte poslední videa z kanálu a spáruje je se songy.</p>
+      <p class="text-dim">Načte videa z kanálu a spáruje je se songy. Jemné napojení děláš u konkrétní písně.</p>
     </section>
 
     <section class="admin-card">
-      <h3>Upravit / napojit video</h3>
-      <form method="post" action="/admin/video" style="display:grid; gap:8px;">
-        <input type="hidden" name="csrf" value="${csrf}">
-        <label>YouTube ID: <input name="youtube_id" required></label>
-        <label>Název (přepíše title v DB): <input name="title"></label>
-        <label>Song name (vytvoří/propojí): <input name="song_name"></label>
-        <label>Rok: <input name="year" type="number" min="1900" max="2100"></label>
-        <label>Napojit na lyric ID: <input name="lyric_id" type="number" min="1"></label>
-        <button type="submit">Uložit</button>
-      </form>
-    </section>
-
-    <section class="admin-card">
-      <h3>Přehled písní</h3>
-      <p><a href="/admin/songs">Zobrazit tabulku písní</a> – status textů (jazyky) a videí.</p>
+      <h3>Synchronizace Apple Music</h3>
+      <div class="admin-actions">
+        <a class="admin-sync" href="/admin/apple-sync">Spustit sync</a>
+      </div>
+      <p class="text-dim">Doplní Apple Music ID (a timed lyrics, pokud jsou k dispozici).</p>
     </section>
 
     <section class="admin-card">
       <h3>Moderace komentářů</h3>
-      <p class="text-dim">Upravit nebo smazat komentář můžeš i přímo u něj (ikona tužky / koše). Tady ho smažeš podle ID.</p>
+      <p class="text-dim">Upravit nebo smazat komentář můžeš i přímo u něj. Tady podle ID:</p>
       <form method="post" action="/admin/comment" class="admin-inline-form">
         <input type="hidden" name="csrf" value="${csrf}">
         <label>ID komentáře: <input name="comment_id" required></label>
@@ -48,7 +46,6 @@
       <%
         String reportSql =
             "SELECT r.kind, r.comment_id, COUNT(*) AS n, MAX(r.created_at) AS last_at, " +
-            // lyric and video comments are read separately: the two tables use different collations
             "       MAX(c.content) AS lyric_content, MAX(vc.content) AS video_content, " +
             "       MAX(uc.username) AS lyric_author, MAX(uv.username) AS video_author, " +
             "       MAX(c.lyric_id) AS lyric_id " +
@@ -108,7 +105,7 @@
         }
         if (reportRows == 0) {
       %>
-        <p class="text-dim">Žádné nahlášené komentáře. 👍</p>
+        <p class="text-dim">Žádné nahlášené komentáře.</p>
       <% } %>
     </section>
 
@@ -120,12 +117,10 @@
     </section>
 
     <section class="admin-card">
-      <h3>Nástroje</h3>
-      <ul style="margin:0; padding-left:18px;">
-        <li>Rebuild search index (TODO)</li>
-        <li>Cache clear (TODO)</li>
-        <li>Export DB (SQL dump) (TODO)</li>
-      </ul>
+      <h3>Newsletter</h3>
+      <div class="admin-actions">
+        <a href="/admin/newsletter">Odběratelé</a>
+      </div>
     </section>
   </div>
 </main>
