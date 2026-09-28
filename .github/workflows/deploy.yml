@@ -1,10 +1,25 @@
 name: Deploy Skeli.cz
 
+# main       -> https://test.skeli.cz  (service skeli-test)
+# production -> https://www.skeli.cz   (service skeli-production)
+#
+# The server runs the app from a git checkout (systemd service running `mvn jetty:run`),
+# so a deploy fast-forwards that checkout over SSH; the steps are in deploy/remote-deploy.sh.
+# Secrets: DEPLOY_KEY (private key, restricted in authorized_keys), DEPLOY_HOST, DEPLOY_USER.
+
 on:
   push:
     branches:
       - main
       - production
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -14,7 +29,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # pom.xml enforces JDK 21+; the runner's default JDK is older
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -22,107 +36,63 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Setup SSH
+      # nothing reaches the server unless it builds and the unit tests pass
+      - name: Build and unit tests
+        run: mvn -B verify
+
+      - name: Pick environment
+        id: env
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Detect Jetty-related changes
-        id: jetty_changes
-        run: |
-          git fetch origin ${GITHUB_REF##*/}
-          CHANGED_FILES=$(git diff --name-only HEAD origin/${GITHUB_REF##*/} || true)
-
-          echo "Changed files:"
-          echo "$CHANGED_FILES"
-
-          if echo "$CHANGED_FILES" | grep -E '(\.war$|WEB-INF|pom\.xml|src/main)' >/dev/null; then
-            echo "restart_needed=true" >> $GITHUB_OUTPUT
-          else
-            echo "restart_needed=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Deploy via SSH
-        env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          RESTART_NEEDED: ${{ steps.jetty_changes.outputs.restart_needed }}
-          BRANCH: ${{ github.ref_name }}
-        run: |
-          # Branch → environment mapping
-          #   main       → https://test.skeli.cz
-          #   production → https://skeli.cz (www.skeli.cz alias)
-          case "$BRANCH" in
+          case "$GITHUB_REF_NAME" in
             main)
-              APP_NAME="test.skeli.cz"
-              SITE_URL="https://test.skeli.cz"
-              WEB_ENV="/home/skeli/WWW/skeli.cz/web/.env"
-              EXTRA_WARS=""
-              ;;
+              { echo "dir=/home/skeli/WWW/skeli.cz/web"; echo "service=skeli-test"; echo "port=8082"
+                echo "backup=no"; echo "url=https://test.skeli.cz"; } >> "$GITHUB_OUTPUT" ;;
             production)
-              APP_NAME="skeli.cz"
-              SITE_URL="https://skeli.cz"
-              WEB_ENV="/home/skeli/WWW/production.skeli.cz/web/.env"
-              # Keep www.skeli.cz.war in sync for Host-based Jetty contexts
-              EXTRA_WARS="www.skeli.cz.war"
-              ;;
+              { echo "dir=/home/skeli/WWW/production.skeli.cz/web"; echo "service=skeli-production"; echo "port=8083"
+                echo "backup=yes"; echo "url=https://www.skeli.cz"; } >> "$GITHUB_OUTPUT" ;;
             *)
-              echo "❌ Unknown branch: $BRANCH (expected main or production)"
-              exit 1
-              ;;
+              echo "::error::No environment for branch $GITHUB_REF_NAME"; exit 1 ;;
           esac
 
-          WAR_FILE="${APP_NAME}.war"
-          echo "Building WAR for ${SITE_URL} (branch ${BRANCH} → ${WAR_FILE})..."
-
-          if [ -f pom.xml ]; then
-            mvn -B clean package -DskipTests
-            cp target/*.war "$WAR_FILE"
+      - name: Setup SSH
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          if [ -z "$DEPLOY_KEY" ] || [ -z "$DEPLOY_HOST" ]; then
+            echo "::error::DEPLOY_KEY / DEPLOY_HOST secrets are empty"; exit 1
           fi
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Pinned server host key (it is public). If the server ever presents another key,
+          # the deploy stops instead of trusting it. Fingerprint SHA256:n2oHXaDpxxQnGE8T4b+atsocJx0edeSYntftPm8qwAU
+          echo "$DEPLOY_HOST ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGgePBd4PA2O/Q8iigfbuyH3oJAO0WZ5gF7XHTLzDJ9k" > ~/.ssh/known_hosts
 
-          echo "Uploading $WAR_FILE to $DEPLOY_HOST..."
-          scp -o StrictHostKeyChecking=no "$WAR_FILE" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/$WAR_FILE"
+      - name: Deploy to ${{ steps.env.outputs.url }}
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes \
+            "$DEPLOY_USER@$DEPLOY_HOST" bash -s -- \
+            "${{ steps.env.outputs.dir }}" "${{ steps.env.outputs.service }}" "${{ steps.env.outputs.port }}" \
+            "$GITHUB_REF_NAME" "$GITHUB_SHA" "${{ steps.env.outputs.backup }}" \
+            < deploy/remote-deploy.sh
 
-          # Migrations matching this commit (Flyway needs pom.xml + SQL, not just the WAR)
-          tar -czf /tmp/skeli-flyway.tgz pom.xml src/main/resources/db/migration
-          scp -o StrictHostKeyChecking=no /tmp/skeli-flyway.tgz "$DEPLOY_USER@$DEPLOY_HOST:/tmp/skeli-flyway.tgz"
+      # the same pages once more from the outside, through Apache and HTTPS
+      - name: Check the public site
+        run: |
+          url="${{ steps.env.outputs.url }}"
+          ok=1
+          for check in "/ 200" "/texty.jsp 200" "/login.jsp 200" "/css/base.css 200" "/admin.jsp 403"; do
+            set -- $check
+            got=$(curl -s -o /dev/null -m 20 -w '%{http_code}' "$url$1" || true)
+            echo "$url$1 -> $got (expected $2)"
+            [ "$got" = "$2" ] || ok=0
+          done
+          [ "$ok" = 1 ] || { echo "::error::The public site does not answer as expected"; exit 1; }
 
-          echo "Deploying to Jetty (Flyway first) → $SITE_URL ..."
-          ssh "$DEPLOY_USER@$DEPLOY_HOST" "
-            set -euo pipefail
-            MIGRATE_DIR=\$(mktemp -d /tmp/skeli-flyway.XXXXXX)
-            tar -xzf /tmp/skeli-flyway.tgz -C \"\$MIGRATE_DIR\"
-            rm /tmp/skeli-flyway.tgz
-            if [ ! -f '$WEB_ENV' ]; then
-              echo \"ERROR: missing $WEB_ENV for Flyway credentials\" >&2
-              exit 1
-            fi
-            set -a
-            # shellcheck disable=SC1090
-            . '$WEB_ENV'
-            set +a
-            if [ -z \"\${DB_URL:-}\" ] || [ -z \"\${DB_USER:-}\" ]; then
-              echo 'ERROR: DB_URL/DB_USER missing in $WEB_ENV' >&2
-              exit 1
-            fi
-            echo 'Running Flyway migrations...'
-            (cd \"\$MIGRATE_DIR\" && mvn -q -Dflyway.url=\"\$DB_URL\" -Dflyway.user=\"\$DB_USER\" -Dflyway.password=\"\${DB_PASS:-}\" flyway:migrate)
-            rm -rf \"\$MIGRATE_DIR\"
-
-            sudo cp /tmp/$WAR_FILE /var/lib/jetty9/webapps/$WAR_FILE
-            for extra in $EXTRA_WARS; do
-              sudo cp /tmp/$WAR_FILE /var/lib/jetty9/webapps/\$extra
-              echo \"Also deployed \$extra\"
-            done
-            rm /tmp/$WAR_FILE
-            if [ '$RESTART_NEEDED' = 'true' ]; then
-              echo 'Restarting Jetty...'
-              sudo systemctl restart jetty9
-            else
-              echo 'Jetty restart not required.'
-            fi
-            sudo systemctl reload apache2
-            echo \"Deployed $BRANCH → $SITE_URL\"
-          "
+      - name: Remove the key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
