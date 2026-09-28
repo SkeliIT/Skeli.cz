@@ -70,10 +70,31 @@ public class CsrfFilter implements Filter {
         if (session == null) return false;
         Object expected = session.getAttribute(ATTR);
         String actual = req.getHeader(HEADER);
-        if (actual == null) actual = req.getParameter(ATTR);
-        if (!(expected instanceof String) || actual == null) return false;
+        if (actual == null || actual.isBlank()) actual = req.getParameter(ATTR);
+        // Multipart: Jetty sometimes omits text fields from getParameter until getParts()
+        if ((actual == null || actual.isBlank()) && isMultipart(req)) {
+            actual = readMultipartField(req, ATTR);
+        }
+        if (!(expected instanceof String) || actual == null || actual.isBlank()) return false;
         return MessageDigest.isEqual(
                 ((String) expected).getBytes(StandardCharsets.UTF_8),
                 actual.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static boolean isMultipart(HttpServletRequest req) {
+        String ct = req.getContentType();
+        return ct != null && ct.toLowerCase().startsWith("multipart/");
+    }
+
+    private static String readMultipartField(HttpServletRequest req, String name) {
+        try {
+            jakarta.servlet.http.Part part = req.getPart(name);
+            if (part == null) return null;
+            try (java.io.InputStream in = part.getInputStream()) {
+                return new String(in.readAllBytes(), StandardCharsets.UTF_8).trim();
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

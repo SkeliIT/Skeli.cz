@@ -23,11 +23,11 @@
           // a song with several clips (original + remake) is dated and sorted by its newest clip
           "SELECT s.name, CASE WHEN (SELECT COUNT(*) FROM videos v WHERE v.song_id = s.id) > 1 " +
           "         THEN (SELECT YEAR(MAX(v.published_at)) FROM videos v WHERE v.song_id = s.id) ELSE s.year END AS year, " +
-          "       (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
+          "       s.uuid, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
           "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview " +
           "FROM songs s " +
           "UNION ALL " +
-          "SELECT v.title, NULL, NULL, v.youtube_id, 1, v.id, NULL FROM videos v WHERE v.song_id IS NULL " +
+          "SELECT v.title, NULL, NULL, NULL, v.youtube_id, 1, v.id, NULL FROM videos v WHERE v.song_id IS NULL " +
           "ORDER BY grp, year DESC, ord DESC";
       java.util.Map<Integer, java.util.List<com.github.skeliit.model.SongClip>> clipsBySong =
           com.github.skeliit.model.SongClip.bySong();
@@ -42,11 +42,15 @@
           Object yearObj = rs.getObject("year");
           int lyricId = rs.getInt("lyric_id");
           boolean hasLyrics = !rs.wasNull() && lyricId > 0;
+          String songUuid = isSong ? rs.getString("uuid") : null;
           String yt = rs.getString("yt");
           String preview = com.github.skeliit.WebUtils.safeUrl(rs.getString("preview"), null);
           String nameHtml = com.github.skeliit.WebUtils.escapeHtml(name);
           String ytHtml = yt == null ? null : com.github.skeliit.WebUtils.escapeHtml(yt);
-          String mainHref = hasLyrics ? "/lyrics/" + lyricId : (yt != null ? "https://www.youtube.com/watch?v=" + ytHtml : null);
+          String lyricsHref = hasLyrics
+              ? ((songUuid != null && !songUuid.isBlank()) ? "/cs/song/" + songUuid : "/lyrics/" + lyricId)
+              : null;
+          String mainHref = lyricsHref != null ? lyricsHref : (yt != null ? "https://www.youtube.com/watch?v=" + ytHtml : null);
           String spotifyHref = "https://open.spotify.com/search/" + java.net.URLEncoder.encode("Skeli " + name, "UTF-8").replace("+", "%20");
     %>
       <article class="song-card disco-card">
@@ -76,7 +80,7 @@
         </div>
         <div class="disco-links">
           <%-- icons only, stacked on the right edge of the thumbnail; the name is in title/aria-label --%>
-          <% if (hasLyrics) { %><a class="disco-lyrics" href="/lyrics/<%= lyricId %>" title="<%= t.getProperty("music.link.lyrics") %>" aria-label="<%= t.getProperty("music.link.lyrics") %>"><i class="fa-solid fa-align-left"></i></a><% } %>
+          <% if (lyricsHref != null) { %><a class="disco-lyrics" href="<%= lyricsHref %>" title="<%= t.getProperty("music.link.lyrics") %>" aria-label="<%= t.getProperty("music.link.lyrics") %>"><i class="fa-solid fa-align-left"></i></a><% } %>
           <% if (yt != null) { %><a class="disco-youtube" href="https://www.youtube.com/watch?v=<%= ytHtml %>" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a><% } %>
           <a class="disco-spotify" href="<%= spotifyHref %>" target="_blank" rel="noopener" title="Spotify" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
         </div>

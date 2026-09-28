@@ -14,10 +14,10 @@
             try {
                 try (Connection conn = Db.get();
                          PreparedStatement ps = conn.prepareStatement(
-                             "SELECT s.id AS song_id, s.name AS song_name, s.year AS song_year, s.preview_image_url, MIN(l.id) AS lyric_id, " +
+                             "SELECT s.id AS song_id, s.uuid AS song_uuid, s.name AS song_name, s.year AS song_year, s.preview_image_url, MIN(l.id) AS lyric_id, " +
                              "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtube_id " +
                              "FROM lyrics l JOIN songs s ON s.id = l.song_id " +
-                             "GROUP BY s.id, s.name, s.year, s.preview_image_url " +
+                             "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url " +
                              "ORDER BY s.year DESC, s.name ASC"
                          );
                          ResultSet rs = ps.executeQuery()) {
@@ -38,10 +38,14 @@
                             }
                             int lyricId = rs.getInt("lyric_id");
                             if (rs.wasNull() || lyricId <= 0) continue;
+                            String songUuid = rs.getString("song_uuid");
                             String youtubeId = rs.getString("youtube_id");
                             String preview = com.github.skeliit.WebUtils.safeUrl(rs.getString("preview_image_url"), null);
+                            String href = (songUuid != null && !songUuid.isBlank())
+                                    ? "/cs/song/" + songUuid
+                                    : "/lyrics/" + lyricId;
         %>
-                            <a class="song-card" href="/lyrics/<%= lyricId %>">
+                            <a class="song-card" href="<%= com.github.skeliit.WebUtils.escapeHtml(href) %>">
                                 <div class="song-thumb">
                                 <%
                                   java.util.List<com.github.skeliit.model.SongClip> thumbClips = clipsBySong.get(rs.getInt("song_id"));

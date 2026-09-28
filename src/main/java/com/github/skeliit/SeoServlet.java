@@ -71,8 +71,17 @@ public class SeoServlet extends HttpServlet {
         }
         try {
             for (Song s : svc.listSongs()) {
-                if (s.firstLyricId != null) {
-                    out.println("  <url><loc>" + WebUtils.escapeHtml(base + "/lyrics/" + s.firstLyricId) + "</loc></url>");
+                if (s.firstLyricId == null || s.uuid == null || s.uuid.isBlank()) continue;
+                try {
+                    for (com.github.skeliit.model.SongLocale loc : new com.github.skeliit.dao.LyricDao().listLocalesWithWords(s.id)) {
+                        String path = loc.publicPath(s.uuid);
+                        out.println("  <url><loc>" + WebUtils.escapeHtml(base + path) + "</loc></url>");
+                    }
+                } catch (Exception ignore) {
+                    String path = s.getPublicPath("cs");
+                    if (path != null) {
+                        out.println("  <url><loc>" + WebUtils.escapeHtml(base + path) + "</loc></url>");
+                    }
                 }
             }
         } catch (Exception e) {
