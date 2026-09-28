@@ -105,7 +105,8 @@ public class HeaderIconLinksIT {
     void sitemapListsLyrics() {
         driver.get(BASE_URL + "/sitemap.xml");
         String xml = driver.getPageSource();
-        assertTrue(xml.contains("/lyrics/"), "sitemap should list lyric pages");
+        // song pages live at /{lang}/song/{slug|uuid} (one entry per language with lyrics)
+        assertTrue(xml.matches("(?s).*<loc>https?://[^<]+/cs/song/[^<]+</loc>.*"), "sitemap should list song pages");
         assertFalse(xml.contains("<loc>/"), "sitemap URLs must be absolute");
     }
 }
