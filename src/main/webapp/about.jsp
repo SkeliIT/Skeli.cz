@@ -12,7 +12,7 @@
       <figure class="about-portrait">
         <img id="aboutPortrait" sizes="(max-width: 820px) 100vw, 780px"
              data-dark="/img/skeli-portrait-760.webp 760w, /img/skeli-portrait-1400.webp 1400w"
-             data-light="/img/skeli-portrait-light-760.webp 760w, /img/skeli-portrait-light-1400.webp 1400w"
+             data-light="/img/skeli-portrait-light-760.webp?v=2 760w, /img/skeli-portrait-light-1400.webp?v=2 1400w"
              width="1400" height="934" alt="Skeli" fetchpriority="high" decoding="async">
         <noscript><img src="/img/skeli-portrait-1400.webp" width="1400" height="934" alt="Skeli"></noscript>
       </figure>
