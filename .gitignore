@@ -47,3 +47,6 @@ replay_pid*
 
 # Secrets
 .webui_secret_key
+
+# files uploaded through the site (song previews, avatars) are data, not code
+src/main/webapp/uploads/

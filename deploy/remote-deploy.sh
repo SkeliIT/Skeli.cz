@@ -18,8 +18,10 @@ fail() { echo "::error::$*"; exit 1; }
 cd "$DIR" || fail "missing $DIR"
 
 log "Checking $DIR"
-# never overwrite work done directly on the server
-DIRTY=$(git status --porcelain -- src pom.xml)
+# never overwrite work done directly on the server: changed tracked files anywhere in the code,
+# plus new code files (uploaded images under src/main/webapp/uploads are data, not code)
+DIRTY=$( { git status --porcelain --untracked-files=no -- src pom.xml
+           git status --porcelain -- src/main/java src/main/resources; } | sort -u)
 if [ -n "$DIRTY" ]; then
   echo "$DIRTY"
   fail "$DIR has uncommitted changes (listed above). Commit or move them away first; nothing was deployed."
