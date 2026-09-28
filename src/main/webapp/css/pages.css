@@ -1038,8 +1038,13 @@ body.light .about-page .about-intro { background: rgba(255, 255, 255, 0.68); }
   .about-portrait { margin: -20px -20px -40px; }
 }
 /* Light theme: the script in about.jsp swaps in the same photo with the background removed
-   (img/skeli-portrait-cutout-*.webp), so the fade above dissolves it into the light panel
-   exactly like the dark one - no grey band from a black background. */
+   (img/skeli-portrait-light-*.webp), so the fade above dissolves it into the light panel
+   exactly like the dark one - no grey band from a black background. The black shirt still
+   fades through grey here, so the opening line starts below it instead of on top of it. */
+body.light .about-portrait { margin-bottom: -16px; }
+@media (max-width: 760px) {
+  body.light .about-portrait { margin-bottom: -10px; }
+}
 
 /* Lyric page: clip and lyrics share one frame (.lyric-main). The panel lives on a
    masked ::before so the frame fades out at the bottom of the lyrics; the video
