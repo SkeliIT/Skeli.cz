@@ -1010,7 +1010,13 @@ body.light .ep-comments .comment-reply-form button[type=submit] { background: va
   -webkit-backdrop-filter: blur(10px);
   box-shadow: var(--shadow);
 }
-body.light .about-page .about-intro { background: rgba(255, 255, 255, 0.68); }
+/* light theme: nearly clear behind the portrait (a white block there was glaring), firmer from
+   the text on so it stays easy to read */
+body.light .about-page .about-intro {
+  background: linear-gradient(to bottom,
+    rgba(255, 255, 255, 0.16) 0, rgba(255, 255, 255, 0.16) 360px,
+    rgba(255, 255, 255, 0.62) 620px, rgba(255, 255, 255, 0.62) 100%);
+}
 @media (max-width: 760px) {
   .about-page .about-intro { padding: 20px; }
 }
