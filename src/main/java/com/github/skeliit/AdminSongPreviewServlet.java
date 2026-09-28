@@ -24,23 +24,40 @@ import java.util.Iterator;
 
 /**
  * Upload or clear a song's preview image (Open Graph + YouTube placeholder).
+ * Client typically crops to 16:9 via Cropper.js; server still normalizes to 1280×720 JPEG.
  */
 @WebServlet(name = "AdminSongPreviewServlet", urlPatterns = { "/admin/songs/preview" })
-@MultipartConfig(maxFileSize = 5 * 1024 * 1024)
+@MultipartConfig(maxFileSize = 20L * 1024 * 1024, maxRequestSize = 20L * 1024 * 1024 + 64 * 1024)
 public class AdminSongPreviewServlet extends HttpServlet {
+
+    /** Phone photos often exceed 5 MB; stored preview is always resized to 1280×720 JPEG. */
+    private static final long MAX_UPLOAD_BYTES = 20L * 1024 * 1024;
+    private static final int OUT_W = 1280;
+    private static final int OUT_H = 720;
 
     private final SongDao songs = new SongDao();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        boolean json = wantsJson(req);
+
         Object role = req.getSession().getAttribute("role");
         if (role == null || !"ADMIN".equals(role.toString())) {
-            resp.setStatus(403);
+            if (json) {
+                writeJson(resp, 403, "{\"ok\":false,\"error\":\"forbidden\"}");
+            } else {
+                resp.setStatus(403);
+                resp.getWriter().write("Forbidden");
+            }
             return;
         }
         if (!CsrfFilter.isValid(req)) {
-            resp.setStatus(403);
-            resp.getWriter().write("CSRF");
+            if (json) {
+                writeJson(resp, 403, "{\"ok\":false,\"error\":\"csrf\"}");
+            } else {
+                resp.setStatus(403);
+                resp.getWriter().write("CSRF");
+            }
             return;
         }
 
@@ -48,36 +65,44 @@ public class AdminSongPreviewServlet extends HttpServlet {
         try {
             songId = Integer.parseInt(req.getParameter("song_id"));
         } catch (Exception e) {
-            resp.sendError(400, "missing song_id");
+            if (json) {
+                writeJson(resp, 400, "{\"ok\":false,\"error\":\"missing_song_id\"}");
+            } else {
+                resp.sendError(400, "missing song_id");
+            }
             return;
         }
 
         String action = req.getParameter("action");
+        String redirect = safeRedirect(req.getParameter("redirect"), req.getContextPath() + "/admin/songs");
         try {
             if ("delete".equals(action)) {
                 deletePreview(songId);
-                resp.sendRedirect(req.getContextPath() + "/admin/songs?msg=preview_deleted");
+                if (json) {
+                    writeJson(resp, 200, "{\"ok\":true,\"deleted\":true}");
+                } else {
+                    resp.sendRedirect(withMsg(redirect, "preview_deleted"));
+                }
                 return;
             }
 
             Part part = req.getPart("preview");
             if (part == null || part.getSize() == 0) {
-                resp.sendRedirect(req.getContextPath() + "/admin/songs?msg=no_file");
+                fail(resp, json, redirect, "no_file", 400);
                 return;
             }
-            if (part.getSize() > 5 * 1024 * 1024) {
-                resp.sendRedirect(req.getContextPath() + "/admin/songs?msg=too_large");
+            if (part.getSize() > MAX_UPLOAD_BYTES) {
+                fail(resp, json, redirect, "too_large", 413);
                 return;
             }
 
             BufferedImage src = ImageIO.read(part.getInputStream());
             if (src == null) {
-                resp.sendRedirect(req.getContextPath() + "/admin/songs?msg=invalid_image");
+                fail(resp, json, redirect, "invalid_image", 400);
                 return;
             }
 
-            // Fit into 1280×720 (16:9) for OG + video placeholder
-            BufferedImage dst = fitCover(src, 1280, 720);
+            BufferedImage dst = fitCover(src, OUT_W, OUT_H);
 
             File dir = SongPreviewFileServlet.previewDir(getServletContext());
             if (!dir.exists()) {
@@ -88,13 +113,56 @@ public class AdminSongPreviewServlet extends HttpServlet {
             writeJpeg(dst, outFile);
 
             String relUrl = req.getContextPath() + "/uploads/song-previews/" + filename;
-            // Bust caches after replace
             relUrl = relUrl + "?v=" + outFile.lastModified();
             songs.updatePreviewImageUrl(songId, relUrl);
-            resp.sendRedirect(req.getContextPath() + "/admin/songs?msg=preview_saved");
+
+            if (json) {
+                writeJson(resp, 200, "{\"ok\":true,\"url\":\"" + jsonEscape(relUrl) + "\"}");
+            } else {
+                resp.sendRedirect(withMsg(redirect, "preview_saved"));
+            }
         } catch (SQLException e) {
             throw new ServletException(e);
         }
+    }
+
+    private static boolean wantsJson(HttpServletRequest req) {
+        String accept = req.getHeader("Accept");
+        if (accept != null && accept.contains("application/json")) return true;
+        String xrw = req.getHeader("X-Requested-With");
+        return xrw != null && "XMLHttpRequest".equalsIgnoreCase(xrw);
+    }
+
+    private static void fail(HttpServletResponse resp, boolean json, String redirect, String code, int status)
+            throws IOException {
+        if (json) {
+            writeJson(resp, status, "{\"ok\":false,\"error\":\"" + code + "\"}");
+        } else {
+            resp.sendRedirect(withMsg(redirect, code));
+        }
+    }
+
+    private static void writeJson(HttpServletResponse resp, int status, String body) throws IOException {
+        resp.setStatus(status);
+        resp.setContentType("application/json; charset=UTF-8");
+        resp.getWriter().write(body);
+    }
+
+    private static String jsonEscape(String s) {
+        return s.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+    /** Only allow same-origin relative redirects under /admin. */
+    private static String safeRedirect(String raw, String fallback) {
+        if (raw == null || raw.isBlank()) return fallback;
+        String r = raw.trim();
+        if (!r.startsWith("/") || r.startsWith("//") || r.contains("://")) return fallback;
+        if (!r.startsWith("/admin")) return fallback;
+        return r;
+    }
+
+    private static String withMsg(String redirect, String msg) {
+        return redirect + (redirect.contains("?") ? "&" : "?") + "msg=" + msg;
     }
 
     private void deletePreview(int songId) throws SQLException, IOException {
@@ -105,7 +173,6 @@ public class AdminSongPreviewServlet extends HttpServlet {
         if (file.isFile()) {
             Files.deleteIfExists(file.toPath());
         }
-        // also try stripping query from stored URL
         if (old != null) {
             String name = old.replaceFirst("^.*/", "").replaceFirst("\\?.*$", "");
             if (name.matches("[A-Za-z0-9_-]+\\.(jpg|jpeg|png|webp)")) {
