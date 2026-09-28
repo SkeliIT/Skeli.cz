@@ -1,47 +1,11 @@
 <%@ page import="com.github.skeliit.Db" %>
-<%-- i18n loader: sets request attribute 't' as java.util.Properties --%>
+<%-- i18n loader: exposes the current language's translations as local variable 't' and request attribute 't' --%>
 <%
   String lang = request.getParameter("lang");
-  if (lang != null && (lang.equals("cs")||lang.equals("en")||lang.equals("de")||lang.equals("uk"))) {
+  if (com.github.skeliit.I18n.isSupported(lang)) {
     session.setAttribute("lang", lang);
   }
-  String cur = (String) session.getAttribute("lang");
-  if (cur == null) cur = "cs";
-  java.util.Properties t = new java.util.Properties();
-  try (java.io.InputStream in = application.getResourceAsStream("/WEB-INF/i18n/messages_"+cur+".properties")) {
-    if (in != null) { t.load(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8)); }
-  } catch (Exception ignore) {}
-
-  // Load DB overrides and persist missing keys into DB for the current language
-  java.sql.Connection _c = null;
-  try {
-    _c = Db.get();
-    // fetch existing translations
-    java.util.Map<String,String> db = new java.util.HashMap<>();
-    try (java.sql.PreparedStatement ps = _c.prepareStatement("SELECT k, v FROM translations WHERE lang = ?")) {
-      ps.setString(1, cur);
-      try (java.sql.ResultSet rs = ps.executeQuery()) {
-        while (rs.next()) { db.put(rs.getString(1), rs.getString(2)); }
-      }
-    }
-    // insert missing keys from file to DB (do not overwrite existing)
-    try (java.sql.PreparedStatement ins = _c.prepareStatement("INSERT IGNORE INTO translations(lang,k,v) VALUES(?,?,?)")) {
-      for (String k : t.stringPropertyNames()) {
-        if (!db.containsKey(k)) {
-          ins.setString(1, cur);
-          ins.setString(2, k);
-          ins.setString(3, t.getProperty(k));
-          try { ins.executeUpdate(); } catch (Exception __ignore) {}
-        }
-      }
-    }
-    // override properties from DB values so site uses DB-translated strings
-    for (java.util.Map.Entry<String,String> e : db.entrySet()) { t.setProperty(e.getKey(), e.getValue()); }
-  } catch (Throwable __t) {
-    // ignore DB issues, fallback to file-based strings
-  } finally {
-    if (_c != null) try { _c.close(); } catch (Exception __i) {}
-  }
-
+  String cur = com.github.skeliit.I18n.safeLang(session.getAttribute("lang"));
+  java.util.Properties t = com.github.skeliit.I18n.bundle(application, cur);
   request.setAttribute("t", t);
 %>

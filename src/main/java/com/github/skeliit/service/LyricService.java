@@ -15,5 +15,8 @@ public class LyricService {
 
     public List<Song> listSongs() throws SQLException { return songs.listWithFirstLyric(); }
     public LyricView getLyric(int id, String lang) throws SQLException { return lyrics.getLyricView(id, lang); }
+    public Integer findLyricIdBySongUuid(String uuid, String lang) throws SQLException {
+        return lyrics.findLyricIdBySongUuid(uuid, lang);
+    }
     public List<CommentView> comments(int lyricId) throws SQLException { return lyrics.listComments(lyricId); }
 }

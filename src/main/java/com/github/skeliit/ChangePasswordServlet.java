@@ -38,7 +38,7 @@ public class ChangePasswordServlet extends HttpServlet {
             return;
         }
         
-        if (newPassword.length() < 6) {
+        if (!WebUtils.isPasswordStrong(newPassword)) {
             resp.sendRedirect("/uzivatel.jsp?error=short");
             return;
         }

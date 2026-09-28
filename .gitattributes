@@ -1,0 +1,2 @@
+# shell scripts run on the Linux server: always LF, also when committed from Windows
+*.sh text eol=lf

@@ -8,36 +8,66 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.util.HexFormat;
 
 @WebServlet(name = "ResetPasswordServlet", urlPatterns = {"/reset"})
 public class ResetPasswordServlet extends HttpServlet {
+
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String token = req.getParameter("token");
         String password = req.getParameter("password");
-        if (token == null || password == null || password.length() < 8) { resp.sendRedirect("reset.jsp?token="+token); return; }
+        if (token == null || token.isBlank()) { resp.sendRedirect("forgot.jsp"); return; }
+        if (!WebUtils.isPasswordStrong(password)) {
+            resp.sendRedirect("reset.jsp?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8));
+            return;
+        }
         try (Connection conn = Db.get()) {
-            Integer userId = null;
-            try (PreparedStatement ps = conn.prepareStatement("SELECT user_id FROM password_resets WHERE token=? AND expires_at>NOW()")) {
-                ps.setString(1, token);
-                try (ResultSet rs = ps.executeQuery()) { if (rs.next()) userId = rs.getInt(1); }
-            }
-            if (userId != null) {
-                String hash = BCrypt.hashpw(password, BCrypt.gensalt());
-                try (PreparedStatement ps = conn.prepareStatement("UPDATE users SET password_hash=? WHERE id=?")) {
-                    ps.setString(1, hash);
-                    ps.setInt(2, userId);
-                    ps.executeUpdate();
+            conn.setAutoCommit(false);
+            try {
+                Integer userId = null;
+                try (PreparedStatement ps = conn.prepareStatement("SELECT user_id FROM password_resets WHERE token=? AND expires_at>NOW() FOR UPDATE")) {
+                    ps.setString(1, hashToken(token));
+                    try (ResultSet rs = ps.executeQuery()) { if (rs.next()) userId = rs.getInt(1); }
                 }
-                try (PreparedStatement ps = conn.prepareStatement("DELETE FROM password_resets WHERE token=?")) {
-                    ps.setString(1, token);
-                    ps.executeUpdate();
+                if (userId != null) {
+                    String hash = BCrypt.hashpw(password, BCrypt.gensalt());
+                    try (PreparedStatement ps = conn.prepareStatement("UPDATE users SET password_hash=? WHERE id=?")) {
+                        ps.setString(1, hash);
+                        ps.setInt(2, userId);
+                        ps.executeUpdate();
+                    }
+                    // Invalidate every outstanding reset token of this user, not just the used one
+                    try (PreparedStatement ps = conn.prepareStatement("DELETE FROM password_resets WHERE user_id=?")) {
+                        ps.setInt(1, userId);
+                        ps.executeUpdate();
+                    }
+                    conn.commit();
+                    resp.sendRedirect("login.jsp");
+                    return;
                 }
-                resp.sendRedirect("login.jsp");
-                return;
+                conn.rollback();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
         } catch (SQLException e) { throw new ServletException(e); }
         resp.sendRedirect("forgot.jsp");
+    }
+
+    /** Reset tokens are stored as SHA-256 hex so a DB leak does not expose usable links. */
+    static String hashToken(String token) {
+        try {
+            byte[] d = MessageDigest.getInstance("SHA-256").digest(token.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(d);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

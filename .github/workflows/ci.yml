@@ -12,13 +12,8 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
-      - name: Cache Maven
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: m2-${{ hashFiles('**/pom.xml') }}
+          java-version: '21'
+          cache: maven
+      # Unit tests run in the package phase; *IT Selenium tests need a running app and are not run here
       - name: Build & Test
-        run: mvn -B -DskipTests=false test
-      - name: Package
-        run: mvn -B -DskipTests package
+        run: mvn -B package

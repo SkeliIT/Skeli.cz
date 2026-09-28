@@ -84,12 +84,30 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>11.0.15</version>
+                <version>11.0.26</version>
                 <configuration>
                     <webApp>
                         <contextPath>/</contextPath>
                     </webApp>
                 </configuration>
+                <dependencies>
+                    <!-- Newer ASM than Jetty bundles, so annotation scanning keeps up with recent class file versions -->
+                    <dependency>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm</artifactId>
+                        <version>9.10.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-commons</artifactId>
+                        <version>9.10.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-tree</artifactId>
+                        <version>9.10.1</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>

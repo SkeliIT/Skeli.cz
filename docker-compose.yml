@@ -3,15 +3,21 @@ services:
     image: mariadb:11
     environment:
       MARIADB_DATABASE: skeliweb
-      MARIADB_USER: Skeli
-      MARIADB_PASSWORD: skeli
-      MARIADB_ROOT_PASSWORD: root
+      MARIADB_USER: ${DB_USER:-Skeli}
+      MARIADB_PASSWORD: ${DB_PASS:-skeli}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS:-root}
     ports:
       - "3306:3306"
   app:
     build: .
     environment:
       - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
+      - DB_URL=jdbc:mariadb://db:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4
+      - DB_USER=${DB_USER:-Skeli}
+      - DB_PASS=${DB_PASS:-skeli}
+      - APP_BASE_URL=http://localhost:8080
+      # dev runs over plain http; production keeps the Secure session cookie and HSTS
+      - HTTPS_ONLY=false
     ports:
       - "8080:8080"
     depends_on:

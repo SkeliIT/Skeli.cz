@@ -2,13 +2,13 @@
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <main>
-  <h2>Profil</h2>
+  <h2><%= t.getProperty("menu.profile") %></h2>
   <section style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.20);">
-    <h3>Avatar</h3>
+    <h3><%= t.getProperty("avatar.title") %></h3>
     <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
       <div>
         <div id="avatar-preview" style="width:120px; height:120px; border-radius:50%; overflow:hidden; border:1px solid var(--panel-border); background:rgba(0,0,0,0.2);">
-          <img id="avatar-preview-img" src="<%= (request.getSession().getAttribute("avatar_url")!=null)?request.getSession().getAttribute("avatar_url").toString():"/img/avatar-default.png" %>" alt="preview" style="width:100%;height:100%;object-fit:cover;object-position:center center;display:block;">
+          <img id="avatar-preview-img" src="<%= (request.getSession().getAttribute("avatar_url")!=null)?request.getSession().getAttribute("avatar_url").toString():"/img/avatar-default.svg" %>" alt="preview" style="width:100%;height:100%;object-fit:cover;object-position:center center;display:block;">
         </div>
       </div>
       <div style="flex:1; min-width:280px;">
@@ -18,14 +18,14 @@
           <div id="cropper-overlay" style="position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at center, rgba(0,0,0,0) 46%, rgba(0,0,0,0.45) 48%, rgba(0,0,0,0.55) 100%);"></div>
         </div>
         <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="btn-auto-face" type="button" class="bruno-ace-sc-regular" style="border:1px solid var(--panel-border);border-radius:8px;padding:6px 10px;display:inline-flex;align-items:center;gap:6px;"><i class="fa-solid fa-user"></i> Auto center</button>
-          <button id="btn-zoom-in" type="button" class="bruno-ace-sc-regular" style="border:1px solid var(--panel-border);border-radius:8px;padding:6px 10px;">+</button>
-          <button id="btn-zoom-out" type="button" class="bruno-ace-sc-regular" style="border:1px solid var(--panel-border);border-radius:8px;padding:6px 10px;">−</button>
+          <button id="btn-auto-face" type="button"  style="border:1px solid var(--panel-border);border-radius:8px;padding:6px 10px;display:inline-flex;align-items:center;gap:6px;"><i class="fa-solid fa-user"></i> <%= t.getProperty("avatar.autoCenter") %></button>
+          <button id="btn-zoom-in" type="button"  style="border:1px solid var(--panel-border);border-radius:8px;padding:6px 10px;">+</button>
+          <button id="btn-zoom-out" type="button"  style="border:1px solid var(--panel-border);border-radius:8px;padding:6px 10px;">−</button>
           <span style="flex:1"></span>
-          <button id="btn-crop-save" type="button" class="bruno-ace-sc-regular" style="border:1px solid var(--panel-border);border-radius:8px;padding:6px 10px;display:inline-flex;align-items:center;gap:6px;background:transparent;color:#fff;"><i class="fa-solid fa-floppy-disk"></i> Uložit</button>
-          <button id="btn-cancel" type="button" class="bruno-ace-sc-regular" style="border:1px solid var(--panel-border);border-radius:8px;padding:6px 10px;background:transparent;color:#fff;">Zrušit</button>
+          <button id="btn-crop-save" type="button"  style="border:1px solid var(--panel-border);border-radius:8px;padding:6px 10px;display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--text);"><i class="fa-solid fa-floppy-disk"></i> <%= t.getProperty("common.save") %></button>
+          <button id="btn-cancel" type="button"  style="border:1px solid var(--panel-border);border-radius:8px;padding:6px 10px;background:transparent;color:var(--text);"><%= t.getProperty("common.cancel") %></button>
         </div>
-        <small style="opacity:.8; display:block; margin-top:6px;">Tip: Zoom kolečkem myši, tažení myší pro posun. Výstup 512×512 JPG.</small>
+        <small style="opacity:.8; display:block; margin-top:6px;"><%= t.getProperty("avatar.tip") %></small>
       </div>
     </div>
     <form id="avatar-form" method="post" action="/profile/avatar" enctype="multipart/form-data" style="display:none;">
@@ -35,19 +35,15 @@
   </section>
 
   <section style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.20); margin-top:14px;">
-    <h3 class="bruno-ace-sc-regular">Moje příspěvky</h3>
-    <style>
-      .profile-posts a{ color: var(--text); text-decoration:none; }
-      .profile-posts a:hover{ color: var(--accent); text-shadow:0 0 8px var(--accent); }
-    </style>
+    <h3 class="font-display"><%= t.getProperty("profile.posts") %></h3>
     <div style="overflow:auto;" class="profile-posts">
       <table style="width:100%; border-collapse:collapse;">
         <thead>
           <tr>
-            <th style="border-bottom:1px solid var(--panel-border); text-align:left; padding:6px;">Datum</th>
-            <th style="border-bottom:1px solid var(--panel-border); text-align:left; padding:6px;">Píseň</th>
-            <th style="border-bottom:1px solid var(--panel-border); text-align:left; padding:6px;">Komentář</th>
-            <th style="border-bottom:1px solid var(--panel-border); padding:6px;">Akce</th>
+            <th style="border-bottom:1px solid var(--panel-border); text-align:left; padding:6px;"><%= t.getProperty("profile.col.date") %></th>
+            <th style="border-bottom:1px solid var(--panel-border); text-align:left; padding:6px;"><%= t.getProperty("profile.col.song") %></th>
+            <th style="border-bottom:1px solid var(--panel-border); text-align:left; padding:6px;"><%= t.getProperty("profile.col.comment") %></th>
+            <th style="border-bottom:1px solid var(--panel-border); padding:6px;"><%= t.getProperty("profile.col.actions") %></th>
           </tr>
         </thead>
         <tbody>
@@ -73,24 +69,24 @@
         %>
           <tr>
             <td style="padding:6px; opacity:.8;"><%= ts %></td>
-            <td style="padding:6px;"><a href="/lyric.jsp?id=<%= lid %>"><%= sname %></a></td>
+            <td style="padding:6px;"><a href="/lyric.jsp?id=<%= lid %>"><%= com.github.skeliit.WebUtils.escapeHtml(sname) %></a></td>
             <td style="padding:6px; max-width:420px;">
               <form method="post" action="/comment" style="display:flex; gap:6px; align-items:flex-start;">
                 <input type="hidden" name="lyric_id" value="<%= lid %>">
                 <input type="hidden" name="comment_id" value="<%= cid %>">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="csrf" value="${csrf}">
-                <textarea name="content" rows="2" style="flex:1; width:100%; border:1px solid var(--panel-border); border-radius:6px; background:rgba(0,0,0,0.12); color:inherit;"><%= ctext %></textarea>
-                <button type=\"submit\" class=\"bruno-ace-sc-regular\" style=\"border:1px solid var(--panel-border); border-radius:6px; background:transparent; padding:6px 10px; color:var(--text);\">Uložit</button>
+                <textarea name="content" rows="2" style="flex:1; width:100%; border:1px solid var(--panel-border); border-radius:6px; background:rgba(0,0,0,0.12); color:inherit;"><%= com.github.skeliit.WebUtils.escapeHtml(ctext) %></textarea>
+                <button type="submit"  style="border:1px solid var(--panel-border); border-radius:6px; background:transparent; padding:6px 10px; color:var(--text);"><%= t.getProperty("common.save") %></button>
               </form>
             </td>
             <td style="padding:6px; text-align:center;">
-              <form method="post" action="/comment" onsubmit="return confirm('Smazat komentář?');">
+              <form method="post" action="/comment" onsubmit="return confirm('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("comment.deleteConfirm")) %>');">
                 <input type="hidden" name="lyric_id" value="<%= lid %>">
                 <input type="hidden" name="comment_id" value="<%= cid %>">
                 <input type="hidden" name="action" value="delete">
                 <input type="hidden" name="csrf" value="${csrf}">
-                <button type="submit" style="background:#7b1e1e;color:#fff;border:none;padding:6px 10px;border-radius:8px;">Smazat</button>
+                <button type="submit" style="background:#7b1e1e;color:var(--text);border:none;padding:6px 10px;border-radius:8px;"><%= t.getProperty("common.delete") %></button>
               </form>
             </td>
           </tr>
@@ -99,7 +95,7 @@
               }
             } catch (Exception ignore) {}
           } else { %>
-          <tr><td colspan="4" style="padding:6px; opacity:.8;">Pro zobrazení obsahu se přihlas.</td></tr>
+          <tr><td colspan="4" style="padding:6px; opacity:.8;"><%= t.getProperty("profile.loginRequired") %></td></tr>
         <% } %>
         </tbody>
       </table>
@@ -125,7 +121,7 @@
 
       function loadFile(f){
         if(!f) return;
-        if (f.size > 15*1024*1024) { alert('Soubor je příliš velký. Zvol menší (<= 15 MB)'); return; }
+        if (f.size > 15*1024*1024) { alert('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("avatar.tooLarge")) %>'); return; }
         const url = URL.createObjectURL(f);
         img.src = url; wrap.style.display='block';
         if (cropper) { cropper.destroy(); }
@@ -181,10 +177,10 @@
           try {
             const res = await fetch(form.action, { method:'POST', body: fd });
             const data = await res.json();
-            if (!res.ok || !data.ok){ alert('Uložení selhalo'); return; }
+            if (!res.ok || !data.ok){ alert('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("avatar.saveFailed")) %>'); return; }
             preview.src = data.url;
             btnCancel.click();
-          } catch(e){ alert('Chyba sítě'); }
+          } catch(e){ alert('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("common.networkError")) %>'); }
         }, 'image/jpeg', 0.85);
       });
     })();

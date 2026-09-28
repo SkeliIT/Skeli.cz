@@ -1,11 +1,13 @@
-FROM eclipse-temurin:17-jre
+# Development image: runs the app with the Jetty Maven plugin.
+FROM maven:3.9-eclipse-temurin-21
 
-ARG APP_DIR=/app
-WORKDIR ${APP_DIR}
+WORKDIR /app
 
-# Copy source and build with Maven wrapper if present; fallback to mvn in CI
-# (For simplicity in this dev Dockerfile we just run the fat Jetty plugin)
-COPY . .
+# Resolve dependencies first so they are cached between source changes
+COPY pom.xml .
+RUN mvn -B -q dependency:go-offline
+
+COPY src ./src
 
 EXPOSE 8080
-CMD ["bash", "-lc", "mvn -q -DskipTests org.eclipse.jetty:jetty-maven-plugin:11.0.15:run"]
+CMD ["mvn", "-B", "-q", "-DskipTests", "-Djetty.http.port=8080", "jetty:run"]

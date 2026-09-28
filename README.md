@@ -1,157 +1,153 @@
 # Skeli.cz
 
-Java (Jakarta Servlet + JSP), MariaDB, Flyway. Cíl: moderní, bezpečný web.
+Oficiální web rappera Skeliho (SKELO SQUAD): hudba, texty písní, klipy, aktuality ze sociálních sítí, komentáře a hlasování.
+
+- **Stack:** Java 21, Jakarta Servlet + JSP, Jetty 11, MariaDB, Flyway, Maven (WAR)
+- **Jazyky webu:** čeština (výchozí), angličtina, němčina, ukrajinština, vietnamština
+- **Prostředí:** větev `main` → test.skeli.cz, větev `production` → www.skeli.cz
 
 ## Požadavky
-- Java 17+, Maven 3.9+
-- MariaDB 10.6+ (uživatel `Skeli` / `skeli`, DB `skeliweb`)
 
-## Rychlý start (dev)
+- **JDK 21 nebo novější** (vynucuje `maven-enforcer-plugin`, build cílí na Javu 21)
+- Maven 3.9+
+- MariaDB 10.6+ (lokálně stačí ta z XAMPP)
+- Pro UI testy: Google Chrome
+
+Na Windows, kde je v `PATH` starší Java, nastavte před Mavenem `JAVA_HOME`:
+
 ```bash
-mvn -q -DskipTests compile
-mvn org.eclipse.jetty:jetty-maven-plugin:11.0.15:run
+export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-25.0.4.101-hotspot"   # Git Bash
 ```
-Aplikace poběží na http://localhost:8080/
+
+## Rychlý start (lokální vývoj)
+
+1. **Databáze:** spusťte MariaDB a vytvořte DB `skeliweb` s uživatelem `Skeli` / `skeli`.
+   S XAMPP:
+   ```bash
+   C:\xampp\mysql\bin\mysqld.exe --defaults-file=C:\xampp\mysql\bin\my.ini --standalone
+   ```
+2. **Konfigurace:** zkopírujte `.env.example` na `.env` a doplňte hodnoty (viz níže). `.env` je v `.gitignore`.
+3. **Migrace a spuštění:**
+   ```bash
+   mvn flyway:migrate
+   mvn jetty:run
+   ```
+4. Web běží na http://localhost:8080/
+
+Jetty se samo nerestartuje: změny v JSP a CSS se projeví hned (po obnovení stránky), změny v Java kódu až po restartu `mvn jetty:run`.
+
+**Docker (volitelně):** `docker compose up --build` spustí MariaDB a aplikaci na portu 8080. Je to jen vývojový image s výchozími hesly, ne produkční nasazení.
+
+## Konfigurace (`.env`)
+
+| Proměnná | K čemu slouží |
+|---|---|
+| `DB_URL`, `DB_USER`, `DB_PASS` | připojení k MariaDB |
+| `SMTP_*` | odesílání e-mailů (registrace, reset hesla, newsletter). Když je SMTP nastavené, noví uživatelé musí potvrdit e-mail, než smějí komentovat a hlasovat. |
+| `APP_BASE_URL` | veřejná adresa webu pro odkazy v e-mailech, canonical a Open Graph (nikdy se nebere z hlavičky `Host`) |
+| `UPLOAD_DIR` | složka mimo WAR pro avatary a obrázky z Instagramu, aby přežily nasazení nové verze |
+| `YOUTUBE_API_KEY`, `YOUTUBE_CHANNEL_ID` | synchronizace klipů z kanálu (`/admin/sync`) |
+| `INSTAGRAM_ACCESS_TOKEN` | příspěvky z Instagramu v Aktualitách; stačí pro první start, aplikace si token každý týden prodlouží a uloží do DB |
+| `SOCIAL_TOKEN` | tajný klíč pro `POST /api/social-posts`; bez něj je zápis vypnutý |
+| `APPLE_MUSIC_*` | synchronizace s Apple Music (`/admin/apple-sync`) |
 
 ## Databáze a migrace
-```bash
-mvn -q -Dflyway.configFiles=src/main/resources/flyway.conf flyway:migrate
-```
-(Flyway je také volán přes plugin v `pom.xml`.)
 
-## Email konfigurace
-1. Nastavte SMTP parametry v souboru `.env` (podle `.env.example`):
-   ```
-   SMTP_HOST=mail.example.com
-   SMTP_PORT=587
-   SMTP_USERNAME=robot@example.com
-   SMTP_PASSWORD=your_password
-   SMTP_FROM=robot@example.com
-   SMTP_FROM_NAME=Skeli Robot
-   SMTP_ENCRYPTION=tls
-   ```
-2. E-maily se odesílají při:
-   - Nové registraci uživatele (potvrzovací e-mail)
-   - Žádosti o obnovení hesla (reset link)
-
-## YouTube sync
-1. Vytvoř `src/main/webapp/WEB-INF/youtube.properties` podle šablony:
-   ```
-   apiKey=YOUR_KEY
-   channelId=YOUR_CHANNEL_ID
-   ```
-2. Přihlas se jako ADMIN a otevři `/admin/sync`.
+- Migrace jsou v `src/main/resources/db/migration`, pojmenované `V{číslo}__popis.sql`. Každá změna schématu nebo dat = nová migrace s dalším číslem; už nasazené migrace se nikdy neupravují.
+- `flyway-maven-plugin` má v `pom.xml` lokální přihlašovací údaje. Na jiném prostředí je přepište:
+  ```bash
+  mvn flyway:migrate -Dflyway.url="$DB_URL" -Dflyway.user="$DB_USER" -Dflyway.password="$DB_PASS"
+  ```
+- Migrace se na serveru pouštějí **před** restartem aplikace.
+- **Testovací databáze se nikdy nekopíruje do produkční.** Produkce dostává jen migrace; před migrací udělejte zálohu (`mysqldump`).
+- Prvního admina nastavíte v DB: `UPDATE users SET role='ADMIN' WHERE username='...';`
 
 ## Testy
+
 ```bash
-mvn test
+mvn test                          # unit testy (běží i v mvn verify)
+mvn test -Dtest='*IT'             # UI testy v prohlížeči – potřebují běžící web a lokální DB
+mvn test -Dtest=HeaderFitIT       # jeden konkrétní test
 ```
 
-## Odstranění problémů po čerstvém klonu (IDE/Build)
-- Otevřete projekt přes `pom.xml` (Import as Maven Project), ne jako čistý Java projekt.
-- Nastavte Project SDK/Language level na JDK 17.
-- V IntelliJ: File → Invalidate Caches / Restart, poté Maven → Reload All Projects.
-- Ověřte na CLI:
-  ```bash
-  mvn -q -DskipTests compile
-  mvn -q test
-  ```
-- Pokud se v IDE zobrazuje „cannot find symbol: LyricService/LyricView“, téměř vždy jde o špatně nastavené JDK nebo chybějící Maven import. Po nastavení JDK 17 a reloadu Mavenu chyba zmizí.
-- Ujistěte se, že jste na aktuální větvi (`main`/`master`) a fork je synchronizovaný s upstreamem.
+- **Unit testy** (`*Test`) nepotřebují nic dalšího.
+- **UI testy** (`*IT`) ovládají headless Chrome proti `http://localhost:8080` a lokální DB `skeliweb`. Účty, které si vytvoří, po sobě smažou. Adresu a DB lze změnit přes `-Dit.baseUrl`, `-Dit.dbUrl`, `-Dit.dbUser`, `-Dit.dbPass`.
+- Některé UI testy umí uložit snímky obrazovky pro kontrolu designu: `-Dit.shots=C:/cesta/ke/slozce`.
+- Užitečné hlídače: `I18nTest` (všechny jazyky mají stejné klíče), `HeaderFitIT` (hlavička se vejde ve všech jazycích a šířkách), `MobileMenuIT`, `LanguageFlagsIT`, `AboutPageIT`.
 
-## Docker (volitelné)
-```bash
-docker compose up --build
+## Struktura projektu
+
 ```
-Aplikace: http://localhost:8080  DB: localhost:3306
+src/main/java/com/github/skeliit/   servlety, filtry (CSRF, admin), DAO, služby
+src/main/webapp/                     JSP stránky
+  includes/header.jsp, footer.jsp    společná hlavička a patička (menu, jazyk, téma)
+  WEB-INF/i18n/messages_*.properties překlady
+  WEB-INF/views/                     šablony pro servlety (detail textu, editor textů…)
+  css/base.css                       design tokeny (barvy, písma, velikosti), světlé téma
+  css/components.css                 hlavička, tlačítka, menu, patička
+  css/pages.css                      jednotlivé stránky
+  img/                               obrázky, loga, vlajky (img/flags)
+src/main/resources/db/migration/     Flyway migrace
+src/test/java/                       unit testy a UI testy (*IT)
+```
+
+## Překlady a jazyky
+
+- Texty se čtou jen ze souborů `WEB-INF/i18n/messages_{jazyk}.properties` (UTF-8). Chybějící klíč se zobrazí česky. Tabulka `translations` v DB se už nepoužívá.
+- V JSP je překlad v proměnné `t` (`t.getProperty("klic")`), aktuální jazyk v `cur`.
+- **Nový jazyk** vyžaduje:
+  1. `messages_xx.properties` se všemi klíči (hlídá `I18nTest`),
+  2. `xx` v `I18n.SUPPORTED_LANGS` a v `AdminLyricsServlet.LANGS`,
+  3. položku v seznamu jazyků v `includes/header.jsp` (rozbalovací seznam i pole jazyků pro mobil), v `uzivatel.jsp` a v `WEB-INF/views/admin_lyrics.jsp`,
+  4. vlajku `img/flags/xx.svg` a řádek `.lang-btn[data-lang="xx"]` v `components.css`,
+  5. kontrolu písma: Bruno Ace SC umí jen latinku (ne azbuku ani vietnamštinu). Ukrajinština proto padá na Exo 2 a vietnamština přepíná celý web na Exo 2 (`html:lang(vi)` v `base.css`).
+
+## Design
+
+- Barvy, písma a velikosti jsou jako proměnné v `css/base.css` (`--accent`, `--panel`, `--fs-h1` … `--fs-small`). Nové prvky napojujte na ně, ne na pevná čísla. Světlé téma = třída `body.light`.
+- Písma: Bruno Ace SC (nadpisy, menu, tlačítka), Oswald Light (odstavce v kartách), Exo 2 (náhrada pro azbuku a vietnamštinu).
+- Loga jsou CSS masky, takže mají barvu textu: `.logo-mark` (nápis SKELOSQUAD) a `.squad-mark` (nápis s obličeji squadu, hlavička a stránka O mně).
+- Po změně CSS zvyšte `assetVersion` v `includes/header.jsp`, aby prohlížeče nenačítaly starou verzi z cache.
+- Každou změnu vzhledu kontrolujte ve světlém i tmavém režimu a na mobilu.
+
+## Administrace
+
+Po přihlášení s rolí ADMIN je dostupné `/admin.jsp` (bez přihlášení 403):
+- synchronizace YouTube (`/admin/sync`), Instagramu (`/admin/instagram-sync`) a Apple Music (`/admin/apple-sync`),
+- přidání songu nebo klipu i mimo vlastní kanál (`/admin/video`),
+- editor textů písní ve všech jazycích (`/admin/lyrics`),
+- moderace komentářů a nahlášené komentáře, uživatelé, odběratelé newsletteru.
+
+## Nasazení
+
+Na serveru běží dvě systemd služby, které spouštějí aplikaci přímo ze zdrojáků (`mvn … jetty-maven-plugin:11.0.15:run`) za Apache:
+
+| Služba | Větev | Web | Port |
+|---|---|---|---|
+| `skeli-test` | `main` | test.skeli.cz | 8082 |
+| `skeli-production` | `production` | www.skeli.cz | 8083 |
+
+Každé prostředí má vlastní checkout, vlastní `.env` a vlastní databázi.
+
+Nasazuje se **automaticky pushem** do `main` (test) nebo `production` (produkce), případně ručně tlačítkem *Run workflow* v GitHub Actions. Workflow `.github/workflows/deploy.yml`:
+
+1. postaví projekt a pustí unit testy (`mvn verify`),
+2. připojí se přes SSH (klíč `DEPLOY_KEY`, pevně zapsaný otisk serveru),
+3. na serveru spustí `deploy/remote-deploy.sh`:
+   - zastaví se, pokud jsou v checkoutu neuložené změny v `src/` nebo `pom.xml` (nic nepřepíše),
+   - u produkce zazálohuje databázi do `~/backups` (drží 14 posledních),
+   - posune checkout na pushnutý commit (jen fast-forward),
+   - pustí Flyway migrace s údaji z `.env` daného prostředí,
+   - restartuje službu (`sudo systemctl restart skeli-…`, jiné příkazy uživatel `skeli` přes sudo nesmí),
+   - počká, až web odpoví, a zkontroluje `/`, `/texty.jsp`, `/login.jsp`, `/css/base.css` (200) a `/admin.jsp` (403),
+   - když něco selže, vrátí kód na předchozí commit a službu znovu restartuje. **Migrace se nevracejí** – případně obnovte zálohu,
+4. zkontroluje stejné stránky zvenku přes HTTPS.
+
+GitHub secrets: `DEPLOY_KEY` (soukromý klíč; na serveru je jeho veřejná část v `authorized_keys` s omezením `restrict`), `DEPLOY_HOST` (`magnymph.vitexsoftware.com`, bez `http://`), `DEPLOY_USER` (`skeli`).
 
 ## Bezpečnost
-- Admin chráněn filtrem (`/admin/*`).
-- Základní CSRF pro `/comment` a `/vote`.
-- Používejte prepared statements a `c:out` v JSP.
 
-# Skeli.cz
-
-transformace html strany na JAVU
-
-## Stack
-- Java/JSP + Jetty
-- MariaDB + Flyway (`src/main/resources/db/migration`)
-
-## Migrations
-- V1..V7 lyrics/songs normalization
-- V8 videos table (YouTube IDs)
-- V9 map videos -> songs
-- V10 auth (users), comments, votes, views
-- V11 videos.title + published_at
-
-Run:
-```sh
-mvn -q -Dflyway.cleanDisabled=true flyway:migrate
-```
-
-## Auth
-- Register: POST /register
-- Login: POST /login
-- Logout: GET /logout
-- Session attributes: `userId`, `username`, `role`
-
-## YouTube sync
-- Endpoint: GET `/admin/sync` (ADMIN only)
-- Env vars: `YOUTUBE_API_KEY`, `YOUTUBE_CHANNEL_ID`
-- Syncs latest channel videos into `videos` (youtube_id, title, published_at) and links to `songs`
-
-## Music page
-- `music.jsp`: Spotify embed, now-playing, 3-column video grid, modal player
-- Titles z DB (`videos.title`), fallback oEmbed
-- Spotify sekce má červeno-oranžové zvýraznění (`--spotify`), ne zelené
-
-## UI/Theme
-- Tmavý režim: zesílený kontrast, panely výrazně tmavší (`--panel` rgba(0,0,0,0.60))
-- Světlý režim: přidané okraje panelů pro lepší čitelnost (`--panel-border`)
-
-## I18n
-- Překlady se načítají ze souborů `WEB-INF/i18n/messages_*.properties`
-- Současně se načítají/ukládají i do DB tabulky `translations` (Flyway `V13__i18n_translations_table.sql`)
-- Chování: soubory -> doplnění chybějících klíčů do DB -> DB hodnoty přepíší souborové
-
-## Texty
-- `texty.jsp` vertikální seznam; `lyric.jsp` komentáře, hlasování, návštěvy, moderní font
-
-## Poznámky
-- DB přístup je zatím v kódu (JSP/Servlety); pro produkci použít konfiguraci/env
-- Admin: `UPDATE users SET role='ADMIN' WHERE username='...';`
-
----
-
-## What's new (social feed, carousel, auth cards)
-- EllipticPlayer carousel: 5 náhledů (prev2, prev, active, next, next2) + fade na okrajích.
-- Light theme: snížená bělost panelů, lepší čitelnost na červeném pozadí.
-- Login/Register: sjednocené "card" panely, centrováno vertikálně.
-- Sdílení: tlačítko Share u videí a textů (Web Share API / clipboard fallback).
-- Sociální feed: /aktuality.jsp + widget na domovské.
-
-### Social feed API
-Tabulka: `social_posts` (viz Flyway `V26__social_posts.sql`).
-
-- `GET /api/social-posts?limit=12&offset=0` → stránkovaný seznam příspěvků.
-- `GET /api/social-posts?onePerSource=true` → jeden nejnovější příspěvek za každý zdroj (widget na homepage).
-- `POST /api/social-posts?token=$SOCIAL_TOKEN` → ingest z webhooku (Make/Zapier).
-  - JSON body:
-    ```json
-    {"source":"instagram","postId":"1789","permalink":"https://instagram.com/p/...","image":"https://...jpg","caption":"New drop","createdAt":"2025-11-01T00:00:00Z"}
-    ```
-  - Nastav env `SOCIAL_TOKEN` pro autorizaci POSTu.
-
-### Aktuality (novinky)
-- `/aktuality.jsp` zobrazuje všechny příspěvky ze sociálních sítí s tlačítkem „Načíst další" (stránkování přes `offset`).
-- Domovská stránka (`/index.jsp`) zobrazuje jeden nejnovější příspěvek od každého zdroje.
-
-### EllipticPlayer carousel
-- Karusel náhledů (`.ep-item`) používá `aspect-ratio: 16/9` pro správné zobrazení náhledových obrázků.
-- Responzivní: na mobilech (`<800px`) zobrazuje 3 položky (prev, active, next), krajní (prev2, next2) jsou skryty.
-
-### Dev run (DB + server)
-```sh
-mvn flyway:migrate jetty:run
-```
+- Admin sekce chráněné filtrem, CSRF token u všech formulářů (`CsrfFilter`), omezení pokusů o přihlášení a registraci, honeypot proti spamu.
+- Hesla jako bcrypt hash, tokeny pro reset hesla a ověření e-mailu se ukládají jen jako SHA-256.
+- SQL jen přes prepared statements, výstup v JSP escapovat (`WebUtils.escapeHtml`, `c:out`).
+- Tajné hodnoty patří do `.env` na serveru, nikdy do Gitu. `.webui_secret_key` byl v minulosti commitnutý – považujte ho za prozrazený.

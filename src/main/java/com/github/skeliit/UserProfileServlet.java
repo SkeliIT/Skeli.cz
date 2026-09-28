@@ -25,7 +25,7 @@ public class UserProfileServlet extends HttpServlet {
         String city = req.getParameter("city");
         String bio = req.getParameter("bio");
         String theme = req.getParameter("theme");
-        String lang = req.getParameter("lang");
+        String lang = I18n.safeLang(req.getParameter("lang"));
         boolean visible = "1".equals(req.getParameter("public_profile")) || "on".equalsIgnoreCase(req.getParameter("public_profile"));
         
         Integer age = null;
@@ -57,15 +57,12 @@ public class UserProfileServlet extends HttpServlet {
                 ps.setString(4, city);
                 ps.setString(5, bio);
                 ps.setString(6, theme != null ? theme : "dark");
-                ps.setString(7, lang != null ? lang : "cs");
+                ps.setString(7, lang);
                 ps.setBoolean(8, visible);
                 ps.executeUpdate();
             }
             
-            // Update session lang if changed
-            if (lang != null) {
-                session.setAttribute("lang", lang);
-            }
+            session.setAttribute("lang", lang);
             
             resp.sendRedirect("/uzivatel.jsp?saved=true");
         } catch (SQLException e) {

@@ -5,263 +5,248 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "1.0.1";
+  String assetVersion = "2.4.8";
 %>
-  <html lang="cs-cz">
+<%@ include file="/WEB-INF/i18n/i18n.jspf" %>
+  <html lang="<%= cur %>">
 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, viewport-fit=cover">
-    <title>Skeli — oficiální web</title>
-    <meta name="description" content="Skeli — hudba, texty, videa a novinky" />
-    <meta name="keywords" content="Skeli, hudba, rap, videoklipy, texty" />
+<%
+  // Per-page <title>/description. A servlet may set "pageTitle"/"pageDescription"
+  // (the lyric page does); otherwise the title comes from the page's menu/heading key.
+  String headTitle = (String) request.getAttribute("pageTitle");
+  if (headTitle == null) {
+    java.util.Map<String, String> titleKeys = java.util.Map.ofEntries(
+        java.util.Map.entry("/texty.jsp", "menu.lyrics"),
+        java.util.Map.entry("/music.jsp", "menu.music"),
+        java.util.Map.entry("/about.jsp", "about.title"),
+        java.util.Map.entry("/aktuality.jsp", "menu.news"),
+        java.util.Map.entry("/donate.jsp", "donate.title"),
+        java.util.Map.entry("/login.jsp", "auth.login.heading"),
+        java.util.Map.entry("/register.jsp", "auth.register.heading"),
+        java.util.Map.entry("/forgot.jsp", "forgot.heading"),
+        java.util.Map.entry("/reset.jsp", "reset.heading"),
+        java.util.Map.entry("/uzivatel.jsp", "settings.heading"),
+        java.util.Map.entry("/profile.jsp", "menu.profile"),
+        java.util.Map.entry("/privacy.jsp", "privacy.heading"),
+        java.util.Map.entry("/terms.jsp", "terms.heading"),
+        java.util.Map.entry("/gdpr.jsp", "gdpr.title"),
+        java.util.Map.entry("/error.jsp", "error.heading"));
+    String titleKey = titleKeys.get(request.getServletPath());
+    if (titleKey != null) headTitle = t.getProperty(titleKey);
+  }
+  String headFullTitle = headTitle == null ? t.getProperty("meta.title") : headTitle + " | Skeli";
+  String headDesc = (String) request.getAttribute("pageDescription");
+  if (headDesc == null) headDesc = t.getProperty("meta.description");
+  // Absolute URLs for search engines and link previews (never taken from the Host header)
+  String siteBase = com.github.skeliit.WebUtils.baseUrl();
+  String canonicalPath = (String) request.getAttribute("canonicalPath");
+  Object fwdUri = request.getAttribute("jakarta.servlet.forward.request_uri");
+  String headUrl = siteBase + (canonicalPath != null
+      ? canonicalPath
+      : (fwdUri != null ? fwdUri : request.getRequestURI()));
+  // error pages (404/500) must not end up in search results
+  boolean headIsError = request.getAttribute("jakarta.servlet.error.status_code") != null;
+  // link preview image/type: a page may set its own (a lyric page uses its video thumbnail)
+  String headImage = (String) request.getAttribute("pageImage");
+  String headType = request.getAttribute("pageType") != null ? (String) request.getAttribute("pageType") : "website";
+%>
+    <title><%= com.github.skeliit.WebUtils.escapeHtml(headFullTitle) %></title>
+    <meta name="description" content="<%= com.github.skeliit.WebUtils.escapeHtml(headDesc) %>" />
     <meta name="author" content="Skeli" />
-    <meta property="og:title" content="Skeli — oficiální web" />
-    <meta property="og:description" content="Poslouchej hudbu, sleduj klipy a čti texty" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="/" />
-    <link rel="shortcut icon" href="<%= ctx %>/favicon.ico" type="image/x-icon" />
-    <link rel="icon" href="<%= ctx %>/favicon.ico" type="image/x-icon" />
+    <% if (headIsError) { %><meta name="robots" content="noindex" /><% } else { %><link rel="canonical" href="<%= com.github.skeliit.WebUtils.escapeHtml(headUrl) %>" /><% } %>
+    <%
+      @SuppressWarnings("unchecked")
+      java.util.Map<String, String> hreflang = (java.util.Map<String, String>) request.getAttribute("hreflang");
+      if (hreflang != null) {
+        for (java.util.Map.Entry<String, String> e : hreflang.entrySet()) {
+          String href = siteBase + e.getValue();
+    %>
+    <link rel="alternate" hreflang="<%= com.github.skeliit.WebUtils.escapeHtml(e.getKey()) %>" href="<%= com.github.skeliit.WebUtils.escapeHtml(href) %>" />
+    <%
+        }
+        if (hreflang.containsKey("cs")) {
+    %>
+    <link rel="alternate" hreflang="x-default" href="<%= com.github.skeliit.WebUtils.escapeHtml(siteBase + hreflang.get("cs")) %>" />
+    <%
+        }
+      }
+    %>
+    <meta property="og:site_name" content="Skeli" />
+    <meta property="og:title" content="<%= com.github.skeliit.WebUtils.escapeHtml(headFullTitle) %>" />
+    <meta property="og:description" content="<%= com.github.skeliit.WebUtils.escapeHtml(headDesc) %>" />
+    <meta property="og:type" content="<%= com.github.skeliit.WebUtils.escapeHtml(headType) %>" />
+    <meta property="og:url" content="<%= com.github.skeliit.WebUtils.escapeHtml(headUrl) %>" />
+    <% if (headImage != null) { %>
+    <meta property="og:image" content="<%= com.github.skeliit.WebUtils.escapeHtml(headImage) %>" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="720" />
+    <% } else { %>
+    <meta property="og:image" content="<%= siteBase %>/img/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <% } %>
+    <meta property="og:image:alt" content="<%= com.github.skeliit.WebUtils.escapeHtml(headFullTitle) %>" />
+    <meta property="og:locale" content="<%= t.getProperty("meta.locale", "cs-CZ").replace('-', '_') %>" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="<%= ctx %>/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="<%= ctx %>/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="<%= ctx %>/apple-touch-icon.png" />
+    <meta name="theme-color" content="#09090b" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans+Pinstripe:ital@0;1&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Comforter+Brush&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Slick Carousel CSS -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
-    <link rel="stylesheet" type="text/css"
-      href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Exo+2:wght@500&family=Oswald:wght@300;500&display=swap" rel="stylesheet">
     <!-- Skeli.cz CSS -->
     <link rel="stylesheet" href="<%= ctx %>/css/base.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/components.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/pages.css?v=<%= assetVersion %>">
-    <!-- Light theme extra transparency overrides -->
-    <style>
-      body.light {
-        --panel: rgba(255, 255, 255, 0.68);
-        --panel-strong: rgba(255, 255, 255, 0.82);
-      }
-
-      body.light .user-dropdown {
-        background: rgba(255, 255, 255, 0.86);
-      }
-
-      body.light .sp-bar {
-        background: rgba(255, 255, 255, 0.80);
-      }
-
-      body.light .sp-minbar {
-        background: rgba(255, 255, 255, 0.75);
-      }
-
-      /* Global soft top fade for main panel (removes sharp edge) */
-      main {
-        background: linear-gradient(
-          to bottom,
-          rgba(0, 0, 0, 0.22) 0%,
-          var(--panel) 56px,
-          var(--panel) 100%
-        );
-        border-top-color: transparent;
-      }
-
-      body.light main {
-        background: linear-gradient(
-          to bottom,
-          rgba(255, 255, 255, 0.48) 0%,
-          var(--panel) 56px,
-          var(--panel) 100%
-        );
-      }
-
-      /* Donate headline - more subtle size */
-      .donate-title {
-        font-size: clamp(1.45rem, 2.5vw, 2.2rem);
-        letter-spacing: 0.09em;
-      }
-
-      @media (max-width: 600px) {
-        #topClock {
-          display: none !important;
-        }
-      }
-
-      @media (min-width: 601px) and (max-width: 1100px) {
-        #topClock {
-          font-size: 0.45em !important;
-          left: 10px !important;
-          top: 4px !important;
-        }
-      }
-
-      header {
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-      }
-
-      /* Hamburger Menu Styles */
-      .menu-toggle {
-        display: none;
-        background: transparent;
-        border: 1px solid var(--panel-border);
-        color: gold;
-        padding: 6px 12px;
-        border-radius: 8px;
-        cursor: pointer;
-        position: absolute;
-        left: 14px;
-        top: 10px;
-        z-index: 1001;
-      }
-
-      @media (max-width: 850px) {
-        .menu-toggle {
-          display: block;
-        }
-
-        header nav {
-          display: none;
-          flex-direction: column;
-          background: var(--panel-strong);
-          position: absolute;
-          top: 60px;
-          left: 0;
-          width: 100%;
-          padding: 20px 0;
-          border-bottom: 1px solid var(--panel-border);
-          backdrop-filter: blur(15px);
-        }
-
-        header nav.open {
-          display: flex;
-        }
-
-        header nav a {
-          padding: 10px;
-          margin: 0;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-      }
-    </style>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Slick Carousel JS -->
-    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-    <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
+    <link rel="stylesheet" href="<%= ctx %>/css/admin.css?v=<%= assetVersion %>">
   </head>
   <body>
-      <% String __csrf=(String) session.getAttribute("csrf"); if (__csrf==null) {
-        __csrf=java.util.UUID.randomUUID().toString(); session.setAttribute("csrf", __csrf); }
-        request.setAttribute("csrf", __csrf); %>
-        <header>
+      <% request.setAttribute("csrf", com.github.skeliit.CsrfFilter.token(session)); %>
+      <% String currentUser = (String) session.getAttribute("username");
+         String currentRole = (String) session.getAttribute("role"); %>
+        <header class="site-header" id="siteHeader">
+          <div class="header-inner">
+            <a href="<%= ctx %>/index.jsp" class="brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
 
-          <div id="topClock" class="bruno-ace-sc-regular"
-            style="position:absolute; left:14px; top:8px; font-size:0.525em; padding:3px 6px; border-radius:6px; background: rgba(0,0,0,0.20); opacity:0.45; box-shadow: 0 1px 6px rgba(0,0,0,.10);">
-          </div>
+            <nav id="mainNav" class="main-nav">
+              <a href="<%= ctx %>/index.jsp"><%= t.getProperty("menu.home","Home") %></a>
+              <a href="<%= ctx %>/aktuality.jsp"><%= t.getProperty("menu.news") %></a>
+              <a href="<%= ctx %>/music.jsp"><%= t.getProperty("menu.music","Music") %></a>
+              <a href="<%= ctx %>/texty.jsp"><%= t.getProperty("menu.lyrics","Lyrics") %></a>
+              <a href="<%= ctx %>/bio.jsp"><%= t.getProperty("menu.about","About") %></a>
+              <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
+              <%-- phones: the display controls live here instead of crowding the bar --%>
+              <div class="nav-settings">
+                <button type="button" class="icon-btn" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold"></i></button>
+                <button type="button" class="icon-btn" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                <span class="nav-langs" aria-label="<%= t.getProperty("header.language") %>">
+                  <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="?lang=<%= l %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= com.github.skeliit.I18n.label(l) %></a><% } %>
+                </span>
+              </div>
+            </nav>
 
-          <button class="menu-toggle" id="menuToggle" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
-
-          <h1 class="comforter-brush-regular">SKELOSQUAD</h1>
-          <nav id="mainNav" class="bruno-ace-sc-regular">
-            <a href="<%= ctx %>/index.jsp">
-              <%= ((java.util.Properties)request.getAttribute("t")).getProperty("menu.home","Home") %>
-            </a>
-            <a href="<%= ctx %>/bio.jsp">
-              <%= ((java.util.Properties)request.getAttribute("t")).getProperty("menu.about","About") %>
-            </a>
-            <a href="<%= ctx %>/music.jsp">
-              <%= ((java.util.Properties)request.getAttribute("t")).getProperty("menu.music","Music") %>
-            </a>
-            <a href="<%= ctx %>/aktuality.jsp">Aktuality</a>
-            <a href="<%= ctx %>/texty.jsp">
-              <%= ((java.util.Properties)request.getAttribute("t")).getProperty("menu.lyrics","Lyrics") %>
-            </a>
-          </nav>
-          <div class="top-controls"
-            style="position:absolute; top:10px; right:14px; font-size:0.8em; display:flex; gap:6px; align-items:center;">
-            <% String currentUser=(String) session.getAttribute("username"); String currentRole=(String)
-              session.getAttribute("role"); %>
-              <a href="<%= ctx %>/donate.jsp" class="bruno-ace-sc-regular"
-                style="color:#CC2B2B; font-weight:600; padding:3px 8px; display:inline-flex; align-items:center; gap:6px;"
-                title="Donate"><i class="fa-solid fa-heart"></i><span
-                  style="font-size:0.95em; letter-spacing:.3px;">Donate</span></a>
-              <button id="fontToggle" title="Tloušťka textu" class="bruno-ace-sc-regular"
-                style="background:transparent;border:1px solid rgba(255,215,0,0.4);color:#ffd700;padding:3px 8px;border-radius:6px;cursor:pointer;font-size:0.95em;display:inline-flex;align-items:center;gap:6px;"><i
-                  class="fa-solid fa-bold"></i></button>
-              <button id="themeToggle" title="Přepnout světlý/tmavý" class="bruno-ace-sc-regular"
-                style="background:transparent;border:1px solid rgba(255,215,0,0.4);color:#ffd700;padding:3px 8px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;"><i
-                  class="fa-solid fa-circle-half-stroke"></i></button>
+            <div class="top-controls">
+              <a href="<%= ctx %>/donate.jsp" class="donate-link" title="<%= t.getProperty("btn.donate") %>">
+                <i class="fa-solid fa-heart"></i>
+                <span><%= t.getProperty("btn.donate") %></span>
+              </a>
+              <button id="fontToggle" type="button" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>" class="icon-btn bold-btn">
+                <i class="fa-solid fa-bold"></i>
+              </button>
+              <button id="themeToggle" type="button" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>" class="icon-btn">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+              </button>
               <div class="lang-switch">
-                <button class="lang-btn bruno-ace-sc-regular" title="Jazyk"
-                  style="background:transparent;border:1px solid rgba(255,215,0,0.4);color:#ffd700;padding:3px 8px;border-radius:6px;cursor:pointer;font-size:0.95em;display:inline-flex;align-items:center;gap:6px;"><i
-                    class="fa-solid fa-language"></i></button>
+                <button type="button" class="lang-btn icon-btn" data-lang="<%= cur %>" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>">
+                  <span class="lang-code"><%= com.github.skeliit.I18n.label(cur) %></span>
+                </button>
                 <ul class="menu">
-                  <li><a href="?lang=cs">Čeština 🇨🇿</a></li>
-                  <li><a href="?lang=en">English 🇬🇧</a></li>
-                  <li><a href="?lang=de">Deutsch 🇩🇪</a></li>
-                  <li><a href="?lang=uk">Українська 🇺🇦</a></li>
+                  <li><a href="?lang=cs"><img class="flag" src="<%= ctx %>/img/flags/cs.svg" alt="" width="18" height="12">Čeština</a></li>
+                  <li><a href="?lang=en"><img class="flag" src="<%= ctx %>/img/flags/en.svg" alt="" width="18" height="12">English</a></li>
+                  <li><a href="?lang=de"><img class="flag" src="<%= ctx %>/img/flags/de.svg" alt="" width="18" height="12">Deutsch</a></li>
+                  <li><a href="?lang=uk"><img class="flag" src="<%= ctx %>/img/flags/uk.svg" alt="" width="18" height="12">Українська</a></li>
+                  <li><a href="?lang=vi" lang="vi"><img class="flag" src="<%= ctx %>/img/flags/vi.svg" alt="" width="18" height="12">Tiếng Việt</a></li>
                 </ul>
               </div>
-             <!--  <% if (currentUser==null) { %>
-                <a href="<%= ctx %>/login.jsp" class="bruno-ace-sc-regular"
-                  style="color:white; padding:3px 8px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
-                  title="Přihlásit"><i class="fa-solid fa-right-to-bracket"></i><span
-                    style="font-size:0.95em; letter-spacing:.3px;">Login</span></a>
-                <span style="color:rgba(255,255,255,0.5);">|</span>
-                <a href="<%= ctx %>/register.jsp" class="bruno-ace-sc-regular"
-                  style="color:white; padding:3px 8px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;"
-                  title="Registrace"><i class="fa-solid fa-user-plus"></i><span
-                    style="font-size:0.95em; letter-spacing:.3px;">Register</span></a>
-                <% } else { %>
-                  <div class="user-menu" style="position:relative; display:inline-block;">
-                    <span style="color:white; cursor:pointer; padding:3px 6px; font-size:0.95em;">👤 <%= currentUser %>
-                        <% if ("ADMIN".equals(currentRole)) { %> <span style="color:var(--accent);">★</span>
-                          <% } %></span>
-                    <div class="user-dropdown"
-                      style="display:none; position:absolute; right:0; top:100%; background:var(--panel-strong); border:1px solid var(--panel-border); border-radius:8px; padding:6px; min-width:140px; z-index:1000;">
-                      <a href="<%= ctx %>/profile.jsp" style="display:block; padding:6px 8px; text-decoration:none;">Profil</a>
-                      <a href="<%= ctx %>/uzivatel.jsp"
-                        style="display:block; padding:6px 8px; text-decoration:none;">Nastavení</a>
-                      <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"
-                          style="display:block; padding:6px 8px; text-decoration:none;">Admin</a>
-                        <% } %>
-                          <a href="<%= ctx %>/logout" style="display:block; padding:6px 8px; text-decoration:none;">Odhlásit</a>
-                    </div>
+              <% if (currentUser == null) { %>
+                <a href="<%= ctx %>/login.jsp" class="auth-link" title="<%= t.getProperty("btn.login") %>">
+                  <i class="fa-solid fa-right-to-bracket"></i>
+                  <span><%= t.getProperty("btn.login") %></span>
+                </a>
+                <a href="<%= ctx %>/register.jsp" class="auth-link auth-primary" title="<%= t.getProperty("btn.register") %>">
+                  <i class="fa-solid fa-user-plus"></i>
+                  <span><%= t.getProperty("btn.register") %></span>
+                </a>
+              <% } else { %>
+                <div class="user-menu">
+                  <button type="button" class="user-btn">
+                    <% String headerAvatar = com.github.skeliit.WebUtils.safeUrl((String) session.getAttribute("avatar_url"), null); %>
+                    <% if (headerAvatar != null) { %>
+                    <img class="user-avatar" src="<%= com.github.skeliit.WebUtils.escapeHtml(headerAvatar) %>" alt="">
+                    <% } else { %>
+                    <span class="user-avatar"><%= com.github.skeliit.WebUtils.escapeHtml(currentUser.substring(0, 1).toUpperCase()) %></span>
+                    <% } %>
+                    <span class="user-name"><%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></span>
+                    <% if ("ADMIN".equals(currentRole)) { %><span class="user-star">★</span><% } %>
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </button>
+                  <div class="user-dropdown">
+                    <a href="<%= ctx %>/profile.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.profile") %></a>
+                    <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
+                    <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
+                    <%-- a POST with the CSRF token: another site cannot log people out with a link --%>
+                    <form method="post" action="<%= ctx %>/logout" class="logout-form">
+                      <input type="hidden" name="csrf" value="<%= com.github.skeliit.CsrfFilter.token(session) %>">
+                      <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> <%= t.getProperty("btn.logout") %></button>
+                    </form>
                   </div>
-                  <% } %> -->
+                </div>
+              <% } %>
+              <button class="menu-toggle icon-btn" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false"><i class="fa-solid fa-bars"></i><span class="menu-label"><%= t.getProperty("footer.menu") %></span></button>
+            </div>
           </div>
         </header>
+<%
+  // One-line messages after a redirect, chosen by fixed query parameters (never echoed back)
+  String flashKey = null; boolean flashOk = true;
+  String pVerified = request.getParameter("verified"), pVerify = request.getParameter("verify");
+  if ("1".equals(pVerified)) flashKey = "flash.verified";
+  else if ("invalid".equals(pVerified)) { flashKey = "flash.verifyInvalid"; flashOk = false; }
+  else if ("sent".equals(pVerify)) flashKey = "flash.verifySent";
+  else if ("resent".equals(pVerify)) flashKey = "flash.verifyResent";
+  else if ("limit".equals(pVerify)) { flashKey = "flash.verifyLimit"; flashOk = false; }
+  else if ("required".equals(pVerify)) { flashKey = "flash.verifyRequired"; flashOk = false; }
+  else if ("1".equals(request.getParameter("reported"))) flashKey = "flash.reported";
+  else if ("0".equals(request.getParameter("reported"))) { flashKey = "flash.reportFailed"; flashOk = false; }
+  else if ("limit".equals(request.getParameter("comment"))) { flashKey = "flash.commentLimit"; flashOk = false; }
+  if (flashKey != null) {
+%>
+        <div class="flash <%= flashOk ? "flash-ok" : "flash-warn" %>" role="status">
+          <i class="fa-solid <%= flashOk ? "fa-circle-check" : "fa-circle-exclamation" %>"></i>
+          <span><%= t.getProperty(flashKey) %></span>
+        </div>
+<% } %>
         <script>
           (function () {
             const fwKey = 'fontWeight';
-            // Digital clock with locale based on session lang
-            const sessionLang = (function () { try { return '<% String __lang = (String) session.getAttribute("lang"); if (__lang == null) __lang = "cs"; out.print(__lang); %>'; } catch (e) { return 'cs'; } })();
-            const localeMap = { cs: 'cs-CZ', en: 'en-GB', de: 'de-DE', uk: 'uk-UA' };
-            function updateClock() {
-              const el = document.getElementById('topClock'); if (!el) return;
-              const now = new Date();
-              const loc = localeMap[sessionLang] || sessionLang || undefined;
-              const d = new Intl.DateTimeFormat(loc, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(now);
-              const t = new Intl.DateTimeFormat(loc, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(now);
-              el.textContent = d + ' • ' + t;
+            // "B" = easier reading: bolder and slightly bigger text (see html.bold-text in base.css)
+            const body = document.body;
+            const fontBtn = document.getElementById('fontToggle');
+            function setBold(on) {
+              document.documentElement.classList.toggle('bold-text', on);
+              document.documentElement.style.setProperty('--fw', on ? '700' : '400');
+              fontBtn.classList.toggle('active', on);
+              fontBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
             }
-            updateClock(); setInterval(updateClock, 1000);
-            const body = document.body; const curFw = localStorage.getItem(fwKey) || '400';
-            document.documentElement.style.setProperty('--fw', curFw);
-            document.getElementById('fontToggle').addEventListener('click', () => {
-              const newFw = (getComputedStyle(document.documentElement).getPropertyValue('--fw').trim() === '400') ? '600' : '400';
-              document.documentElement.style.setProperty('--fw', newFw);
-              localStorage.setItem(fwKey, newFw);
+            setBold(localStorage.getItem(fwKey) === '600' || localStorage.getItem(fwKey) === '700');
+            fontBtn.addEventListener('click', () => {
+              const on = !document.documentElement.classList.contains('bold-text');
+              setBold(on);
+              localStorage.setItem(fwKey, on ? '700' : '400');
             });
             const k = 'theme';
             const cur = localStorage.getItem(k) || 'dark';
             body.classList.add(cur);
             document.getElementById('themeToggle').addEventListener('click', () => {
-              body.classList.toggle('light'); body.classList.toggle('dark');
-              const v = body.classList.contains('light') ? 'light' : 'dark'; localStorage.setItem(k, v);
+              // Animate colors only while switching (see .theme-anim in base.css)
+              body.classList.add('theme-anim');
+              setTimeout(() => body.classList.remove('theme-anim'), 600);
+              body.classList.toggle('light');
+              body.classList.toggle('dark');
+              const v = body.classList.contains('light') ? 'light' : 'dark';
+              localStorage.setItem(k, v);
             });
+
+            // Header gets a solid glass background once the page is scrolled
+            const siteHeader = document.getElementById('siteHeader');
+            function onHeaderScroll() { siteHeader.classList.toggle('scrolled', window.scrollY > 8); }
+            window.addEventListener('scroll', onHeaderScroll, { passive: true });
+            onHeaderScroll();
 
             // Language menu toggle by click
             const langSwitch = document.querySelector('.lang-switch');
@@ -278,26 +263,35 @@
             if (menuToggle && mainNav) {
               menuToggle.addEventListener('click', (e) => {
                 e.stopPropagation();
-                mainNav.classList.toggle('open');
-                menuToggle.querySelector('i').classList.toggle('fa-bars');
-                menuToggle.querySelector('i').classList.toggle('fa-xmark');
+                setMenu(!mainNav.classList.contains('open'));
               });
-              document.addEventListener('click', () => mainNav.classList.remove('open'));
+              // a real click elsewhere closes it (not the synthetic one from the settings row below)
+              document.addEventListener('click', (e) => { if (e.isTrusted) setMenu(false); });
+              // settings row inside the phone menu presses the real bar buttons; the menu stays open
+              mainNav.querySelectorAll('[data-proxy]').forEach(b => b.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById(b.dataset.proxy).click();
+              }));
+            }
+            function setMenu(open) {
+              mainNav.classList.toggle('open', open);
+              menuToggle.setAttribute('aria-expanded', open);
+              menuToggle.querySelector('i').classList.toggle('fa-bars', !open);
+              menuToggle.querySelector('i').classList.toggle('fa-xmark', open);
             }
 
-            // User menu dropdown on hover
+            // User menu: opens on hover (CSS) and on click/tap
             const userMenu = document.querySelector('.user-menu');
-            const userDropdown = document.querySelector('.user-dropdown');
-            if (userMenu && userDropdown) {
-              userMenu.addEventListener('mouseenter', () => { userDropdown.style.display = 'block'; });
-              userMenu.addEventListener('mouseleave', () => { userDropdown.style.display = 'none'; });
+            if (userMenu) {
+              userMenu.querySelector('.user-btn').addEventListener('click', (e) => { e.stopPropagation(); userMenu.classList.toggle('open'); });
+              document.addEventListener('click', () => userMenu.classList.remove('open'));
             }
 
             // Persistent Spotify bottom bar
             function ensureSpBar() {
               if (document.getElementById('sp-bar')) return document.getElementById('sp-bar');
               const bar = document.createElement('div'); bar.id = 'sp-bar'; bar.className = 'sp-bar';
-              bar.innerHTML = "<div class='sp-inner'><button id='sp-hide' class='sp-hide' title='Skrýt přehrávač'>▼</button><iframe id='sp-iframe' class='sp-iframe' allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' loading='lazy'></iframe></div>";
+              bar.innerHTML = "<div class='sp-inner'><button id='sp-hide' class='sp-hide' title='<%= com.github.skeliit.WebUtils.escapeJs(com.github.skeliit.WebUtils.escapeHtml(t.getProperty("player.hide"))) %>' aria-label='<%= com.github.skeliit.WebUtils.escapeJs(com.github.skeliit.WebUtils.escapeHtml(t.getProperty("player.hide"))) %>'><i class='fa-solid fa-chevron-down'></i></button><iframe id='sp-iframe' class='sp-iframe' allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' loading='lazy'></iframe></div>";
               document.body.appendChild(bar);
               const min = document.createElement('div'); min.id = 'sp-min'; min.className = 'sp-minbar'; min.innerHTML = '<i class="fab fa-spotify"></i> Spotify';
               document.body.appendChild(min);
@@ -305,23 +299,25 @@
               min.addEventListener('click', () => openBar());
               return bar;
             }
+            // theme=0 = Spotify's dark embed, instead of a color taken from the artwork
+            function darkEmbed(u) { return (!u || /[?&]theme=/.test(u)) ? u : u + (u.includes('?') ? '&' : '?') + 'theme=0'; }
             function normalizeSrc(input) {
               if (!input) return null;
-              if (/^https?:\/\//.test(input)) return input;
+              if (/^https?:\/\//.test(input)) return darkEmbed(input);
               // short forms: track:ID, playlist:ID, album:ID, artist:ID
               const [type, id] = input.split(':');
-              if (id) { return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator`; }
-              return `https://open.spotify.com/embed/track/${input}?utm_source=generator`;
+              if (id) { return `https://open.spotify.com/embed/\${type}/\${id}?utm_source=generator&theme=0`; }
+              return `https://open.spotify.com/embed/track/\${input}?utm_source=generator&theme=0`;
             }
-            const SP_DEFAULT = 'https://open.spotify.com/embed/artist/5IouXw8U9uKCTwmncG5bUl?utm_source=generator';
-            function openBar() { const bar = ensureSpBar(); const f = document.getElementById('sp-iframe'); if (!f.src) { const saved = localStorage.getItem('sp_src'); f.src = saved || SP_DEFAULT; } bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; localStorage.setItem('sp_min', '0'); }
+            const SP_DEFAULT = 'https://open.spotify.com/embed/artist/5IouXw8U9uKCTwmncG5bUl?utm_source=generator&theme=0';
+            function openBar() { const bar = ensureSpBar(); const f = document.getElementById('sp-iframe'); if (!f.src) { const saved = darkEmbed(localStorage.getItem('sp_src')); f.src = saved || SP_DEFAULT; } bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; localStorage.setItem('sp_min', '0'); }
             function closeBar() { const bar = ensureSpBar(); bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'block'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; localStorage.setItem('sp_min', '1'); }
             window.toggleSpotifyBar = function () { if (ensureSpBar().style.display === 'none') { openBar(); } else { closeBar(); } }
             window.playSpotify = function (src) { const bar = ensureSpBar(); const url = normalizeSrc(src); const f = document.getElementById('sp-iframe'); if (f.src !== url) f.src = url; openBar(); localStorage.setItem('sp_src', url); localStorage.setItem('sp_play', 'true'); };
 
             // Restore state on every page
             (function () {
-              const bar = ensureSpBar(); const wasMin = localStorage.getItem('sp_min') === '1'; const saved = localStorage.getItem('sp_src'); const f = document.getElementById('sp-iframe'); if (saved) { f.src = saved; }
+              const bar = ensureSpBar(); const wasMin = localStorage.getItem('sp_min') === '1'; const saved = darkEmbed(localStorage.getItem('sp_src')); const f = document.getElementById('sp-iframe'); if (saved) { f.src = saved; }
               if ((saved || SP_DEFAULT) && !wasMin) { f.src = f.src || SP_DEFAULT; bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; }
               else { bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'block'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; }
             })();
@@ -374,8 +370,12 @@
             })();
 
             // Active navigation highlight
+            // Pages that belong to a menu item under another URL
+            const navAliases = { 'about.jsp': 'bio.jsp', 'lyric.jsp': 'texty.jsp' };
             function updateActiveNav() {
-              const cur = location.pathname.split('/').pop() || 'index.jsp';
+              let cur = location.pathname.split('/').pop() || 'index.jsp';
+              if (location.pathname.startsWith('/lyrics/')) cur = 'texty.jsp';
+              cur = navAliases[cur] || cur;
               document.querySelectorAll('header nav a').forEach(a => {
                 try {
                   const href = a.getAttribute('href') || '';
@@ -388,14 +388,6 @@
             }
             updateActiveNav();
             document.addEventListener('pjax:done', updateActiveNav);
-
-            // Parallax background
-            (function () {
-              let lastY = 0, ticking = false;
-              function onScroll() { lastY = window.scrollY || 0; if (!ticking) { requestAnimationFrame(() => { document.body.style.backgroundPosition = `center ${Math.round(lastY * 0.25)}px`; ticking = false; }); ticking = true; } }
-              window.addEventListener('scroll', onScroll, { passive: true });
-              onScroll();
-            })();
 
             // Reveal animations
             (function () {

@@ -1,52 +1,84 @@
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-<main>
-  <section style="text-align:center; margin-bottom:18px;">
-    <h2 class="bruno-ace-sc-regular"><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.title","About me") %></h2>
-    <div style="display:flex; justify-content:center; margin: 12px 0;">
-      <img src="/img/IMG_0132.webp" alt="Skeli" style="width:220px;height:220px;border-radius:50%;object-fit:cover;box-shadow:0 12px 30px rgba(0,0,0,.35);border:2px solid var(--panel-border);" onerror="this.style.display='none'">
+<main class="about-page">
+  <section class="about-header">
+    <h2><%= t.getProperty("about.title","About me") %></h2>
+    <div class="about-intro">
+      <%-- the portrait heads the story and fades out into the text below it --%>
+      <%-- dark theme: the photo on its black background; light theme: the same photo with the
+           background removed, so it dissolves into the light panel just like the dark one does.
+           The script picks the version before anything is downloaded, so only one is fetched. --%>
+      <figure class="about-portrait">
+        <img id="aboutPortrait" sizes="(max-width: 820px) 100vw, 780px"
+             data-dark="/img/skeli-portrait-760.webp 760w, /img/skeli-portrait-1400.webp 1400w"
+             data-light="/img/skeli-portrait-cutout-760.webp 760w, /img/skeli-portrait-cutout-1400.webp 1400w"
+             width="1400" height="934" alt="Skeli" fetchpriority="high" decoding="async">
+        <noscript><img src="/img/skeli-portrait-1400.webp" width="1400" height="934" alt="Skeli"></noscript>
+      </figure>
+      <script>
+        (function () {
+          const img = document.getElementById('aboutPortrait');
+          if (!img) return;
+          const apply = () => {
+            const set = document.body.classList.contains('light') ? img.dataset.light : img.dataset.dark;
+            if (img.getAttribute('srcset') === set) return;
+            img.srcset = set;
+            img.src = set.split(', ').pop().split(' ')[0];
+          };
+          apply();
+          new MutationObserver(apply).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        })();
+      </script>
+      <p class="about-lead"><%= t.getProperty("about.intro1") %></p>
+      <div class="about-text">
+        <p><%= t.getProperty("about.intro2") %></p>
+        <p><%= t.getProperty("about.selftaught.text") %></p>
+        <p><%= t.getProperty("about.work.text") %></p>
+        <blockquote class="about-quote"><%= t.getProperty("about.work.quote") %></blockquote>
+        <p><%= t.getProperty("about.why.p1") %></p>
+        <p><%= t.getProperty("about.why.p2") %></p>
+        <p><%= t.getProperty("about.squad.p1") %></p>
+        <p><%= t.getProperty("about.squad.p2") %></p>
+        <p><%= t.getProperty("about.squad.p3") %></p>
+        <p class="about-highlight"><%= t.getProperty("about.squad.p4") %><br><%= t.getProperty("about.squad.p5") %></p>
+        <p><%= t.getProperty("about.squad.p6") %></p>
+        <p class="about-outro"><%= t.getProperty("about.outro") %></p>
+        <div class="about-signature"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only"><%= t.getProperty("about.signature") %></span></div>
+      </div>
     </div>
-    <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.p1","Jsem Skeli – rapper, producent a nadšenec do webu. Baví mě tvořit hudbu i aplikace, které něco předají.") %></p>
   </section>
-  <style>
-    .about-card { background:rgba(0,0,0,0.65); border:1px solid var(--panel-border); border-radius:12px; padding:16px; transition: all 0.3s ease; }
-    .about-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.45); }
-    .about-card h3 { color: var(--accent); }
-    .about-card a { color: var(--accent); font-weight: 600; text-decoration: none; }
-    .about-card a:hover { text-shadow: 0 0 8px var(--accent); text-decoration: underline; }
-    body.light .about-card { background:rgba(255,255,255,0.85); border-color: rgba(0,0,0,0.15); }
-  </style>
-  <section style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+  <section class="about-grid">
     <div class="about-card">
-      <h3><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.music.title","Music journey") %></h3>
-      <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.music.text","From the first tracks to the current work. Find clips and playlists on the Music page.") %></p>
+      <h3><%= t.getProperty("about.music.title","Music journey") %></h3>
+      <p><%= t.getProperty("about.music.text","From the first tracks to the current work. Find clips and playlists on the Music page.") %></p>
     </div>
     <div class="about-card">
-      <h3><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.collab.title","Collaboration") %></h3>
-      <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.collab.text","If you enjoy my work, get in touch. I welcome rap features, beat production and visuals.") %></p>
+      <h3><%= t.getProperty("about.collab.title","Collaboration") %></h3>
+      <p><%= t.getProperty("about.collab.text","If you enjoy my work, get in touch. I welcome rap features, beat production and visuals.") %></p>
     </div>
     <div class="about-card">
-      <h3><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.contact.title","Contact") %></h3>
-      <p><%= ((java.util.Properties)request.getAttribute("t")).getProperty("about.contact.email","E-mail") %>: <a href="mailto:skelimc@seznam.cz">skelimc@seznam.cz</a></p>
+      <h3><%= t.getProperty("about.contact.title","Contact") %></h3>
+      <p><%= t.getProperty("about.contact.email","E-mail") %>: <a href="mailto:skelimc@seznam.cz">skelimc@seznam.cz</a></p>
     </div>
   </section>
-  <section style="text-align:center; margin-top:18px;">
-    <p> Sleduj novinky na mých sítích:</p>
-    <div style="font-size:3em; text-align:center;">
-        <a href="https://www.facebook.com/mcskeli/" target="_blank" style="margin:0 10px; color:inherit; text-decoration:none;">
-            <i class="fab fa-facebook" style="color:#4267B2;"></i>
+  <section class="about-footer">
+    <p><%= t.getProperty("about.follow") %></p>
+    <div class="social-icons-large">
+        <a href="https://www.facebook.com/mcskeli/" target="_blank" rel="noopener" aria-label="Facebook">
+            <i class="fab fa-facebook icon-facebook"></i>
         </a>
-        <a href="https://www.instagram.com/skeli.official/" target="_blank" style="margin:0 10px; color:inherit; text-decoration:none;">
-            <i class="fab fa-instagram" style="color:#E1306C;"></i>
+        <a href="https://www.instagram.com/skeli.official/" target="_blank" rel="noopener" aria-label="Instagram">
+            <i class="fab fa-instagram icon-instagram"></i>
         </a>
-        <a href="https://www.youtube.com/@Skeli" target="_blank" style="margin:0 10px; color:inherit; text-decoration:none;">
-            <i class="fab fa-youtube" style="color:#FF0000;"></i>
+        <a href="https://www.youtube.com/@Skeli" target="_blank" rel="noopener" aria-label="YouTube">
+            <i class="fab fa-youtube icon-youtube"></i>
         </a>
-        <a href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl?si=93iNOmPtT8u2l163tTkKeQ" target="_blank" style="margin:0 10px; color:inherit; text-decoration:none;">
-            <i class="fab fa-spotify" style="color:#1DB954;"></i>
+        <a href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl?si=93iNOmPtT8u2l163tTkKeQ" target="_blank" rel="noopener" aria-label="Spotify">
+            <i class="fab fa-spotify icon-spotify"></i>
         </a>
     </div>
+  </section>
 </main>
 
 <%@ include file="includes/footer.jsp" %>

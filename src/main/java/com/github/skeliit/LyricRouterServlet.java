@@ -36,12 +36,7 @@ public class LyricRouterServlet extends HttpServlet {
         if (id == null || id == 0) { resp.sendError(404); return; }
         try {
             // Ensure CSRF token exists in session
-            String csrf = (String) req.getSession().getAttribute("csrf");
-            if (csrf == null) {
-                csrf = java.util.UUID.randomUUID().toString();
-                req.getSession().setAttribute("csrf", csrf);
-            }
-            req.setAttribute("csrf", csrf);
+            req.setAttribute("csrf", CsrfFilter.token(req.getSession()));
             
             String lang = (String) req.getSession().getAttribute("lang");
             var songs = svc.listSongs();
@@ -49,8 +44,42 @@ public class LyricRouterServlet extends HttpServlet {
             if (v == null) { resp.sendError(404); return; }
             req.setAttribute("songs", songs);
             req.setAttribute("lyric", v);
+            // <title> and meta description for search results and link previews
+            req.setAttribute("pageTitle", v.songName);
+            req.setAttribute("pageDescription", firstLines(v.words, 160));
+            // link previews: custom song image, else YouTube thumbnail
+            req.setAttribute("pageType", "music.song");
+            if (v.songUuid != null && !v.songUuid.isBlank()) {
+                req.setAttribute("canonicalPath", v.getPublicPath());
+            }
+            String pageImage = absoluteImage(v.previewImageUrl);
+            if (pageImage == null && v.youtubeId != null && v.youtubeId.matches("[A-Za-z0-9_-]{6,20}")) {
+                pageImage = "https://i.ytimg.com/vi/" + v.youtubeId + "/hqdefault.jpg";
+            }
+            if (pageImage != null) {
+                req.setAttribute("pageImage", pageImage);
+            }
+            // all clips of the song (newest first): the page offers a version switch when there are several
+            req.setAttribute("clips", com.github.skeliit.model.SongClip.forSong(v.songId));
             req.setAttribute("comments", svc.comments(id));
             req.getRequestDispatcher("/WEB-INF/views/lyric.jsp").forward(req, resp);
         } catch (Exception e) { throw new ServletException(e); }
+    }
+
+    /** The opening lines of the lyrics joined into one line, cut at a word boundary. */
+    static String firstLines(String words, int max) {
+        if (words == null) return null;
+        String s = words.strip().replaceAll("\\s*\\R\\s*", " / ").replaceAll("\\s+", " ");
+        if (s.length() <= max) return s;
+        int cut = s.lastIndexOf(' ', max);
+        return s.substring(0, cut > 0 ? cut : max).replaceAll("[ /,]+$", "") + "…";
+    }
+
+    /** Makes a site-relative upload path absolute for Open Graph; leaves http(s) URLs alone. */
+    static String absoluteImage(String url) {
+        if (url == null || url.isBlank()) return null;
+        if (url.startsWith("http://") || url.startsWith("https://")) return url;
+        if (url.startsWith("/")) return WebUtils.baseUrl() + url;
+        return WebUtils.baseUrl() + "/" + url;
     }
 }

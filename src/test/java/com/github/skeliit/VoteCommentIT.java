@@ -72,9 +72,12 @@ public class VoteCommentIT {
 
         driver.get(BASE_URL + "/lyrics/" + LYRIC_ID);
         waitReady();
-        driver.findElement(By.cssSelector("form[action='/comment'] textarea[name=content]")).sendKeys(commentText);
+        WebElement textarea = driver.findElement(By.cssSelector("form[action='/comment'] textarea[name=content]"));
+        textarea.sendKeys(commentText);
         jsClick(driver.findElement(
                 By.xpath("//form[@action='/comment'][.//textarea[@name='content']]//button[@type='submit']")));
+        // readyState is already "complete" on the old page, so wait for the POST to replace it
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.stalenessOf(textarea));
         waitReady();
 
         Integer commentId = queryCommentId(LYRIC_ID, userId, commentText);

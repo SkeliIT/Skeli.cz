@@ -1,379 +1,397 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="/includes/header.jsp" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<style>
-  /* Lyric Page Boxes */
-  .lyric-header-box {
-    background: rgba(204, 43, 43, 0.15);
-    border: 1px solid rgba(204, 43, 43, 0.3);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(204, 43, 43, 0.1);
-  }
-  body.light .lyric-header-box {
-    background: rgba(0, 0, 0, 0.06);
-    border-color: rgba(0, 0, 0, 0.18);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
-  .lyric-header-box h2 {
-    margin: 0 0 16px 0;
-    text-align: center;
-  }
-  .lyric-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 16px;
-    justify-content: center;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .lyric-nav a {
-    color: var(--text);
-    font-weight: 600;
-    text-decoration: none;
-    transition: color .2s, text-shadow .2s;
-  }
-  .lyric-nav a.active {
-    color: var(--accent);
-    text-shadow: 0 0 8px var(--accent);
-  }
-  .lyric-nav a:hover {
-    color: var(--accent);
-    text-shadow: 0 0 8px var(--accent);
-  }
-  .lyric-nav li:not(:last-child)::after {
-    content: "|";
-    color: rgba(255, 255, 255, 0.3);
-    margin-left: 8px;
-  }
-  body.light .lyric-nav li:not(:last-child)::after {
-    color: rgba(0, 0, 0, 0.3);
-  }
-  
-  .content-box {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--panel-border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-  body.light .content-box {
-    background: rgba(255, 255, 255, 0.6);
-    border-color: rgba(0, 0, 0, 0.15);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-  
-  .lyric-title {
-    text-align: center;
-    color: var(--accent);
-    margin: 0 0 20px 0;
-  }
-  
-  .video-wrapper {
-    position: relative;
-    padding-top: 56.25%;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #000;
-  }
-  .video-wrapper iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-  
-  .lyrics-text {
-    text-align: center;
-    max-width: 100%;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
-  .lyrics-text pre {
-    white-space: pre-wrap;
-    font-family: 'Inter', system-ui, sans-serif;
-    font-size: 1.05em;
-    margin: 0;
-    font-weight: var(--fw);
-    color: var(--text);
-    text-align: center;
-  }
-  
-  .action-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 16px;
-  }
-  .action-btn {
-    background: transparent;
-    border: none;
-    color: var(--text);
-    padding: 8px 14px;
-    cursor: pointer;
-    font-weight: 600;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-  }
-  .action-btn:hover {
-    color: var(--accent);
-    text-shadow: 0 0 8px var(--accent);
-  }
-  
-  .votes-section {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    justify-content: center;
-    padding: 16px 0;
-  }
-  .vote-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 2px solid;
-    cursor: pointer;
-    font-size: 18px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .vote-btn.up {
-    border-color: rgba(0, 255, 170, 0.4);
-    background: rgba(0, 255, 170, 0.08);
-    color: var(--text);
-  }
-  .vote-btn.up:hover {
-    background: rgba(0, 255, 170, 0.2);
-    transform: translateY(-2px);
-  }
-  .vote-btn.down {
-    border-color: rgba(255, 80, 80, 0.4);
-    background: rgba(255, 80, 80, 0.08);
-    color: var(--text);
-  }
-  .vote-btn.down:hover {
-    background: rgba(255, 80, 80, 0.2);
-    transform: translateY(-2px);
-  }
-  
-  .comment-item {
-    display: flex;
-    gap: 12px;
-    margin: 12px 0;
-    padding: 12px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-  body.light .comment-item {
-    background: rgba(0, 0, 0, 0.03);
-    border-color: rgba(0, 0, 0, 0.08);
-  }
-  .comment-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  .comment-content {
-    flex: 1;
-  }
-  .comment-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
-  .comment-username {
-    color: var(--accent);
-    font-weight: 600;
-  }
-  .comment-date {
-    font-size: 0.85em;
-    opacity: 0.6;
-    margin-left: 8px;
-  }
-  .comment-text {
-    color: var(--text);
-  }
-  .views-count {
-    text-align: center;
-    opacity: 0.5;
-    font-size: 0.9em;
-    margin-top: 10px;
-  }
-</style>
-<main>
-  <!-- Header Box: Title + Navigation -->
-  <div class="lyric-header-box">
-    <h2 class="bruno-ace-sc-regular">${t.getProperty('menu.lyrics','Texty')}</h2>
+<%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
+<main class="lyric-page">
+  <!-- Song switcher -->
+  <nav class="lyric-switcher">
+    <a class="lyric-back" href="/texty.jsp"><i class="fa-solid fa-arrow-left"></i> <%= t.getProperty("lyrics.back") %></a>
     <ul class="lyric-nav">
       <c:forEach items="${songs}" var="s">
+        <%-- only songs that have lyrics; the others would link to nothing --%>
+        <c:if test="${not empty s.firstLyricId}">
         <li>
-          <a href="${pageContext.request.contextPath}/lyrics/${s.firstLyricId}" 
+          <a href="${pageContext.request.contextPath}/lyrics/${s.firstLyricId}"
              class="${(lyric != null && lyric.songId == s.id) ? 'active' : ''}">
-            ${s.name}
+            <c:out value="${s.name}"/>
           </a>
         </li>
+        </c:if>
       </c:forEach>
     </ul>
-  </div>
+  </nav>
 
   <c:if test="${not empty lyric}">
-    <div style="max-width:800px; margin:0 auto;">
-      
+    <div class="lyric-grid">
+
       <!-- Song Title -->
-      <h3 class="bruno-ace-sc-regular lyric-title">
-        ${lyric.songName} <c:if test="${not empty lyric.year}">(${lyric.year})</c:if>
-      </h3>
-      
-      <!-- Video Box -->
-      <c:if test="${not empty lyric.youtubeId}">
-        <div class="content-box">
-          <div class="video-wrapper">
-            <iframe src="https://www.youtube.com/embed/${lyric.youtubeId}" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowfullscreen></iframe>
+      <header class="lyric-head">
+        <h1 class="lyric-title"><c:out value="${lyric.songName}"/></h1>
+        <c:if test="${not empty lyric.year}"><span class="song-year">${lyric.year}</span></c:if>
+      </header>
+
+      <!-- Video and lyrics share one frame that fades out at the bottom -->
+      <section class="lyric-main">
+      <!-- Video (or the song's preview photo) above the lyrics -->
+      <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
+      <div class="lyric-media">
+      <c:choose>
+      <c:when test="${not empty lyric.youtubeId}">
+        <%
+          @SuppressWarnings("unchecked")
+          java.util.List<com.github.skeliit.model.SongClip> clipList =
+              (java.util.List<com.github.skeliit.model.SongClip>) request.getAttribute("clips");
+          if (clipList != null && clipList.size() > 1) {
+        %>
+        <div class="clip-versions" role="tablist">
+          <% for (int ci = 0; ci < clipList.size(); ci++) { com.github.skeliit.model.SongClip clip = clipList.get(ci); %>
+            <button type="button" role="tab" class="clip-version<%= ci == 0 ? " active" : "" %>"
+                    aria-selected="<%= ci == 0 %>" data-yt="<%= com.github.skeliit.WebUtils.escapeHtml(clip.youtubeId) %>">
+              <i class="fab fa-youtube"></i> <%= com.github.skeliit.WebUtils.escapeHtml(clip.label(t)) %>
+            </button>
+          <% } %>
+        </div>
+        <% } %>
+        <div class="content-box video-box">
+          <div class="video-wrapper" id="ytFacade" data-yt="<c:out value='${lyric.youtubeId}'/>">
+            <button type="button" class="yt-facade" aria-label="<%= t.getProperty("lyric.openYoutube","Přehrát video") %>">
+              <c:choose>
+                <c:when test="${not empty lyric.previewImageUrl}">
+                  <img class="yt-facade-img" src="<c:out value='${lyric.previewImageUrl}'/>" alt="">
+                </c:when>
+                <c:otherwise>
+                  <img class="yt-facade-img" src="https://i.ytimg.com/vi/<c:out value='${lyric.youtubeId}'/>/hqdefault.jpg" alt="">
+                </c:otherwise>
+              </c:choose>
+              <span class="yt-facade-play" aria-hidden="true"><i class="fab fa-youtube"></i></span>
+            </button>
           </div>
         </div>
+        <script>
+        (function(){
+          var box = document.getElementById('ytFacade');
+          if (!box) return;
+          var label = '<%= com.github.skeliit.WebUtils.escapeJs(com.github.skeliit.WebUtils.escapeHtml(t.getProperty("lyric.openYoutube","Přehrát video"))) %>';
+          // clicking the thumbnail swaps in the real YouTube player
+          function bind() {
+            var btn = box.querySelector('.yt-facade');
+            if (!btn) return;
+            btn.addEventListener('click', function(){
+              var iframe = document.createElement('iframe');
+              iframe.src = 'https://www.youtube.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
+              iframe.setAttribute('frameborder', '0');
+              iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+              iframe.setAttribute('allowfullscreen', '');
+              box.innerHTML = '';
+              box.appendChild(iframe);
+            });
+          }
+          bind();
+          // version tabs (original / remake): show the chosen clip's thumbnail again
+          document.querySelectorAll('.clip-version').forEach(function(tab){
+            tab.addEventListener('click', function(){
+              var id = tab.getAttribute('data-yt');
+              if (!/^[A-Za-z0-9_-]{6,20}$/.test(id)) return;
+              document.querySelectorAll('.clip-version').forEach(function(o){
+                o.classList.toggle('active', o === tab);
+                o.setAttribute('aria-selected', o === tab ? 'true' : 'false');
+              });
+              box.setAttribute('data-yt', id);
+              box.innerHTML = '<button type="button" class="yt-facade" aria-label="' + label + '">'
+                + '<img class="yt-facade-img" src="https://i.ytimg.com/vi/' + id + '/hqdefault.jpg" alt="">'
+                + '<span class="yt-facade-play" aria-hidden="true"><i class="fab fa-youtube"></i></span></button>';
+              bind();
+              var yt = document.querySelector('.lyric-links a[href*="youtube.com/watch"]');
+              if (yt) yt.href = 'https://www.youtube.com/watch?v=' + id;
+            });
+          });
+        })();
+        </script>
+      </c:when>
+      <c:otherwise>
+        <div class="content-box video-box">
+          <div class="video-wrapper">
+            <img class="yt-facade-img" src="<c:out value='${lyric.previewImageUrl}'/>" alt="">
+          </div>
+        </div>
+      </c:otherwise>
+      </c:choose>
+      </div>
       </c:if>
-      
-      <!-- Lyrics Text Box -->
-      <div class="content-box">
+
+
+      <!-- Lyrics Text -->
+      <article class="lyric-body">
         <div class="lyrics-text">
           <pre><c:out value="${lyric.words}"/></pre>
         </div>
-        
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-          <button class="action-btn" onclick="navigator.clipboard.writeText(window.location.href); alert('⚡ Odkaz zkopírován!')" title="Sdílet odkaz">
-            <i class="fas fa-share-alt"></i> Sdílet
-          </button>
-          <a class="action-btn" href="https://open.spotify.com/search/<c:out value='${lyric.songName}'/>" target="_blank" rel="noopener" title="Najít na Spotify">
-            <i class="fab fa-spotify" style="color:#1DB954;"></i> Spotify
-          </a>
-          <c:if test="${not empty lyric.youtubeId}">
-            <a class="action-btn" href="https://www.youtube.com/watch?v=${lyric.youtubeId}" target="_blank" rel="noopener" title="Otevřít na YouTube">
-              <i class="fab fa-youtube" style="color:#FF0000;"></i> YouTube
+      </article>
+      </section>
+
+      <!-- Listen links (sticky sidebar on desktop) -->
+      <aside class="lyric-side">
+
+        <div class="content-box lyric-links">
+          <div class="action-buttons">
+            <button type="button" class="action-btn" id="shareLyric" data-copied="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("lyric.linkCopied")) %>" title="<%= t.getProperty("lyric.shareLink") %>">
+              <i class="fas fa-share-alt"></i> <span><%= t.getProperty("common.share") %></span>
+            </button>
+            <a class="action-btn" href="https://open.spotify.com/search/<c:out value='${lyric.songName}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.findSpotify") %>">
+              <i class="fab fa-spotify icon-spotify"></i> Spotify
             </a>
-          </c:if>
-          <c:if test="${not empty lyric.appleMusicId}">
-            <a class="action-btn" href="https://music.apple.com/song/${lyric.appleMusicId}" target="_blank" rel="noopener" title="Otevřít na Apple Music">
-              <i class="fab fa-apple" style="color:#fc3c44;"></i> Apple Music
-            </a>
-          </c:if>
+            <c:if test="${not empty lyric.youtubeId}">
+              <a class="action-btn" href="https://www.youtube.com/watch?v=<c:out value='${lyric.youtubeId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openYoutube") %>">
+                <i class="fab fa-youtube icon-youtube"></i> YouTube
+              </a>
+            </c:if>
+            <c:if test="${not empty lyric.appleMusicId}">
+              <a class="action-btn" href="https://music.apple.com/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openApple") %>">
+                <i class="fab fa-apple icon-apple"></i> Apple Music
+              </a>
+            </c:if>
+          </div>
+          <div class="lyric-textsize" role="group" aria-label="<%= t.getProperty("lyric.textSize") %>">
+            <span><%= t.getProperty("lyric.textSize") %></span>
+            <button type="button" class="ts-btn" data-step="-1" aria-label="<%= t.getProperty("lyric.textSmaller") %>" title="<%= t.getProperty("lyric.textSmaller") %>">A−</button>
+            <button type="button" class="ts-btn" data-step="1" aria-label="<%= t.getProperty("lyric.textBigger") %>" title="<%= t.getProperty("lyric.textBigger") %>">A+</button>
+          </div>
+          <div class="views-count"><i class="fa-regular fa-eye"></i> <%= t.getProperty("lyric.views") %> ${lyric.views}</div>
         </div>
-        
-        <div class="views-count">Návštěvy: ${lyric.views}</div>
-      </div>
-      
+      </aside>
+
       <!-- Votes & Comments Box -->
-      <div class="content-box">
+      <div class="content-box lyric-comments">
         <!-- Votes -->
         <div class="votes-section">
           <c:choose>
             <c:when test="${not empty sessionScope.username}">
-              <form method="post" action="/vote" style="display:inline;">
+              <form method="post" action="/vote" class="vote-form">
                 <input type="hidden" name="lyric_id" value="${lyric.id}">
                 <input type="hidden" name="action" value="up">
                 <input type="hidden" name="csrf" value="${csrf}">
-                <button type="submit" class="vote-btn up" title="Líbí se mi">👍</button>
+                <button type="submit" class="vote-btn up" title="<%= t.getProperty("vote.like") %>">👍</button>
               </form>
             </c:when>
             <c:otherwise>
-              <a href="/login.jsp" class="vote-btn up" style="text-decoration:none; display:inline-block;" title="Přihlaš se pro hlasování">👍</a>
+              <a href="/login.jsp" class="vote-btn up" title="<%= t.getProperty("vote.loginToVote") %>">👍</a>
             </c:otherwise>
           </c:choose>
           
-          <span style="font-size:1.1em; font-weight:600;">
-            <strong style="color:#00ffaa;">${lyric.votesUp}</strong>
-            <span style="opacity:0.5;">/</span>
-            <strong style="color:#ff5050;">${lyric.votesDown}</strong>
+          <span class="vote-score">
+            <strong class="up">${lyric.votesUp}</strong>
+            <span class="sep">/</span>
+            <strong class="down">${lyric.votesDown}</strong>
           </span>
           
           <c:choose>
             <c:when test="${not empty sessionScope.username}">
-              <form method="post" action="/vote" style="display:inline;">
+              <form method="post" action="/vote" class="vote-form">
                 <input type="hidden" name="lyric_id" value="${lyric.id}">
                 <input type="hidden" name="action" value="down">
                 <input type="hidden" name="csrf" value="${csrf}">
-                <button type="submit" class="vote-btn down" title="Nelíbí se mi">👎</button>
+                <button type="submit" class="vote-btn down" title="<%= t.getProperty("vote.dislike") %>">👎</button>
               </form>
             </c:when>
             <c:otherwise>
-              <a href="/login.jsp" class="vote-btn down" style="text-decoration:none; display:inline-block;" title="Přihlaš se pro hlasování">👎</a>
+              <a href="/login.jsp" class="vote-btn down" title="<%= t.getProperty("vote.loginToVote") %>">👎</a>
             </c:otherwise>
           </c:choose>
         </div>
         
-        <hr style="border:none; border-top:1px solid var(--panel-border); margin:20px 0;">
+        <hr>
         
-        <!-- Comments -->
-        <h4 style="margin:0 0 16px; color:var(--accent); text-align:center;">Komentáře</h4>
-        
-        <c:forEach items="${comments}" var="cmt">
-          <div class="comment-item">
-            <img src="${empty cmt.avatarUrl ? '/img/avatar-default.png' : cmt.avatarUrl}" 
-                 alt="avatar" 
-                 class="comment-avatar"/>
-            <div class="comment-content">
-              <div class="comment-meta">
-                <div>
-                  <strong class="comment-username"><c:out value="${cmt.username}"/></strong>
-                  <span class="comment-date">${cmt.createdAt}</span>
-                </div>
-                <c:if test="${not empty sessionScope.userId && (sessionScope.userId == cmt.userId || sessionScope.role == 'ADMIN')}">
-                  <form method="post" action="/comment" style="display:inline;">
-                    <input type="hidden" name="comment_id" value="${cmt.id}">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="lyric_id" value="${lyric.id}">
-                    <input type="hidden" name="csrf" value="${csrf}">
-                    <button type="submit" 
-                            style="background:transparent; border:none; color:#ff4444; cursor:pointer; padding:4px 8px; font-size:0.9em;" 
-                            onclick="return confirm('Opravdu smazat komentář?')" 
-                            title="Smazat">❌</button>
-                  </form>
-                </c:if>
-              </div>
-              <div class="comment-text"><c:out value="${cmt.content}"/></div>
-            </div>
-          </div>
-        </c:forEach>
-        
+        <!-- Comments: new-comment form first, then the threads (newest first, replies oldest first) -->
+<%
+  @SuppressWarnings("unchecked")
+  java.util.List<com.github.skeliit.model.CommentView> threads =
+      (java.util.List<com.github.skeliit.model.CommentView>) request.getAttribute("comments");
+  int commentTotal = 0;
+  if (threads != null) for (com.github.skeliit.model.CommentView c0 : threads) commentTotal += 1 + c0.replies.size();
+  boolean canPost = com.github.skeliit.EmailVerification.isVerified(session);
+  com.github.skeliit.model.LyricView lyricView = (com.github.skeliit.model.LyricView) request.getAttribute("lyric");
+%>
+        <h3 class="comments-title" id="comments"><%= t.getProperty("comments.title") %> <span class="comments-count"><%= commentTotal %></span></h3>
+
         <c:if test="${not empty sessionScope.username}">
-          <form method="post" action="/comment" style="margin-top:20px;">
+          <% if (canPost) { %>
+          <form method="post" action="/comment" class="comment-form">
             <input type="hidden" name="lyric_id" value="${lyric.id}">
             <input type="hidden" name="csrf" value="${csrf}">
-            <textarea name="content" 
-                      placeholder="Napiš komentář..." 
-                      required 
-                      style="width:100%; min-height:80px; padding:10px; box-sizing:border-box; margin-bottom:10px; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); border-radius:8px; color:var(--text); font-family:inherit; font-size:1em; resize:vertical;"></textarea>
-            <button type="submit" 
-                    style="background:var(--accent); color:#000; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:1em; width:100%;">Přidat komentář</button>
+            <div class="hp-field" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+            <textarea name="content" maxlength="<%= com.github.skeliit.WebUtils.COMMENT_MAX_LENGTH %>"
+                      placeholder="<%= t.getProperty("comment.placeholder") %>"
+                      required></textarea>
+            <div class="comment-form-foot">
+              <span class="comment-hint"><%= t.getProperty("comment.maxLength") %></span>
+              <button type="submit"><%= t.getProperty("comment.add") %></button>
+            </div>
           </form>
+          <% } else { %>
+          <div class="verify-notice">
+            <p><i class="fa-solid fa-envelope-circle-check"></i> <%= t.getProperty("verify.notice") %></p>
+            <form method="post" action="/verify/resend">
+              <input type="hidden" name="csrf" value="${csrf}">
+              <input type="hidden" name="back" value="/lyrics/${lyric.id}#comments">
+              <button type="submit" class="btn"><%= t.getProperty("verify.resend") %></button>
+            </form>
+          </div>
+          <% } %>
         </c:if>
         <c:if test="${empty sessionScope.username}">
-          <p style="margin-top:20px; text-align:center; opacity:0.7;">
-            <a href="/login.jsp" style="color:var(--accent); text-decoration:none; font-weight:600;">Přihlaš se</a> pro přidání komentáře
+          <p class="comment-login">
+            <a href="/login.jsp"><%= t.getProperty("comment.login.link") %></a><%= t.getProperty("comment.login.toComment") %>
           </p>
         </c:if>
+
+        <% if (threads != null) for (com.github.skeliit.model.CommentView thread : threads) { %>
+          <div class="comment-thread">
+            <sk:lyricComment cmt="<%= thread %>" lyricId="<%= lyricView.id %>" t="<%= t %>" lang="<%= cur %>" canPost="<%= canPost %>"/>
+            <% if (!thread.replies.isEmpty()) { %>
+            <div class="comment-replies">
+              <% for (com.github.skeliit.model.CommentView reply : thread.replies) { %>
+                <sk:lyricComment cmt="<%= reply %>" lyricId="<%= lyricView.id %>" t="<%= t %>" lang="<%= cur %>" canPost="<%= canPost %>" isReply="<%= true %>"/>
+              <% } %>
+            </div>
+            <% } %>
+          </div>
+        <% } %>
       </div>
       
     </div>
   </c:if>
+  <script>
+    // Song chips row: fade the edges that have hidden songs, let the mouse wheel
+    // scroll it sideways, and start with the current song in the middle
+    (function () {
+      const nav = document.querySelector('.lyric-nav');
+      if (!nav) return;
+      function updateFades() {
+        const max = nav.scrollWidth - nav.clientWidth;
+        nav.classList.toggle('fade-left', nav.scrollLeft > 2);
+        nav.classList.toggle('fade-right', nav.scrollLeft < max - 2);
+      }
+      nav.addEventListener('scroll', updateFades, { passive: true });
+      // chip widths change once the web font arrives or the window resizes
+      if (window.ResizeObserver) new ResizeObserver(updateFades).observe(nav);
+      else window.addEventListener('resize', updateFades);
+      nav.addEventListener('wheel', function (e) {
+        if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+        const before = nav.scrollLeft;
+        nav.scrollLeft += e.deltaY;
+        // at either end, let the page scroll normally
+        if (nav.scrollLeft !== before) e.preventDefault();
+      }, { passive: false });
+      function centerActive() {
+        const active = nav.querySelector('a.active');
+        if (active) {
+          const li = active.parentElement;
+          nav.scrollLeft = li.offsetLeft - (nav.clientWidth - li.offsetWidth) / 2;
+        }
+        updateFades();
+      }
+      centerActive();
+      // measure again with the real font (Bruno Ace is wider than the fallback)
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(centerActive);
+    })();
+
+    // A playing clip that is scrolled out of view shrinks to a small player in the
+    // bottom-left corner, so it can be watched while reading long lyrics.
+    (function () {
+      const box = document.querySelector('.lyric-media .video-box');
+      const player = document.getElementById('ytFacade');
+      if (!box || !player || !('IntersectionObserver' in window)) return;
+      let dismissed = false;
+      function playing() { return !!player.querySelector('iframe'); }
+      function dock() {
+        player.classList.remove('is-mini');
+        box.style.minHeight = '';
+      }
+      new IntersectionObserver(function (entries) {
+        const visible = entries[0].isIntersecting;
+        if (visible) { dismissed = false; dock(); return; }
+        if (!playing() || dismissed) return;
+        box.style.minHeight = box.offsetHeight + 'px'; // keep the gap while the player floats
+        if (!player.querySelector('.mini-close')) {
+          const close = document.createElement('button');
+          close.type = 'button';
+          close.className = 'mini-close';
+          close.setAttribute('aria-label', '<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("player.hide")) %>');
+          close.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+          close.addEventListener('click', function () { dismissed = true; dock(); });
+          player.appendChild(close);
+        }
+        player.classList.add('is-mini');
+      }, { threshold: 0.15 }).observe(box);
+    })();
+
+    // A− / A+ for the lyrics, remembered in this browser
+    (function () {
+      const KEY = 'lyricScale';
+      let scale = 1;
+      try { scale = parseFloat(localStorage.getItem(KEY)) || 1; } catch (e) {}
+      function apply() { document.documentElement.style.setProperty('--lyric-scale', scale.toFixed(2)); }
+      apply();
+      document.querySelectorAll('.ts-btn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          scale = Math.min(1.8, Math.max(0.8, scale + 0.1 * Number(b.dataset.step)));
+          apply();
+          try { localStorage.setItem(KEY, scale.toFixed(2)); } catch (e) {}
+        });
+      });
+    })();
+
+    // Edit a comment in place (the pencil swaps the text for a small form) and open reply forms
+    (function () {
+      document.querySelectorAll('.comment-item').forEach(function (item) {
+        const toggle = item.querySelector('.comment-edit-toggle');
+        const form = item.querySelector('.comment-edit-form');
+        const text = item.querySelector('.comment-text');
+        if (toggle && form && text) {
+          function setEditing(on) {
+            form.hidden = !on;
+            text.hidden = on;
+            toggle.classList.toggle('active', on);
+            if (on) { const ta = form.querySelector('textarea'); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+          }
+          toggle.addEventListener('click', function () { setEditing(form.hidden); });
+          form.querySelector('.comment-edit-cancel').addEventListener('click', function () {
+            form.reset();
+            setEditing(false);
+          });
+        }
+        const replyBtn = item.querySelector('.comment-reply-toggle');
+        const replyForm = item.querySelector('.comment-reply-form');
+        if (replyBtn && replyForm) {
+          replyBtn.addEventListener('click', function () {
+            replyForm.hidden = !replyForm.hidden;
+            replyBtn.hidden = !replyForm.hidden;
+            if (!replyForm.hidden) replyForm.querySelector('textarea').focus();
+          });
+          replyForm.querySelector('.comment-reply-cancel').addEventListener('click', function () {
+            replyForm.reset();
+            replyForm.hidden = true;
+            replyBtn.hidden = false;
+          });
+        }
+      });
+    })();
+
+    (function () {
+      const btn = document.getElementById('shareLyric');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        const uuid = '<c:out value="${lyric.songUuid}"/>';
+        const path = '<c:out value="${lyric.publicPath}"/>';
+        const url = path
+          ? (location.origin + path)
+          : (uuid ? (location.origin + '/cs/song/' + uuid) : location.href);
+        if (navigator.share) { navigator.share({ title: document.title, url }).catch(() => {}); return; }
+        navigator.clipboard.writeText(url).then(() => {
+          const label = btn.querySelector('span'); const old = label.textContent;
+          label.textContent = btn.dataset.copied; setTimeout(() => label.textContent = old, 1500);
+        });
+      });
+    })();
+  </script>
 </main>
 <%@ include file="/includes/footer.jsp" %>

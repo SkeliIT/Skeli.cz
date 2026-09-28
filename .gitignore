@@ -42,3 +42,11 @@ hs_err_pid*
 replay_pid*
 
 /src/main/webapp/uploads/avatars/
+/src/main/webapp/uploads/social/
+/src/main/webapp/uploads/song-previews/
+
+# Secrets
+.webui_secret_key
+
+# files uploaded through the site (song previews, avatars) are data, not code
+src/main/webapp/uploads/

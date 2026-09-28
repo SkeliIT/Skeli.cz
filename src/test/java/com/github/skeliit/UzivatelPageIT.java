@@ -103,7 +103,8 @@ public class UzivatelPageIT {
                 "should redirect with password_changed=true, got: " + driver.getCurrentUrl());
 
         // log out, then confirm the new password logs in
-        driver.get(BASE_URL + "/logout");
+        // logout is a POST form in the header
+        ((JavascriptExecutor) driver).executeScript("document.querySelector('form.logout-form').submit()");
         waitReady();
         driver.get(BASE_URL + "/login");
         driver.findElement(By.name("username")).sendKeys(username);

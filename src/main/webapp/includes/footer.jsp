@@ -1,31 +1,48 @@
 <!-- includes/footer.jsp -->
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<footer>
- <p><br clear="all"></p>
-    <p class = "cpy">&copy; 2025 Skeli</p>
-
-    <div style="font-size:1em; text-align:center;">
-            <a href="https://www.facebook.com/mcskeli/" target="_blank" style="margin:0 2px; color:inherit; text-decoration:none;">
-                <i class="fab fa-facebook" style="color:#4267B2;"></i>
-            </a>
-            <a href="https://www.instagram.com/skeli.official/" target="_blank" style="margin:0 2px; color:inherit; text-decoration:none;">
-                <i class="fab fa-instagram" style="color:#E1306C;"></i>
-            </a>
-            <a href="https://www.youtube.com/@Skeli" target="_blank" style="margin:0 2px; color:inherit; text-decoration:none;">
-                <i class="fab fa-youtube" style="color:#FF0000;"></i>
-            </a>
-            <a href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl?si=93iNOmPtT8u2l163tTkKeQ" target="_blank" style="margin:0 2px; color:inherit; text-decoration:none;">
-                <i class="fab fa-spotify" style="color:#1DB954;"></i>
-            </a>
-        </div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="<%= request.getContextPath() %>/index.jsp" class="brand"><span class="logo-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
+      <p><%= t.getProperty("index.hero") %></p>
+    </div>
+    <div>
+      <h4 class="footer-title"><%= t.getProperty("footer.menu") %></h4>
+      <nav class="footer-nav">
+        <a href="<%= request.getContextPath() %>/aktuality.jsp"><%= t.getProperty("menu.news") %></a>
+        <a href="<%= request.getContextPath() %>/music.jsp"><%= t.getProperty("menu.music") %></a>
+        <a href="<%= request.getContextPath() %>/texty.jsp"><%= t.getProperty("menu.lyrics") %></a>
+        <a href="<%= request.getContextPath() %>/bio.jsp"><%= t.getProperty("menu.about") %></a>
+        <a href="<%= request.getContextPath() %>/donate.jsp"><%= t.getProperty("btn.donate") %></a>
+      </nav>
+    </div>
+    <div>
+      <h4 class="footer-title"><%= t.getProperty("home.social") %></h4>
+      <div class="social-row">
+        <a class="social-btn fb" href="https://www.facebook.com/mcskeli/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a class="social-btn ig" href="https://www.instagram.com/skeli.official/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a class="social-btn yt" href="https://www.youtube.com/@Skeli" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a class="social-btn sp" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; <%= java.time.Year.now() %> Skeli</span>
+    <nav>
+      <a href="<%= request.getContextPath() %>/privacy.jsp"><%= t.getProperty("cookie.policy","Privacy") %></a>
+      <a href="<%= request.getContextPath() %>/terms.jsp"><%= t.getProperty("cookie.terms","Terms") %></a>
+      <a href="<%= request.getContextPath() %>/gdpr.jsp">GDPR</a>
+    </nav>
+  </div>
 </footer>
-<div class="smoke-veil"></div>
 
-<div id="cookieBar" style="position:fixed; left:20px; right:20px; bottom:20px; background:#111; color:#fff; padding:12px 16px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.25); display:none;">
-  <%= ((java.util.Properties)request.getAttribute("t")).getProperty("cookie.message","This site uses cookies and third-party platforms (YouTube/Spotify).") %> <a href="<%= request.getContextPath() %>/privacy.jsp" style="color:#ffd700;"><%= ((java.util.Properties)request.getAttribute("t")).getProperty("cookie.policy","Privacy") %></a> | <a href="<%= request.getContextPath() %>/terms.jsp" style="color:#ffd700;"><%= ((java.util.Properties)request.getAttribute("t")).getProperty("cookie.terms","Terms") %></a>
-  <div style="float:right;">
-    <button id="cookieAccept" style="margin-right:8px;"><%= ((java.util.Properties)request.getAttribute("t")).getProperty("cookie.accept","Accept") %></button>
-    <button id="cookieReject"><%= ((java.util.Properties)request.getAttribute("t")).getProperty("cookie.reject","Reject") %></button>
+<div id="cookieBar" class="cookie-bar" role="dialog" aria-live="polite">
+  <p><%= t.getProperty("cookie.message","This site uses cookies and third-party platforms (YouTube/Spotify).") %>
+    <a href="<%= request.getContextPath() %>/privacy.jsp"><%= t.getProperty("cookie.policy","Privacy") %></a> ·
+    <a href="<%= request.getContextPath() %>/terms.jsp"><%= t.getProperty("cookie.terms","Terms") %></a></p>
+  <div class="cookie-actions">
+    <button id="cookieAccept" type="button" class="btn-primary"><%= t.getProperty("cookie.accept","Accept") %></button>
+    <button id="cookieReject" type="button"><%= t.getProperty("cookie.reject","Reject") %></button>
   </div>
 </div>
 <script>
@@ -34,6 +51,34 @@
     if(!v) document.getElementById('cookieBar').style.display='block';
     document.getElementById('cookieAccept').onclick=function(){ localStorage.setItem(k,'true'); document.getElementById('cookieBar').style.display='none'; document.dispatchEvent(new Event('consent-granted')); if(window._paq) window._paq.push(['setConsentGiven']); };
     document.getElementById('cookieReject').onclick=function(){ localStorage.setItem(k,'false'); document.getElementById('cookieBar').style.display='none'; if(window._paq) window._paq.push(['forgetConsentGiven']); };
+  })();
+</script>
+<script>
+  // Eye button in every password field to show / hide what was typed
+  (function(){
+    const show = '<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("auth.password.show")) %>';
+    const hide = '<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("auth.password.hide")) %>';
+    document.querySelectorAll('input[type=password]').forEach(function(input){
+      const wrap = document.createElement('span');
+      wrap.className = 'pw-wrap';
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(input);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pw-toggle';
+      btn.setAttribute('aria-label', show);
+      btn.title = show;
+      btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+      btn.addEventListener('click', function(){
+        const visible = input.type === 'text';
+        input.type = visible ? 'password' : 'text';
+        btn.innerHTML = visible ? '<i class="fa-solid fa-eye"></i>' : '<i class="fa-solid fa-eye-slash"></i>';
+        btn.setAttribute('aria-label', visible ? show : hide);
+        btn.title = visible ? show : hide;
+        input.focus();
+      });
+      wrap.appendChild(btn);
+    });
   })();
 </script>
 <!-- Matomo -->

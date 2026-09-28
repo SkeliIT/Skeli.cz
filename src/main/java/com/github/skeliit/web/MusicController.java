@@ -1,21 +1,16 @@
 package com.github.skeliit.web;
 
-import com.github.skeliit.service.VideoService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-
+/**
+ * /music used to render an old template (WEB-INF/views/music.jsp) that answered 500; the music
+ * page is /music.jsp. Kept as a permanent redirect so old links and search results still land.
+ */
 public class MusicController extends HttpServlet {
-    private final VideoService videos = new VideoService();
-    @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            req.setAttribute("videos", videos.list());
-            req.getRequestDispatcher("/WEB-INF/views/music.jsp").forward(req, resp);
-        } catch (Exception e) {
-            throw new ServletException(e);
-        }
+    @Override protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        resp.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+        resp.setHeader("Location", req.getContextPath() + "/music.jsp");
     }
 }

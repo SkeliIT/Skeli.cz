@@ -39,6 +39,7 @@ public class CommentsServlet extends HttpServlet {
         }
         String action = req.getParameter("action");
         String lyricIdStr = req.getParameter("lyric_id");
+        String flash = null; // shown on the lyric page after the redirect
         String uname = session != null ? (String) session.getAttribute("username") : null;
         try (Connection conn = Db.get()) {
             if ((lyricIdStr == null || lyricIdStr.isBlank())) {
@@ -81,6 +82,7 @@ public class CommentsServlet extends HttpServlet {
                         }
                     }
                     if (allow) {
+                        CommentReportServlet.deleteReports(conn, "lyric", Integer.parseInt(cid));
                         try (PreparedStatement del = conn.prepareStatement("DELETE FROM comments WHERE id=?")) {
                             del.setInt(1, Integer.parseInt(cid));
                             del.executeUpdate();
@@ -89,8 +91,8 @@ public class CommentsServlet extends HttpServlet {
                 }
             } else if ("update".equalsIgnoreCase(action)) {
                 String cid = req.getParameter("comment_id");
-                String content = req.getParameter("content");
-                if (cid != null && content != null && !content.isBlank()) {
+                String content = WebUtils.cleanComment(req.getParameter("content"));
+                if (cid != null && content != null) {
                     boolean allow = false;
                     String role = (String) session.getAttribute("role");
                     try (PreparedStatement chk = conn.prepareStatement("SELECT user_id FROM comments WHERE id=?")) {
@@ -114,7 +116,7 @@ public class CommentsServlet extends HttpServlet {
                     }
                     if (allow) {
                         try (PreparedStatement upd = conn
-                                .prepareStatement("UPDATE comments SET content=? WHERE id=?")) {
+                                .prepareStatement("UPDATE comments SET content=?, updated_at=NOW() WHERE id=?")) {
                             upd.setString(1, content);
                             upd.setInt(2, Integer.parseInt(cid));
                             upd.executeUpdate();
@@ -122,13 +124,25 @@ public class CommentsServlet extends HttpServlet {
                     }
                 }
             } else {
-                String content = req.getParameter("content");
-                if (content != null && !content.isBlank() && lyricIdStr != null && !lyricIdStr.isBlank()) {
-                    try (PreparedStatement ps = conn
-                            .prepareStatement("INSERT INTO comments (lyric_id, user_id, content) VALUES (?, ?, ?)")) {
-                        ps.setInt(1, Integer.parseInt(lyricIdStr));
+                String content = WebUtils.cleanComment(req.getParameter("content"));
+                if (WebUtils.isBot(req)) {
+                    content = null; // honeypot filled in: drop silently
+                } else if (!EmailVerification.isVerified(session)) {
+                    content = null;
+                    flash = "verify=required";
+                } else if (content != null && !RequestLimiter.tryAcquire("comment", userId, 5, RequestLimiter.MINUTE)) {
+                    content = null;
+                    flash = "comment=limit";
+                }
+                if (content != null && lyricIdStr != null && !lyricIdStr.isBlank()) {
+                    int lyricId = Integer.parseInt(lyricIdStr);
+                    Integer parentId = replyTarget(conn, req.getParameter("parent_id"), lyricId);
+                    try (PreparedStatement ps = conn.prepareStatement(
+                            "INSERT INTO comments (lyric_id, user_id, parent_id, content) VALUES (?, ?, ?, ?)")) {
+                        ps.setInt(1, lyricId);
                         ps.setInt(2, userId);
-                        ps.setString(3, content);
+                        if (parentId == null) ps.setNull(3, java.sql.Types.INTEGER); else ps.setInt(3, parentId);
+                        ps.setString(4, content);
                         ps.executeUpdate();
                     }
                 }
@@ -138,9 +152,28 @@ public class CommentsServlet extends HttpServlet {
         }
         // Redirect back to the lyrics page
         if (lyricIdStr != null && !lyricIdStr.isBlank()) {
-            resp.sendRedirect(req.getContextPath() + "/lyrics/" + lyricIdStr);
+            resp.sendRedirect(req.getContextPath() + "/lyrics/" + lyricIdStr + (flash != null ? "?" + flash : "") + "#comments");
         } else {
             resp.sendRedirect(req.getContextPath() + "/texty.jsp");
+        }
+    }
+
+    /**
+     * The top-level comment a reply belongs to, or null for a new top-level comment.
+     * Replies stay one level deep: answering a reply attaches to its parent.
+     * A parent from another song is ignored.
+     */
+    static Integer replyTarget(Connection conn, String parentParam, int lyricId) throws SQLException {
+        if (parentParam == null || !parentParam.matches("\\d{1,10}")) return null;
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT id, parent_id FROM comments WHERE id=? AND lyric_id=?")) {
+            ps.setInt(1, Integer.parseInt(parentParam));
+            ps.setInt(2, lyricId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                int parentOfParent = rs.getInt(2);
+                return rs.wasNull() ? rs.getInt(1) : parentOfParent;
+            }
         }
     }
 }

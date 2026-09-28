@@ -8,10 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -29,6 +27,11 @@ public class RegisterServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // Spam protection: bots filling the hidden honeypot field get a fake success
+        if (WebUtils.isBot(req)) {
+            resp.sendRedirect("login.jsp?registered=1");
+            return;
+        }
         String username = normalize(req.getParameter("username"));
         String email = normalizeEmail(req.getParameter("email"));
         String password = req.getParameter("password");
@@ -55,7 +58,7 @@ public class RegisterServlet extends HttpServlet {
             errors.add(I18n.getText(req, "auth.error.passwordRequired", "Obě pole pro heslo jsou povinná."));
         } else if (!password.equals(password2)) {
             errors.add(I18n.getText(req, "auth.error.passwordMismatch", "Hesla se neshodují."));
-        } else if (!isPasswordStrong(password)) {
+        } else if (!WebUtils.isPasswordStrong(password)) {
             errors.add(I18n.getText(req, "auth.error.passwordStrength", "Heslo musí mít alespoň 12 znaků, obsahovat velké a malé písmeno, číslo a speciální znak."));
         }
 
@@ -69,7 +72,17 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
+        // At most 5 new accounts per hour from one IP (not for direct local requests, see WebUtils)
+        if (!WebUtils.isDirectLocalRequest(req)
+                && !RequestLimiter.tryAcquire("register", WebUtils.clientIp(req), 5, RequestLimiter.HOUR)) {
+            errors.add(I18n.getText(req, "auth.error.rateLimited", "Příliš mnoho registrací. Zkus to prosím později."));
+            req.setAttribute("errors", errors);
+            req.getRequestDispatcher("/register.jsp").forward(req, resp);
+            return;
+        }
+
         Integer newUserId = null;
+        boolean verify = EmailVerification.isRequired();
         try (Connection conn = Db.get()) {
             if (isUsernameTaken(conn, username)) {
                 errors.add(I18n.getText(req, "auth.error.usernameTaken", "Uživatelské jméno již existuje, zvolte prosím jiné."));
@@ -85,7 +98,8 @@ public class RegisterServlet extends HttpServlet {
 
             String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
             try (PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO users (username, email, password_hash, role, created_at) VALUES (?, ?, ?, 'USER', NOW())", Statement.RETURN_GENERATED_KEYS)) {
+                    "INSERT INTO users (username, email, password_hash, role, created_at, email_verified_at) VALUES (?, ?, ?, 'USER', NOW(), "
+                            + (verify ? "NULL" : "NOW()") + ")", Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, username);
                 ps.setString(2, email);
                 ps.setString(3, hash);
@@ -97,16 +111,12 @@ public class RegisterServlet extends HttpServlet {
                 }
             }
 
-            if (newUserId != null) {
-                String token = generateToken();
-                try (PreparedStatement ps2 = conn.prepareStatement(
-                        "INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE))")) {
-                    ps2.setInt(1, newUserId);
-                    ps2.setString(2, token);
-                    ps2.executeUpdate();
-                }
+            if (newUserId != null && verify) {
+                // the welcome e-mail is the verification e-mail
+                EmailVerification.sendLink(req, email, username, EmailVerification.issueToken(conn, newUserId));
+            } else if (newUserId != null) {
                 try {
-                    EmailUtil.sendMail(email, buildRegistrationSubject(), buildRegistrationBody(req, username));
+                    EmailUtil.sendMail(email, I18n.getText(req, "email.register.subject"), buildRegistrationBody(req, username));
                 } catch (Exception mailErr) {
                     // If email sending fails, registration is still valid.
                 }
@@ -120,7 +130,7 @@ public class RegisterServlet extends HttpServlet {
             throw new ServletException(e);
         }
 
-        resp.sendRedirect("login.jsp?registered=1");
+        resp.sendRedirect(verify ? "login.jsp?registered=1&verify=sent" : "login.jsp?registered=1");
     }
 
     private static String normalize(String value) {
@@ -129,20 +139,6 @@ public class RegisterServlet extends HttpServlet {
 
     private static String normalizeEmail(String email) {
         return normalize(email).toLowerCase(Locale.ROOT);
-    }
-
-    private static boolean isPasswordStrong(String password) {
-        if (password == null || password.length() < 12) {
-            return false;
-        }
-        boolean hasUpper = false, hasLower = false, hasDigit = false, hasSpecial = false;
-        for (char c : password.toCharArray()) {
-            if (Character.isUpperCase(c)) hasUpper = true;
-            else if (Character.isLowerCase(c)) hasLower = true;
-            else if (Character.isDigit(c)) hasDigit = true;
-            else if (!Character.isWhitespace(c)) hasSpecial = true;
-        }
-        return hasUpper && hasLower && hasDigit && hasSpecial;
     }
 
     private static boolean isUsernameTaken(Connection conn, String username) throws SQLException {
@@ -163,22 +159,11 @@ public class RegisterServlet extends HttpServlet {
         }
     }
 
-    private static String generateToken() {
-        byte[] b = new byte[32]; new SecureRandom().nextBytes(b);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(b);
-    }
-
-    private static String buildRegistrationSubject() {
-        return "Vítejte na Skeli.cz - Registrace úspěšně dokončena";
-    }
-
     private static String buildRegistrationBody(HttpServletRequest req, String username) {
-        String base = req.getRequestURL().toString().replace(req.getRequestURI(), req.getContextPath());
-        String loginLink = base + "/login.jsp";
-        return "Vítejte na Skeli.cz!\n\n" +
-               "Váš účet \"" + username + "\" byl úspěšně vytvořen.\n\n" +
-               "Nyní se můžete přihlásit na našich stránkách:\n" + loginLink + "\n\n" +
-               "Děkujeme za registraci a těšíme se na vaši účast v naší komunitě!\n\n" +
-               "S pozdravem,\nTým Skeli.cz";
+        // Base URL comes from configuration, never from the Host header
+        String loginLink = WebUtils.baseUrl() + "/login.jsp";
+        return I18n.getText(req, "email.register.body")
+                .replace("{username}", username)
+                .replace("{link}", loginLink);
     }
 }

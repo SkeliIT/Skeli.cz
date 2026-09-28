@@ -31,16 +31,22 @@ public class ForgotPasswordServlet extends HttpServlet {
             }
             if (userId != null) {
                 String token = generateToken();
+                // Only the newest link stays valid
+                try (PreparedStatement ps = conn.prepareStatement("DELETE FROM password_resets WHERE user_id=?")) {
+                    ps.setInt(1, userId);
+                    ps.executeUpdate();
+                }
                 try (PreparedStatement ps = conn.prepareStatement("INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE))")) {
                     ps.setInt(1, userId);
-                    ps.setString(2, token);
+                    ps.setString(2, ResetPasswordServlet.hashToken(token));
                     ps.executeUpdate();
                 }
                 // Send password reset email
                 try {
-                    EmailUtil.sendMail(email, buildSubject(), buildBody(req, token));
+                    EmailUtil.sendMail(email, I18n.getText(req, "email.reset.subject"), buildBody(req, token));
                 } catch (Exception mailErr) {
                     // Log error but continue - user should see success message for security
+                    getServletContext().log("Password reset e-mail could not be sent", mailErr);
                 }
                 // Always show success message for security (don't reveal if user exists)
                 resp.sendRedirect("forgot.jsp?sent=true");
@@ -55,18 +61,9 @@ public class ForgotPasswordServlet extends HttpServlet {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(b);
     }
 
-    private static String buildSubject() { 
-        return "Skeli.cz - Obnovení hesla"; 
-    }
-    
     private static String buildBody(HttpServletRequest req, String token) {
-        String base = req.getRequestURL().toString().replace(req.getRequestURI(), req.getContextPath());
-        String resetLink = base + "/reset.jsp?token=" + token;
-        return "Dobrý den,\n\n" +
-               "Obdrželi jsme žádost o obnovení hesla k vašemu účtu na Skeli.cz.\n\n" +
-               "Pokud chcete obnovit heslo, klikněte na následující odkaz (platí 30 minut):\n" +
-               resetLink + "\n\n" +
-               "Pokud jste o obnovení hesla nežádali, ignorujte tento e-mail.\n\n" +
-               "S pozdravem,\nTým Skeli.cz";
+        // Base URL comes from configuration, never from the Host header (reset link poisoning)
+        String resetLink = WebUtils.baseUrl() + "/reset.jsp?token=" + token;
+        return I18n.getText(req, "email.reset.body").replace("{link}", resetLink);
     }
 }

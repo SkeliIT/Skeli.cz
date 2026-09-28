@@ -23,6 +23,12 @@ public class VotesServlet extends HttpServlet {
         }
         int lyricId = Integer.parseInt(lyricIdStr);
         int vote = "up".equals(action) ? 1 : -1;
+        // back to where the vote came from: the new /lyrics/{id} page or the legacy lyric.jsp
+        String back = "legacy".equals(req.getParameter("from")) ? "lyric.jsp?id=" + lyricId : "/lyrics/" + lyricId;
+        if (!EmailVerification.isVerified(session)) {
+            resp.sendRedirect(back + (back.contains("?") ? "&" : "?") + "verify=required#comments");
+            return;
+        }
         try (Connection conn = Db.get()) {
             try (PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO lyrics_votes (lyric_id, user_id, vote) VALUES (?, ?, ?) " +
@@ -35,6 +41,6 @@ public class VotesServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        resp.sendRedirect("lyric.jsp?id=" + lyricId);
+        resp.sendRedirect(back);
     }
 }

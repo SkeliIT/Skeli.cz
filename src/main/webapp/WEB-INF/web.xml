@@ -4,6 +4,13 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
          version="5.0">
     <display-name>SkeliCZ</display-name>
+
+    <!-- Jetty: don't memory-map static files. On Windows a mapped file stays
+         locked, so CSS/JS can't be edited while `mvn jetty:run` is running. -->
+    <context-param>
+        <param-name>org.eclipse.jetty.servlet.Default.useFileMappedBuffer</param-name>
+        <param-value>false</param-value>
+    </context-param>
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
@@ -191,20 +198,30 @@
     <filter-mapping>
         <filter-name>AdminFilter</filter-name>
         <url-pattern>/admin/*</url-pattern>
+        <url-pattern>/admin.jsp</url-pattern>
+        <url-pattern>/admin_newsletter.jsp</url-pattern>
+        <url-pattern>/admin_songs.jsp</url-pattern>
+        <url-pattern>/admin_users.jsp</url-pattern>
     </filter-mapping>
 
+    <!-- CSRF protection for every state-changing request (see CsrfFilter for exemptions) -->
     <filter>
         <filter-name>CsrfFilter</filter-name>
         <filter-class>com.github.skeliit.CsrfFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CsrfFilter</filter-name>
-        <url-pattern>/comment</url-pattern>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
-    <filter-mapping>
-        <filter-name>CsrfFilter</filter-name>
-        <url-pattern>/vote</url-pattern>
-    </filter-mapping>
+
+    <session-config>
+        <cookie-config>
+            <!-- Jetty reads this marker and emits SameSite=Lax -->
+            <comment>__SAME_SITE_LAX__</comment>
+            <http-only>true</http-only>
+        </cookie-config>
+        <tracking-mode>COOKIE</tracking-mode>
+    </session-config>
 
     <!-- MVC Controllers -->
     <servlet>

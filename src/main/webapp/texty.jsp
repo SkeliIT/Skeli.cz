@@ -3,19 +3,21 @@
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
-<main>
-    <h2 class="bruno-ace-sc-regular" style="text-align:center;"><%= ((java.util.Properties)request.getAttribute("t")).getProperty("menu.lyrics","Lyrics") %></h2>
-    <div class="texts-card">
-      <ul class="texts-list">
+<main class="texty-page">
+    <h2><%= t.getProperty("menu.lyrics","Lyrics") %></h2>
+    <p class="page-lead"><%= t.getProperty("lyrics.subtitle") %></p>
+    <div class="song-grid">
         <%
             boolean hadRows = false;
+            java.util.Map<Integer, java.util.List<com.github.skeliit.model.SongClip>> clipsBySong =
+                com.github.skeliit.model.SongClip.bySong();
             try {
                 try (Connection conn = Db.get();
                          PreparedStatement ps = conn.prepareStatement(
-                             "SELECT s.id AS song_id, s.name AS song_name, s.year AS song_year, MIN(l.id) AS lyric_id, " +
-                             "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id LIMIT 1) AS youtube_id " +
+                             "SELECT s.id AS song_id, s.uuid AS song_uuid, s.name AS song_name, s.year AS song_year, s.preview_image_url, MIN(l.id) AS lyric_id, " +
+                             "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtube_id " +
                              "FROM lyrics l JOIN songs s ON s.id = l.song_id " +
-                             "GROUP BY s.id, s.name, s.year " +
+                             "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url " +
                              "ORDER BY s.year DESC, s.name ASC"
                          );
                          ResultSet rs = ps.executeQuery()) {
@@ -36,42 +38,54 @@
                             }
                             int lyricId = rs.getInt("lyric_id");
                             if (rs.wasNull() || lyricId <= 0) continue;
+                            String songUuid = rs.getString("song_uuid");
                             String youtubeId = rs.getString("youtube_id");
-                            String dataAttr = "";
-                            if (youtubeId != null && !youtubeId.isEmpty()) {
-                                dataAttr = " data-thumb=\"https://img.youtube.com/vi/" + youtubeId + "/mqdefault.jpg\"";
-                            }
+                            String preview = com.github.skeliit.WebUtils.safeUrl(rs.getString("preview_image_url"), null);
+                            String href = (songUuid != null && !songUuid.isBlank())
+                                    ? "/cs/song/" + songUuid
+                                    : "/lyrics/" + lyricId;
         %>
-                            <li<%= dataAttr %>><a href="/lyrics/<%= lyricId %>"><%= name %></a><% if (y != null) { %> (<%= y %>)<% } %></li>
+                            <a class="song-card" href="<%= com.github.skeliit.WebUtils.escapeHtml(href) %>">
+                                <div class="song-thumb">
+                                <%
+                                  java.util.List<com.github.skeliit.model.SongClip> thumbClips = clipsBySong.get(rs.getInt("song_id"));
+                                  if (thumbClips != null && thumbClips.size() > 1) {
+                                    // two versions: the newest on top fading into the oldest below
+                                %>
+                                    <span class="thumb-split">
+                                      <img class="split-bottom" src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(thumbClips.size() - 1).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+                                      <img class="split-top" src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(0).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+                                      <span class="split-tag split-tag-top"><%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(0).label(t)) %></span>
+                                      <span class="split-tag split-tag-bottom"><%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(thumbClips.size() - 1).label(t)) %></span>
+                                    </span>
+                                <% } else if (youtubeId != null && !youtubeId.isEmpty()) { %>
+                                    <img src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+                                <% } else if (preview != null) { %>
+                                    <img src="<%= com.github.skeliit.WebUtils.escapeHtml(preview) %>" alt="" loading="lazy">
+                                <% } else { %>
+                                    <span class="song-thumb-placeholder"><i class="fa-solid fa-music"></i></span>
+                                <% } %>
+                                </div>
+                                <div class="song-info">
+                                    <span class="song-name"><%= com.github.skeliit.WebUtils.escapeHtml(name) %></span>
+                                    <% if (y != null) { %><span class="song-year"><%= y %></span><% } %>
+                                </div>
+                                <span class="song-go"><i class="fa-solid fa-arrow-right"></i></span>
+                            </a>
         <%
                         }
                 } catch (SQLException e) {
-                    out.println("<li>Chyba připojení k databázi: " + e.getMessage() + "</li>");
+                    out.println("<p class=\"empty-note\">" + t.getProperty("lyrics.loadError") + "</p>");
                 }
 
                 if (!hadRows) {
-                    out.println("<li>Žádné texty nenalezeny.</li>");
+                    out.println("<p class=\"empty-note\">" + t.getProperty("lyrics.none") + "</p>");
                 }
             } catch (Exception e) {
-                out.println("<li>Chyba při načítání textů: " + e.getMessage() + "</li>");
+                out.println("<p class=\"empty-note\">" + t.getProperty("lyrics.loadError") + "</p>");
             }
         %>
-      </ul>
     </div>
-    <script>
-      // Apply YouTube thumbnails to list items
-      document.querySelectorAll('.texts-list li[data-thumb]').forEach(li => {
-        const thumb = li.getAttribute('data-thumb');
-        if(thumb) {
-          li.style.setProperty('--thumb-bg', `url("${thumb}")`);
-          const style = document.createElement('style');
-          const id = 'thumb-' + Math.random().toString(36).substr(2, 9);
-          li.classList.add(id);
-          style.textContent = `.${id}::before { background-image: url("${thumb}") !important; }`;
-          document.head.appendChild(style);
-        }
-      });
-    </script>
 </main>
 
 <%@ include file="includes/footer.jsp" %>

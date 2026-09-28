@@ -3,64 +3,55 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <main>
-  <style>
-  .songs-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
-  }
-  .songs-table th, .songs-table td {
-      border: 1px solid var(--panel-border);
-      padding: 10px;
-      text-align: left;
-  }
-  .songs-table th { background: rgba(0,0,0,0.3); font-weight: bold; }
-  body.light .songs-table th { background: rgba(0,0,0,0.06); }
-  .songs-table tr:hover { background: rgba(255,255,255,0.05); }
-  body.light .songs-table tr:hover { background: rgba(0,0,0,0.04); }
-  .indicator { display:inline-block; padding:2px 8px; border-radius:3px; margin:0 2px; font-size:0.9em; }
-  .indicator.yes { background: rgba(0,255,0,0.18); color:#0f0; }
-  .indicator.no { background: rgba(255,0,0,0.18); color:#f66; }
-  .lang-flag { display:inline-block; padding:2px 6px; margin:0 2px; background: rgba(255,255,255,0.1); border-radius:3px; font-size:0.8em; text-transform:uppercase; }
-  body.light .lang-flag { background: rgba(0,0,0,0.06); }
-  .link-btn { color: var(--accent); text-decoration:none; padding:4px 8px; border:1px solid var(--accent); border-radius:3px; margin:0 4px; font-size:0.85em; display:inline-block; }
-  .link-btn:hover { background: var(--accent); color:#000; }
-  </style>
-  <h2>Přehled písní</h2>
-  <p><a href="/admin.jsp">← Zpět na admin</a></p>
+  <h2>Písně</h2>
+  <p class="admin-crumb"><a href="/admin.jsp">← Admin</a></p>
+  <p class="text-dim">Píseň je střed administrace — YouTube, Spotify, Apple Music a náhled se vážou k ní.</p>
+
+  <c:if test="${not empty param.msg}">
+    <p class="admin-flash"><c:out value="${param.msg}"/></p>
+  </c:if>
 
   <table class="songs-table">
     <thead>
       <tr>
-        <th>ID</th>
+        <th></th>
         <th>Název</th>
         <th>Rok</th>
-        <th>Video</th>
+        <th>Média</th>
         <th>Text</th>
-        <th>Jazyky</th>
-        <th>Akce</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       <c:forEach var="song" items="${songs}">
         <tr>
-          <td>${song.id}</td>
-          <td>${song.name}</td>
-          <td>${song.year != null ? song.year : '-'}</td>
           <td>
             <c:choose>
-              <c:when test="${song.hasVideo}">
-                <span class="indicator yes">✓</span>
+              <c:when test="${song.hasPreview}">
+                <img class="song-preview-thumb" src="<c:out value='${song.previewImageUrl}'/>" alt="">
               </c:when>
               <c:otherwise>
-                <span class="indicator no">✗</span>
+                <span class="song-preview-empty">—</span>
               </c:otherwise>
             </c:choose>
+          </td>
+          <td>
+            <a href="/admin/song?uuid=${song.uuid}"><strong><c:out value="${song.name}"/></strong></a>
+            <div class="text-dim song-list-uuid" title="${song.uuid}"><c:out value="${song.uuid}"/></div>
+          </td>
+          <td>${song.year != null ? song.year : '—'}</td>
+          <td class="media-badges">
+            <span class="indicator ${song.hasVideo ? 'yes' : 'no'}" title="YouTube"><i class="fab fa-youtube"></i></span>
+            <span class="indicator ${song.hasSpotify ? 'yes' : 'no'}" title="Spotify"><i class="fab fa-spotify"></i></span>
+            <span class="indicator ${song.hasApple ? 'yes' : 'no'}" title="Apple Music"><i class="fab fa-apple"></i></span>
+            <span class="indicator ${song.hasPreview ? 'yes' : 'no'}" title="Náhled / OG"><i class="fa-regular fa-image"></i></span>
           </td>
           <td>
             <c:choose>
               <c:when test="${song.hasLyrics}">
-                <span class="indicator yes">✓</span>
+                <c:forEach var="lang" items="${song.languages}">
+                  <span class="lang-flag">${lang}</span>
+                </c:forEach>
               </c:when>
               <c:otherwise>
                 <span class="indicator no">✗</span>
@@ -68,18 +59,9 @@
             </c:choose>
           </td>
           <td>
-            <c:if test="${song.hasLyrics}">
-              <c:forEach var="lang" items="${song.languages}">
-                <span class="lang-flag">${lang}</span>
-              </c:forEach>
-            </c:if>
-          </td>
-          <td>
-            <c:if test="${song.hasVideo}">
-              <a href="/music.jsp" class="link-btn" target="_blank">Video</a>
-            </c:if>
-            <c:if test="${song.hasLyrics}">
-              <a href="/lyrics/${song.id}" class="link-btn" target="_blank">Text</a>
+            <a href="/admin/song?uuid=${song.uuid}" class="link-btn">Upravit</a>
+            <c:if test="${not empty song.uuid}">
+              <a href="/cs/song/${song.uuid}" class="link-btn" target="_blank">Text</a>
             </c:if>
           </td>
         </tr>

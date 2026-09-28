@@ -11,8 +11,16 @@ public class LyricView {
     public int votesUp;
     public int votesDown;
     public String appleMusicId;
+    public String previewImageUrl;
+    /** Stable public song id. */
+    public String songUuid;
+    /** Language of this lyric row (cs/en/de/uk). */
+    public String lang;
+    /** Optional SEO alias for this language. */
+    public String songSeoSlug;
+    /** Optional meta description for this language. */
+    public String metaDescription;
 
-    // Getters for EL expressions
     public int getId() { return id; }
     public int getSongId() { return songId; }
     public String getSongName() { return songName; }
@@ -23,4 +31,18 @@ public class LyricView {
     public int getVotesUp() { return votesUp; }
     public int getVotesDown() { return votesDown; }
     public String getAppleMusicId() { return appleMusicId; }
+    public String getPreviewImageUrl() { return previewImageUrl; }
+    public String getSongUuid() { return songUuid; }
+    public String getLang() { return lang; }
+    public String getSongSeoSlug() { return songSeoSlug; }
+    public String getMetaDescription() { return metaDescription; }
+
+    /** Public path: /{lang}/song/{seoSlug|uuid}. */
+    public String getPublicPath() {
+        String l = (lang == null || lang.isBlank()) ? "cs" : lang;
+        String key = (songSeoSlug != null && !songSeoSlug.isBlank())
+                ? songSeoSlug.trim()
+                : (songUuid != null ? songUuid : String.valueOf(id));
+        return "/" + l + "/song/" + key;
+    }
 }

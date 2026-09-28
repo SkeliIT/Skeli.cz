@@ -1,6 +1,5 @@
 package com.github.skeliit;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.mail.Message;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
@@ -13,27 +12,14 @@ import java.util.Properties;
  * Utility class for sending emails using SMTP configuration from environment variables.
  */
 public class EmailUtil {
-    private static final Dotenv dotenv;
-    
-    static {
-        // Try to load .env file, with fallback to system environment variables
-        Dotenv env = null;
-        try {
-            env = Dotenv.configure().ignoreIfMissing().load();
-        } catch (Exception e) {
-            // Fallback: will use system environment
-        }
-        dotenv = env;
-    }
-    
     private static String getEnv(String key, String defaultValue) {
-        if (dotenv != null) {
-            String val = dotenv.get(key);
-            if (val != null) return val;
-        }
-        String val = System.getenv(key);
-        if (val != null) return val;
-        return defaultValue;
+        return Config.get(key, defaultValue);
+    }
+
+    /** True when SMTP_HOST, SMTP_USERNAME and SMTP_PASSWORD are set, i.e. e-mails can go out. */
+    public static boolean isConfigured() {
+        return getEnv("SMTP_HOST", null) != null && getEnv("SMTP_USERNAME", null) != null
+                && getEnv("SMTP_PASSWORD", null) != null;
     }
 
     /**

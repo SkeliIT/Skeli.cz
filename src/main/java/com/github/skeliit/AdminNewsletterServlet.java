@@ -24,10 +24,10 @@ public class AdminNewsletterServlet extends HttpServlet {
         if (!isAdmin(req.getSession(false))) { resp.sendError(403); return; }
         List<String[]> emails = new ArrayList<>();
         try (Connection conn = getConn();
-             PreparedStatement ps = conn.prepareStatement("SELECT email, subscribed_at, unsubscribed_at FROM newsletter_emails ORDER BY subscribed_at DESC");
+             PreparedStatement ps = conn.prepareStatement("SELECT email, subscribed_at, unsubscribed_at, confirmed_at FROM newsletter_emails ORDER BY subscribed_at DESC");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                emails.add(new String[]{rs.getString(1), String.valueOf(rs.getTimestamp(2)), String.valueOf(rs.getTimestamp(3))});
+                emails.add(new String[]{rs.getString(1), String.valueOf(rs.getTimestamp(2)), String.valueOf(rs.getTimestamp(3)), String.valueOf(rs.getTimestamp(4))});
             }
         } catch (SQLException e) { throw new ServletException(e); }
         req.setAttribute("emails", emails);

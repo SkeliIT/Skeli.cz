@@ -29,8 +29,8 @@ public class YouTubeSyncServlet extends HttpServlet {
             resp.getWriter().write("Forbidden");
             return;
         }
-        String apiKey = System.getenv("YOUTUBE_API_KEY");
-        String channelId = System.getenv("YOUTUBE_CHANNEL_ID");
+        String apiKey = Config.get("YOUTUBE_API_KEY");
+        String channelId = Config.get("YOUTUBE_CHANNEL_ID");
         if (apiKey == null || channelId == null) {
             // fallback to WEB-INF/youtube.properties
             try (java.io.InputStream in = getServletContext().getResourceAsStream("/WEB-INF/youtube.properties")) {

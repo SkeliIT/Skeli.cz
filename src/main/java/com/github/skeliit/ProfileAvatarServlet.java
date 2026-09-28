@@ -35,10 +35,8 @@ public class ProfileAvatarServlet extends HttpServlet {
         }
         int userId = (uidObj instanceof Integer) ? (Integer) uidObj : Integer.parseInt(uidObj.toString());
 
-        // CSRF basic check (optional)
-        String csrfSession = (String) req.getSession().getAttribute("csrf");
-        String csrfForm = req.getParameter("csrf");
-        if (csrfSession != null && (csrfForm == null || !csrfSession.equals(csrfForm))) {
+        // Multipart requests are not checked by CsrfFilter, so verify here
+        if (!CsrfFilter.isValid(req)) {
             resp.setStatus(403);
             resp.getWriter().write("{\"error\":\"forbidden\"}");
             return;
@@ -75,11 +73,7 @@ public class ProfileAvatarServlet extends HttpServlet {
         g.dispose();
 
         // Resolve uploads dir
-        String base = getServletContext().getRealPath("/uploads/avatars");
-        if (base == null) {
-            base = System.getProperty("java.io.tmpdir") + File.separator + "avatars";
-        }
-        File dir = new File(base);
+        File dir = AvatarFileServlet.avatarDir(getServletContext());
         if (!dir.exists())
             dir.mkdirs();
         String filename = userId + ".jpg";

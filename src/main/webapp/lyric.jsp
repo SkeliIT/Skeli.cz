@@ -4,52 +4,14 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <main class="avoid-footer">
-    <h2 style="text-align:center;">Text</h2>
+    <h2 style="text-align:center;"><%= t.getProperty("lyric.heading") %></h2>
 
-    <style>
-      .layout { display:flex; gap:20px; }
-      .layout aside { width:32%; max-width:320px; position: sticky; top: 20px; align-self: flex-start; }
-      .layout section { flex:1; }
-      .song-list { list-style:none; padding:0; margin:0; }
-      .song-list li { margin: 6px 0; }
-.active { font-weight:bold; color: gold; }
-      .back { margin: 10px 0 20px; display:inline-block; }
-      .avoid-footer { padding-bottom: 220px; }
-.nav-top { margin-bottom: 20px; background: rgba(0,0,0,0.65); padding: 12px 16px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); overflow-x: auto; }
-      .nav-top h3 { color: #fff; margin-top:0; font-size:1em; }
-      .nav-top .song-list { display:flex; flex-wrap:wrap; gap: 10px 16px; }
-      .nav-top .song-list li { margin: 0; }
-      .nav-top .song-list a { color: #fff !important; font-weight: 600; text-decoration: none; transition: color .2s, text-shadow .2s; }
-      .nav-top .song-list a:visited { color: #fff !important; }
-      .nav-top .song-list a:hover { color: var(--accent) !important; text-shadow: 0 0 8px var(--accent); text-decoration: underline; }
-      .nav-top .song-list a.active { color: var(--accent) !important; font-weight: bold; text-shadow: 0 0 8px var(--accent); }
-      .nav-top .song-list li:not(:last-child)::after { content: " | "; color: rgba(255,255,255,0.5); margin: 0 6px; }
-      body.light .nav-top { background: rgba(255,255,255,0.85); border-color:rgba(0,0,0,0.15); }
-      body.light .nav-top h3 { color: #111; }
-      body.light .nav-top .song-list a { color: #111 !important; }
-      body.light .nav-top .song-list a:visited { color: #111 !important; }
-      body.light .nav-top .song-list li:not(:last-child)::after { color: rgba(0,0,0,0.4); }
-      .card { background: linear-gradient(180deg, rgba(255,255,255,0.50), rgba(255,255,255,0.40)); border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); padding: 24px 28px; backdrop-filter: blur(4px); }
-      .card h3 { margin-top: 0; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.06); }
-      .card pre { background: transparent; margin: 0 auto; max-width: 60ch; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; text-align:center; font-weight: var(--fw); }
-      @media (min-width: 1100px){ .lyric-layout { display:grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:start; } }
-      .accent { border-left: 4px solid #ffd700; padding-left: 16px; }
-      /* Comments: high-contrast panel inside light lyric card */
-      .comments { margin-top:14px; background: rgba(0,0,0,0.70); color: var(--text); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px 16px; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
-      .comments h4 { margin: 0 0 10px; color: #fff; }
-      .comments .comment-item { background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:10px; margin:8px 0; }
-      .comments .comment-item strong { color:#fff; }
-      .comments .comment-item .meta { color: rgba(255,255,255,0.75); }
-      body.light .comments { background: #ffffff; color:#111; border-color: rgba(0,0,0,0.12); }
-      body.light .comments h4 { color:#111; }
-      body.light .comments .comment-item { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.12); }
-    </style>
 
     <% String flash = request.getParameter("msg"); if (flash != null) { %>
-      <div style="background:rgba(0,128,0,0.35); padding:8px 10px; border-radius:8px; margin-bottom:10px; text-align:center;">Komentář <%= ("deleted".equals(flash)?"odstraněn":("updated".equals(flash)?"upraven":"přidán")) %>.</div>
+      <div style="background:rgba(0,128,0,0.35); padding:8px 10px; border-radius:8px; margin-bottom:10px; text-align:center;"><%= t.getProperty("deleted".equals(flash) ? "comment.flash.deleted" : ("updated".equals(flash) ? "comment.flash.updated" : "comment.flash.added")) %></div>
     <% } %>
     <div class="nav-top">
-      <h3>Názvy písní</h3>
+      <h3><%= t.getProperty("lyric.songList") %></h3>
       <ul class="song-list">
         <%
             String idParam = request.getParameter("id");
@@ -79,14 +41,14 @@
                         int lyricId = rs.getInt("lyric_id");
                         boolean isActive = (activeId != null && activeId == lyricId);
         %>
-                        <li><a class="<%= isActive ? "active" : "" %>" href="lyric.jsp?id=<%= lyricId %>"><%= name %></a></li>
+                        <li><a class="<%= isActive ? "active" : "" %>" href="lyric.jsp?id=<%= lyricId %>"><%= com.github.skeliit.WebUtils.escapeHtml(name) %></a></li>
         <%
                     }
                 } catch (SQLException e) {
-                    out.println("<li>Chyba při načítání seznamu: " + e.getMessage() + "</li>");
+                    out.println("<li>" + t.getProperty("lyrics.loadError") + "</li>");
                 }
             } else {
-                out.println("<li>Chyba připojení k DB.</li>");
+                out.println("<li>" + t.getProperty("lyrics.loadError") + "</li>");
             }
         %>
         </ul>
@@ -104,7 +66,7 @@
             }
             if (connected) {
                 if (activeId == null) {
-                    out.println("<p>Vyberte prosím píseň vlevo.</p>");
+                    out.println("<p>" + t.getProperty("lyric.choose") + "</p>");
                 } else {
                     String detailSql = "SELECT s.name AS song_name, s.year AS song_year, l.words, l.score, " +
                                        "(SELECT v.youtube_id FROM videos v WHERE v.song_id = l.song_id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt " +
@@ -119,8 +81,8 @@
                                 String words = rs.getString("words");
                                 String yt = rs.getString("yt");
                                 // try translated words if available for selected language
-                                String curLang = (String) session.getAttribute("lang");
-                                if (curLang != null && !curLang.equals("cs")) {
+                                String curLang = cur;
+                                if (!curLang.equals("cs")) {
                                   try (PreparedStatement tr = conn.prepareStatement("SELECT words FROM lyrics_translations WHERE lyric_id=? AND lang=?")) {
                                     tr.setInt(1, activeId);
                                     tr.setString(2, curLang);
@@ -128,38 +90,38 @@
                                   }
                                 }
         %>
-                                <div class="card accent lyric-layout">
+                                <div class="card accent lyric-layout lyric-card">
                                   <div>
-                                    <h3><%= name %><% if (year != null) { %> (<%= year %>)<% } %></h3>
+                                    <h3><%= com.github.skeliit.WebUtils.escapeHtml(name) %><% if (year != null) { %> (<%= year %>)<% } %></h3>
                                     <% if (yt != null && !yt.isEmpty()) { %>
-                                    <div style="background:var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:8px; box-shadow:0 6px 18px rgba(0,0,0,.20); position:relative; margin:10px auto 14px; width:50%; min-width:320px;">
-                                      <div style="position:relative; padding-top:28.125%;">
-                                        <iframe style="position:absolute; inset:0; width:100%; height:100%; border-radius:8px;" src="https://www.youtube.com/embed/<%= yt %>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                    <div class="video-container">
+                                      <div class="video-ratio">
+                                        <iframe src="https://www.youtube.com/embed/<%= com.github.skeliit.WebUtils.escapeHtml(yt) %>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                                       </div>
                                     </div>
                                     <% } %>
-                                    <div style="background:var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,.20);">
-                                      <pre style="white-space: pre-wrap; font-family: 'Inter', system-ui, sans-serif; font-size: 1.05em; margin:0; text-align:center;"><%= words %></pre>
+                                    <div class="lyrics-box">
+                                      <pre><%= com.github.skeliit.WebUtils.escapeHtml(words) %></pre>
                                     </div>
                                   </div>
                                   <div>
 
                                   <hr style="border:none; border-top:1px solid rgba(0,0,0,0.08); margin:16px 0;">
 
-                                  <div class="votes" style="margin-bottom:10px; display:flex; align-items:center; gap:10px;">
-                                    <form method="post" action="vote" style="display:inline;">
+                                  <div class="votes">
+                                    <form method="post" action="vote?from=legacy" style="display:inline;">
                                       <input type="hidden" name="lyric_id" value="<%= activeId %>">
                                       <input type="hidden" name="action" value="up">
                                       <input type="hidden" name="csrf" value="${csrf}">
-                                      <button type="submit" class="btn-vote up" title="Líbí se mi">
+                                      <button type="submit" class="btn-vote up" title="<%= t.getProperty("vote.like") %>">
                                         <i class="fa-solid fa-thumbs-up"></i>
                                       </button>
                                     </form>
-                                    <form method="post" action="vote" style="display:inline;">
+                                    <form method="post" action="vote?from=legacy" style="display:inline;">
                                       <input type="hidden" name="lyric_id" value="<%= activeId %>">
                                       <input type="hidden" name="action" value="down">
                                       <input type="hidden" name="csrf" value="${csrf}">
-                                      <button type="submit" class="btn-vote down" title="Nelíbí se mi">
+                                      <button type="submit" class="btn-vote down" title="<%= t.getProperty("vote.dislike") %>">
                                         <i class="fa-solid fa-thumbs-down"></i>
                                       </button>
                                     </form>
@@ -177,23 +139,8 @@
                                       <strong><%= up %></strong> / <strong><%= down %></strong>
                                     </span>
                                   </div>
-                                  <style>
-                                    .btn-vote { width:40px; height:40px; border-radius:9999px; border:1px solid var(--panel-border); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; backdrop-filter: blur(2px); transition: transform .12s ease, background-color .2s ease, box-shadow .2s ease, opacity .2s ease; }
-                                    .btn-vote i { pointer-events:none; }
-                                    /* Dark mode base */
-                                    .btn-vote { background: rgba(255,255,255,0.06); color:#fff; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
-                                    .btn-vote:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); }
-                                    .btn-vote:active { transform: translateY(0); opacity: .9; }
-                                    .btn-vote.up { border-color: rgba(0,255,170,0.35); }
-                                    .btn-vote.down { border-color: rgba(255,80,80,0.35); }
-                                    .btn-vote.up:hover { box-shadow: 0 8px 22px rgba(0,255,170,.25); }
-                                    .btn-vote.down:hover { box-shadow: 0 8px 22px rgba(255,80,80,.25); }
-                                    /* Light mode overrides */
-                                    body.light .btn-vote { background: rgba(0,0,0,0.06); color:#111; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
-                                    body.light .btn-vote:hover { background: rgba(0,0,0,0.12); }
-                                  </style>
 
-                                  <div class="views" style="font-size:0.9em; color:#555;">
+                                  <div class="views views-count">
                                     <%
                                       long views = 0;
                                       try (PreparedStatement psViews = conn.prepareStatement(
@@ -207,13 +154,13 @@
                                         try (ResultSet rsv2 = psViews2.executeQuery()) { if (rsv2.next()) views = rsv2.getLong(1); }
                                       }
                                     %>
-                                    Návštěvy: <%= views %>
+                                    <%= t.getProperty("lyric.views") %> <%= views %>
                                   </div>
                                   </div>
 
                                   <div>
                                   <div class="comments">
-                                    <h4>Komentáře</h4>
+                                    <h4><%= t.getProperty("comments.title") %></h4>
                                     <div>
                                       <%
                                         try (PreparedStatement psC = conn.prepareStatement(
@@ -223,12 +170,12 @@
                                           while (rsc.next()) {
                                             int __cid = rsc.getInt("id");
                                     %>
-                                              <div class="comment-item" style="display:flex; gap:10px; align-items:flex-start;">
-                                                <img src="<%= rsc.getString("avatar_url") != null ? rsc.getString("avatar_url") : "/img/avatar-default.png" %>" alt="avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                                              <div class="comment-item">
+                                                <img src="<%= com.github.skeliit.WebUtils.escapeHtml(com.github.skeliit.WebUtils.safeUrl(rsc.getString("avatar_url"), "/img/avatar-default.svg")) %>" alt="avatar" class="comment-avatar">
                                                 <div style="flex:1;">
-                                                  <strong><%= rsc.getString("username") %></strong>
-                                                  <span class="meta" style="font-size:0.9em;">(<%= rsc.getTimestamp("created_at") %>)</span>
-                                                  <div id="c-body-<%= __cid %>"><%= rsc.getString("content") %></div>
+                                                  <strong><%= com.github.skeliit.WebUtils.escapeHtml(rsc.getString("username")) %></strong>
+                                                  <span class="meta comment-meta">(<%= rsc.getTimestamp("created_at") %>)</span>
+                                                  <div id="c-body-<%= __cid %>"><%= com.github.skeliit.WebUtils.escapeHtml(rsc.getString("content")) %></div>
                                                 <%
                                                   Integer uid2 = (Integer) session.getAttribute("userId");
                                                   String role2 = (String) session.getAttribute("role");
@@ -241,9 +188,9 @@
                                                     <input type="hidden" name="comment_id" value="<%= __cid %>">
                                                     <input type="hidden" name="action" value="delete">
                                                     <input type="hidden" name="csrf" value="${csrf}">
-                                                    <button type="submit" style="background:#7b1e1e;color:#fff;border:none;padding:4px 8px;border-radius:6px;">Smazat</button>
+                                                    <button type="submit" style="background:#7b1e1e;color:#fff;border:none;padding:4px 8px;border-radius:6px;"><%= t.getProperty("common.delete") %></button>
                                                   </form>
-                                                  <button type="button" onclick="(function(){ var f=document.getElementById('edit-<%= __cid %>'); f.style.display = f.style.display==='none'?'block':'none'; })()" style="margin-left:6px;">Upravit</button>
+                                                  <button type="button" onclick="(function(){ var f=document.getElementById('edit-<%= __cid %>'); f.style.display = f.style.display==='none'?'block':'none'; })()" style="margin-left:6px;"><%= t.getProperty("common.edit") %></button>
                                                 </div>
                                                 <form id="edit-<%= __cid %>" method="post" action="/comment" style="display:none; margin-top:6px;">
                                                   <input type="hidden" name="lyric_id" value="<%= activeId %>">
@@ -252,13 +199,11 @@
                                                   <%
                                                     String __content = rsc.getString("content");
                                                     if (__content == null) __content = "";
-                                                    __content = __content.replace("&","&amp;").replace("<","&lt;");
+                                                    __content = com.github.skeliit.WebUtils.escapeHtml(__content);
                                                   %>
                                                   <textarea name="content" rows="3" style="width:100%;"><%= __content %></textarea>
                                                     <input type="hidden" name="csrf" value="${csrf}">
-                                                    <button type="submit">Uložit</button>
-                                      <button type="submit">👎</button>
-                                      <button type="submit">👍</button>
+                                                    <button type="submit"><%= t.getProperty("common.save") %></button>
                                                 </form>
                                                 <%
                                                   }
@@ -280,15 +225,15 @@
                                         <input type="hidden" name="lyric_id" value="<%= activeId %>">
                                         <input type="hidden" name="csrf" value="${csrf}">
                                         <div style="position:relative;">
-                                          <textarea id="comment-textarea" name="content" rows="3" style="width:100%; font-family: 'Inter', system-ui, sans-serif; font-size:1.02em; border:1px solid var(--panel-border); border-radius:8px; padding:10px; background:rgba(0,0,0,0.12); color:inherit;" placeholder="Napište komentář... 😎" required></textarea>
-                                          <button type="button" id="emoji-btn" style="position:absolute; right:8px; top:8px; background:transparent; border:1px solid var(--panel-border); border-radius:6px; padding:4px 8px; cursor:pointer; font-size:1.2em;">😊</button>
+                                          <textarea id="comment-textarea" name="content" rows="3" class="comment-textarea" placeholder="<%= t.getProperty("comment.placeholder") %> 😎" required></textarea>
+                                          <button type="button" id="emoji-btn" class="emoji-trigger">😊</button>
                                         </div>
-                                        <button type="submit" style="margin-top:6px; padding:6px 10px; border:1px solid var(--panel-border); border-radius:8px; background:rgba(0,0,0,0.2); color:inherit;">Odeslat</button>
+                                        <button type="submit" style="margin-top:6px; padding:6px 10px; border:1px solid var(--panel-border); border-radius:8px; background:rgba(0,0,0,0.2); color:inherit;"><%= t.getProperty("common.send") %></button>
                                       </form>
                                     <%
                                       } else {
                                     %>
-                                      <p><a href="/login.jsp">Přihlaste se</a> pro přidání komentáře a hlasování.</p>
+                                      <p><a href="/login.jsp"><%= t.getProperty("comment.login.link") %></a><%= t.getProperty("comment.login.toCommentVote") %></p>
                                     <%
                                       }
                                     %>
@@ -297,11 +242,11 @@
                                 </div>
         <%
                             } else {
-                                out.println("<p>Text nenalezen.</p>");
+                                out.println("<p>" + t.getProperty("lyric.notFound") + "</p>");
                             }
                         }
                     } catch (SQLException de) {
-                        out.println("<p>Chyba načtení textu: " + de.getMessage() + "</p>");
+                        out.println("<p>" + t.getProperty("lyrics.loadError") + "</p>");
                     }
                 }
                 try { conn.close(); } catch (Exception ignore) {}

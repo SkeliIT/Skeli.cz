@@ -2,14 +2,23 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <main>
-  <h2>Zapomenuté heslo</h2>
-  <% if ("true".equals(request.getParameter("sent"))) { %>
-    <p style="color: green;">✓ Pokud účet existuje, byl na něj odeslán e-mail s odkazem pro obnovení hesla.</p>
-  <% } %>
-  <form method="post" action="forgot">
-    <label>Uživatelské jméno: <input name="username" required></label>
-    <button type="submit">Poslat odkaz na reset</button>
-  </form>
+  <div class="auth-wrap">
+    <section class="auth-card">
+      <h2><%= t.getProperty("forgot.heading") %></h2>
+      <% if ("true".equals(request.getParameter("sent"))) { %>
+        <div class="form-success"><%= t.getProperty("forgot.sent") %></div>
+      <% } %>
+      <form method="post" action="forgot">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <label><%= t.getProperty("forgot.username") %><br>
+          <input name="username" required autocomplete="username"></label>
+        <button type="submit"><%= t.getProperty("forgot.submit") %></button>
+      </form>
+      <div class="auth-footer">
+        <a href="/login.jsp"><%= t.getProperty("forgot.back") %></a>
+      </div>
+    </section>
+  </div>
 </main>
 
 <%@ include file="includes/footer.jsp" %>
