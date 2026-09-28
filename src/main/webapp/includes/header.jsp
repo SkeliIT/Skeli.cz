@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "2.3.2";
+  String assetVersion = "2.4.6";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -91,7 +91,7 @@
          String currentRole = (String) session.getAttribute("role"); %>
         <header class="site-header" id="siteHeader">
           <div class="header-inner">
-            <a href="<%= ctx %>/index.jsp" class="brand"><span class="logo-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
+            <a href="<%= ctx %>/index.jsp" class="brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
 
             <nav id="mainNav" class="main-nav">
               <a href="<%= ctx %>/index.jsp"><%= t.getProperty("menu.home","Home") %></a>
@@ -100,6 +100,14 @@
               <a href="<%= ctx %>/aktuality.jsp"><%= t.getProperty("menu.news") %></a>
               <a href="<%= ctx %>/texty.jsp"><%= t.getProperty("menu.lyrics","Lyrics") %></a>
               <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
+              <%-- phones: the display controls live here instead of crowding the bar --%>
+              <div class="nav-settings">
+                <button type="button" class="icon-btn" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold"></i></button>
+                <button type="button" class="icon-btn" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                <span class="nav-langs" aria-label="<%= t.getProperty("header.language") %>">
+                  <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="?lang=<%= l %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= l.toUpperCase() %></a><% } %>
+                </span>
+              </div>
             </nav>
 
             <div class="top-controls">
@@ -114,14 +122,15 @@
                 <i class="fa-solid fa-circle-half-stroke"></i>
               </button>
               <div class="lang-switch">
-                <button type="button" class="lang-btn icon-btn" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>">
-                  <%= cur.toUpperCase() %>
+                <button type="button" class="lang-btn icon-btn" data-lang="<%= cur %>" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>">
+                  <span class="lang-code"><%= cur.toUpperCase() %></span>
                 </button>
                 <ul class="menu">
-                  <li><a href="?lang=cs">Čeština</a></li>
-                  <li><a href="?lang=en">English</a></li>
-                  <li><a href="?lang=de">Deutsch</a></li>
-                  <li><a href="?lang=uk">Українська</a></li>
+                  <li><a href="?lang=cs"><img class="flag" src="<%= ctx %>/img/flags/cs.svg" alt="" width="18" height="12">Čeština</a></li>
+                  <li><a href="?lang=en"><img class="flag" src="<%= ctx %>/img/flags/en.svg" alt="" width="18" height="12">English</a></li>
+                  <li><a href="?lang=de"><img class="flag" src="<%= ctx %>/img/flags/de.svg" alt="" width="18" height="12">Deutsch</a></li>
+                  <li><a href="?lang=uk"><img class="flag" src="<%= ctx %>/img/flags/uk.svg" alt="" width="18" height="12">Українська</a></li>
+                  <li><a href="?lang=vi" lang="vi"><img class="flag" src="<%= ctx %>/img/flags/vi.svg" alt="" width="18" height="12">Tiếng Việt</a></li>
                 </ul>
               </div>
               <% if (currentUser == null) { %>
@@ -154,7 +163,7 @@
                   </div>
                 </div>
               <% } %>
-              <button class="menu-toggle icon-btn" id="menuToggle" type="button" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+              <button class="menu-toggle icon-btn" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false"><i class="fa-solid fa-bars"></i><span class="menu-label"><%= t.getProperty("footer.menu") %></span></button>
             </div>
           </div>
         </header>
@@ -230,11 +239,21 @@
             if (menuToggle && mainNav) {
               menuToggle.addEventListener('click', (e) => {
                 e.stopPropagation();
-                mainNav.classList.toggle('open');
-                menuToggle.querySelector('i').classList.toggle('fa-bars');
-                menuToggle.querySelector('i').classList.toggle('fa-xmark');
+                setMenu(!mainNav.classList.contains('open'));
               });
-              document.addEventListener('click', () => mainNav.classList.remove('open'));
+              // a real click elsewhere closes it (not the synthetic one from the settings row below)
+              document.addEventListener('click', (e) => { if (e.isTrusted) setMenu(false); });
+              // settings row inside the phone menu presses the real bar buttons; the menu stays open
+              mainNav.querySelectorAll('[data-proxy]').forEach(b => b.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById(b.dataset.proxy).click();
+              }));
+            }
+            function setMenu(open) {
+              mainNav.classList.toggle('open', open);
+              menuToggle.setAttribute('aria-expanded', open);
+              menuToggle.querySelector('i').classList.toggle('fa-bars', !open);
+              menuToggle.querySelector('i').classList.toggle('fa-xmark', open);
             }
 
             // User menu: opens on hover (CSS) and on click/tap

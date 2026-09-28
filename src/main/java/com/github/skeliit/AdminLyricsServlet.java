@@ -30,7 +30,7 @@ import com.github.skeliit.dao.LyricDao;
  */
 @WebServlet(name = "AdminLyricsServlet", urlPatterns = {"/admin/lyrics"})
 public class AdminLyricsServlet extends HttpServlet {
-    static final Set<String> LANGS = Set.of("cs", "en", "de", "uk");
+    static final Set<String> LANGS = Set.of("cs", "en", "de", "uk", "vi");
     private static final int MAX_WORDS = 20_000;
     private final LyricDao lyrics = new LyricDao();
 

@@ -51,7 +51,7 @@ body.light .site-header::before { background: rgba(250, 249, 246, 0.85); }
   color: var(--accent);
   transition: filter .2s;
 }
-.brand .logo-mark { height: 34px; }
+.site-header .brand .squad-mark { height: 46px; }
 .brand:hover { text-decoration: none; filter: brightness(1.12); }
 
 .main-nav {
@@ -159,6 +159,26 @@ body.light .icon-btn { background: rgba(255, 255, 255, 0.6); }
 .user-menu.open .user-dropdown { display: block; }
 @media (hover: hover) { .user-menu:hover .user-dropdown { display: block; } }
 
+/* Language: the round button is painted in the flag of the current language (a light
+   shade keeps the white code readable); the list shows a small flag before each name */
+.flag { display: block; flex-shrink: 0; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25); }
+.lang-switch .menu a .flag { width: 18px; height: 12px; }
+/* the Vietnamese name needs a typeface with all its letters, like the whole vi site */
+.lang-switch .menu a:lang(vi) { font-family: 'Exo 2', system-ui, sans-serif; }
+.lang-switch .lang-btn[data-lang] {
+  --shade: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
+  background: var(--shade), var(--flag) center / cover no-repeat;
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+.lang-switch .lang-btn[data-lang]:hover { border-color: var(--accent); color: #fff; }
+.lang-btn[data-lang="cs"] { --flag: url('/img/flags/cs.svg'); }
+.lang-btn[data-lang="en"] { --flag: url('/img/flags/en.svg'); }
+.lang-btn[data-lang="de"] { --flag: url('/img/flags/de.svg'); }
+.lang-btn[data-lang="uk"] { --flag: url('/img/flags/uk.svg'); }
+.lang-btn[data-lang="vi"] { --flag: url('/img/flags/vi.svg'); }
+
 .lang-switch .menu a,
 .user-dropdown a {
   display: flex;
@@ -206,6 +226,11 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
 .user-star { color: var(--accent); }
 
 .menu-toggle { display: none; }
+/* Header: longer words (German, Vietnamese) need tighter spacing before the labels go */
+@media (max-width: 1440px) {
+  .header-inner { gap: 16px; }
+  .main-nav a { padding: 8px 10px; }
+}
 
 /* Header: tablet and phone */
 @media (max-width: 1280px) {
@@ -215,10 +240,22 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .user-name { display: none; }
 }
 
-@media (max-width: 900px) {
+/* the menu folds behind the Menu button up to a landscape tablet; German does not fit sooner */
+@media (max-width: 1024px) {
   .header-inner { gap: 12px; padding: 0 14px; }
-  .brand .logo-mark { height: 25px; }
-  .menu-toggle { display: inline-flex; }
+  .site-header .brand .squad-mark { height: 38px; }
+  /* the only way to the pages on a phone: a labelled pill, not one more round icon */
+  .menu-toggle.icon-btn {
+    display: inline-flex;
+    width: auto;
+    gap: 7px;
+    padding: 0 13px;
+    border-radius: 999px;
+    border-color: var(--accent);
+    color: var(--accent);
+    font-size: var(--fs-small);
+  }
+  .menu-toggle[aria-expanded="true"] { background: var(--accent-soft); }
   .donate-link { display: none; }
 
   .main-nav {
@@ -243,6 +280,35 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav a.active::after { display: none; }
   .main-nav .nav-donate { display: block; }
   .main-nav .nav-donate i { color: var(--red); }
+}
+
+.nav-settings { display: none; }
+
+/* Phone: the bar keeps logo, account and Menu; bold/theme/language move into the menu */
+@media (max-width: 600px) {
+  .top-controls > #fontToggle,
+  .top-controls > #themeToggle,
+  .top-controls > .lang-switch { display: none; }
+
+  .main-nav .nav-settings {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    padding: 12px 6px 4px;
+    border-top: 1px solid var(--panel-border);
+  }
+  .nav-langs { display: flex; gap: 4px; margin-left: auto; }
+  .main-nav .nav-langs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 8px;
+    border-radius: 999px;
+    font-size: var(--fs-small);
+    opacity: 0.7;
+  }
+  .main-nav .nav-langs a.active { opacity: 1; color: var(--accent); background: var(--accent-soft); }
 }
 
 @media (max-width: 480px) {

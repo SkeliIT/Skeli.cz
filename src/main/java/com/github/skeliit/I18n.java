@@ -19,7 +19,7 @@ public final class I18n {
     private static final ConcurrentHashMap<String, Properties> CACHE = new ConcurrentHashMap<>();
     public static final String DEFAULT_LANG = "cs";
     /** Languages selectable in the UI. Anything else from a request is rejected. */
-    public static final Set<String> SUPPORTED_LANGS = Set.of("cs", "en", "de", "uk");
+    public static final Set<String> SUPPORTED_LANGS = Set.of("cs", "en", "de", "uk", "vi");
 
     private I18n() {
         // utility class

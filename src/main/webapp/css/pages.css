@@ -550,29 +550,12 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 
 /* ---------- About ---------- */
 .about-header {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto 1fr;
-  grid-template-areas: "avatar title" "avatar text";
-  align-items: start;
-  column-gap: 40px;
-  max-width: 980px;
+  max-width: 780px;
   margin: 12px auto 48px;
 }
-.about-header h2 { grid-area: title; align-self: end; margin: 0 0 12px; }
-.about-avatar-container { grid-area: avatar; }
-.about-intro { grid-area: text; align-self: start; }
+.about-header h2 { text-align: center; margin: 0 0 20px; }
 .about-intro p { font-size: var(--fs-h4); line-height: 1.7; color: var(--text); opacity: 0.9; margin: 0 0 8px; }
 .about-intro .about-lead { font-size: var(--fs-h3); color: var(--accent); opacity: 1; }
-.about-avatar {
-  width: 220px;
-  height: 220px;
-  display: block;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--accent);
-  box-shadow: 0 0 0 8px var(--accent-soft), var(--shadow);
-}
 .about-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .about-card { padding: 26px; transition: transform .2s ease, border-color .2s ease; }
 .about-card:hover { transform: translateY(-4px); border-color: rgba(255, 210, 63, 0.4); }
@@ -597,9 +580,7 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 .social-icons-large a:hover { transform: translateY(-3px); border-color: currentColor; text-decoration: none; }
 
 @media (max-width: 760px) {
-  .about-header { grid-template-columns: 1fr; grid-template-areas: "avatar" "title" "text"; text-align: center; justify-items: center; }
   .about-header h2 { margin-top: 24px; }
-  .about-avatar { width: 170px; height: 170px; }
   .about-grid { grid-template-columns: 1fr; }
 }
 
@@ -989,9 +970,7 @@ body.light .ep-comments .act .comment-reply-toggle { background: transparent; bo
 .ep-comments .comment-reply-form button[type=submit],
 body.light .ep-comments .comment-reply-form button[type=submit] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 
-/* ---------- About: the story next to the photo ---------- */
-/* the photo stays in view while the long text scrolls past */
-.about-avatar-container { position: sticky; top: calc(var(--header-h) + 24px); }
+/* ---------- About: the story under the portrait ---------- */
 .about-header h2 { margin-top: 28px; }
 .about-text p {
   font-family: var(--font-text);
@@ -1011,14 +990,13 @@ body.light .ep-comments .comment-reply-form button[type=submit] { background: va
 }
 .about-text p.about-highlight { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-h4); letter-spacing: 0.01em; color: var(--accent); opacity: 1; margin: 20px 0; }
 .about-text p.about-outro { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-h4); letter-spacing: 0.01em; opacity: 1; margin-top: 24px; }
-.about-signature { color: var(--accent); }
-.about-signature .logo-mark { height: 42px; }
+/* the story ends with the squad sign: the lettering and the seven faces, in gold */
+.about-signature { color: var(--accent); text-align: center; margin-top: 32px; }
+.about-signature .squad-mark { width: min(340px, 85%); }
 @media (max-width: 760px) {
-  .about-avatar-container { position: static; }
   .about-intro { text-align: left; }
   .about-intro .about-lead { text-align: center; }
   .about-text p { font-size: 1.02rem; }
-  .about-signature { text-align: center; }
 }
 
 /* The long about text sits on a see-through glass panel: the photo behind still
@@ -1036,6 +1014,32 @@ body.light .about-page .about-intro { background: rgba(255, 255, 255, 0.68); }
 @media (max-width: 760px) {
   .about-page .about-intro { padding: 20px; }
 }
+
+/* The portrait fills the top of the panel edge to edge (negative margins undo the
+   padding) and stays solid down to the chin; only the last strip fades out into the
+   opening line, and only that nearly invisible edge sits behind the text. */
+.about-page .about-intro { overflow: hidden; }
+.about-portrait {
+  /* eased fade (no visible line where it starts): solid to just under the chin,
+     then dissolving; the faint last strip runs behind the opening line */
+  --fade: linear-gradient(to bottom,
+    #000 0%, #000 76%,
+    rgba(0, 0, 0, 0.97) 79%, rgba(0, 0, 0, 0.9) 82%, rgba(0, 0, 0, 0.78) 85%,
+    rgba(0, 0, 0, 0.6) 88%, rgba(0, 0, 0, 0.4) 91%, rgba(0, 0, 0, 0.22) 94%,
+    rgba(0, 0, 0, 0.09) 97%, transparent 100%);
+  margin: -28px -32px -56px;
+  aspect-ratio: 3 / 2;
+  -webkit-mask-image: var(--fade);
+          mask-image: var(--fade);
+}
+.about-portrait img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.about-portrait + .about-lead { position: relative; }
+@media (max-width: 760px) {
+  .about-portrait { margin: -20px -20px -40px; }
+}
+/* Light theme: a black-background photo fading into a white panel always leaves a
+   grey band, so here it ends with a clean edge like a magazine cover photo. */
+body.light .about-portrait { -webkit-mask-image: none; mask-image: none; margin-bottom: 24px; }
 
 /* Lyric page: clip and lyrics share one frame (.lyric-main). The panel lives on a
    masked ::before so the frame fades out at the bottom of the lyrics; the video

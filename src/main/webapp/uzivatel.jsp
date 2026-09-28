@@ -101,6 +101,7 @@
                 <option value="en" <%= "en".equals(prefLang)?"selected":"" %>>English</option>
                 <option value="de" <%= "de".equals(prefLang)?"selected":"" %>>Deutsch</option>
                 <option value="uk" <%= "uk".equals(prefLang)?"selected":"" %>>Українська</option>
+                <option value="vi" <%= "vi".equals(prefLang)?"selected":"" %>>Tiếng Việt</option>
               </select>
             </label>
             <label class="checkbox-label">

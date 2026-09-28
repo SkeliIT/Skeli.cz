@@ -4,10 +4,14 @@
 <main class="about-page">
   <section class="about-header">
     <h2><%= t.getProperty("about.title","About me") %></h2>
-    <div class="about-avatar-container">
-      <img src="/img/IMG_0132.webp" alt="Skeli" class="about-avatar" onerror="this.style.display='none'">
-    </div>
     <div class="about-intro">
+      <%-- the portrait heads the story and fades out into the text below it --%>
+      <figure class="about-portrait">
+        <img src="/img/skeli-portrait-1400.webp"
+             srcset="/img/skeli-portrait-760.webp 760w, /img/skeli-portrait-1400.webp 1400w"
+             sizes="(max-width: 820px) 100vw, 780px"
+             width="1400" height="934" alt="Skeli" fetchpriority="high" decoding="async">
+      </figure>
       <p class="about-lead"><%= t.getProperty("about.intro1") %></p>
       <div class="about-text">
         <p><%= t.getProperty("about.intro2") %></p>
@@ -22,7 +26,7 @@
         <p class="about-highlight"><%= t.getProperty("about.squad.p4") %><br><%= t.getProperty("about.squad.p5") %></p>
         <p><%= t.getProperty("about.squad.p6") %></p>
         <p class="about-outro"><%= t.getProperty("about.outro") %></p>
-        <div class="about-signature"><span class="logo-mark" aria-hidden="true"></span><span class="sr-only"><%= t.getProperty("about.signature") %></span></div>
+        <div class="about-signature"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only"><%= t.getProperty("about.signature") %></span></div>
       </div>
     </div>
   </section>

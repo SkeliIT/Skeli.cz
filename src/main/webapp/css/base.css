@@ -48,6 +48,9 @@
   --container: 1180px;
   --fw: 400;
 }
+/* Bruno Ace SC has only part of the Vietnamese letters (no ạ, ế, ữ…), so a word would
+   mix two typefaces; Vietnamese pages use Exo 2 throughout instead */
+html:lang(vi) { --font-body: 'Exo 2', system-ui, sans-serif; }
 
 body.light {
   --bg: #f4f2ee;
@@ -124,6 +127,15 @@ img { max-width: 100%; }
   background-color: currentColor;
   -webkit-mask: url('/img/logo-skelosquad.svg') center / contain no-repeat;
   mask: url('/img/logo-skelosquad.svg') center / contain no-repeat;
+}
+
+/* SKELO SQUAD sign: the lettering with the seven faces (header and about page) */
+.squad-mark {
+  display: inline-block;
+  aspect-ratio: 720 / 182;
+  background-color: currentColor;
+  -webkit-mask: url('/img/squad-logo.webp') center / contain no-repeat;
+          mask: url('/img/squad-logo.webp') center / contain no-repeat;
 }
 
 /* Visually hidden, still read by screen readers and search engines */

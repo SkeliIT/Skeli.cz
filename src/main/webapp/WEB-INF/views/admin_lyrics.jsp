@@ -60,7 +60,7 @@
       <% } else { %>
         <h3><%= com.github.skeliit.WebUtils.escapeHtml(song.name) %> <% if (song.year != null) { %><span class="song-year"><%= song.year %></span><% } %></h3>
         <nav class="lyrics-langs">
-          <% for (String l : new String[]{"cs", "en", "de", "uk"}) { %>
+          <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %>
             <a href="/admin/lyrics?song=<%= song.id %>&lang=<%= l %>" class="<%= l.equals(editLang) ? "active" : "" %>"><%= l.toUpperCase() %></a>
           <% } %>
           <% if (lyricId != null) { %><a class="lyrics-view" href="/lyrics/<%= lyricId %>" target="_blank">Zobrazit na webu ↗</a><% } %>
