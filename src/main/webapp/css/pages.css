@@ -1037,9 +1037,9 @@ body.light .about-page .about-intro { background: rgba(255, 255, 255, 0.68); }
 @media (max-width: 760px) {
   .about-portrait { margin: -20px -20px -40px; }
 }
-/* Light theme: a black-background photo fading into a white panel always leaves a
-   grey band, so here it ends with a clean edge like a magazine cover photo. */
-body.light .about-portrait { -webkit-mask-image: none; mask-image: none; margin-bottom: 24px; }
+/* Light theme: the script in about.jsp swaps in the same photo with the background removed
+   (img/skeli-portrait-cutout-*.webp), so the fade above dissolves it into the light panel
+   exactly like the dark one - no grey band from a black background. */
 
 /* Lyric page: clip and lyrics share one frame (.lyric-main). The panel lives on a
    masked ::before so the frame fades out at the bottom of the lyrics; the video

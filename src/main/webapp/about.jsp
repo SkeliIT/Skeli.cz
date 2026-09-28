@@ -6,12 +6,30 @@
     <h2><%= t.getProperty("about.title","About me") %></h2>
     <div class="about-intro">
       <%-- the portrait heads the story and fades out into the text below it --%>
+      <%-- dark theme: the photo on its black background; light theme: the same photo with the
+           background removed, so it dissolves into the light panel just like the dark one does.
+           The script picks the version before anything is downloaded, so only one is fetched. --%>
       <figure class="about-portrait">
-        <img src="/img/skeli-portrait-1400.webp"
-             srcset="/img/skeli-portrait-760.webp 760w, /img/skeli-portrait-1400.webp 1400w"
-             sizes="(max-width: 820px) 100vw, 780px"
+        <img id="aboutPortrait" sizes="(max-width: 820px) 100vw, 780px"
+             data-dark="/img/skeli-portrait-760.webp 760w, /img/skeli-portrait-1400.webp 1400w"
+             data-light="/img/skeli-portrait-cutout-760.webp 760w, /img/skeli-portrait-cutout-1400.webp 1400w"
              width="1400" height="934" alt="Skeli" fetchpriority="high" decoding="async">
+        <noscript><img src="/img/skeli-portrait-1400.webp" width="1400" height="934" alt="Skeli"></noscript>
       </figure>
+      <script>
+        (function () {
+          const img = document.getElementById('aboutPortrait');
+          if (!img) return;
+          const apply = () => {
+            const set = document.body.classList.contains('light') ? img.dataset.light : img.dataset.dark;
+            if (img.getAttribute('srcset') === set) return;
+            img.srcset = set;
+            img.src = set.split(', ').pop().split(' ')[0];
+          };
+          apply();
+          new MutationObserver(apply).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        })();
+      </script>
       <p class="about-lead"><%= t.getProperty("about.intro1") %></p>
       <div class="about-text">
         <p><%= t.getProperty("about.intro2") %></p>
