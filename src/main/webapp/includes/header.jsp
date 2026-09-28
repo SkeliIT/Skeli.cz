@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "2.5.0";
+  String assetVersion = "2.6.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -109,6 +109,11 @@
       <% request.setAttribute("csrf", com.github.skeliit.CsrfFilter.token(session)); %>
       <% String currentUser = (String) session.getAttribute("username");
          String currentRole = (String) session.getAttribute("role"); %>
+        <%-- desktop: the big sign sits centred above the menu and scrolls away; the bar
+             below it sticks and shows the small sign on its left once docked --%>
+        <div class="masthead" id="masthead">
+          <a href="<%= ctx %>/index.jsp" class="masthead-brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
+        </div>
         <header class="site-header" id="siteHeader">
           <div class="header-inner">
             <a href="<%= ctx %>/index.jsp" class="brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
@@ -242,9 +247,10 @@
               localStorage.setItem(k, v);
             });
 
-            // Header gets a solid glass background once the page is scrolled
+            // Header gets a solid glass background (and the small sign) once it is docked at the top
             const siteHeader = document.getElementById('siteHeader');
-            function onHeaderScroll() { siteHeader.classList.toggle('scrolled', window.scrollY > 8); }
+            const masthead = document.getElementById('masthead');
+            function onHeaderScroll() { siteHeader.classList.toggle('scrolled', window.scrollY > Math.max(8, masthead.offsetHeight - 1)); }
             window.addEventListener('scroll', onHeaderScroll, { passive: true });
             onHeaderScroll();
 

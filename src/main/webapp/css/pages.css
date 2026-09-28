@@ -32,7 +32,7 @@
 
 /* ---------- Home ---------- */
 .hero {
-  min-height: calc(78vh - var(--header-h));
+  min-height: calc(78vh - var(--header-h) - var(--masthead-h));
   display: flex;
   flex-direction: column;
   align-items: center;

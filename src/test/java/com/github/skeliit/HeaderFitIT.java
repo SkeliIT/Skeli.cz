@@ -41,4 +41,24 @@ class HeaderFitIT extends UiTestSupport {
         driver.get(BASE_URL + "/index.jsp?lang=cs");
         assertTrue(problems.isEmpty(), "header does not fit: " + problems);
     }
+
+    /** On a desktop the menu sits centred under the big SKELO SQUAD sign. */
+    @Test
+    void menuIsCentredUnderTheSign() {
+        List<String> problems = new ArrayList<>();
+        for (String lang : I18n.SUPPORTED_LANGS) {
+            driver.get(BASE_URL + "/index.jsp?lang=" + lang);
+            for (int w : new int[]{1920, 1600, 1440, 1366, 1280, 1100, 1040}) {
+                driver.manage().window().setSize(new Dimension(w, 800));
+                Object off = ((JavascriptExecutor) driver).executeScript(
+                        "const mid = e => { const r = e.getBoundingClientRect(); return r.left + r.width / 2; };"
+                                + "return Math.round(Math.abs(mid(document.querySelector('.masthead-brand .squad-mark'))"
+                                + "  - mid(document.getElementById('mainNav'))));");
+                long px = ((Number) off).longValue();
+                if (px > 4) problems.add(lang + " @" + w + "px: " + px + "px off centre");
+            }
+        }
+        driver.get(BASE_URL + "/index.jsp?lang=cs");
+        assertTrue(problems.isEmpty(), "menu is not under the sign: " + problems);
+    }
 }

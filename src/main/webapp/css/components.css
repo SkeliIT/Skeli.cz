@@ -4,12 +4,41 @@
    ============================================ */
 
 /* ---------- Header ---------- */
+/* Masthead: the SKELO SQUAD sign centred above the menu. It scrolls away with the
+   page; a thin gold hairline underneath ties it to the menu below. */
+.masthead {
+  height: var(--masthead-h);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.2));
+}
+.masthead::after {
+  content: "";
+  width: min(520px, 60vw);
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--accent) 50%, transparent);
+  opacity: 0.45;
+}
+.masthead-brand {
+  display: inline-flex;
+  color: var(--accent);
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+  transition: filter .2s, transform .3s ease;
+}
+.masthead-brand .squad-mark { height: 62px; }
+.masthead-brand:hover { text-decoration: none; filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45)) brightness(1.12); transform: translateY(-1px); }
+body.light .masthead { background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.24)); }
+body.light .masthead-brand { filter: drop-shadow(0 1px 6px rgba(255, 255, 255, 0.7)); }
+
 .site-header {
   position: sticky;
   top: 0;
   z-index: 1000;
   height: var(--header-h);
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
 }
 /* Glass bar once the page is scrolled. It lives on its own layer that reaches a
    bit below the header and fades out at the bottom, so there is no hard edge. */
@@ -31,15 +60,17 @@
   mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 48px), transparent 100%);
 }
 .site-header.scrolled::before { opacity: 1; }
-body.light .site-header { background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0)); }
+body.light .site-header { background: linear-gradient(to bottom, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0)); }
 body.light .site-header::before { background: rgba(250, 249, 246, 0.85); }
 
+/* small sign | menu (centred under the big sign) | controls */
 .header-inner {
-  max-width: 1320px;
+  max-width: 1520px;
   height: 100%;
   margin: 0 auto;
   padding: 0 20px;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr);
   align-items: center;
   gap: 24px;
 }
@@ -47,15 +78,17 @@ body.light .site-header::before { background: rgba(250, 249, 246, 0.85); }
 .brand {
   display: inline-flex;
   align-items: center;
+  justify-self: start;
   flex-shrink: 0;
   color: var(--accent);
-  transition: filter .2s;
+  transition: filter .2s, opacity .3s ease, visibility .3s, transform .3s ease;
 }
-.site-header .brand .squad-mark { height: 46px; }
+.site-header .brand .squad-mark { height: 40px; }
 .brand:hover { text-decoration: none; filter: brightness(1.12); }
+/* the small sign only appears once the big one has scrolled away */
+.site-header:not(.scrolled) .brand { opacity: 0; visibility: hidden; transform: translateY(-6px); }
 
 .main-nav {
-  flex: 1;
   display: flex;
   justify-content: center;
   gap: 4px;
@@ -89,8 +122,8 @@ body.light .main-nav a:hover { background: rgba(0, 0, 0, 0.05); }
 .top-controls {
   display: flex;
   align-items: center;
+  justify-self: end;
   gap: 6px;
-  margin-left: auto;
 }
 
 /* Round icon buttons in the header */
@@ -239,17 +272,27 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav a { padding: 8px 10px; }
 }
 
-/* Header: tablet and phone */
+/* Header: donate and login are round icons (their label is in title) so the menu
+   can stay centred under the big sign; Register keeps its label a while longer */
+.donate-link span, .auth-link:not(.auth-primary) span { display: none; }
+.donate-link, .auth-link:not(.auth-primary) { width: 36px; padding: 0; justify-content: center; }
+.donate-link { border: 1px solid var(--panel-border); }
 @media (max-width: 1280px) {
-  .donate-link span, .auth-link span { display: none; }
-  .donate-link, .auth-link { width: 36px; padding: 0; justify-content: center; }
-  .donate-link { border: 1px solid var(--panel-border); }
+  .auth-link span { display: none; }
+  .auth-link { width: 36px; padding: 0; justify-content: center; }
   .user-name { display: none; }
 }
 
 /* the menu folds behind the Menu button up to a landscape tablet; German does not fit sooner */
 @media (max-width: 1024px) {
-  .header-inner { gap: 12px; padding: 0 14px; }
+  /* no room for a second row: the sign stays small in the bar, as before */
+  :root { --masthead-h: 0px; }
+  .masthead { display: none; }
+  .site-header { background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0)); }
+  body.light .site-header { background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0)); }
+  .site-header:not(.scrolled) .brand { opacity: 1; visibility: visible; transform: none; }
+  .header-inner { display: flex; gap: 12px; padding: 0 14px; }
+  .top-controls { margin-left: auto; }
   .site-header .brand .squad-mark { height: 38px; }
   /* the only way to the pages on a phone: a labelled pill, not one more round icon */
   .menu-toggle.icon-btn {

@@ -45,6 +45,7 @@
   --radius-sm: 10px;
   --shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.65);
   --header-h: 68px;
+  --masthead-h: 94px;  /* big centred sign above the menu (desktop only) */
   --container: 1180px;
   --fw: 400;
 }
