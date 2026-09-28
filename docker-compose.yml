@@ -16,6 +16,8 @@ services:
       - DB_USER=${DB_USER:-Skeli}
       - DB_PASS=${DB_PASS:-skeli}
       - APP_BASE_URL=http://localhost:8080
+      # dev runs over plain http; production keeps the Secure session cookie and HSTS
+      - HTTPS_ONLY=false
     ports:
       - "8080:8080"
     depends_on:
