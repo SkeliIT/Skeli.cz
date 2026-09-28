@@ -180,7 +180,8 @@ body.light .icon-btn { background: rgba(255, 255, 255, 0.6); }
 .lang-btn[data-lang="vi"] { --flag: url('/img/flags/vi.svg'); }
 
 .lang-switch .menu a,
-.user-dropdown a {
+.user-dropdown a,
+.user-dropdown .logout-form button {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -190,10 +191,16 @@ body.light .icon-btn { background: rgba(255, 255, 255, 0.6); }
   font-size: var(--fs-card);
 }
 .lang-switch .menu a:hover,
-.user-dropdown a:hover { background: rgba(255, 255, 255, 0.07); text-decoration: none; }
+.user-dropdown a:hover,
+.user-dropdown .logout-form button:hover { background: rgba(255, 255, 255, 0.07); text-decoration: none; }
 body.light .lang-switch .menu a:hover,
-body.light .user-dropdown a:hover { background: rgba(0, 0, 0, 0.05); }
-.user-dropdown a i { width: 16px; text-align: center; opacity: 0.7; }
+body.light .user-dropdown a:hover,
+body.light .user-dropdown .logout-form button:hover { background: rgba(0, 0, 0, 0.05); }
+.user-dropdown a i,
+.user-dropdown .logout-form button i { width: 16px; text-align: center; opacity: 0.7; }
+/* logout is a form button (POST) dressed as the other menu items */
+.logout-form { margin: 0; }
+.user-dropdown .logout-form button { width: 100%; justify-content: flex-start; border: 0; background: transparent; font-family: inherit; text-transform: none; letter-spacing: normal; cursor: pointer; }
 .user-dropdown a.admin { color: var(--accent); }
 
 .user-btn {

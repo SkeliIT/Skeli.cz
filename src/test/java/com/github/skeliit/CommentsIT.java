@@ -339,7 +339,7 @@ public class CommentsIT extends UiTestSupport {
         update("UPDATE users SET avatar_url='/img/avatar-default.svg' WHERE id=?", id);
 
         login(name + "@example.com", PASSWORD);
-        assertFalse(driver.findElements(By.cssSelector("a[href$='/logout']")).isEmpty(), "should be logged in");
+        assertFalse(driver.findElements(By.cssSelector("form[action$='/logout']")).isEmpty(), "should be logged in");
         WebElement avatar = driver.findElement(By.cssSelector("img.user-avatar"));
         assertTrue(avatar.getAttribute("src").endsWith("/img/avatar-default.svg"));
     }

@@ -67,7 +67,8 @@ public class AuthFlowIT {
         assertTrue(bodyAfterLogin.contains(username), "username should be visible in nav after login");
 
         // --- Logout ---
-        driver.get(BASE_URL + "/logout");
+        // logout is a POST form in the header
+        ((JavascriptExecutor) driver).executeScript("document.querySelector('form.logout-form').submit()");
         waitReady();
 
         String bodyAfterLogout = driver.findElement(By.tagName("body")).getText();

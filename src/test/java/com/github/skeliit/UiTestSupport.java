@@ -86,8 +86,9 @@ abstract class UiTestSupport {
         submit(By.cssSelector("form button[type=submit]"));
     }
 
+    /** Logout is a POST form in the header (with the CSRF token); a plain GET no longer logs out. */
     void logout() {
-        driver.get(BASE_URL + "/logout");
+        ((JavascriptExecutor) driver).executeScript("document.querySelector('form.logout-form').submit()");
         waitReady();
     }
 

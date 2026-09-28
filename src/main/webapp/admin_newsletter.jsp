@@ -11,6 +11,7 @@
                 <tr>
                     <th>E-mail</th>
                     <th>Přihlášeno</th>
+                    <th>Potvrzeno</th>
                     <th>Odhlášeno</th>
                     <th>Akce</th>
                 </tr>
@@ -21,6 +22,8 @@
                     <tr>
                         <td><%= com.github.skeliit.WebUtils.escapeHtml(row[0]) %></td>
                         <td><%= com.github.skeliit.WebUtils.escapeHtml(row[1]) %></td>
+                        <%-- double opt-in: only confirmed addresses are real subscribers --%>
+                        <td><%= row[3] != null && !"null".equals(row[3]) ? com.github.skeliit.WebUtils.escapeHtml(row[3]) : "<span class=\"text-dim\">čeká na potvrzení</span>" %></td>
                         <td><%= row[2] != null && !"null".equals(row[2]) ? com.github.skeliit.WebUtils.escapeHtml(row[2]) : "" %></td>
                         <td>
                             <form method="post" action="/admin/newsletter" style="display:inline">

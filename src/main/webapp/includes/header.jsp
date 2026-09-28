@@ -179,7 +179,11 @@
                     <a href="<%= ctx %>/profile.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.profile") %></a>
                     <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
                     <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
-                    <a href="<%= ctx %>/logout"><i class="fa-solid fa-right-from-bracket"></i> <%= t.getProperty("btn.logout") %></a>
+                    <%-- a POST with the CSRF token: another site cannot log people out with a link --%>
+                    <form method="post" action="<%= ctx %>/logout" class="logout-form">
+                      <input type="hidden" name="csrf" value="<%= com.github.skeliit.CsrfFilter.token(session) %>">
+                      <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> <%= t.getProperty("btn.logout") %></button>
+                    </form>
                   </div>
                 </div>
               <% } %>

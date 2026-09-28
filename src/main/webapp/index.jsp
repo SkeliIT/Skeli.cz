@@ -112,6 +112,7 @@
         <form method="post" action="/newsletter/subscribe" class="newsletter-form">
           <input type="hidden" name="csrf" value="<%= request.getAttribute("csrf") %>">
           <input type="email" name="email" placeholder="<%= t.getProperty("home.newsletter.placeholder","Tvůj e-mail") %>" required>
+          <div class="hp-field" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
           <button type="submit"><%= t.getProperty("home.newsletter.submit","Odebírat") %></button>
         </form>
       </div>

@@ -30,7 +30,7 @@ public class UserAccessIT extends UiTestSupport {
         assertTrue(driver.getCurrentUrl().contains("/login"), "should stay on login, got: " + driver.getCurrentUrl());
         assertFalse(driver.findElements(By.cssSelector(".form-alert")).isEmpty(), "login error should be shown");
         driver.get(BASE_URL + "/index.jsp");
-        assertTrue(driver.findElements(By.cssSelector("a[href$='/logout']")).isEmpty(),
+        assertTrue(driver.findElements(By.cssSelector("form[action$='/logout']")).isEmpty(),
                 "logout link must not be shown after a failed login");
     }
 
@@ -43,7 +43,7 @@ public class UserAccessIT extends UiTestSupport {
         driver.get(BASE_URL + "/index.jsp");
         assertTrue(bodyText().contains(username), "username should be shown in the nav");
         assertFalse(driver.findElements(By.cssSelector("a[href$='/uzivatel.jsp']")).isEmpty(), "settings link expected");
-        assertFalse(driver.findElements(By.cssSelector("a[href$='/logout']")).isEmpty(), "logout link expected");
+        assertFalse(driver.findElements(By.cssSelector("form[action$='/logout']")).isEmpty(), "logout link expected");
         assertTrue(driver.findElements(By.cssSelector("a[href$='/admin.jsp']")).isEmpty(),
                 "regular user must not see the Admin link");
     }
@@ -103,7 +103,7 @@ public class UserAccessIT extends UiTestSupport {
     }
 
     @Test
-    @DisplayName("Newsletter sign-up form stores the e-mail and shows a success message")
+    @DisplayName("Newsletter sign-up stores the e-mail as waiting for confirmation (double opt-in)")
     void newsletterSignUp() throws Exception {
         String email = "nl" + uniq() + "@example.com";
         try {
@@ -113,7 +113,8 @@ public class UserAccessIT extends UiTestSupport {
 
             assertTrue(driver.getCurrentUrl().contains("success=1"), "got: " + driver.getCurrentUrl());
             assertFalse(driver.findElements(By.cssSelector(".form-success")).isEmpty(), "success message expected");
-            assertTrue(exists("SELECT 1 FROM newsletter_emails WHERE email=? AND unsubscribed_at IS NULL", email));
+            assertTrue(exists("SELECT 1 FROM newsletter_emails WHERE email=? AND confirmed_at IS NULL AND confirm_token_hash IS NOT NULL", email),
+                    "the address waits for the link in the confirmation e-mail");
         } finally {
             update("DELETE FROM newsletter_emails WHERE email=?", email);
         }
