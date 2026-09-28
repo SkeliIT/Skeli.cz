@@ -33,7 +33,7 @@ class AboutPageIT extends UiTestSupport {
         driver.findElement(By.id("themeToggle")).click();
         Thread.sleep(800);
         String lightSrc = (String) ((JavascriptExecutor) driver).executeScript("return arguments[0].currentSrc", img);
-        assertTrue(lightSrc.contains("-cutout-"), "the light theme shows the photo without its black background, got " + lightSrc);
+        assertTrue(lightSrc.contains("skeli-portrait-light-"), "the light theme shows the photo without its black background, got " + lightSrc);
         assertTrue(loaded(img), "cut-out portrait should load");
         shot("about-desktop-light");
         driver.findElement(By.id("themeToggle")).click();
