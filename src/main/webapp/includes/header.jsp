@@ -115,17 +115,17 @@
 
             <nav id="mainNav" class="main-nav">
               <a href="<%= ctx %>/index.jsp"><%= t.getProperty("menu.home","Home") %></a>
-              <a href="<%= ctx %>/bio.jsp"><%= t.getProperty("menu.about","About") %></a>
-              <a href="<%= ctx %>/music.jsp"><%= t.getProperty("menu.music","Music") %></a>
               <a href="<%= ctx %>/aktuality.jsp"><%= t.getProperty("menu.news") %></a>
+              <a href="<%= ctx %>/music.jsp"><%= t.getProperty("menu.music","Music") %></a>
               <a href="<%= ctx %>/texty.jsp"><%= t.getProperty("menu.lyrics","Lyrics") %></a>
+              <a href="<%= ctx %>/bio.jsp"><%= t.getProperty("menu.about","About") %></a>
               <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
               <%-- phones: the display controls live here instead of crowding the bar --%>
               <div class="nav-settings">
                 <button type="button" class="icon-btn" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold"></i></button>
                 <button type="button" class="icon-btn" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke"></i></button>
                 <span class="nav-langs" aria-label="<%= t.getProperty("header.language") %>">
-                  <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="?lang=<%= l %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= l.toUpperCase() %></a><% } %>
+                  <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="?lang=<%= l %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= com.github.skeliit.I18n.label(l) %></a><% } %>
                 </span>
               </div>
             </nav>
@@ -143,7 +143,7 @@
               </button>
               <div class="lang-switch">
                 <button type="button" class="lang-btn icon-btn" data-lang="<%= cur %>" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>">
-                  <span class="lang-code"><%= cur.toUpperCase() %></span>
+                  <span class="lang-code"><%= com.github.skeliit.I18n.label(cur) %></span>
                 </button>
                 <ul class="menu">
                   <li><a href="?lang=cs"><img class="flag" src="<%= ctx %>/img/flags/cs.svg" alt="" width="18" height="12">Čeština</a></li>

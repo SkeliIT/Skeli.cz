@@ -23,6 +23,17 @@ public class I18nTest {
     }
 
     @Test
+    void switcherShowsFamiliarMarks() {
+        // "UK" would read as the United Kingdom, "CS" is unfamiliar; the codes themselves stay ISO
+        assertEquals("CZ", I18n.label("cs"));
+        assertEquals("EN", I18n.label("en"));
+        assertEquals("DE", I18n.label("de"));
+        assertEquals("UA", I18n.label("uk"));
+        assertEquals("VN", I18n.label("vi"));
+        assertEquals("CZ", I18n.label("xx"));
+    }
+
+    @Test
     void rejectsInjectedLang() {
         assertEquals("cs", I18n.safeLang("cs';alert(1);//"));
         assertEquals("cs", I18n.safeLang("../../web"));

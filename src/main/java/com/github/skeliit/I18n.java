@@ -29,6 +29,20 @@ public final class I18n {
         return lang != null && SUPPORTED_LANGS.contains(lang);
     }
 
+    /**
+     * What the language switcher shows. The codes stay ISO 639-1 everywhere else (?lang=, html lang,
+     * hreflang), but people read "CS" poorly and "UK" as the United Kingdom, so the buttons show
+     * the familiar country-style marks: CZ, EN, DE, UA, VN.
+     */
+    public static String label(String lang) {
+        return switch (safeLang(lang)) {
+            case "cs" -> "CZ";
+            case "uk" -> "UA";
+            case "vi" -> "VN";
+            default -> safeLang(lang).toUpperCase();
+        };
+    }
+
     /** Returns the lang if supported, otherwise the default language. */
     public static String safeLang(Object lang) {
         return lang instanceof String s && isSupported(s) ? s : DEFAULT_LANG;

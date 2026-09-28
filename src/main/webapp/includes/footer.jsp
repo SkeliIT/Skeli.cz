@@ -9,10 +9,10 @@
     <div>
       <h4 class="footer-title"><%= t.getProperty("footer.menu") %></h4>
       <nav class="footer-nav">
-        <a href="<%= request.getContextPath() %>/bio.jsp"><%= t.getProperty("menu.about") %></a>
-        <a href="<%= request.getContextPath() %>/music.jsp"><%= t.getProperty("menu.music") %></a>
         <a href="<%= request.getContextPath() %>/aktuality.jsp"><%= t.getProperty("menu.news") %></a>
+        <a href="<%= request.getContextPath() %>/music.jsp"><%= t.getProperty("menu.music") %></a>
         <a href="<%= request.getContextPath() %>/texty.jsp"><%= t.getProperty("menu.lyrics") %></a>
+        <a href="<%= request.getContextPath() %>/bio.jsp"><%= t.getProperty("menu.about") %></a>
         <a href="<%= request.getContextPath() %>/donate.jsp"><%= t.getProperty("btn.donate") %></a>
       </nav>
     </div>

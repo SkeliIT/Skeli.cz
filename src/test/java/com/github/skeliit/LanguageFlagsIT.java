@@ -22,7 +22,7 @@ class LanguageFlagsIT extends UiTestSupport {
             for (String lang : new String[]{"en", "de", "uk", "vi", "cs"}) {
                 driver.get(BASE_URL + "/index.jsp?lang=" + lang);
                 WebElement btn = driver.findElement(By.cssSelector(".lang-switch .lang-btn"));
-                assertEquals(lang.toUpperCase(), btn.findElement(By.className("lang-code")).getText().trim());
+                assertEquals(I18n.label(lang), btn.findElement(By.className("lang-code")).getText().trim());
                 String bg = btn.getCssValue("background-image");
                 assertTrue(bg.contains("/img/flags/" + lang + ".svg"), "button painted in the " + lang + " flag, got " + bg);
                 shotOf(btn, "flag-btn-" + lang);
