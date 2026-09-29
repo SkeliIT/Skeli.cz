@@ -120,8 +120,8 @@
           <form method="post" action="/profile/change-password">
             <input type="hidden" name="csrf" value="${csrf}">
             <label><%= t.getProperty("settings.oldPassword") %> <input type="password" name="old_password" required autocomplete="current-password"></label>
-            <label><%= t.getProperty("settings.newPassword") %> <input type="password" name="new_password" minlength="12" required autocomplete="new-password" data-pw="new"></label>
-            <label><%= t.getProperty("settings.confirmPassword") %> <input type="password" name="confirm_password" minlength="12" required autocomplete="new-password" data-pw="confirm"></label>
+            <label><%= t.getProperty("settings.newPassword") %> <input type="password" name="new_password" minlength="8" required autocomplete="new-password" data-pw="new"></label>
+            <label><%= t.getProperty("settings.confirmPassword") %> <input type="password" name="confirm_password" minlength="8" required autocomplete="new-password" data-pw="confirm"></label>
             <%@ include file="includes/password-rules.jspf" %>
             <div class="text-center" style="margin-top:8px;"><button type="submit"><%= t.getProperty("settings.changePassword") %></button></div>
           </form>

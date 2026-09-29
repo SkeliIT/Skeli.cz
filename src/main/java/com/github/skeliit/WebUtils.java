@@ -64,14 +64,14 @@ public class WebUtils {
         return fallback;
     }
 
-    public static final int PASSWORD_MIN = 12;
+    public static final int PASSWORD_MIN = 8;
     /** bcrypt only uses the first 72 bytes, so longer passwords are refused rather than silently cut. */
     public static final int PASSWORD_MAX = 64;
     private static final int PASSWORD_MAX_BYTES = 72;
 
     /**
      * The one password rule for registration, password change and reset:
-     * at least 12 characters with an upper- and lower-case letter, a digit and a special character.
+     * at least 8 characters with an upper- and lower-case letter, a digit and a special character.
      */
     public static boolean isPasswordStrong(String password) {
         return passwordProblems(password).isEmpty();

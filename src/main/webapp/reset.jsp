@@ -29,9 +29,9 @@
           <input type="hidden" name="csrf" value="${csrf}">
           <input type="hidden" name="token" value="<%= com.github.skeliit.WebUtils.escapeHtml(resetToken) %>">
           <label><%= t.getProperty("reset.password") %><br>
-            <input type="password" name="password" minlength="12" required autocomplete="new-password" data-pw="new"></label>
+            <input type="password" name="password" minlength="8" required autocomplete="new-password" data-pw="new"></label>
           <label><%= t.getProperty("reset.confirm") %><br>
-            <input type="password" name="password2" minlength="12" required autocomplete="new-password" data-pw="confirm"></label>
+            <input type="password" name="password2" minlength="8" required autocomplete="new-password" data-pw="confirm"></label>
           <%@ include file="includes/password-rules.jspf" %>
           <button type="submit"><%= t.getProperty("reset.submit") %></button>
         </form>

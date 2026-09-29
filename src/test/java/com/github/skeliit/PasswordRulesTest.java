@@ -15,6 +15,12 @@ class PasswordRulesTest {
     }
 
     @Test
+    void eightCharactersAreEnough() {
+        assertTrue(WebUtils.isPasswordStrong("Ab1!efgh"));
+        assertEquals(Set.of("length"), WebUtils.passwordProblems("Ab1!efg"));
+    }
+
+    @Test
     void reportsEveryMissingRule() {
         assertEquals(Set.of("length", "upper", "digit", "special"), WebUtils.passwordProblems("abc"));
         assertEquals(Set.of("digit"), WebUtils.passwordProblems("Bez-cislovky!"));

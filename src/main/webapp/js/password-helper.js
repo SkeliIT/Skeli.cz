@@ -3,7 +3,7 @@
 // characters that can't be used and whether both fields match. The server checks the
 // same rules (WebUtils.passwordProblems), this is only for the user's convenience.
 (function () {
-  var MIN = 12, MAX = 64, MAX_BYTES = 72;
+  var MIN = 8, MAX = 64, MAX_BYTES = 72;
   var REQUIRED = ['length', 'lower', 'upper', 'digit', 'special', 'invalid', 'long'];
   // easy-to-guess parts: only a hint, the password is still accepted
   var COMMON = /(passw|heslo|пароль|matkhau|qwert|asdf|yxcv|1234|2345|3456|4567|5678|6789|7890|abcd|skeli|(.)\2\2)/i;
@@ -35,7 +35,7 @@
 
   function level(r) {
     if (!r.ok) return 1;
-    var l = r.count >= 20 ? 4 : r.count >= 16 ? 3 : 2;
+    var l = r.count >= 16 ? 4 : r.count >= 12 ? 3 : 2;
     return r.common ? l : Math.max(2, l - 1);
   }
 
