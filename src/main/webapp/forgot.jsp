@@ -11,7 +11,7 @@
       <form method="post" action="forgot">
         <input type="hidden" name="csrf" value="${csrf}">
         <label><%= t.getProperty("forgot.username") %><br>
-          <input name="username" required autocomplete="username"></label>
+          <input name="username" required autocomplete="username email"></label>
         <button type="submit"><%= t.getProperty("forgot.submit") %></button>
       </form>
       <div class="auth-footer">
