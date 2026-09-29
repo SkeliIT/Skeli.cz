@@ -26,11 +26,11 @@
           <input type="email" name="email" required maxlength="255" value="<%= com.github.skeliit.WebUtils.escapeHtml(request.getAttribute("email")) %>" autocomplete="email"></label>
         <div class="row">
           <label><%= t.getProperty("auth.label.password","Heslo") %><br>
-            <input type="password" name="password" required minlength="12" autocomplete="new-password"></label>
+            <input type="password" name="password" required minlength="12" autocomplete="new-password" data-pw="new"></label>
           <label><%= t.getProperty("auth.label.confirmPassword","Potvrdit heslo") %><br>
-            <input type="password" name="password2" required minlength="12" autocomplete="new-password"></label>
+            <input type="password" name="password2" required minlength="12" autocomplete="new-password" data-pw="confirm"></label>
         </div>
-        <p class="form-note"><%= t.getProperty("auth.password.requirements","Heslo musí mít alespoň 12 znaků a obsahovat velké i malé písmeno, číslo a speciální znak.") %></p>
+        <%@ include file="includes/password-rules.jspf" %>
         <label class="checkbox-label"><input type="checkbox" name="consent" value="1" required <%= "1".equals(request.getParameter("consent")) ? "checked" : "" %>> <%= t.getProperty("auth.label.consent","Souhlasím se zpracováním osobních údajů a podmínkami (GDPR)") %></label>
         <button type="submit"><%= t.getProperty("auth.submit.register","Registrovat") %></button>
       </form>

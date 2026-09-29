@@ -5,6 +5,9 @@
   <div class="auth-wrap">
     <section class="auth-card">
       <h2><%= t.getProperty("forgot.heading") %></h2>
+      <% if ("1".equals(request.getParameter("expired"))) { %>
+        <div class="form-alert"><%= t.getProperty("reset.expired") %></div>
+      <% } %>
       <% if ("true".equals(request.getParameter("sent"))) { %>
         <div class="form-success"><%= t.getProperty("forgot.sent") %></div>
       <% } %>

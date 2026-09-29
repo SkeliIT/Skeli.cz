@@ -81,6 +81,7 @@
     });
   })();
 </script>
+<script src="<%= request.getContextPath() %>/js/password-helper.js?v=<%= assetVersion %>" defer></script>
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];

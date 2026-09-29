@@ -11,6 +11,9 @@
       <% if ("1".equals(request.getParameter("registered"))) { %>
       <div class="form-success"><%= t.getProperty("auth.register.success","Registrace proběhla úspěšně. Nyní se můžete přihlásit.") %></div>
       <% } %>
+      <% if ("1".equals(request.getParameter("reset"))) { %>
+      <div class="form-success"><%= t.getProperty("reset.success") %></div>
+      <% } %>
       <form method="post" action="login">
         <input type="hidden" name="csrf" value="<%= request.getAttribute("csrf") != null ? request.getAttribute("csrf") : "" %>">
         <label><%= t.getProperty("auth.label.login") %><br>

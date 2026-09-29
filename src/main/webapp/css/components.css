@@ -633,6 +633,51 @@ body.light .pw-toggle {
 .auth-card .pw-wrap, .settings-form .pw-wrap { margin-top: 6px; }
 .auth-card .pw-wrap input, .settings-form .pw-wrap input { margin-top: 0; }
 
+/* ---------- New password helper (includes/password-rules.jspf) ---------- */
+.pw-helper { --pw-ok: #4fdc8c; --pw-bad: #ff7b7b; margin: 10px 0 14px; }
+body.light .pw-helper { --pw-ok: #16803f; --pw-bad: #b42323; }
+.pw-helper [hidden] { display: none !important; }
+.pw-meter { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; font-size: var(--fs-small); color: var(--text-dim); }
+.pw-meter-label { white-space: nowrap; }
+.pw-meter-label strong { font-weight: inherit; }
+.pw-meter-bar { flex: 1; height: 6px; border-radius: 99px; background: var(--field); border: 1px solid var(--panel-border); overflow: hidden; }
+.pw-meter-bar span { display: block; height: 100%; width: 0; border-radius: inherit; transition: width .25s ease, background-color .25s ease; }
+.pw-meter[data-level="1"] strong { color: var(--pw-bad); }
+.pw-meter[data-level="1"] .pw-meter-bar span { width: 25%; background: var(--pw-bad); }
+.pw-meter[data-level="2"] strong { color: var(--accent); }
+.pw-meter[data-level="2"] .pw-meter-bar span { width: 50%; background: var(--accent); }
+.pw-meter[data-level="3"] strong,
+.pw-meter[data-level="4"] strong { color: var(--pw-ok); }
+.pw-meter[data-level="3"] .pw-meter-bar span { width: 75%; background: var(--pw-ok); }
+.pw-meter[data-level="4"] .pw-meter-bar span { width: 100%; background: var(--pw-ok); }
+.pw-rules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 14px;
+  font-family: var(--font-text);
+  font-weight: 300;
+  font-size: var(--fs-text);
+  color: var(--text-dim);
+}
+.pw-rules li { display: flex; gap: 7px; align-items: baseline; transition: color .2s ease; }
+.pw-rules li::before { content: '○'; flex: none; width: 1em; text-align: center; font-size: .85em; }
+.pw-rules li.ok { color: var(--pw-ok); }
+.pw-rules li.ok::before { content: '✓'; }
+.pw-rules li.bad { color: var(--pw-bad); }
+.pw-rules li.bad::before { content: '✕'; }
+.pw-rules li.hint { color: var(--accent); }
+.pw-rules li.hint::before { content: '!'; font-weight: 700; }
+.pw-rules li[data-rule="special"], .pw-rules li[data-only-bad] { grid-column: 1 / -1; }
+.pw-match { margin: 8px 0 0; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); }
+.pw-match.ok { color: var(--pw-ok); }
+.pw-match.ok::before { content: '✓ '; }
+.pw-match.bad { color: var(--pw-bad); }
+.pw-match.bad::before { content: '✕ '; }
+@media (max-width: 420px) { .pw-rules { grid-template-columns: 1fr; } }
+
 /* ---------- Flash message after a redirect ---------- */
 .flash {
   display: flex;

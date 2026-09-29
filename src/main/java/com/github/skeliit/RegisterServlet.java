@@ -59,7 +59,8 @@ public class RegisterServlet extends HttpServlet {
         } else if (!password.equals(password2)) {
             errors.add(I18n.getText(req, "auth.error.passwordMismatch", "Hesla se neshodují."));
         } else if (!WebUtils.isPasswordStrong(password)) {
-            errors.add(I18n.getText(req, "auth.error.passwordStrength", "Heslo musí mít alespoň 12 znaků, obsahovat velké a malé písmeno, číslo a speciální znak."));
+            errors.add(I18n.getText(req, WebUtils.passwordErrorKey(WebUtils.passwordProblems(password)),
+                    "Heslo musí mít alespoň 12 znaků, obsahovat velké a malé písmeno, číslo a speciální znak."));
         }
 
         if (consent == null) {
