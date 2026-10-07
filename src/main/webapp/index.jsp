@@ -20,6 +20,11 @@
   com.github.skeliit.dao.HomeDao.HomeVideo latest = homeVideos.isEmpty() ? null : homeVideos.get(0);
 %>
 <main class="home-page">
+  <%-- the background slowly cross-fades through Skeli's photos and back to the usual one;
+       night shots in the dark theme, daylight ones in the light theme (js/effects.js) --%>
+  <div class="bg-slides" aria-hidden="true"
+       data-dark="hood:center 40%,skull:center 22%,square:center 55%"
+       data-light="field:center 38%,point:center 35%"></div>
   <section class="hero">
     <div class="hero-particles" aria-hidden="true"></div>
     <%-- first glance: this is Skeli's music --%>
@@ -134,6 +139,8 @@
       </div>
 
       <div class="card side-card newsletter">
+        <div class="nl-photo" aria-hidden="true"><img src="/img/photos/point-sm.webp" alt="" loading="lazy" width="640" height="480"></div>
+        <p class="nl-lead"><%= t.getProperty("home.newsletter.lead") %></p>
         <h3><i class="fa-solid fa-envelope"></i> <%= t.getProperty("home.newsletter.title","Novinky e-mailem") %></h3>
         <form method="post" action="/newsletter/subscribe" class="newsletter-form">
           <input type="hidden" name="csrf" value="<%= request.getAttribute("csrf") %>">
@@ -183,6 +190,16 @@
     });
   }
 </script>
+
+  <%-- a wide photo with a line from Skeli; the photo drifts slower than the page --%>
+  <section class="photo-band" data-reveal>
+    <div class="photo-band-img" data-parallax></div>
+    <div class="photo-band-text">
+      <blockquote><%= t.getProperty("home.band.quote") %></blockquote>
+      <p class="photo-band-sign">— Skeli</p>
+      <a class="btn btn-primary" href="/about.jsp"><%= t.getProperty("home.band.cta") %> <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+  </section>
 </main>
 
 <%@ include file="includes/footer.jsp" %>

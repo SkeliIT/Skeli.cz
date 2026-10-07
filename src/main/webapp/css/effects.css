@@ -198,6 +198,100 @@ body.light .tape-gold i { color: rgba(255, 255, 255, 0.7); }
 .tape-dark img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--panel-border); }
 .tape-dark small { font-size: var(--fs-small); color: var(--text-dim); }
 
+/* ---------- Skeli's photos ---------- */
+/* home background: photos cross-fade over the usual one (js/effects.js adds the layers) */
+.bg-slides { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.bg-slides > div {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: var(--bg-overlay), var(--slide) var(--pos, center) / cover no-repeat;
+  transition: opacity 2.6s ease;
+  animation: bg-breathe 30s ease-in-out infinite alternate;
+}
+.bg-slides > div.on { opacity: 1; }
+
+/* wide photo band with a line from Skeli */
+.photo-band {
+  --band: url('/img/photos/street-lg.webp');
+  position: relative;
+  width: 100vw;
+  min-height: 420px;
+  margin: 90px calc(50% - 50vw) 0;
+  display: grid;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+body.light .photo-band { --band: url('/img/photos/panorama-lg.webp'); }
+.photo-band-img {
+  position: absolute;
+  inset: -60px 0;
+  z-index: -2;
+  background: var(--band) 72% 18% / cover no-repeat;
+  transform: translateY(var(--py, 0px));
+  /* the night street is very dark: lift it a little */
+  filter: brightness(1.35) contrast(1.08);
+}
+body.light .photo-band-img { filter: none; background-position: 60% center; }
+.photo-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgba(9, 9, 11, 0.9) 0%, rgba(9, 9, 11, 0.45) 40%, transparent 62%),
+              linear-gradient(to bottom, var(--bg), transparent 14%, transparent 86%, var(--bg));
+}
+body.light .photo-band::before {
+  background: linear-gradient(90deg, rgba(244, 242, 238, 0.94) 0%, rgba(244, 242, 238, 0.7) 45%, rgba(244, 242, 238, 0.05) 75%),
+              linear-gradient(to bottom, var(--bg), transparent 18%, transparent 82%, var(--bg));
+}
+.photo-band-text { width: 100%; max-width: var(--container); margin: 0 auto; padding: 60px 20px; }
+.photo-band blockquote {
+  max-width: 560px;
+  margin: 0 0 14px;
+  font-family: var(--font-text);
+  font-weight: 300;
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  line-height: 1.45;
+  color: var(--text);
+}
+.photo-band blockquote::before { content: "„"; color: var(--accent); }
+.photo-band blockquote::after { content: "“"; color: var(--accent); }
+.photo-band-sign { margin: 0 0 24px; color: var(--accent); letter-spacing: 0.08em; }
+
+/* newsletter: Skeli pointing at you */
+.newsletter .nl-photo { margin: -22px -22px 14px; height: 150px; overflow: hidden; border-radius: var(--radius) var(--radius) 0 0; }
+.newsletter .nl-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 30%; -webkit-mask: linear-gradient(#000 55%, transparent); mask: linear-gradient(#000 55%, transparent); }
+.newsletter .nl-lead { margin: 0 0 6px; font-size: var(--fs-small); letter-spacing: 0.12em; color: var(--accent); }
+
+/* about: gallery, black and white until pointed at */
+.photo-gallery { margin: 10px 0 56px; }
+.photo-gallery h2 { text-align: center; }
+.gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 170px; grid-auto-flow: dense; gap: 12px; }
+.gallery-item { position: relative; overflow: hidden; border-radius: 14px; border: 1px solid var(--panel-border); background: #000; }
+.gallery-item.wide { grid-column: span 2; }
+.gallery-item.tall { grid-row: span 2; }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05); transform: scale(1.01); transition: filter .6s ease, transform .9s cubic-bezier(.2, .7, .2, 1); }
+.gallery-item:hover img, .gallery-item:focus-visible img { filter: none; transform: scale(1.06); }
+@media (hover: none) { .gallery-item img { filter: none; } }
+@media (max-width: 760px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; }
+  .photo-band { min-height: 360px; }
+  .photo-band::before { background: linear-gradient(rgba(9, 9, 11, 0.75), rgba(9, 9, 11, 0.75)), linear-gradient(to bottom, var(--bg), transparent 18%, transparent 82%, var(--bg)); }
+  body.light .photo-band::before { background: linear-gradient(rgba(244, 242, 238, 0.8), rgba(244, 242, 238, 0.8)); }
+}
+
+/* full-screen photo viewer */
+.lightbox { position: fixed; inset: 0; z-index: 20000; display: none; place-items: center; background: rgba(5, 5, 7, 0.94); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.lightbox.open { display: grid; }
+.lightbox img { max-width: 92vw; max-height: 86vh; border-radius: 10px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6); }
+.lightbox button { position: absolute; width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.08); color: #fff; font-size: 1.1rem; display: grid; place-items: center; padding: 0; }
+.lightbox button:hover { border-color: var(--accent); color: var(--accent); }
+.lightbox .lb-close { top: 18px; right: 18px; }
+.lightbox .lb-prev { left: 18px; top: 50%; margin-top: -24px; }
+.lightbox .lb-next { right: 18px; top: 50%; margin-top: -24px; }
+
 /* ---------- Bottom bar on phones and tablets ---------- */
 .tabbar { display: none; }
 @media (max-width: 1024px) {
@@ -262,7 +356,8 @@ html:lang(vi) .tabbar a, html:lang(vi) .tabbar .menu-toggle { font-family: 'Exo 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-particles, .cursor-light { display: none; }
+  .hero-particles, .cursor-light, .bg-slides { display: none; }
+  .photo-band-img { transform: none; }
   .marquee-track, .tape-gold, .eq i, .hero-title .logo-mark, .masthead-brand .squad-mark, .hero-latest small .dot { animation: none; }
   [data-tilt] { transform: none !important; }
 }
