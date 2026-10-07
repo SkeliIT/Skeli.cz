@@ -94,4 +94,14 @@ class PasswordHelperIT extends UiTestSupport {
         assertFalse(driver.findElements(By.cssSelector(".auth-card .form-alert")).isEmpty(), "used link says it expired");
         assertTrue(driver.findElements(By.name("password")).isEmpty(), "no form for a used link");
     }
+
+    @Test
+    void forgotSaysTheMailIsOnItsWayAndWhereToLook() {
+        driver.get(BASE_URL + "/forgot.jsp");
+        driver.findElement(By.name("username")).sendKeys("nikdo" + uniq());
+        submit(By.cssSelector(".auth-card button[type=submit]"));
+        assertTrue(driver.getCurrentUrl().contains("sent=true"), driver.getCurrentUrl());
+        assertFalse(driver.findElements(By.cssSelector(".mail-sent .mail-spam")).isEmpty(), "the confirmation with the spam hint");
+        assertTrue(driver.findElements(By.name("username")).isEmpty(), "no form any more");
+    }
 }

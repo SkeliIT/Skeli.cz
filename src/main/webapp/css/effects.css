@@ -827,6 +827,42 @@ body.light .lyric-page .lyric-title {
   .kevin-tv { left: 12px; right: 12px; width: auto; bottom: calc(var(--tabbar-h) + 150px + env(safe-area-inset-bottom)); }
 }
 
+/* ---------- "The e-mail is on its way" (forgot.jsp) and the spam hint ---------- */
+.mail-sent { text-align: center; }
+.mail-sent-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+  font-size: 1.7rem;
+  animation: mail-fly 1.2s cubic-bezier(.2, .9, .3, 1.3) both;
+}
+@keyframes mail-fly { from { opacity: 0; transform: translate(-30px, 20px) rotate(-20deg) scale(.6); } }
+.mail-sent h2 { margin: 0 0 12px; }
+.mail-sent p { margin: 0 0 14px; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); line-height: 1.5; color: var(--text); }
+.mail-spam {
+  display: block;
+  margin: 12px 0 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  background: var(--accent-soft);
+  font-family: var(--font-text);
+  font-weight: 300;
+  font-size: var(--fs-text);
+  line-height: 1.45;
+  text-align: left;
+  color: var(--text);
+}
+.mail-spam i { color: var(--accent); margin-right: 4px; }
+button.is-sending { cursor: progress; opacity: 0.85; }
+@media (prefers-reduced-motion: reduce) { .mail-sent-icon { animation: none; } }
+
 /* ---------- Bottom bar on phones and tablets ---------- */
 .tabbar { display: none; }
 @media (max-width: 1024px) {

@@ -80,6 +80,28 @@
       wrap.appendChild(btn);
     });
   })();
+  // sign-in, sign-up, password and newsletter forms: once sent, the button says so and
+  // can't be pressed twice (a listener on document runs after the form's own checks)
+  document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (e.defaultPrevented || !form.closest('.auth-card, .newsletter-form, .settings-form')) return;
+    const btn = form.querySelector('button[type=submit], button:not([type])');
+    if (!btn || btn.classList.contains('is-sending')) return;
+    btn.dataset.label = btn.innerHTML;
+    btn.classList.add('is-sending');
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> '
+      + '<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("form.sending")) %>';
+    setTimeout(function () { btn.disabled = true; }, 0);   // after the browser has collected the form
+  });
+  // back to the page from the browser's cache: the buttons work again
+  window.addEventListener('pageshow', function (e) {
+    if (!e.persisted) return;
+    document.querySelectorAll('button.is-sending').forEach(function (b) {
+      b.disabled = false;
+      b.classList.remove('is-sending');
+      if (b.dataset.label) b.innerHTML = b.dataset.label;
+    });
+  });
 </script>
 <script src="<%= request.getContextPath() %>/js/password-helper.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/effects.js?v=<%= assetVersion %>" defer></script>
