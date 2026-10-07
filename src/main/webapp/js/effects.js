@@ -77,7 +77,8 @@
   }
 
   // home background: Skeli's photos cross-fade over the usual one, then back to it.
-  // data-dark / data-light = "name:position,…" of img/photos/<name>-lg|md.webp
+  // data-dark / data-light = "name:position[:wide],…" of img/photos/<name>-lg|md.webp; a portrait
+  // photo marked wide has <name>-wide.webp (whole photo on a 16:9 canvas) for landscape screens
   var slideTimer = 0, rebuildSlides = null;
   // one observer for the theme switch, whichever page is shown now
   new MutationObserver(function () { if (rebuildSlides) rebuildSlides(); })
@@ -95,7 +96,8 @@
         var parts = item.split(':');
         if (!parts[0]) return;
         var layer = document.createElement('div');
-        layer.dataset.src = '/img/photos/' + parts[0].trim() + '-' + size + '.webp';
+        var landscape = window.innerWidth > window.innerHeight;
+        layer.dataset.src = '/img/photos/' + parts[0].trim() + '-' + (parts[2] === 'wide' && landscape ? 'wide' : size) + '.webp';
         layer.style.setProperty('--pos', parts[1] || 'center');
         box.appendChild(layer);
       });
