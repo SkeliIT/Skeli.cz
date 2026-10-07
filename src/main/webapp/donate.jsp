@@ -3,7 +3,7 @@
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 
 <main class="donate-page">
-  <sk:pageHero photo="mic" pos="60% 30%" day="field" dayPos="center 30%" kicker="SKELO SQUAD"
+  <sk:pageHero kicker="SKELO SQUAD"
                title='<%= t.getProperty("donate.title") %>' lead='<%= t.getProperty("donate.description") %>'/>
   <div class="donate-card">
 

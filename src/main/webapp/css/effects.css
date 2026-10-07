@@ -465,57 +465,14 @@ body.light .photo-band::before {
   .kevin.kevin-in, .kevin-bubble, .kevin-word { animation: none; }
 }
 
-/* ---------- Page hero: Skeli's photo at the top of every page (WEB-INF/tags/pageHero.tag) ----------
-   Night photo in the dark theme, a daylight one in the light theme; the photo fades into the
-   page at the top and bottom, the title is smoky gold like the signs. */
+/* ---------- Page top (WEB-INF/tags/pageHero.tag): kicker, gold title, lead ----------
+   No photo of its own: the page already lies on the background photo. */
 .page-hero {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: clamp(300px, 52vh, 500px);
-  margin: -36px 0 40px;
-  padding: 40px 0 56px;
+  margin: 0 0 40px;
+  padding: 26px 0 0;
   text-align: center;
-  isolation: isolate;
 }
-.page-hero-photo {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(50% - 50vw);
-  width: 100vw;
-  z-index: -1;
-  background: var(--hero) var(--hero-pos, center) / cover no-repeat;
-  filter: grayscale(1) brightness(1.05) contrast(1.08);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 58%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 58%, transparent 100%);
-  animation: bg-breathe 30s ease-in-out infinite alternate;
-}
-/* dark at the sides and behind the text, a warm ember glow from below */
-.page-hero-photo::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 55% 60% at 50% 55%, rgba(9, 9, 11, 0.55), transparent 75%),
-    linear-gradient(90deg, rgba(9, 9, 11, 0.8), transparent 26%, transparent 74%, rgba(9, 9, 11, 0.8)),
-    radial-gradient(ellipse 70% 40% at 50% 100%, rgba(255, 138, 61, 0.22), transparent 70%);
-}
-body.light .page-hero-photo {
-  background-image: var(--hero-day);
-  background-position: var(--hero-day-pos, center);
-  filter: grayscale(1) brightness(1.08) contrast(0.95);
-}
-body.light .page-hero-photo::after {
-  background:
-    radial-gradient(ellipse 50% 55% at 50% 55%, rgba(244, 242, 238, 0.6), transparent 75%),
-    linear-gradient(90deg, rgba(244, 242, 238, 0.85), transparent 28%, transparent 72%, rgba(244, 242, 238, 0.85));
-}
-@media (max-width: 700px) {
-  .page-hero-photo { background-image: var(--hero-sm); }
-  body.light .page-hero-photo { background-image: var(--hero-day-sm); }
-}
-.page-hero-inner { max-width: 760px; padding: 0 8px; }
+.page-hero-inner { max-width: 760px; margin: 0 auto; padding: 0 8px; }
 .page-hero .hero-kicker { margin-bottom: 18px; }
 .page-hero-title {
   margin: 0;
@@ -549,10 +506,10 @@ body.light .page-hero-title {
 }
 body.light .page-hero-lead { text-shadow: 0 1px 10px rgba(255, 255, 255, 0.9); }
 @media (max-width: 600px) {
-  .page-hero { margin-top: -24px; padding-bottom: 40px; }
+  .page-hero { padding-top: 12px; margin-bottom: 30px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .page-hero-photo, .page-hero-title { animation: none; }
+  .page-hero-title { animation: none; }
 }
 
 /* search field and filter chips under a page hero (Lyrics, News) */
@@ -785,6 +742,90 @@ body.light .lyric-page .lyric-title {
   box-shadow: var(--shadow), 0 30px 90px -40px color-mix(in srgb, var(--accent-2) 45%, transparent);
 }
 .music-page .section.youtube .section-title { justify-content: flex-start; font-size: var(--fs-h3); letter-spacing: 0.08em; }
+
+/* ---------- MC Kevin's menu, search and TV (js/kevin.js) ---------- */
+.kevin-extra { margin-top: 10px; }
+.kevin-extra[hidden] { display: none; }
+.kevin-menu { display: flex; flex-wrap: wrap; gap: 6px; }
+.kevin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  background: var(--accent-soft);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-small);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.kevin-chip i { color: var(--accent); }
+.kevin-chip:hover, .kevin-chip:focus-visible { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.kevin-chip:hover i, .kevin-chip:focus-visible i { color: inherit; }
+.kevin-find input {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  background: var(--field);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-size: 1rem;
+}
+.kevin-find input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.kevin-results { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 240px; overflow-y: auto; }
+.kevin-results a {
+  display: block;
+  padding: 7px 10px;
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font-text);
+  text-decoration: none;
+}
+.kevin-results a:hover, .kevin-results a:focus-visible { background: var(--accent-soft); }
+.kevin-results b { display: block; font-family: var(--font-body); font-weight: 400; font-size: var(--fs-card); color: var(--accent); }
+.kevin-results span { display: block; font-weight: 300; font-size: 0.92rem; color: var(--text-dim); }
+/* while a menu or the search is open, the bubble is a bit wider */
+.kevin-bubble:has(.kevin-extra:not([hidden])) { width: min(330px, calc(100vw - 40px)); }
+
+/* the small TV with a random clip, right of Kevin */
+.kevin-tv {
+  position: fixed;
+  left: 176px;
+  bottom: 18px;
+  z-index: 1150;
+  width: min(380px, calc(100vw - 200px));
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: var(--shadow), 0 0 40px -12px color-mix(in srgb, var(--accent-2) 60%, transparent);
+  background: #000;
+  animation: kevin-pop .35s cubic-bezier(.2, .9, .3, 1.4) both;
+}
+.kevin-tv iframe { width: 100%; height: 100%; border: 0; display: block; }
+.kevin-tv-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  cursor: pointer;
+}
+.kevin-tv-close:hover { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 1024px) {
+  /* phones and tablets: over the bottom bar, the whole width */
+  .kevin-tv { left: 12px; right: 12px; width: auto; bottom: calc(var(--tabbar-h) + 150px + env(safe-area-inset-bottom)); }
+}
 
 /* ---------- Bottom bar on phones and tablets ---------- */
 .tabbar { display: none; }

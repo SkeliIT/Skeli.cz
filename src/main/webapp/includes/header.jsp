@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "3.4.0";
+  String assetVersion = "3.5.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -353,6 +353,8 @@
                 try {
                   document.body.style.cursor = 'progress';
                   const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
+                  // only pages are swapped in; an image or a file opens normally
+                  if (!(res.headers.get('content-type') || '').includes('text/html')) return location.assign(url);
                   const text = await res.text();
                   const newMain = extractMain(text);
                   if (!newMain) return location.assign(url);
@@ -368,11 +370,15 @@
                 finally { document.body.style.cursor = ''; }
               }
               document.addEventListener('click', function (e) {
+                // another handler took the click (gallery viewer, Kevin…), or a new tab is wanted
+                if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
                 const a = e.target.closest('a');
-                if (!a) return;
+                if (!a || a.hasAttribute('data-lightbox')) return;
                 if (!isInternal(a)) return;
                 const href = a.getAttribute('href') || '';
                 if (!href || href.startsWith('#')) return;
+                // pictures and files are not pages
+                if (/\.(webp|jpe?g|png|gif|svg|pdf|mp3|mp4|zip)(\?|$)/i.test(href)) return;
                 // allow full reload for language switch to refresh header/nav strings
                 if (href.includes('lang=')) return;
                 // disable PJAX for pages that need full refresh or include page-scoped styles/scripts

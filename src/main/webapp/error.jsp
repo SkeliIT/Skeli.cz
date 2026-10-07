@@ -10,7 +10,7 @@
 %>
 <main class="error-page">
   <%-- the big gold error number on the night street (MC Kevin adds a line about it) --%>
-  <sk:pageHero photo="street" pos="58% 30%" day="rocks" kicker='<%= t.getProperty("error.heading") %>'
+  <sk:pageHero kicker='<%= t.getProperty("error.heading") %>'
                title='<%= String.valueOf(code != null ? code : 404) %>'
                lead='<%= errLead %>'>
     <div class="error-actions">

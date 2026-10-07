@@ -41,6 +41,37 @@ window.KEVIN_LINES = {
       donate: ['Podpora šéfa = víc tracků = víc mě. Win-win.'],
       error: ['Tady nic není, kámo. Jako v mý misce v neděli.', '404. Tuhle stránku jsem asi shodil ze stolu.']
     },
+    // the menu after a click and what is behind it ({n} = a number, {t} = a title;
+    // a plural is [1, 2–4, 5+] in Czech, [1, more] in English)
+    menu: { hint: 'Co pro tebe můžu udělat?', find: 'Najdi song', play: 'Pusť něco', rap: 'Zarapuj', news: 'Co je nového?', fun: 'Překvap mě' },
+    find: {
+      prompt: 'Napiš název nebo kus textu. Najdu to dřív, než řekneš „mňau“.',
+      placeholder: 'třeba: tělo bez duše',
+      none: 'Nic. Ani v šuplíku. Zkus jiný slovo.',
+      found: ['Našel jsem {n} song:', 'Našel jsem {n} songy:', 'Našel jsem {n} songů:']
+    },
+    play: {
+      intro: ['Pouštím: {t}', 'Tohle ti sedne: {t}', 'Náhodnej výběr od kocoura: {t}'],
+      fail: 'Přehrávač se zasekl. Asi ho někdo přejel ocasem.',
+      close: 'Zavřít přehrávač', song: 'Text a víc →'
+    },
+    news: {
+      intro: 'Od tvý minulý návštěvy:',
+      clip: 'vyšel klip {t}',
+      clips: ['', 'vyšly {n} nový klipy, nejnovější {t}', 'vyšlo {n} novejch klipů, nejnovější {t}'],
+      posts: ['{n} novej příspěvek v Aktualitách', '{n} nový příspěvky v Aktualitách', '{n} novejch příspěvků v Aktualitách'],
+      none: 'Od minula nic novýho. Šéf asi zase ladí jeden refrén tři tejdny.',
+      first: 'Jsi tu poprvý? Tak to je novinka všechno. Mrkni na Hudbu.',
+      link: 'Mrknout →'
+    },
+    admin: {
+      hello: 'Šéfe, hlásím stav webu:',
+      reports: ['{n} nahlášenej komentář čeká na tebe', '{n} nahlášený komentáře čekají na tebe', '{n} nahlášenejch komentářů čeká na tebe'],
+      clips: ['{n} klip nemá song (nejnovější: {t})', '{n} klipy nemaj song (nejnovější: {t})', '{n} klipů nemá song (nejnovější: {t})'],
+      lyrics: ['{n} song nemá text', '{n} songy nemaj text', '{n} songů nemá text'],
+      clean: 'Všechno čistý. Můžeš jít nahrávat.',
+      status: 'Stav webu', toReports: 'Nahlášené →', toLyrics: 'Editor textů →'
+    },
     pw: {
       weak: ['Tohle heslo uhodne i moje babička. A ta je kočka.', 'Slabý heslo. Přidej něco, co by mě nenapadlo.'],
       invalid: ['Mezera v hesle? To je jak chlup v polívce.'],
@@ -86,6 +117,35 @@ window.KEVIN_LINES = {
       login: ['Forgot your password? I forget where I put the mouse. The live one.'],
       donate: ['Support the boss = more tracks = more me. Win-win.'],
       error: ['Nothing here, buddy. Like my bowl on Sunday.', '404. I must have knocked this page off the table.']
+    },
+    menu: { hint: 'What can I do for you?', find: 'Find a song', play: 'Play something', rap: 'Rap for me', news: 'What\x27s new?', fun: 'Surprise me' },
+    find: {
+      prompt: 'Type a title or a bit of the lyrics. I\x27ll find it before you say "meow".',
+      placeholder: 'e.g. tělo bez duše',
+      none: 'Nothing. Not even in the drawer. Try another word.',
+      found: ['I found {n} song:', 'I found {n} songs:']
+    },
+    play: {
+      intro: ['Now playing: {t}', 'This one\x27s for you: {t}', 'The cat\x27s random pick: {t}'],
+      fail: 'The player got stuck. Someone must have stepped on it with a tail.',
+      close: 'Close the player', song: 'Lyrics and more →'
+    },
+    news: {
+      intro: 'Since your last visit:',
+      clip: 'a new clip came out: {t}',
+      clips: ['', '{n} new clips came out, the newest is {t}'],
+      posts: ['{n} new post in the News', '{n} new posts in the News'],
+      none: 'Nothing new since last time. The boss is probably tuning one chorus for three weeks again.',
+      first: 'First time here? Then everything is news. Check out the Music.',
+      link: 'Take a look →'
+    },
+    admin: {
+      hello: 'Boss, here\x27s the state of the site:',
+      reports: ['{n} reported comment is waiting for you', '{n} reported comments are waiting for you'],
+      clips: ['{n} clip has no song (newest: {t})', '{n} clips have no song (newest: {t})'],
+      lyrics: ['{n} song has no lyrics', '{n} songs have no lyrics'],
+      clean: 'All clean. Go record something.',
+      status: 'Site status', toReports: 'Reports →', toLyrics: 'Lyrics editor →'
     },
     pw: {
       weak: ['Even my grandma could guess that one. And she\'s a cat.', 'Weak password. Add something I wouldn\'t think of.'],

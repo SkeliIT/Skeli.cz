@@ -5,7 +5,7 @@
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 
 <main class="music-page">
-  <sk:pageHero photo="mic" pos="60% 30%" day="point" dayPos="center 35%" kicker='<%= t.getProperty("hero.kicker.music") %>'
+  <sk:pageHero kicker='<%= t.getProperty("hero.kicker.music") %>'
                title='<%= t.getProperty("menu.music") %>' lead='<%= t.getProperty("music.lead") %>'/>
 
   <section class="section youtube">

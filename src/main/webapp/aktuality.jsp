@@ -2,7 +2,7 @@
 <%@ include file="includes/header.jsp" %>
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 <main class="news-page">
-  <sk:pageHero photo="square" pos="center 40%" day="panorama" dayPos="68% center" kicker='<%= t.getProperty("hero.kicker.news") %>'
+  <sk:pageHero kicker='<%= t.getProperty("hero.kicker.news") %>'
                title='<%= t.getProperty("menu.news") %>' lead='<%= t.getProperty("news.lead") %>'>
     <div class="filter-chips" id="sourceChips" role="group" aria-label="${t['news.filter']}">
       <button type="button" class="chip active" data-source="">${t['lyrics.filter.all']}</button>
