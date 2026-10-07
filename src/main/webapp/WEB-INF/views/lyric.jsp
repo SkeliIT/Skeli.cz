@@ -3,6 +3,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 <main class="lyric-page">
+  <%-- every song has its own colours: its clip's thumbnail (or preview photo), blurred far behind the page --%>
+  <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
+    <div class="lyric-ambient" aria-hidden="true"
+         style="--amb: url('<c:choose><c:when test="${not empty lyric.youtubeId}">https://i.ytimg.com/vi/<c:out value="${lyric.youtubeId}"/>/mqdefault.jpg</c:when><c:otherwise><c:out value="${lyric.previewImageUrl}"/></c:otherwise></c:choose>')"></div>
+  </c:if>
   <!-- Song switcher -->
   <nav class="lyric-switcher">
     <a class="lyric-back" href="/texty.jsp"><i class="fa-solid fa-arrow-left"></i> <%= t.getProperty("lyrics.back") %></a>

@@ -1,19 +1,23 @@
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 <%
     String role = (String) session.getAttribute("role");
     Throwable ex = (Throwable) request.getAttribute("jakarta.servlet.error.exception");
     Integer code = (Integer) request.getAttribute("jakarta.servlet.error.status_code");
     String uri = (String) request.getAttribute("jakarta.servlet.error.request_uri");
+    String errLead = t.getProperty("error.lost") + " <a href='/index.jsp'>" + t.getProperty("error.homeLink") + "</a>.";
 %>
 <main class="error-page">
-  <div class="error-code" aria-hidden="true"><%= code != null ? code : 404 %></div>
-  <h2><%= t.getProperty("error.heading") %></h2>
-  <p class="page-lead"><%= t.getProperty("error.lost") %> <a href="/index.jsp"><%= t.getProperty("error.homeLink") %></a>.</p>
-  <div class="error-actions">
-    <a class="btn btn-primary" href="/index.jsp"><i class="fa-solid fa-house"></i> <%= t.getProperty("menu.home") %></a>
-    <a class="btn btn-ghost" href="/texty.jsp"><i class="fa-solid fa-align-left"></i> <%= t.getProperty("menu.lyrics") %></a>
-  </div>
+  <%-- the big gold error number on the night street (MC Kevin adds a line about it) --%>
+  <sk:pageHero photo="street" pos="58% 30%" day="rocks" kicker='<%= t.getProperty("error.heading") %>'
+               title='<%= String.valueOf(code != null ? code : 404) %>'
+               lead='<%= errLead %>'>
+    <div class="error-actions">
+      <a class="btn btn-primary" href="/index.jsp"><i class="fa-solid fa-house"></i> ${t['menu.home']}</a>
+      <a class="btn btn-ghost" href="/texty.jsp"><i class="fa-solid fa-align-left"></i> ${t['menu.lyrics']}</a>
+    </div>
+  </sk:pageHero>
   <%
     // Error details are shown to admins only - to anyone else they would leak app internals
     if (ex != null) {

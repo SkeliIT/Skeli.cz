@@ -465,6 +465,327 @@ body.light .photo-band::before {
   .kevin.kevin-in, .kevin-bubble, .kevin-word { animation: none; }
 }
 
+/* ---------- Page hero: Skeli's photo at the top of every page (WEB-INF/tags/pageHero.tag) ----------
+   Night photo in the dark theme, a daylight one in the light theme; the photo fades into the
+   page at the top and bottom, the title is smoky gold like the signs. */
+.page-hero {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: clamp(300px, 52vh, 500px);
+  margin: -36px 0 40px;
+  padding: 40px 0 56px;
+  text-align: center;
+  isolation: isolate;
+}
+.page-hero-photo {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  z-index: -1;
+  background: var(--hero) var(--hero-pos, center) / cover no-repeat;
+  filter: grayscale(1) brightness(1.05) contrast(1.08);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 58%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 58%, transparent 100%);
+  animation: bg-breathe 30s ease-in-out infinite alternate;
+}
+/* dark at the sides and behind the text, a warm ember glow from below */
+.page-hero-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 60% at 50% 55%, rgba(9, 9, 11, 0.55), transparent 75%),
+    linear-gradient(90deg, rgba(9, 9, 11, 0.8), transparent 26%, transparent 74%, rgba(9, 9, 11, 0.8)),
+    radial-gradient(ellipse 70% 40% at 50% 100%, rgba(255, 138, 61, 0.22), transparent 70%);
+}
+body.light .page-hero-photo {
+  background-image: var(--hero-day);
+  background-position: var(--hero-day-pos, center);
+  filter: grayscale(1) brightness(1.08) contrast(0.95);
+}
+body.light .page-hero-photo::after {
+  background:
+    radial-gradient(ellipse 50% 55% at 50% 55%, rgba(244, 242, 238, 0.6), transparent 75%),
+    linear-gradient(90deg, rgba(244, 242, 238, 0.85), transparent 28%, transparent 72%, rgba(244, 242, 238, 0.85));
+}
+@media (max-width: 700px) {
+  .page-hero-photo { background-image: var(--hero-sm); }
+  body.light .page-hero-photo { background-image: var(--hero-day-sm); }
+}
+.page-hero-inner { max-width: 760px; padding: 0 8px; }
+.page-hero .hero-kicker { margin-bottom: 18px; }
+.page-hero-title {
+  margin: 0;
+  font-size: clamp(2.3rem, 7vw, 4.6rem);
+  line-height: 1.05;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  /* gold lit from above, a slow sheen drifting across */
+  background: linear-gradient(100deg, transparent 40%, rgba(255, 250, 220, 0.75) 50%, transparent 60%) -200% 0 / 200% 100% no-repeat,
+              linear-gradient(180deg, #fff1b0 0%, #ffd23f 42%, #f2a33a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 22px rgba(0, 0, 0, 0.75));
+  animation: title-sheen 9s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+@keyframes title-sheen { 0%, 60% { background-position: -200% 0, 0 0; } 95%, 100% { background-position: 300% 0, 0 0; } }
+body.light .page-hero-title {
+  background: linear-gradient(180deg, #e6b730 0%, #c99a12 38%, #8f6600 70%, #b8860b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: none;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.9)) drop-shadow(0 2px 14px rgba(255, 255, 255, 0.8));
+}
+.page-hero-lead {
+  margin: 18px auto 0;
+  max-width: 560px;
+  font-size: calc(var(--fs-h4) * 1.1);
+  color: var(--text);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+}
+body.light .page-hero-lead { text-shadow: 0 1px 10px rgba(255, 255, 255, 0.9); }
+@media (max-width: 600px) {
+  .page-hero { margin-top: -24px; padding-bottom: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-hero-photo, .page-hero-title { animation: none; }
+}
+
+/* search field and filter chips under a page hero (Lyrics, News) */
+.lyric-search {
+  position: relative;
+  width: min(520px, 100%);
+  margin: 26px auto 0;
+}
+.lyric-search i {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;   /* above the glass field (backdrop-filter paints it on top otherwise) */
+  color: var(--accent);
+  pointer-events: none;
+}
+.lyric-search input {
+  width: 100%;
+  height: 54px;
+  padding: 0 22px 0 50px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-body);
+  box-shadow: var(--shadow);
+  transition: border-color .25s, box-shadow .25s;
+}
+.lyric-search input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--shadow), 0 0 0 4px var(--accent-soft), 0 0 40px -10px color-mix(in srgb, var(--accent-2) 60%, transparent);
+}
+.lyric-search input::placeholder { color: var(--text-dim); }
+@media (max-width: 600px) {
+  .lyric-search input { height: 48px; padding-left: 44px; font-size: var(--fs-small); }
+  .lyric-search i { left: 17px; }
+}
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px auto 0;
+}
+.page-hero-lead + .filter-chips { margin-top: 26px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: color-mix(in srgb, var(--bg) 50%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--fs-small);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.chip:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+.chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.song-card[hidden] { display: none; }
+/* the line of the lyric that matched the search */
+.song-line {
+  display: block;
+  margin: -4px 14px 12px;
+  font-family: var(--font-text);
+  font-size: var(--fs-text);
+  font-weight: 300;
+  color: var(--accent);
+}
+.song-line[hidden] { display: none; }
+
+/* ---------- Sign in / sign up: Skeli's photo on the left, the glass form overlapping it ---------- */
+.auth-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  min-height: 0;
+}
+.auth-art {
+  position: relative;
+  align-self: stretch;
+  min-height: 560px;
+  margin-right: -60px;          /* the form card lies over the photo's edge */
+  padding: 40px 100px 40px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: var(--shadow);
+}
+.auth-art::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: url('/img/photos/street-md.webp') 58% 30% / cover no-repeat;
+  filter: grayscale(1) contrast(1.08) brightness(1.15);
+  animation: bg-breathe 30s ease-in-out infinite alternate;
+}
+.auth-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(9, 9, 11, 0.15) 0%, rgba(9, 9, 11, 0.35) 45%, rgba(9, 9, 11, 0.92) 100%),
+              radial-gradient(ellipse 80% 45% at 30% 100%, rgba(255, 138, 61, 0.25), transparent 70%);
+}
+body.light .auth-art::before { background-image: url('/img/photos/point-md.webp'); background-position: center 35%; filter: grayscale(1) brightness(1.05); }
+body.light .auth-art::after {
+  background: linear-gradient(180deg, rgba(20, 20, 22, 0.05) 0%, rgba(20, 20, 22, 0.25) 50%, rgba(20, 20, 22, 0.82) 100%);
+}
+.auth-art .squad-mark { width: min(260px, 70%); color: var(--accent); }
+body.light .auth-art .squad-mark { color: #ffd23f; }
+.auth-art-title { margin: 6px 0 0; font-size: var(--fs-h3); color: #fff; }
+.auth-art-text { margin: 0; max-width: 340px; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); color: rgba(255, 255, 255, 0.8); }
+.auth-wrap .auth-card {
+  position: relative;
+  z-index: 1;
+  max-width: none;
+  background: var(--panel-strong);
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: var(--shadow), 0 30px 80px -30px rgba(0, 0, 0, 0.8);
+}
+@media (max-width: 860px) {
+  .auth-wrap { grid-template-columns: minmax(0, 1fr); max-width: 480px; }
+  /* phones: the photo becomes a short banner over the form */
+  .auth-art { min-height: 190px; margin: 0 0 -48px; padding: 24px 24px 66px; }
+  .auth-art-text { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .auth-art::before { animation: none; } }
+
+/* error page: the number is the hero title */
+main.error-page { padding-top: 36px; text-align: center; }
+.error-page .page-hero-title { font-size: clamp(5.5rem, 20vw, 10rem); letter-spacing: 0.06em; }
+.error-page .error-actions { margin-top: 28px; }
+
+/* ---------- Discography: the cover shrinks into a sleeve and a spinning record slides out ---------- */
+.disco-card .song-thumb { background: radial-gradient(ellipse at 70% 50%, #2a2118, #0c0c0e 70%); }
+.disco-card .song-thumb > img {
+  position: relative;
+  z-index: 1;
+  transition: width .55s cubic-bezier(.2, .7, .2, 1), transform .4s ease, box-shadow .55s ease;
+}
+.vinyl {
+  position: absolute;
+  z-index: 0;
+  top: 5%;
+  left: 28%;
+  height: 90%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  /* fine grooves, a soft light reflection across them */
+  background:
+    conic-gradient(from 30deg, transparent 0 8%, rgba(255, 255, 255, 0.12) 12%, transparent 18% 50%, rgba(255, 255, 255, 0.09) 62%, transparent 68%),
+    repeating-radial-gradient(circle, #101012 0 1.5px, #1c1c1f 1.5px 3px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 10px 26px rgba(0, 0, 0, 0.6);
+  transition: left .55s cubic-bezier(.2, .7, .2, 1);
+}
+/* the label in the middle is the song's cover, with the spindle hole */
+.vinyl::before {
+  content: "";
+  position: absolute;
+  inset: 33%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #0c0c0e 0 7%, transparent 8%), var(--cover) center / cover;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+@media (hover: hover) {
+  .disco-card:hover .song-thumb > img {
+    width: 56.25%;            /* a square sleeve: 9/16 of the width = the full height */
+    transform: none;
+    box-shadow: 10px 0 24px rgba(0, 0, 0, 0.65);
+  }
+  .disco-card:hover .vinyl { left: 46%; animation: vinyl-spin 2.2s linear infinite; }
+}
+@keyframes vinyl-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .disco-card:hover .vinyl { animation: none; }
+}
+
+/* ---------- Song page: its own colours and a gold title ---------- */
+.lyric-ambient {
+  position: fixed;
+  inset: -12%;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--amb) center / cover no-repeat;
+  filter: blur(70px) saturate(1.8) brightness(0.75);
+  opacity: 0.85;
+  animation: bg-breathe 30s ease-in-out infinite alternate;
+}
+body.light .lyric-ambient { filter: blur(80px) saturate(1.4) brightness(1.25); opacity: 0.4; }
+.lyric-page .lyric-title {
+  background: linear-gradient(100deg, transparent 40%, rgba(255, 250, 220, 0.75) 50%, transparent 60%) -200% 0 / 200% 100% no-repeat,
+              linear-gradient(180deg, #fff1b0 0%, #ffd23f 42%, #f2a33a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 3px 16px rgba(0, 0, 0, 0.6));
+  animation: title-sheen 9s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+body.light .lyric-page .lyric-title {
+  background: linear-gradient(180deg, #e6b730 0%, #c99a12 38%, #8f6600 70%, #b8860b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: none;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.9));
+}
+@media (prefers-reduced-motion: reduce) { .lyric-ambient, .lyric-page .lyric-title { animation: none; } }
+
+/* Music page: the clip player in the same glass as the rest (no red stripe), a gold hairline */
+.music-page .section.youtube {
+  border-top: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: var(--shadow), 0 30px 90px -40px color-mix(in srgb, var(--accent-2) 45%, transparent);
+}
+.music-page .section.youtube .section-title { justify-content: flex-start; font-size: var(--fs-h3); letter-spacing: 0.08em; }
+
 /* ---------- Bottom bar on phones and tablets ---------- */
 .tabbar { display: none; }
 @media (max-width: 1024px) {

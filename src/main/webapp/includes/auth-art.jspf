@@ -1,0 +1,6 @@
+<%-- Left half of the sign-in / sign-up pages: Skeli's photo with the SKELO SQUAD sign (css/effects.css) --%>
+<aside class="auth-art" aria-hidden="true">
+  <span class="squad-mark"></span>
+  <p class="auth-art-title"><%= t.getProperty("auth.art.title") %></p>
+  <p class="auth-art-text"><%= t.getProperty("auth.art.text") %></p>
+</aside>

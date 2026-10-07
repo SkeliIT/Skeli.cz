@@ -3,6 +3,7 @@
 
 <main>
   <div class="auth-wrap">
+    <%@ include file="/includes/auth-art.jspf" %>
     <section class="auth-card">
       <h2><%= t.getProperty("forgot.heading") %></h2>
       <% if ("1".equals(request.getParameter("expired"))) { %>

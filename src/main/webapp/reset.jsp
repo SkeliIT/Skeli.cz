@@ -14,6 +14,7 @@
 
 <main>
   <div class="auth-wrap">
+    <%@ include file="/includes/auth-art.jspf" %>
     <section class="auth-card">
       <h2><%= t.getProperty("reset.heading") %></h2>
       <% if (!resetTokenValid) { %>

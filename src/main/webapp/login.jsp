@@ -2,6 +2,7 @@
 <%@ include file="includes/header.jsp" %>
 <main>
   <div class="auth-wrap">
+    <%@ include file="/includes/auth-art.jspf" %>
     <section class="auth-card">
       <h2><%= t.getProperty("auth.login.heading","Přihlášení") %></h2>
       <% String loginError = (String) request.getAttribute("loginError"); %>

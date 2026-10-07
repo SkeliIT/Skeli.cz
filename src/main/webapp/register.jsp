@@ -2,6 +2,7 @@
 <%@ include file="includes/header.jsp" %>
 <main>
   <div class="auth-wrap">
+    <%@ include file="/includes/auth-art.jspf" %>
     <section class="auth-card">
       <h2><%= t.getProperty("auth.register.heading","Registrace") %></h2>
       <% @SuppressWarnings("unchecked") java.util.List<String> errors = (java.util.List<String>) request.getAttribute("errors");
