@@ -44,6 +44,10 @@ public class ChangePasswordServlet extends HttpServlet {
             resp.sendRedirect("/uzivatel.jsp?error=" + code);
             return;
         }
+        if (PwnedPasswords.breachCount(newPassword) > 0) {
+            resp.sendRedirect("/uzivatel.jsp?error=pwned");
+            return;
+        }
         
         try (Connection conn = Db.get()) {
             // Ověř staré heslo
@@ -74,7 +78,9 @@ public class ChangePasswordServlet extends HttpServlet {
                 ps.setInt(2, userId);
                 ps.executeUpdate();
             }
-            
+            // anyone else signed in with the old password is signed out (this device stays)
+            SessionRegistry.signOut(userId, req.getSession(false));
+
             resp.sendRedirect("/uzivatel.jsp?password_changed=true");
         } catch (SQLException e) {
             throw new ServletException("Database error", e);

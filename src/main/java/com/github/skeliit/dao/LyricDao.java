@@ -234,7 +234,7 @@ public class LyricDao {
 
     /** Top-level comments newest first, each with its replies oldest first. */
     public List<CommentView> listComments(int lyricId) throws SQLException {
-        String sql = "SELECT c.id, c.user_id, c.parent_id, c.content, c.created_at, c.updated_at, u.username, u.avatar_url FROM comments c JOIN users u ON u.id=c.user_id WHERE c.lyric_id=? ORDER BY c.created_at DESC, c.id DESC";
+        String sql = "SELECT c.id, c.user_id, c.parent_id, c.content, c.created_at, c.updated_at, CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.username END AS username, CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.avatar_url END AS avatar_url FROM comments c JOIN users u ON u.id=c.user_id WHERE c.lyric_id=? ORDER BY c.created_at DESC, c.id DESC";
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, lyricId);
             try (ResultSet rs = ps.executeQuery()) {

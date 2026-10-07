@@ -44,7 +44,9 @@ public class LoginServlet extends HttpServlet {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String hash = rs.getString("password_hash");
-                    if (hash != null && BCrypt.checkpw(password, hash)) {
+                    // a deleted account (role DELETED, no password) can never sign in
+                    if (hash != null && hash.startsWith("$2") && !"DELETED".equals(rs.getString("role"))
+                            && BCrypt.checkpw(password, hash)) {
                         LoginRateLimiter.reset(username);
                         HttpSession session = req.getSession(true);
                         // Prevent session fixation: issue a new session ID after authentication

@@ -30,7 +30,7 @@ public class VideoCommentServlet extends HttpServlet {
         String lang = I18n.safeLang(s != null ? s.getAttribute("lang") : null);
         try (Connection c = Db.get();
                 PreparedStatement ps = c.prepareStatement(
-                        "SELECT vc.id, vc.parent_id, vc.content, vc.created_at, vc.updated_at, u.username, u.avatar_url, u.id AS uid, " +
+                        "SELECT vc.id, vc.parent_id, vc.content, vc.created_at, vc.updated_at, u.username, u.avatar_url, u.role, u.id AS uid, " +
                                 "COALESCE(SUM(v.vote=1),0) AS up, COALESCE(SUM(v.vote=-1),0) AS down " +
                                 "FROM video_comments vc JOIN users u ON u.id=vc.user_id " +
                                 "LEFT JOIN video_comment_votes v ON v.comment_id=vc.id " +
@@ -45,8 +45,10 @@ public class VideoCommentServlet extends HttpServlet {
                     o.put("content", rs.getString("content"));
                     o.put("createdAt", WebUtils.formatDateTime(rs.getTimestamp("created_at"), lang));
                     o.put("edited", rs.getTimestamp("updated_at") != null);
-                    o.put("user", rs.getString("username"));
-                    o.put("avatar", WebUtils.safeUrl(rs.getString("avatar_url"), ""));
+                    // a deleted account: no name, no avatar
+                    boolean gone = "DELETED".equals(rs.getString("role"));
+                    o.put("user", gone ? I18n.getText(req, "account.deleted") : rs.getString("username"));
+                    o.put("avatar", gone ? "" : WebUtils.safeUrl(rs.getString("avatar_url"), ""));
                     o.put("up", rs.getInt("up"));
                     o.put("down", rs.getInt("down"));
                     boolean mine = uid != null && uid == rs.getInt("uid");

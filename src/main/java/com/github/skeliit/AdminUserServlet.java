@@ -39,10 +39,12 @@ public class AdminUserServlet extends HttpServlet {
                     }
                 }
             } else if ("delete".equals(action)) {
+                // the admin removes a spammer completely, comments included; signed out everywhere
                 try (PreparedStatement ps = conn.prepareStatement("DELETE FROM users WHERE id=?")) {
                     ps.setInt(1, Integer.parseInt(id));
                     ps.executeUpdate();
                 }
+                SessionRegistry.signOut(Integer.parseInt(id), null);
             }
         } catch (SQLException e) {
             throw new ServletException(e);

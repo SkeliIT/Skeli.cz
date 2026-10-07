@@ -27,24 +27,14 @@ public class ProfileDeleteServlet extends HttpServlet {
         }
         int uid = (int) s.getAttribute("userId");
         try (Connection c = Db.get()) {
-            // Minimal safe soft-delete: anonymize username, drop role
-            String anon = "deleted_" + UUID.randomUUID().toString().substring(0, 8);
-            try (PreparedStatement ps = c
-                    .prepareStatement("UPDATE users SET username=?, email=NULL, role='DELETED' WHERE id=?")) {
-                ps.setString(1, anon);
-                ps.setInt(2, uid);
-                ps.executeUpdate();
-            }
-            try (PreparedStatement ps = c
-                    .prepareStatement("UPDATE user_profiles SET display_name=NULL, bio=NULL WHERE user_id=?")) {
-                ps.setInt(1, uid);
-                ps.executeUpdate();
-            }
+            // all personal data goes, the comments stay as "Deleted account" (AccountDeletion)
+            AccountDeletion.delete(c, uid, getServletContext());
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        if (s != null)
-            s.invalidate();
+        // signed out on every device
+        SessionRegistry.signOut(uid, s);
+        s.invalidate();
         resp.sendRedirect("/index.jsp?account=deleted");
     }
 }

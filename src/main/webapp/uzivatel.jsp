@@ -34,6 +34,9 @@
       <% if ("true".equals(request.getParameter("password_changed"))) { %>
         <div class="form-success text-center"><%= t.getProperty("settings.passwordChanged") %></div>
       <% } %>
+      <% if (request.getParameter("signedOut") != null) { %>
+        <div class="form-success text-center"><%= t.getProperty("settings.signedOutOthers") %></div>
+      <% } %>
       <%
         // Error codes sent by ChangePasswordServlet (?error=...) and ProfileDeleteServlet (?confirm=required)
         String settingsError = request.getParameter("error");
@@ -43,6 +46,7 @@
         else if ("short".equals(settingsError)) settingsErrorKey = "auth.error.passwordStrength";
         else if ("invalid_chars".equals(settingsError)) settingsErrorKey = "auth.error.passwordInvalidChars";
         else if ("too_long".equals(settingsError)) settingsErrorKey = "auth.error.passwordTooLong";
+        else if ("pwned".equals(settingsError)) settingsErrorKey = "auth.error.passwordPwned";
         else if ("wrong_old".equals(settingsError)) settingsErrorKey = "settings.error.wrongOld";
         else if (settingsError != null) settingsErrorKey = "settings.error.generic";
         if ("required".equals(request.getParameter("confirm"))) settingsErrorKey = "settings.deleteRequired";
@@ -124,6 +128,18 @@
             <label><%= t.getProperty("settings.confirmPassword") %> <input type="password" name="confirm_password" minlength="8" required autocomplete="new-password" data-pw="confirm"></label>
             <%@ include file="includes/password-rules.jspf" %>
             <div class="text-center" style="margin-top:8px;"><button type="submit"><%= t.getProperty("settings.changePassword") %></button></div>
+          </form>
+        </div>
+      </section>
+
+      <%-- signed in on a phone, a friend's computer…? end all the other sessions at once --%>
+      <section class="settings-section">
+        <h3><%= t.getProperty("settings.devices") %></h3>
+        <div class="settings-form">
+          <p class="text-dim"><%= t.getProperty("settings.devicesText") %></p>
+          <form method="post" action="/profile/signout-others" class="text-center">
+            <input type="hidden" name="csrf" value="${csrf}">
+            <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> <%= t.getProperty("settings.signOutOthers") %></button>
           </form>
         </div>
       </section>

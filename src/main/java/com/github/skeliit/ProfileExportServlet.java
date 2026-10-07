@@ -58,7 +58,7 @@ public class ProfileExportServlet extends HttpServlet {
                 }
             }
             try (PreparedStatement ps = c.prepareStatement(
-                    "SELECT lyric_id, content, created_at FROM comments WHERE user_id=? ORDER BY created_at DESC LIMIT 500")) {
+                    "SELECT lyric_id, content, created_at FROM comments WHERE user_id=? ORDER BY created_at DESC")) {
                 ps.setInt(1, uid);
                 try (ResultSet rs = ps.executeQuery()) {
                     var arr = root.putArray("comments");
@@ -84,6 +84,19 @@ public class ProfileExportServlet extends HttpServlet {
                     }
                 }
             }
+            // everything else the site keeps about the user (GDPR: the right to a copy of one's data)
+            String email = root.path("user").path("email").asText(null);
+            section(c, m, root, "account", "SELECT avatar_url, email_verified_at FROM users WHERE id=?", uid);
+            section(c, m, root, "video_comments",
+                    "SELECT id, youtube_id, parent_id, content, created_at, updated_at FROM video_comments WHERE user_id=? ORDER BY created_at DESC", uid);
+            section(c, m, root, "lyric_votes", "SELECT * FROM lyrics_votes WHERE user_id=?", uid);
+            section(c, m, root, "video_comment_votes", "SELECT * FROM video_comment_votes WHERE user_id=?", uid);
+            section(c, m, root, "reported_comments", "SELECT kind, comment_id, created_at FROM comment_reports WHERE reporter_id=?", uid);
+            section(c, m, root, "playlists", "SELECT id, name, created_at FROM playlists WHERE user_id=?", uid);
+            if (email != null && !email.isBlank()) {
+                section(c, m, root, "newsletter",
+                        "SELECT email, subscribed_at, confirmed_at, unsubscribed_at FROM newsletter_emails WHERE email=?", email);
+            }
         } catch (SQLException e) {
             throw new ServletException(e);
         }
@@ -91,5 +104,25 @@ public class ProfileExportServlet extends HttpServlet {
         resp.setContentType("application/json; charset=UTF-8");
         resp.setHeader("Content-Disposition", "attachment; filename=skeli_profile_" + uid + ".json");
         resp.getOutputStream().write(bytes);
+    }
+
+    /** One query's rows as an array of objects (column name -> value as text) under {@code name}. */
+    private static void section(Connection c, ObjectMapper m, ObjectNode root, String name, String sql, Object param) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, param);
+            try (ResultSet rs = ps.executeQuery()) {
+                var arr = root.putArray(name);
+                int cols = rs.getMetaData().getColumnCount();
+                while (rs.next()) {
+                    ObjectNode o = m.createObjectNode();
+                    for (int i = 1; i <= cols; i++) {
+                        Object v = rs.getObject(i);
+                        if (v == null) o.putNull(rs.getMetaData().getColumnLabel(i));
+                        else o.put(rs.getMetaData().getColumnLabel(i), String.valueOf(v));
+                    }
+                    arr.add(o);
+                }
+            }
+        }
     }
 }

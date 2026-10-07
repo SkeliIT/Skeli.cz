@@ -35,6 +35,10 @@ public class ResetPasswordServlet extends HttpServlet {
             resp.sendRedirect(back + "mismatch");
             return;
         }
+        if (PwnedPasswords.breachCount(password) > 0) {
+            resp.sendRedirect(back + "pwned");
+            return;
+        }
         try (Connection conn = Db.get()) {
             conn.setAutoCommit(false);
             try {
@@ -56,6 +60,8 @@ public class ResetPasswordServlet extends HttpServlet {
                         ps.executeUpdate();
                     }
                     conn.commit();
+                    // whoever knew the old password is signed out everywhere
+                    SessionRegistry.signOut(userId, null);
                     resp.sendRedirect("login.jsp?reset=1");
                     return;
                 }
