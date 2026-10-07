@@ -20,15 +20,33 @@ body::after {
 }
 body.light::after { opacity: 0.03; }
 
-/* ---------- Gold shimmer on the signs ---------- */
-.hero-title .logo-mark,
-.masthead-brand .squad-mark {
-  background-color: transparent;
-  background-image: var(--gold);
-  background-size: 220% 100%;
-  animation: gold-shimmer 9s linear infinite;
+/* ---------- Gold mist on the signs and the gold tape ----------
+   Soft light and amber clouds drift over the gold in opposite directions. Each cloud
+   layer is a tile that fades to transparent at its edges and moves exactly one tile
+   per loop, so there is never a hard seam. */
+:root {
+  --mist-base: #ffd23f;
+  --mist-hi: rgba(255, 247, 200, 0.95);
+  --mist-lo: rgba(255, 128, 40, 0.8);
 }
-@keyframes gold-shimmer { to { background-position: -220% 0; } }
+body.light {
+  --mist-base: #a37b00;
+  --mist-hi: rgba(226, 182, 52, 0.95);
+  --mist-lo: rgba(110, 70, 0, 0.75);
+}
+.hero-title .logo-mark,
+.masthead-brand .squad-mark,
+.tape-gold {
+  background-color: var(--mist-base);
+  background-image:
+    radial-gradient(closest-side, var(--mist-hi), transparent),
+    radial-gradient(closest-side, var(--mist-lo), transparent);
+  background-size: 520px 170%, 780px 190%;
+  background-repeat: repeat-x;
+  background-position: 0 40%, 0 60%;
+  animation: gold-mist 16s linear infinite;
+}
+@keyframes gold-mist { to { background-position: 520px 40%, -780px 60%; } }
 body.light .masthead-brand { filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.9)); }
 
 /* ---------- Cards: a gold edge and a soft glow on hover ---------- */
@@ -170,9 +188,8 @@ body.light .hero-particles span { top: -10px; bottom: auto; background: #fff; bo
 .tape-gold {
   z-index: 2;
   transform: translateY(-50%) rotate(-2.6deg);
-  background: var(--gold);
-  background-size: 220% 100%;
-  animation: gold-shimmer 14s linear infinite;
+  /* gold mist: see the signs above; a long tape drifts more slowly */
+  animation-duration: 24s;
   box-shadow: 0 16px 40px -14px rgba(0, 0, 0, 0.7), 0 0 40px -10px color-mix(in srgb, var(--accent-2) 60%, transparent);
 }
 .tape-dark {
