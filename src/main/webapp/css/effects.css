@@ -65,6 +65,26 @@ body.light {
   animation-delay: 2s;
   animation-duration: 11s;
 }
+/* Light theme: no gold and no smoke on the snow photo, the signs and the tape are a deep
+   night blue that matches the sky (the user's pick); the glint stays */
+body.light {
+  --sign-blue: linear-gradient(180deg, #2c5a8f 0%, #13355e 45%, #081a33 100%);
+}
+body.light .hero-title .logo-mark,
+body.light .masthead-brand .squad-mark {
+  background: var(--sign-blue);
+  animation: none;
+}
+body.light .tape-gold {
+  background: linear-gradient(180deg, #24507f, #102c50 60%, #081a33);
+  animation: none;
+  box-shadow: 0 14px 30px -14px rgba(20, 40, 80, 0.5);
+}
+/* the other signs (small one in the bar, footer, about) are plain colour: the same blue */
+body.light .brand,
+body.light .about-signature { color: #13355e; }
+body.light .hero-title { filter: drop-shadow(0 2px 16px rgba(255, 255, 255, 0.75)); }
+
 /* rests most of the time, then a slow, smooth sweep of about three seconds */
 @keyframes gold-glint {
   0%, 62% { transform: translateX(-110%); }
