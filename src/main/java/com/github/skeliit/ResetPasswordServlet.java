@@ -23,9 +23,16 @@ public class ResetPasswordServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String token = req.getParameter("token");
         String password = req.getParameter("password");
+        String password2 = req.getParameter("password2");
         if (token == null || token.isBlank()) { resp.sendRedirect("forgot.jsp"); return; }
-        if (!WebUtils.isPasswordStrong(password)) {
-            resp.sendRedirect("reset.jsp?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8));
+        String back = "reset.jsp?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8) + "&error=";
+        java.util.Set<String> problems = WebUtils.passwordProblems(password);
+        if (!problems.isEmpty()) {
+            resp.sendRedirect(back + (problems.contains("invalid") ? "invalid_chars" : problems.contains("long") ? "too_long" : "weak"));
+            return;
+        }
+        if (!password.equals(password2)) {
+            resp.sendRedirect(back + "mismatch");
             return;
         }
         try (Connection conn = Db.get()) {
@@ -49,7 +56,7 @@ public class ResetPasswordServlet extends HttpServlet {
                         ps.executeUpdate();
                     }
                     conn.commit();
-                    resp.sendRedirect("login.jsp");
+                    resp.sendRedirect("login.jsp?reset=1");
                     return;
                 }
                 conn.rollback();
@@ -58,7 +65,19 @@ public class ResetPasswordServlet extends HttpServlet {
                 throw e;
             }
         } catch (SQLException e) { throw new ServletException(e); }
-        resp.sendRedirect("forgot.jsp");
+        resp.sendRedirect("forgot.jsp?expired=1");
+    }
+
+    /** True when the link from the e-mail can still be used (reset.jsp says so before anyone types a password). */
+    public static boolean isTokenValid(String token) {
+        if (token == null || token.isBlank()) return false;
+        try (Connection conn = Db.get();
+             PreparedStatement ps = conn.prepareStatement("SELECT 1 FROM password_resets WHERE token=? AND expires_at>NOW()")) {
+            ps.setString(1, hashToken(token));
+            try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        } catch (SQLException e) {
+            return true; // let the form decide on submit
+        }
     }
 
     /** Reset tokens are stored as SHA-256 hex so a DB leak does not expose usable links. */

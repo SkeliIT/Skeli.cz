@@ -81,6 +81,10 @@
     });
   })();
 </script>
+<script src="<%= request.getContextPath() %>/js/password-helper.js?v=<%= assetVersion %>" defer></script>
+<script src="<%= request.getContextPath() %>/js/effects.js?v=<%= assetVersion %>" defer></script>
+<script src="<%= request.getContextPath() %>/js/kevin-lines.js?v=<%= assetVersion %>" defer></script>
+<script src="<%= request.getContextPath() %>/js/kevin.js?v=<%= assetVersion %>" defer></script>
 <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];

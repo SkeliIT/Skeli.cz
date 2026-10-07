@@ -2,11 +2,23 @@
 <%@ page import="com.github.skeliit.Db" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 
 <main class="texty-page">
-    <h2><%= t.getProperty("menu.lyrics","Lyrics") %></h2>
-    <p class="page-lead"><%= t.getProperty("lyrics.subtitle") %></p>
-    <div class="song-grid">
+    <sk:pageHero kicker='<%= t.getProperty("hero.kicker.lyrics") %>'
+                 title='<%= t.getProperty("menu.lyrics") %>' lead='<%= t.getProperty("lyrics.subtitle") %>'>
+      <%-- search by the name or by a word from the lyrics (/api/search), then by year --%>
+      <form class="lyric-search" role="search" onsubmit="return false">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" id="lyricSearch" autocomplete="off" maxlength="60"
+               placeholder="${t['lyrics.search.placeholder']}" aria-label="${t['lyrics.search.placeholder']}">
+      </form>
+      <div class="filter-chips" id="yearChips" role="group" aria-label="${t['lyrics.filter.year']}">
+        <button type="button" class="chip active" data-year="">${t['lyrics.filter.all']}</button>
+      </div>
+    </sk:pageHero>
+    <p class="empty-note" id="searchNone" hidden><%= t.getProperty("lyrics.search.none") %></p>
+    <div class="song-grid" id="songGrid">
         <%
             boolean hadRows = false;
             java.util.Map<Integer, java.util.List<com.github.skeliit.model.SongClip>> clipsBySong =
@@ -45,7 +57,7 @@
                                     ? "/cs/song/" + songUuid
                                     : "/lyrics/" + lyricId;
         %>
-                            <a class="song-card" href="<%= com.github.skeliit.WebUtils.escapeHtml(href) %>">
+                            <a class="song-card" href="<%= com.github.skeliit.WebUtils.escapeHtml(href) %>" data-song="<%= rs.getInt("song_id") %>" data-year="<%= y == null ? "" : y %>">
                                 <div class="song-thumb">
                                 <%
                                   java.util.List<com.github.skeliit.model.SongClip> thumbClips = clipsBySong.get(rs.getInt("song_id"));
@@ -70,6 +82,7 @@
                                     <span class="song-name"><%= com.github.skeliit.WebUtils.escapeHtml(name) %></span>
                                     <% if (y != null) { %><span class="song-year"><%= y %></span><% } %>
                                 </div>
+                                <span class="song-line" hidden></span>
                                 <span class="song-go"><i class="fa-solid fa-arrow-right"></i></span>
                             </a>
         <%
@@ -86,6 +99,60 @@
             }
         %>
     </div>
+<script>
+(function () {
+  var grid = document.getElementById('songGrid'), input = document.getElementById('lyricSearch');
+  var chips = document.getElementById('yearChips'), none = document.getElementById('searchNone');
+  if (!grid || !input) return;
+  var cards = [].slice.call(grid.querySelectorAll('.song-card'));
+  var year = '', hits = null, timer = 0, asked = '';
+  // one chip per year, newest first
+  var years = [];
+  cards.forEach(function (c) { var y = c.dataset.year; if (y && years.indexOf(y) < 0) years.push(y); });
+  years.sort().reverse().forEach(function (y) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.dataset.year = y; b.textContent = y;
+    chips.appendChild(b);
+  });
+  chips.addEventListener('click', function (e) {
+    var b = e.target.closest('.chip');
+    if (!b) return;
+    chips.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('active', c === b); });
+    year = b.dataset.year;
+    render();
+  });
+  function render() {
+    var shown = 0;
+    cards.forEach(function (c) {
+      var hit = hits && hits[c.dataset.song];
+      var ok = (!hits || !!hit) && (!year || c.dataset.year === year);
+      c.hidden = !ok;
+      var line = c.querySelector('.song-line');
+      line.hidden = !(hit && hit.line);
+      if (hit && hit.line) line.textContent = '„' + hit.line + '“';
+      if (ok) shown++;
+    });
+    none.hidden = shown > 0;
+  }
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    var q = input.value.trim();
+    if (q.length < 2) { hits = null; asked = ''; return render(); }
+    timer = setTimeout(function () {
+      asked = q;
+      fetch('/api/search?q=' + encodeURIComponent(q))
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .catch(function () { return []; })
+        .then(function (list) {
+          if (asked !== q) return;   // an older answer that came late
+          hits = {};
+          list.forEach(function (s) { hits[s.id] = s; });
+          render();
+        });
+    }, 220);
+  });
+})();
+</script>
 </main>
 
 <%@ include file="includes/footer.jsp" %>

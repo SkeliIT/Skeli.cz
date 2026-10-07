@@ -3,6 +3,7 @@
 
 <main>
     <div class="auth-wrap">
+    <%@ include file="/includes/auth-art.jspf" %>
         <div class="auth-card">
             <h2><%= t.getProperty("home.newsletter.title") %></h2>
 

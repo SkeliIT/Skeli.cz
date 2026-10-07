@@ -37,6 +37,8 @@
   --accent: #ffd23f;
   --accent-ink: #141414;                    /* text on an accent background */
   --accent-soft: rgba(255, 210, 63, 0.12);
+  --accent-2: #ff8a3d;  /* ember orange from the smoke photo */
+  --gold: linear-gradient(100deg, #ffe58a, #ffd23f 35%, #ff9d3d 75%, #ffd23f);
   --red: #e5383b;
   --spotify: #1DB954;
   --youtube: #FF0000;
@@ -45,6 +47,8 @@
   --radius-sm: 10px;
   --shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.65);
   --header-h: 68px;
+  --masthead-h: 94px;  /* big centred sign above the menu (desktop only) */
+  --tabbar-h: 0px;     /* bottom bar on phones/tablets (effects.css) */
   --container: 1180px;
   --fw: 400;
 }
@@ -68,6 +72,8 @@ body.light {
   --accent: #a37b00;
   --accent-ink: #ffffff;
   --accent-soft: rgba(163, 123, 0, 0.12);
+  --accent-2: #2f7fd6;  /* blue sky from the snow photo */
+  --gold: linear-gradient(100deg, #c99a12, #a37b00 40%, #d08a1c 80%, #a37b00);
   --shadow: 0 20px 45px -24px rgba(0, 0, 0, 0.30);
 }
 
@@ -107,7 +113,11 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background: var(--bg-overlay), var(--bg-image) center 30% / cover no-repeat;
+  /* the photo slowly breathes in and out; scaling up never shows its edge */
+  animation: bg-breathe 30s ease-in-out infinite alternate;
+  will-change: transform;
 }
+@keyframes bg-breathe { to { transform: scale(1.07) translateY(-1%); } }
 
 img { max-width: 100%; }
 
@@ -220,20 +230,26 @@ main > h2:first-child::after {
 }
 
 /* Reveal animation */
+/* sections fade in from a soft blur; --d staggers neighbours (0, 1, 2…) */
 .reveal {
   opacity: 0;
-  transform: translateY(14px);
-  transition: opacity .6s ease, transform .6s ease;
+  transform: translateY(26px);
+  filter: blur(4px);
+  transition: opacity .9s ease, transform .9s cubic-bezier(.2, .7, .2, 1), filter .9s ease;
+  transition-delay: calc(var(--d, 0) * 90ms);
 }
-.reveal.show { opacity: 1; transform: none; }
+.reveal.show { opacity: 1; transform: none; filter: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .reveal { opacity: 1; transform: none; filter: none; transition: none; }
+  body::before { animation: none; }
 }
 
 @media (max-width: 600px) {
   main { padding: 24px 16px 120px; }
 }
+/* room for the bottom bar on phones/tablets */
+main { padding-bottom: calc(120px + var(--tabbar-h)); }
 
 /* "B" button in the header: easier reading. Bruno Ace SC has one weight, so the
    browser may synthesize the bold here; everything also grows a little. */

@@ -64,22 +64,63 @@ public class WebUtils {
         return fallback;
     }
 
+    public static final int PASSWORD_MIN = 8;
+    /** bcrypt only uses the first 72 bytes, so longer passwords are refused rather than silently cut. */
+    public static final int PASSWORD_MAX = 64;
+    private static final int PASSWORD_MAX_BYTES = 72;
+
     /**
      * The one password rule for registration, password change and reset:
-     * at least 12 characters with an upper- and lower-case letter, a digit and a special character.
+     * at least 8 characters with an upper- and lower-case letter, a digit and a special character.
      */
     public static boolean isPasswordStrong(String password) {
-        if (password == null || password.length() < 12) {
-            return false;
-        }
+        return passwordProblems(password).isEmpty();
+    }
+
+    /**
+     * What the password is missing, as rule codes also used by the form helper
+     * ({@code js/password-helper.js}): length, lower, upper, digit, special, invalid
+     * (spaces, invisible characters, emoji) and long. Empty = the password is fine.
+     */
+    public static java.util.Set<String> passwordProblems(String password) {
+        java.util.Set<String> problems = new java.util.LinkedHashSet<>();
+        if (password == null) password = "";
         boolean hasUpper = false, hasLower = false, hasDigit = false, hasSpecial = false;
-        for (char c : password.toCharArray()) {
-            if (Character.isUpperCase(c)) hasUpper = true;
-            else if (Character.isLowerCase(c)) hasLower = true;
-            else if (Character.isDigit(c)) hasDigit = true;
-            else if (!Character.isWhitespace(c)) hasSpecial = true;
+        for (int i = 0; i < password.length(); ) {
+            int cp = password.codePointAt(i);
+            i += Character.charCount(cp);
+            if (isForbiddenInPassword(cp)) problems.add("invalid");
+            else if (Character.isUpperCase(cp)) hasUpper = true;
+            else if (Character.isLowerCase(cp)) hasLower = true;
+            else if (Character.isDigit(cp)) hasDigit = true;
+            else hasSpecial = true;
         }
-        return hasUpper && hasLower && hasDigit && hasSpecial;
+        int length = password.codePointCount(0, password.length());
+        if (length < PASSWORD_MIN) problems.add("length");
+        if (!hasLower) problems.add("lower");
+        if (!hasUpper) problems.add("upper");
+        if (!hasDigit) problems.add("digit");
+        if (!hasSpecial) problems.add("special");
+        if (length > PASSWORD_MAX
+                || password.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > PASSWORD_MAX_BYTES) {
+            problems.add("long");
+        }
+        return problems;
+    }
+
+    /** Spaces, control and invisible characters, and emoji (hard to type on another device). */
+    static boolean isForbiddenInPassword(int cp) {
+        return Character.isWhitespace(cp) || Character.isSpaceChar(cp) || Character.isISOControl(cp)
+                || Character.getType(cp) == Character.FORMAT
+                || (cp >= 0xFE00 && cp <= 0xFE0F) // emoji variation selectors
+                || cp > 0xFFFF;                   // emoji and other characters outside the basic plane
+    }
+
+    /** i18n key of the error message for a password that failed {@link #passwordProblems}. */
+    public static String passwordErrorKey(java.util.Set<String> problems) {
+        if (problems.contains("invalid")) return "auth.error.passwordInvalidChars";
+        if (problems.contains("long")) return "auth.error.passwordTooLong";
+        return "auth.error.passwordStrength";
     }
 
     /**

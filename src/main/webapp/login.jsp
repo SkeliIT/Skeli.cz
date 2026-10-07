@@ -2,6 +2,7 @@
 <%@ include file="includes/header.jsp" %>
 <main>
   <div class="auth-wrap">
+    <%@ include file="/includes/auth-art.jspf" %>
     <section class="auth-card">
       <h2><%= t.getProperty("auth.login.heading","Přihlášení") %></h2>
       <% String loginError = (String) request.getAttribute("loginError"); %>
@@ -10,6 +11,9 @@
       <% } %>
       <% if ("1".equals(request.getParameter("registered"))) { %>
       <div class="form-success"><%= t.getProperty("auth.register.success","Registrace proběhla úspěšně. Nyní se můžete přihlásit.") %></div>
+      <% } %>
+      <% if ("1".equals(request.getParameter("reset"))) { %>
+      <div class="form-success"><%= t.getProperty("reset.success") %></div>
       <% } %>
       <form method="post" action="login">
         <input type="hidden" name="csrf" value="<%= request.getAttribute("csrf") != null ? request.getAttribute("csrf") : "" %>">

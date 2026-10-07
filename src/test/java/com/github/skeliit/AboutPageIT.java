@@ -55,6 +55,22 @@ class AboutPageIT extends UiTestSupport {
                 "return arguments[0].complete && arguments[0].naturalWidth > 0", img);
     }
 
+    @Test
+    void galleryPhotoOpensInTheViewerAndBackStaysOnThePage() throws Exception {
+        driver.get(BASE_URL + "/about.jsp");
+        String url = driver.getCurrentUrl();
+        WebElement photo = driver.findElement(By.cssSelector(".gallery-item"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block:'center'})", photo);
+        photo.click();
+        Thread.sleep(600);
+        assertTrue(driver.findElement(By.cssSelector(".lightbox")).isDisplayed(), "the viewer opens");
+        // the page switcher used to take the click too and put the image's address into the history
+        assertTrue(driver.getCurrentUrl().equals(url), "still on the page, got " + driver.getCurrentUrl());
+        driver.findElement(By.cssSelector(".lightbox .lb-close")).click();
+        driver.navigate().refresh();
+        assertTrue(driver.findElement(By.tagName("main")).getText().length() > 50, "the page, not an image as text");
+    }
+
     private void shot(String name) throws Exception {
         String dir = System.getProperty("it.shots");
         if (dir == null) return;

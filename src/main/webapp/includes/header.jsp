@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "2.5.0";
+  String assetVersion = "3.5.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -104,11 +104,17 @@
     <link rel="stylesheet" href="<%= ctx %>/css/components.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/pages.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/admin.css?v=<%= assetVersion %>">
+    <link rel="stylesheet" href="<%= ctx %>/css/effects.css?v=<%= assetVersion %>">
   </head>
   <body>
       <% request.setAttribute("csrf", com.github.skeliit.CsrfFilter.token(session)); %>
       <% String currentUser = (String) session.getAttribute("username");
          String currentRole = (String) session.getAttribute("role"); %>
+        <%-- desktop: the big sign sits centred above the menu and scrolls away; the bar
+             below it sticks and shows the small sign on its left once docked --%>
+        <div class="masthead" id="masthead">
+          <a href="<%= ctx %>/index.jsp" class="masthead-brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
+        </div>
         <header class="site-header" id="siteHeader">
           <div class="header-inner">
             <a href="<%= ctx %>/index.jsp" class="brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
@@ -187,10 +193,18 @@
                   </div>
                 </div>
               <% } %>
-              <button class="menu-toggle icon-btn" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false"><i class="fa-solid fa-bars"></i><span class="menu-label"><%= t.getProperty("footer.menu") %></span></button>
             </div>
           </div>
         </header>
+        <%-- phones and tablets: the main pages at the thumb, the rest (about, donate,
+             settings, languages) behind Menu. Shop / games get a slot here once they exist. --%>
+        <nav class="tabbar" id="tabbar" aria-label="<%= t.getProperty("footer.menu") %>">
+          <a href="<%= ctx %>/index.jsp"><i class="fa-solid fa-house"></i><span><%= t.getProperty("menu.home","Home") %></span></a>
+          <a href="<%= ctx %>/aktuality.jsp"><i class="fa-solid fa-bolt"></i><span><%= t.getProperty("menu.news") %></span></a>
+          <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music"></i><span><%= t.getProperty("menu.music","Music") %></span></a>
+          <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left"></i><span><%= t.getProperty("menu.lyrics","Lyrics") %></span></a>
+          <button class="menu-toggle" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false"><i class="fa-solid fa-bars"></i><span class="menu-label"><%= t.getProperty("footer.menu") %></span></button>
+        </nav>
 <%
   // One-line messages after a redirect, chosen by fixed query parameters (never echoed back)
   String flashKey = null; boolean flashOk = true;
@@ -242,9 +256,10 @@
               localStorage.setItem(k, v);
             });
 
-            // Header gets a solid glass background once the page is scrolled
+            // Header gets a solid glass background (and the small sign) once it is docked at the top
             const siteHeader = document.getElementById('siteHeader');
-            function onHeaderScroll() { siteHeader.classList.toggle('scrolled', window.scrollY > 8); }
+            const masthead = document.getElementById('masthead');
+            function onHeaderScroll() { siteHeader.classList.toggle('scrolled', window.scrollY > Math.max(8, masthead.offsetHeight - 1)); }
             window.addEventListener('scroll', onHeaderScroll, { passive: true });
             onHeaderScroll();
 
@@ -338,6 +353,8 @@
                 try {
                   document.body.style.cursor = 'progress';
                   const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
+                  // only pages are swapped in; an image or a file opens normally
+                  if (!(res.headers.get('content-type') || '').includes('text/html')) return location.assign(url);
                   const text = await res.text();
                   const newMain = extractMain(text);
                   if (!newMain) return location.assign(url);
@@ -353,11 +370,15 @@
                 finally { document.body.style.cursor = ''; }
               }
               document.addEventListener('click', function (e) {
+                // another handler took the click (gallery viewer, Kevin…), or a new tab is wanted
+                if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
                 const a = e.target.closest('a');
-                if (!a) return;
+                if (!a || a.hasAttribute('data-lightbox')) return;
                 if (!isInternal(a)) return;
                 const href = a.getAttribute('href') || '';
                 if (!href || href.startsWith('#')) return;
+                // pictures and files are not pages
+                if (/\.(webp|jpe?g|png|gif|svg|pdf|mp3|mp4|zip)(\?|$)/i.test(href)) return;
                 // allow full reload for language switch to refresh header/nav strings
                 if (href.includes('lang=')) return;
                 // disable PJAX for pages that need full refresh or include page-scoped styles/scripts
@@ -376,7 +397,7 @@
               let cur = location.pathname.split('/').pop() || 'index.jsp';
               if (location.pathname.startsWith('/lyrics/')) cur = 'texty.jsp';
               cur = navAliases[cur] || cur;
-              document.querySelectorAll('header nav a').forEach(a => {
+              document.querySelectorAll('header nav a, .tabbar a').forEach(a => {
                 try {
                   const href = a.getAttribute('href') || '';
                   const normalized = (href.split('?')[0] || '').split('/').pop() || '';

@@ -2,10 +2,11 @@
 <%@ page import="com.github.skeliit.Db" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 
 <main class="music-page">
-  <h2><%= t.getProperty("menu.music","Music") %></h2>
-  <p class="page-lead"><%= t.getProperty("music.lead") %></p>
+  <sk:pageHero kicker='<%= t.getProperty("hero.kicker.music") %>'
+               title='<%= t.getProperty("menu.music") %>' lead='<%= t.getProperty("music.lead") %>'/>
 
   <section class="section youtube">
     <h3 class="section-title"><span class="ico"><i class="fab fa-youtube icon-youtube"></i></span> <%= t.getProperty("music.videos") %></h3>
@@ -68,8 +69,11 @@
             </span>
           <% } else if (yt != null) { %>
             <img src="https://img.youtube.com/vi/<%= ytHtml %>/mqdefault.jpg" alt="" loading="lazy">
+            <%-- on hover the cover shrinks into a sleeve and a record with it on the label slides out --%>
+            <span class="vinyl" aria-hidden="true" style="--cover: url('https://img.youtube.com/vi/<%= ytHtml %>/mqdefault.jpg')"></span>
           <% } else if (preview != null) { %>
             <img src="<%= com.github.skeliit.WebUtils.escapeHtml(preview) %>" alt="" loading="lazy">
+            <span class="vinyl" aria-hidden="true" style="--cover: url('<%= com.github.skeliit.WebUtils.escapeHtml(preview) %>')"></span>
           <% } else { %>
             <span class="song-thumb-placeholder"><i class="fa-solid fa-music"></i></span>
           <% } %>

@@ -1,12 +1,11 @@
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 
 <main class="donate-page">
+  <sk:pageHero kicker="SKELO SQUAD"
+               title='<%= t.getProperty("donate.title") %>' lead='<%= t.getProperty("donate.description") %>'/>
   <div class="donate-card">
-    <div class="donate-intro">
-      <h2 class="donate-title"><%= t.getProperty("donate.title","Podpoř můj projekt") %></h2>
-      <p class="donate-description"><%= t.getProperty("donate.description","Dobrovolný příspěvek pomůže s výrobou hudby, videí a provozem webu. Dík!") %></p>
-    </div>
 
     <div class="donate-grid">
       <section class="donate-section">

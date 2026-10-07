@@ -46,6 +46,10 @@ public class SocialPostsApiServlet extends HttpServlet {
         } catch (Exception ignore) {
         }
 
+        // optional filter of the news page: only one source
+        String source = req.getParameter("source");
+        if (!java.util.Set.of("instagram", "youtube", "facebook", "web").contains(source == null ? "" : source)) source = null;
+
         String sql;
         if (onePerSource) {
             // the newest post (by publish time, not insert order) of each source
@@ -55,7 +59,7 @@ public class SocialPostsApiServlet extends HttpServlet {
                     "WHERE rn = 1 ORDER BY created_at DESC";
         } else {
             // YouTube Shorts + social posts, newest first (offset pagination for load-more)
-            sql =
+            sql = "SELECT * FROM (" +
                     "(SELECT id, 'youtube' COLLATE utf8mb4_czech_ci AS source," +
                     " CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_czech_ci AS lang," +
                     " CONVERT(youtube_id USING utf8mb4) COLLATE utf8mb4_czech_ci AS post_id," +
@@ -70,15 +74,17 @@ public class SocialPostsApiServlet extends HttpServlet {
                     " post_id COLLATE utf8mb4_czech_ci, permalink COLLATE utf8mb4_czech_ci," +
                     " image_url COLLATE utf8mb4_czech_ci, caption COLLATE utf8mb4_czech_ci, created_at" +
                     " FROM social_posts WHERE (lang = ? OR lang IS NULL))" +
-                    " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+                    ") u WHERE (? IS NULL OR u.source = ?) ORDER BY created_at DESC LIMIT ? OFFSET ?";
         }
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode arr = mapper.createArrayNode();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, lang);
             if (!onePerSource) {
-                ps.setInt(2, limit);
-                ps.setInt(3, offset);
+                ps.setString(2, source);
+                ps.setString(3, source);
+                ps.setInt(4, limit);
+                ps.setInt(5, offset);
             }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {

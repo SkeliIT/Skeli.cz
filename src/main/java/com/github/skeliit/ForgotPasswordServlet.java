@@ -16,20 +16,36 @@ public class ForgotPasswordServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String username = req.getParameter("username");
-        if (username == null) { resp.sendRedirect("forgot.jsp"); return; }
+        if (username == null || username.isBlank()) { resp.sendRedirect("forgot.jsp"); return; }
+        username = username.trim();
+        // At most 5 requests per hour from one IP (not for direct local requests, see WebUtils)
+        if (!WebUtils.isDirectLocalRequest(req)
+                && !RequestLimiter.tryAcquire("forgot", WebUtils.clientIp(req), 5, RequestLimiter.HOUR)) {
+            resp.sendRedirect("forgot.jsp?sent=true");
+            return;
+        }
         try (Connection conn = Db.get()) {
             Integer userId = null;
             String email = null;
-            try (PreparedStatement ps = conn.prepareStatement("SELECT id, email FROM users WHERE username=?")) {
+            // same as login: the username or the e-mail address
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT id, email FROM users WHERE username = ? OR email = ? LIMIT 1")) {
                 ps.setString(1, username);
-                try (ResultSet rs = ps.executeQuery()) { 
+                ps.setString(2, username.toLowerCase(java.util.Locale.ROOT));
+                try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         userId = rs.getInt(1);
                         email = rs.getString(2);
                     }
                 }
             }
-            if (userId != null) {
+            if (userId != null && (email == null || email.isBlank())) {
+                getServletContext().log("Password reset requested for user " + userId + " without an e-mail address");
+            } else if (userId != null && !EmailUtil.isConfigured()) {
+                getServletContext().log("Password reset requested but SMTP is not configured (SMTP_HOST/USERNAME/PASSWORD)");
+            } else if (userId != null
+                    // at most 3 reset e-mails per hour to one account, so nobody can flood a mailbox
+                    && RequestLimiter.tryAcquire("forgot-user", userId, 3, RequestLimiter.HOUR)) {
                 String token = generateToken();
                 // Only the newest link stays valid
                 try (PreparedStatement ps = conn.prepareStatement("DELETE FROM password_resets WHERE user_id=?")) {

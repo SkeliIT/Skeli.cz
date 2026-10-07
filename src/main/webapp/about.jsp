@@ -48,6 +48,20 @@
       </div>
     </div>
   </section>
+  <%-- photos: black and white until you point at them, full screen on click (js/effects.js) --%>
+  <section class="photo-gallery" data-reveal>
+    <h2><%= t.getProperty("about.photos") %></h2>
+    <div class="gallery-grid">
+      <% String[][] photos = {
+           {"point", "wide"}, {"skull", "tall"}, {"street", "wide"}, {"field", "tall"},
+           {"rocks", "wide"}, {"square", "wide"} };
+         for (String[] ph : photos) { %>
+      <a class="gallery-item <%= ph[1] %>" href="/img/photos/<%= ph[0] %>-lg.webp" data-lightbox="about">
+        <img src="/img/photos/<%= ph[0] %>-sm.webp" alt="<%= t.getProperty("about.photo.alt") %>" loading="lazy">
+      </a>
+      <% } %>
+    </div>
+  </section>
   <section class="about-grid">
     <div class="about-card">
       <h3><%= t.getProperty("about.music.title","Music journey") %></h3>
