@@ -23,6 +23,14 @@ class SecurityIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Redirects are paths, so behind the https proxy the browser never drops to http")
+    void redirectsStayOnTheSameScheme() throws Exception {
+        HttpResponse<Void> r = get("/login");
+        assertEquals(302, r.statusCode());
+        assertEquals("/login.jsp", r.headers().firstValue("Location").orElse(null));
+    }
+
+    @Test
     @DisplayName("Every page sends the security headers")
     void securityHeaders() throws Exception {
         for (String path : new String[]{"/", "/texty.jsp", "/login.jsp", "/css/base.css"}) {
