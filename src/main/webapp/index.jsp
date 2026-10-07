@@ -3,10 +3,29 @@
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
+<%
+  // Newest clips (hero card + news) and songs with lyrics (the running tapes)
+  java.util.List<com.github.skeliit.dao.HomeDao.HomeVideo> homeVideos = java.util.List.of();
+  java.util.List<com.github.skeliit.dao.HomeDao.TapeSong> tapeSongs = java.util.List.of();
+  boolean homeDbError = false;
+  try {
+    com.github.skeliit.dao.HomeDao homeDao = new com.github.skeliit.dao.HomeDao();
+    homeVideos = homeDao.latestVideos(5);
+    tapeSongs = homeDao.songsWithLyrics();
+  } catch (SQLException ex) {
+    homeDbError = true;
+  }
+  java.time.format.DateTimeFormatter dateFmt = java.time.format.DateTimeFormatter
+      .ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(java.util.Locale.forLanguageTag(cur));
+  com.github.skeliit.dao.HomeDao.HomeVideo latest = homeVideos.isEmpty() ? null : homeVideos.get(0);
+%>
 <main class="home-page">
   <section class="hero">
-    <h1 class="hero-title"><span class="logo-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></h1>
-    <p class="hero-tagline"><%= t.getProperty("index.hero","Official website – music, lyrics, news.") %></p>
+    <div class="hero-particles" aria-hidden="true"></div>
+    <%-- first glance: this is Skeli's music --%>
+    <p class="hero-kicker"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><%= t.getProperty("home.kicker") %></p>
+    <h1 class="hero-title"><span class="logo-mark" aria-hidden="true"></span><span class="sr-only">Skeli – SKELOSQUAD</span></h1>
+    <p class="hero-tagline"><%= t.getProperty("home.lead") %></p>
     <div class="hero-actions">
       <button type="button" class="btn btn-primary btn-lg" data-spotify-src="artist:5IouXw8U9uKCTwmncG5bUl">
         <i class="fab fa-spotify"></i> <%= t.getProperty("home.cta.listen") %>
@@ -15,6 +34,15 @@
         <i class="fa-solid fa-align-left"></i> <%= t.getProperty("home.cta.lyrics") %>
       </a>
     </div>
+    <% if (latest != null) {
+         String latestId = com.github.skeliit.WebUtils.escapeHtml(latest.youtubeId());
+         String latestTitle = latest.title() == null ? "YouTube" : latest.title(); %>
+    <a class="hero-latest" href="https://www.youtube.com/watch?v=<%= latestId %>" target="_blank" rel="noopener">
+      <img src="https://i.ytimg.com/vi/<%= latestId %>/mqdefault.jpg" alt="" width="104" height="58">
+      <span><small><span class="dot"></span><%= t.getProperty("home.latest") %></small><b><%= com.github.skeliit.WebUtils.escapeHtml(latestTitle) %></b></span>
+      <span class="play"><i class="fa-solid fa-play"></i></span>
+    </a>
+    <% } %>
     <div class="social-row hero-social">
       <a class="social-btn fb" href="https://www.facebook.com/mcskeli/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
       <a class="social-btn ig" href="https://www.instagram.com/skeli.official/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
@@ -22,6 +50,22 @@
       <a class="social-btn sp" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
     </div>
   </section>
+
+  <% if (!tapeSongs.isEmpty()) { %>
+  <%-- two crossed tapes with the song names, running in opposite directions --%>
+  <section class="tapes" aria-label="<%= t.getProperty("home.songs") %>">
+    <div class="tape tape-gold"><div class="marquee-track">
+      <span class="tape-name">SKELI</span><i aria-hidden="true">✦</i>
+      <% for (com.github.skeliit.dao.HomeDao.TapeSong s : tapeSongs) { %><a href="<%= com.github.skeliit.WebUtils.escapeHtml(s.href()) %>"><%= com.github.skeliit.WebUtils.escapeHtml(s.name()) %></a><i aria-hidden="true">✦</i><% } %>
+    </div></div>
+    <div class="tape tape-dark" aria-hidden="true"><div class="marquee-track reverse">
+      <% for (com.github.skeliit.dao.HomeDao.TapeSong s : tapeSongs) {
+           String img = s.thumb(); %>
+      <a href="<%= com.github.skeliit.WebUtils.escapeHtml(s.href()) %>" tabindex="-1"><% if (img != null) { %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(img) %>" alt="" loading="lazy"><% } %><%= com.github.skeliit.WebUtils.escapeHtml(s.name()) %><% if (s.year() != null) { %> <small><%= s.year() %></small><% } %></a>
+      <% } %>
+    </div></div>
+  </section>
+  <% } %>
 
   <section class="feature-grid" data-reveal>
     <a class="feature-card" href="/music.jsp">
@@ -51,47 +95,29 @@
         <a href="/music.jsp"><%= t.getProperty("menu.music") %> <i class="fa-solid fa-arrow-right"></i></a>
       </div>
       <div class="videos">
-        <%
-          // Title falls back to the linked song name; videos without either show just "YouTube"
-          String sql = "SELECT v.youtube_id, v.title, v.published_at, s.name FROM videos v LEFT JOIN songs s ON s.id = v.song_id ORDER BY v.published_at DESC, v.id DESC LIMIT 4";
-          java.time.format.DateTimeFormatter dateFmt = java.time.format.DateTimeFormatter
-              .ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(java.util.Locale.forLanguageTag(cur));
-          try (Connection conn = Db.get()){
-            if (conn != null){
-              try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()){
-                while (rs.next()){
-                  String vid = com.github.skeliit.WebUtils.escapeHtml(rs.getString(1));
-                  String rawTitle = com.github.skeliit.VideoTitles.display(rs.getString(2));
-                  if (rawTitle == null) rawTitle = rs.getString(4);
-                  String title = rawTitle == null ? "" : com.github.skeliit.WebUtils.escapeHtml(rawTitle);
-                  java.sql.Timestamp ts = rs.getTimestamp(3);
-                  String dateStr = ts == null ? "" : dateFmt.format(ts.toLocalDateTime().toLocalDate());
-        %>
-                  <a class="video" href="https://www.youtube.com/watch?v=<%= vid %>" target="_blank" rel="noopener">
-                    <div class="video-thumb">
-                      <img src="https://img.youtube.com/vi/<%= vid %>/hqdefault.jpg" alt="<%= title %>" loading="lazy">
-                      <span class="video-play"><i class="fa-solid fa-play"></i></span>
-                    </div>
-                    <div class="meta">
-                      <div class="video-title"><% if (title.isEmpty()) { %><i class="fab fa-youtube icon-youtube"></i> YouTube<% } else { %><%= title %><% } %></div>
-                      <% if (!dateStr.isEmpty()) { %><div class="video-date"><%= dateStr %></div><% } %>
-                    </div>
-                    <button type="button" class="share-btn" data-url="https://www.youtube.com/watch?v=<%= vid %>" title="<%= t.getProperty("common.share") %>"><%= t.getProperty("common.share") %></button>
-                  </a>
-        <%
-                }
-              }
-            } else {
-        %>
-              <div class="empty-note"><%= t.getProperty("home.news.none","Žádná videa k zobrazení.") %></div>
-        <%
-            }
-          } catch (SQLException ex) {
-        %>
-            <div class="empty-note"><%= t.getProperty("home.news.error") %></div>
-        <%
-          }
-        %>
+        <% if (homeDbError) { %>
+          <div class="empty-note"><%= t.getProperty("home.news.error") %></div>
+        <% } else if (homeVideos.isEmpty()) { %>
+          <div class="empty-note"><%= t.getProperty("home.news.none","Žádná videa k zobrazení.") %></div>
+        <% }
+           for (com.github.skeliit.dao.HomeDao.HomeVideo v : homeVideos) {
+             String vid = com.github.skeliit.WebUtils.escapeHtml(v.youtubeId());
+             String title = v.title() == null ? "" : com.github.skeliit.WebUtils.escapeHtml(v.title());
+             String dateStr = v.published() == null ? "" : dateFmt.format(v.published().toLocalDateTime().toLocalDate());
+             boolean big = v == latest; %>
+          <a class="video<%= big ? " video-featured" : "" %>" href="https://www.youtube.com/watch?v=<%= vid %>" target="_blank" rel="noopener">
+            <div class="video-thumb">
+              <img src="https://img.youtube.com/vi/<%= vid %>/<%= big ? "maxresdefault" : "hqdefault" %>.jpg" alt="<%= title %>" loading="lazy"<% if (big) { %> onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')"<% } %>>
+              <span class="video-play"><i class="fa-solid fa-play"></i></span>
+            </div>
+            <div class="meta">
+              <% if (big) { %><span class="video-badge"><%= t.getProperty("home.latest") %></span><% } %>
+              <div class="video-title"><% if (title.isEmpty()) { %><i class="fab fa-youtube icon-youtube"></i> YouTube<% } else { %><%= title %><% } %></div>
+              <% if (!dateStr.isEmpty()) { %><div class="video-date"><%= dateStr %></div><% } %>
+            </div>
+            <button type="button" class="share-btn" data-url="https://www.youtube.com/watch?v=<%= vid %>" title="<%= t.getProperty("common.share") %>"><%= t.getProperty("common.share") %></button>
+          </a>
+        <% } %>
       </div>
     </div>
 

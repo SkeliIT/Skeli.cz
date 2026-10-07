@@ -13,7 +13,6 @@
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.2));
 }
 .masthead::after {
   content: "";
@@ -30,7 +29,6 @@
 }
 .masthead-brand .squad-mark { height: 62px; }
 .masthead-brand:hover { text-decoration: none; filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45)) brightness(1.12); transform: translateY(-1px); }
-body.light .masthead { background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.24)); }
 body.light .masthead-brand { filter: drop-shadow(0 1px 6px rgba(255, 255, 255, 0.7)); }
 
 .site-header {
@@ -38,7 +36,6 @@ body.light .masthead-brand { filter: drop-shadow(0 1px 6px rgba(255, 255, 255, 0
   top: 0;
   z-index: 1000;
   height: var(--header-h);
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
 }
 /* Glass bar once the page is scrolled. It lives on its own layer that reaches a
    bit below the header and fades out at the bottom, so there is no hard edge. */
@@ -53,15 +50,26 @@ body.light .masthead-brand { filter: drop-shadow(0 1px 6px rgba(255, 255, 255, 0
   pointer-events: none;
   opacity: 0;
   transition: opacity .3s ease;
-  background: rgba(9, 9, 11, 0.78);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 48px), transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 48px), transparent 100%);
+  /* only a soft shade behind the floating pills once docked, the pills carry the glass */
+  background: linear-gradient(to bottom, rgba(9, 9, 11, 0.55), rgba(9, 9, 11, 0));
 }
 .site-header.scrolled::before { opacity: 1; }
-body.light .site-header { background: linear-gradient(to bottom, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0)); }
-body.light .site-header::before { background: rgba(250, 249, 246, 0.85); }
+body.light .site-header::before { background: linear-gradient(to bottom, rgba(244, 242, 238, 0.6), rgba(244, 242, 238, 0)); }
+
+/* Floating glass pills: the menu in the middle and the controls on the right */
+.main-nav,
+.top-controls {
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  transition: background-color .3s ease;
+}
+.site-header.scrolled .main-nav,
+.site-header.scrolled .top-controls { background: var(--panel-strong); }
 
 /* small sign | menu (centred under the big sign) | controls */
 .header-inner {
@@ -91,11 +99,11 @@ body.light .site-header::before { background: rgba(250, 249, 246, 0.85); }
 .main-nav {
   display: flex;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
 }
 .main-nav a {
   position: relative;
-  padding: 8px 14px;
+  padding: 8px 15px;
   border-radius: 999px;
   color: var(--text);
   font-size: 0.86rem;
@@ -106,25 +114,22 @@ body.light .site-header::before { background: rgba(250, 249, 246, 0.85); }
 }
 .main-nav a:hover { opacity: 1; text-decoration: none; background: rgba(255, 255, 255, 0.06); }
 body.light .main-nav a:hover { background: rgba(0, 0, 0, 0.05); }
-.main-nav a.active { opacity: 1; color: var(--accent); }
-.main-nav a.active::after {
-  content: "";
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 2px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--accent);
-}
+/* the current page is a filled gold pill */
+.main-nav a.active { opacity: 1; color: var(--accent-ink); background: var(--accent); }
+.main-nav a.active:hover { background: var(--accent); }
 .main-nav .nav-donate { display: none; }
 
 .top-controls {
   display: flex;
   align-items: center;
   justify-self: end;
-  gap: 6px;
+  gap: 4px;
 }
+/* inside the pill the round buttons need no frame of their own */
+.top-controls > .icon-btn,
+.top-controls > .lang-switch > .icon-btn:not([data-lang]),
+.top-controls > .donate-link { border-color: transparent; background: transparent; }
+body.light .top-controls > .icon-btn { background: transparent; }
 
 /* Round icon buttons in the header */
 .icon-btn {
@@ -294,40 +299,31 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .header-inner { display: flex; gap: 12px; padding: 0 14px; }
   .top-controls { margin-left: auto; }
   .site-header .brand .squad-mark { height: 38px; }
-  /* the only way to the pages on a phone: a labelled pill, not one more round icon */
-  .menu-toggle.icon-btn {
-    display: inline-flex;
-    width: auto;
-    gap: 7px;
-    padding: 0 13px;
-    border-radius: 999px;
-    border-color: var(--accent);
-    color: var(--accent);
-    font-size: var(--fs-small);
-  }
-  .menu-toggle[aria-expanded="true"] { background: var(--accent-soft); }
   .donate-link { display: none; }
 
+  /* opened from the Menu tab: a sheet just above the bottom bar (effects.css) */
   .main-nav {
     display: none;
-    position: absolute;
-    top: 100%;
+    position: fixed;
+    top: auto;
+    bottom: calc(var(--tabbar-h) + 12px + env(safe-area-inset-bottom));
     left: 12px;
     right: 12px;
+    max-height: calc(100vh - var(--tabbar-h) - 90px);
+    overflow-y: auto;
     flex-direction: column;
     gap: 2px;
     padding: 10px;
     background: var(--panel-strong);
     border: 1px solid var(--panel-border);
-    border-radius: 16px;
+    border-radius: 22px;
     box-shadow: var(--shadow);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
   }
   .main-nav.open { display: flex; }
   .main-nav a { padding: 12px 14px; font-size: 0.95rem; border-radius: 10px; }
-  .main-nav a.active { background: var(--accent-soft); }
-  .main-nav a.active::after { display: none; }
+  .main-nav a.active { background: var(--accent-soft); color: var(--accent); }
   .main-nav .nav-donate { display: block; }
   .main-nav .nav-donate i { color: var(--red); }
 }

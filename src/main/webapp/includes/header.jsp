@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "2.6.1";
+  String assetVersion = "3.0.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -104,6 +104,7 @@
     <link rel="stylesheet" href="<%= ctx %>/css/components.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/pages.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/admin.css?v=<%= assetVersion %>">
+    <link rel="stylesheet" href="<%= ctx %>/css/effects.css?v=<%= assetVersion %>">
   </head>
   <body>
       <% request.setAttribute("csrf", com.github.skeliit.CsrfFilter.token(session)); %>
@@ -192,10 +193,18 @@
                   </div>
                 </div>
               <% } %>
-              <button class="menu-toggle icon-btn" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false"><i class="fa-solid fa-bars"></i><span class="menu-label"><%= t.getProperty("footer.menu") %></span></button>
             </div>
           </div>
         </header>
+        <%-- phones and tablets: the main pages at the thumb, the rest (about, donate,
+             settings, languages) behind Menu. Shop / games get a slot here once they exist. --%>
+        <nav class="tabbar" id="tabbar" aria-label="<%= t.getProperty("footer.menu") %>">
+          <a href="<%= ctx %>/index.jsp"><i class="fa-solid fa-house"></i><span><%= t.getProperty("menu.home","Home") %></span></a>
+          <a href="<%= ctx %>/aktuality.jsp"><i class="fa-solid fa-bolt"></i><span><%= t.getProperty("menu.news") %></span></a>
+          <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music"></i><span><%= t.getProperty("menu.music","Music") %></span></a>
+          <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left"></i><span><%= t.getProperty("menu.lyrics","Lyrics") %></span></a>
+          <button class="menu-toggle" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false"><i class="fa-solid fa-bars"></i><span class="menu-label"><%= t.getProperty("footer.menu") %></span></button>
+        </nav>
 <%
   // One-line messages after a redirect, chosen by fixed query parameters (never echoed back)
   String flashKey = null; boolean flashOk = true;
@@ -382,7 +391,7 @@
               let cur = location.pathname.split('/').pop() || 'index.jsp';
               if (location.pathname.startsWith('/lyrics/')) cur = 'texty.jsp';
               cur = navAliases[cur] || cur;
-              document.querySelectorAll('header nav a').forEach(a => {
+              document.querySelectorAll('header nav a, .tabbar a').forEach(a => {
                 try {
                   const href = a.getAttribute('href') || '';
                   const normalized = (href.split('?')[0] || '').split('/').pop() || '';
