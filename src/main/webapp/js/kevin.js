@@ -94,11 +94,13 @@
     model().setTalking(true);
     if (opts.pose) model().setPose(opts.pose);
     hideAfter = opts.after || 'idle';
-    hideMs = opts.ms || (opts.extra ? 15000 : Math.min(9000, 2600 + msg.length * 55));
+    // long enough to read in peace (the user found the old timing too quick)
+    hideMs = opts.ms || (opts.extra ? 20000 : Math.min(16000, 4500 + msg.length * 85));
     setTimeout(function () { model().setTalking(false); }, Math.min(hideMs, 1200 + msg.length * 40));
     hideTimer = setTimeout(function () { hideBubble(hideAfter); }, hideMs);
   }
   function hideBubble(pose) {
+    endPeek();
     bubble.hidden = true;
     extra.innerHTML = '';
     root.classList.remove('talking');
@@ -134,12 +136,45 @@
       .catch(function () { return null; });
   }
   // lines the visitor did not ask for: at most one in 40 s and six per page
-  function auto(msg, pose) {
+  function auto(msg, pose, peekChance) {
     var now = Date.now();
-    if (busy || root.hidden || autoCount >= 6 || now - lastAuto < 40000) return;
+    if (busy || root.hidden || autoCount >= 6 || now - lastAuto < 40000 || !bubble.hidden) return;
     autoCount++;
     lastAuto = now;
-    show(msg, { pose: pose });
+    if (Math.random() < (peekChance == null ? 0.5 : peekChance)) startPeek();
+    show(msg, { pose: pose || 'point' });
+  }
+
+  // ---------- now and then he peeks out from the side of the screen, halfway down ----------
+  var peeking = false;
+  function canPeek() {
+    return window.innerWidth > 1024 && !reduced && !root.classList.contains('ducked') && !tv;
+  }
+  function startPeek() {
+    if (peeking || !canPeek()) return;
+    peeking = true;
+    var right = Math.random() < 0.5;
+    root.style.setProperty('--peek-y', Math.round(window.innerHeight * (0.28 + Math.random() * 0.3)) + 'px');
+    root.classList.remove('kevin-in', 'peek-out');
+    root.classList.add('peek', right ? 'peek-right' : 'peek-left');
+    model().look(right ? -0.9 : 0.9, 0.1);   // he looks into the page
+  }
+  function endPeek() {
+    if (!peeking) return;
+    peeking = false;
+    root.classList.add('peek-out');
+    setTimeout(function () {
+      if (peeking) return;   // a new peek started meanwhile
+      root.classList.remove('peek', 'peek-left', 'peek-right', 'peek-out');
+      root.classList.add('kevin-in');   // pops back up in his corner
+    }, 550);
+  }
+  // a tip or a joke every minute and a half or so, while someone is on the page
+  function scheduleTip() {
+    setTimeout(function () {
+      if (!document.hidden && !asleep) auto(pick(Math.random() < 0.6 ? (L.tips || L.idle) : L.idle), 'point', 0.8);
+      scheduleTip();
+    }, 75000 + Math.random() * 45000);
   }
 
   // ---------- the beat (Web Audio, only ever after a click) ----------
@@ -216,7 +251,7 @@
             link.textContent = (bars.song ? bars.song + ' · ' : '') + L.ui.fullLyrics;
             link.href = bars.href;
             link.hidden = false;
-            rapTimer = setTimeout(endRap, 5200);
+            rapTimer = setTimeout(endRap, 8000);
             return;
           }
           var w = words[i++];
@@ -350,7 +385,7 @@
       if (!asked && acted) return;
       var href = n.clips && n.clips.length ? n.clips[0].href : '/aktuality.jsp';
       lastAuto = Date.now();
-      show(L.news.intro + ' ' + parts.join(', ') + '.', { pose: 'point', href: href, linkText: L.news.link, ms: 12000 });
+      show(L.news.intro + ' ' + parts.join(', ') + '.', { pose: 'point', href: href, linkText: L.news.link, ms: 16000 });
     });
   }
 
@@ -481,6 +516,7 @@
     if (store.get('kevin') === 'hidden') { setHidden(true); return; }
     wake();
     greet();
+    if (!adminPage) scheduleTip();
   }
 
   body.addEventListener('click', menu);
@@ -532,6 +568,10 @@
       show(pick(L.pw[d.pw]), { pose: d.pw === 'strong' ? 'cool' : d.pw === 'weak' ? 'sulk' : 'idle', after: 'idle' });
     } else if (d.page && L.page[d.page]) {
       auto(pick(L.page[d.page]));
+    } else if (d.tip) {
+      // another script wants a tip now (also used by the tests): he peeks out to say it
+      lastAuto = 0;
+      auto(pick(L.tips || L.idle), 'point', 1);
     }
   });
   document.addEventListener('pjax:done', function () { autoCount = 0; greet(); });

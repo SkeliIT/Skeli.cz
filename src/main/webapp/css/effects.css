@@ -863,6 +863,22 @@ body.light .lyric-page .lyric-title {
 button.is-sending { cursor: progress; opacity: 0.85; }
 @media (prefers-reduced-motion: reduce) { .mail-sent-icon { animation: none; } }
 
+/* ---------- Kevin peeks out from the side of the screen (js/kevin.js startPeek) ---------- */
+.kevin.peek { top: var(--peek-y, 40vh); bottom: auto; }
+.kevin.peek-right { left: auto; right: -46px; rotate: -18deg; animation: kevin-peek-in-right .75s cubic-bezier(.2, .9, .3, 1.15) both; }
+.kevin.peek-left { left: -46px; rotate: 18deg; animation: kevin-peek-in-left .75s cubic-bezier(.2, .9, .3, 1.15) both; }
+.kevin.peek-out.peek-right { animation: kevin-peek-out-right .5s ease-in both; }
+.kevin.peek-out.peek-left { animation: kevin-peek-out-left .5s ease-in both; }
+@keyframes kevin-peek-in-right { from { translate: 130% 0; } }
+@keyframes kevin-peek-in-left { from { translate: -130% 0; } }
+@keyframes kevin-peek-out-right { to { translate: 130% 0; } }
+@keyframes kevin-peek-out-left { to { translate: -130% 0; } }
+.kevin.peek .kevin-tools { display: none; }
+/* the bubble beside him, kept upright, its tail pointing at him */
+.kevin.peek-right .kevin-bubble { left: auto; right: 72%; bottom: 58%; rotate: 18deg; border-radius: 18px 18px 6px 18px; }
+.kevin.peek-right .kevin-bubble::after { left: auto; right: 22px; }
+.kevin.peek-left .kevin-bubble { left: 66%; bottom: 58%; rotate: -18deg; }
+
 /* ---------- Bottom bar on phones and tablets ---------- */
 .tabbar { display: none; }
 @media (max-width: 1024px) {

@@ -20,6 +20,15 @@ window.KEVIN_LINES = {
       'Tlapky mám zlatý. Rýmy taky.',
       'Moje oblíbená písnička? Ta, kde rapuju já. Zatím žádná. Zatím.'
     ],
+    // tips he gives when he peeks out from the side of the screen now and then
+    tips: [
+      'Tip: texty najdu i podle jednoho slova. Klikni na mě a dej „Najdi song“.',
+      'Tip: v Diskografii najeď na obal – vyjede z něj deska.',
+      'Tip: u textu písně jde písmo zvětšit tlačítky A+ a A−.',
+      'Tip: přihlas se a můžeš komentovat a hlasovat. Já hlasuju vždycky pro šéfa.',
+      'Tip: nahoře si přepneš světlý nebo tmavý režim. Já jsem zlatej v obou.',
+      'Tip: nevíš, co pustit? Klikni na mě, vyberu ti klip.'
+    ],
     spin: ['Točím se jak vinyl.', 'Pirueta. Gravitace mě nezastaví.'],
     cool: ['Brýle nasazený. Na můj lesk se bez nich nedá koukat.', 'Chill. Já jsem chill. Ty jsi chill?'],
     sulk: ['Tolik klikání? Teď se urazím.', 'Jsem zády. To je umělecký protest.'],
@@ -96,6 +105,14 @@ window.KEVIN_LINES = {
       'Nine lives and I rap in every one.',
       'Click me. I don\'t bite… mostly.',
       'Golden paws. Golden rhymes.'
+    ],
+    tips: [
+      'Tip: I can find lyrics by a single word. Click me and pick "Find a song".',
+      'Tip: in the Discography, point at a cover – a record slides out.',
+      'Tip: on a song page the A+ and A− buttons make the lyrics bigger.',
+      'Tip: sign in to comment and vote. I always vote for the boss.',
+      'Tip: switch between the light and dark theme at the top. I\x27m gold in both.',
+      'Tip: don\x27t know what to play? Click me and I\x27ll pick a clip.'
     ],
     spin: ['Spinning like vinyl.', 'A pirouette. Gravity can\'t stop me.'],
     cool: ['Shades on. You can\'t look at this shine without them.', 'Chill. I\'m chill. Are you chill?'],

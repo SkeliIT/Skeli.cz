@@ -105,6 +105,12 @@ function buildKevin(imgBase) {
   const tailCurve = new THREE.CatmullRomCurve3([new THREE.Vector3(0.5, 0.18, -0.8), new THREE.Vector3(1.2, 0.2, -0.55), new THREE.Vector3(1.5, 0.35, 0.1), new THREE.Vector3(1.3, 0.6, 0.55)]);
   const tail = new THREE.Mesh(new THREE.TubeGeometry(tailCurve, 48, 0.15, 16), gold);
   body.add(tail);
+  // the tube is open at both ends (you could see through the tip): round caps
+  for (const t of [0, 1]) {
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.15, 20, 14), gold);
+    cap.position.copy(tailCurve.getPoint(t));
+    tail.add(cap);
+  }
 
   // arms in sleeves with gold paws; the right one holds the mic
   function arm() {
@@ -127,17 +133,26 @@ function buildKevin(imgBase) {
   const armR = arm();
   armR.position.set(0.78, 1.08, 0.24);
   body.add(armR);
+  // a handheld mic: the paw grips the middle of the handle, the head with its wire mesh
+  // sticks out in front of the paw (towards the mouth when he raps)
   const mic = new THREE.Group();
-  const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.045, 0.62, 16), new THREE.MeshStandardMaterial({ color: 0x111113, roughness: 0.4, metalness: 0.4 }));
-  handle.position.y = -0.18;
+  const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.05, 0.46, 20), new THREE.MeshStandardMaterial({ color: 0x141416, roughness: 0.35, metalness: 0.5 }));
   mic.add(handle);
-  const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.05, 16), gold);
-  ring.position.y = 0.12;
+  const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.072, 0.07, 20), gold);
+  ring.position.y = 0.26;
   mic.add(ring);
-  const grille = new THREE.Mesh(new THREE.SphereGeometry(0.15, 24, 16), steel);
-  grille.position.y = 0.26;
+  const grille = new THREE.Mesh(new THREE.SphereGeometry(0.17, 28, 20), steel);
+  grille.position.y = 0.4;
   mic.add(grille);
-  mic.position.set(0, -0.96, 0.12);
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.173, 14, 10), new THREE.MeshBasicMaterial({ color: 0x3a3a40, wireframe: true }));
+  mesh.position.y = 0.4;
+  mic.add(mesh);
+  const band = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.016, 8, 32), gold);
+  band.position.y = 0.4;
+  band.rotation.x = Math.PI / 2;
+  mic.add(band);
+  mic.position.set(0.02, -0.9, 0.26);
+  mic.rotation.x = 0.45;           // the head leans forward, in front of the sleeve
   armR.add(mic);
 
   // head
@@ -273,7 +288,7 @@ function buildKevin(imgBase) {
 // arm angles per pose: [right x, right z, left x, left z]
 const ARMS = {
   idle: [0, 0.22, 0, -0.22],
-  rap: [-2.2, -0.55, -1.6, -0.22],
+  rap: [-2.45, 0.32, -1.6, -0.22],      // the mic in front of his mouth
   beatbox: [-2.25, -0.85, -2.25, 0.85],
   cool: [-1.15, 1.05, -1.25, -1.05],
   point: [0, 0.22, -1.45, 0.05],
