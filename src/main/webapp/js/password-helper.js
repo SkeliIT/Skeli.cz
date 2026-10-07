@@ -87,11 +87,29 @@
       return r.ok && (!confirm || confirm.value === p);
     }
 
+    // MC Kevin (js/kevin.js) comments when the visitor leaves a field – only when the verdict changes
+    var told = '';
+    function tellKevin(verdict) {
+      if (!verdict || verdict === told) return;
+      told = verdict;
+      window.dispatchEvent(new CustomEvent('kevin', { detail: { pw: verdict } }));
+    }
     pw.addEventListener('input', render);
-    pw.addEventListener('blur', function () { if (pw.value) { touched = true; render(); } });
+    pw.addEventListener('blur', function () {
+      if (!pw.value) return;
+      touched = true;
+      render();
+      var r = check(pw.value);
+      tellKevin(!r.invalid ? 'invalid' : !r.ok ? 'weak' : level(r) >= 3 ? 'strong' : '');
+    });
     if (confirm) {
       confirm.addEventListener('input', render);
-      confirm.addEventListener('blur', function () { if (confirm.value) { confirmTouched = true; render(); } });
+      confirm.addEventListener('blur', function () {
+        if (!confirm.value) return;
+        confirmTouched = true;
+        render();
+        if (confirm.value !== pw.value) tellKevin('mismatch');
+      });
     }
     form.addEventListener('submit', function (e) {
       touched = true; confirmTouched = true;
