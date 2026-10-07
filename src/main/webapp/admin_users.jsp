@@ -2,8 +2,9 @@
 <%@ page import="com.github.skeliit.Db" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<main>
-  <h2>Správa uživatelů</h2>
+<main class="admin-page">
+  <%@ include file="/includes/admin-nav.jspf" %>
+  <h2 class="admin-page-title">Uživatelé</h2>
   <%
     String role = (String) session.getAttribute("role");
     if (!"ADMIN".equals(role)) { out.println("<p>Pouze pro ADMIN.</p>"); } else {
@@ -11,8 +12,15 @@
            PreparedStatement ps = conn.prepareStatement("SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC");
            ResultSet rs = ps.executeQuery()) {
   %>
-    <div class="admin-card">
-      <table class="admin-table">
+    <%-- find someone by name or e-mail; deleted (anonymised) accounts are hidden unless asked for --%>
+    <div class="admin-toolbar">
+      <label class="admin-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" id="userFilter" placeholder="Hledat jméno nebo e-mail…" aria-label="Hledat uživatele"></label>
+      <label class="admin-check"><input type="checkbox" id="showDeleted"> Ukázat smazané účty</label>
+      <span class="text-dim" id="userCount"></span>
+    </div>
+    <div class="admin-card admin-table-card">
+      <table class="admin-table" id="userTable">
         <thead>
           <tr><th>ID</th><th>Jméno</th><th>Email</th><th>Role</th><th>Vytvořen</th><th>Akce</th></tr>
         </thead>
@@ -20,12 +28,12 @@
           <%
             while (rs.next()) {
           %>
-          <tr>
+          <tr class="role-<%= com.github.skeliit.WebUtils.escapeHtml(rs.getString("role")).toLowerCase() %>">
             <td><%= rs.getInt("id") %></td>
             <td><%= com.github.skeliit.WebUtils.escapeHtml(rs.getString("username")) %></td>
             <td><%= com.github.skeliit.WebUtils.escapeHtml(rs.getString("email")) %></td>
-            <td><%= com.github.skeliit.WebUtils.escapeHtml(rs.getString("role")) %></td>
-            <td><%= rs.getTimestamp("created_at") %></td>
+            <td><span class="role-badge"><%= com.github.skeliit.WebUtils.escapeHtml(rs.getString("role")) %></span></td>
+            <td><%= rs.getTimestamp("created_at") == null ? "" : new java.text.SimpleDateFormat("d. M. yyyy HH:mm").format(rs.getTimestamp("created_at")) %></td>
             <td class="act">
               <form method="post" action="/admin/users">
                 <input type="hidden" name="csrf" value="${csrf}">
@@ -51,6 +59,24 @@
         </tbody>
       </table>
     </div>
+    <script>
+    (function () {
+      var input = document.getElementById('userFilter'), deleted = document.getElementById('showDeleted');
+      var rows = [].slice.call(document.querySelectorAll('#userTable tbody tr')), count = document.getElementById('userCount');
+      function render() {
+        var q = input.value.trim().toLowerCase(), shown = 0;
+        rows.forEach(function (r) {
+          var ok = (deleted.checked || !r.classList.contains('role-deleted')) && (!q || r.textContent.toLowerCase().indexOf(q) >= 0);
+          r.hidden = !ok;
+          if (ok) shown++;
+        });
+        count.textContent = shown + ' z ' + rows.length;
+      }
+      input.addEventListener('input', render);
+      deleted.addEventListener('change', render);
+      render();
+    })();
+    </script>
   <%
       }
     }

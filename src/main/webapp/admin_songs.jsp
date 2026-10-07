@@ -2,9 +2,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<main>
-  <h2>Písně</h2>
-  <p class="admin-crumb"><a href="/admin.jsp">← Admin</a></p>
+<main class="admin-page">
+  <%@ include file="/includes/admin-nav.jspf" %>
+  <h2 class="admin-page-title">Písně</h2>
   <p class="text-dim">Píseň je střed administrace — YouTube, Spotify, Apple Music a náhled se vážou k ní.</p>
 
   <c:if test="${not empty param.msg}">

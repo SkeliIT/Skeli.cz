@@ -1,0 +1,23 @@
+<%@ page pageEncoding="UTF-8" %>
+<%-- The admin's own bar at the top of every admin page: where you are and the other sections --%>
+<%
+  String adminUri = (String) request.getAttribute("jakarta.servlet.forward.request_uri");
+  if (adminUri == null) adminUri = request.getRequestURI();
+  // {link, icon, label, the address prefix that marks it active}
+  String[][] adminTabs = {
+      {"/admin.jsp", "fa-gauge-high", "Nástěnka", "/admin.jsp"},
+      {"/admin/songs", "fa-music", "Písně", "/admin/song"},
+      {"/admin/lyrics", "fa-align-left", "Texty", "/admin/lyrics"},
+      {"/admin.jsp#reports", "fa-comments", "Komentáře", "#"},
+      {"/admin_users.jsp", "fa-users", "Uživatelé", "/admin_users"},
+      {"/admin/newsletter", "fa-envelope-open-text", "Newsletter", "/admin/newsletter"}
+  };
+%>
+<nav class="admin-bar" aria-label="Administrace">
+  <span class="admin-bar-title"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Admin</span>
+  <div class="admin-bar-tabs">
+  <% for (String[] tab : adminTabs) { boolean on = adminUri.startsWith(tab[3]); %>
+    <a href="<%= tab[0] %>"<%= on ? " class=\"active\" aria-current=\"page\"" : "" %>><i class="fa-solid <%= tab[1] %>" aria-hidden="true"></i><span><%= tab[2] %></span></a>
+  <% } %>
+  </div>
+</nav>

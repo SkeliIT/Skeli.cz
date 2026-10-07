@@ -2,9 +2,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<main class="admin-song-page">
+<main class="admin-page admin-song-page">
+  <%@ include file="/includes/admin-nav.jspf" %>
   <p class="admin-crumb">
-    <a href="/admin.jsp">Admin</a> ·
     <a href="/admin/songs">Písně</a> ·
     <strong><c:out value="${song.name}"/></strong>
   </p>

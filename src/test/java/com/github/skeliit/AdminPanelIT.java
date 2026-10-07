@@ -37,7 +37,8 @@ public class AdminPanelIT extends UiTestSupport {
         waitReady();
 
         assertTrue(driver.getCurrentUrl().endsWith("/admin.jsp"), "got: " + driver.getCurrentUrl());
-        assertEquals("Admin", driver.findElement(By.cssSelector("main h2")).getText());
+        assertEquals("Admin", driver.findElement(By.cssSelector(".admin-head h2")).getText());
+        assertFalse(driver.findElements(By.cssSelector(".admin-bar a.active[href='/admin.jsp']")).isEmpty(), "the admin bar marks the dashboard");
         assertFalse(driver.findElements(By.cssSelector("form[action='/admin/video']")).isEmpty());
         assertFalse(driver.findElements(By.cssSelector("form[action='/admin/comment']")).isEmpty());
     }
