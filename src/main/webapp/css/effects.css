@@ -20,33 +20,56 @@ body::after {
 }
 body.light::after { opacity: 0.03; }
 
-/* ---------- Gold mist on the signs and the gold tape ----------
-   Soft light and amber clouds drift over the gold in opposite directions. Each cloud
-   layer is a tile that fades to transparent at its edges and moves exactly one tile
-   per loop, so there is never a hard seam. */
+/* ---------- Smoky gold on the signs and the gold tape ----------
+   The smoke from the background photo rolls slowly inside the gold (img/smoke-tex.webp:
+   mirrored 2x2, so the tile repeats without a seam; it moves exactly one tile per loop).
+   Every few seconds a soft glint sweeps across (::after, clipped by the sign's mask). */
 :root {
-  --mist-base: #ffd23f;
-  --mist-hi: rgba(255, 247, 200, 0.95);
-  --mist-lo: rgba(255, 128, 40, 0.8);
+  --gold-base: #ffd23f;
+  --gold-hi: rgba(255, 244, 190, 0.9);
 }
 body.light {
-  --mist-base: #a37b00;
-  --mist-hi: rgba(226, 182, 52, 0.95);
-  --mist-lo: rgba(110, 70, 0, 0.75);
+  --gold-base: #a37b00;
+  --gold-hi: rgba(226, 182, 52, 0.9);
 }
 .hero-title .logo-mark,
 .masthead-brand .squad-mark,
 .tape-gold {
-  background-color: var(--mist-base);
-  background-image:
-    radial-gradient(closest-side, var(--mist-hi), transparent),
-    radial-gradient(closest-side, var(--mist-lo), transparent);
-  background-size: 520px 170%, 780px 190%;
-  background-repeat: repeat-x;
-  background-position: 0 40%, 0 60%;
-  animation: gold-mist 16s linear infinite;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--gold-base);
+  background-image: url('/img/smoke-tex.webp'), radial-gradient(closest-side, var(--gold-hi), transparent);
+  background-size: 700px 450px, 600px 200%;
+  background-repeat: repeat;
+  background-blend-mode: overlay, normal;
+  animation: gold-smoke 30s linear infinite;
 }
-@keyframes gold-mist { to { background-position: 520px 40%, -780px 60%; } }
+@keyframes gold-smoke {
+  from { background-position: 0 0, 0 50%; }
+  to { background-position: 700px -450px, -600px 50%; }
+}
+.hero-title .logo-mark::after,
+.masthead-brand .squad-mark::after,
+.tape-gold::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.28) 42%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0.28) 58%, transparent 70%);
+  transform: translateX(-110%);
+  animation: gold-glint 9s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+/* the long tape gets a narrower glint, a little later than the signs */
+.tape-gold::after {
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.25) 47%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.25) 53%, transparent 58%);
+  animation-delay: 2s;
+  animation-duration: 11s;
+}
+/* rests most of the time, then a slow, smooth sweep of about three seconds */
+@keyframes gold-glint {
+  0%, 62% { transform: translateX(-110%); }
+  95%, 100% { transform: translateX(110%); }
+}
 body.light .masthead-brand { filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.9)); }
 
 /* ---------- Cards: a gold edge and a soft glow on hover ---------- */
@@ -373,7 +396,8 @@ html:lang(vi) .tabbar a, html:lang(vi) .tabbar .menu-toggle { font-family: 'Exo 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-particles, .cursor-light, .bg-slides { display: none; }
+  .hero-particles, .cursor-light, .bg-slides,
+  .hero-title .logo-mark::after, .masthead-brand .squad-mark::after, .tape-gold::after { display: none; }
   .photo-band-img { transform: none; }
   .marquee-track, .tape-gold, .eq i, .hero-title .logo-mark, .masthead-brand .squad-mark, .hero-latest small .dot { animation: none; }
   [data-tilt] { transform: none !important; }
