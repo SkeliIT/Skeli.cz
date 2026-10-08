@@ -3,7 +3,8 @@
 
 <main class="about-page">
   <section class="about-header">
-    <h2><%= t.getProperty("about.title","About me") %></h2>
+    <%-- the heading is the artist's name, the same in every language; the tab title stays about.title --%>
+    <h2>Skeli</h2>
     <div class="about-intro">
       <%-- the portrait heads the story and fades out into the text below it --%>
       <%-- dark theme: the photo on its black background; light theme: the same photo with the
