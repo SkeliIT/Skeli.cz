@@ -41,7 +41,7 @@ window.KEVIN_LINES = {
     page: {
       home: ['Novej klip venku. A ty tu koukáš na kocoura?', 'Dole běží písničky. Klikni na kteroukoli, za ty se neuhodíš.'],
       music: ['Tady je všechno, co šéf nahrál. Já hrál na triangl, nevzali to.', 'Pusť si to nahlas. Sousedi to potřebujou.'],
-      lyrics: ['Texty se čtou nahlas. Klidně to udělám, klikni na mě.', 'Najdi si svůj řádek a sdílej ho. Já sdílím jen misku.'],
+      lyrics: ['Texty se mají rapovat. Klikni na mě a jeden kousek ti dám.', 'Najdi si svůj řádek a sdílej ho. Já sdílím jen misku.'],
       song: ['Tenhle text znám nazpaměť. No… skoro.', 'Čti pozorně. Pak bude test.'],
       about: ['Šéf se tu chvástá. Já bych dodal: a má nejlepšího kocoura.', 'Samouk. Jako já. Rapovat jsem se naučil sám, z YouTube.'],
       news: ['Čerstvý novinky. Čerstvější než moje granule.'],
@@ -126,7 +126,7 @@ window.KEVIN_LINES = {
     page: {
       home: ['New video\'s out. And you\'re looking at a cat?', 'Songs are running below. Click any of them.'],
       music: ['Everything the boss ever recorded. I played the triangle. Didn\'t make the cut.'],
-      lyrics: ['Lyrics are meant to be read out loud. Click me and I will.'],
+      lyrics: ['Lyrics are meant to be rapped. Click me and I will drop a few bars.'],
       song: ['I know these lyrics by heart. Well… almost.'],
       about: ['The boss is bragging here. I\'d add: and he has the best cat.'],
       news: ['Fresh news. Fresher than my cat food.'],
