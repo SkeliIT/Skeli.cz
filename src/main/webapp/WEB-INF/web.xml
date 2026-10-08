@@ -210,6 +210,15 @@
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
     </filter-mapping>
+    <!-- second: old sign-ins cut off by a password change etc. end before anything checks the user (AdminFilter) -->
+    <filter>
+        <filter-name>SessionValidityFilter</filter-name>
+        <filter-class>com.github.skeliit.SessionValidityFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>SessionValidityFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <filter>
         <filter-name>AdminFilter</filter-name>
         <filter-class>com.github.skeliit.AdminFilter</filter-class>

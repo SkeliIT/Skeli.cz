@@ -47,6 +47,15 @@ public class SessionRegistry implements HttpSessionListener, HttpSessionAttribut
      * Returns how many were signed out.
      */
     public static int signOut(int userId, HttpSession keep) {
+        // sessions kept in files over a restart are not in this map: the cut-off in the database ends them
+        long cutOff = SessionValidityFilter.cutOff(userId);
+        if (keep != null) {
+            try {
+                keep.setAttribute("signedInAt", cutOff);   // this device stays signed in
+            } catch (IllegalStateException alreadyGone) {
+                // nothing to keep
+            }
+        }
         Set<HttpSession> sessions = BY_USER.get(userId);
         if (sessions == null) return 0;
         int n = 0;

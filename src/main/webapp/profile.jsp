@@ -3,6 +3,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <main>
   <h2><%= t.getProperty("menu.profile") %></h2>
+  <% if (session.getAttribute("userId") == null) { %>
+  <%-- signed out (e.g. the sign-in expired): nothing to edit, just a way back in --%>
+  <section class="card prose-card">
+    <p><%= t.getProperty("profile.loginRequired") %></p>
+    <a class="btn btn-primary" href="/login.jsp?next=%2Fprofile.jsp"><i class="fa-solid fa-right-to-bracket"></i> <%= t.getProperty("auth.submit.login") %></a>
+  </section>
+  <% } else { %>
   <section style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.20);">
     <h3><%= t.getProperty("avatar.title") %></h3>
     <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
@@ -12,7 +19,7 @@
         </div>
       </div>
       <div style="flex:1; min-width:280px;">
-        <input id="avatar-input" type="file" accept="image/*" data-msg-huge="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.tooLarge")) %>" data-msg-format="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.badFormat")) %>" data-msg-preparing="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.preparing")) %>" data-msg-saved="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saved")) %>" data-msg-failed="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saveFailed")) %>" data-msg-network="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("common.networkError")) %>">
+        <input id="avatar-input" type="file" accept="image/*" data-msg-huge="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.tooLarge")) %>" data-msg-format="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.badFormat")) %>" data-msg-preparing="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.preparing")) %>" data-msg-saved="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saved")) %>" data-msg-failed="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saveFailed")) %>" data-msg-signed-out="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.signedOut")) %>" data-msg-network="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("common.networkError")) %>">
         <div id="cropper-wrap" style="position:relative; margin-top:8px; max-width:420px; border:1px dashed var(--panel-border); border-radius:8px; overflow:hidden; display:none;">
           <img id="cropper-img" style="max-width:100%; display:block;">
           <div id="cropper-overlay" style="position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at center, rgba(0,0,0,0) 46%, rgba(0,0,0,0.45) 48%, rgba(0,0,0,0.55) 100%);"></div>
@@ -102,6 +109,7 @@
     </div>
   </section>
 
+  <% } %>
   <%-- the photo cropper (inside <main>, so it also runs after PJAX navigation) --%>
   <link href="/vendor/cropper/cropper.min.css" rel="stylesheet">
   <script src="/js/avatar-editor.js?v=<%= assetVersion %>"></script>

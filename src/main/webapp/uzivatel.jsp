@@ -5,6 +5,13 @@
   <div class="settings-wrap">
     <div class="settings-shell">
       <h2 class="font-display text-center" style="margin-top:0;"><%= t.getProperty("settings.heading") %></h2>
+      <% if (session.getAttribute("user_id") == null) { %>
+      <%-- signed out (e.g. the sign-in expired): no forms, just a way back in --%>
+      <section class="settings-section text-center">
+        <p><%= t.getProperty("profile.loginRequired") %></p>
+        <a class="btn btn-primary" href="/login.jsp?next=%2Fuzivatel.jsp"><i class="fa-solid fa-right-to-bracket"></i> <%= t.getProperty("auth.submit.login") %></a>
+      </section>
+      <% } else { %>
 
       <%
         Integer uid = (Integer) session.getAttribute("user_id");
@@ -64,7 +71,7 @@
             </div>
           </div>
           <div class="avatar-controls">
-            <input id="avatar-input" type="file" accept="image/*" data-msg-huge="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.tooLarge")) %>" data-msg-format="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.badFormat")) %>" data-msg-preparing="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.preparing")) %>" data-msg-saved="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saved")) %>" data-msg-failed="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saveFailed")) %>" data-msg-network="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("common.networkError")) %>">
+            <input id="avatar-input" type="file" accept="image/*" data-msg-huge="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.tooLarge")) %>" data-msg-format="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.badFormat")) %>" data-msg-preparing="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.preparing")) %>" data-msg-saved="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saved")) %>" data-msg-failed="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saveFailed")) %>" data-msg-signed-out="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.signedOut")) %>" data-msg-network="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("common.networkError")) %>">
             <div id="cropper-wrap" class="avatar-crop-wrap">
               <img id="cropper-img" alt="crop image">
               <div id="cropper-overlay" style="position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at center, rgba(0,0,0,0) 46%, rgba(0,0,0,0.45) 48%, rgba(0,0,0,0.55) 100%);"></div>
@@ -159,6 +166,7 @@
           </form>
         </div>
       </section>
+      <% } %>
     </div>
   </div>
   <%-- the photo cropper (inside <main>, so it also runs after PJAX navigation) --%>

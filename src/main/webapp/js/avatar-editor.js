@@ -158,6 +158,8 @@
       try {
         const res = await fetch(form.action, { method: 'POST', body: fd });
         const data = await res.json().catch(function () { return {}; });
+        // signed out meanwhile (the sign-in expired): say so, not just "failed"
+        if (res.status === 401 || res.status === 403 || data.error === 'unauthorized') { say(text.msgSignedOut, 'warn'); return; }
         if (!res.ok || !data.ok) { say(text.msgFailed, 'warn'); return; }
         preview.src = data.url;
         document.querySelectorAll('img.user-avatar').forEach(function (i) { i.src = data.url; }); // the header too

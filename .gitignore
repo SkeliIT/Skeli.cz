@@ -50,3 +50,6 @@ replay_pid*
 
 # files uploaded through the site (song previews, avatars) are data, not code
 src/main/webapp/uploads/
+
+# sign-ins kept across restarts (WEB-INF/jetty-web.xml)
+.sessions/

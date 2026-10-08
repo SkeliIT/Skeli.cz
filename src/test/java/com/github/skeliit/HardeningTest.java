@@ -48,6 +48,15 @@ class HardeningTest {
         assertNull(WebUtils.readImage(new ByteArrayInputStream(pngHeader(50_000, 50_000))));
     }
 
+    @Test
+    void signInsBeforeTheCutOffEnd() {
+        assertFalse(SessionValidityFilter.isStale(1_000L, 0), "no cut-off yet");
+        assertTrue(SessionValidityFilter.isStale(1_000L, 2_000L), "signed in before a password change");
+        assertFalse(SessionValidityFilter.isStale(2_000L, 2_000L), "the device that changed it stays");
+        assertFalse(SessionValidityFilter.isStale(3_000L, 2_000L), "signed in again afterwards");
+        assertTrue(SessionValidityFilter.isStale(null, 2_000L), "an old session without the time");
+    }
+
     private static byte[] pngHeader(int w, int h) {
         ByteBuffer ihdr = ByteBuffer.allocate(17);
         ihdr.put("IHDR".getBytes()).putInt(w).putInt(h).put((byte) 8).put((byte) 2).put((byte) 0).put((byte) 0).put((byte) 0);
