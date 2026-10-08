@@ -37,7 +37,8 @@ public class AdminPanelIT extends UiTestSupport {
         waitReady();
 
         assertTrue(driver.getCurrentUrl().endsWith("/admin.jsp"), "got: " + driver.getCurrentUrl());
-        assertEquals("Admin", driver.findElement(By.cssSelector("main h2")).getText());
+        assertEquals("Admin", driver.findElement(By.cssSelector(".admin-head h2")).getText());
+        assertFalse(driver.findElements(By.cssSelector(".admin-bar a.active[href='/admin.jsp']")).isEmpty(), "the admin bar marks the dashboard");
         assertFalse(driver.findElements(By.cssSelector("form[action='/admin/video']")).isEmpty());
         assertFalse(driver.findElements(By.cssSelector("form[action='/admin/comment']")).isEmpty());
     }
@@ -211,6 +212,21 @@ public class AdminPanelIT extends UiTestSupport {
             update("DELETE FROM videos WHERE youtube_id=?", youtubeId);
             update("DELETE FROM songs WHERE name IN (?, 'IT Clip')", songName);
         }
+    }
+
+    @Test
+    @DisplayName("The dashboard shows the visits and the counters can be reset to zero")
+    void visitStatsAndReset() throws Exception {
+        driver.get(BASE_URL + "/admin.jsp");
+        assertFalse(driver.findElements(By.cssSelector("#stats")).isEmpty(), "Návštěvnost section");
+        assertEquals(6, driver.findElements(By.cssSelector(".admin-visits .admin-stat")).size());
+
+        WebElement form = driver.findElement(By.cssSelector("form[action='/admin/stats-reset']"));
+        jsClick(form.findElement(By.name("confirm")));
+        clickAndWaitReload(form.findElement(By.cssSelector("button[type=submit]")), false);
+        assertTrue(driver.getCurrentUrl().contains("statsReset=1"), "got: " + driver.getCurrentUrl());
+        assertEquals(0, queryInt("SELECT COUNT(*) FROM lyric_views"));
+        assertEquals(0, queryInt("SELECT COUNT(*) FROM visit_days"));
     }
 
     private WebElement userRow(String username) {

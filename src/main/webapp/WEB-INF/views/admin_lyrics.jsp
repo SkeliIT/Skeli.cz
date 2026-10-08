@@ -10,9 +10,9 @@
   Integer lyricId = (Integer) request.getAttribute("lyricId");
   String csrfToken = com.github.skeliit.CsrfFilter.token(session);
 %>
-<main class="admin-lyrics">
-  <h2>Texty písní</h2>
-  <p class="page-lead"><a href="/admin.jsp">← Zpět do administrace</a></p>
+<main class="admin-page admin-lyrics">
+  <%@ include file="/includes/admin-nav.jspf" %>
+  <h2 class="admin-page-title">Texty písní</h2>
 
   <% if ("1".equals(request.getParameter("saved"))) { %><div class="form-success">Text uložen.</div><% } %>
   <% if ("1".equals(request.getParameter("error"))) { %><div class="form-alert">Něco chybí nebo je text moc dlouhý (max 20 000 znaků).</div><% } %>

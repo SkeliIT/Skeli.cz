@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * Songs whose name or lyrics contain the query (the search on the Lyrics page and MC Kevin):
- * {@code [{"id": 3, "name": "...", "href": "/cs/song/<uuid>", "line": "the matching line or null"}]}.
+ * {@code [{"id": 3, "name": "...", "href": "/{lang}/song/<uuid>", "line": "the matching line or null"}]}.
  * The database compares without case and accents (utf8mb4_general_ci), so "telo" finds "tělo".
  */
 @WebServlet(name = "SearchServlet", urlPatterns = {"/api/search"})
@@ -53,7 +53,7 @@ public class SearchServlet extends HttpServlet {
                         String uuid = rs.getString("uuid");
                         row.put("id", rs.getInt("id"));
                         row.put("name", rs.getString("name").replaceFirst("(?i)^\\s*skeli\\s*-\\s*", ""));
-                        row.put("href", uuid != null && !uuid.isBlank() ? "/cs/song/" + uuid : "/lyrics/" + rs.getInt("lyric_id"));
+                        row.put("href", I18n.songPath(req, uuid, rs.getInt("lyric_id")));
                         row.put("line", matchingLine(rs.getString("words"), q));
                         out.add(row);
                     }

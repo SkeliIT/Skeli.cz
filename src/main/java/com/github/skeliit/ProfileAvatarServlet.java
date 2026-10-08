@@ -54,7 +54,7 @@ public class ProfileAvatarServlet extends HttpServlet {
             return;
         }
 
-        BufferedImage src = ImageIO.read(part.getInputStream());
+        BufferedImage src = WebUtils.readImage(part.getInputStream()); // null also when too big
         if (src == null) {
             resp.setStatus(400);
             resp.getWriter().write("{\"error\":\"invalid_image\"}");

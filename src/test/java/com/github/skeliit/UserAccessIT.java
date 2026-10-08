@@ -66,7 +66,25 @@ public class UserAccessIT extends UiTestSupport {
             assertEquals(403, httpStatus(path), "USER GET " + path);
         }
         driver.get(BASE_URL + "/admin.jsp");
-        assertTrue(bodyText().contains("Forbidden"), "browser should show Forbidden on /admin.jsp");
+        assertTrue(bodyText().contains("403"), "the site's error page with 403 on /admin.jsp");
+        assertTrue(driver.findElements(By.cssSelector("a[href^='/login.jsp?next=']")).isEmpty(), "signed in: no sign-in button");
+    }
+
+    @Test
+    @DisplayName("Signed out on an admin page: sign in and land back there")
+    void signInFromForbiddenAdminPageLeadsBack() throws Exception {
+        String name = "ua" + uniq();
+        registerAndLogin(name);
+        update("UPDATE users SET role='ADMIN' WHERE username=?", name);
+        logout();
+
+        driver.get(BASE_URL + "/admin.jsp");
+        assertTrue(bodyText().contains("403"));
+        submit(By.cssSelector("a[href^='/login.jsp?next=']"));
+        driver.findElement(By.name("username")).sendKeys(name);
+        driver.findElement(By.name("password")).sendKeys(PASSWORD);
+        submit(By.cssSelector(".auth-card button[type=submit]"));
+        assertTrue(driver.getCurrentUrl().endsWith("/admin.jsp"), "back on the admin page, got: " + driver.getCurrentUrl());
     }
 
     @Test

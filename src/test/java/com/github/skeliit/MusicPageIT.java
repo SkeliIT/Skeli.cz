@@ -64,10 +64,9 @@ public class MusicPageIT {
         assertTrue(img.getSize().getHeight() > 0,
                 "Thumbnail image inside active carousel item must be visible (non-zero height)");
 
-        // Verify the image src points to YouTube thumbnail CDN
+        // Thumbnails come through our own server (YoutubeThumbServlet): no visitor IP goes to Google
         String src = img.getAttribute("src");
-        assertTrue(src != null && src.contains("img.youtube.com"),
-                "Thumbnail image should load from img.youtube.com");
+        assertTrue(src != null && src.contains("/yt-thumb/"), "Thumbnail should load from /yt-thumb/, got: " + src);
 
         saveScreenshot("music-page-carousel.png");
     }

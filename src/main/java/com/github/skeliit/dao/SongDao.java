@@ -12,9 +12,12 @@ public class SongDao {
     private static final String SONG_COLS =
             "id, name, year, uuid, seo_slug, apple_music_id, spotify_id, preview_image_url";
 
+    /** Newest first (year, then the newest clip), the same order as the Texty page and its previous / next links. */
     public List<Song> listWithFirstLyric() throws SQLException {
         String sql = "SELECT s.id, s.name, s.year, s.uuid, s.seo_slug, s.apple_music_id, s.spotify_id, s.preview_image_url, " +
-                "(SELECT MIN(l.id) FROM lyrics l WHERE l.song_id=s.id) AS firstLyricId FROM songs s ORDER BY s.name ASC";
+                "(SELECT MIN(l.id) FROM lyrics l WHERE l.song_id=s.id) AS firstLyricId, " +
+                "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtubeId " +
+                "FROM songs s ORDER BY s.year DESC, (SELECT MAX(v.published_at) FROM videos v WHERE v.song_id = s.id) DESC, s.name ASC";
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             List<Song> out = new ArrayList<>();
             while (rs.next()) out.add(mapSong(rs, true));
@@ -199,6 +202,7 @@ public class SongDao {
         s.previewImageUrl = rs.getString("preview_image_url");
         if (withFirstLyric) {
             int fl = rs.getInt("firstLyricId"); s.firstLyricId = rs.wasNull() ? null : fl;
+            try { s.youtubeId = rs.getString("youtubeId"); } catch (SQLException ignore) {}
         }
         return s;
     }

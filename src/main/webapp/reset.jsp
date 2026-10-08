@@ -10,6 +10,7 @@
   else if ("invalid_chars".equals(resetError)) resetErrorKey = "auth.error.passwordInvalidChars";
   else if ("too_long".equals(resetError)) resetErrorKey = "auth.error.passwordTooLong";
   else if ("mismatch".equals(resetError)) resetErrorKey = "auth.error.passwordMismatch";
+  else if ("pwned".equals(resetError)) resetErrorKey = "auth.error.passwordPwned";
 %>
 
 <main>

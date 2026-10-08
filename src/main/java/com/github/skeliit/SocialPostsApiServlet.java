@@ -64,7 +64,7 @@ public class SocialPostsApiServlet extends HttpServlet {
                     " CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_czech_ci AS lang," +
                     " CONVERT(youtube_id USING utf8mb4) COLLATE utf8mb4_czech_ci AS post_id," +
                     " CONVERT(CONCAT('https://www.youtube.com/shorts/', youtube_id) USING utf8mb4) COLLATE utf8mb4_czech_ci AS permalink," +
-                    " CONVERT(CONCAT('https://i.ytimg.com/vi/', youtube_id, '/hqdefault.jpg') USING utf8mb4) COLLATE utf8mb4_czech_ci AS image_url," +
+                    " CONVERT(CONCAT('/yt-thumb/', youtube_id, '/hqdefault.jpg') USING utf8mb4) COLLATE utf8mb4_czech_ci AS image_url," +
                     " CONVERT(title USING utf8mb4) COLLATE utf8mb4_czech_ci AS caption," +
                     " published_at AS created_at" +
                     " FROM shorts WHERE published_at IS NOT NULL)" +

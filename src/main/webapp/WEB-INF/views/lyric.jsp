@@ -2,11 +2,11 @@
 <%@ include file="/includes/header.jsp" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
-<main class="lyric-page">
+<main class="lyric-page" data-lyric-id="${lyric.id}">
   <%-- every song has its own colours: its clip's thumbnail (or preview photo), blurred far behind the page --%>
   <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
     <div class="lyric-ambient" aria-hidden="true"
-         style="--amb: url('<c:choose><c:when test="${not empty lyric.youtubeId}">https://i.ytimg.com/vi/<c:out value="${lyric.youtubeId}"/>/mqdefault.jpg</c:when><c:otherwise><c:out value="${lyric.previewImageUrl}"/></c:otherwise></c:choose>')"></div>
+         style="--amb: url('<c:choose><c:when test="${not empty lyric.youtubeId}">/yt-thumb/<c:out value="${lyric.youtubeId}"/>/mqdefault.jpg</c:when><c:otherwise><c:out value="${lyric.previewImageUrl}"/></c:otherwise></c:choose>')"></div>
   </c:if>
   <!-- Song switcher -->
   <nav class="lyric-switcher">
@@ -16,9 +16,9 @@
         <%-- only songs that have lyrics; the others would link to nothing --%>
         <c:if test="${not empty s.firstLyricId}">
         <li>
-          <a href="${pageContext.request.contextPath}/lyrics/${s.firstLyricId}"
-             class="${(lyric != null && lyric.songId == s.id) ? 'active' : ''}">
-            <c:out value="${s.name}"/>
+          <a href="/<%= cur %>/song/${s.uuid}"
+             class="${(lyric != null && lyric.songId == s.id) ? 'active' : ''}" title="<c:out value='${s.name}'/>">
+            <c:out value="${s.shortName}"/>
           </a>
         </li>
         </c:if>
@@ -31,8 +31,29 @@
 
       <!-- Song Title -->
       <header class="lyric-head">
-        <h1 class="lyric-title"><c:out value="${lyric.songName}"/></h1>
+        <div class="lyric-titles">
+          <h1 class="lyric-title"><c:out value="${lyric.shortName}"/></h1>
+          <c:if test="${not empty lyric.translatedTitle}"><span class="lyric-translated" lang="<%= cur %>"><c:out value="${lyric.translatedTitle}"/></span></c:if>
+          <c:if test="${not empty lyric.credits}"><span class="lyric-credits"><c:out value="${lyric.credits}"/></span></c:if>
+        </div>
         <c:if test="${not empty lyric.year}"><span class="song-year">${lyric.year}</span></c:if>
+        <%-- small previous / next arrows by the title; the big ones with pictures are under the lyrics --%>
+        <c:if test="${not empty prevSong or not empty nextSong}">
+          <span class="head-pager">
+            <c:choose>
+              <c:when test="${not empty prevSong}">
+                <a href="/<%= cur %>/song/${prevSong.uuid}" rel="prev" title="<%= t.getProperty("lyrics.prev") %>: <c:out value='${prevSong.shortName}'/>" aria-label="<%= t.getProperty("lyrics.prev") %>: <c:out value='${prevSong.shortName}'/>"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></a>
+              </c:when>
+              <c:otherwise><span class="off" aria-hidden="true"><i class="fa-solid fa-chevron-left"></i></span></c:otherwise>
+            </c:choose>
+            <c:choose>
+              <c:when test="${not empty nextSong}">
+                <a href="/<%= cur %>/song/${nextSong.uuid}" rel="next" title="<%= t.getProperty("lyrics.next") %>: <c:out value='${nextSong.shortName}'/>" aria-label="<%= t.getProperty("lyrics.next") %>: <c:out value='${nextSong.shortName}'/>"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+              </c:when>
+              <c:otherwise><span class="off" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span></c:otherwise>
+            </c:choose>
+          </span>
+        </c:if>
       </header>
 
       <!-- Video and lyrics share one frame that fades out at the bottom -->
@@ -65,7 +86,7 @@
                   <img class="yt-facade-img" src="<c:out value='${lyric.previewImageUrl}'/>" alt="">
                 </c:when>
                 <c:otherwise>
-                  <img class="yt-facade-img" src="https://i.ytimg.com/vi/<c:out value='${lyric.youtubeId}'/>/hqdefault.jpg" alt="">
+                  <img class="yt-facade-img" src="/yt-thumb/<c:out value='${lyric.youtubeId}'/>/hqdefault.jpg" alt="">
                 </c:otherwise>
               </c:choose>
               <span class="yt-facade-play" aria-hidden="true"><i class="fab fa-youtube"></i></span>
@@ -83,7 +104,7 @@
             if (!btn) return;
             btn.addEventListener('click', function(){
               var iframe = document.createElement('iframe');
-              iframe.src = 'https://www.youtube.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
+              iframe.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
               iframe.setAttribute('frameborder', '0');
               iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
               iframe.setAttribute('allowfullscreen', '');
@@ -103,7 +124,7 @@
               });
               box.setAttribute('data-yt', id);
               box.innerHTML = '<button type="button" class="yt-facade" aria-label="' + label + '">'
-                + '<img class="yt-facade-img" src="https://i.ytimg.com/vi/' + id + '/hqdefault.jpg" alt="">'
+                + '<img class="yt-facade-img" src="/yt-thumb/' + id + '/hqdefault.jpg" alt="">'
                 + '<span class="yt-facade-play" aria-hidden="true"><i class="fab fa-youtube"></i></span></button>';
               bind();
               var yt = document.querySelector('.lyric-links a[href*="youtube.com/watch"]');
@@ -133,6 +154,28 @@
       </article>
       </section>
 
+      <%-- the songs around this one in the newest-first list (also the ← → keys) --%>
+      <c:if test="${not empty prevSong or not empty nextSong}">
+        <nav class="lyric-pager" aria-label="<%= t.getProperty("lyrics.pager") %>">
+          <c:if test="${not empty prevSong}">
+            <a class="pager-link pager-prev" rel="prev" href="/<%= cur %>/song/${prevSong.uuid}">
+              <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+              <span class="pager-thumb" aria-hidden="true"><c:if test="${not empty prevSong.thumbUrl}"><img src="<c:out value='${prevSong.thumbUrl}'/>" alt="" loading="lazy"></c:if></span>
+              <span class="pager-text"><span class="pager-label"><%= t.getProperty("lyrics.prev") %></span>
+                <span class="pager-name"><c:out value="${prevSong.shortName}"/></span></span>
+            </a>
+          </c:if>
+          <c:if test="${not empty nextSong}">
+            <a class="pager-link pager-next" rel="next" href="/<%= cur %>/song/${nextSong.uuid}">
+              <span class="pager-text"><span class="pager-label"><%= t.getProperty("lyrics.next") %></span>
+                <span class="pager-name"><c:out value="${nextSong.shortName}"/></span></span>
+              <span class="pager-thumb" aria-hidden="true"><c:if test="${not empty nextSong.thumbUrl}"><img src="<c:out value='${nextSong.thumbUrl}'/>" alt="" loading="lazy"></c:if></span>
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          </c:if>
+        </nav>
+      </c:if>
+
       <!-- Listen links (sticky sidebar on desktop) -->
       <aside class="lyric-side">
 
@@ -150,7 +193,7 @@
               </a>
             </c:if>
             <c:if test="${not empty lyric.appleMusicId}">
-              <a class="action-btn" href="https://music.apple.com/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openApple") %>">
+              <a class="action-btn" href="https://music.apple.com/cz/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openApple") %>">
                 <i class="fab fa-apple icon-apple"></i> Apple Music
               </a>
             </c:if>
@@ -264,6 +307,20 @@
       
     </div>
   </c:if>
+  <script>
+    // ← / → go to the previous / next song; one listener for the whole visit (pages come in by PJAX)
+    if (!window.lyricPagerKeys) {
+      window.lyricPagerKeys = true;
+      document.addEventListener('keydown', function (e) {
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.defaultPrevented) return;
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        const el = document.activeElement;
+        if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.closest('.lyric-nav'))) return;
+        const link = document.querySelector('.lyric-pager ' + (e.key === 'ArrowLeft' ? '.pager-prev' : '.pager-next'));
+        if (link) link.click();
+      });
+    }
+  </script>
   <script>
     // Song chips row: fade the edges that have hidden songs, let the mouse wheel
     // scroll it sideways, and start with the current song in the middle
@@ -389,7 +446,7 @@
         const path = '<c:out value="${lyric.publicPath}"/>';
         const url = path
           ? (location.origin + path)
-          : (uuid ? (location.origin + '/cs/song/' + uuid) : location.href);
+          : (uuid ? (location.origin + '/<%= cur %>/song/' + uuid) : location.href);
         if (navigator.share) { navigator.share({ title: document.title, url }).catch(() => {}); return; }
         navigator.clipboard.writeText(url).then(() => {
           const label = btn.querySelector('span'); const old = label.textContent;

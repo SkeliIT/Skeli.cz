@@ -23,8 +23,8 @@ public class VotesServlet extends HttpServlet {
         }
         int lyricId = Integer.parseInt(lyricIdStr);
         int vote = "up".equals(action) ? 1 : -1;
-        // back to where the vote came from: the new /lyrics/{id} page or the legacy lyric.jsp
-        String back = "legacy".equals(req.getParameter("from")) ? "lyric.jsp?id=" + lyricId : "/lyrics/" + lyricId;
+        // back to the lyric page
+        String back = "/lyrics/" + lyricId; // the old lyric.jsp redirects there too
         if (!EmailVerification.isVerified(session)) {
             resp.sendRedirect(back + (back.contains("?") ? "&" : "?") + "verify=required#comments");
             return;

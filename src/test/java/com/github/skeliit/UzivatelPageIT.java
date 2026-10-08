@@ -223,13 +223,7 @@ public class UzivatelPageIT {
         String oldUrl = driver.getCurrentUrl();
         jsClick(driver.findElement(By.cssSelector("form button[type=submit]")));
         waitUrlChange(oldUrl);
-
-        driver.get(BASE_URL + "/login");
-        driver.findElement(By.name("username")).sendKeys(username);
-        driver.findElement(By.name("password")).sendKeys(password);
-        oldUrl = driver.getCurrentUrl();
-        jsClick(driver.findElement(By.cssSelector("form button[type=submit]")));
-        waitUrlChange(oldUrl);
+        // registration signs the new account in straight away
     }
 
     private void jsClick(WebElement el) {

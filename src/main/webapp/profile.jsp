@@ -3,6 +3,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <main>
   <h2><%= t.getProperty("menu.profile") %></h2>
+  <% if (session.getAttribute("userId") == null) { %>
+  <%-- signed out (e.g. the sign-in expired): nothing to edit, just a way back in --%>
+  <section class="card prose-card">
+    <p><%= t.getProperty("profile.loginRequired") %></p>
+    <a class="btn btn-primary" href="/login.jsp?next=%2Fprofile.jsp"><i class="fa-solid fa-right-to-bracket"></i> <%= t.getProperty("auth.submit.login") %></a>
+  </section>
+  <% } else { %>
   <section style="background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.20);">
     <h3><%= t.getProperty("avatar.title") %></h3>
     <div style="display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
@@ -12,7 +19,7 @@
         </div>
       </div>
       <div style="flex:1; min-width:280px;">
-        <input id="avatar-input" type="file" accept="image/*">
+        <input id="avatar-input" type="file" accept="image/*" data-msg-huge="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.tooLarge")) %>" data-msg-format="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.badFormat")) %>" data-msg-preparing="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.preparing")) %>" data-msg-saved="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saved")) %>" data-msg-failed="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saveFailed")) %>" data-msg-signed-out="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.signedOut")) %>" data-msg-network="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("common.networkError")) %>">
         <div id="cropper-wrap" style="position:relative; margin-top:8px; max-width:420px; border:1px dashed var(--panel-border); border-radius:8px; overflow:hidden; display:none;">
           <img id="cropper-img" style="max-width:100%; display:block;">
           <div id="cropper-overlay" style="position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at center, rgba(0,0,0,0) 46%, rgba(0,0,0,0.45) 48%, rgba(0,0,0,0.55) 100%);"></div>
@@ -69,7 +76,7 @@
         %>
           <tr>
             <td style="padding:6px; opacity:.8;"><%= ts %></td>
-            <td style="padding:6px;"><a href="/lyric.jsp?id=<%= lid %>"><%= com.github.skeliit.WebUtils.escapeHtml(sname) %></a></td>
+            <td style="padding:6px;"><a href="/lyrics/<%= lid %>"><%= com.github.skeliit.WebUtils.escapeHtml(sname) %></a></td>
             <td style="padding:6px; max-width:420px;">
               <form method="post" action="/comment" style="display:flex; gap:6px; align-items:flex-start;">
                 <input type="hidden" name="lyric_id" value="<%= lid %>">
@@ -102,88 +109,9 @@
     </div>
   </section>
 
-  <link href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
-  <script>
-    (function(){
-      const input = document.getElementById('avatar-input');
-      const wrap = document.getElementById('cropper-wrap');
-      const img = document.getElementById('cropper-img');
-      const btnSave = document.getElementById('btn-crop-save');
-      const btnCancel = document.getElementById('btn-cancel');
-      const btnFace = document.getElementById('btn-auto-face');
-      const btnZoomIn = document.getElementById('btn-zoom-in');
-      const btnZoomOut = document.getElementById('btn-zoom-out');
-      const preview = document.getElementById('avatar-preview-img');
-      const form = document.getElementById('avatar-form');
-      const hidden = document.getElementById('avatar-file-hidden');
-      let cropper = null;
-
-      function loadFile(f){
-        if(!f) return;
-        if (f.size > 15*1024*1024) { alert('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("avatar.tooLarge")) %>'); return; }
-        const url = URL.createObjectURL(f);
-        img.src = url; wrap.style.display='block';
-        if (cropper) { cropper.destroy(); }
-        cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1, dragMode: 'move', autoCropArea: 1, movable: true, zoomOnWheel: true, ready(){ autoFace(); } });
-      }
-
-      // File select
-      input.addEventListener('change', function(){ loadFile(this.files && this.files[0]); });
-
-      // Drag & Drop
-      ['dragenter','dragover'].forEach(ev=>wrap.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); wrap.style.borderColor='var(--accent)'; }));
-      ;['dragleave','drop'].forEach(ev=>wrap.addEventListener(ev, e=>{ e.preventDefault(); e.stopPropagation(); wrap.style.borderColor='var(--panel-border)'; if(ev==='drop'){ const f=e.dataTransfer.files&&e.dataTransfer.files[0]; loadFile(f);} }));
-
-      btnCancel.addEventListener('click', ()=>{ if(cropper){ cropper.destroy(); cropper=null; } wrap.style.display='none'; input.value=''; });
-      btnZoomIn.addEventListener('click', ()=>{ if(cropper) cropper.zoom(0.1); });
-      btnZoomOut.addEventListener('click', ()=>{ if(cropper) cropper.zoom(-0.1); });
-      btnFace.addEventListener('click', ()=>autoFace());
-
-      async function autoFace(){
-        if(!cropper) return;
-        try{
-          if (window.FaceDetector){
-            const det = new FaceDetector({ fastMode:true, maxDetectedFaces:1 });
-            const faces = await det.detect(img);
-            if (faces && faces[0]){
-              const f = faces[0].boundingBox; // in CSS pixels of the image element
-              const natural = { w: img.naturalWidth, h: img.naturalHeight };
-              const display = img.getBoundingClientRect();
-              const scaleX = natural.w / display.width;
-              const scaleY = natural.h / display.height;
-              const cx = (f.x + f.width/2) * scaleX;
-              const cy = (f.y + f.height/2) * scaleY;
-              const width = Math.min(natural.w, natural.h) * 0.7;
-              cropper.setData({ x: Math.max(0, cx - width/2), y: Math.max(0, cy - width/2), width: width, height: width });
-              return;
-            }
-          }
-        }catch(_){}
-        // fallback: center
-        const natural = { w: img.naturalWidth, h: img.naturalHeight };
-        const width = Math.min(natural.w, natural.h) * 0.8;
-        cropper.setData({ x: (natural.w-width)/2, y: (natural.h-width)/2, width: width, height: width });
-      }
-
-      btnSave.addEventListener('click', async ()=>{
-        if(!cropper) return;
-        const canvas = cropper.getCroppedCanvas({ width: 512, height: 512, imageSmoothingQuality: 'high' });
-        if(!canvas) return;
-        canvas.toBlob(async (blob)=>{
-          const fd = new FormData(form);
-          fd.delete('avatar');
-          fd.append('avatar', blob, 'avatar.jpg');
-          try {
-            const res = await fetch(form.action, { method:'POST', body: fd });
-            const data = await res.json();
-            if (!res.ok || !data.ok){ alert('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("avatar.saveFailed")) %>'); return; }
-            preview.src = data.url;
-            btnCancel.click();
-          } catch(e){ alert('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("common.networkError")) %>'); }
-        }, 'image/jpeg', 0.85);
-      });
-    })();
-  </script>
+  <% } %>
+  <%-- the photo cropper (inside <main>, so it also runs after PJAX navigation) --%>
+  <link href="/vendor/cropper/cropper.min.css" rel="stylesheet">
+  <script src="/js/avatar-editor.js?v=<%= assetVersion %>"></script>
 </main>
 <%@ include file="includes/footer.jsp" %>

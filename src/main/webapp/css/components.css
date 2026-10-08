@@ -555,6 +555,7 @@ body.light .site-footer { background: linear-gradient(to bottom, rgba(255, 255, 
 .social-btn.ig:hover { color: #E1306C; border-color: #E1306C; }
 .social-btn.yt:hover { color: var(--youtube); border-color: var(--youtube); }
 .social-btn.sp:hover { color: var(--spotify); border-color: var(--spotify); }
+.social-btn.am:hover { color: var(--apple-music); border-color: var(--apple-music); }
 
 .footer-bottom {
   max-width: var(--container);
@@ -596,8 +597,29 @@ body.light .site-footer { background: linear-gradient(to bottom, rgba(255, 255, 
   -webkit-backdrop-filter: blur(16px);
 }
 .cookie-bar p { margin: 0 0 14px; }
-.cookie-actions { display: flex; gap: 8px; }
-.cookie-actions button { padding: 8px 16px; font-size: 0.88rem; }
+.cookie-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+/* "Accept all" and "Reject all" look exactly the same (no nudging) */
+.cookie-btn {
+  padding: 9px 16px;
+  min-height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: border-color .2s, background-color .2s;
+}
+.cookie-btn:hover, .cookie-btn:focus-visible { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.cookie-btn-ghost { background: transparent; border-color: transparent; text-decoration: underline; text-underline-offset: 3px; }
+.cookie-prefs { display: grid; gap: 10px; margin: 0 0 14px; }
+.cookie-prefs[hidden] { display: none; }
+.cookie-cat { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--text) 5%, transparent); cursor: pointer; }
+.cookie-cat input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); }
+.cookie-cat b { display: block; font-weight: 400; }
+.cookie-cat small { display: block; color: var(--text-dim); font-size: var(--fs-small); line-height: 1.45; margin-top: 2px; }
+.cookie-prefs .cookie-btn { justify-self: start; }
 
 @media (max-width: 600px) {
   .cookie-bar { left: 12px; right: 12px; bottom: 12px; }
@@ -693,3 +715,23 @@ body.light .pw-helper { --pw-ok: #16803f; --pw-bad: #b42323; }
 .flash-warn { background: rgba(255, 170, 40, 0.12); border-color: rgba(255, 170, 40, 0.45); color: #ffb84d; }
 body.light .flash-ok { background: rgba(40, 200, 110, 0.14); color: #136b36; }
 body.light .flash-warn { background: rgba(255, 170, 40, 0.16); color: #8a4b00; }
+
+/* "Online now" next to the copyright (js/presence.js) */
+.online-now { display: inline-flex; align-items: center; gap: 6px; color: var(--text-dim); }
+.online-now[hidden] { display: none; }
+.online-now b { color: var(--text); font-weight: 400; }
+.online-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); animation: online-pulse 2.4s ease-out infinite; }
+@keyframes online-pulse { 70% { box-shadow: 0 0 0 7px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+@media (prefers-reduced-motion: reduce) { .online-dot { animation: none; } }
+
+/* red "delete" button (admin, and deleting the account in the settings) */
+.btn-delete {
+    background: #7b1e1e;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+.btn-delete:hover { background: #9b2e2e; }

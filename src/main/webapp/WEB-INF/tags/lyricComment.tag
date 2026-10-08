@@ -27,7 +27,7 @@
   <div class="comment-content">
     <div class="comment-meta">
       <div>
-        <strong class="comment-username"><%= com.github.skeliit.WebUtils.escapeHtml(cmt.username) %></strong>
+        <% if (cmt.username == null) { %><strong class="comment-username comment-deleted"><%= t.getProperty("account.deleted") %></strong><% } else { %><strong class="comment-username"><%= com.github.skeliit.WebUtils.escapeHtml(cmt.username) %></strong><% } %>
         <span class="comment-date"><%= com.github.skeliit.WebUtils.formatDateTime(cmt.createdAt, lang) %></span>
         <% if (cmt.updatedAt != null) { %><span class="comment-edited" title="<%= com.github.skeliit.WebUtils.formatDateTime(cmt.updatedAt, lang) %>">· <%= t.getProperty("comment.edited") %></span><% } %>
       </div>

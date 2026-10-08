@@ -25,12 +25,12 @@ import java.util.regex.Pattern;
  * Public song pages:
  * <ul>
  *   <li>{@code /{lang}/song/{seo-slug|uuid}} — canonical per-language URL</li>
- *   <li>{@code /song/{key}} — redirects to {@code /cs/song/{key}}</li>
+ *   <li>{@code /song/{key}} — redirects to the same page in the visitor's language</li>
  * </ul>
  */
 @WebServlet(name = "SongRouterServlet", urlPatterns = {
         "/song/*",
-        "/cs/song/*", "/en/song/*", "/de/song/*", "/uk/song/*"
+        "/cs/song/*", "/en/song/*", "/de/song/*", "/uk/song/*", "/vi/song/*"
 })
 public class SongRouterServlet extends HttpServlet {
     private static final Pattern UUID_RE =
@@ -47,19 +47,19 @@ public class SongRouterServlet extends HttpServlet {
 
         String lang;
         if ("/song".equals(servletPath)) {
-            // Legacy /song/{key} → /cs/song/{key}
+            // /song/{key} → /{the visitor's language}/song/{key}
             if (pathInfo == null || pathInfo.equals("/")) {
                 resp.sendRedirect(req.getContextPath() + "/texty.jsp");
                 return;
             }
             String key = URLDecoder.decode(pathInfo.substring(1), StandardCharsets.UTF_8).trim();
             resp.setStatus(301);
-            resp.setHeader("Location", req.getContextPath() + "/cs/song/" + key);
+            resp.setHeader("Location", req.getContextPath() + "/" + I18n.current(req) + "/song/" + key);
             return;
         }
 
         // /{lang}/song
-        lang = servletPath.substring(1, 3); // cs|en|de|uk
+        lang = servletPath.substring(1, 3); // cs|en|de|uk|vi
         if (!I18n.isSupported(lang)) {
             resp.sendError(404);
             return;
@@ -140,7 +140,9 @@ public class SongRouterServlet extends HttpServlet {
                 return;
             }
 
-            req.setAttribute("songs", svc.listSongs());
+            var songList = svc.listSongs();
+            req.setAttribute("songs", songList);
+            LyricRouterServlet.setNeighbours(req, songList, v.songId);
             req.setAttribute("lyric", v);
             req.setAttribute("hreflang", hreflang);
             req.setAttribute("pageTitle", v.songName);

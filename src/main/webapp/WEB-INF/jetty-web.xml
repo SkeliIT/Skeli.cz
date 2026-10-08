@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "https://www.eclipse.org/jetty/configure_10_0.dtd">
+<!--
+  Sign-ins survive a restart: sessions are kept in files instead of only in memory, so a deploy
+  (or a local restart) no longer signs everybody out. The files live in .sessions/ of the checkout
+  the server runs from (mvn jetty:run starts in the project folder), so test.skeli.cz and
+  www.skeli.cz each have their own and a test session can never be used on www.
+  Session data is plain strings and numbers (user id, name, role, CSRF token…).
+  Jetty 11 class names; with Jetty 12 they move to org.eclipse.jetty.session.
+-->
+<Configure id="wac" class="org.eclipse.jetty.webapp.WebAppContext">
+  <Get id="sh" name="sessionHandler">
+    <Set name="sessionCache">
+      <New class="org.eclipse.jetty.server.session.DefaultSessionCache">
+        <Arg><Ref refid="sh"/></Arg>
+        <Set name="sessionDataStore">
+          <New class="org.eclipse.jetty.server.session.FileSessionDataStore">
+            <Set name="storeDir">
+              <New class="java.io.File">
+                <Arg><SystemProperty name="user.dir"/>/.sessions</Arg>
+              </New>
+            </Set>
+            <!-- a file that can't be read back (e.g. after a change of the session data) is dropped, not fatal -->
+            <Set name="deleteUnrestorableFiles">true</Set>
+          </New>
+        </Set>
+      </New>
+    </Set>
+  </Get>
+</Configure>

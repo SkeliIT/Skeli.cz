@@ -3,7 +3,8 @@
 
 <main class="about-page">
   <section class="about-header">
-    <h2><%= t.getProperty("about.title","About me") %></h2>
+    <%-- the heading is the artist's name, the same in every language; the tab title stays about.title --%>
+    <h2>Skeli</h2>
     <div class="about-intro">
       <%-- the portrait heads the story and fades out into the text below it --%>
       <%-- dark theme: the photo on its black background; light theme: the same photo with the
@@ -90,6 +91,9 @@
         </a>
         <a href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl?si=93iNOmPtT8u2l163tTkKeQ" target="_blank" rel="noopener" aria-label="Spotify">
             <i class="fab fa-spotify icon-spotify"></i>
+        </a>
+        <a href="https://music.apple.com/cz/artist/skeli/1820513581" target="_blank" rel="noopener" aria-label="Apple Music">
+            <i class="fab fa-apple icon-apple"></i>
         </a>
     </div>
   </section>

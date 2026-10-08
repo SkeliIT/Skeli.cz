@@ -30,6 +30,17 @@ public final class RequestLimiter {
         }
     }
 
+    /** True when the limit for the window is used up, without recording anything. */
+    public static boolean isFull(String bucket, Object key, int max, long windowMs) {
+        Deque<Long> d = HITS.get(bucket + ':' + key);
+        if (d == null) return false;
+        long now = System.currentTimeMillis();
+        synchronized (d) {
+            while (!d.isEmpty() && d.peekFirst() < now - windowMs) d.pollFirst();
+            return d.size() >= max;
+        }
+    }
+
     /** Forgets all recorded actions (tests). */
     static void clear() {
         HITS.clear();

@@ -19,4 +19,9 @@ public class DbInit implements ServletContextListener {
             System.out.println("[DbInit] MySQL driver not found: " + t.getMessage());
         }
     }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        Db.shutdown(); // no connections left behind on a restart or redeploy
+    }
 }

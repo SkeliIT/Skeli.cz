@@ -61,6 +61,9 @@ public class RegisterServlet extends HttpServlet {
         } else if (!WebUtils.isPasswordStrong(password)) {
             errors.add(I18n.getText(req, WebUtils.passwordErrorKey(WebUtils.passwordProblems(password)),
                     "Heslo musí mít alespoň 12 znaků, obsahovat velké a malé písmeno, číslo a speciální znak."));
+        } else if (PwnedPasswords.breachCount(password) > 0) {
+            // known from data breaches: attackers try these first
+            errors.add(I18n.getText(req, "auth.error.passwordPwned"));
         }
 
         if (consent == null) {
@@ -131,7 +134,13 @@ public class RegisterServlet extends HttpServlet {
             throw new ServletException(e);
         }
 
-        resp.sendRedirect(verify ? "login.jsp?registered=1&verify=sent" : "login.jsp?registered=1");
+        // the new account is signed in straight away and lands on the home page with a welcome
+        if (newUserId == null) {
+            resp.sendRedirect("login.jsp?registered=1");
+            return;
+        }
+        LoginServlet.signIn(req, newUserId, username, "USER", null, !verify);
+        resp.sendRedirect(verify ? "index.jsp?welcome=verify" : "index.jsp?welcome=1");
     }
 
     private static String normalize(String value) {

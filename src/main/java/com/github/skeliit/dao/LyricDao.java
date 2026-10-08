@@ -13,14 +13,15 @@ public class LyricDao {
         // Default to Czech if no lang specified
         if (lang == null || lang.isEmpty()) lang = "cs";
         
-        // First try to find lyric in requested language
+        // First try the same song in the requested language (the id may be another language's row)
         // Prefer lyric-level SEO; fall back to legacy songs.seo_slug for Czech
         String sql = "SELECT s.name AS song_name, s.year AS song_year, s.uuid AS song_uuid, " +
                 "COALESCE(NULLIF(l.seo_slug,''), CASE WHEN l.lang='cs' THEN s.seo_slug END) AS song_seo_slug, " +
-                "l.meta_description, l.lang AS lyric_lang, " +
+                "l.meta_description, l.lang AS lyric_lang, l.title AS lyric_title, " +
                 "s.apple_music_id, s.preview_image_url, l.words, l.song_id, l.id, l.lang, " +
                 "(SELECT v.youtube_id FROM videos v WHERE v.song_id = l.song_id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt " +
-                "FROM lyrics l JOIN songs s ON s.id = l.song_id WHERE l.id = ? AND l.lang = ?";
+                "FROM lyrics l JOIN songs s ON s.id = l.song_id " +
+                "WHERE l.song_id = (SELECT x.song_id FROM lyrics x WHERE x.id = ?) AND l.lang = ? ORDER BY l.id LIMIT 1";
         
         LyricView v = null;
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
@@ -32,7 +33,7 @@ public class LyricDao {
                     try (PreparedStatement ps2 = c.prepareStatement(
                             "SELECT s.name AS song_name, s.year AS song_year, s.uuid AS song_uuid, " +
                             "COALESCE(NULLIF(l.seo_slug,''), CASE WHEN l.lang='cs' THEN s.seo_slug END) AS song_seo_slug, " +
-                            "l.meta_description, l.lang AS lyric_lang, " +
+                            "l.meta_description, l.lang AS lyric_lang, l.title AS lyric_title, " +
                             "s.apple_music_id, s.preview_image_url, l.words, l.song_id, l.id, l.lang, " +
                             "(SELECT v.youtube_id FROM videos v WHERE v.song_id = l.song_id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt " +
                             "FROM lyrics l JOIN songs s ON s.id = l.song_id WHERE l.id = ?")) {
@@ -200,6 +201,7 @@ public class LyricDao {
         v.id = rs.getInt("id");
         v.songId = rs.getInt("song_id");
         v.songName = rs.getString("song_name");
+        try { v.translatedTitle = rs.getString("lyric_title"); } catch (SQLException ignore) {}
         int y = rs.getInt("song_year"); v.year = rs.wasNull()? null : y;
         v.words = rs.getString("words");
         v.youtubeId = rs.getString("yt");
@@ -216,17 +218,14 @@ public class LyricDao {
         // No guessing by title: a wrong guess used to be saved for good (the JML clip
         // ended up on "Machine gun Skeli RMX"). Clips are linked in the admin instead.
 
-        // views
-        try (PreparedStatement inc = c.prepareStatement("INSERT INTO lyric_views (lyric_id, views) VALUES (?,1) ON DUPLICATE KEY UPDATE views=views+1")) {
-            inc.setInt(1, lyricId); inc.executeUpdate();
-        }
+        // views: counted by the page script once per visitor and day (VisitStats), not on every load
         try (PreparedStatement sel = c.prepareStatement("SELECT views FROM lyric_views WHERE lyric_id=?")) {
-            sel.setInt(1, lyricId);
+            sel.setInt(1, v.id);
             try (ResultSet rv = sel.executeQuery()) { if (rv.next()) v.views = rv.getLong(1); }
         }
         // votes
         try (PreparedStatement vv = c.prepareStatement("SELECT SUM(vote=1) AS up, SUM(vote=-1) AS down FROM lyrics_votes WHERE lyric_id=?")) {
-            vv.setInt(1, lyricId);
+            vv.setInt(1, v.id);
             try (ResultSet rv = vv.executeQuery()) { if (rv.next()) { v.votesUp = rv.getInt("up"); v.votesDown = rv.getInt("down"); } }
         }
         return v;
@@ -234,7 +233,7 @@ public class LyricDao {
 
     /** Top-level comments newest first, each with its replies oldest first. */
     public List<CommentView> listComments(int lyricId) throws SQLException {
-        String sql = "SELECT c.id, c.user_id, c.parent_id, c.content, c.created_at, c.updated_at, u.username, u.avatar_url FROM comments c JOIN users u ON u.id=c.user_id WHERE c.lyric_id=? ORDER BY c.created_at DESC, c.id DESC";
+        String sql = "SELECT c.id, c.user_id, c.parent_id, c.content, c.created_at, c.updated_at, CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.username END AS username, CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.avatar_url END AS avatar_url FROM comments c JOIN users u ON u.id=c.user_id WHERE c.lyric_id=? ORDER BY c.created_at DESC, c.id DESC";
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, lyricId);
             try (ResultSet rs = ps.executeQuery()) {

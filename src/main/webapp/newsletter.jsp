@@ -9,6 +9,7 @@
 
             <% if (request.getParameter("success") != null) { %>
                 <div class="form-success text-center"><%= t.getProperty("newsletter.success") %></div>
+                <p class="mail-spam"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> <%= t.getProperty("mail.spamHint") %></p>
             <% } else if (request.getParameter("confirmed") != null) { %>
                 <div class="form-success text-center"><%= t.getProperty("newsletter.confirmed") %></div>
             <% } else if (request.getParameter("unsubscribed") != null) { %>

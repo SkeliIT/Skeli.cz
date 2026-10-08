@@ -2,8 +2,9 @@
 <%@ page import="java.util.List" %>
 <%@ include file="includes/header.jsp" %>
 
-<main>
-    <h2>Správa odběratelů novinek</h2>
+<main class="admin-page">
+    <%@ include file="/includes/admin-nav.jspf" %>
+    <h2 class="admin-page-title">Správa odběratelů novinek</h2>
 
     <div class="admin-card">
         <table class="admin-table">
@@ -38,9 +39,6 @@
         </table>
     </div>
 
-    <div style="margin-top: 20px;">
-        <a href="/admin.jsp" class="link-btn">Zpět do administrace</a>
-    </div>
 </main>
 
 <%@ include file="includes/footer.jsp" %>

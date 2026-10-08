@@ -26,6 +26,12 @@
             <version>5.0.0</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Database connection pool: connections are reused instead of opened for every query -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>7.1.0</version>
+        </dependency>
         <!-- MariaDB JDBC driver for better compatibility with MariaDB servers -->
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>

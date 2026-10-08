@@ -41,6 +41,7 @@
   --gold: linear-gradient(100deg, #ffe58a, #ffd23f 35%, #ff9d3d 75%, #ffd23f);
   --red: #e5383b;
   --spotify: #1DB954;
+  --apple-music: #fc3c44;
   --youtube: #FF0000;
 
   --radius: 18px;
@@ -243,7 +244,24 @@ main > h2:first-child::after {
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; filter: none; transition: none; }
   body::before { animation: none; }
+  /* safety net for every other animation on the site */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
+
+/* "Skip to content": hidden until it gets the keyboard focus */
+.skip-link {
+  position: fixed; left: 12px; top: -60px; z-index: 100000;
+  padding: 10px 16px; border-radius: 999px;
+  background: var(--accent); color: var(--accent-ink);
+  text-decoration: none; transition: top .15s;
+}
+.skip-link:focus { top: 12px; }
+main:focus { outline: none; }
 
 @media (max-width: 600px) {
   main { padding: 24px 16px 120px; }

@@ -51,8 +51,13 @@ public class AuthFlowIT {
         jsClick(driver.findElement(By.cssSelector("form button[type=submit]")));
         waitUrlChange(oldUrl);
 
-        assertTrue(driver.getCurrentUrl().contains("registered=1"),
-                "registration should redirect to login.jsp?registered=1, got: " + driver.getCurrentUrl());
+        assertTrue(driver.getCurrentUrl().contains("index.jsp?welcome="),
+                "registration should sign in and land on the home page, got: " + driver.getCurrentUrl());
+        assertTrue(driver.findElement(By.cssSelector(".flash")).getText().contains(username), "the welcome names the new user");
+
+        // signed in right away: sign out, then back in with the password
+        ((JavascriptExecutor) driver).executeScript("document.querySelector('form.logout-form').submit()");
+        waitReady();
 
         // --- Login ---
         driver.get(BASE_URL + "/login");

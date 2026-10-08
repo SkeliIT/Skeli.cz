@@ -22,6 +22,15 @@ public class Song {
     public String getAppleMusicId() { return appleMusicId; }
     public String getSpotifyId() { return spotifyId; }
     public String getPreviewImageUrl() { return previewImageUrl; }
+    /** The newest clip of the song (only filled by SongDao.listWithFirstLyric). */
+    public String youtubeId;
+    /** A small picture of the song: its newest clip's thumbnail, else its preview photo, else null. */
+    public String getThumbUrl() {
+        if (youtubeId != null && youtubeId.matches("[A-Za-z0-9_-]{6,20}")) return "/yt-thumb/" + youtubeId + "/mqdefault.jpg";
+        return com.github.skeliit.WebUtils.safeUrl(previewImageUrl, null);
+    }
+    /** The name without the artist and features, for the song bar and the previous / next links. */
+    public String getShortName() { return SongTitle.of(name).title; }
 
     /** Public path for Czech (default): /cs/song/{seoSlug|uuid}. */
     public String getPublicPath() {

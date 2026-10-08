@@ -292,6 +292,111 @@ body.light .hero-actions .btn-ghost { background: rgba(255, 255, 255, 0.5); }
 }
 .song-card:hover .song-go { opacity: 1; transform: none; }
 
+/* Texty page: one song per row, newest first, under year headings. The title sits on the page
+   background and the row fades into the song's thumbnail on the right. */
+.song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.song-year-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 26px 0 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+.song-year-head:first-child { margin-top: 4px; }
+.song-year-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, color-mix(in srgb, var(--accent) 45%, transparent), transparent);
+}
+/* year filter: "All" + the newest year; the older years slide out from "Older years" */
+#yearChips .chip.older:not(.active) { display: none; }
+#yearChips.open .chip.older { display: inline-flex; animation: chip-in .25s ease both; }
+@keyframes chip-in { from { opacity: 0; transform: translateX(-6px); } }
+.chip-toggle i { margin-left: 4px; font-size: 0.7em; transition: transform .25s ease; }
+#yearChips.open .chip-toggle i { transform: rotate(180deg); }
+#yearChips.open .chip-toggle { order: 1; }
+.song-year-head[hidden],
+.song-row[hidden] { display: none; }
+.song-row {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: 112px;
+  padding: 16px 70px 16px 24px;
+  overflow: hidden;
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  border-radius: var(--radius);
+  transition: border-color .3s ease, transform .3s ease;
+}
+.song-row:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); transform: translateX(4px); text-decoration: none; }
+.song-row-art {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 66%;
+  z-index: -1;
+  -webkit-mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.3) 25%, rgba(0, 0, 0, 0.85) 62%, #000);
+          mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.3) 25%, rgba(0, 0, 0, 0.85) 62%, #000);
+}
+/* a song with neither clip nor photo: a soft gold glow instead */
+.song-row-art:not(:has(img)) { background: radial-gradient(ellipse at 85% 50%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%); }
+.song-row-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+  filter: saturate(0.9) brightness(0.78);
+  transition: transform .6s ease, filter .4s ease;
+}
+.song-row:hover .song-row-art img { transform: scale(1.04); filter: saturate(1.05) brightness(0.95); }
+.song-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  max-width: 58%;
+}
+.song-row-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+}
+.song-row-meta { font-size: var(--fs-small); letter-spacing: 0.04em; color: var(--text-dim); }
+/* the title in the page's language under the original (not on the Czech page) */
+.song-row-sub { margin-top: -3px; font-family: var(--font-text); font-size: var(--fs-text); font-weight: 300; color: var(--text-dim); }
+.disco-card .song-row-sub { display: block; margin-top: 3px; }
+.song-row .song-line { margin: 2px 0 0; }
+.song-row .song-go { top: 50%; right: 18px; transform: translate(-6px, -50%); }
+.song-row:hover .song-go { opacity: 1; transform: translate(0, -50%); }
+body.light .song-row-art img { filter: saturate(0.95); }
+body.light .song-row:hover .song-row-art img { filter: saturate(1.05); }
+body.light .song-row-title { text-shadow: 0 1px 10px rgba(255, 255, 255, 0.8); }
+
+@media (max-width: 600px) {
+  .song-row { min-height: 88px; padding: 12px 48px 12px 14px; }
+  .song-row-art { width: 78%; }
+  .song-row-text { max-width: 72%; }
+  .song-row-title { font-size: var(--fs-h4); }
+  .song-row .song-go { right: 10px; width: 30px; height: 30px; }
+  .song-year-head { margin-top: 18px; }
+}
+
 @media (max-width: 600px) {
   .song-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
   .song-info { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px; }
@@ -362,6 +467,7 @@ body.light .lyric-page .lyric-nav a:hover { border-color: rgba(0, 0, 0, 0.22); b
   grid-template-areas:
     "head     head"
     "main     side"
+    "pager    side"
     "comments side";
   gap: 22px;
   align-items: start;
@@ -552,9 +658,77 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 @media (max-width: 960px) {
   .lyric-grid {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "head" "main" "side" "comments";
+    grid-template-areas: "head" "main" "pager" "side" "comments";
   }
   .lyric-side { position: static; }
+}
+
+/* the artist and features under the song title */
+.lyric-credits { font-size: var(--fs-small); letter-spacing: 0.05em; color: var(--text-dim); }
+
+/* previous / next song under the lyrics */
+.lyric-pager {
+  grid-area: pager;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.pager-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 14px 18px;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: border-color .25s ease;
+}
+.pager-link:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); text-decoration: none; }
+.pager-link i { color: var(--accent); transition: transform .25s ease; }
+.pager-prev:hover i { transform: translateX(-4px); }
+.pager-next:hover i { transform: translateX(4px); }
+.pager-next { grid-column: 2; justify-content: flex-end; text-align: right; }
+.pager-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pager-thumb {
+  flex: none;
+  width: 96px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 8px;
+  background: radial-gradient(ellipse at 70% 40%, color-mix(in srgb, var(--accent) 25%, transparent), transparent 70%), #141416;
+}
+.pager-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.pager-link:hover .pager-thumb img { transform: scale(1.06); }
+
+/* the title block and the small previous / next arrows next to it */
+.lyric-titles { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.lyric-translated { font-family: var(--font-text); font-size: var(--fs-text); font-weight: 300; color: var(--text-dim); }
+.head-pager { display: inline-flex; gap: 6px; margin-left: auto; }
+.head-pager a,
+.head-pager .off {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  border: 1px solid var(--panel-border);
+  transition: color .2s ease, border-color .2s ease;
+}
+.head-pager a:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); text-decoration: none; }
+.head-pager .off { opacity: 0.3; }
+.pager-label { font-size: var(--fs-small); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+.pager-name { font-size: var(--fs-card); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 600px) {
+  .pager-link { gap: 10px; padding: 10px; }
+  .pager-link > i { display: none; }
+  .pager-thumb { width: 64px; }
 }
 @media (max-width: 600px) {
   .lyric-page .content-box { padding: 20px; }
@@ -639,6 +813,10 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 .disco-links .disco-youtube:hover { border-color: #ff3b3b; }
 .disco-links .disco-spotify i { color: var(--spotify); }
 .disco-links .disco-spotify:hover { border-color: var(--spotify); }
+.disco-links .disco-apple i { color: var(--apple-music); }
+.disco-links .disco-apple:hover { border-color: var(--apple-music); }
+/* four links (lyrics, YouTube, Spotify, Apple Music) would run past the thumbnail: 2 × 2 */
+.disco-links:has(> a:nth-child(4)) { display: grid; grid-template-columns: repeat(2, auto); }
 @media (max-width: 600px) {
   .disco-links { top: 6px; right: 6px; gap: 4px; }
   .disco-links a { width: 28px; height: 28px; font-size: 0.8rem; }
@@ -839,8 +1017,13 @@ body.light .nav-top h3, body.light .nav-top .song-list a { color: #111 !importan
 .avatar-preview-box { width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 2px solid var(--accent); background: rgba(0, 0, 0, 0.2); }
 .avatar-preview-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .avatar-controls { flex: 1; min-width: 260px; }
-.cropper-container { position: relative; margin-top: 8px; max-width: 420px; border: 1px dashed var(--panel-border); border-radius: 10px; overflow: hidden; display: none; }
-.cropper-container img { max-width: 100%; display: block; }
+/* the photo crop box; not called .cropper-container: the cropper library uses that name for its own box */
+.avatar-crop-wrap { position: relative; margin-top: 8px; max-width: 420px; border: 1px dashed var(--panel-border); border-radius: 10px; overflow: hidden; display: none; }
+.avatar-crop-wrap.drag { border-color: var(--accent); }
+.avatar-crop-wrap > img { max-width: 100%; display: block; }
+.avatar-msg { margin: 8px 0 0; font-size: var(--fs-small); color: var(--text-dim); }
+.avatar-msg.ok { color: #22c55e; }
+.avatar-msg.warn { color: #f59e0b; }
 .avatar-btns { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
 
 .settings-form form { display: grid; gap: 14px; }
@@ -870,7 +1053,7 @@ body.light .form-success { color: #16803f; }
 .icon-facebook { color: #4267B2; }
 .icon-instagram { color: #E1306C; }
 .icon-spotify { color: #1DB954; }
-.icon-apple { color: #fc3c44; }
+.icon-apple { color: var(--apple-music); }
 
 /* Music: comment form next to the carousel */
 .ep-comments { padding: 16px; border-radius: 14px; }
@@ -1231,3 +1414,10 @@ html.bold-text body :where(.feature-card p, .side-card p, .about-card p, .news-t
 }
 .split-tag-top { top: 10px; }
 .split-tag-bottom { bottom: 10px; }
+@media (max-width: 600px) {
+  /* narrow cards: smaller tags, so the top one stays clear of the link icons on the right */
+  .split-tag { left: 6px; padding: 2px 6px; font-size: 0.6rem; }
+  .split-tag-top { top: 6px; }
+  .split-tag-bottom { bottom: 6px; }
+}
+.spotify-block .listen-links { display: inline-flex; flex-wrap: wrap; gap: 6px 18px; }

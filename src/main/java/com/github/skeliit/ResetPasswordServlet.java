@@ -35,6 +35,10 @@ public class ResetPasswordServlet extends HttpServlet {
             resp.sendRedirect(back + "mismatch");
             return;
         }
+        if (PwnedPasswords.breachCount(password) > 0) {
+            resp.sendRedirect(back + "pwned");
+            return;
+        }
         try (Connection conn = Db.get()) {
             conn.setAutoCommit(false);
             try {
@@ -44,7 +48,7 @@ public class ResetPasswordServlet extends HttpServlet {
                     try (ResultSet rs = ps.executeQuery()) { if (rs.next()) userId = rs.getInt(1); }
                 }
                 if (userId != null) {
-                    String hash = BCrypt.hashpw(password, BCrypt.gensalt());
+                    String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
                     try (PreparedStatement ps = conn.prepareStatement("UPDATE users SET password_hash=? WHERE id=?")) {
                         ps.setString(1, hash);
                         ps.setInt(2, userId);
@@ -56,6 +60,8 @@ public class ResetPasswordServlet extends HttpServlet {
                         ps.executeUpdate();
                     }
                     conn.commit();
+                    // whoever knew the old password is signed out everywhere
+                    SessionRegistry.signOut(userId, null);
                     resp.sendRedirect("login.jsp?reset=1");
                     return;
                 }
