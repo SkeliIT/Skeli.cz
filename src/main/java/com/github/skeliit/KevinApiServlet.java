@@ -106,7 +106,7 @@ public class KevinApiServlet extends HttpServlet {
         Map<String, String> c = new LinkedHashMap<>();
         c.put("youtubeId", id);
         c.put("title", title == null || title.isBlank() ? "YouTube" : title);
-        c.put("href", uuid != null && rs.getInt("texts") > 0 ? "/cs/song/" + uuid : "https://www.youtube.com/watch?v=" + id);
+        c.put("href", uuid != null && rs.getInt("texts") > 0 ? "/song/" + uuid : "https://www.youtube.com/watch?v=" + id);
         return c;
     }
 }

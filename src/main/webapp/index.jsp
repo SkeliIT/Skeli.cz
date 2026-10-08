@@ -11,7 +11,7 @@
   try {
     com.github.skeliit.dao.HomeDao homeDao = new com.github.skeliit.dao.HomeDao();
     homeVideos = homeDao.latestVideos(5);
-    tapeSongs = homeDao.songsWithLyrics();
+    tapeSongs = homeDao.songsWithLyrics(cur);
   } catch (SQLException ex) {
     homeDbError = true;
   }

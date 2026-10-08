@@ -43,6 +43,7 @@ public class LyricRouterServlet extends HttpServlet {
             LyricView v = svc.getLyric(id, lang);
             if (v == null) { resp.sendError(404); return; }
             req.setAttribute("songs", songs);
+            setNeighbours(req, songs, v.songId);
             req.setAttribute("lyric", v);
             // <title> and meta description for search results and link previews
             req.setAttribute("pageTitle", v.songName);
@@ -61,9 +62,23 @@ public class LyricRouterServlet extends HttpServlet {
             }
             // all clips of the song (newest first): the page offers a version switch when there are several
             req.setAttribute("clips", com.github.skeliit.model.SongClip.forSong(v.songId));
-            req.setAttribute("comments", svc.comments(id));
+            req.setAttribute("comments", svc.comments(v.id));   // v may be another language's row of the song
             req.getRequestDispatcher("/WEB-INF/views/lyric.jsp").forward(req, resp);
         } catch (Exception e) { throw new ServletException(e); }
+    }
+
+    /**
+     * The songs before and after this one in the newest-first list (only songs with lyrics), for the
+     * "previous / next song" links under the lyrics: prevSong is the newer one, nextSong the older one.
+     */
+    static void setNeighbours(HttpServletRequest req, java.util.List<com.github.skeliit.model.Song> songs, int songId) {
+        java.util.List<com.github.skeliit.model.Song> withLyrics = songs.stream().filter(s -> s.firstLyricId != null).toList();
+        for (int i = 0; i < withLyrics.size(); i++) {
+            if (withLyrics.get(i).id != songId) continue;
+            if (i > 0) req.setAttribute("prevSong", withLyrics.get(i - 1));
+            if (i + 1 < withLyrics.size()) req.setAttribute("nextSong", withLyrics.get(i + 1));
+            return;
+        }
     }
 
     /** The opening lines of the lyrics joined into one line, cut at a word boundary. */

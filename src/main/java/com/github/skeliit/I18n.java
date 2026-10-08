@@ -59,6 +59,17 @@ public final class I18n {
         return previous != null ? previous : loaded;
     }
 
+    /** The language chosen in the request's session (cs when none). */
+    public static String current(HttpServletRequest req) {
+        jakarta.servlet.http.HttpSession s = req.getSession(false);
+        return safeLang(s == null ? null : s.getAttribute("lang"));
+    }
+
+    /** A song's page in the visitor's language: /{lang}/song/{uuid}, else the old /lyrics/{id}. */
+    public static String songPath(HttpServletRequest req, String uuid, int lyricId) {
+        return uuid != null && !uuid.isBlank() ? "/" + current(req) + "/song/" + uuid : "/lyrics/" + lyricId;
+    }
+
     /** Translations for the language chosen in the request's session. */
     public static Properties bundle(HttpServletRequest req) {
         return bundle(req.getServletContext(), (String) req.getSession().getAttribute("lang"));

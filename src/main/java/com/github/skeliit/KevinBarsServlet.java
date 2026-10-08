@@ -19,7 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Two lines from one of Skeli's lyrics for MC Kevin to rap (js/kevin.js):
- * {@code {"lines": [..], "song": "...", "href": "/cs/song/<uuid>"}}, or 204 when there are none.
+ * {@code {"lines": [..], "song": "...", "href": "/{lang}/song/<uuid>"}}, or 204 when there are none.
  */
 @WebServlet(name = "KevinBarsServlet", urlPatterns = {"/api/kevin/bars"})
 public class KevinBarsServlet extends HttpServlet {
@@ -40,7 +40,7 @@ public class KevinBarsServlet extends HttpServlet {
                 out = new LinkedHashMap<>();
                 out.put("lines", lines);
                 out.put("song", rs.getString("name").replaceFirst("(?i)^\\s*skeli\\s*-\\s*", ""));
-                out.put("href", uuid != null && !uuid.isBlank() ? "/cs/song/" + uuid : "/lyrics/" + rs.getInt("id"));
+                out.put("href", I18n.songPath(req, uuid, rs.getInt("id")));
             }
         } catch (SQLException e) {
             getServletContext().log("Kevin bars", e);

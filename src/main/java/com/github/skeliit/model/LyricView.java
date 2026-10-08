@@ -24,6 +24,14 @@ public class LyricView {
     public int getId() { return id; }
     public int getSongId() { return songId; }
     public String getSongName() { return songName; }
+    /** The song title in the page's language (lyrics.title), shown under the original; null for Czech. */
+    public String translatedTitle;
+    public String getTranslatedTitle() {
+        return translatedTitle == null || translatedTitle.isBlank() || "cs".equals(lang) ? null : translatedTitle;
+    }
+    /** The title without the artist and features ("No ty vole"), and those as a smaller line. */
+    public String getShortName() { return SongTitle.of(songName).title; }
+    public String getCredits() { return SongTitle.of(songName).credits; }
     public Integer getYear() { return year; }
     public String getWords() { return words; }
     public String getYoutubeId() { return youtubeId; }

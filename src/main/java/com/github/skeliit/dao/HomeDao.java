@@ -36,7 +36,8 @@ public class HomeDao {
     }
 
     /** Songs that have lyrics, newest first, linked like on the lyrics page. */
-    public List<TapeSong> songsWithLyrics() throws SQLException {
+    /** Songs with lyrics for the tapes on the home page, linked to their page in {@code lang}. */
+    public List<TapeSong> songsWithLyrics(String lang) throws SQLException {
         List<TapeSong> list = new ArrayList<>();
         try (Connection conn = Db.get();
              PreparedStatement ps = conn.prepareStatement(
@@ -50,7 +51,7 @@ public class HomeDao {
                 if (name == null) continue;
                 name = name.replaceFirst("(?i)^\\s*skeli\\s*-\\s*", "");
                 String uuid = rs.getString("uuid");
-                String href = uuid != null && !uuid.isBlank() ? "/cs/song/" + uuid : "/lyrics/" + rs.getInt("lyric_id");
+                String href = uuid != null && !uuid.isBlank() ? "/" + com.github.skeliit.I18n.safeLang(lang) + "/song/" + uuid : "/lyrics/" + rs.getInt("lyric_id");
                 int y = rs.getInt("year");
                 Integer year = rs.wasNull() ? null : y;
                 String youtubeId = rs.getString("youtube_id");

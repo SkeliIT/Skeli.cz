@@ -25,16 +25,18 @@
           "SELECT s.name, CASE WHEN (SELECT COUNT(*) FROM videos v WHERE v.song_id = s.id) > 1 " +
           "         THEN (SELECT YEAR(MAX(v.published_at)) FROM videos v WHERE v.song_id = s.id) ELSE s.year END AS year, " +
           "       s.uuid, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
-          "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview, s.apple_music_id AS apple " +
+          "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview, s.apple_music_id AS apple, " +
+          "       (SELECT lt.title FROM lyrics lt WHERE lt.song_id = s.id AND lt.lang = ? ORDER BY lt.id LIMIT 1) AS tr " +
           "FROM songs s " +
           "UNION ALL " +
-          "SELECT v.title, NULL, NULL, NULL, v.youtube_id, 1, v.id, NULL, NULL FROM videos v WHERE v.song_id IS NULL " +
+          "SELECT v.title, NULL, NULL, NULL, v.youtube_id, 1, v.id, NULL, NULL, NULL FROM videos v WHERE v.song_id IS NULL " +
           "ORDER BY grp, year DESC, ord DESC";
       java.util.Map<Integer, java.util.List<com.github.skeliit.model.SongClip>> clipsBySong =
           com.github.skeliit.model.SongClip.bySong();
       try (Connection conn = Db.get();
-           PreparedStatement ps = conn.prepareStatement(discoSql);
-           ResultSet rs = ps.executeQuery()) {
+           PreparedStatement ps = conn.prepareStatement(discoSql)) {
+        ps.setString(1, cur);
+        try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
           boolean isSong = rs.getInt("grp") == 0;
           String name = isSong ? rs.getString("name") : com.github.skeliit.VideoTitles.display(rs.getString("name"));
@@ -49,7 +51,7 @@
           String nameHtml = com.github.skeliit.WebUtils.escapeHtml(name);
           String ytHtml = yt == null ? null : com.github.skeliit.WebUtils.escapeHtml(yt);
           String lyricsHref = hasLyrics
-              ? ((songUuid != null && !songUuid.isBlank()) ? "/cs/song/" + songUuid : "/lyrics/" + lyricId)
+              ? ((songUuid != null && !songUuid.isBlank()) ? "/" + cur + "/song/" + songUuid : "/lyrics/" + lyricId)
               : null;
           String mainHref = lyricsHref != null ? lyricsHref : (yt != null ? "https://www.youtube.com/watch?v=" + ytHtml : null);
           String apple = rs.getString("apple");
@@ -81,7 +83,7 @@
           <% } %>
         </a>
         <div class="song-info">
-          <span class="song-name"><%= nameHtml %></span>
+          <span class="song-name"><%= nameHtml %><% String tr = isSong ? rs.getString("tr") : null; if (!"cs".equals(cur) && tr != null && !tr.isBlank()) { %><span class="song-row-sub" lang="<%= cur %>"><%= com.github.skeliit.WebUtils.escapeHtml(tr) %></span><% } %></span>
           <% if (yearObj != null) { %><span class="song-year"><%= String.valueOf(yearObj).replaceAll("^(\\d{4}).*$", "$1") %></span><% } %>
         </div>
         <div class="disco-links">
@@ -110,6 +112,7 @@
         <% } %>
       </article>
     <%
+        }
         }
       } catch (SQLException e) {
     %>
