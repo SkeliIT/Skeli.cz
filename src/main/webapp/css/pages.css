@@ -384,14 +384,33 @@ body.light .hero-actions .btn-ghost { background: rgba(255, 255, 255, 0.5); }
 .song-row .song-line { margin: 2px 0 0; }
 .song-row .song-go { top: 50%; right: 18px; transform: translate(-6px, -50%); }
 .song-row:hover .song-go { opacity: 1; transform: translate(0, -50%); }
+/* light theme: the bright photo behind the page made the titles hard to read, so the rows get
+   the frosted panel of the other cards (the thumbnail still fades in over it on the right) */
+body.light .song-row {
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.82) 45%, rgba(255, 255, 255, 0.6));
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 22px -14px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+body.light .song-row:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
 body.light .song-row-art img { filter: saturate(0.95); }
 body.light .song-row:hover .song-row-art img { filter: saturate(1.05); }
-body.light .song-row-title { text-shadow: 0 1px 10px rgba(255, 255, 255, 0.8); }
+body.light .song-row-title { text-shadow: none; }
+body.light .song-year-head {
+  align-self: flex-start;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+body.light .song-year-head::after { display: none; }
 
 @media (max-width: 600px) {
   .song-row { min-height: 88px; padding: 12px 48px 12px 14px; }
-  .song-row-art { width: 78%; }
-  .song-row-text { max-width: 72%; }
+  .song-row-art { width: 64%; }
+  .song-row-text { max-width: 62%; }
   .song-row-title { font-size: var(--fs-h4); }
   .song-row .song-go { right: 10px; width: 30px; height: 30px; }
   .song-year-head { margin-top: 18px; }
