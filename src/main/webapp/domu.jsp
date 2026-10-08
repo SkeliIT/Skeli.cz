@@ -1,1 +1,1 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %><%response.sendRedirect("index.jsp");return;%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %><%-- old address: moved for good (301) --%><% response.setStatus(301); response.setHeader("Location", "/index.jsp"); return; %>

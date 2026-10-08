@@ -216,10 +216,7 @@ public class LyricDao {
         // No guessing by title: a wrong guess used to be saved for good (the JML clip
         // ended up on "Machine gun Skeli RMX"). Clips are linked in the admin instead.
 
-        // views
-        try (PreparedStatement inc = c.prepareStatement("INSERT INTO lyric_views (lyric_id, views) VALUES (?,1) ON DUPLICATE KEY UPDATE views=views+1")) {
-            inc.setInt(1, lyricId); inc.executeUpdate();
-        }
+        // views: counted by the page script once per visitor and day (VisitStats), not on every load
         try (PreparedStatement sel = c.prepareStatement("SELECT views FROM lyric_views WHERE lyric_id=?")) {
             sel.setInt(1, lyricId);
             try (ResultSet rv = sel.executeQuery()) { if (rv.next()) v.views = rv.getLong(1); }

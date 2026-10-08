@@ -54,6 +54,64 @@
     <% } %>
   </section>
 
+<%
+  // visits (VisitStats): no cookies, a visitor counts once a day; the admin's own visits are not counted
+  java.util.Map<String, Object> vs = new java.util.HashMap<>();
+  java.util.List<String[]> topLyrics = new java.util.ArrayList<>();
+  try {
+    vs = com.github.skeliit.VisitStats.summary();
+    topLyrics = com.github.skeliit.VisitStats.topLyrics(5);
+  } catch (java.sql.SQLException e) {
+    application.log("Visit stats", e);
+  }
+  // {key, icon, label}
+  String[][] visitTiles = {
+      {"online", "fa-signal", "Právě na webu"},
+      {"today", "fa-user", "Lidí dnes"},
+      {"yesterday", "fa-clock-rotate-left", "Lidí včera"},
+      {"days7", "fa-calendar-week", "Návštěv za 7 dní"},
+      {"days30", "fa-calendar", "Návštěv za 30 dní"},
+      {"pagesToday", "fa-file-lines", "Zobrazených stránek dnes"}
+  };
+%>
+  <h3 class="admin-section-title" id="stats"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Návštěvnost</h3>
+  <% if ("1".equals(request.getParameter("statsReset"))) { %>
+  <p class="admin-flash"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Statistiky jsou vynulované, počítá se od teď.</p>
+  <% } %>
+  <div class="admin-stats admin-visits">
+    <% for (String[] tile : visitTiles) { Object n = vs.getOrDefault(tile[0], 0); %>
+    <div class="admin-stat<%= "online".equals(tile[0]) ? " live" : "" %>">
+      <i class="fa-solid <%= tile[1] %>" aria-hidden="true"></i>
+      <b><%= n %></b>
+      <span><%= tile[2] %></span>
+    </div>
+    <% } %>
+  </div>
+  <div class="admin-grid">
+    <section class="admin-card">
+      <h3><i class="fa-solid fa-ranking-star" aria-hidden="true"></i> Nejčtenější texty</h3>
+      <% if (topLyrics.isEmpty()) { %>
+        <p class="text-dim">Zatím nikdo nic nečetl.</p>
+      <% } else { %>
+      <ol class="admin-top">
+        <% for (String[] row : topLyrics) { %>
+        <li><span><%= com.github.skeliit.WebUtils.escapeHtml(row[0]) %> <small><%= com.github.skeliit.WebUtils.escapeHtml(row[1]).toUpperCase() %></small></span> <b><%= row[2] %>×</b></li>
+        <% } %>
+      </ol>
+      <% } %>
+    </section>
+    <section class="admin-card">
+      <h3><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Jak se počítá</h3>
+      <p class="text-dim">Každý člověk se započítá jednou za den, text písně taky jen jednou za den. Roboti a tvoje návštěvy jako admina se nepočítají. Bez cookies, takže se počítají všichni, i ti, kdo v cookie liště odmítnou.</p>
+      <p class="text-dim">Počítá se od: <b><%= com.github.skeliit.WebUtils.escapeHtml(vs.getOrDefault("since", "–")) %></b></p>
+      <form method="post" action="/admin/stats-reset" class="admin-reset">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <label class="checkbox-label"><input type="checkbox" name="confirm" value="ANO" required> Opravdu vynulovat počítadla (zobrazení textů i návštěvnost)</label>
+        <button type="submit" class="btn-delete"><i class="fa-solid fa-rotate-left"></i> Vynulovat statistiky</button>
+      </form>
+    </section>
+  </div>
+
   <h3 class="admin-section-title"><i class="fa-solid fa-compact-disc" aria-hidden="true"></i> Obsah</h3>
   <div class="admin-grid">
     <section class="admin-card admin-link-card">
@@ -174,7 +232,7 @@
     </section>
   </div>
 
-  <h3 class="admin-section-title"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Synchronizace</h3>
+  <h3 class="admin-section-title" id="sync"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Synchronizace</h3>
   <section class="admin-card admin-sync-card">
     <div class="admin-sync-item">
       <i class="fab fa-youtube" style="color: var(--youtube)" aria-hidden="true"></i>
@@ -188,7 +246,21 @@
     </div>
     <div class="admin-sync-item">
       <i class="fab fa-apple" aria-hidden="true"></i>
-      <div><b>Apple Music</b><span>Doplní Apple Music ID (a časovaný text, pokud je).</span></div>
+      <div><b>Apple Music</b><span>Najde písně v katalogu Apple Music a doplní odkazy (zdarma, bez klíčů). Časovaný text jen s placeným účtem Apple Developer.</span>
+<%
+  // result of /admin/apple-sync (numbers only, never echoed as text)
+  String appleRes = request.getParameter("apple");
+  if ("error".equals(appleRes)) {
+%>
+        <span class="admin-sync-result warn">Katalog Apple Music teď nejde načíst. Zkus to prosím později.</span>
+<% } else if (appleRes != null && appleRes.matches("[0-9]{1,4}")) {
+     String miss = request.getParameter("appleMissing"), lyr = request.getParameter("appleLyrics");
+     miss = miss != null && miss.matches("[0-9]{1,4}") ? miss : "0";
+     lyr = lyr != null && lyr.matches("[0-9]{1,4}") ? lyr : "0";
+%>
+        <span class="admin-sync-result">Hotovo: doplněno <b><%= appleRes %></b>, bez Apple Music zůstává <b><%= miss %></b> (featy u jiných interpretů, songy, které na Apple Music nejsou)<% if (!"0".equals(lyr)) { %>, časovaných textů: <b><%= lyr %></b><% } %>.</span>
+<% } %>
+      </div>
       <a class="admin-btn" href="/admin/apple-sync">Spustit</a>
     </div>
   </section>

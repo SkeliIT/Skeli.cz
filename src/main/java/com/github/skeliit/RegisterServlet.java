@@ -134,7 +134,13 @@ public class RegisterServlet extends HttpServlet {
             throw new ServletException(e);
         }
 
-        resp.sendRedirect(verify ? "login.jsp?registered=1&verify=sent" : "login.jsp?registered=1");
+        // the new account is signed in straight away and lands on the home page with a welcome
+        if (newUserId == null) {
+            resp.sendRedirect("login.jsp?registered=1");
+            return;
+        }
+        LoginServlet.signIn(req, newUserId, username, "USER", null, !verify);
+        resp.sendRedirect(verify ? "index.jsp?welcome=verify" : "index.jsp?welcome=1");
     }
 
     private static String normalize(String value) {

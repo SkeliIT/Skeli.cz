@@ -96,7 +96,7 @@ public class AdminSongPreviewServlet extends HttpServlet {
                 return;
             }
 
-            BufferedImage src = ImageIO.read(part.getInputStream());
+            BufferedImage src = WebUtils.readImage(part.getInputStream()); // null also when too big
             if (src == null) {
                 fail(resp, json, redirect, "invalid_image", 400);
                 return;

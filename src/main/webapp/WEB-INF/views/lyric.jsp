@@ -2,11 +2,11 @@
 <%@ include file="/includes/header.jsp" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
-<main class="lyric-page">
+<main class="lyric-page" data-lyric-id="${lyric.id}">
   <%-- every song has its own colours: its clip's thumbnail (or preview photo), blurred far behind the page --%>
   <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
     <div class="lyric-ambient" aria-hidden="true"
-         style="--amb: url('<c:choose><c:when test="${not empty lyric.youtubeId}">https://i.ytimg.com/vi/<c:out value="${lyric.youtubeId}"/>/mqdefault.jpg</c:when><c:otherwise><c:out value="${lyric.previewImageUrl}"/></c:otherwise></c:choose>')"></div>
+         style="--amb: url('<c:choose><c:when test="${not empty lyric.youtubeId}">/yt-thumb/<c:out value="${lyric.youtubeId}"/>/mqdefault.jpg</c:when><c:otherwise><c:out value="${lyric.previewImageUrl}"/></c:otherwise></c:choose>')"></div>
   </c:if>
   <!-- Song switcher -->
   <nav class="lyric-switcher">
@@ -65,7 +65,7 @@
                   <img class="yt-facade-img" src="<c:out value='${lyric.previewImageUrl}'/>" alt="">
                 </c:when>
                 <c:otherwise>
-                  <img class="yt-facade-img" src="https://i.ytimg.com/vi/<c:out value='${lyric.youtubeId}'/>/hqdefault.jpg" alt="">
+                  <img class="yt-facade-img" src="/yt-thumb/<c:out value='${lyric.youtubeId}'/>/hqdefault.jpg" alt="">
                 </c:otherwise>
               </c:choose>
               <span class="yt-facade-play" aria-hidden="true"><i class="fab fa-youtube"></i></span>
@@ -83,7 +83,7 @@
             if (!btn) return;
             btn.addEventListener('click', function(){
               var iframe = document.createElement('iframe');
-              iframe.src = 'https://www.youtube.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
+              iframe.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
               iframe.setAttribute('frameborder', '0');
               iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
               iframe.setAttribute('allowfullscreen', '');
@@ -103,7 +103,7 @@
               });
               box.setAttribute('data-yt', id);
               box.innerHTML = '<button type="button" class="yt-facade" aria-label="' + label + '">'
-                + '<img class="yt-facade-img" src="https://i.ytimg.com/vi/' + id + '/hqdefault.jpg" alt="">'
+                + '<img class="yt-facade-img" src="/yt-thumb/' + id + '/hqdefault.jpg" alt="">'
                 + '<span class="yt-facade-play" aria-hidden="true"><i class="fab fa-youtube"></i></span></button>';
               bind();
               var yt = document.querySelector('.lyric-links a[href*="youtube.com/watch"]');
@@ -150,7 +150,7 @@
               </a>
             </c:if>
             <c:if test="${not empty lyric.appleMusicId}">
-              <a class="action-btn" href="https://music.apple.com/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openApple") %>">
+              <a class="action-btn" href="https://music.apple.com/cz/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openApple") %>">
                 <i class="fab fa-apple icon-apple"></i> Apple Music
               </a>
             </c:if>

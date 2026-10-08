@@ -193,6 +193,32 @@ public class WebUtils {
      * Base URL of the site used in e-mails. Taken from APP_BASE_URL so that links
      * cannot be poisoned through the Host header.
      */
+    /** Uploaded pictures larger than this (width × height) are refused before they are decoded. */
+    static final long MAX_IMAGE_PIXELS = 40_000_000L; // e.g. 8000 × 5000
+
+    /**
+     * Reads an uploaded image, or returns null when it is not an image or is too big: the size is read
+     * from the file header first, so a small file claiming 50 000 × 50 000 pixels never fills the memory.
+     */
+    public static java.awt.image.BufferedImage readImage(java.io.InputStream in) throws java.io.IOException {
+        try (javax.imageio.stream.ImageInputStream iis = javax.imageio.ImageIO.createImageInputStream(in)) {
+            if (iis == null) return null;
+            java.util.Iterator<javax.imageio.ImageReader> readers = javax.imageio.ImageIO.getImageReaders(iis);
+            if (!readers.hasNext()) return null;
+            javax.imageio.ImageReader reader = readers.next();
+            try {
+                reader.setInput(iis, true, true);
+                long w = reader.getWidth(0), h = reader.getHeight(0);
+                if (w <= 0 || h <= 0 || w * h > MAX_IMAGE_PIXELS) return null;
+                return reader.read(0);
+            } catch (javax.imageio.IIOException e) {
+                return null;
+            } finally {
+                reader.dispose();
+            }
+        }
+    }
+
     public static String baseUrl() {
         String v = Config.get("APP_BASE_URL", "https://www.skeli.cz");
         return v.endsWith("/") ? v.substring(0, v.length() - 1) : v;

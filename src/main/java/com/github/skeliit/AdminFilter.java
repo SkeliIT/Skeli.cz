@@ -16,12 +16,21 @@ import java.sql.SQLException;
  * after that person logs out.
  */
 public class AdminFilter implements Filter {
+    static final long ADMIN_SIGN_IN_MAX_MS = 12 * 60 * 60 * 1000L;
+
     @Override public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
         Object userId = session != null ? session.getAttribute("userId") : null;
         if (!(userId instanceof Integer id) || !"ADMIN".equals(session.getAttribute("role"))) {
+            forbid(resp);
+            return;
+        }
+        // admin pages need a sign-in from the last 12 hours, also with "remember me" (30 days)
+        Object at = session.getAttribute("signedInAt");
+        if (!(at instanceof Long t) || System.currentTimeMillis() - t > ADMIN_SIGN_IN_MAX_MS) {
+            session.invalidate();
             forbid(resp);
             return;
         }
@@ -54,7 +63,7 @@ public class AdminFilter implements Filter {
     }
 
     private static void forbid(HttpServletResponse resp) throws IOException {
-        resp.setStatus(403);
-        resp.getWriter().write("Forbidden");
+        // the site's error page: a signed-out visitor gets a sign-in button that leads back here
+        resp.sendError(403);
     }
 }

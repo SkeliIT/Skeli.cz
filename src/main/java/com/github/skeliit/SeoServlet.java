@@ -25,6 +25,20 @@ public class SeoServlet extends HttpServlet {
         "/privacy.jsp", "/terms.jsp", "/gdpr.jsp"
     };
 
+    /** Languages in the order they are listed (cs = the address without ?lang). */
+    public static final java.util.List<String> LANGS = java.util.List.of("cs", "en", "de", "uk", "vi");
+
+    /** The page as listed in the sitemap when it is one of the translated public pages, else null. */
+    public static String publicPage(String uri) {
+        if ("/index.jsp".equals(uri)) uri = "/";
+        return java.util.Arrays.asList(PAGES).contains(uri) ? uri : null;
+    }
+
+    /** A public page in one language: the UI language is chosen by ?lang= (WEB-INF/i18n/i18n.jspf). */
+    public static String langUrl(String page, String lang) {
+        return "cs".equals(lang) ? page : page + "?lang=" + lang;
+    }
+
     private final LyricService svc = new LyricService();
 
     @Override
@@ -65,9 +79,17 @@ public class SeoServlet extends HttpServlet {
         resp.setContentType("application/xml;charset=UTF-8");
         PrintWriter out = resp.getWriter();
         out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        out.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
+        out.println("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">");
         for (String p : PAGES) {
-            out.println("  <url><loc>" + WebUtils.escapeHtml(base + p) + "</loc></url>");
+            // every language version, each listing all of them (hreflang in the sitemap)
+            StringBuilder alternates = new StringBuilder();
+            for (String l : LANGS) {
+                alternates.append("<xhtml:link rel=\"alternate\" hreflang=\"").append(l).append("\" href=\"")
+                        .append(WebUtils.escapeHtml(base + langUrl(p, l))).append("\"/>");
+            }
+            for (String l : LANGS) {
+                out.println("  <url><loc>" + WebUtils.escapeHtml(base + langUrl(p, l)) + "</loc>" + alternates + "</url>");
+            }
         }
         try {
             for (Song s : svc.listSongs()) {

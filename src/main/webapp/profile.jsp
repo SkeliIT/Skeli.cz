@@ -69,7 +69,7 @@
         %>
           <tr>
             <td style="padding:6px; opacity:.8;"><%= ts %></td>
-            <td style="padding:6px;"><a href="/lyric.jsp?id=<%= lid %>"><%= com.github.skeliit.WebUtils.escapeHtml(sname) %></a></td>
+            <td style="padding:6px;"><a href="/lyrics/<%= lid %>"><%= com.github.skeliit.WebUtils.escapeHtml(sname) %></a></td>
             <td style="padding:6px; max-width:420px;">
               <form method="post" action="/comment" style="display:flex; gap:6px; align-items:flex-start;">
                 <input type="hidden" name="lyric_id" value="<%= lid %>">
@@ -102,8 +102,8 @@
     </div>
   </section>
 
-  <link href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
+  <link href="/vendor/cropper/cropper.min.css" rel="stylesheet">
+  <script src="/vendor/cropper/cropper.min.js"></script>
   <script>
     (function(){
       const input = document.getElementById('avatar-input');

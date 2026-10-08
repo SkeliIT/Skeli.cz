@@ -61,7 +61,7 @@ abstract class UiTestSupport {
 
     // ---------- browser flows ----------
 
-    /** Registers through /register, logs in through /login and returns the new user's id. */
+    /** Registers through /register (which signs the new account in) and returns the new user's id. */
     int registerAndLogin(String username) throws SQLException {
         driver.get(BASE_URL + "/register");
         driver.findElement(By.name("username")).sendKeys(username);
@@ -70,12 +70,11 @@ abstract class UiTestSupport {
         driver.findElement(By.name("password2")).sendKeys(PASSWORD);
         jsClick(driver.findElement(By.name("consent")));
         submit(By.cssSelector("form button[type=submit]"));
-        assertTrue(driver.getCurrentUrl().contains("registered=1"),
-                "registration should redirect with registered=1, got: " + driver.getCurrentUrl());
+        assertTrue(driver.getCurrentUrl().contains("index.jsp?welcome="),
+                "registration should sign in and go home, got: " + driver.getCurrentUrl());
 
         int id = queryInt("SELECT id FROM users WHERE username=?", username);
         createdUserIds.add(id);
-        login(username, PASSWORD);
         return id;
     }
 

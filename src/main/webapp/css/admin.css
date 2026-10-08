@@ -28,16 +28,6 @@ body.light .admin-table tr:hover { background: rgba(0,0,0,0.04); }
 
 .act { display:flex; gap:8px; }
 
-.btn-delete {
-    background: #7b1e1e;
-    color: #fff;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9em;
-}
-.btn-delete:hover { background: #9b2e2e; }
 
 /* Admin Songs */
 .songs-table {
@@ -422,3 +412,15 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .admin-check { display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-card); color: var(--text-dim); cursor: pointer; }
 .admin-check input { width: auto; }
 #userTable tr[hidden] { display: none; }
+.admin-sync-item .admin-sync-result { display: block; margin-top: 6px; color: var(--text); }
+.admin-sync-item .admin-sync-result b { display: inline; color: var(--accent); }
+.admin-sync-item .admin-sync-result.warn { color: #f59e0b; }
+
+/* visits (VisitStats) */
+.admin-visits .admin-stat:hover { transform: none; border-color: var(--panel-border); }
+.admin-stat.live i { color: #22c55e; }
+.admin-top { margin: 0; padding-left: 1.4em; display: grid; gap: 6px; }
+.admin-top li { display: flex; justify-content: space-between; gap: 12px; }
+.admin-top small { color: var(--text-dim); font-size: var(--fs-small); }
+.admin-top b { font-weight: 400; color: var(--accent); }
+.admin-reset { display: grid; gap: 10px; margin-top: 8px; justify-items: start; }

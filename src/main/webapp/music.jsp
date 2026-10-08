@@ -25,10 +25,10 @@
           "SELECT s.name, CASE WHEN (SELECT COUNT(*) FROM videos v WHERE v.song_id = s.id) > 1 " +
           "         THEN (SELECT YEAR(MAX(v.published_at)) FROM videos v WHERE v.song_id = s.id) ELSE s.year END AS year, " +
           "       s.uuid, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
-          "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview " +
+          "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview, s.apple_music_id AS apple " +
           "FROM songs s " +
           "UNION ALL " +
-          "SELECT v.title, NULL, NULL, NULL, v.youtube_id, 1, v.id, NULL FROM videos v WHERE v.song_id IS NULL " +
+          "SELECT v.title, NULL, NULL, NULL, v.youtube_id, 1, v.id, NULL, NULL FROM videos v WHERE v.song_id IS NULL " +
           "ORDER BY grp, year DESC, ord DESC";
       java.util.Map<Integer, java.util.List<com.github.skeliit.model.SongClip>> clipsBySong =
           com.github.skeliit.model.SongClip.bySong();
@@ -52,6 +52,8 @@
               ? ((songUuid != null && !songUuid.isBlank()) ? "/cs/song/" + songUuid : "/lyrics/" + lyricId)
               : null;
           String mainHref = lyricsHref != null ? lyricsHref : (yt != null ? "https://www.youtube.com/watch?v=" + ytHtml : null);
+          String apple = rs.getString("apple");
+          String appleHref = (apple != null && apple.matches("[0-9]{1,20}")) ? "https://music.apple.com/cz/song/" + apple : null;
           String spotifyHref = "https://open.spotify.com/search/" + java.net.URLEncoder.encode("Skeli " + name, "UTF-8").replace("+", "%20");
     %>
       <article class="song-card disco-card">
@@ -62,15 +64,15 @@
               // two versions: the newest on top fading into the oldest below
           %>
             <span class="thumb-split">
-              <img class="split-bottom" src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(thumbClips.size() - 1).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
-              <img class="split-top" src="https://img.youtube.com/vi/<%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(0).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+              <img class="split-bottom" src="/yt-thumb/<%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(thumbClips.size() - 1).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+              <img class="split-top" src="/yt-thumb/<%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(0).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
               <span class="split-tag split-tag-top"><%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(0).label(t)) %></span>
               <span class="split-tag split-tag-bottom"><%= com.github.skeliit.WebUtils.escapeHtml(thumbClips.get(thumbClips.size() - 1).label(t)) %></span>
             </span>
           <% } else if (yt != null) { %>
-            <img src="https://img.youtube.com/vi/<%= ytHtml %>/mqdefault.jpg" alt="" loading="lazy">
+            <img src="/yt-thumb/<%= ytHtml %>/mqdefault.jpg" alt="" loading="lazy">
             <%-- on hover the cover shrinks into a sleeve and a record with it on the label slides out --%>
-            <span class="vinyl" aria-hidden="true" style="--cover: url('https://img.youtube.com/vi/<%= ytHtml %>/mqdefault.jpg')"></span>
+            <span class="vinyl" aria-hidden="true" style="--cover: url('/yt-thumb/<%= ytHtml %>/mqdefault.jpg')"></span>
           <% } else if (preview != null) { %>
             <img src="<%= com.github.skeliit.WebUtils.escapeHtml(preview) %>" alt="" loading="lazy">
             <span class="vinyl" aria-hidden="true" style="--cover: url('<%= com.github.skeliit.WebUtils.escapeHtml(preview) %>')"></span>
@@ -87,6 +89,7 @@
           <% if (lyricsHref != null) { %><a class="disco-lyrics" href="<%= lyricsHref %>" title="<%= t.getProperty("music.link.lyrics") %>" aria-label="<%= t.getProperty("music.link.lyrics") %>"><i class="fa-solid fa-align-left"></i></a><% } %>
           <% if (yt != null) { %><a class="disco-youtube" href="https://www.youtube.com/watch?v=<%= ytHtml %>" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a><% } %>
           <a class="disco-spotify" href="<%= spotifyHref %>" target="_blank" rel="noopener" title="Spotify" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
+          <% if (appleHref != null) { %><a class="disco-apple" href="<%= appleHref %>" target="_blank" rel="noopener" title="Apple Music" aria-label="Apple Music"><i class="fab fa-apple"></i></a><% } %>
         </div>
         <%
           java.util.List<com.github.skeliit.model.SongClip> versions = isSong ? clipsBySong.get(rs.getInt("ord")) : null;
@@ -97,7 +100,7 @@
           <ul>
           <% for (com.github.skeliit.model.SongClip clip : versions) { String cid = com.github.skeliit.WebUtils.escapeHtml(clip.youtubeId); %>
             <li><a href="https://www.youtube.com/watch?v=<%= cid %>" target="_blank" rel="noopener">
-              <img src="https://img.youtube.com/vi/<%= cid %>/mqdefault.jpg" alt="" loading="lazy">
+              <img src="/yt-thumb/<%= cid %>/mqdefault.jpg" alt="" loading="lazy">
               <span><%= com.github.skeliit.WebUtils.escapeHtml(clip.label(t)) %></span>
               <i class="fab fa-youtube"></i>
             </a></li>
@@ -120,10 +123,15 @@
   <section class="spotify-block" data-reveal>
     <div class="section-head">
       <h2><%= t.getProperty("music.spotify") %></h2>
-      <a href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener"><i class="fab fa-spotify"></i> Spotify <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      <span class="listen-links">
+        <a href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener"><i class="fab fa-spotify"></i> Spotify <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+        <a href="https://music.apple.com/cz/artist/skeli/1820513581" target="_blank" rel="noopener"><i class="fab fa-apple icon-apple"></i> Apple Music <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </span>
     </div>
-    <div class="card spotify-embed">
-      <iframe src="https://open.spotify.com/embed/artist/5IouXw8U9uKCTwmncG5bUl?utm_source=generator&amp;theme=0"
+    <%-- Spotify loads only after consent in the cookie bar or a click here (privacy) --%>
+    <div class="card spotify-embed consent-embed">
+      <div class="consent-embed-cover"><i class="fab fa-spotify" aria-hidden="true"></i><p><%= t.getProperty("consent.spotify") %></p><button type="button" class="btn btn-primary consent-embed-btn"><i class="fa-solid fa-play"></i> <%= t.getProperty("consent.load") %></button></div>
+      <iframe data-consent-src="https://open.spotify.com/embed/artist/5IouXw8U9uKCTwmncG5bUl?utm_source=generator&amp;theme=0"
               title="Spotify – Skeli" loading="lazy"
               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
     </div>

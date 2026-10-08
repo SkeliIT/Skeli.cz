@@ -12,7 +12,7 @@
         <a href="<%= request.getContextPath() %>/aktuality.jsp"><%= t.getProperty("menu.news") %></a>
         <a href="<%= request.getContextPath() %>/music.jsp"><%= t.getProperty("menu.music") %></a>
         <a href="<%= request.getContextPath() %>/texty.jsp"><%= t.getProperty("menu.lyrics") %></a>
-        <a href="<%= request.getContextPath() %>/bio.jsp"><%= t.getProperty("menu.about") %></a>
+        <a href="<%= request.getContextPath() %>/about.jsp"><%= t.getProperty("menu.about") %></a>
         <a href="<%= request.getContextPath() %>/donate.jsp"><%= t.getProperty("btn.donate") %></a>
       </nav>
     </div>
@@ -23,37 +23,59 @@
         <a class="social-btn ig" href="https://www.instagram.com/skeli.official/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
         <a class="social-btn yt" href="https://www.youtube.com/@Skeli" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
         <a class="social-btn sp" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
+        <a class="social-btn am" href="https://music.apple.com/cz/artist/skeli/1820513581" target="_blank" rel="noopener" aria-label="Apple Music"><i class="fab fa-apple"></i></a>
       </div>
     </div>
   </div>
   <div class="footer-bottom">
     <span>&copy; <%= java.time.Year.now() %> Skeli</span>
+    <%-- filled in by js/presence.js; stays hidden without JavaScript --%>
+    <span id="onlineNow" class="online-now" title="<%= t.getProperty("footer.onlineHint") %>" hidden><i class="online-dot" aria-hidden="true"></i> <%= t.getProperty("footer.online") %> <b>1</b></span>
     <nav>
       <a href="<%= request.getContextPath() %>/privacy.jsp"><%= t.getProperty("cookie.policy","Privacy") %></a>
       <a href="<%= request.getContextPath() %>/terms.jsp"><%= t.getProperty("cookie.terms","Terms") %></a>
       <a href="<%= request.getContextPath() %>/gdpr.jsp">GDPR</a>
+      <a href="<%= request.getContextPath() %>/privacy.jsp#cookies" data-cookie-settings><%= t.getProperty("cookie.settingsLink") %></a>
     </nav>
   </div>
 </footer>
 
-<div id="cookieBar" class="cookie-bar" role="dialog" aria-live="polite">
-  <p><%= t.getProperty("cookie.message","This site uses cookies and third-party platforms (YouTube/Spotify).") %>
-    <a href="<%= request.getContextPath() %>/privacy.jsp"><%= t.getProperty("cookie.policy","Privacy") %></a> ·
-    <a href="<%= request.getContextPath() %>/terms.jsp"><%= t.getProperty("cookie.terms","Terms") %></a></p>
+<div id="cookieBar" class="cookie-bar" role="dialog" aria-labelledby="cookieTitle" aria-live="polite">
+  <p id="cookieTitle"><%= t.getProperty("cookie.message") %>
+    <a href="<%= request.getContextPath() %>/privacy.jsp#cookies"><%= t.getProperty("cookie.policy") %></a></p>
+  <%-- the choices, opened by "Settings" (and by the footer link) --%>
+  <div class="cookie-prefs" hidden>
+    <label class="cookie-cat">
+      <input type="checkbox" checked disabled>
+      <span><b><%= t.getProperty("cookie.cat.necessary") %></b><small><%= t.getProperty("cookie.cat.necessaryDesc") %></small></span>
+    </label>
+    <label class="cookie-cat">
+      <input type="checkbox" id="consentAnalytics">
+      <span><b><%= t.getProperty("cookie.cat.analytics") %></b><small><%= t.getProperty("cookie.cat.analyticsDesc") %></small></span>
+    </label>
+    <label class="cookie-cat">
+      <input type="checkbox" id="consentMedia">
+      <span><b><%= t.getProperty("cookie.cat.media") %></b><small><%= t.getProperty("cookie.cat.mediaDesc") %></small></span>
+    </label>
+    <button type="button" class="cookie-btn" data-consent="save"><%= t.getProperty("cookie.save") %></button>
+  </div>
+  <%-- "Accept all" and "Reject all" look the same: refusing is as easy as agreeing --%>
   <div class="cookie-actions">
-    <button id="cookieAccept" type="button" class="btn-primary"><%= t.getProperty("cookie.accept","Accept") %></button>
-    <button id="cookieReject" type="button"><%= t.getProperty("cookie.reject","Reject") %></button>
+    <button type="button" class="cookie-btn" data-consent="all"><%= t.getProperty("cookie.accept") %></button>
+    <button type="button" class="cookie-btn" data-consent="none"><%= t.getProperty("cookie.reject") %></button>
+    <button type="button" class="cookie-btn cookie-btn-ghost" data-consent="settings" aria-expanded="false"><%= t.getProperty("cookie.settings") %></button>
   </div>
 </div>
 <script>
-  (function(){
-    const k='cookieConsent'; const v=localStorage.getItem(k);
-    if(!v) document.getElementById('cookieBar').style.display='block';
-    document.getElementById('cookieAccept').onclick=function(){ localStorage.setItem(k,'true'); document.getElementById('cookieBar').style.display='none'; document.dispatchEvent(new Event('consent-granted')); if(window._paq) window._paq.push(['setConsentGiven']); };
-    document.getElementById('cookieReject').onclick=function(){ localStorage.setItem(k,'false'); document.getElementById('cookieBar').style.display='none'; if(window._paq) window._paq.push(['forgetConsentGiven']); };
-  })();
-</script>
-<script>
+  // "Skip to content": the pages have no id on <main>, so the focus is moved here
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.skip-link')) return;
+    const main = document.querySelector('main');
+    if (!main) return;
+    e.preventDefault();
+    main.setAttribute('tabindex', '-1');
+    main.focus();
+  });
   // Eye button in every password field to show / hide what was typed
   (function(){
     const show = '<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("auth.password.show")) %>';
@@ -105,33 +127,34 @@
 </script>
 <script src="<%= request.getContextPath() %>/js/password-helper.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/effects.js?v=<%= assetVersion %>" defer></script>
+<script src="<%= request.getContextPath() %>/js/presence.js?v=<%= assetVersion %>" defer></script>
+<script src="<%= request.getContextPath() %>/js/consent.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/kevin-lines.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/kevin.js?v=<%= assetVersion %>" defer></script>
-<!-- Matomo -->
 <script>
-  var _paq = window._paq = window._paq || [];
-  _paq.push(['requireConsent']);
-  _paq.push(['trackPageView']);
-  _paq.push(['enableLinkTracking']);
-  (function() {
-    var u="https://matomo.vitexsoftware.com/";
-    _paq.push(['setTrackerUrl', u+'matomo.php']);
-    _paq.push(['setSiteId', '18']);
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  // third-party players (YouTube, Spotify) in .consent-embed: they load after consent in the
+  // cookie bar, or when the visitor clicks "Load the player" on one of them
+  (function () {
+    function load(frame) {
+      if (!frame || !frame.dataset.consentSrc) return;
+      frame.src = frame.dataset.consentSrc;
+      frame.removeAttribute('data-consent-src');
+      var box = frame.closest('.consent-embed');
+      if (box) box.classList.add('loaded');
+    }
+    function loadAll() {
+      if (window.skeliConsent && window.skeliConsent()) document.querySelectorAll('iframe[data-consent-src]').forEach(load);
+    }
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest('.consent-embed-btn');
+      if (b) load(b.closest('.consent-embed').querySelector('iframe[data-consent-src]'));
+    });
+    document.addEventListener('consent-granted', loadAll);
+    document.addEventListener('pjax:done', loadAll);
+    loadAll();
   })();
-  /* honor existing cookie consent */
-  if(localStorage.getItem('cookieConsent')==='true'){ _paq.push(['setConsentGiven']); }
-  document.addEventListener('consent-granted', function(){ _paq.push(['setConsentGiven']); });
-  /* track PJAX soft navigations */
-  document.addEventListener('pjax:done', function(e){
-    _paq.push(['setCustomUrl', e.detail && e.detail.url ? e.detail.url : location.href]);
-    _paq.push(['setDocumentTitle', document.title]);
-    _paq.push(['trackPageView']);
-  });
 </script>
-<noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://matomo.vitexsoftware.com/matomo.php?idsite=18&amp;rec=1" style="border:0;" alt="" /></p></noscript>
-<!-- End Matomo Code -->
+<%-- Matomo is loaded by js/consent.js, only after consent to analytics --%>
 
 </body>
 </html>

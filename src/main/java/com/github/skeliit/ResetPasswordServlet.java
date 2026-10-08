@@ -48,7 +48,7 @@ public class ResetPasswordServlet extends HttpServlet {
                     try (ResultSet rs = ps.executeQuery()) { if (rs.next()) userId = rs.getInt(1); }
                 }
                 if (userId != null) {
-                    String hash = BCrypt.hashpw(password, BCrypt.gensalt());
+                    String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
                     try (PreparedStatement ps = conn.prepareStatement("UPDATE users SET password_hash=? WHERE id=?")) {
                         ps.setString(1, hash);
                         ps.setInt(2, userId);

@@ -44,7 +44,7 @@
          String latestId = com.github.skeliit.WebUtils.escapeHtml(latest.youtubeId());
          String latestTitle = latest.title() == null ? "YouTube" : latest.title(); %>
     <a class="hero-latest" href="https://www.youtube.com/watch?v=<%= latestId %>" target="_blank" rel="noopener">
-      <img src="https://i.ytimg.com/vi/<%= latestId %>/mqdefault.jpg" alt="" width="104" height="58">
+      <img src="/yt-thumb/<%= latestId %>/mqdefault.jpg" alt="" width="104" height="58">
       <span><small><span class="dot"></span><%= t.getProperty("home.latest") %></small><b><%= com.github.skeliit.WebUtils.escapeHtml(latestTitle) %></b></span>
       <span class="play"><i class="fa-solid fa-play"></i></span>
     </a>
@@ -54,6 +54,7 @@
       <a class="social-btn ig" href="https://www.instagram.com/skeli.official/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
       <a class="social-btn yt" href="https://www.youtube.com/@Skeli" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
       <a class="social-btn sp" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
+      <a class="social-btn am" href="https://music.apple.com/cz/artist/skeli/1820513581" target="_blank" rel="noopener" aria-label="Apple Music"><i class="fab fa-apple"></i></a>
     </div>
   </section>
 
@@ -113,7 +114,7 @@
              boolean big = v == latest; %>
           <a class="video<%= big ? " video-featured" : "" %>" href="https://www.youtube.com/watch?v=<%= vid %>" target="_blank" rel="noopener">
             <div class="video-thumb">
-              <img src="https://img.youtube.com/vi/<%= vid %>/<%= big ? "maxresdefault" : "hqdefault" %>.jpg" alt="<%= title %>" loading="lazy"<% if (big) { %> onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')"<% } %>>
+              <img src="/yt-thumb/<%= vid %>/<%= big ? "maxresdefault" : "hqdefault" %>.jpg" alt="<%= title %>" loading="lazy"<% if (big) { %> onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')"<% } %>>
               <span class="video-play"><i class="fa-solid fa-play"></i></span>
             </div>
             <div class="meta">

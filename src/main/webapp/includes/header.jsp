@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "3.6.0";
+  String assetVersion = "3.8.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -47,6 +47,10 @@
   String headUrl = siteBase + (canonicalPath != null
       ? canonicalPath
       : (fwdUri != null ? fwdUri : request.getRequestURI()));
+  // the translated public pages (sitemap list): canonical = this language's address, alternates = all five
+  String headPublicPage = canonicalPath == null
+      ? com.github.skeliit.SeoServlet.publicPage(String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI())) : null;
+  if (headPublicPage != null) headUrl = siteBase + com.github.skeliit.SeoServlet.langUrl(headPublicPage, cur);
   // error pages (404/500) must not end up in search results
   boolean headIsError = request.getAttribute("jakarta.servlet.error.status_code") != null;
   // link preview image/type: a page may set its own (a lyric page uses its video thumbnail)
@@ -60,6 +64,10 @@
     <%
       @SuppressWarnings("unchecked")
       java.util.Map<String, String> hreflang = (java.util.Map<String, String>) request.getAttribute("hreflang");
+      if (hreflang == null && headPublicPage != null && !headIsError) {
+        hreflang = new java.util.LinkedHashMap<>();
+        for (String l : com.github.skeliit.SeoServlet.LANGS) hreflang.put(l, com.github.skeliit.SeoServlet.langUrl(headPublicPage, l));
+      }
       if (hreflang != null) {
         for (java.util.Map.Entry<String, String> e : hreflang.entrySet()) {
           String href = siteBase + e.getValue();
@@ -95,18 +103,23 @@
     <link rel="icon" href="<%= ctx %>/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="<%= ctx %>/apple-touch-icon.png" />
     <meta name="theme-color" content="#09090b" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Exo+2:wght@500&family=Oswald:wght@300;500&display=swap" rel="stylesheet">
+    <%-- icons and fonts from our own server: no visitor IP goes to Google or a CDN (privacy) --%>
+    <link rel="stylesheet" href="<%= ctx %>/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="<%= ctx %>/fonts/fonts.css?v=<%= assetVersion %>">
     <!-- Skeli.cz CSS -->
     <link rel="stylesheet" href="<%= ctx %>/css/base.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/components.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/pages.css?v=<%= assetVersion %>">
-    <link rel="stylesheet" href="<%= ctx %>/css/admin.css?v=<%= assetVersion %>">
+    <% if (String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin")) { %><link rel="stylesheet" href="<%= ctx %>/css/admin.css?v=<%= assetVersion %>"><% } %>
     <link rel="stylesheet" href="<%= ctx %>/css/effects.css?v=<%= assetVersion %>">
+    <%-- structured data for search engines: Skeli as a musician, the site, a song (SeoJsonLd) --%>
+    <% String headLd = headIsError ? null : com.github.skeliit.SeoJsonLd.forPage(siteBase, headUrl, headPublicPage, headType,
+           "music.song".equals(headType) ? headTitle : null, headImage, cur, t.getProperty("menu.home"), t.getProperty("menu.lyrics"));
+       if (headLd != null) { %><script type="application/ld+json"><%= headLd %></script><% } %>
   </head>
   <body>
+    <%-- keyboard and screen reader users jump over the header straight to the page (footer.jsp moves the focus) --%>
+    <a class="skip-link" href="#main"><%= t.getProperty("a11y.skip") %></a>
       <% request.setAttribute("csrf", com.github.skeliit.CsrfFilter.token(session)); %>
       <% String currentUser = (String) session.getAttribute("username");
          String currentRole = (String) session.getAttribute("role"); %>
@@ -124,7 +137,7 @@
               <a href="<%= ctx %>/aktuality.jsp"><%= t.getProperty("menu.news") %></a>
               <a href="<%= ctx %>/music.jsp"><%= t.getProperty("menu.music","Music") %></a>
               <a href="<%= ctx %>/texty.jsp"><%= t.getProperty("menu.lyrics","Lyrics") %></a>
-              <a href="<%= ctx %>/bio.jsp"><%= t.getProperty("menu.about","About") %></a>
+              <a href="<%= ctx %>/about.jsp"><%= t.getProperty("menu.about","About") %></a>
               <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
               <%-- phones: the display controls live here instead of crowding the bar --%>
               <div class="nav-settings">
@@ -209,7 +222,10 @@
   // One-line messages after a redirect, chosen by fixed query parameters (never echoed back)
   String flashKey = null; boolean flashOk = true;
   String pVerified = request.getParameter("verified"), pVerify = request.getParameter("verify");
-  if ("1".equals(pVerified)) flashKey = "flash.verified";
+  String pWelcome = request.getParameter("welcome");
+  if (session.getAttribute("userId") != null && "1".equals(pWelcome)) flashKey = "flash.welcome";
+  else if (session.getAttribute("userId") != null && "verify".equals(pWelcome)) flashKey = "flash.welcomeVerify";
+  else if ("1".equals(pVerified)) flashKey = "flash.verified";
   else if ("invalid".equals(pVerified)) { flashKey = "flash.verifyInvalid"; flashOk = false; }
   else if ("sent".equals(pVerify)) flashKey = "flash.verifySent";
   else if ("resent".equals(pVerify)) flashKey = "flash.verifyResent";
@@ -222,7 +238,7 @@
 %>
         <div class="flash <%= flashOk ? "flash-ok" : "flash-warn" %>" role="status">
           <i class="fa-solid <%= flashOk ? "fa-circle-check" : "fa-circle-exclamation" %>"></i>
-          <span><%= t.getProperty(flashKey) %></span>
+          <span><%= t.getProperty(flashKey).replace("{name}", com.github.skeliit.WebUtils.escapeHtml(session.getAttribute("username"))) %></span>
         </div>
 <% } %>
         <script>
@@ -324,18 +340,26 @@
               if (id) { return `https://open.spotify.com/embed/\${type}/\${id}?utm_source=generator&theme=0`; }
               return `https://open.spotify.com/embed/track/\${input}?utm_source=generator&theme=0`;
             }
+            // has the visitor allowed third-party content (YouTube, Spotify) in the cookie bar?
+            window.skeliConsent = function () { try { return localStorage.getItem('cookieConsent') === 'true'; } catch (e) { return false; } };
             const SP_DEFAULT = 'https://open.spotify.com/embed/artist/5IouXw8U9uKCTwmncG5bUl?utm_source=generator&theme=0';
             function openBar() { const bar = ensureSpBar(); const f = document.getElementById('sp-iframe'); if (!f.src) { const saved = darkEmbed(localStorage.getItem('sp_src')); f.src = saved || SP_DEFAULT; } bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; localStorage.setItem('sp_min', '0'); }
             function closeBar() { const bar = ensureSpBar(); bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'block'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; localStorage.setItem('sp_min', '1'); }
             window.toggleSpotifyBar = function () { if (ensureSpBar().style.display === 'none') { openBar(); } else { closeBar(); } }
             window.playSpotify = function (src) { const bar = ensureSpBar(); const url = normalizeSrc(src); const f = document.getElementById('sp-iframe'); if (f.src !== url) f.src = url; openBar(); localStorage.setItem('sp_src', url); localStorage.setItem('sp_play', 'true'); };
 
-            // Restore state on every page
+            // Restore state on every page. Without consent to third-party content (cookie bar) the
+            // player stays a button: the Spotify iframe loads only after a click on it.
             (function () {
-              const bar = ensureSpBar(); const wasMin = localStorage.getItem('sp_min') === '1'; const saved = darkEmbed(localStorage.getItem('sp_src')); const f = document.getElementById('sp-iframe'); if (saved) { f.src = saved; }
-              if ((saved || SP_DEFAULT) && !wasMin) { f.src = f.src || SP_DEFAULT; bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; }
+              const bar = ensureSpBar(); const wasMin = localStorage.getItem('sp_min') === '1'; const saved = darkEmbed(localStorage.getItem('sp_src')); const f = document.getElementById('sp-iframe');
+              const ok = window.skeliConsent();
+              if (saved && ok) { f.src = saved; }
+              if ((saved || SP_DEFAULT) && !wasMin && ok) { f.src = f.src || SP_DEFAULT; bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; }
               else { bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'block'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; }
             })();
+
+            // consent given in the cookie bar: the player comes up as before (unless it was minimised)
+            document.addEventListener('consent-granted', function () { if (localStorage.getItem('sp_min') !== '1') openBar(); });
 
             // Autowire any element with data-spotify-src
             document.addEventListener('click', function (e) { const t = e.target.closest('[data-spotify-src]'); if (t) { e.preventDefault(); window.playSpotify(t.getAttribute('data-spotify-src')); } });
@@ -392,7 +416,7 @@
 
             // Active navigation highlight
             // Pages that belong to a menu item under another URL
-            const navAliases = { 'about.jsp': 'bio.jsp', 'lyric.jsp': 'texty.jsp' };
+            const navAliases = { 'bio.jsp': 'about.jsp', 'lyric.jsp': 'texty.jsp' };
             function updateActiveNav() {
               let cur = location.pathname.split('/').pop() || 'index.jsp';
               if (location.pathname.startsWith('/lyrics/')) cur = 'texty.jsp';

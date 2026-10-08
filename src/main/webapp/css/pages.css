@@ -639,6 +639,10 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 .disco-links .disco-youtube:hover { border-color: #ff3b3b; }
 .disco-links .disco-spotify i { color: var(--spotify); }
 .disco-links .disco-spotify:hover { border-color: var(--spotify); }
+.disco-links .disco-apple i { color: var(--apple-music); }
+.disco-links .disco-apple:hover { border-color: var(--apple-music); }
+/* four links (lyrics, YouTube, Spotify, Apple Music) would run past the thumbnail: 2 × 2 */
+.disco-links:has(> a:nth-child(4)) { display: grid; grid-template-columns: repeat(2, auto); }
 @media (max-width: 600px) {
   .disco-links { top: 6px; right: 6px; gap: 4px; }
   .disco-links a { width: 28px; height: 28px; font-size: 0.8rem; }
@@ -870,7 +874,7 @@ body.light .form-success { color: #16803f; }
 .icon-facebook { color: #4267B2; }
 .icon-instagram { color: #E1306C; }
 .icon-spotify { color: #1DB954; }
-.icon-apple { color: #fc3c44; }
+.icon-apple { color: var(--apple-music); }
 
 /* Music: comment form next to the carousel */
 .ep-comments { padding: 16px; border-radius: 14px; }
@@ -1231,3 +1235,10 @@ html.bold-text body :where(.feature-card p, .side-card p, .about-card p, .news-t
 }
 .split-tag-top { top: 10px; }
 .split-tag-bottom { bottom: 10px; }
+@media (max-width: 600px) {
+  /* narrow cards: smaller tags, so the top one stays clear of the link icons on the right */
+  .split-tag { left: 6px; padding: 2px 6px; font-size: 0.6rem; }
+  .split-tag-top { top: 6px; }
+  .split-tag-bottom { bottom: 6px; }
+}
+.spotify-block .listen-links { display: inline-flex; flex-wrap: wrap; gap: 6px 18px; }
