@@ -248,7 +248,7 @@
               <c:forEach var="v" items="${videos}">
                 <tr>
                   <td>
-                    <img class="song-preview-thumb" src="https://img.youtube.com/vi/<c:out value='${v.youtubeId}'/>/mqdefault.jpg" alt="">
+                    <img class="song-preview-thumb" src="/yt-thumb/<c:out value='${v.youtubeId}'/>/mqdefault.jpg" alt="">
                   </td>
                   <td><c:out value="${v.title}"/></td>
                   <td>
@@ -289,8 +289,8 @@
   </div>
 </main>
 
-<link href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css" rel="stylesheet">
-<script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
+<link href="/vendor/cropper/cropper.min.css" rel="stylesheet">
+<script src="/vendor/cropper/cropper.min.js"></script>
 <script>
 (function () {
   function wireCopy(btnId, sourceId, copiedId) {

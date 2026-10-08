@@ -55,7 +55,7 @@ public class HomeDao {
                 Integer year = rs.wasNull() ? null : y;
                 String youtubeId = rs.getString("youtube_id");
                 String thumb = youtubeId != null
-                        ? "https://i.ytimg.com/vi/" + youtubeId + "/default.jpg"
+                        ? "/yt-thumb/" + youtubeId + "/default.jpg"
                         : WebUtils.safeUrl(rs.getString("preview_image_url"), null);
                 list.add(new TapeSong(name, href, thumb, year));
             }

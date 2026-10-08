@@ -162,8 +162,8 @@
     </div>
   </div>
 </main>
-<link href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css" rel="stylesheet">
-<script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
+<link href="/vendor/cropper/cropper.min.css" rel="stylesheet">
+<script src="/vendor/cropper/cropper.min.js"></script>
 <script>
   (function(){
     const input = document.getElementById('avatar-input');

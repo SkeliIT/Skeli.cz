@@ -111,7 +111,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("    const item = document.createElement('div');");
                 out.println("    item.className = 'ep-item';");
                 out.println("    item.dataset.index = index;");
-                out.println("    const thumb = video.preview || `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`;");
+                out.println("    const thumb = video.preview || `/yt-thumb/${video.id}/hqdefault.jpg`;");
                 out.println("    item.innerHTML = `");
                 out.println("      <img src='${thumb}' alt='${esc(video.title)}'>");
                 out.println("      <div class='ep-title'>${esc(video.title)}</div>");
@@ -139,8 +139,11 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("function play(id, autoplay){");
                 out.println("  const video = videos.find(v => v.id === id) || videos[currentIndex];");
                 out.println("  const ap = autoplay ? 1 : 0;");
-                out.println("  if (!autoplay && video && video.preview && poster) {");
-                out.println("    poster.style.backgroundImage = `url('${video.preview}')`;");
+                // without consent to third-party content (cookie bar) the player waits behind its
+                // poster until a click: only then does the browser talk to YouTube
+                out.println("  const consented = window.skeliConsent && window.skeliConsent();");
+                out.println("  if (!autoplay && poster && ((video && video.preview) || !consented)) {");
+                out.println("    poster.style.backgroundImage = `url('${video && video.preview ? video.preview : '/yt-thumb/' + id + '/hqdefault.jpg'}')`;");
                 out.println("    poster.hidden = false;");
                 out.println("    poster.onclick = () => play(id, true);");
                 out.println("    frame.removeAttribute('src');");
@@ -148,7 +151,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("  }");
                 out.println("  if (poster) { poster.hidden = true; poster.onclick = null; }");
                 out.println(
-                                "  frame.src = `https://www.youtube.com/embed/${id}?autoplay=${ap}&rel=0&playsinline=1&enablejsapi=1`;");
+                                "  frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=${ap}&rel=0&playsinline=1&enablejsapi=1`;");
                 out.println("}");
 
                 out.println("function goTo(index, autoplay){");
