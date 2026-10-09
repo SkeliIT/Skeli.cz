@@ -1,6 +1,7 @@
 package com.github.skeliit;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import com.github.skeliit.service.LyricService;
 import com.github.skeliit.model.LyricView;
 
+@WebServlet(name = "LyricRouterServlet", urlPatterns = {"/lyrics/*"})
 public class LyricRouterServlet extends HttpServlet {
     private final LyricService svc = new LyricService();
 

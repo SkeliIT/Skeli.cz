@@ -32,7 +32,6 @@
         java.util.Map.entry("/profile.jsp", "menu.profile"),
         java.util.Map.entry("/privacy.jsp", "privacy.heading"),
         java.util.Map.entry("/terms.jsp", "terms.heading"),
-        java.util.Map.entry("/gdpr.jsp", "gdpr.title"),
         java.util.Map.entry("/error.jsp", "error.heading"));
     String titleKey = titleKeys.get(request.getServletPath());
     if (titleKey != null) headTitle = t.getProperty(titleKey);

@@ -3,12 +3,6 @@
    ============================================ */
 
 /* ---------- Shared bits ---------- */
-.page-lead {
-  max-width: 560px;
-  margin: -12px auto 32px;
-  text-align: center;
-  color: var(--text-dim);
-}
 .empty-note { color: var(--text-dim); font-size: var(--fs-card); text-align: center; padding: 24px 0; }
 
 .section-head {
@@ -881,8 +875,6 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 .spotify-block .section-head .fa-arrow-up-right-from-square { font-size: 0.8em; opacity: 0.7; }
 
 /* Elliptic YouTube carousel (markup from EllipticPlayerServlet) */
-.player-shell{border:1px solid var(--panel-border); border-radius:14px; padding:10px; margin: 8px 0; background: radial-gradient(120% 120% at 50% 0%, rgba(204,43,43,0.15), rgba(0,0,0,0.20));}
-body.light .player-shell{ background: radial-gradient(120% 120% at 50% 0%, rgba(0,0,0,0.06), rgba(204,43,43,0.08)); }
 
 .ep-wrap{width:100%;max-width:980px;margin:0 auto;}
 .ep-layout{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:auto auto;gap:10px;align-items:start;}
@@ -950,26 +942,7 @@ body.light .btn-vote:hover { background: rgba(0,0,0,0.12); }
   .ep-arrow{width:38px!important;height:38px!important;font-size:130%!important;}
 }
 
-/* Legacy lyric page: /lyric.jsp?id= (still linked from profile.jsp) */
-.nav-top { margin-bottom: 20px; background: rgba(0,0,0,0.65); padding: 12px 16px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.10); overflow-x: auto; }
-.nav-top h3 { color: #fff; margin-top:0; font-size:1em; }
-.nav-top .song-list { display:flex; flex-wrap:wrap; gap: 10px 16px; list-style: none; padding: 0; }
-.nav-top .song-list a { color: #fff !important; font-weight: 600; text-decoration: none; }
-.nav-top .song-list a.active, .nav-top .song-list a:hover { color: var(--accent) !important; text-shadow: 0 0 8px var(--accent); }
-body.light .nav-top { background: rgba(255,255,255,0.85); border: 1px solid rgba(0,0,0,0.1); }
-body.light .nav-top h3, body.light .nav-top .song-list a { color: #111 !important; }
-
-.lyric-layout { display: grid; gap: 24px; }
-@media (min-width: 1100px){ .lyric-layout { grid-template-columns: 1fr 1fr; } }
-
-.card.lyric-card { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-
-.video-container { background:rgba(0,0,0,0.3); border:1px solid var(--panel-border); border-radius:12px; padding:8px; box-shadow:0 6px 18px rgba(0,0,0,.20); position:relative; margin:10px auto 14px; width:100%; max-width:480px; }
-.video-ratio { position:relative; padding-top:56.25%; }
-.video-ratio iframe { position:absolute; inset:0; width:100%; height:100%; border-radius:8px; }
-
-.lyrics-box { background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,.20); }
-.lyrics-box pre { white-space: pre-wrap; font-family: var(--font-body); font-size: 1.05em; margin:0; text-align:center; color: var(--text); }
+/* Votes on the song page (WEB-INF/views/lyric.jsp) */
 
 .votes { margin-bottom:10px; display:flex; align-items:center; gap:10px; }
 .btn-vote { width:40px; height:40px; border-radius:50%; border:1px solid var(--panel-border); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; background: rgba(255,255,255,0.06); color:var(--text); transition: all 0.2s; }
@@ -1024,24 +997,6 @@ body.light .nav-top h3, body.light .nav-top .song-list a { color: #111 !importan
 
 /* ---------- Donate ---------- */
 .donate-card { max-width: 760px; margin: 12px auto 0; padding: 44px 40px; text-align: center; }
-.donate-intro { margin-bottom: 32px; }
-.donate-intro::before {
-  content: "\f004";
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  margin-bottom: 18px;
-  border-radius: 50%;
-  background: rgba(229, 56, 59, 0.14);
-  color: var(--red);
-  font-size: 1.5rem;
-}
-.donate-title { margin-bottom: 12px; }
-.donate-description { max-width: 52ch; margin: 0 auto; color: var(--text-dim); font-size: var(--fs-h4); line-height: 1.7; }
 .donate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: left; }
 .donate-section {
   padding: 22px;
@@ -1135,14 +1090,6 @@ body.light .form-success { color: #16803f; }
 
 /* ---------- Error page (404 / 500) ---------- */
 .error-page { text-align: center; padding-top: 64px; min-height: 60vh; }
-.error-code {
-  font-family: var(--font-display);
-  font-size: clamp(5rem, 18vw, 9rem);
-  line-height: 1;
-  color: var(--accent);
-  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-body.light .error-code { text-shadow: none; }
 .error-page h2 { margin-top: 14px; }
 .error-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 .error-detail { max-width: 900px; margin: 32px auto 0; padding: 16px; text-align: left; }

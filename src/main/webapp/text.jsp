@@ -1,6 +1,1 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ include file="includes/header.jsp" %>
-<main>
-  <jsp:forward page="texty.jsp" />
-</main>
-<%@ include file="includes/footer.jsp" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %><%-- old address: moved for good (301) --%><% response.setStatus(301); response.setHeader("Location", "/texty.jsp"); return; %>

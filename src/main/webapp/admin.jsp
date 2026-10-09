@@ -263,6 +263,11 @@
       </div>
       <a class="admin-btn" href="/admin/apple-sync">Spustit</a>
     </div>
+    <div class="admin-sync-item">
+      <i class="fa-solid fa-file-zipper" aria-hidden="true"></i>
+      <div><b>Export textů</b><span>Stáhne všechny texty jako soubory TTML v archivu ZIP, např. pro Apple Music přes DistroKid.</span></div>
+      <a class="admin-btn" href="/admin/lyrics-export">Stáhnout</a>
+    </div>
   </section>
 </main>
 

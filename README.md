@@ -78,14 +78,20 @@ mvn test -Dtest=HeaderFitIT       # jeden konkrétní test
 ## Struktura projektu
 
 ```
-src/main/java/com/github/skeliit/   servlety, filtry (CSRF, admin), DAO, služby
+src/main/java/com/github/skeliit/   servlety (@WebServlet), filtry, pomocné třídy
+  dao/, model/, service/             přístup k DB, datové třídy, napojení na Apple Music a překladač
 src/main/webapp/                     JSP stránky
   includes/header.jsp, footer.jsp    společná hlavička a patička (menu, jazyk, téma)
   WEB-INF/i18n/messages_*.properties překlady
   WEB-INF/views/                     šablony pro servlety (detail textu, editor textů…)
+  WEB-INF/tags/                      JSP tagy (úvodní pás stránky, komentář)
+  WEB-INF/web.xml                    jen filtry (záleží na pořadí), chybové stránky, session
   css/base.css                       design tokeny (barvy, písma, velikosti), světlé téma
   css/components.css                 hlavička, tlačítka, menu, patička
   css/pages.css                      jednotlivé stránky
+  css/effects.css                    efekty a fotky (třpyt, kouř v logu, střídání pozadí)
+  css/admin.css                      administrace (načítá se jen pod /admin)
+  js/                                skripty (Kevin, souhlas s cookies, heslo, avatar…), js/vendor = knihovny
   img/                               obrázky, loga, vlajky (img/flags)
 src/main/resources/db/migration/     Flyway migrace
 src/test/java/                       unit testy a UI testy (*IT)
@@ -116,6 +122,8 @@ Po přihlášení s rolí ADMIN je dostupné `/admin.jsp` (bez přihlášení 40
 - synchronizace YouTube (`/admin/sync`), Instagramu (`/admin/instagram-sync`) a Apple Music (`/admin/apple-sync`),
 - přidání songu nebo klipu i mimo vlastní kanál (`/admin/video`),
 - editor textů písní ve všech jazycích (`/admin/lyrics`),
+- stránka písně (`/admin/song?uuid=…`): název, rok, Spotify / Apple Music (stačí vložit odkaz), náhled, obrázek v seznamu Texty (posun a velikost myší), texty a SEO po jazycích,
+- export textů jako TTML v ZIPu (`/admin/lyrics-export`, např. pro DistroKid),
 - moderace komentářů a nahlášené komentáře, uživatelé, odběratelé newsletteru.
 
 ## Nasazení
