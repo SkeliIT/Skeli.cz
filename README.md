@@ -78,12 +78,22 @@ mvn test -Dtest=HeaderFitIT       # jeden konkrétní test
 ## Struktura projektu
 
 ```
-src/main/java/com/github/skeliit/   servlety (@WebServlet), filtry, pomocné třídy
-  dao/, model/, service/             přístup k DB, datové třídy, napojení na Apple Music a překladač
+src/main/java/com/github/skeliit/   základ, který používá všechno: Config, Db, DbInit, I18n, WebUtils, EmailUtil
+  web/admin/                         administrace (písně, texty, klipy, uživatelé, synchronizace, export)
+  web/auth/                          přihlášení, registrace, zapomenuté heslo, ověření e-mailu
+  web/profile/                       profil a nastavení účtu (avatar, heslo, export dat, smazání)
+  web/site/                          veřejný web: texty, písně, komentáře, hlasy, newsletter, sitemap,
+                                     staré adresy (LegacyRedirectServlet)
+  web/api/                           JSON pro skripty (Kevin, hledání, aktuality, kdo je na webu)
+  web/files/                         obrázky (avatary, náhledy písní, Instagram, YouTube)
+  filter/                            filtry (CSRF, admin, bezpečnostní hlavičky, cache…)
+  security/                          limity pokusů, uniklá hesla, tokeny, sessions, mazání účtu
+  job/                               úlohy na pozadí (Instagram, názvy a data klipů)
+  dao/, model/, service/             přístup k DB, datové třídy, služby (Apple Music, překlad, statistiky)
 src/main/webapp/                     JSP stránky
   includes/header.jsp, footer.jsp    společná hlavička a patička (menu, jazyk, téma)
   WEB-INF/i18n/messages_*.properties překlady
-  WEB-INF/views/                     šablony pro servlety (detail textu, editor textů…)
+  WEB-INF/views/                     šablony pro servlety (detail textu), views/admin/ = stránky adminu
   WEB-INF/tags/                      JSP tagy (úvodní pás stránky, komentář)
   WEB-INF/web.xml                    jen filtry (záleží na pořadí), chybové stránky, session
   css/base.css                       design tokeny (barvy, písma, velikosti), světlé téma
@@ -104,7 +114,7 @@ src/test/java/                       unit testy a UI testy (*IT)
 - **Nový jazyk** vyžaduje:
   1. `messages_xx.properties` se všemi klíči (hlídá `I18nTest`),
   2. `xx` v `I18n.SUPPORTED_LANGS` a v `AdminLyricsServlet.LANGS`,
-  3. položku v seznamu jazyků v `includes/header.jsp` (rozbalovací seznam i pole jazyků pro mobil), v `uzivatel.jsp` a v `WEB-INF/views/admin_lyrics.jsp`,
+  3. položku v seznamu jazyků v `includes/header.jsp` (rozbalovací seznam i pole jazyků pro mobil), v `uzivatel.jsp` a v `WEB-INF/views/admin/lyrics.jsp`,
   4. vlajku `img/flags/xx.svg` a řádek `.lang-btn[data-lang="xx"]` v `components.css`,
   5. kontrolu písma: Bruno Ace SC umí jen latinku (ne azbuku ani vietnamštinu). Ukrajinština proto padá na Exo 2 a vietnamština přepíná celý web na Exo 2 (`html:lang(vi)` v `base.css`).
 

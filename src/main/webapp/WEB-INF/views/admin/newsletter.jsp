@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
-<%@ include file="includes/header.jsp" %>
+<%@ include file="/includes/header.jsp" %>
 
 <main class="admin-page">
     <%@ include file="/includes/admin-nav.jspf" %>
@@ -41,4 +41,4 @@
 
 </main>
 
-<%@ include file="includes/footer.jsp" %>
+<%@ include file="/includes/footer.jsp" %>

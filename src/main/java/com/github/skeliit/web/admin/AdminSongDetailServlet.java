@@ -69,7 +69,7 @@ public class AdminSongDetailServlet extends HttpServlet {
             SongLocale cs = lyrics.findLocale(song.id, "cs");
             String publicPath = cs != null ? cs.publicPath(song.uuid) : song.getPublicPath("cs");
             req.setAttribute("publicSongUrl", WebUtils.baseUrl() + publicPath);
-            req.getRequestDispatcher("/admin_song.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/admin/song.jsp").forward(req, resp);
         } catch (SQLException e) {
             throw new ServletException(e);
         }

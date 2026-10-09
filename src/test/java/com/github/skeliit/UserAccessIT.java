@@ -15,8 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class UserAccessIT extends UiTestSupport {
     private static final List<String> ADMIN_PATHS = List.of(
-            "/admin.jsp", "/admin_users.jsp", "/admin_newsletter.jsp", "/admin_songs.jsp",
-            "/admin/songs", "/admin/newsletter");
+            "/admin.jsp", "/admin_users.jsp", "/admin/songs", "/admin/song", "/admin/newsletter", "/admin/lyrics");
+    /** the admin templates live in WEB-INF: only their servlets show them, never their own address */
+    private static final List<String> TEMPLATES = List.of(
+            "/admin_song.jsp", "/admin_songs.jsp", "/admin_newsletter.jsp", "/WEB-INF/views/admin/song.jsp");
 
     @Test
     @DisplayName("Wrong password shows an error and does not log the user in")
@@ -54,6 +56,9 @@ public class UserAccessIT extends UiTestSupport {
         driver.get(BASE_URL + "/index.jsp");
         for (String path : ADMIN_PATHS) {
             assertEquals(403, httpStatus(path), "anonymous GET " + path);
+        }
+        for (String path : TEMPLATES) {
+            assertEquals(404, httpStatus(path), "template " + path);
         }
     }
 

@@ -1,4 +1,4 @@
-<%@ include file="includes/header.jsp" %>
+<%@ include file="/includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
@@ -70,4 +70,4 @@
   </table>
 </main>
 
-<%@ include file="includes/footer.jsp" %>
+<%@ include file="/includes/footer.jsp" %>

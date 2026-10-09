@@ -26,7 +26,7 @@ public class AdminSongsServlet extends HttpServlet {
         try (Connection conn = Db.get()) {
             List<SongOverview> songs = fetchSongsOverview(conn);
             req.setAttribute("songs", songs);
-            req.getRequestDispatcher("/admin_songs.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/views/admin/songs.jsp").forward(req, resp);
         } catch (SQLException e) {
             throw new ServletException(e);
         }

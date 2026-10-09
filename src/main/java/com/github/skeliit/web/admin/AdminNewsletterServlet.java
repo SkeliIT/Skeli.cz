@@ -32,7 +32,7 @@ public class AdminNewsletterServlet extends HttpServlet {
             }
         } catch (SQLException e) { throw new ServletException(e); }
         req.setAttribute("emails", emails);
-        req.getRequestDispatcher("/admin_newsletter.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/admin/newsletter.jsp").forward(req, resp);
     }
 
     @Override

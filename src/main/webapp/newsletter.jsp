@@ -40,7 +40,7 @@
             <div class="auth-footer">
                 <p class="form-note">
                     <%= t.getProperty("newsletter.consent") %><br>
-                    <a href="/gdpr.jsp"><%= t.getProperty("newsletter.gdprLink") %></a>
+                    <a href="/privacy.jsp"><%= t.getProperty("newsletter.gdprLink") %></a>
                 </p>
             </div>
         </div>

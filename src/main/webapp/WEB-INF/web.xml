@@ -67,8 +67,6 @@
         <filter-name>AdminFilter</filter-name>
         <url-pattern>/admin/*</url-pattern>
         <url-pattern>/admin.jsp</url-pattern>
-        <url-pattern>/admin_newsletter.jsp</url-pattern>
-        <url-pattern>/admin_songs.jsp</url-pattern>
         <url-pattern>/admin_users.jsp</url-pattern>
     </filter-mapping>
 

@@ -414,12 +414,9 @@
             })();
 
             // Active navigation highlight
-            // Pages that belong to a menu item under another URL
-            const navAliases = { 'bio.jsp': 'about.jsp', 'lyric.jsp': 'texty.jsp' };
             function updateActiveNav() {
               let cur = location.pathname.split('/').pop() || 'index.jsp';
               if (location.pathname.startsWith('/lyrics/')) cur = 'texty.jsp';
-              cur = navAliases[cur] || cur;
               document.querySelectorAll('header nav a, .tabbar a').forEach(a => {
                 try {
                   const href = a.getAttribute('href') || '';

@@ -77,7 +77,7 @@ public class AdminLyricsServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        req.getRequestDispatcher("/WEB-INF/views/admin_lyrics.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/admin/lyrics.jsp").forward(req, resp);
     }
 
     @Override

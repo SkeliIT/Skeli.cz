@@ -22,7 +22,7 @@ import java.net.URI;
 public class SeoServlet extends HttpServlet {
     private static final String[] PAGES = {
         "/", "/music.jsp", "/texty.jsp", "/about.jsp", "/aktuality.jsp", "/donate.jsp",
-        "/privacy.jsp", "/terms.jsp", "/gdpr.jsp"
+        "/privacy.jsp", "/terms.jsp"
     };
 
     /** Languages in the order they are listed (cs = the address without ?lang). */

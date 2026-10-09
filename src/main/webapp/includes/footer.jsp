@@ -34,7 +34,7 @@
     <nav>
       <a href="<%= request.getContextPath() %>/privacy.jsp"><%= t.getProperty("cookie.policy","Privacy") %></a>
       <a href="<%= request.getContextPath() %>/terms.jsp"><%= t.getProperty("cookie.terms","Terms") %></a>
-      <a href="<%= request.getContextPath() %>/gdpr.jsp">GDPR</a>
+      <a href="<%= request.getContextPath() %>/privacy.jsp#s8">GDPR</a>
       <a href="<%= request.getContextPath() %>/privacy.jsp#cookies" data-cookie-settings><%= t.getProperty("cookie.settingsLink") %></a>
     </nav>
   </div>
