@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Data for the home page: the newest clips and the songs on the running tapes. */
+/** Data for the home page: the newest clips, the songs on the running tapes and a line from a lyric. */
 public class HomeDao {
 
     /** A clip; {@code title} falls back to the linked song name and may be null. */
@@ -16,6 +16,27 @@ public class HomeDao {
 
     /** A song with lyrics; {@code thumb} is its newest clip's thumbnail or its preview photo. */
     public record TapeSong(String name, String href, String thumb, Integer year) {}
+
+    /** Two lines from one of Skeli's songs (table home_quotes) and where the whole lyric is. */
+    public static final class Quote {
+        public final String line1, line2, song, href;
+        Quote(String line1, String line2, String song, String href) {
+            this.line1 = line1; this.line2 = line2; this.song = song; this.href = href;
+        }
+    }
+
+    /** A random quote for the hero, linked to its song in {@code lang}; null when there is none. */
+    public Quote randomQuote(String lang) throws SQLException {
+        try (Connection conn = Db.get();
+             PreparedStatement ps = conn.prepareStatement(
+                     "SELECT q.line1, q.line2, s.name, s.uuid FROM home_quotes q JOIN songs s ON s.id = q.song_id ORDER BY RAND() LIMIT 1");
+             ResultSet rs = ps.executeQuery()) {
+            if (!rs.next()) return null;
+            String uuid = rs.getString("uuid");
+            String href = uuid == null ? "/texty.jsp" : "/" + com.github.skeliit.I18n.safeLang(lang) + "/song/" + uuid;
+            return new Quote(rs.getString("line1"), rs.getString("line2"), com.github.skeliit.model.SongTitle.of(rs.getString("name")).title, href);
+        }
+    }
 
     public List<HomeVideo> latestVideos(int limit) throws SQLException {
         List<HomeVideo> list = new ArrayList<>();
@@ -35,7 +56,6 @@ public class HomeDao {
         return list;
     }
 
-    /** Songs that have lyrics, newest first, linked like on the lyrics page. */
     /** Songs with lyrics for the tapes on the home page, linked to their page in {@code lang}. */
     public List<TapeSong> songsWithLyrics(String lang) throws SQLException {
         List<TapeSong> list = new ArrayList<>();

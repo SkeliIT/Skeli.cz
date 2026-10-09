@@ -7,11 +7,13 @@
   // Newest clips (hero card + news) and songs with lyrics (the running tapes)
   java.util.List<com.github.skeliit.dao.HomeDao.HomeVideo> homeVideos = java.util.List.of();
   java.util.List<com.github.skeliit.dao.HomeDao.TapeSong> tapeSongs = java.util.List.of();
+  com.github.skeliit.dao.HomeDao.Quote quote = null;
   boolean homeDbError = false;
   try {
     com.github.skeliit.dao.HomeDao homeDao = new com.github.skeliit.dao.HomeDao();
     homeVideos = homeDao.latestVideos(5);
     tapeSongs = homeDao.songsWithLyrics(cur);
+    quote = homeDao.randomQuote(cur);
   } catch (SQLException ex) {
     homeDbError = true;
   }
@@ -22,8 +24,15 @@
 <main class="home-page">
   <section class="hero">
     <div class="hero-particles" aria-hidden="true"></div>
-    <%-- first glance: this is Skeli's music --%>
+    <%-- first glance: two lines from one of Skeli's songs, another on every visit (table home_quotes) --%>
+    <% if (quote != null) { %>
+    <a class="hero-quote" href="<%= com.github.skeliit.WebUtils.escapeHtml(quote.href) %>">
+      <span class="hero-quote-text">„<%= com.github.skeliit.WebUtils.escapeHtml(quote.line1) %><br><%= com.github.skeliit.WebUtils.escapeHtml(quote.line2) %>“</span>
+      <span class="hero-quote-song"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><%= com.github.skeliit.WebUtils.escapeHtml(quote.song) %></span>
+    </a>
+    <% } else { %>
     <p class="hero-kicker"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><%= t.getProperty("home.kicker") %></p>
+    <% } %>
     <h1 class="hero-title"><span class="logo-mark" aria-hidden="true"></span><span class="sr-only">Skeli – SKELOSQUAD</span></h1>
     <p class="hero-tagline"><%= t.getProperty("home.lead") %></p>
     <div class="hero-actions">
