@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "4.0.3";
+  String assetVersion = "4.0.4";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -119,6 +119,16 @@
   <body>
     <%-- keyboard and screen reader users jump over the header straight to the page (footer.jsp moves the focus) --%>
     <a class="skip-link" href="#main"><%= t.getProperty("a11y.skip") %></a>
+    <%-- the background of every page slowly cross-fades through Skeli's photos and back to the usual one;
+         night shots in the dark theme, daylight ones in the light theme (js/effects.js). It is outside
+         <main>, so it keeps running while pages change. name:position[:wide] – "wide" = a 16:9 version
+         of a portrait photo for landscape screens --%>
+    <div class="bg-slides" aria-hidden="true"
+         data-dark="skull:center:wide,mic:45% 30%,square:center 55%,mask:54% 30%"
+         data-light="field:center:wide,point:center 35%"></div>
+    <%-- the slow "breathing" of the background goes on where the last page left it --%>
+    <script>try { var bgAt = +sessionStorage.getItem('bgEpoch') || Date.now(); sessionStorage.setItem('bgEpoch', bgAt);
+      document.documentElement.style.setProperty('--breathe-at', (-((Date.now() - bgAt) / 1000 % 60)).toFixed(2) + 's'); } catch (e) {}</script>
       <% request.setAttribute("csrf", com.github.skeliit.filter.CsrfFilter.token(session)); %>
       <% String currentUser = (String) session.getAttribute("username");
          String currentRole = (String) session.getAttribute("role"); %>

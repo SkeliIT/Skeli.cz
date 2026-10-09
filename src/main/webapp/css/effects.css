@@ -253,7 +253,7 @@ body.light .tape-gold i { color: rgba(255, 255, 255, 0.7); }
 .tape-dark small { font-size: var(--fs-small); color: var(--text-dim); }
 
 /* ---------- Skeli's photos ---------- */
-/* home background: photos cross-fade over the usual one (js/effects.js adds the layers) */
+/* the background of every page: photos cross-fade over the usual one (js/effects.js adds the layers) */
 .bg-slides { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
 .bg-slides > div {
   position: absolute;
@@ -262,8 +262,11 @@ body.light .tape-gold i { color: rgba(255, 255, 255, 0.7); }
   background: var(--bg-overlay), var(--slide) var(--pos, center) / cover no-repeat;
   transition: opacity 2.6s ease;
   animation: bg-breathe 30s ease-in-out infinite alternate;
+  animation-delay: var(--breathe-at, 0s);
 }
 .bg-slides > div.on { opacity: 1; }
+/* a new page starts on the photo the last one showed, without fading in again */
+.bg-slides > div.instant { transition: none; }
 
 /* wide photo band with a line from Skeli */
 .photo-band {
