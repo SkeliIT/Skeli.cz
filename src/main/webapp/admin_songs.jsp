@@ -27,8 +27,8 @@
         <tr>
           <td>
             <c:choose>
-              <c:when test="${song.hasPreview}">
-                <img class="song-preview-thumb" src="<c:out value='${song.previewImageUrl}'/>" alt="">
+              <c:when test="${not empty song.thumbUrl}">
+                <img class="song-preview-thumb" src="<c:out value='${song.thumbUrl}'/>" alt="" loading="lazy">
               </c:when>
               <c:otherwise>
                 <span class="song-preview-empty">—</span>

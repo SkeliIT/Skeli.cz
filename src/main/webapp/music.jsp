@@ -25,11 +25,11 @@
           "SELECT s.name, CASE WHEN (SELECT COUNT(*) FROM videos v WHERE v.song_id = s.id) > 1 " +
           "         THEN (SELECT YEAR(MAX(v.published_at)) FROM videos v WHERE v.song_id = s.id) ELSE s.year END AS year, " +
           "       s.uuid, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, " +
-          "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview, s.apple_music_id AS apple, " +
+          "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, 0 AS grp, s.id AS ord, s.preview_image_url AS preview, s.apple_music_id AS apple, s.spotify_id AS spotify, " +
           "       (SELECT lt.title FROM lyrics lt WHERE lt.song_id = s.id AND lt.lang = ? ORDER BY lt.id LIMIT 1) AS tr " +
           "FROM songs s " +
           "UNION ALL " +
-          "SELECT v.title, NULL, NULL, NULL, v.youtube_id, 1, v.id, NULL, NULL, NULL FROM videos v WHERE v.song_id IS NULL " +
+          "SELECT v.title, NULL, NULL, NULL, v.youtube_id, 1, v.id, NULL, NULL, NULL, NULL FROM videos v WHERE v.song_id IS NULL " +
           "ORDER BY grp, year DESC, ord DESC";
       java.util.Map<Integer, java.util.List<com.github.skeliit.model.SongClip>> clipsBySong =
           com.github.skeliit.model.SongClip.bySong();
@@ -56,7 +56,10 @@
           String mainHref = lyricsHref != null ? lyricsHref : (yt != null ? "https://www.youtube.com/watch?v=" + ytHtml : null);
           String apple = rs.getString("apple");
           String appleHref = (apple != null && apple.matches("[0-9]{1,20}")) ? "https://music.apple.com/cz/song/" + apple : null;
-          String spotifyHref = "https://open.spotify.com/search/" + java.net.URLEncoder.encode("Skeli " + name, "UTF-8").replace("+", "%20");
+          // the track itself when its Spotify ID is known (admin), else a search
+          String spotify = rs.getString("spotify");
+          String spotifyHref = spotify != null && spotify.matches("[A-Za-z0-9]{22}") ? "https://open.spotify.com/track/" + spotify
+              : "https://open.spotify.com/search/" + java.net.URLEncoder.encode("Skeli " + name, "UTF-8").replace("+", "%20");
     %>
       <article class="song-card disco-card">
         <a class="song-thumb" <% if (mainHref != null) { %>href="<%= mainHref %>"<% if (!hasLyrics) { %> target="_blank" rel="noopener"<% } } %> aria-label="<%= nameHtml %>">

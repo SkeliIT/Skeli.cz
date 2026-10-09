@@ -10,11 +10,11 @@ import java.util.List;
 
 public class SongDao {
     private static final String SONG_COLS =
-            "id, name, year, uuid, seo_slug, apple_music_id, spotify_id, preview_image_url";
+            "id, name, year, uuid, seo_slug, apple_music_id, spotify_id, preview_image_url, art_x, art_y, art_zoom";
 
     /** Newest first (year, then the newest clip), the same order as the Texty page and its previous / next links. */
     public List<Song> listWithFirstLyric() throws SQLException {
-        String sql = "SELECT s.id, s.name, s.year, s.uuid, s.seo_slug, s.apple_music_id, s.spotify_id, s.preview_image_url, " +
+        String sql = "SELECT s.id, s.name, s.year, s.uuid, s.seo_slug, s.apple_music_id, s.spotify_id, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, " +
                 "(SELECT MIN(l.id) FROM lyrics l WHERE l.song_id=s.id) AS firstLyricId, " +
                 "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtubeId " +
                 "FROM songs s ORDER BY s.year DESC, (SELECT MAX(v.published_at) FROM videos v WHERE v.song_id = s.id) DESC, s.name ASC";
@@ -62,7 +62,7 @@ public class SongDao {
     public Song findBySeoSlug(String slug) throws SQLException {
         if (slug == null || slug.isBlank()) return null;
         // Prefer lyric-level SEO (any language), then legacy songs.seo_slug
-        String sql = "SELECT s.id, s.name, s.year, s.uuid, s.seo_slug, s.apple_music_id, s.spotify_id, s.preview_image_url, " +
+        String sql = "SELECT s.id, s.name, s.year, s.uuid, s.seo_slug, s.apple_music_id, s.spotify_id, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, " +
                 "(SELECT MIN(l2.id) FROM lyrics l2 WHERE l2.song_id=s.id AND l2.lang='cs') AS firstLyricId " +
                 "FROM songs s JOIN lyrics l ON l.song_id=s.id WHERE l.seo_slug=? LIMIT 1";
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
@@ -123,6 +123,18 @@ public class SongDao {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE songs SET preview_image_url=? WHERE id=?")) {
             ps.setString(1, previewImageUrl);
             ps.setInt(2, songId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** The picture's place in the Texty row; all null = automatic again. */
+    public void updateArt(int songId, Double x, Double y, Double zoom) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "UPDATE songs SET art_x=?, art_y=?, art_zoom=? WHERE id=?")) {
+            ps.setObject(1, x);
+            ps.setObject(2, y);
+            ps.setObject(3, zoom);
+            ps.setInt(4, songId);
             ps.executeUpdate();
         }
     }
@@ -200,6 +212,9 @@ public class SongDao {
         s.appleMusicId = rs.getString("apple_music_id");
         try { s.spotifyId = rs.getString("spotify_id"); } catch (SQLException ignore) {}
         s.previewImageUrl = rs.getString("preview_image_url");
+        s.artX = nullableDouble(rs, "art_x");
+        s.artY = nullableDouble(rs, "art_y");
+        s.artZoom = nullableDouble(rs, "art_zoom");
         if (withFirstLyric) {
             int fl = rs.getInt("firstLyricId"); s.firstLyricId = rs.wasNull() ? null : fl;
             try { s.youtubeId = rs.getString("youtubeId"); } catch (SQLException ignore) {}
@@ -215,6 +230,11 @@ public class SongDao {
         int sid = rs.getInt("song_id");
         v.songId = rs.wasNull() ? null : sid;
         return v;
+    }
+
+    private static Double nullableDouble(ResultSet rs, String col) throws SQLException {
+        double v = rs.getDouble(col);
+        return rs.wasNull() ? null : v;
     }
 
     private static String blankToNull(String s) {

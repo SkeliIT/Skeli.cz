@@ -21,12 +21,12 @@ import java.util.Map;
 /**
  * Song hub in admin: media + per-language lyrics / SEO / meta description.
  * GET  /admin/song?uuid=…
- * POST action=save|save_locale|link_video|unlink_video|translate_locale
+ * POST action=save|save_locale|save_art|link_video|unlink_video|translate_locale
  */
 @WebServlet(name = "AdminSongDetailServlet", urlPatterns = { "/admin/song" })
 public class AdminSongDetailServlet extends HttpServlet {
 
-    private static final String[] LANGS = { "cs", "en", "de", "uk" };
+    private static final String[] LANGS = { "cs", "en", "de", "uk", "vi" };
 
     private final SongDao songs = new SongDao();
     private final LyricDao lyrics = new LyricDao();
@@ -51,7 +51,14 @@ public class AdminSongDetailServlet extends HttpServlet {
                 return;
             }
             req.setAttribute("song", song);
-            req.setAttribute("videos", songs.videosForSong(song.id));
+            List<com.github.skeliit.model.SongVideo> videos = songs.videosForSong(song.id);
+            req.setAttribute("videos", videos);
+            // the picture in the song's Texty row: its newest clip, else its preview photo
+            String rowArt = !videos.isEmpty() && videos.get(0).youtubeId != null
+                    ? "/yt-thumb/" + videos.get(0).youtubeId + "/hqdefault.jpg"
+                    : WebUtils.safeUrl(song.previewImageUrl, null);
+            req.setAttribute("rowArt", rowArt);
+            req.setAttribute("songTitle", com.github.skeliit.model.SongTitle.of(song.name));
             req.setAttribute("locales", buildLocaleMap(song.id));
             req.setAttribute("langs", LANGS);
             req.setAttribute("translatorReady", translator.isConfigured());
@@ -125,6 +132,21 @@ public class AdminSongDetailServlet extends HttpServlet {
                     String yt = normalizeYoutubeId(req.getParameter("youtube_id"));
                     if (yt != null) songs.unlinkVideo(yt, id);
                     resp.sendRedirect(hub + "&msg=video_unlinked");
+                }
+                case "save_art" -> {
+                    if ("1".equals(req.getParameter("auto"))) {
+                        songs.updateArt(id, null, null, null);
+                    } else {
+                        Double x = parseDouble(req.getParameter("art_x"));
+                        Double y = parseDouble(req.getParameter("art_y"));
+                        Double zoom = parseDouble(req.getParameter("art_zoom"));
+                        if (x == null || y == null || zoom == null) {
+                            resp.sendRedirect(hub + "&msg=bad_art#row-art");
+                            return;
+                        }
+                        songs.updateArt(id, Song.clamp(x, -400, 400), Song.clamp(y, -200, 300), Song.clamp(zoom, 0.25, 3));
+                    }
+                    resp.sendRedirect(hub + "&msg=art_saved#row-art");
                 }
                 case "save_locale" -> {
                     String lang = I18n.safeLang(req.getParameter("lang"));
@@ -215,8 +237,8 @@ public class AdminSongDetailServlet extends HttpServlet {
                     SongLocale cs = lyrics.findLocale(id, "cs");
                     String seoKeep = cs != null ? cs.seoSlug : song.seoSlug;
                     songs.updateBasics(id, name.trim(), year,
-                            req.getParameter("apple_music_id"),
-                            req.getParameter("spotify_id"),
+                            appleMusicId(req.getParameter("apple_music_id")),
+                            spotifyId(req.getParameter("spotify_id")),
                             seoKeep);
                     resp.sendRedirect(hub + "&msg=saved");
                 }
@@ -233,6 +255,33 @@ public class AdminSongDetailServlet extends HttpServlet {
 
     private static int parseId(String s) {
         try { return Integer.parseInt(s); } catch (Exception e) { return -1; }
+    }
+
+    /** A Spotify track ID, from the ID itself or a share link (open.spotify.com/…/track/ID?si=…, spotify:track:ID). */
+    static String spotifyId(String raw) {
+        if (raw == null) return null;
+        String s = raw.trim();
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("track[/:]([A-Za-z0-9]{22})(?![A-Za-z0-9])").matcher(s);
+        return m.find() ? m.group(1) : s;
+    }
+
+    /** An Apple Music song ID, from the ID itself or a link (…/song/name/ID or …/album/name/…?i=ID). */
+    static String appleMusicId(String raw) {
+        if (raw == null) return null;
+        String s = raw.trim();
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("[?&]i=([0-9]{1,20})").matcher(s);
+        if (m.find()) return m.group(1);
+        m = java.util.regex.Pattern.compile("([0-9]{6,20})(?![0-9])(?!.*[0-9]{6,})").matcher(s);
+        return m.find() ? m.group(1) : s;
+    }
+
+    private static Double parseDouble(String s) {
+        try {
+            double v = Double.parseDouble(s.trim());
+            return Double.isFinite(v) ? v : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     static String normalizeYoutubeId(String raw) {

@@ -35,6 +35,7 @@ public class AdminSongsServlet extends HttpServlet {
         List<SongOverview> songs = new ArrayList<>();
         String sql = "SELECT s.id, s.uuid, s.name, s.year, s.preview_image_url, s.apple_music_id, s.spotify_id, " +
                 "EXISTS(SELECT 1 FROM videos v WHERE v.song_id = s.id) AS has_video, " +
+                "(SELECT v2.youtube_id FROM videos v2 WHERE v2.song_id = s.id ORDER BY v2.published_at DESC, v2.id DESC LIMIT 1) AS youtube_id, " +
                 "EXISTS(SELECT 1 FROM lyrics l WHERE l.song_id = s.id AND l.lang = 'cs') AS has_lyrics, " +
                 "(SELECT MIN(l2.id) FROM lyrics l2 WHERE l2.song_id = s.id AND l2.lang = 'cs') AS first_lyric_id, " +
                 "GROUP_CONCAT(DISTINCT l.lang ORDER BY l.lang SEPARATOR ',') AS languages " +
@@ -55,6 +56,7 @@ public class AdminSongsServlet extends HttpServlet {
                 song.appleMusicId = rs.getString("apple_music_id");
                 song.spotifyId = rs.getString("spotify_id");
                 song.hasVideo = rs.getBoolean("has_video");
+                song.youtubeId = rs.getString("youtube_id");
                 song.hasLyrics = rs.getBoolean("has_lyrics");
                 int fl = rs.getInt("first_lyric_id");
                 song.firstLyricId = rs.wasNull() ? null : fl;

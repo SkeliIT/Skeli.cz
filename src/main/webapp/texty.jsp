@@ -28,12 +28,12 @@
             try {
                 try (Connection conn = Db.get();
                          PreparedStatement ps = conn.prepareStatement(
-                             "SELECT s.id AS song_id, s.uuid AS song_uuid, s.name AS song_name, s.year AS song_year, s.preview_image_url, MIN(l.id) AS lyric_id, " +
+                             "SELECT s.id AS song_id, s.uuid AS song_uuid, s.name AS song_name, s.year AS song_year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, MIN(l.id) AS lyric_id, " +
                              "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtube_id, " +
                              "(SELECT MAX(v.published_at) FROM videos v WHERE v.song_id = s.id) AS newest_clip, " +
                              "(SELECT lt.title FROM lyrics lt WHERE lt.song_id = s.id AND lt.lang = ? ORDER BY lt.id LIMIT 1) AS tr_title " +
                              "FROM lyrics l JOIN songs s ON s.id = l.song_id " +
-                             "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url " +
+                             "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom " +
                              "ORDER BY s.year DESC, newest_clip DESC, s.name ASC"
                          )) {
                         ps.setString(1, cur);
@@ -68,6 +68,9 @@
                             if (clips != null && clips.size() > 1) {
                                 meta = (meta.isEmpty() ? "" : meta + " · ") + clips.size() + " " + t.getProperty("music.versions", "verze");
                             }
+                            Object ax = rs.getObject("art_x"), ay = rs.getObject("art_y"), az = rs.getObject("art_zoom");
+                            String artStyle = ax == null || ay == null || az == null ? "" : com.github.skeliit.model.Song.artStyle(
+                                    ((Number) ax).doubleValue(), ((Number) ay).doubleValue(), ((Number) az).doubleValue());
                             String yearKey = y == null ? "" : String.valueOf(y);
                             if (!yearKey.equals(lastYear)) {
                                 lastYear = yearKey;
@@ -79,7 +82,7 @@
                             <a class="song-row" href="<%= com.github.skeliit.WebUtils.escapeHtml(href) %>" data-song="<%= rs.getInt("song_id") %>" data-year="<%= yearKey %>">
                                 <span class="song-row-art" aria-hidden="true">
                                 <% if (art != null) { %>
-                                    <img src="<%= com.github.skeliit.WebUtils.escapeHtml(art) %>" alt="" loading="lazy">
+                                    <img src="<%= com.github.skeliit.WebUtils.escapeHtml(art) %>" alt="" loading="lazy" data-trim-bars<% if (!artStyle.isEmpty()) { %> style="<%= artStyle %>" data-manual="1"<% } %>>
                                 <% } %>
                                 </span>
                                 <span class="song-row-text">
@@ -105,6 +108,7 @@
             }
         %>
     </div>
+<script src="/js/trim-bars.js?v=<%= assetVersion %>"></script>
 <script>
 (function () {
   var grid = document.getElementById('songGrid'), input = document.getElementById('lyricSearch');
@@ -112,43 +116,6 @@
   if (!grid || !input) return;
   var cards = [].slice.call(grid.querySelectorAll('.song-row'));
   var heads = [].slice.call(grid.querySelectorAll('.song-year-head'));
-  // old clips have black (or white) bars baked into their thumbnail: find the plain columns at
-  // the edges and swap in a copy without them (the thumbnails come from our own server, so the
-  // canvas may read them)
-  function trimBars(img) {
-    var w = img.naturalWidth, h = img.naturalHeight;
-    if (!w || !h || img.dataset.trimmed) return;
-    img.dataset.trimmed = '1';
-    try {
-      var c = document.createElement('canvas'), sw = 96, sh = Math.round(96 * h / w);
-      c.width = sw; c.height = sh;
-      var x = c.getContext('2d', { willReadFrequently: true });
-      x.drawImage(img, 0, 0, sw, sh);
-      var d = x.getImageData(0, 0, sw, sh).data;
-      var plain = function (col) {
-        var sum = 0, sq = 0;
-        for (var r = 0; r < sh; r++) {
-          var i = (r * sw + col) * 4, l = 0.3 * d[i] + 0.59 * d[i + 1] + 0.11 * d[i + 2];
-          sum += l; sq += l * l;
-        }
-        var mean = sum / sh, sd = Math.sqrt(Math.max(0, sq / sh - mean * mean));
-        return sd < 7 && (mean < 32 || mean > 232);
-      };
-      var left = 0, right = 0;
-      while (left < sw / 2 && plain(left)) left++;
-      while (right < sw / 2 && plain(sw - 1 - right)) right++;
-      if (left < 4 && right < 4) return;                       // no real bars
-      if (left + right > sw * 0.6) return;                     // a plain picture, not bars
-      var l = Math.round(left / sw * w), r = Math.round(right / sw * w);
-      var out = document.createElement('canvas');
-      out.width = w - l - r; out.height = h;
-      out.getContext('2d').drawImage(img, l, 0, w - l - r, h, 0, 0, w - l - r, h);
-      img.src = out.toDataURL('image/jpeg', 0.88);
-    } catch (e) { /* leave the thumbnail as it is */ }
-  }
-  grid.querySelectorAll('.song-row-art img').forEach(function (img) {
-    if (img.complete) trimBars(img); else img.addEventListener('load', function () { trimBars(img); }, { once: true });
-  });
   var year = '', hits = null, timer = 0, asked = '';
   // one chip per year, newest first; only the newest shows until "Older years" opens the rest
   var years = [];

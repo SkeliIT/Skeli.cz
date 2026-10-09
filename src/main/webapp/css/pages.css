@@ -338,18 +338,31 @@ body.light .hero-actions .btn-ghost { background: rgba(255, 255, 255, 0.5); }
   color: var(--text);
   border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
   border-radius: var(--radius);
+  /* a dark frosted panel, so the row stands out from the photo behind the page (the light theme
+     has the same in white, below) */
+  background: linear-gradient(to right, rgba(10, 10, 12, 0.82), rgba(10, 10, 12, 0.72) 45%, rgba(10, 10, 12, 0.5));
+  box-shadow: 0 6px 22px -14px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: border-color .3s ease, transform .3s ease;
 }
 .song-row:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); transform: translateX(4px); text-decoration: none; }
+/* an eased fade (slow start, like a smoothstep), so a bright thumbnail rises out of the dark instead
+   of starting at a visible line */
+.song-row {
+  --row-fade: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.03) 10%, rgba(0, 0, 0, 0.1) 22%, rgba(0, 0, 0, 0.24) 35%,
+    rgba(0, 0, 0, 0.45) 48%, rgba(0, 0, 0, 0.68) 61%, rgba(0, 0, 0, 0.87) 75%, #000 90%);
+}
 .song-row-art {
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
-  width: 66%;
+  width: 70%;
   z-index: -1;
-  -webkit-mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.3) 25%, rgba(0, 0, 0, 0.85) 62%, #000);
-          mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.3) 25%, rgba(0, 0, 0, 0.85) 62%, #000);
+  container-type: size;  /* cqw / cqh = this area, for pictures placed by hand */
+  -webkit-mask-image: var(--row-fade);
+          mask-image: var(--row-fade);
 }
 /* a song with neither clip nor photo: a soft gold glow instead */
 .song-row-art:not(:has(img)) { background: radial-gradient(ellipse at 85% 50%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%); }
@@ -363,6 +376,27 @@ body.light .hero-actions .btn-ghost { background: rgba(255, 255, 255, 0.5); }
   transition: transform .6s ease, filter .4s ease;
 }
 .song-row:hover .song-row-art img { transform: scale(1.04); filter: saturate(1.05) brightness(0.95); }
+/* placed by hand in admin (/admin/song): the whole picture, as wide as the area, sized by --az;
+   --tx moves it sideways (% of the area) and --py is the point of it (% of its height) that sits on
+   the area's 45 % line, so a computer and a phone show the same part. It fades out at its own
+   edges, wherever it ends up. */
+.song-row-art img[data-manual] {
+  position: absolute;
+  left: 0;
+  top: 45%;
+  height: auto;
+  transform-origin: 0 0;
+  transform: translate(calc(var(--tx, 0) * 1cqw), calc(var(--py, 45) * -1% * var(--az, 1))) scale(var(--az, 1));
+  -webkit-mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.08) 10%, rgba(0, 0, 0, 0.35) 22%, rgba(0, 0, 0, 0.75) 34%, #000 45%, #000 97%, transparent),
+                      linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-composite: source-in;
+          mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.08) 10%, rgba(0, 0, 0, 0.35) 22%, rgba(0, 0, 0, 0.75) 34%, #000 45%, #000 97%, transparent),
+                      linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+          mask-composite: intersect;
+}
+.song-row:hover .song-row-art img[data-manual] {
+  transform: translate(calc(var(--tx, 0) * 1cqw), calc(var(--py, 45) * -1% * var(--az, 1))) scale(calc(var(--az, 1) * 1.04));
+}
 .song-row-text {
   display: flex;
   flex-direction: column;
@@ -409,7 +443,7 @@ body.light .song-year-head::after { display: none; }
 
 @media (max-width: 600px) {
   .song-row { min-height: 88px; padding: 12px 48px 12px 14px; }
-  .song-row-art { width: 64%; }
+  .song-row-art { width: 70%; }
   .song-row-text { max-width: 62%; }
   .song-row-title { font-size: var(--fs-h4); }
   .song-row .song-go { right: 10px; width: 30px; height: 30px; }

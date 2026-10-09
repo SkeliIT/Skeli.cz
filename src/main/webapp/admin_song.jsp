@@ -17,6 +17,8 @@
         <c:when test="${param.msg == 'video_unlinked'}">YouTube video odpojeno.</c:when>
         <c:when test="${param.msg == 'preview_saved'}">Náhledový obrázek uložen.</c:when>
         <c:when test="${param.msg == 'preview_deleted'}">Náhledový obrázek smazán.</c:when>
+        <c:when test="${param.msg == 'art_saved'}">Obrázek v seznamu Texty uložen.</c:when>
+        <c:when test="${param.msg == 'bad_art'}">Pozici obrázku se nepodařilo přečíst – zkus to znovu.</c:when>
         <c:when test="${param.msg == 'bad_youtube'}">Neplatné YouTube ID / URL.</c:when>
         <c:when test="${param.msg == 'bad_name'}">Název písně je povinný.</c:when>
         <c:when test="${param.msg == 'locale_saved'}">Překlad / SEO uloženo.</c:when>
@@ -144,6 +146,56 @@
         <input type="hidden" name="song_id" value="${song.id}">
         <input type="hidden" name="redirect" value="/admin/song?uuid=${song.uuid}">
       </form>
+    </section>
+
+    <!-- Obrázek v řádku na stránce Texty: posun a velikost ručně -->
+    <section class="admin-card admin-card-wide" id="row-art">
+      <h3>Obrázek v seznamu Texty</h3>
+      <c:choose>
+        <c:when test="${empty rowArt}">
+          <p class="text-dim">Song nemá klip ani náhledovou fotku, v seznamu má jen zlatou záři. Nahraj náhled výš a pak ho tu můžeš posunout.</p>
+        </c:when>
+        <c:otherwise>
+          <p class="text-dim">
+            Obrázek <strong>táhni myší</strong> (na telefonu prstem), <strong>kolečkem myši</strong> nebo posuvníkem ho zvětšíš a zmenšíš.
+            Nahoře je řádek na počítači, pod ním na telefonu. Používá se nejnovější klip, jinak náhledová fotka.
+          </p>
+          <div class="art-editor" id="artEditor"
+               data-x="${song.artX != null ? song.artX : ''}" data-y="${song.artY != null ? song.artY : ''}" data-zoom="${song.artZoom != null ? song.artZoom : ''}">
+            <c:forEach var="device" items="desk,phone">
+              <div class="art-preview art-${device}">
+                <span class="art-device">${device == 'desk' ? 'Počítač' : 'Telefon'}</span>
+                <div class="song-row art-row">
+                  <span class="song-row-art"><img src="<c:out value='${rowArt}'/>" alt="" draggable="false" data-trim-bars></span>
+                  <span class="song-row-text">
+                    <span class="song-row-title"><c:out value="${songTitle.title}"/></span>
+                    <c:if test="${not empty songTitle.credits}"><span class="song-row-meta"><c:out value="${songTitle.credits}"/></span></c:if>
+                  </span>
+                </div>
+              </div>
+            </c:forEach>
+          </div>
+          <div class="art-controls">
+            <label class="art-zoom">Velikost
+              <input type="range" id="artZoom" min="25" max="300" step="1" value="100">
+              <output id="artZoomOut">100 %</output>
+            </label>
+            <button type="button" id="artWhole" class="control-btn">Celá fotka</button>
+            <button type="button" id="artFill" class="control-btn">Vyplnit řádek</button>
+          </div>
+          <form method="post" action="/admin/song" class="admin-inline-form art-form" id="artForm">
+            <input type="hidden" name="csrf" value="${csrf}">
+            <input type="hidden" name="id" value="${song.id}">
+            <input type="hidden" name="action" value="save_art">
+            <input type="hidden" name="art_x" id="artX">
+            <input type="hidden" name="art_y" id="artY">
+            <input type="hidden" name="art_zoom" id="artZoomVal">
+            <button type="submit">Uložit</button>
+            <button type="submit" name="auto" value="1" class="control-btn">Vrátit automaticky</button>
+            <span class="text-dim">${song.artZoom != null ? 'Teď: nastaveno ručně' : 'Teď: automaticky'}</span>
+          </form>
+        </c:otherwise>
+      </c:choose>
     </section>
 
     <!-- Streaming IDs -->
@@ -472,6 +524,88 @@
       initCropper();
     });
   }
+})();
+</script>
+<script src="/js/trim-bars.js?v=<%= assetVersion %>"></script>
+<script>
+// the picture in the song's Texty row: drag to move it, wheel / slider to resize. The same CSS
+// variables as on the Texty page (--tx = moved sideways, in % of the picture area, --py = the point
+// of the picture, in % of its height, on the area's 45 % line, --az = size compared with "as wide as
+// the area"), so the preview is exactly what visitors see, on a computer and on a phone.
+(function () {
+  var ed = document.getElementById('artEditor');
+  if (!ed) return;
+  var rows = [].slice.call(ed.querySelectorAll('.art-row'));
+  var imgs = [].slice.call(ed.querySelectorAll('.song-row-art img'));
+  var range = document.getElementById('artZoom'), outEl = document.getElementById('artZoomOut');
+  var num = function (s, d) { var v = parseFloat(s); return isFinite(v) ? v : d; };
+  var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
+  var st = { x: num(ed.dataset.x, 0), y: num(ed.dataset.y, 45), z: num(ed.dataset.zoom, 1) };
+
+  function apply() {
+    st.x = clamp(st.x, -400, 400); st.y = clamp(st.y, -200, 300); st.z = clamp(st.z, 0.25, 3);
+    imgs.forEach(function (i) {
+      i.style.setProperty('--tx', st.x.toFixed(2));
+      i.style.setProperty('--py', st.y.toFixed(2));
+      i.style.setProperty('--az', st.z.toFixed(3));
+      // moved by hand = the whole picture with its own soft edges, as on the Texty page
+      i.toggleAttribute('data-manual', !(Math.abs(st.x) < 0.01 && Math.abs(st.y - 45) < 0.01 && Math.abs(st.z - 1) < 0.001));
+    });
+    range.value = Math.round(st.z * 100);
+    outEl.textContent = Math.round(st.z * 100) + ' %';
+    document.getElementById('artX').value = st.x.toFixed(2);
+    document.getElementById('artY').value = st.y.toFixed(2);
+    document.getElementById('artZoomVal').value = st.z.toFixed(2);
+  }
+  // the picture area of a row and the height of the whole picture at 100 % (as wide as the area)
+  function sizes(row) {
+    var box = row.querySelector('.song-row-art').getBoundingClientRect(), img = imgs[0];
+    var nw = img.naturalWidth || 16, nh = img.naturalHeight || 9;
+    return { bw: box.width, bh: box.height, h: box.width * nh / nw };
+  }
+  // resize around the middle of the area (the picture grows from its left edge, so shift it back)
+  function zoomTo(z) {
+    z = clamp(z, 0.25, 3);
+    st.x = 50 - (50 - st.x) * z / st.z;
+    st.z = z;
+    apply();
+  }
+
+  rows.forEach(function (row) {
+    var drag = null;
+    row.addEventListener('pointerdown', function (e) {
+      drag = { px: e.clientX, py: e.clientY, x: st.x, y: st.y, s: sizes(row) };
+      row.setPointerCapture(e.pointerId);
+      row.classList.add('dragging');
+      e.preventDefault();
+    });
+    row.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      // the picture follows the pointer: sideways in % of the area, up / down in % of the picture
+      st.x = drag.x + (e.clientX - drag.px) / drag.s.bw * 100;
+      st.y = drag.y - (e.clientY - drag.py) / (drag.s.h * st.z) * 100;
+      apply();
+    });
+    var end = function () { drag = null; row.classList.remove('dragging'); };
+    row.addEventListener('pointerup', end);
+    row.addEventListener('pointercancel', end);
+    row.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      zoomTo(st.z * (e.deltaY < 0 ? 1.06 : 1 / 1.06));
+    }, { passive: false });
+  });
+  range.addEventListener('input', function () { zoomTo(range.value / 100); });
+  // the whole picture at the right end of the computer row (the row fades out to the left)
+  document.getElementById('artWhole').addEventListener('click', function () {
+    var s = sizes(rows[0]);
+    st.z = Math.min(1, s.bh / s.h);
+    st.x = (1 - st.z) * 100;
+    // its top at 45 % of the area minus py of the picture; put its middle in the area's middle
+    st.y = (0.45 * s.bh - (s.bh - s.h * st.z) / 2) / (s.h * st.z) * 100;
+    apply();
+  });
+  document.getElementById('artFill').addEventListener('click', function () { st.x = 0; st.y = 45; st.z = 1; apply(); });
+  apply();
 })();
 </script>
 <%@ include file="includes/footer.jsp" %>
