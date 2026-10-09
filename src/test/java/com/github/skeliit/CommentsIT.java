@@ -226,7 +226,7 @@ public class CommentsIT extends UiTestSupport {
         String admin = "pm" + uniq();
         insertUser(admin, "ADMIN");
         login(admin, PASSWORD);
-        driver.get(BASE_URL + "/admin.jsp");
+        driver.get(BASE_URL + "/admin/comments");
         waitReady();
         WebElement reports = driver.findElement(By.id("reports"));
         assertTrue(reports.getText().contains("spam "), "reported comment should be listed");
@@ -240,7 +240,7 @@ public class CommentsIT extends UiTestSupport {
 
         // report again, then delete from the admin list
         update("INSERT INTO comment_reports (kind, comment_id, reporter_id) VALUES ('lyric', ?, ?)", commentId, reporterId);
-        driver.get(BASE_URL + "/admin.jsp");
+        driver.get(BASE_URL + "/admin/comments");
         waitReady();
         WebElement delete = driver.findElement(By.id("reports")).findElement(By.xpath(
                 ".//form[.//input[@name='comment_id'][@value='" + commentId + "']][not(.//input[@name='action'])]//button"));

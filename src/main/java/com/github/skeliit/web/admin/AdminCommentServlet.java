@@ -34,6 +34,6 @@ public class AdminCommentServlet extends HttpServlet {
                 }
             }
         } catch (SQLException e) { throw new ServletException(e); }
-        resp.sendRedirect("/admin.jsp");
+        resp.sendRedirect("/admin/comments");
     }
 }

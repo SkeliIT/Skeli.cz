@@ -40,13 +40,13 @@ public class AdminPanelIT extends UiTestSupport {
         assertEquals("Admin", driver.findElement(By.cssSelector(".admin-head h2")).getText());
         assertFalse(driver.findElements(By.cssSelector(".admin-bar a.active[href='/admin.jsp']")).isEmpty(), "the admin bar marks the dashboard");
         assertFalse(driver.findElements(By.cssSelector("form[action='/admin/video']")).isEmpty());
-        assertFalse(driver.findElements(By.cssSelector("form[action='/admin/comment']")).isEmpty());
+        assertFalse(driver.findElements(By.cssSelector("a[href='/admin/comments']")).isEmpty(), "the dashboard links to the comments");
     }
 
     @Test
     @DisplayName("All admin pages return 200 for an admin")
     void adminPagesLoad() throws Exception {
-        for (String path : new String[]{"/admin.jsp", "/admin_users.jsp", "/admin/songs", "/admin/newsletter"}) {
+        for (String path : new String[]{"/admin.jsp", "/admin_users.jsp", "/admin/songs", "/admin/newsletter", "/admin/comments"}) {
             assertEquals(200, httpStatus(path), "ADMIN GET " + path);
         }
 
@@ -86,20 +86,21 @@ public class AdminPanelIT extends UiTestSupport {
     }
 
     @Test
-    @DisplayName("Comment moderation form deletes a comment by ID")
+    @DisplayName("Every comment is listed on /admin/comments and can be deleted there")
     void deleteComment() throws Exception {
         int authorId = insertUser("ac" + uniq(), "USER");
         String text = "Admin IT comment " + uniq();
         update("INSERT INTO comments (lyric_id, user_id, content) VALUES (1, ?, ?)", authorId, text);
         int commentId = queryInt("SELECT id FROM comments WHERE user_id=? AND content=?", authorId, text);
 
-        driver.get(BASE_URL + "/admin.jsp");
-        driver.findElement(By.cssSelector("form[action='/admin/comment'] input[name=comment_id]"))
-                .sendKeys(String.valueOf(commentId));
-        clickAndWaitReload(driver.findElement(By.cssSelector("form[action='/admin/comment'] button[type=submit]")), false);
+        driver.get(BASE_URL + "/admin/comments");
+        WebElement row = driver.findElement(By.xpath("//div[@id='commentList']/div[contains(@class,'report-row')][.//div[contains(@class,'report-text')][normalize-space()='" + text + "']]"));
+        assertEquals("lyric", row.getAttribute("data-kind"));
+        clickAndWaitReload(row.findElement(By.cssSelector("button.btn-delete")), true);
 
-        assertTrue(driver.getCurrentUrl().endsWith("/admin.jsp"), "got: " + driver.getCurrentUrl());
+        assertTrue(driver.getCurrentUrl().endsWith("/admin/comments"), "got: " + driver.getCurrentUrl());
         assertFalse(exists("SELECT 1 FROM comments WHERE id=?", commentId), "comment should be deleted");
+        assertFalse(bodyText().contains(text), "the deleted comment is gone from the list");
     }
 
     @Test

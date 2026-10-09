@@ -36,7 +36,10 @@ body.light .masthead-brand { filter: drop-shadow(0 1px 6px rgba(255, 255, 255, 0
   top: 0;
   z-index: 1000;
   height: var(--header-h);
+  transition: transform .35s ease;
 }
+/* scrolled down: the bar slides away until the visitor scrolls back up (includes/header.jsp) */
+.site-header.tucked { transform: translateY(calc(-100% - 30px)); }
 /* Glass bar once the page is scrolled. It lives on its own layer that reaches a
    bit below the header and fades out at the bottom, so there is no hard edge. */
 .site-header::before {
