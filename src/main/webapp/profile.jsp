@@ -1,4 +1,4 @@
-<%@ page import="com.github.skeliit.Db" %>
+<%@ page import="com.github.skeliit.dao.UserDao, com.github.skeliit.model.UserComment" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <main>
@@ -58,21 +58,14 @@
           Object __uidObj = session.getAttribute("userId");
           if (__uidObj == null) __uidObj = session.getAttribute("user_id");
           if (__uidObj != null) {
-            int __uid2 = (Integer) __uidObj;
-            try (java.sql.Connection c = Db.get();
-                 java.sql.PreparedStatement ps = c.prepareStatement(
-                   "SELECT c.id, c.content, c.created_at, c.lyric_id, s.name " +
-                   "FROM comments c JOIN lyrics l ON l.id=c.lyric_id JOIN songs s ON s.id=l.song_id " +
-                   "WHERE c.user_id=? ORDER BY c.created_at DESC LIMIT 50")
-            ) {
-              ps.setInt(1, __uid2);
-              try (java.sql.ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                  int cid = rs.getInt(1);
-                  String ctext = rs.getString(2);
-                  java.sql.Timestamp ts = rs.getTimestamp(3);
-                  int lid = rs.getInt(4);
-                  String sname = rs.getString(5);
+            java.util.List<UserComment> myComments = java.util.List.of();
+            try {
+              myComments = new UserDao().recentComments((Integer) __uidObj);   // dao/UserDao
+            } catch (Exception ignore) {}
+            for (UserComment uc : myComments) {
+              int cid = uc.id, lid = uc.lyricId;
+              String ctext = uc.content, sname = uc.songName;
+              java.sql.Timestamp ts = uc.createdAt;
         %>
           <tr>
             <td style="padding:6px; opacity:.8;"><%= ts %></td>
@@ -98,9 +91,7 @@
             </td>
           </tr>
         <%
-                }
-              }
-            } catch (Exception ignore) {}
+            }
           } else { %>
           <tr><td colspan="4" style="padding:6px; opacity:.8;"><%= t.getProperty("profile.loginRequired") %></td></tr>
         <% } %>

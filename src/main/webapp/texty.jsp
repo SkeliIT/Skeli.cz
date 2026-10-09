@@ -1,5 +1,4 @@
-<%@ page import="java.sql.*" %>
-<%@ page import="com.github.skeliit.Db" %>
+<%@ page import="com.github.skeliit.dao.SongDao, com.github.skeliit.model.LyricListItem, com.github.skeliit.model.SongClip, com.github.skeliit.model.SongTitle, com.github.skeliit.WebUtils" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
@@ -22,89 +21,52 @@
          and the row fades into the song's clip thumbnail (or its preview photo) on the right --%>
     <div class="song-list" id="songGrid">
         <%
-            boolean hadRows = false;
-            java.util.Map<Integer, java.util.List<com.github.skeliit.model.SongClip>> clipsBySong =
-                com.github.skeliit.model.SongClip.bySong();
+            // dao/SongDao: songs with lyrics, newest first; null = they could not be read
+            java.util.List<LyricListItem> songs = null;
+            java.util.Map<Integer, java.util.List<SongClip>> clipsBySong = java.util.Map.of();
             try {
-                try (Connection conn = Db.get();
-                         PreparedStatement ps = conn.prepareStatement(
-                             "SELECT s.id AS song_id, s.uuid AS song_uuid, s.name AS song_name, s.year AS song_year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, MIN(l.id) AS lyric_id, " +
-                             "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtube_id, " +
-                             "(SELECT MAX(v.published_at) FROM videos v WHERE v.song_id = s.id) AS newest_clip, " +
-                             "(SELECT lt.title FROM lyrics lt WHERE lt.song_id = s.id AND lt.lang = ? ORDER BY lt.id LIMIT 1) AS tr_title " +
-                             "FROM lyrics l JOIN songs s ON s.id = l.song_id " +
-                             "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom " +
-                             "ORDER BY s.year DESC, newest_clip DESC, s.name ASC"
-                         )) {
-                        ps.setString(1, cur);
-                        try (ResultSet rs = ps.executeQuery()) {
-                        String lastYear = null;
-                        while (rs.next()) {
-                            hadRows = true;
-                            com.github.skeliit.model.SongTitle st = com.github.skeliit.model.SongTitle.of(rs.getString("song_name"));
-                            Object yearObj = rs.getObject("song_year");
-                            Integer y = null;
-                            if (yearObj != null) {
-                                if (yearObj instanceof java.sql.Date) {
-                                    y = ((java.sql.Date) yearObj).toLocalDate().getYear();
-                                } else if (yearObj instanceof Number) {
-                                    y = ((Number) yearObj).intValue();
-                                } else {
-                                    y = Integer.parseInt(yearObj.toString());
-                                }
-                            }
-                            int lyricId = rs.getInt("lyric_id");
-                            if (rs.wasNull() || lyricId <= 0) continue;
-                            String songUuid = rs.getString("song_uuid");
-                            String youtubeId = rs.getString("youtube_id");
-                            String preview = com.github.skeliit.WebUtils.safeUrl(rs.getString("preview_image_url"), null);
-                            String href = (songUuid != null && !songUuid.isBlank())
-                                    ? "/" + cur + "/song/" + songUuid
-                                    : "/lyrics/" + lyricId;
-                            java.util.List<com.github.skeliit.model.SongClip> clips = clipsBySong.get(rs.getInt("song_id"));
-                            String art = youtubeId != null && !youtubeId.isEmpty()
-                                    ? "/yt-thumb/" + youtubeId + "/hqdefault.jpg" : preview;
-                            String meta = st.credits;
-                            if (clips != null && clips.size() > 1) {
-                                meta = (meta.isEmpty() ? "" : meta + " · ") + clips.size() + " " + t.getProperty("music.versions", "verze");
-                            }
-                            Object ax = rs.getObject("art_x"), ay = rs.getObject("art_y"), az = rs.getObject("art_zoom");
-                            String artStyle = ax == null || ay == null || az == null ? "" : com.github.skeliit.model.Song.artStyle(
-                                    ((Number) ax).doubleValue(), ((Number) ay).doubleValue(), ((Number) az).doubleValue());
-                            String yearKey = y == null ? "" : String.valueOf(y);
-                            if (!yearKey.equals(lastYear)) {
-                                lastYear = yearKey;
+                songs = new SongDao().withLyrics(cur);
+                clipsBySong = SongClip.bySong();
+            } catch (Exception e) {
+                application.log("Texty list", e);
+            }
+            String lastYear = null;
+            if (songs != null) for (LyricListItem song : songs) {
+                SongTitle st = SongTitle.of(song.name);
+                String art = song.artUrl();
+                String meta = st.credits;
+                java.util.List<SongClip> clips = clipsBySong.get(song.songId);
+                if (clips != null && clips.size() > 1) {
+                    meta = (meta.isEmpty() ? "" : meta + " · ") + clips.size() + " " + t.getProperty("music.versions", "verze");
+                }
+                String yearKey = song.year == null ? "" : String.valueOf(song.year);
+                if (!yearKey.equals(lastYear)) {
+                    lastYear = yearKey;
         %>
-                            <h2 class="song-year-head" data-year="<%= yearKey %>"><%= y == null ? "–" : y %></h2>
+                            <h2 class="song-year-head" data-year="<%= yearKey %>"><%= song.year == null ? "–" : song.year %></h2>
         <%
-                            }
+                }
         %>
-                            <a class="song-row" href="<%= com.github.skeliit.WebUtils.escapeHtml(href) %>" data-song="<%= rs.getInt("song_id") %>" data-year="<%= yearKey %>">
+                            <a class="song-row" href="<%= WebUtils.escapeHtml(song.path(cur)) %>" data-song="<%= song.songId %>" data-year="<%= yearKey %>">
                                 <span class="song-row-art" aria-hidden="true">
                                 <% if (art != null) { %>
-                                    <img src="<%= com.github.skeliit.WebUtils.escapeHtml(art) %>" alt="" loading="lazy" data-trim-bars<% if (!artStyle.isEmpty()) { %> style="<%= artStyle %>" data-manual="1"<% } %>>
+                                    <img src="<%= WebUtils.escapeHtml(art) %>" alt="" loading="lazy" data-trim-bars<% if (!song.artStyle.isEmpty()) { %> style="<%= song.artStyle %>" data-manual="1"<% } %>>
                                 <% } %>
                                 </span>
                                 <span class="song-row-text">
-                                    <span class="song-row-title"><%= com.github.skeliit.WebUtils.escapeHtml(st.title) %></span>
-                                    <% String tr = rs.getString("tr_title"); if (!"cs".equals(cur) && tr != null && !tr.isBlank()) { %><span class="song-row-sub" lang="<%= cur %>"><%= com.github.skeliit.WebUtils.escapeHtml(tr) %></span><% } %>
-                                    <% if (!meta.isEmpty()) { %><span class="song-row-meta"><%= com.github.skeliit.WebUtils.escapeHtml(meta) %></span><% } %>
+                                    <span class="song-row-title"><%= WebUtils.escapeHtml(st.title) %></span>
+                                    <% String tr = song.translatedTitle; if (!"cs".equals(cur) && tr != null && !tr.isBlank()) { %><span class="song-row-sub" lang="<%= cur %>"><%= WebUtils.escapeHtml(tr) %></span><% } %>
+                                    <% if (!meta.isEmpty()) { %><span class="song-row-meta"><%= WebUtils.escapeHtml(meta) %></span><% } %>
                                     <span class="song-line" hidden></span>
                                 </span>
                                 <span class="song-go"><i class="fa-solid fa-arrow-right"></i></span>
                             </a>
         <%
-                        }
-                        }
-                } catch (SQLException e) {
-                    out.println("<p class=\"empty-note\">" + t.getProperty("lyrics.loadError") + "</p>");
-                }
-
-                if (!hadRows) {
-                    out.println("<p class=\"empty-note\">" + t.getProperty("lyrics.none") + "</p>");
-                }
-            } catch (Exception e) {
+            }
+            if (songs == null) {
                 out.println("<p class=\"empty-note\">" + t.getProperty("lyrics.loadError") + "</p>");
+            } else if (songs.isEmpty()) {
+                out.println("<p class=\"empty-note\">" + t.getProperty("lyrics.none") + "</p>");
             }
         %>
     </div>

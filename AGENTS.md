@@ -21,6 +21,9 @@ are easy to get wrong.
   a phone. After a CSS or JS change raise `assetVersion` in `includes/header.jsp`.
 - Escape output (`WebUtils.escapeHtml`, `c:out`), SQL only through prepared statements, every form
   posts the CSRF token. Secrets live in `.env` on the server, never in Git.
+- Where code goes: SQL in `dao/` (JSPs only render what a DAO returns, as plain classes in `model/`:
+  the JSP compiler can't read records), servlets in `web/<area>/`, filters in `filter/`, background jobs
+  in `job/`. Admin templates live in `WEB-INF/views/admin/`; old addresses go to `LegacyRedirectServlet`.
 
 ## Tests
 - `mvn test` runs the unit tests (`*Test`, also part of `mvn verify`).

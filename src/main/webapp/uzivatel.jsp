@@ -1,4 +1,4 @@
-<%@ page import="com.github.skeliit.Db" %>
+<%@ page import="com.github.skeliit.dao.UserDao, com.github.skeliit.model.UserProfile" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <main>
@@ -18,18 +18,15 @@
         String displayName = null, city = null, bio = null, theme = "dark", prefLang = (String) session.getAttribute("lang");
         Integer age = null;
         if (uid != null) {
-          try (java.sql.Connection c = Db.get();
-               java.sql.PreparedStatement ps = c.prepareStatement("SELECT display_name, age, city, bio, theme, lang FROM user_profiles WHERE user_id=?")) {
-            ps.setInt(1, uid);
-            try (java.sql.ResultSet r = ps.executeQuery()) {
-              if (r.next()) {
-                displayName = r.getString(1);
-                age = (Integer) r.getObject(2);
-                city = r.getString(3);
-                bio = r.getString(4);
-                theme = r.getString(5);
-                String l = r.getString(6); if (l != null) prefLang = l;
-              }
+          try {
+            UserProfile p = new UserDao().profile(uid);   // dao/UserDao; nothing saved yet = null
+            if (p != null) {
+              displayName = p.displayName;
+              age = p.age;
+              city = p.city;
+              bio = p.bio;
+              theme = p.theme;
+              if (p.lang != null) prefLang = p.lang;
             }
           } catch (Exception ignore) {}
         }

@@ -1,6 +1,9 @@
 package com.github.skeliit.dao;
 
 import com.github.skeliit.Db;
+import com.github.skeliit.job.VideoTitles;
+import com.github.skeliit.model.DiscoItem;
+import com.github.skeliit.model.LyricListItem;
 import com.github.skeliit.model.Song;
 import com.github.skeliit.model.SongVideo;
 import java.sql.*;
@@ -22,6 +25,76 @@ public class SongDao {
             while (rs.next()) out.add(mapSong(rs, true));
             return out;
         }
+    }
+
+    /** Songs that have lyrics, as the Texty list shows them: newest year first, then the newest clip. */
+    public List<LyricListItem> withLyrics(String lang) throws SQLException {
+        String sql = "SELECT s.id, s.uuid, s.name, s.year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, MIN(l.id) AS lyric_id, "
+                + "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtube_id, "
+                + "(SELECT MAX(v.published_at) FROM videos v WHERE v.song_id = s.id) AS newest_clip, "
+                + "(SELECT lt.title FROM lyrics lt WHERE lt.song_id = s.id AND lt.lang = ? ORDER BY lt.id LIMIT 1) AS tr_title "
+                + "FROM lyrics l JOIN songs s ON s.id = l.song_id "
+                + "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom "
+                + "ORDER BY s.year DESC, newest_clip DESC, s.name ASC";
+        List<LyricListItem> out = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, lang);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int lyricId = rs.getInt("lyric_id");
+                    if (rs.wasNull() || lyricId <= 0) continue;
+                    Double x = nullableDouble(rs, "art_x"), y = nullableDouble(rs, "art_y"), z = nullableDouble(rs, "art_zoom");
+                    out.add(new LyricListItem(rs.getInt("id"), rs.getString("uuid"), rs.getString("name"), year(rs.getObject("year")),
+                            lyricId, rs.getString("youtube_id"), rs.getString("preview_image_url"), rs.getString("tr_title"),
+                            Song.artStyle(x, y, z)));
+                }
+            }
+        }
+        return out;
+    }
+
+    /**
+     * The Diskografie: every song (newest first; a song with several clips is dated and sorted by
+     * its newest clip), then the clips that aren't linked to a song.
+     */
+    public List<DiscoItem> discography(String lang) throws SQLException {
+        String sql = "SELECT s.name, CASE WHEN (SELECT COUNT(*) FROM videos v WHERE v.song_id = s.id) > 1 "
+                + "         THEN (SELECT YEAR(MAX(v.published_at)) FROM videos v WHERE v.song_id = s.id) ELSE s.year END AS year, "
+                + "       s.uuid, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, "
+                + "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, "
+                + "       0 AS grp, s.id AS ord, s.preview_image_url AS preview, s.apple_music_id AS apple, s.spotify_id AS spotify, "
+                + "       (SELECT lt.title FROM lyrics lt WHERE lt.song_id = s.id AND lt.lang = ? ORDER BY lt.id LIMIT 1) AS tr "
+                + "FROM songs s "
+                + "UNION ALL "
+                + "SELECT v.title, NULL, NULL, NULL, v.youtube_id, 1, v.id, NULL, NULL, NULL, NULL FROM videos v WHERE v.song_id IS NULL "
+                + "ORDER BY grp, year DESC, ord DESC";
+        List<DiscoItem> out = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, lang);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    boolean song = rs.getInt("grp") == 0;
+                    String name = song ? rs.getString("name") : VideoTitles.display(rs.getString("name"));
+                    if (name == null || name.isBlank()) name = "YouTube";
+                    if (song) name = name.replaceFirst("(?i)^\\s*skeli\\s*-\\s*", "");
+                    int lyricId = rs.getInt("lyric_id");
+                    if (rs.wasNull() || lyricId < 0) lyricId = 0;
+                    out.add(new DiscoItem(song, rs.getInt("ord"), name, year(rs.getObject("year")),
+                            song ? rs.getString("uuid") : null, lyricId, rs.getString("yt"), rs.getString("preview"),
+                            rs.getString("apple"), rs.getString("spotify"), song ? rs.getString("tr") : null));
+                }
+            }
+        }
+        return out;
+    }
+
+    /** A year from the database: a number, a date (YEAR column) or text like "2025-01-01". */
+    static Integer year(Object v) {
+        if (v == null) return null;
+        if (v instanceof java.sql.Date d) return d.toLocalDate().getYear();
+        if (v instanceof Number n) return n.intValue();
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^\\s*(\\d{4})").matcher(v.toString());   // "2025", "2025-01-01"
+        return m.find() ? Integer.valueOf(m.group(1)) : null;
     }
 
     public List<Song> listAll() throws SQLException {

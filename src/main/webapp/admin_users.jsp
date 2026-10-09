@@ -1,5 +1,4 @@
-<%@ page import="java.sql.*" %>
-<%@ page import="com.github.skeliit.Db" %>
+<%@ page import="com.github.skeliit.dao.AdminDao, com.github.skeliit.model.AdminUser, com.github.skeliit.WebUtils" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <main class="admin-page">
@@ -8,9 +7,7 @@
   <%
     String role = (String) session.getAttribute("role");
     if (!"ADMIN".equals(role)) { out.println("<p>Pouze pro ADMIN.</p>"); } else {
-      try (Connection conn = Db.get();
-           PreparedStatement ps = conn.prepareStatement("SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC");
-           ResultSet rs = ps.executeQuery()) {
+      java.util.List<AdminUser> users = new AdminDao().users();
   %>
     <%-- find someone by name or e-mail; deleted (anonymised) accounts are hidden unless asked for --%>
     <div class="admin-toolbar">
@@ -26,28 +23,28 @@
         </thead>
         <tbody>
           <%
-            while (rs.next()) {
+            for (AdminUser u : users) {
           %>
-          <tr class="role-<%= com.github.skeliit.WebUtils.escapeHtml(rs.getString("role")).toLowerCase() %>">
-            <td><%= rs.getInt("id") %></td>
-            <td><%= com.github.skeliit.WebUtils.escapeHtml(rs.getString("username")) %></td>
-            <td><%= com.github.skeliit.WebUtils.escapeHtml(rs.getString("email")) %></td>
-            <td><span class="role-badge"><%= com.github.skeliit.WebUtils.escapeHtml(rs.getString("role")) %></span></td>
-            <td><%= rs.getTimestamp("created_at") == null ? "" : new java.text.SimpleDateFormat("d. M. yyyy HH:mm").format(rs.getTimestamp("created_at")) %></td>
+          <tr class="role-<%= WebUtils.escapeHtml(u.role).toLowerCase() %>">
+            <td><%= u.id %></td>
+            <td><%= WebUtils.escapeHtml(u.username) %></td>
+            <td><%= WebUtils.escapeHtml(u.email) %></td>
+            <td><span class="role-badge"><%= WebUtils.escapeHtml(u.role) %></span></td>
+            <td><%= u.createdAt == null ? "" : new java.text.SimpleDateFormat("d. M. yyyy HH:mm").format(u.createdAt) %></td>
             <td class="act">
               <form method="post" action="/admin/users">
                 <input type="hidden" name="csrf" value="${csrf}">
-                <input type="hidden" name="user_id" value="<%= rs.getInt("id") %>">
+                <input type="hidden" name="user_id" value="<%= u.id %>">
                 <input type="hidden" name="action" value="role">
                 <select name="role">
-                  <option<%= "USER".equals(rs.getString("role"))?" selected":"" %>>USER</option>
-                  <option<%= "ADMIN".equals(rs.getString("role"))?" selected":"" %>>ADMIN</option>
+                  <option<%= "USER".equals(u.role) ? " selected" : "" %>>USER</option>
+                  <option<%= "ADMIN".equals(u.role) ? " selected" : "" %>>ADMIN</option>
                 </select>
                 <button type="submit">Uložit</button>
               </form>
               <form method="post" action="/admin/users" onsubmit="return confirm('Smazat uživatele?');">
                 <input type="hidden" name="csrf" value="${csrf}">
-                <input type="hidden" name="user_id" value="<%= rs.getInt("id") %>">
+                <input type="hidden" name="user_id" value="<%= u.id %>">
                 <input type="hidden" name="action" value="delete">
                 <button type="submit" class="btn-delete">Smazat</button>
               </form>
@@ -78,7 +75,6 @@
     })();
     </script>
   <%
-      }
     }
   %>
 </main>
