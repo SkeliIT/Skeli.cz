@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "4.0.4";
+  String assetVersion = "4.1.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -148,13 +148,27 @@
               <a href="<%= ctx %>/texty.jsp"><%= t.getProperty("menu.lyrics","Lyrics") %></a>
               <a href="<%= ctx %>/about.jsp"><%= t.getProperty("menu.about","About") %></a>
               <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
-              <%-- phones: the display controls live here instead of crowding the bar --%>
+              <%-- phones and tablets: the display controls, language and account live in the menu --%>
               <div class="nav-settings">
                 <button type="button" class="icon-btn" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold"></i></button>
                 <button type="button" class="icon-btn" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke"></i></button>
                 <span class="nav-langs" aria-label="<%= t.getProperty("header.language") %>">
                   <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="?lang=<%= l %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= com.github.skeliit.I18n.label(l) %></a><% } %>
                 </span>
+              </div>
+              <div class="nav-account">
+              <% if (currentUser == null) { %>
+                <a href="<%= ctx %>/login.jsp"><i class="fa-solid fa-right-to-bracket"></i> <%= t.getProperty("btn.login") %></a>
+                <a href="<%= ctx %>/register.jsp" class="nav-register"><i class="fa-solid fa-user-plus"></i> <%= t.getProperty("btn.register") %></a>
+              <% } else { %>
+                <a href="<%= ctx %>/profile.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.profile") %> <span class="nav-user">· <%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></span></a>
+                <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
+                <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
+                <form method="post" action="<%= ctx %>/logout" class="logout-form">
+                  <input type="hidden" name="csrf" value="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
+                  <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> <%= t.getProperty("btn.logout") %></button>
+                </form>
+              <% } %>
               </div>
             </nav>
 
@@ -216,17 +230,10 @@
                 </div>
               <% } %>
             </div>
+            <%-- phones and tablets: everything below lives in the menu this button opens --%>
+            <button class="menu-toggle" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false"><i class="fa-solid fa-bars"></i><span class="menu-label"><%= t.getProperty("footer.menu") %></span></button>
           </div>
         </header>
-        <%-- phones and tablets: the main pages at the thumb, the rest (about, donate,
-             settings, languages) behind Menu. Shop / games get a slot here once they exist. --%>
-        <nav class="tabbar" id="tabbar" aria-label="<%= t.getProperty("footer.menu") %>">
-          <a href="<%= ctx %>/index.jsp"><i class="fa-solid fa-house"></i><span><%= t.getProperty("menu.home","Home") %></span></a>
-          <a href="<%= ctx %>/aktuality.jsp"><i class="fa-solid fa-bolt"></i><span><%= t.getProperty("menu.news") %></span></a>
-          <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music"></i><span><%= t.getProperty("menu.music","Music") %></span></a>
-          <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left"></i><span><%= t.getProperty("menu.lyrics","Lyrics") %></span></a>
-          <button class="menu-toggle" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false"><i class="fa-solid fa-bars"></i><span class="menu-label"><%= t.getProperty("footer.menu") %></span></button>
-        </nav>
 <%
   // One-line messages after a redirect, chosen by fixed query parameters (never echoed back)
   String flashKey = null; boolean flashOk = true;
@@ -449,7 +456,7 @@
             function updateActiveNav() {
               let cur = location.pathname.split('/').pop() || 'index.jsp';
               if (location.pathname.startsWith('/lyrics/')) cur = 'texty.jsp';
-              document.querySelectorAll('header nav a, .tabbar a').forEach(a => {
+              document.querySelectorAll('header nav a').forEach(a => {
                 try {
                   const href = a.getAttribute('href') || '';
                   const normalized = (href.split('?')[0] || '').split('/').pop() || '';
