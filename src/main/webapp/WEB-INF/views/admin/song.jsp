@@ -13,6 +13,7 @@
     <p class="admin-flash">
       <c:choose>
         <c:when test="${param.msg == 'saved'}">Uloženo.</c:when>
+        <c:when test="${param.msg == 'track_added'}">Track přidán. Teď můžeš doplnit překlady textu a obrázek.</c:when>
         <c:when test="${param.msg == 'video_linked'}">YouTube video napojeno.</c:when>
         <c:when test="${param.msg == 'video_unlinked'}">YouTube video odpojeno.</c:when>
         <c:when test="${param.msg == 'preview_saved'}">Náhledový obrázek uložen.</c:when>

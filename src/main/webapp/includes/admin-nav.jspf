@@ -7,7 +7,9 @@
   String[][] adminTabs = {
       {"/admin.jsp", "fa-gauge-high", "Nástěnka", "/admin.jsp"},
       {"/admin/songs", "fa-music", "Písně", "/admin/song"},
+      {"/admin/track", "fa-plus", "Přidat track", "/admin/track"},
       {"/admin/lyrics", "fa-align-left", "Texty", "/admin/lyrics"},
+      {"/admin/quotes", "fa-quote-left", "Citáty", "/admin/quotes"},
       {"/admin/comments", "fa-comments", "Komentáře", "/admin/comments"},
       {"/admin_users.jsp", "fa-users", "Uživatelé", "/admin_users"},
       {"/admin/newsletter", "fa-envelope-open-text", "Newsletter", "/admin/newsletter"}
