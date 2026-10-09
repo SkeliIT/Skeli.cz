@@ -826,47 +826,37 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 .music-page .discography,
 .music-page .spotify-block { margin-bottom: 56px; }
 
-/* Discography cards reuse .song-card from the Texty page. The links (lyrics /
-   YouTube / Spotify) are round icons stacked on the right edge of the thumbnail. */
+/* Discography cards reuse .song-card from the Texty page. Under the name: "Listen & lyrics"
+   opens the links (lyrics, YouTube, Spotify, Apple Music) and "N versions" the clips. */
 .disco-card a.song-thumb { display: block; }
-.disco-links {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.disco-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; padding: 0 18px 14px; margin-top: auto; }
+.disco-actions details[open] { flex-basis: 100%; }
+.disco-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .disco-links a {
-  width: 34px;
-  height: 34px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  /* dark glass in both themes: the icons sit on a video thumbnail */
-  background: rgba(9, 9, 11, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #f4f4f5;
-  font-size: 0.95rem;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: transform .15s, border-color .2s, background-color .2s;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  font-size: var(--fs-small);
+  transition: border-color .2s, background-color .2s;
 }
-.disco-links a:hover { transform: scale(1.08); text-decoration: none; background: rgba(9, 9, 11, 0.85); }
-.disco-links .disco-lyrics:hover { border-color: var(--accent); color: #ffd23f; }
-.disco-links .disco-youtube i { color: #ff3b3b; }
-.disco-links .disco-youtube:hover { border-color: #ff3b3b; }
+.disco-links a:hover { text-decoration: none; background: color-mix(in srgb, var(--text) 6%, transparent); }
+.disco-links .disco-lyrics i { color: var(--accent); }
+.disco-links .disco-lyrics:hover { border-color: var(--accent); }
+.disco-links .disco-youtube i { color: var(--youtube); }
+.disco-links .disco-youtube:hover { border-color: var(--youtube); }
 .disco-links .disco-spotify i { color: var(--spotify); }
 .disco-links .disco-spotify:hover { border-color: var(--spotify); }
 .disco-links .disco-apple i { color: var(--apple-music); }
 .disco-links .disco-apple:hover { border-color: var(--apple-music); }
-/* four links (lyrics, YouTube, Spotify, Apple Music) would run past the thumbnail: 2 × 2 */
-.disco-links:has(> a:nth-child(4)) { display: grid; grid-template-columns: repeat(2, auto); }
+/* two narrow cards side by side on phones: the buttons stay on one line */
 @media (max-width: 600px) {
-  .disco-links { top: 6px; right: 6px; gap: 4px; }
-  .disco-links a { width: 28px; height: 28px; font-size: 0.8rem; }
+  .disco-actions { padding: 0 12px 12px; }
+  .disco-more summary, .disco-versions summary { white-space: nowrap; padding: 5px 10px; font-size: 0.66rem; gap: 6px; }
+  .disco-more summary .fa-headphones { display: none; }
 }
 
 .spotify-embed { padding: 8px; }
@@ -1346,7 +1336,7 @@ body.light .lyric-textsize .ts-btn { width: 38px; height: 32px; padding: 0; bord
 .lyric-page .video-wrapper > .yt-facade-img { position: absolute; inset: 0; }
 
 /* ---------- Songs with several clips (original + remake) ---------- */
-.disco-versions { padding: 0 18px 14px; }
+.disco-more summary,
 .disco-versions summary {
   display: inline-flex;
   align-items: center;
@@ -1360,9 +1350,13 @@ body.light .lyric-textsize .ts-btn { width: 38px; height: 32px; padding: 0; bord
   list-style: none;
   user-select: none;
 }
+.disco-more summary::-webkit-details-marker,
 .disco-versions summary::-webkit-details-marker { display: none; }
+.disco-more summary:hover,
 .disco-versions summary:hover { color: var(--accent); border-color: var(--accent); }
+.disco-more summary .fa-chevron-down,
 .disco-versions summary .fa-chevron-down { font-size: 0.8em; transition: transform .2s; }
+.disco-more[open] summary .fa-chevron-down,
 .disco-versions[open] summary .fa-chevron-down { transform: rotate(180deg); }
 .disco-versions ul { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .disco-versions li a {
