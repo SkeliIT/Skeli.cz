@@ -41,7 +41,8 @@ abstract class UiTestSupport {
     @BeforeEach
     void openBrowser() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new", "--window-size=1400,900");
+        // software WebGL, so the effects that need it (Kevin, the water and fire round a clip) run in tests too
+        options.addArguments("--headless=new", "--window-size=1400,900", "--use-angle=swiftshader", "--enable-unsafe-swiftshader");
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
     }

@@ -56,10 +56,10 @@
         </c:if>
       </header>
 
-      <!-- Video and lyrics share one frame that fades out at the bottom -->
-      <section class="lyric-main">
-      <!-- Video (or the song's preview photo) above the lyrics -->
+      <%-- the clip on its own wide stage above the lyrics; water and fire flow out of it with the music (js/clip-fx.js) --%>
       <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
+      <section class="clip-stage lyric-stage${not empty lyric.youtubeId ? ' has-fx' : ''}"${not empty lyric.youtubeId ? ' data-clip-fx' : ''}>
+      <c:if test="${not empty lyric.youtubeId}"><canvas class="clip-fx-gl" aria-hidden="true"></canvas><canvas class="clip-fx-2d" aria-hidden="true"></canvas></c:if>
       <div class="lyric-media">
       <c:choose>
       <c:when test="${not empty lyric.youtubeId}">
@@ -79,7 +79,7 @@
         </div>
         <% } %>
         <div class="content-box video-box">
-          <div class="video-wrapper" id="ytFacade" data-yt="<c:out value='${lyric.youtubeId}'/>">
+          <div class="video-wrapper" id="ytFacade" data-clip-player data-yt="<c:out value='${lyric.youtubeId}'/>">
             <button type="button" class="yt-facade" aria-label="<%= t.getProperty("lyric.openYoutube","Přehrát video") %>">
               <c:choose>
                 <c:when test="${not empty lyric.previewImageUrl}">
@@ -104,7 +104,8 @@
             if (!btn) return;
             btn.addEventListener('click', function(){
               var iframe = document.createElement('iframe');
-              iframe.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
+              // enablejsapi lets the player tell the effect around it where the song is
+              iframe.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0&enablejsapi=1&origin=' + encodeURIComponent(location.origin);
               iframe.setAttribute('frameborder', '0');
               iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
               iframe.setAttribute('allowfullscreen', '');
@@ -133,6 +134,13 @@
           });
         })();
         </script>
+        <div class="clip-fx-switch" role="group" aria-label="<%= t.getProperty("clipfx.label") %>">
+          <span class="clip-fx-name"><i class="fa-solid fa-fire-flame-curved" aria-hidden="true"></i> <span class="clip-fx-label"><%= t.getProperty("clipfx.label") %></span></span>
+          <button type="button" data-mode="on" aria-pressed="true"><%= t.getProperty("clipfx.on") %></button>
+          <button type="button" data-mode="soft" aria-pressed="false"><%= t.getProperty("clipfx.soft") %></button>
+          <button type="button" data-mode="off" aria-pressed="false"><%= t.getProperty("clipfx.off") %></button>
+        </div>
+        <script src="/js/clip-fx.js?v=<%= assetVersion %>"></script>
       </c:when>
       <c:otherwise>
         <div class="content-box video-box">
@@ -143,8 +151,40 @@
       </c:otherwise>
       </c:choose>
       </div>
+      </section>
       </c:if>
 
+      <!-- The lyrics in a frame that fades out at the bottom -->
+      <section class="lyric-main">
+      <!-- Share, listen, text size: a bar at the top of the lyrics -->
+      <div class="lyric-toolbar lyric-links">
+        <div class="action-buttons">
+          <button type="button" class="action-btn" id="shareLyric" data-copied="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("lyric.linkCopied")) %>" title="<%= t.getProperty("lyric.shareLink") %>">
+            <i class="fas fa-share-alt"></i> <span><%= t.getProperty("common.share") %></span>
+          </button>
+          <a class="action-btn" href="https://open.spotify.com/search/<c:out value='${lyric.songName}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.findSpotify") %>">
+            <i class="fab fa-spotify icon-spotify"></i> Spotify
+          </a>
+          <c:if test="${not empty lyric.youtubeId}">
+            <a class="action-btn" href="https://www.youtube.com/watch?v=<c:out value='${lyric.youtubeId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openYoutube") %>">
+              <i class="fab fa-youtube icon-youtube"></i> YouTube
+            </a>
+          </c:if>
+          <c:if test="${not empty lyric.appleMusicId}">
+            <a class="action-btn" href="https://music.apple.com/cz/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openApple") %>">
+              <i class="fab fa-apple icon-apple"></i> Apple Music
+            </a>
+          </c:if>
+        </div>
+        <div class="lyric-toolbar-end">
+          <div class="lyric-textsize" role="group" aria-label="<%= t.getProperty("lyric.textSize") %>">
+            <span><%= t.getProperty("lyric.textSize") %></span>
+            <button type="button" class="ts-btn" data-step="-1" aria-label="<%= t.getProperty("lyric.textSmaller") %>" title="<%= t.getProperty("lyric.textSmaller") %>">A−</button>
+            <button type="button" class="ts-btn" data-step="1" aria-label="<%= t.getProperty("lyric.textBigger") %>" title="<%= t.getProperty("lyric.textBigger") %>">A+</button>
+          </div>
+          <div class="views-count"><i class="fa-regular fa-eye"></i> <%= t.getProperty("lyric.views") %> ${lyric.views}</div>
+        </div>
+      </div>
 
       <!-- Lyrics Text -->
       <article class="lyric-body">
@@ -175,37 +215,6 @@
           </c:if>
         </nav>
       </c:if>
-
-      <!-- Listen links (sticky sidebar on desktop) -->
-      <aside class="lyric-side">
-
-        <div class="content-box lyric-links">
-          <div class="action-buttons">
-            <button type="button" class="action-btn" id="shareLyric" data-copied="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("lyric.linkCopied")) %>" title="<%= t.getProperty("lyric.shareLink") %>">
-              <i class="fas fa-share-alt"></i> <span><%= t.getProperty("common.share") %></span>
-            </button>
-            <a class="action-btn" href="https://open.spotify.com/search/<c:out value='${lyric.songName}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.findSpotify") %>">
-              <i class="fab fa-spotify icon-spotify"></i> Spotify
-            </a>
-            <c:if test="${not empty lyric.youtubeId}">
-              <a class="action-btn" href="https://www.youtube.com/watch?v=<c:out value='${lyric.youtubeId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openYoutube") %>">
-                <i class="fab fa-youtube icon-youtube"></i> YouTube
-              </a>
-            </c:if>
-            <c:if test="${not empty lyric.appleMusicId}">
-              <a class="action-btn" href="https://music.apple.com/cz/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openApple") %>">
-                <i class="fab fa-apple icon-apple"></i> Apple Music
-              </a>
-            </c:if>
-          </div>
-          <div class="lyric-textsize" role="group" aria-label="<%= t.getProperty("lyric.textSize") %>">
-            <span><%= t.getProperty("lyric.textSize") %></span>
-            <button type="button" class="ts-btn" data-step="-1" aria-label="<%= t.getProperty("lyric.textSmaller") %>" title="<%= t.getProperty("lyric.textSmaller") %>">A−</button>
-            <button type="button" class="ts-btn" data-step="1" aria-label="<%= t.getProperty("lyric.textBigger") %>" title="<%= t.getProperty("lyric.textBigger") %>">A+</button>
-          </div>
-          <div class="views-count"><i class="fa-regular fa-eye"></i> <%= t.getProperty("lyric.views") %> ${lyric.views}</div>
-        </div>
-      </aside>
 
       <!-- Votes & Comments Box -->
       <div class="content-box lyric-comments">

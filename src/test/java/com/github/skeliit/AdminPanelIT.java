@@ -46,7 +46,7 @@ public class AdminPanelIT extends UiTestSupport {
     @Test
     @DisplayName("All admin pages return 200 for an admin")
     void adminPagesLoad() throws Exception {
-        for (String path : new String[]{"/admin.jsp", "/admin_users.jsp", "/admin/songs", "/admin/newsletter", "/admin/comments"}) {
+        for (String path : new String[]{"/admin.jsp", "/admin_users.jsp", "/admin/songs", "/admin/newsletter", "/admin/comments", "/admin/track", "/admin/quotes"}) {
             assertEquals(200, httpStatus(path), "ADMIN GET " + path);
         }
 
@@ -284,6 +284,69 @@ public class AdminPanelIT extends UiTestSupport {
     private WebElement userRow(String username) {
         return driver.findElement(By.xpath("//table[contains(@class,'admin-table')]//tr[td[normalize-space()='"
                 + username + "']]"));
+    }
+
+    @Test
+    @DisplayName("Add a track from YouTube: link, check, one button - the song, its clip, Spotify and lyrics are in")
+    void addTrackInOneGo() throws Exception {
+        String youtubeId = "it" + uniq();
+        String songName = "IT Track " + uniq();
+        try {
+            driver.get(BASE_URL + "/admin/track");
+            driver.findElement(By.cssSelector(".track-lookup input[name=url]")).sendKeys("https://youtu.be/" + youtubeId);
+            clickAndWaitReload(driver.findElement(By.cssSelector(".track-lookup button[type=submit]")), false);
+            WebElement form = driver.findElement(By.cssSelector("form.track-form"));
+            assertEquals(youtubeId, form.findElement(By.name("youtube_id")).getAttribute("value"), "the ID is read from the link");
+            form.findElement(By.cssSelector("input[name=song_mode][value=new]")).click();
+            WebElement name = form.findElement(By.name("song_name"));
+            name.clear();
+            name.sendKeys(songName);
+            form.findElement(By.name("year")).clear();
+            form.findElement(By.name("year")).sendKeys("2026");
+            form.findElement(By.name("spotify")).sendKeys("https://open.spotify.com/track/0123456789abcdefABCDEF?si=x");
+            form.findElement(By.name("lyrics")).sendKeys("první řádek\ndruhý řádek");
+            clickAndWaitReload(form.findElement(By.cssSelector("button[type=submit]")), false);
+
+            assertTrue(driver.getCurrentUrl().contains("/admin/song?uuid="), "the new song opens, got " + driver.getCurrentUrl());
+            assertEquals(songName, queryString("SELECT s.name FROM videos v JOIN songs s ON s.id = v.song_id WHERE v.youtube_id=?", youtubeId));
+            assertEquals("0123456789abcdefABCDEF", queryString("SELECT spotify_id FROM songs WHERE name=?", songName));
+            assertTrue(queryString("SELECT l.words FROM lyrics l JOIN songs s ON s.id = l.song_id WHERE s.name=? AND l.lang='cs'", songName).startsWith("první řádek"));
+        } finally {
+            update("DELETE l FROM lyrics l JOIN songs s ON s.id = l.song_id WHERE s.name=?", songName);
+            update("DELETE FROM videos WHERE youtube_id=?", youtubeId);
+            update("DELETE FROM songs WHERE name=?", songName);
+        }
+    }
+
+    @Test
+    @DisplayName("Quotes for the home page can be added, edited and deleted")
+    void quotesCanBeManaged() throws Exception {
+        String line = "IT citát " + uniq();
+        try {
+            driver.get(BASE_URL + "/admin/quotes");
+            WebElement add = driver.findElement(By.cssSelector("form.quote-form input[name=action][value=add]")).findElement(By.xpath("./ancestor::form"));
+            new Select(add.findElement(By.name("song_id"))).selectByIndex(1);
+            add.findElement(By.name("line1")).sendKeys("„" + line);
+            add.findElement(By.name("line2")).sendKeys("druhý řádek“");
+            clickAndWaitReload(add.findElement(By.cssSelector("button[type=submit]")), false);
+            assertEquals(line, queryString("SELECT line1 FROM home_quotes WHERE line1=?", line), "saved without the quotation marks");
+            int id = queryInt("SELECT id FROM home_quotes WHERE line1=?", line);
+
+            WebElement card = driver.findElement(By.id("q" + id));
+            WebElement l2 = card.findElement(By.name("line2"));
+            l2.clear();
+            l2.sendKeys("upravený řádek");
+            clickAndWaitReload(card.findElement(By.cssSelector("form.quote-form button[type=submit]")), false);
+            assertEquals("upravený řádek", queryString("SELECT line2 FROM home_quotes WHERE id=?", id));
+
+            card = driver.findElement(By.id("q" + id));
+            WebElement del = card.findElement(By.cssSelector("form.quote-delete button"));
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("window.confirm = () => true");
+            clickAndWaitReload(del, false);
+            assertFalse(exists("SELECT 1 FROM home_quotes WHERE id=?", id), "deleted");
+        } finally {
+            update("DELETE FROM home_quotes WHERE line1=?", line);
+        }
     }
 
     private void setRole(String username, String role) {

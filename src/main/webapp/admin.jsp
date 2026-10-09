@@ -124,8 +124,18 @@
       <p class="text-dim">Vlož nebo uprav text kterékoli písně (CS/EN/DE/UK/VI). Songy bez textu a klipy bez songu jsou v seznamu nahoře.</p>
       <a class="admin-btn primary" href="/admin/lyrics"><i class="fa-solid fa-align-left"></i> Otevřít editor textů</a>
     </section>
+    <section class="admin-card admin-link-card">
+      <h3>Přidat track z YouTube</h3>
+      <p class="text-dim">Vlož odkaz na klip – název, rok a náhled se načtou samy, doplníš Spotify, Apple Music a text a jedním tlačítkem je track na webu.</p>
+      <a class="admin-btn primary" href="/admin/track"><i class="fa-solid fa-plus"></i> Přidat track</a>
+    </section>
+    <section class="admin-card admin-link-card">
+      <h3>Citáty na úvodu</h3>
+      <p class="text-dim">Dva řádky z písně, které se na úvodní stránce vypálí. Přidej, uprav nebo smaž.</p>
+      <a class="admin-btn primary" href="/admin/quotes"><i class="fa-solid fa-quote-left"></i> Upravit citáty</a>
+    </section>
     <section class="admin-card admin-card-wide">
-      <h3>Přidat / upravit song a video</h3>
+      <h3>Přidat / upravit song a video ručně</h3>
       <p class="text-dim">Song, který není na tvém kanálu (feat, cizí kanál, jen Spotify…): vlož odkaz na video a název songu – objeví se v Diskografii. Bez odkazu se přidá song bez videa.</p>
       <form method="post" action="/admin/video" class="admin-form admin-form-cols">
         <input type="hidden" name="csrf" value="${csrf}">

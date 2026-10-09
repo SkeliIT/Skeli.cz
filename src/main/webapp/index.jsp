@@ -26,10 +26,12 @@
     <div class="hero-particles" aria-hidden="true"></div>
     <%-- first glance: two lines from one of Skeli's songs, another on every visit (table home_quotes) --%>
     <% if (quote != null) { %>
+    <%-- burnt in letter by letter by js/quote-burn.js (the plain text stays readable without it) --%>
     <a class="hero-quote" href="<%= com.github.skeliit.WebUtils.escapeHtml(quote.href) %>">
-      <span class="hero-quote-text">„<%= com.github.skeliit.WebUtils.escapeHtml(quote.line1) %><br><%= com.github.skeliit.WebUtils.escapeHtml(quote.line2) %>“</span>
-      <span class="hero-quote-song"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><%= com.github.skeliit.WebUtils.escapeHtml(quote.song) %></span>
+      <span class="hero-quote-text"><span class="hero-quote-line">„<%= com.github.skeliit.WebUtils.escapeHtml(quote.line1) %></span> <span class="hero-quote-line"><%= com.github.skeliit.WebUtils.escapeHtml(quote.line2) %>“</span></span>
+      <span class="hero-quote-song">— <%= com.github.skeliit.WebUtils.escapeHtml(quote.song) %></span>
     </a>
+    <script src="/js/quote-burn.js?v=<%= assetVersion %>"></script>
     <% } else { %>
     <p class="hero-kicker"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><%= t.getProperty("home.kicker") %></p>
     <% } %>

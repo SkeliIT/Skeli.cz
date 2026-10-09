@@ -11,6 +11,8 @@
   --font-display: var(--font-body);
   /* Paragraphs inside cards (user's pick): Oswald Light, has Cyrillic */
   --font-text: 'Oswald', 'Exo 2', system-ui, sans-serif;
+  /* The brush of the SKELOSQUAD sign, for the burnt-in quote on the home page */
+  --font-brush: 'Comforter Brush', 'Oswald', cursive;
 
   /* Type scale: h1 > h2 > h3 > h4 > body > card text > small */
   --fs-h1: clamp(1.9rem, 4.2vw, 2.7rem);

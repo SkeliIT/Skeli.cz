@@ -444,3 +444,29 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .art-zoom input[type="range"] { width: 220px; accent-color: var(--accent); }
 .art-zoom output { min-width: 4.5em; font-variant-numeric: tabular-nums; }
 .art-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+
+/* Add a track from YouTube */
+.track-lookup { grid-template-columns: 1fr auto; align-items: end; margin-bottom: 18px; }
+.admin-form textarea, .admin-form select { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: transparent; color: var(--text); font: inherit; }
+.admin-form select option { background: var(--bg); color: var(--text); }
+.track-preview { display: grid; grid-template-columns: 240px 1fr; gap: 16px; align-items: start; }
+.track-preview img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; }
+.track-song { display: grid; gap: 8px; border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px 14px; }
+.track-song legend { padding: 0 6px; color: var(--accent); }
+.admin-form .track-choice { display: flex; align-items: center; gap: 8px; }
+.track-new { display: grid; grid-template-columns: 1fr 120px; gap: 10px; padding-left: 24px; }
+.track-existing { margin-left: 24px; }
+@media (max-width: 700px) {
+  .track-lookup, .track-preview, .track-new { grid-template-columns: 1fr; }
+}
+
+.admin-title-btn { margin-left: 12px; font-size: var(--fs-card); vertical-align: middle; }
+/* Quotes on the home page */
+.quote-card { display: flex; gap: 12px; align-items: end; }
+.quote-card .quote-form { flex: 1; }
+.quote-form { grid-template-columns: 220px 1fr 1fr auto; align-items: end; }
+.quotes-count { margin: 22px 0 10px; }
+@media (max-width: 900px) {
+  .quote-card { flex-direction: column; align-items: stretch; }
+  .quote-form { grid-template-columns: 1fr; }
+}

@@ -147,47 +147,66 @@ body.light .cursor-light { opacity: 0; }
 .hero .hero-tagline { font-size: calc(var(--fs-h4) * 1.25); opacity: 1; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6); }
 body.light .hero .hero-tagline { text-shadow: 0 1px 10px rgba(255, 255, 255, 0.85); }
 
-/* two lines from a song above the big sign: the words in the text font, the song in gold under them */
+/* two lines from a song above the big sign, burnt in by an unseen laser (js/quote-burn.js):
+   white-hot while burning, then they cool to embers (dark) or stay as scorch marks (light) */
 .hero-quote {
+  --burn: #ffad5c;
+  --burn-glow: 0 0 5px rgba(255, 120, 30, .75), 0 0 16px rgba(255, 70, 0, .45), 0 0 34px rgba(255, 40, 0, .2);
+  --hot: 0 0 3px #fff, 0 0 9px #ffe08a, 0 0 20px #ff7a10;
+  position: relative;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  max-width: min(640px, 100%);
-  margin: 0 auto 26px;
-  color: var(--text);
+  gap: 4px;
+  max-width: min(900px, 100%);
+  text-align: center;
+  margin: 0 auto 22px;
+  color: var(--burn);
+  font-family: var(--font-brush);
   text-decoration: none;
 }
+body.light .hero-quote {
+  --burn: #2a1406;
+  --burn-glow: 0 0 1px rgba(90, 30, 0, .9), 0 0 6px rgba(200, 80, 10, .35), 0 0 14px rgba(255, 120, 30, .15);
+}
 .hero-quote:hover { text-decoration: none; }
-.hero-quote-text {
-  font-family: var(--font-text);
-  font-weight: 300;
-  font-size: 1.22rem;
-  line-height: 1.45;
-  text-wrap: balance;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.75);
-  transition: color .2s;
+.hero-quote-text, .hero-quote-song { display: block; text-shadow: var(--burn-glow); transform: rotate(-4deg); }
+.hero-quote-text { font-size: clamp(1.9rem, 3.4vw, 2.9rem); line-height: 1.12; text-wrap: balance; }
+.hero-quote-song { font-size: clamp(1.35rem, 2.2vw, 1.8rem); transform: rotate(-2deg); opacity: .9; }
+.hero-quote-line { display: block; }
+.hero-quote .qw { display: inline-block; white-space: nowrap; }
+.hero-quote:hover .hero-quote-text, .hero-quote:hover .hero-quote-song { filter: brightness(1.15); }
+/* the canvas for the hot spot, sparks and smoke reaches above the quote, so the smoke can rise */
+.hero-quote-fx { position: absolute; left: -40px; right: -40px; top: -90px; bottom: -20px; width: calc(100% + 80px); height: calc(100% + 110px); pointer-events: none; }
+/* while burning, every letter waits hidden and is uncovered from left to right */
+.hero-quote.is-burning .qc {
+  display: inline-block;
+  color: transparent;
+  text-shadow: none;
+  padding: .12em .015em .18em;
+  margin: -.12em -.015em -.18em;
+  -webkit-mask: linear-gradient(90deg, #000 var(--p), transparent calc(var(--p) + 22%));
+  mask: linear-gradient(90deg, #000 var(--p), transparent calc(var(--p) + 22%));
 }
-.hero-quote:hover .hero-quote-text { color: var(--accent); }
-.hero-quote-song {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 14px 5px 11px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-  background: color-mix(in srgb, var(--bg) 45%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: var(--accent);
-  font-size: var(--fs-small);
-  letter-spacing: 0.16em;
+.hero-quote.is-burning .qc.burning { color: #fffaf0; text-shadow: var(--hot); animation: qc-burn var(--d) linear forwards; }
+.hero-quote.is-burning .qc.burnt { -webkit-mask: none; mask: none; animation: qc-cool 2.2s ease-out forwards; }
+@property --p { syntax: '<percentage>'; inherits: false; initial-value: -20%; }
+@keyframes qc-burn { from { --p: -20%; } to { --p: 100%; } }
+@keyframes qc-cool {
+  0% { color: #fffaf0; text-shadow: var(--hot); }
+  35% { color: #ffd27a; text-shadow: 0 0 5px #ffb040, 0 0 16px #ff5a00, 0 0 30px rgba(255, 50, 0, .5); }
+  100% { color: var(--burn); text-shadow: var(--burn-glow); }
 }
-body.light .hero-quote-text { text-shadow: 0 1px 10px rgba(255, 255, 255, 0.9); }
+/* burnt: the embers keep glowing a little (dark theme only) */
+.hero-quote.is-burnt .qc { display: inline-block; animation: qc-ember 3.2s ease-in-out infinite alternate; animation-delay: calc(var(--i) * -97ms); }
+@keyframes qc-ember { from { filter: brightness(1); } to { filter: brightness(1.2); } }
+body.light .hero-quote.is-burnt .qc { animation: none; }
 @media (max-width: 600px) {
-  .hero-quote { gap: 8px; margin-bottom: 18px; padding: 0 6px; }
-  .hero-quote-text { font-size: 1rem; line-height: 1.4; }
+  .hero-quote { margin-bottom: 14px; padding: 0 6px; }
+  .hero-quote-text { font-size: 1.65rem; }
+  .hero-quote-song { font-size: 1.25rem; }
 }
+@media (prefers-reduced-motion: reduce) { .hero-quote.is-burnt .qc { animation: none; } }
 
 /* equalizer bars */
 .eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
