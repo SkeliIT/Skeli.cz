@@ -300,19 +300,33 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   body.light .site-header { background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0)); }
   .site-header:not(.scrolled) .brand { opacity: 1; visibility: visible; transform: none; }
   .header-inner { display: flex; gap: 12px; padding: 0 14px; }
-  .top-controls { margin-left: auto; }
+  /* the bar keeps only the sign and Menu; the controls are inside the menu (.nav-settings, .nav-account) */
+  .top-controls { display: none; }
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font: 400 var(--fs-card)/1 var(--font-body);
+    box-shadow: 0 8px 22px -10px rgba(0, 0, 0, 0.6);
+  }
+  .menu-toggle[aria-expanded="true"] { background: var(--panel-strong); color: var(--text); border: 1px solid var(--accent); }
   .site-header .brand .squad-mark { height: 38px; }
   .donate-link { display: none; }
 
-  /* opened from the Menu tab: a sheet just above the bottom bar (effects.css) */
+  /* opened from Menu: a sheet under the bar */
   .main-nav {
     display: none;
     position: fixed;
-    top: auto;
-    bottom: calc(var(--tabbar-h) + 12px + env(safe-area-inset-bottom));
+    top: calc(var(--header-h) + 6px);
     left: 12px;
     right: 12px;
-    max-height: calc(100vh - var(--tabbar-h) - 90px);
+    max-height: calc(100vh - var(--header-h) - 24px);
     overflow-y: auto;
     flex-direction: column;
     gap: 2px;
@@ -332,13 +346,8 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
 }
 
 .nav-settings { display: none; }
-
-/* Phone: the bar keeps logo, account and Menu; bold/theme/language move into the menu */
-@media (max-width: 600px) {
-  .top-controls > #fontToggle,
-  .top-controls > #themeToggle,
-  .top-controls > .lang-switch { display: none; }
-
+/* Phones and tablets: bold, theme, language and the account at the bottom of the menu */
+@media (max-width: 1024px) {
   .main-nav .nav-settings {
     display: flex;
     align-items: center;
@@ -347,7 +356,9 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     padding: 12px 6px 4px;
     border-top: 1px solid var(--panel-border);
   }
-  .nav-langs { display: flex; gap: 4px; margin-left: auto; }
+  .main-nav .nav-settings { flex-wrap: wrap; }
+  /* the languages get a row of their own under bold and theme */
+  .nav-langs { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 100%; }
   .main-nav .nav-langs a {
     display: inline-flex;
     align-items: center;
@@ -358,13 +369,24 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     opacity: 0.7;
   }
   .main-nav .nav-langs a.active { opacity: 1; color: var(--accent); background: var(--accent-soft); }
+  .main-nav .nav-account { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--panel-border); }
+  .main-nav .nav-account i { width: 20px; color: var(--accent); }
+  .main-nav .nav-account .nav-register { color: var(--accent); }
+  .main-nav .nav-user { color: var(--text-dim); }
+  .main-nav .logout-form button {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.95rem;
+  }
 }
-
-@media (max-width: 480px) {
-  .bold-btn { display: none; }
-  .top-controls { gap: 4px; }
-  .icon-btn, .auth-link { width: 34px; height: 34px; }
-}
+.nav-account { display: none; }
 
 /* ---------- Buttons ---------- */
 /* :where() keeps specificity at zero, so any component class overrides these */

@@ -49,7 +49,6 @@
   --shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.65);
   --header-h: 68px;
   --masthead-h: 94px;  /* big centred sign above the menu (desktop only) */
-  --tabbar-h: 0px;     /* bottom bar on phones/tablets (effects.css) */
   --container: 1180px;
   --fw: 400;
 }
@@ -267,7 +266,7 @@ main:focus { outline: none; }
   main { padding: 24px 16px 120px; }
 }
 /* room for the bottom bar on phones/tablets */
-main { padding-bottom: calc(120px + var(--tabbar-h)); }
+main { padding-bottom: 120px; }
 
 /* "B" button in the header: easier reading. Bruno Ace SC has one weight, so the
    browser may synthesize the bold here; everything also grows a little. */
