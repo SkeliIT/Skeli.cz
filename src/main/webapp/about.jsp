@@ -55,7 +55,7 @@
     <div class="gallery-grid">
       <% String[][] photos = {
            {"point", "wide"}, {"skull", "tall"}, {"street", "wide"}, {"field", "tall"},
-           {"rocks", "wide"}, {"square", "wide"}, {"mask", "wide"} };
+           {"rocks", "wide"}, {"square", "wide"}, {"walker", "wide"} };
          for (String[] ph : photos) { %>
       <a class="gallery-item <%= ph[1] %>" href="/img/photos/<%= ph[0] %>-lg.webp" data-lightbox="about">
         <img src="/img/photos/<%= ph[0] %>-sm.webp" alt="<%= t.getProperty("about.photo.alt") %>" loading="lazy">
