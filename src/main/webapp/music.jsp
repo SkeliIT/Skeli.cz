@@ -10,6 +10,7 @@
   <section class="section youtube">
     <h3 class="section-title"><span class="ico"><i class="fab fa-youtube icon-youtube"></i></span> <%= t.getProperty("music.videos") %></h3>
     <jsp:include page="/elliptic" flush="true" />
+    <script src="/js/clip-fx.js?v=<%= assetVersion %>"></script>
   </section>
 
   <section class="discography" data-reveal>

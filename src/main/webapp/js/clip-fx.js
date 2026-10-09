@@ -1,4 +1,4 @@
-/* Water and fire around the clip on the song page: blue water flows out of the left of the
+/* Water and fire around a clip (song page and the Music page's player): blue water flows out of the left of the
    video, fire out of the right, they meet under it, and everything fades out at an invisible
    ellipse round the video (never above it). It swells with the music: bass at the bottom,
    treble up the sides.
@@ -11,9 +11,11 @@
 
    Switch: Full / Soft / Off (remembered in this browser); reduced motion = soft and slow. */
 (function () {
-  var stage = document.querySelector('.lyric-stage');
-  var player = document.getElementById('ytFacade');
-  if (!stage || !player || stage.dataset.fx) return;
+  // the page marks the room for the effect [data-clip-fx] and the player in it [data-clip-player];
+  // the player says which clip it shows in data-yt
+  var stage = document.querySelector('[data-clip-fx]');
+  var player = stage && stage.querySelector('[data-clip-player]');
+  if (!player || stage.dataset.fx) return;
   stage.dataset.fx = '1';
   var glCanvas = stage.querySelector('.clip-fx-gl'), cv = stage.querySelector('.clip-fx-2d');
   var gl = glCanvas && glCanvas.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false });
@@ -66,11 +68,12 @@
   loadClip(player.getAttribute('data-yt'));
 
   // ---------- where the player is: it reports its time and state by postMessage ----------
-  var playing = false, base = 0, baseAt = 0, frame = null, hello = null;
+  var playing = false, base = 0, baseAt = 0, frame = null, frameSrc = null, hello = null;
   function listen() {
-    var f = player.querySelector('iframe');
-    if (f !== frame) {
-      frame = f; playing = false; base = 0; baseAt = performance.now();
+    var f = player.querySelector('iframe[src]');
+    if (f && !f.getAttribute('src')) f = null;
+    if (f !== frame || (f && f.src !== frameSrc)) {
+      frame = f; frameSrc = f && f.src; playing = false; base = 0; baseAt = performance.now();
       clearInterval(hello);
       if (frame) {
         loadClip(player.getAttribute('data-yt'));
@@ -82,7 +85,7 @@
       }
     }
   }
-  new MutationObserver(listen).observe(player, { childList: true, attributes: true, attributeFilter: ['data-yt'] });
+  new MutationObserver(listen).observe(player, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-yt', 'src'] });
   window.addEventListener('message', function (e) {
     if (!frame || e.source !== frame.contentWindow || !/youtube(-nocookie)?\.com$/.test(e.origin.replace(/^https?:\/\/(www\.)?/, ''))) return;
     var m; try { m = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (er) { return; }

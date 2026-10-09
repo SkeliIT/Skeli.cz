@@ -58,7 +58,7 @@
 
       <%-- the clip on its own wide stage above the lyrics; water and fire flow out of it with the music (js/clip-fx.js) --%>
       <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
-      <section class="lyric-stage${not empty lyric.youtubeId ? ' has-fx' : ''}">
+      <section class="clip-stage lyric-stage${not empty lyric.youtubeId ? ' has-fx' : ''}"${not empty lyric.youtubeId ? ' data-clip-fx' : ''}>
       <c:if test="${not empty lyric.youtubeId}"><canvas class="clip-fx-gl" aria-hidden="true"></canvas><canvas class="clip-fx-2d" aria-hidden="true"></canvas></c:if>
       <div class="lyric-media">
       <c:choose>
@@ -79,7 +79,7 @@
         </div>
         <% } %>
         <div class="content-box video-box">
-          <div class="video-wrapper" id="ytFacade" data-yt="<c:out value='${lyric.youtubeId}'/>">
+          <div class="video-wrapper" id="ytFacade" data-clip-player data-yt="<c:out value='${lyric.youtubeId}'/>">
             <button type="button" class="yt-facade" aria-label="<%= t.getProperty("lyric.openYoutube","Přehrát video") %>">
               <c:choose>
                 <c:when test="${not empty lyric.previewImageUrl}">

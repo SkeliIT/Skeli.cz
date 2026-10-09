@@ -55,33 +55,37 @@ public class EllipticPlayerServlet extends HttpServlet {
                 String __csrfToken = CsrfFilter.token(req.getSession());
                 // Elliptic player styles are defined in external CSS under src/main/webapp/css/pages.css.
 
-                // HTML structure
+                // HTML structure: the clip on a wide stage (water and fire round it, js/clip-fx.js loaded by
+                // music.jsp), the carousel under it, the comments under that
                 out.println("<div class='ep-wrap'>");
-                out.println("  <div class='ep-layout'>");
-                out.println("    <div class='ep-left'>");
-                out.println("      <div class='ep-frame-wrap'>");
-                out.println("        <div id='ep-poster' class='ep-poster' hidden></div>");
-                out.println(
-                                "        <iframe id='ep-main' allow='autoplay; encrypted-media; picture-in-picture' allowfullscreen></iframe>");
-                out.println("      </div>");
-                out.println("      <div class='ep-carousel'>");
-                out.println("        <button class='ep-arrow' id='ep-prev' aria-label='" + WebUtils.escapeHtml(tr.getProperty("player.prev")) + "'>‹</button>");
-                out.println("        <div class='ep-viewport' id='ep-viewport'></div>");
-                out.println("        <button class='ep-arrow' id='ep-next' aria-label='" + WebUtils.escapeHtml(tr.getProperty("player.next")) + "'>›</button>");
-                out.println("      </div>");
+                out.println("  <section class='clip-stage ep-stage has-fx' data-clip-fx>");
+                out.println("    <canvas class='clip-fx-gl' aria-hidden='true'></canvas><canvas class='clip-fx-2d' aria-hidden='true'></canvas>");
+                out.println("    <div class='ep-frame-wrap' data-clip-player>");
+                out.println("      <div id='ep-poster' class='ep-poster' hidden></div>");
+                out.println("      <iframe id='ep-main' allow='autoplay; encrypted-media; picture-in-picture' allowfullscreen></iframe>");
                 out.println("    </div>");
-                out.println("    <aside class='ep-comments'>");
-                out.println(
-                                "      <h4 class='ep-comments-title'>" + WebUtils.escapeHtml(tr.getProperty("comments.title")) + "</h4>");
-                out.println("      <div id='ep-comments-list' class='ep-comments-list'></div>");
-                out.println("      <form id='ep-comment-form' class='ep-comment-form'>");
-                out.println(
-                                "        <textarea id='ep-comment-text' rows='3' placeholder='" + WebUtils.escapeHtml(tr.getProperty("comment.placeholder")) + "'></textarea>");
-                out.println(
-                                "        <button type='submit'>" + WebUtils.escapeHtml(tr.getProperty("common.send")) + "</button>");
-                out.println("      </form>");
-                out.println("    </aside>");
+                out.println("    <div class='clip-fx-switch' role='group' aria-label='" + WebUtils.escapeHtml(tr.getProperty("clipfx.label")) + "'>");
+                out.println("      <span class='clip-fx-name'><i class='fa-solid fa-fire-flame-curved' aria-hidden='true'></i> <span class='clip-fx-label'>"
+                                + WebUtils.escapeHtml(tr.getProperty("clipfx.label")) + "</span></span>");
+                for (String mode : new String[] { "on", "soft", "off" }) {
+                        out.println("      <button type='button' data-mode='" + mode + "' aria-pressed='" + mode.equals("on") + "'>"
+                                        + WebUtils.escapeHtml(tr.getProperty("clipfx." + mode)) + "</button>");
+                }
+                out.println("    </div>");
+                out.println("  </section>");
+                out.println("  <div class='ep-carousel'>");
+                out.println("    <button class='ep-arrow' id='ep-prev' aria-label='" + WebUtils.escapeHtml(tr.getProperty("player.prev")) + "'>‹</button>");
+                out.println("    <div class='ep-viewport' id='ep-viewport'></div>");
+                out.println("    <button class='ep-arrow' id='ep-next' aria-label='" + WebUtils.escapeHtml(tr.getProperty("player.next")) + "'>›</button>");
                 out.println("  </div>");
+                out.println("  <section class='ep-comments'>");
+                out.println("    <h4 class='ep-comments-title'>" + WebUtils.escapeHtml(tr.getProperty("comments.title")) + "</h4>");
+                out.println("    <form id='ep-comment-form' class='ep-comment-form'>");
+                out.println("      <textarea id='ep-comment-text' rows='3' placeholder='" + WebUtils.escapeHtml(tr.getProperty("comment.placeholder")) + "'></textarea>");
+                out.println("      <button type='submit'>" + WebUtils.escapeHtml(tr.getProperty("common.send")) + "</button>");
+                out.println("    </form>");
+                out.println("    <div id='ep-comments-list' class='ep-comments-list'></div>");
+                out.println("  </section>");
                 out.println("</div>");
 
                 // JavaScript logic
@@ -142,6 +146,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("}");
 
                 out.println("function play(id, autoplay){");
+                out.println("  frame.parentElement.dataset.yt = id;");
                 out.println("  const video = videos.find(v => v.id === id) || videos[currentIndex];");
                 out.println("  const ap = autoplay ? 1 : 0;");
                 // without consent to third-party content (cookie bar) the player waits behind its
@@ -164,16 +169,12 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("  updateUI();");
                 out.println("  play(videos[currentIndex].id, autoplay);");
                 out.println("  loadComments(videos[currentIndex].id);");
-                out.println("  syncAsideHeight();");
                 out.println("}");
 
                 out.println(
                                 "document.getElementById('ep-prev').addEventListener('click', () => goTo(currentIndex - 1, true));");
                 out.println(
                                 "document.getElementById('ep-next').addEventListener('click', () => goTo(currentIndex + 1, true));");
-                out.println(
-                                "function syncAsideHeight(){ try{ if(window.innerWidth < 800) { const aside=document.querySelector('.ep-comments'); if(aside) aside.style.height='auto'; return; } const layout=document.querySelector('.ep-layout'); const frame=document.querySelector('.ep-frame-wrap'); const car=document.querySelector('.ep-carousel'); const aside=document.querySelector('.ep-comments'); if(!layout||!frame||!car||!aside) return; const cs=getComputedStyle(layout); const g=parseFloat(cs.rowGap||cs.gap||'0')||0; const mt=parseFloat(getComputedStyle(car).marginTop)||0; const h = frame.getBoundingClientRect().height + mt + car.getBoundingClientRect().height + g; aside.style.height = Math.round(h) + 'px'; }catch(e){} }");
-                out.println("window.addEventListener('resize', syncAsideHeight);");
 
                 out.println("// Keyboard navigation");
                 out.println("document.addEventListener('keydown', (e) => {");

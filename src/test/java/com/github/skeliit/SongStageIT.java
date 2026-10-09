@@ -54,4 +54,19 @@ class SongStageIT extends UiTestSupport {
         String src = driver.findElement(By.cssSelector("#ytFacade iframe")).getAttribute("src");
         assertTrue(src.contains("enablejsapi=1"), "the player reports where it is, got " + src);
     }
+
+    @Test
+    void musicPagePlayerHasTheEffectToo() {
+        driver.get(BASE_URL + "/music.jsp");
+        WebElement stage = driver.findElement(By.cssSelector(".ep-stage[data-clip-fx]"));
+        assertEquals(2, stage.findElements(By.tagName("canvas")).size());
+        new WebDriverWait(driver, Duration.ofSeconds(5)).until(d -> "1".equals(stage.getAttribute("data-fx")));
+        assertFalse(stage.getAttribute("class").contains("no-fx"));
+        String clip = driver.findElement(By.cssSelector(".ep-frame-wrap[data-clip-player]")).getAttribute("data-yt");
+        assertTrue(clip != null && clip.matches("[A-Za-z0-9_-]{6,20}"), "the player tells the effect its clip, got " + clip);
+        // the comments sit under the carousel now, not beside the video
+        Number carouselBottom = (Number) ((JavascriptExecutor) driver).executeScript("return document.querySelector('.ep-carousel').getBoundingClientRect().bottom");
+        Number commentsTop = (Number) ((JavascriptExecutor) driver).executeScript("return document.querySelector('.ep-comments').getBoundingClientRect().top");
+        assertTrue(commentsTop.doubleValue() >= carouselBottom.doubleValue(), "comments come after the carousel");
+    }
 }
