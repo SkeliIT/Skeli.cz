@@ -24,7 +24,7 @@
        night shots in the dark theme, daylight ones in the light theme (js/effects.js).
        name:position[:wide] – "wide" = a 16:9 version of a portrait photo for landscape screens --%>
   <div class="bg-slides" aria-hidden="true"
-       data-dark="skull:center:wide,mic:45% 30%,square:center 55%"
+       data-dark="skull:center:wide,mic:45% 30%,square:center 55%,mask:54% 30%"
        data-light="field:center:wide,point:center 35%"></div>
   <section class="hero">
     <div class="hero-particles" aria-hidden="true"></div>
