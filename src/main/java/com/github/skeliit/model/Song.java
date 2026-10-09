@@ -29,6 +29,27 @@ public class Song {
         if (youtubeId != null && youtubeId.matches("[A-Za-z0-9_-]{6,20}")) return "/yt-thumb/" + youtubeId + "/mqdefault.jpg";
         return com.github.skeliit.WebUtils.safeUrl(previewImageUrl, null);
     }
+    /** The picture's place in the Texty row, set in admin (null = automatic): x = shift in % of the
+     *  row's picture area (−400…400), y = the point of the picture (% of its height, −200…300) that sits
+     *  on the row's 45 % line, the same on a computer and a phone; zoom 0.25–3 compared with "as wide
+     *  as the area". */
+    public Double artX, artY, artZoom;
+    public Double getArtX() { return artX; }
+    public Double getArtY() { return artY; }
+    public Double getArtZoom() { return artZoom; }
+    public String getArtStyle() { return artStyle(artX, artY, artZoom); }
+
+    /** CSS variables for .song-row-art img, or "" when the picture is placed automatically. */
+    public static String artStyle(Double x, Double y, Double zoom) {
+        if (x == null || y == null || zoom == null) return "";
+        return String.format(java.util.Locale.ROOT, "--tx:%.2f;--py:%.2f;--az:%.3f",
+                clamp(x, -400, 400), clamp(y, -200, 300), clamp(zoom, 0.25, 3));
+    }
+
+    public static double clamp(double v, double min, double max) {
+        return Double.isNaN(v) ? min : Math.max(min, Math.min(max, v));
+    }
+
     /** The name without the artist and features, for the song bar and the previous / next links. */
     public String getShortName() { return SongTitle.of(name).title; }
 

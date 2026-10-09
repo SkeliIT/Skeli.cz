@@ -12,9 +12,9 @@
   </sk:pageHero>
   <section class="news-feed">
     <div id="social-feed" class="news-grid"></div>
-    <div id="feed-empty" class="empty-note" style="display:none;"><%= t.getProperty("news.empty") %></div>
+    <div id="feed-empty" class="empty-note" hidden><%= t.getProperty("news.empty") %></div>
     <div class="news-more">
-      <button id="load-more" type="button" class="btn" style="display:none;"><%= t.getProperty("news.loadMore") %></button>
+      <button id="load-more" type="button" class="btn" hidden><%= t.getProperty("news.loadMore") %></button>
     </div>
   </section>
 <script>
@@ -35,7 +35,7 @@
     round++;
     offset = 0; done = false; loading = false;
     feed.innerHTML = '';
-    empty.style.display = 'none';
+    empty.hidden = true;
     load();
   });
 
@@ -83,14 +83,14 @@
       if (mine !== round) return;
       if (!Array.isArray(arr) || arr.length === 0) {
         done = true;
-        btn.style.display = 'none';
-        if (offset === 0) { empty.style.display = ''; }
+        btn.hidden = true;
+        if (offset === 0) { empty.hidden = false; }
         return;
       }
       feed.insertAdjacentHTML('beforeend', arr.map(card).join(''));
       offset += arr.length;
-      if (arr.length < PAGE) { done = true; btn.style.display = 'none'; }
-      else { btn.style.display = ''; }
+      if (arr.length < PAGE) { done = true; btn.hidden = true; }
+      else { btn.hidden = false; }
     } catch(e) {
       done = true;
     } finally {

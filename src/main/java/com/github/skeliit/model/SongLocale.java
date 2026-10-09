@@ -8,7 +8,6 @@ public class SongLocale {
     public String words;
     public String seoSlug;
     public String metaDescription;
-    public String timedLyrics;
 
     public int getId() { return id; }
     public int getSongId() { return songId; }
@@ -16,9 +15,7 @@ public class SongLocale {
     public String getWords() { return words; }
     public String getSeoSlug() { return seoSlug; }
     public String getMetaDescription() { return metaDescription; }
-    public String getTimedLyrics() { return timedLyrics; }
 
-    public boolean isHasWords() { return words != null && !words.isBlank(); }
 
     public String publicPath(String songUuid) {
         String slug = seoSlug != null && !seoSlug.isBlank() ? seoSlug.trim() : songUuid;

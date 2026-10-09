@@ -1,5 +1,6 @@
 package com.github.skeliit;
 
+import com.github.skeliit.security.Tokens;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -305,7 +306,7 @@ public class CommentsIT extends UiTestSupport {
         int id = insertUser("ev" + uniq(), "USER");
         String token = "tok" + uniq() + uniq();
         update("UPDATE users SET email_verified_at=NULL, verify_token_hash=?, verify_expires_at=DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE id=?",
-                ResetPasswordServlet.hashToken(token), id);
+                Tokens.hash(token), id);
 
         driver.get(BASE_URL + "/verify?token=" + token);
         waitReady();

@@ -16,7 +16,7 @@
       <div class="form-success"><%= t.getProperty("reset.success") %></div>
       <% } %>
       <form method="post" action="login">
-        <% String nextParam = com.github.skeliit.LoginServlet.safeNext(request.getParameter("next")); if (nextParam != null) { %><input type="hidden" name="next" value="<%= com.github.skeliit.WebUtils.escapeHtml(nextParam) %>"><% } %>
+        <% String nextParam = com.github.skeliit.web.auth.LoginServlet.safeNext(request.getParameter("next")); if (nextParam != null) { %><input type="hidden" name="next" value="<%= com.github.skeliit.WebUtils.escapeHtml(nextParam) %>"><% } %>
         <input type="hidden" name="csrf" value="<%= request.getAttribute("csrf") != null ? request.getAttribute("csrf") : "" %>">
         <label><%= t.getProperty("auth.label.login") %><br>
           <input type="text" name="username" required value="<%= com.github.skeliit.WebUtils.escapeHtml(request.getAttribute("username")) %>" autocomplete="username"></label>

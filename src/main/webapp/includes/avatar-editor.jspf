@@ -1,0 +1,35 @@
+<%@ page pageEncoding="UTF-8" %>
+<%-- The profile photo editor (settings and profile page): preview, crop with Cropper.js, save.
+     js/avatar-editor.js works with these ids; the texts it shows come from the data-msg-* attributes. --%>
+<h3><%= t.getProperty("avatar.title") %></h3>
+<div class="avatar-edit-wrap">
+  <div id="avatar-preview" class="avatar-preview-box">
+    <img id="avatar-preview-img" src="<%= session.getAttribute("avatar_url") != null ? com.github.skeliit.WebUtils.escapeHtml(session.getAttribute("avatar_url")) : "/img/avatar-default.svg" %>" alt="">
+  </div>
+  <div class="avatar-controls">
+    <input id="avatar-input" type="file" accept="image/*"
+           data-msg-huge="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.tooLarge")) %>"
+           data-msg-format="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.badFormat")) %>"
+           data-msg-preparing="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.preparing")) %>"
+           data-msg-saved="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saved")) %>"
+           data-msg-failed="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saveFailed")) %>"
+           data-msg-signed-out="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.signedOut")) %>"
+           data-msg-network="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("common.networkError")) %>">
+    <div id="cropper-wrap" class="avatar-crop-wrap">
+      <img id="cropper-img" alt="">
+      <div id="cropper-overlay" class="avatar-crop-ring"></div>
+    </div>
+    <div class="avatar-btns">
+      <button id="btn-auto-face" type="button" class="control-btn"><i class="fa-solid fa-user"></i> <%= t.getProperty("avatar.autoCenter") %></button>
+      <button id="btn-zoom-in" type="button" class="control-btn">+</button>
+      <button id="btn-zoom-out" type="button" class="control-btn">−</button>
+      <button id="btn-crop-save" type="button" class="control-btn btn-outline push"><i class="fa-solid fa-floppy-disk"></i> <%= t.getProperty("common.save") %></button>
+      <button id="btn-cancel" type="button" class="control-btn btn-outline"><%= t.getProperty("common.cancel") %></button>
+    </div>
+    <p class="form-note avatar-tip"><%= t.getProperty("avatar.tip") %></p>
+  </div>
+</div>
+<form id="avatar-form" method="post" action="/profile/avatar" enctype="multipart/form-data" hidden>
+  <input type="hidden" name="csrf" value="${csrf}">
+  <input id="avatar-file-hidden" type="file" name="avatar" accept="image/*">
+</form>

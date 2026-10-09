@@ -3,20 +3,15 @@ package com.github.skeliit;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 
+/** Registers the MariaDB driver when the site starts and closes the connection pool when it stops. */
 public class DbInit implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try {
+            // the container's DriverManager does not always see a driver inside the web app
             Class.forName("org.mariadb.jdbc.Driver");
-            System.out.println("[DbInit] Loaded org.mariadb.jdbc.Driver");
-        } catch (Throwable t) {
-            System.out.println("[DbInit] MariaDB driver not found: " + t.getMessage());
-        }
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            System.out.println("[DbInit] Loaded com.mysql.cj.jdbc.Driver");
-        } catch (Throwable t) {
-            System.out.println("[DbInit] MySQL driver not found: " + t.getMessage());
+        } catch (ClassNotFoundException e) {
+            sce.getServletContext().log("MariaDB driver not found", e);
         }
     }
 

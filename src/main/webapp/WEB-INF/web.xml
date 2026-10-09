@@ -15,171 +15,11 @@
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
+    <!-- Servlets are registered in their classes (@WebServlet); here only what needs an order
+         (DbInit first, the filters) or has no annotation (error pages, the session cookie). -->
     <listener>
         <listener-class>com.github.skeliit.DbInit</listener-class>
     </listener>
-
-    <servlet>
-        <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>com.github.skeliit.LoginServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>LoginServlet</servlet-name>
-        <url-pattern>/login</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>LogoutServlet</servlet-name>
-        <servlet-class>com.github.skeliit.LogoutServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>LogoutServlet</servlet-name>
-        <url-pattern>/logout</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>RegisterServlet</servlet-name>
-        <servlet-class>com.github.skeliit.RegisterServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>RegisterServlet</servlet-name>
-        <url-pattern>/register</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>CommentsServlet</servlet-name>
-        <servlet-class>com.github.skeliit.CommentsServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>CommentsServlet</servlet-name>
-        <url-pattern>/comment</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>VotesServlet</servlet-name>
-        <servlet-class>com.github.skeliit.VotesServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>VotesServlet</servlet-name>
-        <url-pattern>/vote</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>ForgotPasswordServlet</servlet-name>
-        <servlet-class>com.github.skeliit.ForgotPasswordServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ForgotPasswordServlet</servlet-name>
-        <url-pattern>/forgot</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>ResetPasswordServlet</servlet-name>
-        <servlet-class>com.github.skeliit.ResetPasswordServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ResetPasswordServlet</servlet-name>
-        <url-pattern>/reset</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>YouTubeSyncServlet</servlet-name>
-        <servlet-class>com.github.skeliit.YouTubeSyncServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>YouTubeSyncServlet</servlet-name>
-        <url-pattern>/admin/sync</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>AdminVideoServlet</servlet-name>
-        <servlet-class>com.github.skeliit.AdminVideoServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>AdminVideoServlet</servlet-name>
-        <url-pattern>/admin/video</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>AdminCommentServlet</servlet-name>
-        <servlet-class>com.github.skeliit.AdminCommentServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>AdminCommentServlet</servlet-name>
-        <url-pattern>/admin/comment</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>LyricRouterServlet</servlet-name>
-        <servlet-class>com.github.skeliit.LyricRouterServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>LyricRouterServlet</servlet-name>
-        <url-pattern>/lyrics/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>AdminUserServlet</servlet-name>
-        <servlet-class>com.github.skeliit.AdminUserServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>AdminUserServlet</servlet-name>
-        <url-pattern>/admin/users</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>EllipticPlayerServlet</servlet-name>
-        <servlet-class>com.github.skeliit.EllipticPlayerServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>EllipticPlayerServlet</servlet-name>
-        <url-pattern>/elliptic</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>UserProfileServlet</servlet-name>
-        <servlet-class>com.github.skeliit.UserProfileServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>UserProfileServlet</servlet-name>
-        <url-pattern>/profile/update</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>ProfileExportServlet</servlet-name>
-        <servlet-class>com.github.skeliit.ProfileExportServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ProfileExportServlet</servlet-name>
-        <url-pattern>/profile/export</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>ProfileDeleteServlet</servlet-name>
-        <servlet-class>com.github.skeliit.ProfileDeleteServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ProfileDeleteServlet</servlet-name>
-        <url-pattern>/profile/delete</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>VideoCommentServlet</servlet-name>
-        <servlet-class>com.github.skeliit.VideoCommentServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>VideoCommentServlet</servlet-name>
-        <url-pattern>/video-comment</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>ChangePasswordServlet</servlet-name>
-        <servlet-class>com.github.skeliit.ChangePasswordServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ChangePasswordServlet</servlet-name>
-        <url-pattern>/profile/change-password</url-pattern>
-    </servlet-mapping>
 
     <error-page>
         <error-code>403</error-code>
@@ -202,7 +42,7 @@
     <!-- first: redirects stay on https behind Apache (see the class) -->
     <filter>
         <filter-name>RelativeRedirectFilter</filter-name>
-        <filter-class>com.github.skeliit.RelativeRedirectFilter</filter-class>
+        <filter-class>com.github.skeliit.filter.RelativeRedirectFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>RelativeRedirectFilter</filter-name>
@@ -213,7 +53,7 @@
     <!-- second: old sign-ins cut off by a password change etc. end before anything checks the user (AdminFilter) -->
     <filter>
         <filter-name>SessionValidityFilter</filter-name>
-        <filter-class>com.github.skeliit.SessionValidityFilter</filter-class>
+        <filter-class>com.github.skeliit.filter.SessionValidityFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SessionValidityFilter</filter-name>
@@ -221,21 +61,19 @@
     </filter-mapping>
     <filter>
         <filter-name>AdminFilter</filter-name>
-        <filter-class>com.github.skeliit.AdminFilter</filter-class>
+        <filter-class>com.github.skeliit.filter.AdminFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>AdminFilter</filter-name>
         <url-pattern>/admin/*</url-pattern>
         <url-pattern>/admin.jsp</url-pattern>
-        <url-pattern>/admin_newsletter.jsp</url-pattern>
-        <url-pattern>/admin_songs.jsp</url-pattern>
         <url-pattern>/admin_users.jsp</url-pattern>
     </filter-mapping>
 
     <!-- CSRF protection for every state-changing request (see CsrfFilter for exemptions) -->
     <filter>
         <filter-name>CsrfFilter</filter-name>
-        <filter-class>com.github.skeliit.CsrfFilter</filter-class>
+        <filter-class>com.github.skeliit.filter.CsrfFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CsrfFilter</filter-name>
@@ -251,13 +89,4 @@
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
 
-    <!-- MVC Controllers -->
-    <servlet>
-        <servlet-name>MusicController</servlet-name>
-        <servlet-class>com.github.skeliit.web.MusicController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>MusicController</servlet-name>
-        <url-pattern>/music</url-pattern>
-    </servlet-mapping>
 </web-app>

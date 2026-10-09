@@ -15,7 +15,7 @@
   boolean admin = "ADMIN".equals(session.getAttribute("role"));
   boolean canEdit = mine || admin;
   boolean canReport = me != null && !mine;
-  String csrf = com.github.skeliit.CsrfFilter.token(session);
+  String csrf = com.github.skeliit.filter.CsrfFilter.token(session);
   String max = String.valueOf(com.github.skeliit.WebUtils.COMMENT_MAX_LENGTH);
 %>
 <div class="comment-item<%= Boolean.TRUE.equals(isReply) ? " comment-reply" : "" %>" id="comment-<%= cmt.id %>">

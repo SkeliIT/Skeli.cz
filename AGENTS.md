@@ -1,86 +1,31 @@
-# WARP.md
+# AGENTS.md
 
-This file provides guidance to WARP (warp.dev) when working with code in this repository.
+Guidance for coding agents working in this repository. The full, current description (setup,
+configuration, tests, deployment) is in `README.md` (Czech); this file only lists the rules that
+are easy to get wrong.
 
-Project overview
-- Maven WAR-based JSP web app served via Jetty (configured in pom.xml).
-- Views: JSPs under src/main/webapp with simple includes (header.jsp, footer.jsp); static assets in src/main/webapp/css and src/main/webapp/img.
-- Database migrations: Flyway SQL scripts in src/main/resources/db/migration targeting MySQL. Naming follows V{version}__Description.sql.
+## Project
+- Java 21+ (`release 21`), Jakarta Servlet + JSP (`jakarta.*`, never `javax.*`), Jetty 11, MariaDB,
+  Flyway, Maven WAR. Run locally with `mvn flyway:migrate` and `mvn jetty:run` (port 8080).
+- Servlets register themselves with `@WebServlet`; `WEB-INF/web.xml` holds only what needs an order
+  or has no annotation (DbInit listener, the filters, error pages, the session cookie).
+- Branch `main` deploys to test.skeli.cz, `production` to www.skeli.cz (`.github/workflows/deploy.yml`
+  + `deploy/remote-deploy.sh`: migrations before the restart, smoke test, roll back on failure).
 
-Key commands
-Prerequisites: Java (JDK) and Maven installed; MySQL available as configured in pom.xml.
+## Rules
+- Database changes = a new `src/main/resources/db/migration/V{next}__description.sql`. Never edit a
+  migration that has been deployed. The test database is never copied to production.
+- Every visible text goes through `WEB-INF/i18n/messages_{cs,en,de,uk,vi}.properties` with the same
+  keys in all five files (`I18nTest` checks it). Song lyrics and titles are translated too.
+- Colours, fonts and sizes come from the variables in `css/base.css`; check light and dark theme and
+  a phone. After a CSS or JS change raise `assetVersion` in `includes/header.jsp`.
+- Escape output (`WebUtils.escapeHtml`, `c:out`), SQL only through prepared statements, every form
+  posts the CSRF token. Secrets live in `.env` on the server, never in Git.
+- Where code goes: SQL in `dao/` (JSPs only render what a DAO returns, as plain classes in `model/`:
+  the JSP compiler can't read records), servlets in `web/<area>/`, filters in `filter/`, background jobs
+  in `job/`. Admin templates live in `WEB-INF/views/admin/`; old addresses go to `LegacyRedirectServlet`.
 
-- Build WAR
-```bash path=null start=null
-mvn -q clean package
-```
-Artifact: target/SkeliCZ-1.0-SNAPSHOT.war
-
-- Run locally with Jetty (serves context path "/")
-```bash path=null start=null
-mvn -q jetty:run
-```
-Default port is Jetty’s default (override with -Djetty.port=8080 if needed):
-```bash path=null start=null
-mvn -q -Djetty.port=8080 jetty:run
-```
-
-- Dev server URL and health-check
-```bash path=null start=null
-# Open: http://localhost:8080/
-curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080/
-```
-```powershell path=null start=null
-(Invoke-WebRequest http://localhost:8080/ -UseBasicParsing).StatusCode
-```
-
-- Database migrations (Flyway)
-Runs against the JDBC URL and credentials defined in pom.xml.
-```bash path=null start=null
-mvn -q flyway:info
-mvn flyway:migrate
-```
-Flyway scans src/main/resources/db/migration.
-
-Additional CLI overrides (use local credentials without editing pom.xml):
-```bash path=null start=null
-mvn -q -Dflyway.url=jdbc:mysql://localhost:3306/skeliweb -Dflyway.user={{DB_USER}} -Dflyway.password={{DB_PASSWORD}} flyway:migrate
-```
-
-- Update process
-Code changes and patches:
-  1. Update sources in `src/main/java`, `src/main/webapp`, or `src/main/resources`.
-  2. Add any DB schema changes as a new Flyway migration SQL file in `src/main/resources/db/migration` using the next `V{n}__description.sql` version.
-  3. Rebuild the WAR:
-```bash path=null start=null
-mvn -q clean package
-```
-  4. Apply database migrations on the target environment before deploying the new WAR:
-```bash path=null start=null
-mvn -q -Dflyway.url=jdbc:mysql://<host>:<port>/<database> -Dflyway.user=<user> -Dflyway.password=<pass> flyway:migrate
-```
-  5. Deploy `target/SkeliCZ-1.0-SNAPSHOT.war` to the servlet container, or restart `mvn -q jetty:run` for development.
-
-  Notes:
-  - Always increase Flyway migration version when schema changes are required.
-  - For production updates, run Flyway before restarting the app so the new schema is ready.
-
-- Tests
-There are no tests in this repo. If tests are added under src/test/java, you can run them with:
-```bash path=null start=null
-mvn -q test
-```
-Run a single test (or method):
-```bash path=null start=null
-mvn -q -Dtest=ClassName test
-mvn -q -Dtest=ClassName#methodName test
-```
-
-- Lint/Static analysis
-No lint/static analysis plugins (Checkstyle/PMD/SpotBugs) are configured in pom.xml.
-
-Architecture and layout (big picture)
-- Web layer: JSP pages (index.jsp, about.jsp, music.jsp, texty.jsp) render directly without a Java controller layer. Shared layout via src/main/webapp/includes/header.jsp and footer.jsp.
-- Static assets: src/main/webapp/css and src/main/webapp/img are served by the servlet container.
-- Persistence/migrations: Flyway drives schema evolution; initial table creation lives in V1__LyricsTable.sql.
-- Runtime: Jetty Maven Plugin runs the webapp in-process for local development; packaging is war for deployment to a servlet container.
+## Tests
+- `mvn test` runs the unit tests (`*Test`, also part of `mvn verify`).
+- `*IT` are Selenium tests (headless Chrome) against a running local site and the local database
+  `skeliweb`: `mvn test -Dtest='*IT'`.

@@ -1,5 +1,6 @@
 package com.github.skeliit;
 
+import com.github.skeliit.security.Tokens;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -75,7 +76,7 @@ class PasswordHelperIT extends UiTestSupport {
 
         String token = "it-" + uniq() + "-" + uniq();
         update("INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE))",
-                userId, ResetPasswordServlet.hashToken(token));
+                userId, Tokens.hash(token));
         String link = BASE_URL + "/reset.jsp?token=" + token;
         String newPassword = "Nove#Heslo2026x";
 

@@ -220,8 +220,7 @@ main > h2:first-child::after {
 .admin-card,
 .auth-card,
 .settings-shell,
-.donate-card,
-.texts-card {
+.donate-card {
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius);

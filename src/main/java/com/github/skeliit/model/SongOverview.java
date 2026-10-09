@@ -27,5 +27,13 @@ public class SongOverview {
     public String getSpotifyId() { return spotifyId; }
     public boolean isHasApple() { return appleMusicId != null && !appleMusicId.isBlank(); }
     public boolean isHasSpotify() { return spotifyId != null && !spotifyId.isBlank(); }
+    /** The newest clip, for the thumbnail when the song has no preview photo. */
+    public String youtubeId;
+    /** The uploaded preview photo, else the newest clip's thumbnail, else null. */
+    public String getThumbUrl() {
+        if (isHasPreview()) return com.github.skeliit.WebUtils.safeUrl(previewImageUrl, null);
+        if (youtubeId != null && youtubeId.matches("[A-Za-z0-9_-]{6,20}")) return "/yt-thumb/" + youtubeId + "/mqdefault.jpg";
+        return null;
+    }
     public boolean isHasPreview() { return previewImageUrl != null && !previewImageUrl.isBlank(); }
 }

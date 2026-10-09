@@ -1,8 +1,8 @@
 package com.github.skeliit.dao;
 
-import java.util.List;
-
 import com.github.skeliit.model.CommentView;
+
+import java.util.List;
 
 /** Exposes the package-private threading helper to tests in other packages. */
 public final class LyricDaoAccess {

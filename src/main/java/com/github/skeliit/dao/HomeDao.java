@@ -1,8 +1,8 @@
 package com.github.skeliit.dao;
 
 import com.github.skeliit.Db;
-import com.github.skeliit.VideoTitles;
 import com.github.skeliit.WebUtils;
+import com.github.skeliit.job.VideoTitles;
 
 import java.sql.*;
 import java.util.ArrayList;

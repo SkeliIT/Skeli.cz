@@ -59,8 +59,8 @@
   java.util.Map<String, Object> vs = new java.util.HashMap<>();
   java.util.List<String[]> topLyrics = new java.util.ArrayList<>();
   try {
-    vs = com.github.skeliit.VisitStats.summary();
-    topLyrics = com.github.skeliit.VisitStats.topLyrics(5);
+    vs = com.github.skeliit.service.VisitStats.summary();
+    topLyrics = com.github.skeliit.service.VisitStats.topLyrics(5);
   } catch (java.sql.SQLException e) {
     application.log("Visit stats", e);
   }
@@ -144,67 +144,47 @@
     <section class="admin-card admin-card-wide" id="reports">
       <h3>Nahlášené komentáře</h3>
       <%
-        String reportSql =
-            "SELECT r.kind, r.comment_id, COUNT(*) AS n, MAX(r.created_at) AS last_at, " +
-            "       MAX(c.content) AS lyric_content, MAX(vc.content) AS video_content, " +
-            "       MAX(uc.username) AS lyric_author, MAX(uv.username) AS video_author, " +
-            "       MAX(c.lyric_id) AS lyric_id " +
-            "FROM comment_reports r " +
-            "LEFT JOIN comments c ON r.kind = 'lyric' AND c.id = r.comment_id " +
-            "LEFT JOIN users uc ON uc.id = c.user_id " +
-            "LEFT JOIN video_comments vc ON r.kind = 'video' AND vc.id = r.comment_id " +
-            "LEFT JOIN users uv ON uv.id = vc.user_id " +
-            "GROUP BY r.kind, r.comment_id " +
-            "HAVING lyric_content IS NOT NULL OR video_content IS NOT NULL " +
-            "ORDER BY n DESC, last_at DESC LIMIT 50";
-        int reportRows = 0;
-        try (java.sql.Connection rc = com.github.skeliit.Db.get();
-             java.sql.PreparedStatement rps = rc.prepareStatement(reportSql);
-             java.sql.ResultSet rrs = rps.executeQuery()) {
-          while (rrs.next()) {
-            reportRows++;
-            String rKind = rrs.getString("kind");
-            boolean rLyricKind = "lyric".equals(rKind);
-            String rContent = rrs.getString(rLyricKind ? "lyric_content" : "video_content");
-            String rAuthor = rrs.getString(rLyricKind ? "lyric_author" : "video_author");
-            int rId = rrs.getInt("comment_id");
-            int rLyric = rrs.getInt("lyric_id");
-            String where = "lyric".equals(rKind) ? "<a href=\"/lyrics/" + rLyric + "#comment-" + rId + "\" target=\"_blank\">text #" + rLyric + "</a>" : "video";
+        // dao/AdminDao: reported comments that still exist; null = they could not be read
+        java.util.List<com.github.skeliit.model.CommentReport> reports = null;
+        try {
+          reports = new com.github.skeliit.dao.AdminDao().reportedComments();
+        } catch (java.sql.SQLException e) {
+          application.log("Admin reports", e);
+        }
+        if (reports != null) for (com.github.skeliit.model.CommentReport rep : reports) {
+          String where = rep.isLyric() ? "<a href=\"/lyrics/" + rep.lyricId + "#comment-" + rep.commentId + "\" target=\"_blank\">text #" + rep.lyricId + "</a>" : "video";
       %>
         <div class="report-row">
           <div class="report-main">
             <div class="report-meta">
-              <strong><%= com.github.skeliit.WebUtils.escapeHtml(rAuthor) %></strong>
-              · <%= where %> · ID <%= rId %>
-              · <span class="report-count"><i class="fa-solid fa-flag"></i> <%= rrs.getInt("n") %>×</span>
+              <strong><%= com.github.skeliit.WebUtils.escapeHtml(rep.author) %></strong>
+              · <%= where %> · ID <%= rep.commentId %>
+              · <span class="report-count"><i class="fa-solid fa-flag"></i> <%= rep.reports %>×</span>
             </div>
-            <div class="report-text"><%= com.github.skeliit.WebUtils.escapeHtml(rContent) %></div>
+            <div class="report-text"><%= com.github.skeliit.WebUtils.escapeHtml(rep.content) %></div>
           </div>
           <div class="report-actions">
             <form method="post" action="/admin/comment">
               <input type="hidden" name="csrf" value="${csrf}">
-              <input type="hidden" name="kind" value="<%= rKind %>">
-              <input type="hidden" name="comment_id" value="<%= rId %>">
+              <input type="hidden" name="kind" value="<%= rep.kind %>">
+              <input type="hidden" name="comment_id" value="<%= rep.commentId %>">
               <button type="submit" class="btn-delete" onclick="return confirm('Smazat tento komentář?')">Smazat komentář</button>
             </form>
             <form method="post" action="/admin/comment">
               <input type="hidden" name="csrf" value="${csrf}">
-              <input type="hidden" name="kind" value="<%= rKind %>">
-              <input type="hidden" name="comment_id" value="<%= rId %>">
+              <input type="hidden" name="kind" value="<%= rep.kind %>">
+              <input type="hidden" name="comment_id" value="<%= rep.commentId %>">
               <input type="hidden" name="action" value="dismiss">
               <button type="submit" class="btn-dismiss">Zamítnout</button>
             </form>
           </div>
         </div>
       <%
-          }
-        } catch (java.sql.SQLException e) {
+        }
+        if (reports == null) {
       %>
         <p class="form-alert">Nahlášené komentáře se nepodařilo načíst.</p>
-      <%
-        }
-        if (reportRows == 0) {
-      %>
+      <% } else if (reports.isEmpty()) { %>
         <p class="text-dim">Žádné nahlášené komentáře.</p>
       <% } %>
     </section>
@@ -235,12 +215,12 @@
   <h3 class="admin-section-title" id="sync"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Synchronizace</h3>
   <section class="admin-card admin-sync-card">
     <div class="admin-sync-item">
-      <i class="fab fa-youtube" style="color: var(--youtube)" aria-hidden="true"></i>
+      <i class="fab fa-youtube icon-youtube" aria-hidden="true"></i>
       <div><b>YouTube</b><span>Načte videa z kanálu a spáruje je se songy.</span></div>
       <a class="admin-btn" href="/admin/sync">Spustit</a>
     </div>
     <div class="admin-sync-item">
-      <i class="fab fa-instagram" style="color: #e1306c" aria-hidden="true"></i>
+      <i class="fab fa-instagram icon-instagram" aria-hidden="true"></i>
       <div><b>Instagram</b><span>Běží samo každou hodinu: posledních 25 příspěvků do Aktualit.</span></div>
       <a class="admin-btn" href="/admin/instagram-sync">Spustit</a>
     </div>
@@ -262,6 +242,11 @@
 <% } %>
       </div>
       <a class="admin-btn" href="/admin/apple-sync">Spustit</a>
+    </div>
+    <div class="admin-sync-item">
+      <i class="fa-solid fa-file-zipper" aria-hidden="true"></i>
+      <div><b>Export textů</b><span>Stáhne všechny texty jako soubory TTML v archivu ZIP, např. pro Apple Music přes DistroKid.</span></div>
+      <a class="admin-btn" href="/admin/lyrics-export">Stáhnout</a>
     </div>
   </section>
 </main>

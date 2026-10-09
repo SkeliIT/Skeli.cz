@@ -190,7 +190,7 @@ public class AdminPanelIT extends UiTestSupport {
             int songId = queryInt("SELECT id FROM songs WHERE name=?", songName);
             assertTrue(driver.getCurrentUrl().contains("song=" + songId));
 
-            String text = "První řádek\nDruhý řádek\n\nRefrén";
+            String text = "PrvnĂ­ Ĺ™Ăˇdek\nDruhĂ˝ Ĺ™Ăˇdek\n\nRefrĂ©n";
             WebElement ta = driver.findElement(By.cssSelector(".lyrics-edit textarea[name=words]"));
             ta.sendKeys(text);
             clickAndWaitReload(driver.findElement(By.cssSelector(".lyrics-edit button[type=submit]")), false);
@@ -199,7 +199,7 @@ public class AdminPanelIT extends UiTestSupport {
 
             int lyricId = queryInt("SELECT id FROM lyrics WHERE song_id=? AND lang='cs'", songId);
             driver.get(BASE_URL + "/lyrics/" + lyricId);
-            assertTrue(driver.findElement(By.cssSelector(".lyrics-text")).getText().contains("Druhý řádek"));
+            assertTrue(driver.findElement(By.cssSelector(".lyrics-text")).getText().contains("DruhĂ˝ Ĺ™Ăˇdek"));
 
             driver.get(BASE_URL + "/admin/lyrics");
             WebElement clip = driver.findElement(By.xpath(
@@ -215,10 +215,61 @@ public class AdminPanelIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Song hub: the picture in the Texty row is dragged and resized by hand, then automatic again")
+    void rowArtPlacedByHand() throws Exception {
+        String songName = "IT Row Art " + uniq();
+        update("INSERT INTO songs (uuid, name, year, preview_image_url) VALUES (UUID(), ?, 2026, '/img/IMG_0090.webp')", songName);
+        int songId = queryInt("SELECT id FROM songs WHERE name=?", songName);
+        update("INSERT INTO lyrics (song_id, lang, words, score) VALUES (?, 'cs', 'ĹĂˇdek', 0)", songId);
+        try {
+            driver.get(BASE_URL + "/admin/song?id=" + songId);
+            new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10)).until(d ->
+                    (Boolean) ((org.openqa.selenium.JavascriptExecutor) d).executeScript(
+                            "var i = document.querySelector('.art-desk img'); return i.complete && i.naturalWidth > 0;"));
+            WebElement row = driver.findElement(By.cssSelector(".art-desk .art-row"));
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block:'center'})", row);
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+                    "var r = document.getElementById('artZoom'); r.value = 150; r.dispatchEvent(new Event('input'));");
+            new org.openqa.selenium.interactions.Actions(driver).dragAndDropBy(row, 0, 30).perform();
+            new org.openqa.selenium.interactions.Actions(driver).dragAndDropBy(row, 300, 0).perform();
+            assertTrue(Double.parseDouble(driver.findElement(By.id("artX")).getAttribute("value")) > 5, "the picture moves sideways too");
+            String dir = System.getProperty("it.shots");
+            if (dir != null) ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+                    "document.querySelectorAll('[class*=cookie]').forEach(function (e) { e.remove(); });");
+            if (dir != null) java.nio.file.Files.write(java.nio.file.Path.of(dir, "row-art-admin.png"),
+                    driver.findElement(By.id("row-art")).getScreenshotAs(org.openqa.selenium.OutputType.BYTES));
+            clickAndWaitReload(driver.findElement(By.cssSelector("#artForm button[type=submit]:not([name])")), false);
+
+            assertEquals(1.5, Double.parseDouble(queryString("SELECT art_zoom FROM songs WHERE id=?", songId)), 0.001);
+            double y = Double.parseDouble(queryString("SELECT art_y FROM songs WHERE id=?", songId));
+            assertTrue(y < 45, "dragging down shows a higher part of the picture on the middle line, got " + y);
+            assertTrue(Double.parseDouble(queryString("SELECT art_x FROM songs WHERE id=?", songId)) > 5, "moved to the right");
+
+            driver.get(BASE_URL + "/texty.jsp");
+            String style = driver.findElement(By.cssSelector("a.song-row[data-song='" + songId + "'] img")).getAttribute("style");
+            assertTrue(style.contains("--az: 1.5"), "got: " + style);
+
+            driver.get(BASE_URL + "/admin/song?id=" + songId);
+            clickAndWaitReload(driver.findElement(By.cssSelector("#artForm button[name=auto]")), false);
+            assertNull(queryString("SELECT art_zoom FROM songs WHERE id=?", songId));
+            if (dir != null) {
+                jsClick(driver.findElement(By.id("artWhole")));
+                java.nio.file.Files.write(java.nio.file.Path.of(dir, "row-art-whole.png"),
+                        driver.findElement(By.id("row-art")).getScreenshotAs(org.openqa.selenium.OutputType.BYTES));
+            }
+            driver.get(BASE_URL + "/texty.jsp");
+            assertNull(driver.findElement(By.cssSelector("a.song-row[data-song='" + songId + "'] img")).getAttribute("data-manual"));
+        } finally {
+            update("DELETE FROM lyrics WHERE song_id=?", songId);
+            update("DELETE FROM songs WHERE id=?", songId);
+        }
+    }
+
+    @Test
     @DisplayName("The dashboard shows the visits and the counters can be reset to zero")
     void visitStatsAndReset() throws Exception {
         driver.get(BASE_URL + "/admin.jsp");
-        assertFalse(driver.findElements(By.cssSelector("#stats")).isEmpty(), "Návštěvnost section");
+        assertFalse(driver.findElements(By.cssSelector("#stats")).isEmpty(), "NĂˇvĹˇtÄ›vnost section");
         assertEquals(6, driver.findElements(By.cssSelector(".admin-visits .admin-stat")).size());
 
         WebElement form = driver.findElement(By.cssSelector("form[action='/admin/stats-reset']"));

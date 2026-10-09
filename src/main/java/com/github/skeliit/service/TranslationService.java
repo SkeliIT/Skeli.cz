@@ -1,9 +1,9 @@
 package com.github.skeliit.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.skeliit.Config;
 import com.github.skeliit.I18n;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -12,8 +12,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Machine translation for admin (lyrics, meta description, SEO slug source text).
@@ -118,9 +116,5 @@ public class TranslationService {
         if (text == null || text.isBlank()) return "";
         // DeepL/Libre handle multiline; keep as one request for quality
         return translate(text, from, to);
-    }
-
-    public List<String> supportedTargets() {
-        return new ArrayList<>(I18n.SUPPORTED_LANGS);
     }
 }

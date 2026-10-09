@@ -6,9 +6,6 @@
 .admin-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); gap:16px; }
 .admin-card { background: var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(0,0,0,.20); }
 .admin-card h3 { margin-top:0; }
-.admin-actions { display:flex; gap:8px; flex-wrap:wrap; }
-.admin-actions a, .admin-actions button { background:transparent; border:1px solid var(--panel-border); color:var(--text); padding:8px 12px; border-radius:8px; cursor:pointer; text-decoration:none; }
-.admin-actions a:hover, .admin-actions button:hover { background: rgba(255,255,255,0.08); }
 
 /* Admin Tables */
 .admin-table {
@@ -58,7 +55,6 @@ body.light .lang-flag { background: rgba(0,0,0,0.06); }
   padding: 8px 12px;
   border-radius: 8px;
 }
-.song-preview-cell { min-width: 140px; vertical-align: top; }
 .song-preview-thumb {
   width: 96px;
   height: 54px;
@@ -93,7 +89,6 @@ body.light .lang-flag { background: rgba(0,0,0,0.06); }
 }
 
 .admin-crumb { margin-bottom: 12px; }
-.admin-hero-card { border-color: var(--accent); }
 .admin-form { display: grid; gap: 10px; }
 .admin-form label { display: grid; gap: 4px; font-size: 0.95em; }
 .admin-form input { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--panel-border); background: transparent; color: var(--text); }
@@ -148,8 +143,6 @@ body.light .lang-flag { background: rgba(0,0,0,0.06); }
   font-size: 0.85em;
   color: var(--accent);
 }
-.song-preview-thumb-lg { width: 100%; max-width: 320px; height: auto; aspect-ratio: 16/9; }
-.song-preview-current { margin: 10px 0; }
 .song-preview-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -371,6 +364,8 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .admin-page .admin-form input { margin-top: 2px; background: var(--field); }
 .admin-inline-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
 .admin-inline-form label { display: grid; gap: 4px; font-size: var(--fs-card); color: var(--text-dim); }
+.inline-form { display: inline; }
+.translate-form { margin-top: 8px; }
 .admin-inline-form input { width: 120px; }
 @media (max-width: 700px) { .admin-form-cols { grid-template-columns: 1fr; } }
 
@@ -424,3 +419,26 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .admin-top small { color: var(--text-dim); font-size: var(--fs-small); }
 .admin-top b { font-weight: 400; color: var(--accent); }
 .admin-reset { display: grid; gap: 10px; margin-top: 8px; justify-items: start; }
+
+/* Song hub: the picture in the song's Texty row, moved and resized by hand. The rows use the
+   Texty page's own .song-row styles; the phone one copies its ≤600 px rules. */
+.art-editor { display: flex; flex-direction: column; gap: 14px; margin: 12px 0; }
+.art-preview { position: relative; }
+.art-desk { max-width: 1080px; }
+.art-phone { width: 343px; max-width: 100%; }
+.art-device { display: block; margin-bottom: 4px; font-size: var(--fs-small); color: var(--text-dim); }
+.art-row { cursor: grab; touch-action: none; user-select: none; }
+.art-row.dragging { cursor: grabbing; }
+.art-row:hover { transform: none; }
+.art-row .song-row-art img { transition: none; }
+.art-row:hover .song-row-art img:not([data-manual]) { transform: none; }
+.art-row:hover .song-row-art img[data-manual] { transform: translate(calc(var(--tx, 0) * 1cqw), calc(var(--py, 45) * -1% * var(--az, 1))) scale(var(--az, 1)); }
+.art-phone .song-row { min-height: 88px; padding: 12px 48px 12px 14px; }
+.art-phone .song-row-art { width: 70%; }
+.art-phone .song-row-text { max-width: 62%; }
+.art-phone .song-row-title { font-size: var(--fs-h4); }
+.art-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 10px; }
+.art-zoom { display: flex; align-items: center; gap: 10px; }
+.art-zoom input[type="range"] { width: 220px; accent-color: var(--accent); }
+.art-zoom output { min-width: 4.5em; font-variant-numeric: tabular-nums; }
+.art-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
