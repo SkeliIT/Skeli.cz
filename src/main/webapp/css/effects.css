@@ -147,6 +147,48 @@ body.light .cursor-light { opacity: 0; }
 .hero .hero-tagline { font-size: calc(var(--fs-h4) * 1.25); opacity: 1; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6); }
 body.light .hero .hero-tagline { text-shadow: 0 1px 10px rgba(255, 255, 255, 0.85); }
 
+/* two lines from a song above the big sign: the words in the text font, the song in gold under them */
+.hero-quote {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: min(640px, 100%);
+  margin: 0 auto 26px;
+  color: var(--text);
+  text-decoration: none;
+}
+.hero-quote:hover { text-decoration: none; }
+.hero-quote-text {
+  font-family: var(--font-text);
+  font-weight: 300;
+  font-size: 1.22rem;
+  line-height: 1.45;
+  text-wrap: balance;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.75);
+  transition: color .2s;
+}
+.hero-quote:hover .hero-quote-text { color: var(--accent); }
+.hero-quote-song {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 14px 5px 11px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--bg) 45%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--accent);
+  font-size: var(--fs-small);
+  letter-spacing: 0.16em;
+}
+body.light .hero-quote-text { text-shadow: 0 1px 10px rgba(255, 255, 255, 0.9); }
+@media (max-width: 600px) {
+  .hero-quote { gap: 8px; margin-bottom: 18px; padding: 0 6px; }
+  .hero-quote-text { font-size: 1rem; line-height: 1.4; }
+}
+
 /* equalizer bars */
 .eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
 .eq i { width: 3px; height: 100%; border-radius: 2px; background: currentColor; transform-origin: bottom; animation: eq-bar 1s ease-in-out infinite alternate; }
