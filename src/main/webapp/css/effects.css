@@ -972,7 +972,7 @@ button.is-sending { cursor: progress; opacity: 0.85; }
   /* the open menu sheet lives in the header: lift it above the cookie bar and the player */
   .site-header:has(.main-nav.open) { z-index: 10001; }
   /* the minimised Spotify button is only a round icon here, so it covers less */
-  .sp-minbar { width: 48px; height: 48px; padding: 0 !important; display: grid; place-items: center; font-size: 0 !important; border-radius: 50% !important; }
+  .sp-minbar { width: 48px; height: 48px; padding: 0 !important; gap: 0; justify-content: center; font-size: 0 !important; border-radius: 50% !important; }
   .sp-minbar i.fa-spotify { font-size: 1.35rem; margin: 0; }
 }
 html:lang(vi) .tabbar a, html:lang(vi) .tabbar .menu-toggle { font-family: 'Exo 2', system-ui, sans-serif; }
@@ -991,4 +991,16 @@ html:lang(vi) .tabbar a, html:lang(vi) .tabbar .menu-toggle { font-family: 'Exo 
   .photo-band-img { transform: none; }
   .marquee-track, .tape-gold, .eq i, .hero-title .logo-mark, .masthead-brand .squad-mark, .hero-latest small .dot { animation: none; }
   [data-tilt] { transform: none !important; }
+}
+
+/* A phone on its side has little height: everything that floats over the page would cover the
+   content (Kevin, his bubble, the player, a big cookie card). Only the bar and the page stay. */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root { --tabbar-h: 46px; }
+  .tabbar span { display: none; }
+  .tabbar i { font-size: 1.1rem; }
+  .kevin, .kevin-paw, .kevin-tv { display: none !important; }
+  .cookie-bar { left: 10px; right: 10px; max-width: none; padding: 10px 14px; font-size: 0.78rem; }
+  .cookie-bar p { margin-bottom: 8px; }
+  .cookie-btn { min-height: 32px; padding: 5px 12px; font-size: 0.78rem; }
 }

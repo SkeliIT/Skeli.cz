@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "4.0.0";
+  String assetVersion = "4.0.3";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -274,7 +274,17 @@
             // Header gets a solid glass background (and the small sign) once it is docked at the top
             const siteHeader = document.getElementById('siteHeader');
             const masthead = document.getElementById('masthead');
-            function onHeaderScroll() { siteHeader.classList.toggle('scrolled', window.scrollY > Math.max(8, masthead.offsetHeight - 1)); }
+            // Scrolling down tucks the bar away (more room for the page), scrolling up brings it back.
+            // It stays while a menu or the language list is open, or while the keyboard is in it.
+            let lastY = window.scrollY;
+            function onHeaderScroll() {
+              const y = window.scrollY, top = Math.max(8, masthead.offsetHeight - 1);
+              siteHeader.classList.toggle('scrolled', y > top);
+              const busy = siteHeader.querySelector('.open') || siteHeader.contains(document.activeElement);
+              if (y <= top + 120 || busy || y < lastY - 6) siteHeader.classList.remove('tucked');
+              else if (y > lastY + 6) siteHeader.classList.add('tucked');
+              if (Math.abs(y - lastY) > 6) lastY = y;
+            }
             window.addEventListener('scroll', onHeaderScroll, { passive: true });
             onHeaderScroll();
 
@@ -341,9 +351,11 @@
             }
             // has the visitor allowed third-party content (YouTube, Spotify) in the cookie bar?
             window.skeliConsent = function () { try { return localStorage.getItem('cookieConsent') === 'true'; } catch (e) { return false; } };
+            // a phone on its side: the open player would cover the page, so it waits for a click there
+            const shortScreen = () => window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
             const SP_DEFAULT = 'https://open.spotify.com/embed/artist/5IouXw8U9uKCTwmncG5bUl?utm_source=generator&theme=0';
             function openBar() { const bar = ensureSpBar(); const f = document.getElementById('sp-iframe'); if (!f.src) { const saved = darkEmbed(localStorage.getItem('sp_src')); f.src = saved || SP_DEFAULT; } bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; localStorage.setItem('sp_min', '0'); }
-            function closeBar() { const bar = ensureSpBar(); bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'block'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; localStorage.setItem('sp_min', '1'); }
+            function closeBar() { const bar = ensureSpBar(); bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'flex'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; localStorage.setItem('sp_min', '1'); }
             window.toggleSpotifyBar = function () { if (ensureSpBar().style.display === 'none') { openBar(); } else { closeBar(); } }
             window.playSpotify = function (src) { const bar = ensureSpBar(); const url = normalizeSrc(src); const f = document.getElementById('sp-iframe'); if (f.src !== url) f.src = url; openBar(); localStorage.setItem('sp_src', url); localStorage.setItem('sp_play', 'true'); };
 
@@ -353,12 +365,12 @@
               const bar = ensureSpBar(); const wasMin = localStorage.getItem('sp_min') === '1'; const saved = darkEmbed(localStorage.getItem('sp_src')); const f = document.getElementById('sp-iframe');
               const ok = window.skeliConsent();
               if (saved && ok) { f.src = saved; }
-              if ((saved || SP_DEFAULT) && !wasMin && ok) { f.src = f.src || SP_DEFAULT; bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; }
-              else { bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'block'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; }
+              if ((saved || SP_DEFAULT) && !wasMin && ok && !shortScreen()) { f.src = f.src || SP_DEFAULT; bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; }
+              else { bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'flex'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; }
             })();
 
             // consent given in the cookie bar: the player comes up as before (unless it was minimised)
-            document.addEventListener('consent-granted', function () { if (localStorage.getItem('sp_min') !== '1') openBar(); });
+            document.addEventListener('consent-granted', function () { if (localStorage.getItem('sp_min') !== '1' && !shortScreen()) openBar(); });
 
             // Autowire any element with data-spotify-src
             document.addEventListener('click', function (e) { const t = e.target.closest('[data-spotify-src]'); if (t) { e.preventDefault(); window.playSpotify(t.getAttribute('data-spotify-src')); } });
@@ -372,6 +384,8 @@
                 const main = doc.querySelector('main');
                 return main ? main : doc.body;
               }
+              // the page now in <main>; a change of only #anchor stays on it
+              let loadedPage = location.pathname + location.search;
               async function navigate(url, push) {
                 try {
                   document.body.style.cursor = 'progress';
@@ -387,7 +401,11 @@
                   // re-execute inline scripts in main
                   newMain.querySelectorAll('script').forEach(old => { const s = document.createElement('script'); if (old.src) { s.src = old.src; } else { s.textContent = old.textContent; } (old.type && (s.type = old.type)); old.replaceWith(s); });
                   if (push) history.pushState({ url }, '', url);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  const target = new URL(url, location.href);
+                  loadedPage = target.pathname + target.search;
+                  // an address with #anchor scrolls to it, any other page starts at the top
+                  const anchor = target.hash && document.getElementById(decodeURIComponent(target.hash.slice(1)));
+                  if (anchor) anchor.scrollIntoView({ behavior: 'smooth' }); else window.scrollTo({ top: 0, behavior: 'smooth' });
                   document.dispatchEvent(new CustomEvent('pjax:done', { detail: { url } }));
                 } catch (e) { location.assign(url); }
                 finally { document.body.style.cursor = ''; }
@@ -410,7 +428,11 @@
                 e.preventDefault();
                 navigate(href, true);
               });
-              window.addEventListener('popstate', (e) => { const url = (e.state && e.state.url) || location.href; navigate(url, false); });
+              window.addEventListener('popstate', (e) => {
+                // following a #anchor on the same page fires popstate too: the browser scrolls, nothing to load
+                if (location.pathname + location.search === loadedPage) return;
+                navigate((e.state && e.state.url) || location.href, false);
+              });
             })();
 
             // Active navigation highlight
