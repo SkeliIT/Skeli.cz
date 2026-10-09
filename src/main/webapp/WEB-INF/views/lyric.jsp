@@ -56,10 +56,10 @@
         </c:if>
       </header>
 
-      <!-- Video and lyrics share one frame that fades out at the bottom -->
-      <section class="lyric-main">
-      <!-- Video (or the song's preview photo) above the lyrics -->
+      <%-- the clip on its own wide stage above the lyrics; water and fire flow out of it with the music (js/clip-fx.js) --%>
       <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
+      <section class="lyric-stage${not empty lyric.youtubeId ? ' has-fx' : ''}">
+      <c:if test="${not empty lyric.youtubeId}"><canvas class="clip-fx-gl" aria-hidden="true"></canvas><canvas class="clip-fx-2d" aria-hidden="true"></canvas></c:if>
       <div class="lyric-media">
       <c:choose>
       <c:when test="${not empty lyric.youtubeId}">
@@ -104,7 +104,8 @@
             if (!btn) return;
             btn.addEventListener('click', function(){
               var iframe = document.createElement('iframe');
-              iframe.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0';
+              // enablejsapi lets the player tell the effect around it where the song is
+              iframe.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0&enablejsapi=1&origin=' + encodeURIComponent(location.origin);
               iframe.setAttribute('frameborder', '0');
               iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
               iframe.setAttribute('allowfullscreen', '');
@@ -133,6 +134,13 @@
           });
         })();
         </script>
+        <div class="clip-fx-switch" role="group" aria-label="<%= t.getProperty("clipfx.label") %>">
+          <span class="clip-fx-name"><i class="fa-solid fa-fire-flame-curved" aria-hidden="true"></i> <span class="clip-fx-label"><%= t.getProperty("clipfx.label") %></span></span>
+          <button type="button" data-mode="on" aria-pressed="true"><%= t.getProperty("clipfx.on") %></button>
+          <button type="button" data-mode="soft" aria-pressed="false"><%= t.getProperty("clipfx.soft") %></button>
+          <button type="button" data-mode="off" aria-pressed="false"><%= t.getProperty("clipfx.off") %></button>
+        </div>
+        <script src="/js/clip-fx.js?v=<%= assetVersion %>"></script>
       </c:when>
       <c:otherwise>
         <div class="content-box video-box">
@@ -143,9 +151,11 @@
       </c:otherwise>
       </c:choose>
       </div>
+      </section>
       </c:if>
 
-
+      <!-- The lyrics in a frame that fades out at the bottom -->
+      <section class="lyric-main">
       <!-- Lyrics Text -->
       <article class="lyric-body">
         <div class="lyrics-text">
