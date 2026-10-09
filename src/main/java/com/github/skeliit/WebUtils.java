@@ -147,7 +147,7 @@ public class WebUtils {
     }
 
     /** Loopback address (127.x.x.x or ::1); Jetty may report IPv6 as "[0:0:0:0:0:0:0:1]". */
-    static boolean isLocalAddress(String addr) {
+    public static boolean isLocalAddress(String addr) {
         if (addr == null || addr.isBlank()) return false;
         String a = addr.trim();
         if (a.startsWith("[") && a.endsWith("]")) a = a.substring(1, a.length() - 1);

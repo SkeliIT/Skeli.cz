@@ -255,7 +255,7 @@
       (java.util.List<com.github.skeliit.model.CommentView>) request.getAttribute("comments");
   int commentTotal = 0;
   if (threads != null) for (com.github.skeliit.model.CommentView c0 : threads) commentTotal += 1 + c0.replies.size();
-  boolean canPost = com.github.skeliit.EmailVerification.isVerified(session);
+  boolean canPost = com.github.skeliit.web.auth.EmailVerification.isVerified(session);
   com.github.skeliit.model.LyricView lyricView = (com.github.skeliit.model.LyricView) request.getAttribute("lyric");
 %>
         <h3 class="comments-title" id="comments"><%= t.getProperty("comments.title") %> <span class="comments-count"><%= commentTotal %></span></h3>

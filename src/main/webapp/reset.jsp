@@ -2,7 +2,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
   String resetToken = request.getParameter("token");
-  boolean resetTokenValid = com.github.skeliit.ResetPasswordServlet.isTokenValid(resetToken);
+  boolean resetTokenValid = com.github.skeliit.web.auth.ResetPasswordServlet.isTokenValid(resetToken);
   // Error codes sent by ResetPasswordServlet (?error=...)
   String resetError = request.getParameter("error");
   String resetErrorKey = null;

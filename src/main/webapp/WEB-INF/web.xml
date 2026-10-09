@@ -42,7 +42,7 @@
     <!-- first: redirects stay on https behind Apache (see the class) -->
     <filter>
         <filter-name>RelativeRedirectFilter</filter-name>
-        <filter-class>com.github.skeliit.RelativeRedirectFilter</filter-class>
+        <filter-class>com.github.skeliit.filter.RelativeRedirectFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>RelativeRedirectFilter</filter-name>
@@ -53,7 +53,7 @@
     <!-- second: old sign-ins cut off by a password change etc. end before anything checks the user (AdminFilter) -->
     <filter>
         <filter-name>SessionValidityFilter</filter-name>
-        <filter-class>com.github.skeliit.SessionValidityFilter</filter-class>
+        <filter-class>com.github.skeliit.filter.SessionValidityFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>SessionValidityFilter</filter-name>
@@ -61,7 +61,7 @@
     </filter-mapping>
     <filter>
         <filter-name>AdminFilter</filter-name>
-        <filter-class>com.github.skeliit.AdminFilter</filter-class>
+        <filter-class>com.github.skeliit.filter.AdminFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>AdminFilter</filter-name>
@@ -75,7 +75,7 @@
     <!-- CSRF protection for every state-changing request (see CsrfFilter for exemptions) -->
     <filter>
         <filter-name>CsrfFilter</filter-name>
-        <filter-class>com.github.skeliit.CsrfFilter</filter-class>
+        <filter-class>com.github.skeliit.filter.CsrfFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>CsrfFilter</filter-name>

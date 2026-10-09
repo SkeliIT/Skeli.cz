@@ -48,8 +48,8 @@
       : (fwdUri != null ? fwdUri : request.getRequestURI()));
   // the translated public pages (sitemap list): canonical = this language's address, alternates = all five
   String headPublicPage = canonicalPath == null
-      ? com.github.skeliit.SeoServlet.publicPage(String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI())) : null;
-  if (headPublicPage != null) headUrl = siteBase + com.github.skeliit.SeoServlet.langUrl(headPublicPage, cur);
+      ? com.github.skeliit.web.site.SeoServlet.publicPage(String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI())) : null;
+  if (headPublicPage != null) headUrl = siteBase + com.github.skeliit.web.site.SeoServlet.langUrl(headPublicPage, cur);
   // error pages (404/500) must not end up in search results
   boolean headIsError = request.getAttribute("jakarta.servlet.error.status_code") != null;
   // link preview image/type: a page may set its own (a lyric page uses its video thumbnail)
@@ -65,7 +65,7 @@
       java.util.Map<String, String> hreflang = (java.util.Map<String, String>) request.getAttribute("hreflang");
       if (hreflang == null && headPublicPage != null && !headIsError) {
         hreflang = new java.util.LinkedHashMap<>();
-        for (String l : com.github.skeliit.SeoServlet.LANGS) hreflang.put(l, com.github.skeliit.SeoServlet.langUrl(headPublicPage, l));
+        for (String l : com.github.skeliit.web.site.SeoServlet.LANGS) hreflang.put(l, com.github.skeliit.web.site.SeoServlet.langUrl(headPublicPage, l));
       }
       if (hreflang != null) {
         for (java.util.Map.Entry<String, String> e : hreflang.entrySet()) {
@@ -112,14 +112,14 @@
     <% if (String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin")) { %><link rel="stylesheet" href="<%= ctx %>/css/admin.css?v=<%= assetVersion %>"><% } %>
     <link rel="stylesheet" href="<%= ctx %>/css/effects.css?v=<%= assetVersion %>">
     <%-- structured data for search engines: Skeli as a musician, the site, a song (SeoJsonLd) --%>
-    <% String headLd = headIsError ? null : com.github.skeliit.SeoJsonLd.forPage(siteBase, headUrl, headPublicPage, headType,
+    <% String headLd = headIsError ? null : com.github.skeliit.service.SeoJsonLd.forPage(siteBase, headUrl, headPublicPage, headType,
            "music.song".equals(headType) ? headTitle : null, headImage, cur, t.getProperty("menu.home"), t.getProperty("menu.lyrics"));
        if (headLd != null) { %><script type="application/ld+json"><%= headLd %></script><% } %>
   </head>
   <body>
     <%-- keyboard and screen reader users jump over the header straight to the page (footer.jsp moves the focus) --%>
     <a class="skip-link" href="#main"><%= t.getProperty("a11y.skip") %></a>
-      <% request.setAttribute("csrf", com.github.skeliit.CsrfFilter.token(session)); %>
+      <% request.setAttribute("csrf", com.github.skeliit.filter.CsrfFilter.token(session)); %>
       <% String currentUser = (String) session.getAttribute("username");
          String currentRole = (String) session.getAttribute("role"); %>
         <%-- desktop: the big sign sits centred above the menu and scrolls away; the bar
@@ -199,7 +199,7 @@
                     <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
                     <%-- a POST with the CSRF token: another site cannot log people out with a link --%>
                     <form method="post" action="<%= ctx %>/logout" class="logout-form">
-                      <input type="hidden" name="csrf" value="<%= com.github.skeliit.CsrfFilter.token(session) %>">
+                      <input type="hidden" name="csrf" value="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
                       <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> <%= t.getProperty("btn.logout") %></button>
                     </form>
                   </div>

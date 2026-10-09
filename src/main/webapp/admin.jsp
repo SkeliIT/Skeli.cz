@@ -59,8 +59,8 @@
   java.util.Map<String, Object> vs = new java.util.HashMap<>();
   java.util.List<String[]> topLyrics = new java.util.ArrayList<>();
   try {
-    vs = com.github.skeliit.VisitStats.summary();
-    topLyrics = com.github.skeliit.VisitStats.topLyrics(5);
+    vs = com.github.skeliit.service.VisitStats.summary();
+    topLyrics = com.github.skeliit.service.VisitStats.topLyrics(5);
   } catch (java.sql.SQLException e) {
     application.log("Visit stats", e);
   }

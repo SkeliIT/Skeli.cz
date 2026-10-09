@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="/includes/header.jsp" %>
-<%@ page import="java.util.List, com.github.skeliit.AdminLyricsServlet.SongRow, com.github.skeliit.AdminLyricsServlet.VideoRow" %>
+<%@ page import="java.util.List, com.github.skeliit.web.admin.AdminLyricsServlet.SongRow, com.github.skeliit.web.admin.AdminLyricsServlet.VideoRow" %>
 <%
   @SuppressWarnings("unchecked") List<SongRow> songs = (List<SongRow>) request.getAttribute("songs");
   @SuppressWarnings("unchecked") List<VideoRow> videos = (List<VideoRow>) request.getAttribute("videos");
@@ -8,7 +8,7 @@
   String editLang = (String) request.getAttribute("lang");
   String words = (String) request.getAttribute("words");
   Integer lyricId = (Integer) request.getAttribute("lyricId");
-  String csrfToken = com.github.skeliit.CsrfFilter.token(session);
+  String csrfToken = com.github.skeliit.filter.CsrfFilter.token(session);
 %>
 <main class="admin-page admin-lyrics">
   <%@ include file="/includes/admin-nav.jspf" %>

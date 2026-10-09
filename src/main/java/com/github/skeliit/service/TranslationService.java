@@ -1,9 +1,9 @@
 package com.github.skeliit.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.skeliit.Config;
 import com.github.skeliit.I18n;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.net.URLEncoder;

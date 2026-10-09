@@ -39,7 +39,7 @@
         try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
           boolean isSong = rs.getInt("grp") == 0;
-          String name = isSong ? rs.getString("name") : com.github.skeliit.VideoTitles.display(rs.getString("name"));
+          String name = isSong ? rs.getString("name") : com.github.skeliit.job.VideoTitles.display(rs.getString("name"));
           if (name == null || name.isBlank()) name = "YouTube";
           if (isSong) name = name.replaceFirst("(?i)^\\s*skeli\\s*-\\s*", "");
           Object yearObj = rs.getObject("year");

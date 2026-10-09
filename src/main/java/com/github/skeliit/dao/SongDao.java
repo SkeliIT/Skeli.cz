@@ -3,7 +3,6 @@ package com.github.skeliit.dao;
 import com.github.skeliit.Db;
 import com.github.skeliit.model.Song;
 import com.github.skeliit.model.SongVideo;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

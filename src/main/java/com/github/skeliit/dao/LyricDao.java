@@ -3,7 +3,6 @@ package com.github.skeliit.dao;
 import com.github.skeliit.Db;
 import com.github.skeliit.model.CommentView;
 import com.github.skeliit.model.LyricView;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
