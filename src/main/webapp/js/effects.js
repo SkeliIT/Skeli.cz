@@ -76,49 +76,80 @@
     }, { passive: true });
   }
 
-  // home background: Skeli's photos cross-fade over the usual one, then back to it.
+  // The background of every page: Skeli's photos cross-fade over the usual one, then back to it.
+  // The layer is outside <main> (includes/header.jsp), so a PJAX page swap leaves it running, and
+  // sessionStorage keeps the turn across full page loads: the next page starts on the same photo
+  // and the next one comes when it would have anyway.
   // data-dark / data-light = "name:position[:wide],…" of img/photos/<name>-lg|md.webp; a portrait
   // photo marked wide has <name>-wide.webp (whole photo on a 16:9 canvas) for landscape screens
-  var slideTimer = 0, rebuildSlides = null;
-  // one observer for the theme switch, whichever page is shown now
-  new MutationObserver(function () { if (rebuildSlides) rebuildSlides(); })
-    .observe(document.body, { attributes: true, attributeFilter: ['class'] });
-  function slides(root) {
-    var box = root.querySelector('.bg-slides');
-    clearInterval(slideTimer);
-    rebuildSlides = null;
+  var SLIDE_MS = 7000, SLIDE_KEY = 'bgSlide';
+  function slides() {
+    var box = document.querySelector('.bg-slides');
     if (!box || reduced) return;
+    var step = 0, wait = 0, every = 0;   // step 0 = the usual background, 1..n = the photos
+    function theme() { return document.body.classList.contains('light') ? 'light' : 'dark'; }
     function build() {
-      var light = document.body.classList.contains('light');
       var size = window.innerWidth * (window.devicePixelRatio || 1) > 1400 ? 'lg' : 'md';
+      var landscape = window.innerWidth > window.innerHeight;
       box.innerHTML = '';
-      (box.getAttribute(light ? 'data-light' : 'data-dark') || '').split(',').forEach(function (item) {
+      (box.getAttribute(theme() === 'light' ? 'data-light' : 'data-dark') || '').split(',').forEach(function (item) {
         var parts = item.split(':');
         if (!parts[0]) return;
         var layer = document.createElement('div');
-        var landscape = window.innerWidth > window.innerHeight;
         layer.dataset.src = '/img/photos/' + parts[0].trim() + '-' + (parts[2] === 'wide' && landscape ? 'wide' : size) + '.webp';
         layer.style.setProperty('--pos', parts[1] || 'center');
         box.appendChild(layer);
       });
     }
-    // step 0 = the usual background, 1..n = the photos; a photo is fetched just before its turn
-    var step = 0;
-    function next() {
-      if (document.hidden || !box.isConnected) return;
-      var layers = box.children;
-      step = (step + 1) % (layers.length + 1);
-      var cur = layers[step - 1];
+    // a photo is fetched just before its turn
+    function show(instant) {
+      var layers = box.children, cur = layers[step - 1];
+      function swap() {
+        for (var i = 0; i < layers.length; i++) {
+          layers[i].classList.toggle('instant', !!instant);
+          layers[i].classList.toggle('on', layers[i] === cur);
+        }
+        if (instant) requestAnimationFrame(function () {
+          requestAnimationFrame(function () { for (var i = 0; i < layers.length; i++) layers[i].classList.remove('instant'); });
+        });
+      }
       if (cur && !cur.style.getPropertyValue('--slide')) {
         var img = new Image();
-        img.onload = function () { cur.style.setProperty('--slide', 'url("' + cur.dataset.src + '")'); show(); };
+        img.onload = function () { cur.style.setProperty('--slide', 'url("' + cur.dataset.src + '")'); swap(); };
         img.src = cur.dataset.src;
-      } else show();
-      function show() { for (var i = 0; i < layers.length; i++) layers[i].classList.toggle('on', layers[i] === cur); }
+      } else swap();
     }
-    build();
-    slideTimer = setInterval(next, 7000);
-    rebuildSlides = function () { build(); step = 0; };
+    function save() {
+      try { sessionStorage.setItem(SLIDE_KEY, JSON.stringify({ step: step, at: Date.now(), theme: theme() })); } catch (e) { }
+    }
+    function next() {
+      if (document.hidden) return;
+      step = (step + 1) % (box.children.length + 1);
+      save();
+      show(false);
+    }
+    function start() {
+      clearTimeout(wait);
+      clearInterval(every);
+      build();
+      var saved = null, delay = SLIDE_MS;
+      try { saved = JSON.parse(sessionStorage.getItem(SLIDE_KEY)); } catch (e) { }
+      var age = saved ? Date.now() - saved.at : -1;
+      if (saved && saved.theme === theme() && saved.step <= box.children.length && age >= 0 && age < 10 * 60000) {
+        step = saved.step;                       // carry on with the photo the last page showed
+        show(true);
+        delay = Math.max(400, SLIDE_MS - age);
+      } else {
+        step = 0;
+        save();
+      }
+      wait = setTimeout(function () { next(); every = setInterval(next, SLIDE_MS); }, delay);
+    }
+    start();
+    // the theme switch brings the other set of photos
+    var lastTheme = theme();
+    new MutationObserver(function () { if (theme() !== lastTheme) { lastTheme = theme(); start(); } })
+      .observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
 
   // the photo band drifts a little slower than the page
@@ -200,7 +231,8 @@
     lightboxOpen(group, group.indexOf(a));
   });
 
-  function init(root) { particles(root); marquee(root); tilt(root); slides(root); parallax(root); }
+  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); }
   init(document);
+  slides();   // once: the layer is not part of the page that PJAX swaps
   document.addEventListener('pjax:done', function () { init(document.querySelector('main') || document); });
 })();

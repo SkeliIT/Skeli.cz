@@ -116,6 +116,7 @@ body::before {
   background: var(--bg-overlay), var(--bg-image) center 30% / cover no-repeat;
   /* the photo slowly breathes in and out; scaling up never shows its edge */
   animation: bg-breathe 30s ease-in-out infinite alternate;
+  animation-delay: var(--breathe-at, 0s);   /* set in includes/header.jsp */
   will-change: transform;
 }
 @keyframes bg-breathe { to { transform: scale(1.07) translateY(-1%); } }
