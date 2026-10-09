@@ -27,7 +27,7 @@
                         <td><%= row[3] != null && !"null".equals(row[3]) ? com.github.skeliit.WebUtils.escapeHtml(row[3]) : "<span class=\"text-dim\">čeká na potvrzení</span>" %></td>
                         <td><%= row[2] != null && !"null".equals(row[2]) ? com.github.skeliit.WebUtils.escapeHtml(row[2]) : "" %></td>
                         <td>
-                            <form method="post" action="/admin/newsletter" style="display:inline">
+                            <form method="post" action="/admin/newsletter" class="inline-form">
                                 <input type="hidden" name="csrf" value="${csrf}">
                                 <input type="hidden" name="email" value="<%= com.github.skeliit.WebUtils.escapeHtml(row[0]) %>">
                                 <button type="submit" class="btn-delete" onclick="return confirm('Opravdu smazat?')">Smazat</button>

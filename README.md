@@ -109,7 +109,7 @@ src/test/java/                       unit testy a UI testy (*IT)
 
 ## Překlady a jazyky
 
-- Texty se čtou jen ze souborů `WEB-INF/i18n/messages_{jazyk}.properties` (UTF-8). Chybějící klíč se zobrazí česky. Tabulka `translations` v DB se už nepoužívá.
+- Texty se čtou jen ze souborů `WEB-INF/i18n/messages_{jazyk}.properties` (UTF-8). Chybějící klíč se zobrazí česky.
 - V JSP je překlad v proměnné `t` (`t.getProperty("klic")`), aktuální jazyk v `cur`.
 - **Nový jazyk** vyžaduje:
   1. `messages_xx.properties` se všemi klíči (hlídá `I18nTest`),

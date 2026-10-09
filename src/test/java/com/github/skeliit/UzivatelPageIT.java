@@ -137,7 +137,7 @@ public class UzivatelPageIT {
         String body = response.body();
         assertTrue(body.contains(username), "exported JSON should contain the username, got: " + body);
         assertTrue(body.contains("\"comments\""), "exported JSON should contain a comments array");
-        assertTrue(body.contains("\"favorites\""), "exported JSON should contain a favorites array");
+        assertTrue(body.contains("\"video_comments\""), "exported JSON should contain the video comments too");
     }
 
     @Test

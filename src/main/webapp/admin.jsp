@@ -215,12 +215,12 @@
   <h3 class="admin-section-title" id="sync"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Synchronizace</h3>
   <section class="admin-card admin-sync-card">
     <div class="admin-sync-item">
-      <i class="fab fa-youtube" style="color: var(--youtube)" aria-hidden="true"></i>
+      <i class="fab fa-youtube icon-youtube" aria-hidden="true"></i>
       <div><b>YouTube</b><span>Načte videa z kanálu a spáruje je se songy.</span></div>
       <a class="admin-btn" href="/admin/sync">Spustit</a>
     </div>
     <div class="admin-sync-item">
-      <i class="fab fa-instagram" style="color: #e1306c" aria-hidden="true"></i>
+      <i class="fab fa-instagram icon-instagram" aria-hidden="true"></i>
       <div><b>Instagram</b><span>Běží samo každou hodinu: posledních 25 příspěvků do Aktualit.</span></div>
       <a class="admin-btn" href="/admin/instagram-sync">Spustit</a>
     </div>

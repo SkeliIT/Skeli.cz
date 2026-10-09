@@ -1,6 +1,7 @@
 package com.github.skeliit.security;
 
 import com.github.skeliit.Config;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;

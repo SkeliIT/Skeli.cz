@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * Ends sign-ins that were cut off while the server wasn't holding them in memory: sessions are kept
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SessionValidityFilter implements Filter {
 
+    private static final Logger LOG = Logger.getLogger(SessionValidityFilter.class.getName());
     private static final Map<Integer, Long> VALID_AFTER = new ConcurrentHashMap<>();
 
     /** True when a sign-in made at {@code signedInAt} no longer counts. */
@@ -45,7 +47,7 @@ public class SessionValidityFilter implements Filter {
             ps.executeUpdate();
         } catch (SQLException e) {
             // the in-memory value still covers this run of the server
-            System.err.println("[SessionValidity] could not store the cut-off for user " + userId + ": " + e.getMessage());
+            LOG.warning("could not store the sign-out cut-off for user " + userId + ": " + e.getMessage());
         }
         return now;
     }

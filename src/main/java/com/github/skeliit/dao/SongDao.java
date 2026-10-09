@@ -6,6 +6,7 @@ import com.github.skeliit.model.DiscoItem;
 import com.github.skeliit.model.LyricListItem;
 import com.github.skeliit.model.Song;
 import com.github.skeliit.model.SongVideo;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -259,18 +260,6 @@ public class SongDao {
             ps.setString(1, youtubeId);
             ps.setInt(2, songId);
             ps.executeUpdate();
-        }
-    }
-
-    public String[] lyricLanguages(int songId) throws SQLException {
-        try (Connection c = Db.get();
-             PreparedStatement ps = c.prepareStatement(
-                     "SELECT GROUP_CONCAT(DISTINCT lang ORDER BY lang SEPARATOR ',') FROM lyrics WHERE song_id=?")) {
-            ps.setInt(1, songId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next() || rs.getString(1) == null || rs.getString(1).isEmpty()) return new String[0];
-                return rs.getString(1).split(",");
-            }
         }
     }
 

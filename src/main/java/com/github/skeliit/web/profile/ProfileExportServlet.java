@@ -71,19 +71,6 @@ public class ProfileExportServlet extends HttpServlet {
                     }
                 }
             }
-            try (PreparedStatement ps = c.prepareStatement(
-                    "SELECT video_id, created_at FROM favorites WHERE user_id=? ORDER BY created_at DESC")) {
-                ps.setInt(1, uid);
-                try (ResultSet rs = ps.executeQuery()) {
-                    var arr = root.putArray("favorites");
-                    while (rs.next()) {
-                        ObjectNode o = m.createObjectNode();
-                        o.put("video_id", rs.getString(1));
-                        o.put("created_at", String.valueOf(rs.getTimestamp(2)));
-                        arr.add(o);
-                    }
-                }
-            }
             // everything else the site keeps about the user (GDPR: the right to a copy of one's data)
             String email = root.path("user").path("email").asText(null);
             section(c, m, root, "account", "SELECT avatar_url, email_verified_at FROM users WHERE id=?", uid);
@@ -92,7 +79,6 @@ public class ProfileExportServlet extends HttpServlet {
             section(c, m, root, "lyric_votes", "SELECT * FROM lyrics_votes WHERE user_id=?", uid);
             section(c, m, root, "video_comment_votes", "SELECT * FROM video_comment_votes WHERE user_id=?", uid);
             section(c, m, root, "reported_comments", "SELECT kind, comment_id, created_at FROM comment_reports WHERE reporter_id=?", uid);
-            section(c, m, root, "playlists", "SELECT id, name, created_at FROM playlists WHERE user_id=?", uid);
             if (email != null && !email.isBlank()) {
                 section(c, m, root, "newsletter",
                         "SELECT email, subscribed_at, confirmed_at, unsubscribed_at FROM newsletter_emails WHERE email=?", email);

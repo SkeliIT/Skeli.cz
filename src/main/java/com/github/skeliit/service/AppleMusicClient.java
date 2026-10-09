@@ -14,22 +14,17 @@ import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 
 public class AppleMusicClient {
 
-    public record SongMatch(String id, String name, String releaseDate) {}
     public record AppleMusicLyrics(String ttml, String plainText) {}
 
     private final String teamId;
@@ -37,7 +32,6 @@ public class AppleMusicClient {
     private final String privateKeyPem;
     private final String userToken;
     private final String storefront;
-    private final String artistName;
     private final HttpClient http;
     private final ObjectMapper mapper;
 
@@ -45,13 +39,12 @@ public class AppleMusicClient {
     private volatile long tokenExpiry;
 
     public AppleMusicClient(String teamId, String keyId, String privateKeyPem,
-                            String userToken, String storefront, String artistName) {
+                            String userToken, String storefront) {
         this.teamId = teamId;
         this.keyId = keyId;
         this.privateKeyPem = privateKeyPem;
         this.userToken = userToken;
         this.storefront = storefront;
-        this.artistName = artistName;
         this.http = HttpClient.newHttpClient();
         this.mapper = new ObjectMapper();
     }
@@ -81,60 +74,6 @@ public class AppleMusicClient {
         cachedToken = jwt.serialize();
         tokenExpiry = exp;
         return cachedToken;
-    }
-
-    public SongMatch searchSong(String songName, Integer year) throws Exception {
-        String query = URLEncoder.encode(artistName + " " + songName, StandardCharsets.UTF_8);
-        String url = "https://api.music.apple.com/v1/catalog/" + storefront +
-                "/search?types=songs&term=" + query + "&limit=5";
-
-        String body = get(url, false);
-        JsonNode data = mapper.readTree(body).path("results").path("songs").path("data");
-        if (!data.isArray() || data.isEmpty()) return null;
-
-        // Pick best match: prefer exact name match + year match
-        String normalSong = normalize(songName);
-        SongMatch best = null;
-        int bestScore = -1;
-        for (JsonNode item : data) {
-            String id = item.path("id").asText(null);
-            JsonNode attr = item.path("attributes");
-            String name = attr.path("name").asText("");
-            String artist = attr.path("artistName").asText("");
-            String releaseDate = attr.path("releaseDate").asText("");
-
-            int score = 0;
-            if (normalize(name).contains(normalSong)) score += 2;
-            if (normalize(artist).contains(normalize(artistName))) score += 1;
-            if (year != null && releaseDate.startsWith(String.valueOf(year))) score += 2;
-
-            if (score > bestScore) {
-                bestScore = score;
-                best = new SongMatch(id, name, releaseDate);
-            }
-        }
-        return (bestScore >= 1) ? best : null;
-    }
-
-    public List<SongMatch> listArtistSongs(String artistId) throws Exception {
-        List<SongMatch> all = new ArrayList<>();
-        String url = "https://api.music.apple.com/v1/catalog/" + storefront +
-                "/artists/" + artistId + "/relationships/songs?limit=100";
-        while (url != null) {
-            String body = get(url, false);
-            JsonNode root = mapper.readTree(body);
-            for (JsonNode item : root.path("data")) {
-                String id = item.path("id").asText(null);
-                if (id == null) continue;
-                JsonNode attr = item.path("attributes");
-                all.add(new SongMatch(id, attr.path("name").asText(""), attr.path("releaseDate").asText("")));
-            }
-            JsonNode next = root.path("next");
-            url = (next.isMissingNode() || next.isNull() || next.asText("").isBlank())
-                    ? null
-                    : "https://api.music.apple.com" + next.asText();
-        }
-        return all;
     }
 
     public AppleMusicLyrics fetchLyrics(String appleMusicId) throws Exception {
@@ -180,15 +119,5 @@ public class AppleMusicClient {
             // Strip XML tags as fallback
             return ttml.replaceAll("<[^>]+>", "").replaceAll("\\s+", " ").trim();
         }
-    }
-
-    public static String normalize(String s) {
-        if (s == null) return "";
-        return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
-                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
-                .toLowerCase()
-                .replaceAll("[^a-z0-9 ]+", " ")
-                .replaceAll("\\s+", " ")
-                .trim();
     }
 }

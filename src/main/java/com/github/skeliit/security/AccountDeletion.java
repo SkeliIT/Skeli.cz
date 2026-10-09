@@ -14,9 +14,9 @@ import java.util.UUID;
 
 /**
  * Deleting an account for real (the user's choice 2026-10-07): every personal detail goes –
- * name, e-mail, password, avatar (also the file), profile, favourites, reports,
- * playlists, notifications, linked accounts, pending resets and the newsletter subscription
- * with that e-mail. The votes stay counted (they belong to no name any more, the user's wish)
+ * name, e-mail, password, avatar (also the file), profile, reports, pending resets and the
+ * newsletter subscription with that e-mail. The votes stay counted (they belong to no name any
+ * more, the user's wish)
  * and the comments stay so discussions still make sense, shown as
  * "Deleted account" (the user row remains as an empty shell with role DELETED, so the
  * comments keep their author id).
@@ -42,13 +42,8 @@ public final class AccountDeletion {
         boolean auto = c.getAutoCommit();
         c.setAutoCommit(false);
         try {
-            run(c, "DELETE FROM favorites WHERE user_id = ?", userId);
-            run(c, "DELETE FROM linked_accounts WHERE user_id = ?", userId);
-            run(c, "DELETE FROM notifications WHERE user_id = ?", userId);
             run(c, "DELETE FROM password_resets WHERE user_id = ?", userId);
             run(c, "DELETE FROM comment_reports WHERE reporter_id = ?", userId);
-            run(c, "DELETE pi FROM playlist_items pi JOIN playlists p ON p.id = pi.playlist_id WHERE p.user_id = ?", userId);
-            run(c, "DELETE FROM playlists WHERE user_id = ?", userId);
             run(c, "DELETE FROM user_profiles WHERE user_id = ?", userId);
             if (email != null && !email.isBlank()) {
                 try (PreparedStatement ps = c.prepareStatement("DELETE FROM newsletter_emails WHERE email = ?")) {

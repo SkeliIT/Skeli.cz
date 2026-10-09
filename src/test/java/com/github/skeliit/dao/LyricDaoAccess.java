@@ -1,6 +1,7 @@
 package com.github.skeliit.dao;
 
 import com.github.skeliit.model.CommentView;
+
 import java.util.List;
 
 /** Exposes the package-private threading helper to tests in other packages. */

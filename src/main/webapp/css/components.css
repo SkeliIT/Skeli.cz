@@ -396,6 +396,8 @@ a.btn-primary, a.btn-primary:hover { color: var(--accent-ink); }
 
 .btn-lg { padding: 14px 26px; font-size: var(--fs-body); }
 .btn-ghost { background: transparent; }
+/* a quiet button next to a main one: just an outline in the text colour */
+.btn-outline { background: transparent; border: 1px solid var(--panel-border); color: var(--text); }
 
 /* ---------- Forms ---------- */
 input:not([type]),

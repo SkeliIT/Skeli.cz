@@ -38,7 +38,6 @@ public class SocialPostsApiServlet extends HttpServlet {
         }
         if (lang == null || lang.isEmpty())
             lang = "cs";
-        System.out.println("[SocialPostsApi] Language from session: " + lang);
 
         boolean onePerSource = "true".equalsIgnoreCase(req.getParameter("onePerSource"));
         int offset = 0;

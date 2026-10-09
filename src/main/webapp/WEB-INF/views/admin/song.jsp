@@ -267,7 +267,7 @@
             </div>
           </form>
           <c:if test="${lang != 'cs'}">
-            <form method="post" action="/admin/song" class="admin-form admin-inline-form" style="margin-top:8px">
+            <form method="post" action="/admin/song" class="admin-form admin-inline-form translate-form">
               <input type="hidden" name="csrf" value="${csrf}">
               <input type="hidden" name="id" value="${song.id}">
               <input type="hidden" name="action" value="translate_locale">
@@ -309,7 +309,7 @@
                     </a>
                   </td>
                   <td>
-                    <form method="post" action="/admin/song" style="display:inline">
+                    <form method="post" action="/admin/song" class="inline-form">
                       <input type="hidden" name="csrf" value="${csrf}">
                       <input type="hidden" name="id" value="${song.id}">
                       <input type="hidden" name="action" value="unlink_video">

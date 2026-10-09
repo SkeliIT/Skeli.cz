@@ -1,6 +1,7 @@
 package com.github.skeliit.model;
 
 import com.github.skeliit.Db;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

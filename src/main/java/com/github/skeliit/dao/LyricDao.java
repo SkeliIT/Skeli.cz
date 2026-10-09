@@ -3,6 +3,7 @@ package com.github.skeliit.dao;
 import com.github.skeliit.Db;
 import com.github.skeliit.model.CommentView;
 import com.github.skeliit.model.LyricView;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +94,7 @@ public class LyricDao {
     }
 
     public List<com.github.skeliit.model.SongLocale> listLocales(int songId) throws SQLException {
-        String sql = "SELECT id, song_id, lang, words, seo_slug, meta_description, timed_lyrics " +
+        String sql = "SELECT id, song_id, lang, words, seo_slug, meta_description " +
                 "FROM lyrics WHERE song_id=? ORDER BY FIELD(lang,'cs','en','de','uk'), lang";
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, songId);
@@ -108,7 +109,7 @@ public class LyricDao {
     public com.github.skeliit.model.SongLocale findLocale(int songId, String lang) throws SQLException {
         try (Connection c = Db.get();
              PreparedStatement ps = c.prepareStatement(
-                     "SELECT id, song_id, lang, words, seo_slug, meta_description, timed_lyrics " +
+                     "SELECT id, song_id, lang, words, seo_slug, meta_description " +
                              "FROM lyrics WHERE song_id=? AND lang=? LIMIT 1")) {
             ps.setInt(1, songId);
             ps.setString(2, lang);
@@ -187,7 +188,6 @@ public class LyricDao {
         loc.words = rs.getString("words");
         try { loc.seoSlug = rs.getString("seo_slug"); } catch (SQLException ignore) {}
         try { loc.metaDescription = rs.getString("meta_description"); } catch (SQLException ignore) {}
-        try { loc.timedLyrics = rs.getString("timed_lyrics"); } catch (SQLException ignore) {}
         return loc;
     }
 

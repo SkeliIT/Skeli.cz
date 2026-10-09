@@ -42,7 +42,6 @@ public class LyricView {
     public String getPreviewImageUrl() { return previewImageUrl; }
     public String getSongUuid() { return songUuid; }
     public String getLang() { return lang; }
-    public String getSongSeoSlug() { return songSeoSlug; }
     public String getMetaDescription() { return metaDescription; }
 
     /** Public path: /{lang}/song/{seoSlug|uuid}. */

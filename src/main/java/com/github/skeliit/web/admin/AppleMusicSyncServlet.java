@@ -71,8 +71,7 @@ public class AppleMusicSyncServlet extends HttpServlet {
         String privateKey = System.getenv("APPLE_MUSIC_PRIVATE_KEY");
         String userToken = System.getenv("APPLE_MUSIC_USER_TOKEN");
         if (teamId != null && keyId != null && privateKey != null && userToken != null && !userToken.isBlank()) {
-            AppleMusicClient client = new AppleMusicClient(teamId, keyId, privateKey, userToken, storefront,
-                    env("APPLE_MUSIC_ARTIST", "Skeli"));
+            AppleMusicClient client = new AppleMusicClient(teamId, keyId, privateKey, userToken, storefront);
             LyricDao lyricDao = new LyricDao();
             for (Song song : songs) {
                 if (song.appleMusicId == null) continue;
