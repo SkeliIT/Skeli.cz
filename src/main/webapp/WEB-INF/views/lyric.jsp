@@ -156,6 +156,36 @@
 
       <!-- The lyrics in a frame that fades out at the bottom -->
       <section class="lyric-main">
+      <!-- Share, listen, text size: a bar at the top of the lyrics -->
+      <div class="lyric-toolbar lyric-links">
+        <div class="action-buttons">
+          <button type="button" class="action-btn" id="shareLyric" data-copied="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("lyric.linkCopied")) %>" title="<%= t.getProperty("lyric.shareLink") %>">
+            <i class="fas fa-share-alt"></i> <span><%= t.getProperty("common.share") %></span>
+          </button>
+          <a class="action-btn" href="https://open.spotify.com/search/<c:out value='${lyric.songName}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.findSpotify") %>">
+            <i class="fab fa-spotify icon-spotify"></i> Spotify
+          </a>
+          <c:if test="${not empty lyric.youtubeId}">
+            <a class="action-btn" href="https://www.youtube.com/watch?v=<c:out value='${lyric.youtubeId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openYoutube") %>">
+              <i class="fab fa-youtube icon-youtube"></i> YouTube
+            </a>
+          </c:if>
+          <c:if test="${not empty lyric.appleMusicId}">
+            <a class="action-btn" href="https://music.apple.com/cz/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openApple") %>">
+              <i class="fab fa-apple icon-apple"></i> Apple Music
+            </a>
+          </c:if>
+        </div>
+        <div class="lyric-toolbar-end">
+          <div class="lyric-textsize" role="group" aria-label="<%= t.getProperty("lyric.textSize") %>">
+            <span><%= t.getProperty("lyric.textSize") %></span>
+            <button type="button" class="ts-btn" data-step="-1" aria-label="<%= t.getProperty("lyric.textSmaller") %>" title="<%= t.getProperty("lyric.textSmaller") %>">A−</button>
+            <button type="button" class="ts-btn" data-step="1" aria-label="<%= t.getProperty("lyric.textBigger") %>" title="<%= t.getProperty("lyric.textBigger") %>">A+</button>
+          </div>
+          <div class="views-count"><i class="fa-regular fa-eye"></i> <%= t.getProperty("lyric.views") %> ${lyric.views}</div>
+        </div>
+      </div>
+
       <!-- Lyrics Text -->
       <article class="lyric-body">
         <div class="lyrics-text">
@@ -185,37 +215,6 @@
           </c:if>
         </nav>
       </c:if>
-
-      <!-- Listen links (sticky sidebar on desktop) -->
-      <aside class="lyric-side">
-
-        <div class="content-box lyric-links">
-          <div class="action-buttons">
-            <button type="button" class="action-btn" id="shareLyric" data-copied="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("lyric.linkCopied")) %>" title="<%= t.getProperty("lyric.shareLink") %>">
-              <i class="fas fa-share-alt"></i> <span><%= t.getProperty("common.share") %></span>
-            </button>
-            <a class="action-btn" href="https://open.spotify.com/search/<c:out value='${lyric.songName}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.findSpotify") %>">
-              <i class="fab fa-spotify icon-spotify"></i> Spotify
-            </a>
-            <c:if test="${not empty lyric.youtubeId}">
-              <a class="action-btn" href="https://www.youtube.com/watch?v=<c:out value='${lyric.youtubeId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openYoutube") %>">
-                <i class="fab fa-youtube icon-youtube"></i> YouTube
-              </a>
-            </c:if>
-            <c:if test="${not empty lyric.appleMusicId}">
-              <a class="action-btn" href="https://music.apple.com/cz/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openApple") %>">
-                <i class="fab fa-apple icon-apple"></i> Apple Music
-              </a>
-            </c:if>
-          </div>
-          <div class="lyric-textsize" role="group" aria-label="<%= t.getProperty("lyric.textSize") %>">
-            <span><%= t.getProperty("lyric.textSize") %></span>
-            <button type="button" class="ts-btn" data-step="-1" aria-label="<%= t.getProperty("lyric.textSmaller") %>" title="<%= t.getProperty("lyric.textSmaller") %>">A−</button>
-            <button type="button" class="ts-btn" data-step="1" aria-label="<%= t.getProperty("lyric.textBigger") %>" title="<%= t.getProperty("lyric.textBigger") %>">A+</button>
-          </div>
-          <div class="views-count"><i class="fa-regular fa-eye"></i> <%= t.getProperty("lyric.views") %> ${lyric.views}</div>
-        </div>
-      </aside>
 
       <!-- Votes & Comments Box -->
       <div class="content-box lyric-comments">
