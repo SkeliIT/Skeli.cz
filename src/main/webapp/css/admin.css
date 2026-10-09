@@ -201,6 +201,7 @@ body.light .lang-flag { background: rgba(0,0,0,0.06); }
 .admin-card-wide { grid-column: 1 / -1; }
 .admin-inline-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .report-row { display: flex; gap: 16px; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--panel-border); }
+.report-row[hidden] { display: none; }
 .report-main { min-width: 0; }
 .report-meta { font-size: var(--fs-small); color: var(--text-dim); }
 .report-meta strong { color: var(--accent); font-weight: 400; }
@@ -401,6 +402,7 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .role-admin .role-badge { border-color: var(--accent); color: var(--accent); }
 .role-deleted td { opacity: 0.5; }
 .admin-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 0 0 14px; }
+.admin-toolbar select { width: auto; }
 .admin-search { position: relative; flex: 1 1 280px; max-width: 420px; }
 .admin-search i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); z-index: 1; color: var(--accent); }
 .admin-search input { width: 100%; padding-left: 42px; border-radius: 999px; }

@@ -394,7 +394,7 @@
     getJson('/admin/kevin').then(function (s) {
       if (!s) return;
       var parts = [], href = null, linkText = null;
-      if (s.reports) { parts.push(say(L.admin.reports, s.reports)); href = '/admin.jsp#reports'; linkText = L.admin.toReports; }
+      if (s.reports) { parts.push(say(L.admin.reports, s.reports)); href = '/admin/comments#reports'; linkText = L.admin.toReports; }
       if (s.clipsWithoutSong) parts.push(say(L.admin.clips, s.clipsWithoutSong, s.newestClipWithoutSong || ''));
       if (s.songsWithoutLyrics) parts.push(say(L.admin.lyrics, s.songsWithoutLyrics));
       if (!href && parts.length) { href = '/admin/lyrics'; linkText = L.admin.toLyrics; }

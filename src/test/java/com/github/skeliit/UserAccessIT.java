@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class UserAccessIT extends UiTestSupport {
     private static final List<String> ADMIN_PATHS = List.of(
-            "/admin.jsp", "/admin_users.jsp", "/admin/songs", "/admin/song", "/admin/newsletter", "/admin/lyrics");
+            "/admin.jsp", "/admin_users.jsp", "/admin/songs", "/admin/song", "/admin/newsletter", "/admin/lyrics", "/admin/comments");
     /** the admin templates live in WEB-INF: only their servlets show them, never their own address */
     private static final List<String> TEMPLATES = List.of(
             "/admin_song.jsp", "/admin_songs.jsp", "/admin_newsletter.jsp", "/WEB-INF/views/admin/song.jsp");

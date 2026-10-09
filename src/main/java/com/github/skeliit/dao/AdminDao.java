@@ -1,6 +1,8 @@
 package com.github.skeliit.dao;
 
 import com.github.skeliit.Db;
+import com.github.skeliit.job.VideoTitles;
+import com.github.skeliit.model.AdminComment;
 import com.github.skeliit.model.AdminUser;
 import com.github.skeliit.model.CommentReport;
 
@@ -9,11 +11,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Data for the admin pages: dashboard numbers, users, reported comments. */
+/** Data for the admin pages: dashboard numbers, users, comments and the reported ones. */
 public class AdminDao {
 
     /** songs, clips, lyrics, comments, users, subscribers, reports, clipsWithoutSong, songsWithoutLyrics */
@@ -64,6 +67,51 @@ public class AdminDao {
             }
         }
         return out;
+    }
+
+    /**
+     * The newest comments on lyrics and on clips together, newest first. Two queries merged here:
+     * the two tables have different collations, so they are not joined in SQL.
+     */
+    public List<AdminComment> latestComments(int limit) throws SQLException {
+        String lyricSql = "SELECT c.id, c.content, c.created_at, c.updated_at, c.parent_id, c.lyric_id, s.name, "
+                + "CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.username END AS author, "
+                + "(SELECT COUNT(*) FROM comment_reports r WHERE r.kind = 'lyric' AND r.comment_id = c.id) AS reports "
+                + "FROM comments c LEFT JOIN users u ON u.id = c.user_id "
+                + "LEFT JOIN lyrics l ON l.id = c.lyric_id LEFT JOIN songs s ON s.id = l.song_id "
+                + "ORDER BY c.created_at DESC, c.id DESC LIMIT ?";
+        String videoSql = "SELECT vc.id, vc.content, vc.created_at, vc.updated_at, vc.parent_id, vc.youtube_id, "
+                // BINARY: videos and video_comments have different collations, IDs are plain ASCII
+                + "(SELECT v.title FROM videos v WHERE BINARY v.youtube_id = BINARY vc.youtube_id LIMIT 1) AS title, "
+                + "CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.username END AS author, "
+                + "(SELECT COUNT(*) FROM comment_reports r WHERE r.kind = 'video' AND r.comment_id = vc.id) AS reports "
+                + "FROM video_comments vc LEFT JOIN users u ON u.id = vc.user_id "
+                + "ORDER BY vc.created_at DESC, vc.id DESC LIMIT ?";
+        List<AdminComment> out = new ArrayList<>();
+        try (Connection conn = Db.get()) {
+            try (PreparedStatement ps = conn.prepareStatement(lyricSql)) {
+                ps.setInt(1, limit);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        out.add(new AdminComment("lyric", rs.getInt("id"), rs.getString("author"), rs.getString("content"),
+                                rs.getTimestamp("created_at"), rs.getTimestamp("updated_at") != null, rs.getObject("parent_id") != null,
+                                rs.getInt("lyric_id"), rs.getString("name"), null, null, rs.getInt("reports")));
+                    }
+                }
+            }
+            try (PreparedStatement ps = conn.prepareStatement(videoSql)) {
+                ps.setInt(1, limit);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        out.add(new AdminComment("video", rs.getInt("id"), rs.getString("author"), rs.getString("content"),
+                                rs.getTimestamp("created_at"), rs.getTimestamp("updated_at") != null, rs.getObject("parent_id") != null,
+                                0, null, rs.getString("youtube_id"), VideoTitles.display(rs.getString("title")), rs.getInt("reports")));
+                    }
+                }
+            }
+        }
+        out.sort(Comparator.comparing((AdminComment c) -> c.createdAt, Comparator.nullsLast(Comparator.reverseOrder())));
+        return out.size() > limit ? new ArrayList<>(out.subList(0, limit)) : out;
     }
 
     /** Every account, newest first (deleted ones too: the page hides them unless asked). */

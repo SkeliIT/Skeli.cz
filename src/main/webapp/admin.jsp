@@ -15,10 +15,10 @@
       {"/admin/songs", "fa-music", "Písně", "songs"},
       {"/admin/songs", "fa-film", "Klipy", "clips"},
       {"/admin/lyrics", "fa-align-left", "Songy s textem", "lyrics"},
-      {"#reports", "fa-comments", "Komentáře", "comments"},
+      {"/admin/comments", "fa-comments", "Komentáře", "comments"},
       {"/admin_users.jsp", "fa-users", "Uživatelé", "users"},
       {"/admin/newsletter", "fa-envelope-open-text", "Odběratelé", "subscribers"},
-      {"#reports", "fa-flag", "Nahlášené", "reports"}
+      {"/admin/comments#reports", "fa-flag", "Nahlášené", "reports"}
   };
 %>
 <main class="admin-page">
@@ -47,7 +47,7 @@
       <p class="admin-done"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Všechno hotovo. Můžeš jít nahrávat.</p>
     <% } else { %>
     <ul>
-      <% if (nReports > 0) { %><li class="urgent"><a href="#reports"><i class="fa-solid fa-flag"></i> <b><%= nReports %></b> nahlášených komentářů čeká na rozhodnutí</a></li><% } %>
+      <% if (nReports > 0) { %><li class="urgent"><a href="/admin/comments#reports"><i class="fa-solid fa-flag"></i> <b><%= nReports %></b> nahlášených komentářů čeká na rozhodnutí</a></li><% } %>
       <% if (nClipsAlone > 0) { %><li><a href="/admin/lyrics"><i class="fa-solid fa-film"></i> <b><%= nClipsAlone %></b> klipů nemá song – v editoru textů z nich jedním klikem uděláš song</a></li><% } %>
       <% if (nNoText > 0) { %><li><a href="/admin/lyrics"><i class="fa-solid fa-align-left"></i> <b><%= nNoText %></b> songů nemá text</a></li><% } %>
     </ul>
@@ -141,55 +141,11 @@
 
   <h3 class="admin-section-title" id="community"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Komunita</h3>
   <div class="admin-grid">
-    <section class="admin-card admin-card-wide" id="reports">
-      <h3>Nahlášené komentáře</h3>
-      <%
-        // dao/AdminDao: reported comments that still exist; null = they could not be read
-        java.util.List<com.github.skeliit.model.CommentReport> reports = null;
-        try {
-          reports = new com.github.skeliit.dao.AdminDao().reportedComments();
-        } catch (java.sql.SQLException e) {
-          application.log("Admin reports", e);
-        }
-        if (reports != null) for (com.github.skeliit.model.CommentReport rep : reports) {
-          String where = rep.isLyric() ? "<a href=\"/lyrics/" + rep.lyricId + "#comment-" + rep.commentId + "\" target=\"_blank\">text #" + rep.lyricId + "</a>" : "video";
-      %>
-        <div class="report-row">
-          <div class="report-main">
-            <div class="report-meta">
-              <strong><%= com.github.skeliit.WebUtils.escapeHtml(rep.author) %></strong>
-              · <%= where %> · ID <%= rep.commentId %>
-              · <span class="report-count"><i class="fa-solid fa-flag"></i> <%= rep.reports %>×</span>
-            </div>
-            <div class="report-text"><%= com.github.skeliit.WebUtils.escapeHtml(rep.content) %></div>
-          </div>
-          <div class="report-actions">
-            <form method="post" action="/admin/comment">
-              <input type="hidden" name="csrf" value="${csrf}">
-              <input type="hidden" name="kind" value="<%= rep.kind %>">
-              <input type="hidden" name="comment_id" value="<%= rep.commentId %>">
-              <button type="submit" class="btn-delete" onclick="return confirm('Smazat tento komentář?')">Smazat komentář</button>
-            </form>
-            <form method="post" action="/admin/comment">
-              <input type="hidden" name="csrf" value="${csrf}">
-              <input type="hidden" name="kind" value="<%= rep.kind %>">
-              <input type="hidden" name="comment_id" value="<%= rep.commentId %>">
-              <input type="hidden" name="action" value="dismiss">
-              <button type="submit" class="btn-dismiss">Zamítnout</button>
-            </form>
-          </div>
-        </div>
-      <%
-        }
-        if (reports == null) {
-      %>
-        <p class="form-alert">Nahlášené komentáře se nepodařilo načíst.</p>
-      <% } else if (reports.isEmpty()) { %>
-        <p class="text-dim">Žádné nahlášené komentáře.</p>
-      <% } %>
+    <section class="admin-card admin-link-card">
+      <h3>Komentáře</h3>
+      <p class="text-dim">Všechny komentáře u textů i klipů, nahlášené nahoře. Smazat nebo zamítnout nahlášení jedním klikem.</p>
+      <a class="admin-btn" href="/admin/comments"><i class="fa-solid fa-comments"></i> Komentáře</a>
     </section>
-
-
     <section class="admin-card admin-link-card">
       <h3>Uživatelé</h3>
       <p class="text-dim">Role (uživatel / admin), smazání účtu.</p>
@@ -199,16 +155,6 @@
       <h3>Newsletter</h3>
       <p class="text-dim">Kdo odebírá novinky e-mailem a kdo už odběr potvrdil.</p>
       <a class="admin-btn" href="/admin/newsletter"><i class="fa-solid fa-envelope-open-text"></i> Odběratelé</a>
-    </section>
-    <section class="admin-card">
-      <h3>Smazat komentář podle ID</h3>
-      <p class="text-dim">Upravit nebo smazat komentář můžeš i přímo u něj na stránce písně.</p>
-      <form method="post" action="/admin/comment" class="admin-inline-form">
-        <input type="hidden" name="csrf" value="${csrf}">
-        <label>ID komentáře <input name="comment_id" required inputmode="numeric"></label>
-        <label>Kde <select name="kind"><option value="lyric">u textu</option><option value="video">u videa</option></select></label>
-        <button type="submit" class="btn-delete"><i class="fa-solid fa-trash"></i> Smazat</button>
-      </form>
     </section>
   </div>
 

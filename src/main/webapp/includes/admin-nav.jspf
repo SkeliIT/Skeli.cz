@@ -8,7 +8,7 @@
       {"/admin.jsp", "fa-gauge-high", "Nástěnka", "/admin.jsp"},
       {"/admin/songs", "fa-music", "Písně", "/admin/song"},
       {"/admin/lyrics", "fa-align-left", "Texty", "/admin/lyrics"},
-      {"/admin.jsp#reports", "fa-comments", "Komentáře", "#"},
+      {"/admin/comments", "fa-comments", "Komentáře", "/admin/comments"},
       {"/admin_users.jsp", "fa-users", "Uživatelé", "/admin_users"},
       {"/admin/newsletter", "fa-envelope-open-text", "Newsletter", "/admin/newsletter"}
   };
