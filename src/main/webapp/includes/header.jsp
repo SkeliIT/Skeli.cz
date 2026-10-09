@@ -124,7 +124,7 @@
          <main>, so it keeps running while pages change. name:position[:wide] – "wide" = a 16:9 version
          of a portrait photo for landscape screens --%>
     <div class="bg-slides" aria-hidden="true"
-         data-dark="skull:center:wide,mic:45% 30%,square:center 55%,mask:54% 30%"
+         data-dark="skull:center:wide,mic:45% 30%,square:center 55%,walker:54% 30%"
          data-light="field:center:wide,point:center 35%"></div>
     <%-- the slow "breathing" of the background goes on where the last page left it --%>
     <script>try { var bgAt = +sessionStorage.getItem('bgEpoch') || Date.now(); sessionStorage.setItem('bgEpoch', bgAt);
