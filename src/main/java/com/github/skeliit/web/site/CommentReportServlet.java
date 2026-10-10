@@ -19,7 +19,7 @@ import java.sql.SQLException;
  * POST /comment/report — a logged-in user flags someone else's comment as inappropriate.
  * Parameters: kind ("lyric" or "video") and comment_id. Each user can report a comment once;
  * admins see the reports on admin.jsp and delete the comment or dismiss the reports.
- * Lyric comments redirect back to the song, video comments (fetch) get JSON.
+ * Answers JSON ({"ok": true}); js/comments.js shows the thank-you note.
  */
 @WebServlet(name = "CommentReportServlet", urlPatterns = {"/comment/report"})
 public class CommentReportServlet extends HttpServlet {
@@ -31,29 +31,23 @@ public class CommentReportServlet extends HttpServlet {
         String kind = "video".equals(req.getParameter("kind")) ? "video" : "lyric";
         String idParam = req.getParameter("comment_id");
         if (userId == null) {
-            respond(resp, kind, null, 401, null);
+            respond(resp, 401);
             return;
         }
         if (idParam == null || !idParam.matches("\\d{1,10}")) {
-            respond(resp, kind, null, 400, null);
+            respond(resp, 400);
             return;
         }
         int commentId = Integer.parseInt(idParam);
         String table = "video".equals(kind) ? "video_comments" : "comments";
-        String lyricCol = "video".equals(kind) ? "NULL" : "lyric_id";
-        Integer lyricId = null;
         int status = 200;
         try (Connection c = Db.get()) {
             Integer authorId = null;
             try (PreparedStatement ps = c.prepareStatement(
-                    "SELECT user_id, " + lyricCol + " FROM " + table + " WHERE id=?")) {
+                    "SELECT user_id FROM " + table + " WHERE id=?")) {
                 ps.setInt(1, commentId);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        authorId = rs.getInt(1);
-                        int l = rs.getInt(2);
-                        lyricId = rs.wasNull() ? null : l;
-                    }
+                    if (rs.next()) authorId = rs.getInt(1);
                 }
             }
             if (authorId == null) {
@@ -74,16 +68,10 @@ public class CommentReportServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        respond(resp, kind, lyricId, status, commentId);
+        respond(resp, status);
     }
 
-    private static void respond(HttpServletResponse resp, String kind, Integer lyricId, int status, Integer commentId)
-            throws IOException {
-        if ("lyric".equals(kind) && lyricId != null) {
-            String flash = status == 200 ? "reported=1" : status == 429 ? "comment=limit" : "reported=0";
-            resp.sendRedirect("/lyrics/" + lyricId + "?" + flash + "#comment-" + commentId);
-            return;
-        }
+    private static void respond(HttpServletResponse resp, int status) throws IOException {
         resp.setStatus(status);
         resp.setContentType("application/json; charset=UTF-8");
         resp.getWriter().write("{\"ok\":" + (status == 200) + "}");

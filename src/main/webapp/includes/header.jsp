@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "4.5.1";
+  String assetVersion = "4.8.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -28,8 +28,7 @@
         java.util.Map.entry("/register.jsp", "auth.register.heading"),
         java.util.Map.entry("/forgot.jsp", "forgot.heading"),
         java.util.Map.entry("/reset.jsp", "reset.heading"),
-        java.util.Map.entry("/uzivatel.jsp", "settings.heading"),
-        java.util.Map.entry("/profile.jsp", "menu.profile"),
+        java.util.Map.entry("/uzivatel.jsp", "menu.account"),
         java.util.Map.entry("/privacy.jsp", "privacy.heading"),
         java.util.Map.entry("/terms.jsp", "terms.heading"),
         java.util.Map.entry("/error.jsp", "error.heading"));
@@ -109,6 +108,7 @@
     <link rel="stylesheet" href="<%= ctx %>/css/base.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/components.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/pages.css?v=<%= assetVersion %>">
+    <link rel="stylesheet" href="<%= ctx %>/css/comments.css?v=<%= assetVersion %>">
     <% if (String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin")) { %><link rel="stylesheet" href="<%= ctx %>/css/admin.css?v=<%= assetVersion %>"><% } %>
     <link rel="stylesheet" href="<%= ctx %>/css/effects.css?v=<%= assetVersion %>">
     <%-- structured data for search engines: Skeli as a musician, the site, a song (SeoJsonLd) --%>
@@ -161,8 +161,8 @@
                 <a href="<%= ctx %>/login.jsp"><i class="fa-solid fa-right-to-bracket"></i> <%= t.getProperty("btn.login") %></a>
                 <a href="<%= ctx %>/register.jsp" class="nav-register"><i class="fa-solid fa-user-plus"></i> <%= t.getProperty("btn.register") %></a>
               <% } else { %>
-                <a href="<%= ctx %>/profile.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.profile") %> <span class="nav-user">· <%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></span></a>
-                <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
+                <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %> <span class="nav-user">· <%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></span></a>
+                <button type="button" class="nav-notif" data-notif-open aria-controls="notifPanel"><i class="fa-regular fa-bell"></i> <%= t.getProperty("notif.title") %> <span class="notif-badge" hidden></span></button>
                 <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
                 <form method="post" action="<%= ctx %>/logout" class="logout-form">
                   <input type="hidden" name="csrf" value="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
@@ -205,6 +205,11 @@
                   <span><%= t.getProperty("btn.register") %></span>
                 </a>
               <% } else { %>
+                <%-- the bell: replies to your comments, hearts from Skeli (js/notifications.js) --%>
+                <button type="button" class="icon-btn notif-btn" data-notif-open aria-haspopup="dialog" aria-controls="notifPanel"
+                        title="<%= t.getProperty("notif.title") %>" aria-label="<%= t.getProperty("notif.title") %>">
+                  <i class="fa-regular fa-bell"></i><span class="notif-badge" hidden></span>
+                </button>
                 <div class="user-menu">
                   <button type="button" class="user-btn">
                     <% String headerAvatar = com.github.skeliit.WebUtils.safeUrl((String) session.getAttribute("avatar_url"), null); %>
@@ -218,8 +223,7 @@
                     <i class="fa-solid fa-chevron-down"></i>
                   </button>
                   <div class="user-dropdown">
-                    <a href="<%= ctx %>/profile.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.profile") %></a>
-                    <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
+                    <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %></a>
                     <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
                     <%-- a POST with the CSRF token: another site cannot log people out with a link --%>
                     <form method="post" action="<%= ctx %>/logout" class="logout-form">
@@ -234,6 +238,22 @@
             <button class="menu-toggle" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false"><i class="fa-solid fa-bars"></i><span class="menu-label"><%= t.getProperty("footer.menu") %></span></button>
           </div>
         </header>
+        <% if (currentUser != null) { %>
+        <div class="notif-panel" id="notifPanel" role="dialog" aria-label="<%= t.getProperty("notif.title") %>" hidden
+             data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>"
+             data-t-reply="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.reply")) %>"
+             data-t-heart="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.heart")) %>"
+             data-t-song="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.onSong")) %>"
+             data-t-clip="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.onClip")) %>"
+             data-t-deleted="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("account.deleted")) %>">
+          <div class="notif-head">
+            <strong><%= t.getProperty("notif.title") %></strong>
+            <button type="button" class="notif-close" data-notif-close aria-label="<%= t.getProperty("common.close") %>"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="notif-list" aria-live="polite"><p class="notif-empty"><%= t.getProperty("notif.empty") %></p></div>
+        </div>
+        <script src="<%= ctx %>/js/notifications.js?v=<%= assetVersion %>" defer></script>
+        <% } %>
 <%
   // One-line messages after a redirect, chosen by fixed query parameters (never echoed back)
   String flashKey = null; boolean flashOk = true;
@@ -371,23 +391,22 @@
             // a phone on its side: the open player would cover the page, so it waits for a click there
             const shortScreen = () => window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
             const SP_DEFAULT = 'https://open.spotify.com/embed/artist/5IouXw8U9uKCTwmncG5bUl?utm_source=generator&theme=0';
-            function openBar() { const bar = ensureSpBar(); const f = document.getElementById('sp-iframe'); if (!f.src) { const saved = darkEmbed(localStorage.getItem('sp_src')); f.src = saved || SP_DEFAULT; } bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; localStorage.setItem('sp_min', '0'); }
-            function closeBar() { const bar = ensureSpBar(); bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'flex'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; localStorage.setItem('sp_min', '1'); }
+            function openBar() { const bar = ensureSpBar(); const f = document.getElementById('sp-iframe'); if (!f.src) { const saved = darkEmbed(localStorage.getItem('sp_src')); f.src = saved || SP_DEFAULT; } bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; localStorage.setItem('sp_min', '0'); try { sessionStorage.setItem('sp_open', '1'); } catch (e) {} }
+            function closeBar() { const bar = ensureSpBar(); bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'flex'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; localStorage.setItem('sp_min', '1'); try { sessionStorage.removeItem('sp_open'); } catch (e) {} }
             window.toggleSpotifyBar = function () { if (ensureSpBar().style.display === 'none') { openBar(); } else { closeBar(); } }
             window.playSpotify = function (src) { const bar = ensureSpBar(); const url = normalizeSrc(src); const f = document.getElementById('sp-iframe'); if (f.src !== url) f.src = url; openBar(); localStorage.setItem('sp_src', url); localStorage.setItem('sp_play', 'true'); };
 
-            // Restore state on every page. Without consent to third-party content (cookie bar) the
-            // player stays a button: the Spotify iframe loads only after a click on it.
+            // Restore state on every page. A new visit starts with the small button (the player never
+            // opens by itself and takes no room); it stays open only after it was opened in this visit.
+            // Without consent to third-party content (cookie bar) the iframe loads only after a click.
             (function () {
-              const bar = ensureSpBar(); const wasMin = localStorage.getItem('sp_min') === '1'; const saved = darkEmbed(localStorage.getItem('sp_src')); const f = document.getElementById('sp-iframe');
+              const bar = ensureSpBar(); let wasMin = true; try { wasMin = sessionStorage.getItem('sp_open') !== '1'; } catch (e) {} const saved = darkEmbed(localStorage.getItem('sp_src')); const f = document.getElementById('sp-iframe');
               const ok = window.skeliConsent();
               if (saved && ok) { f.src = saved; }
               if ((saved || SP_DEFAULT) && !wasMin && ok && !shortScreen()) { f.src = f.src || SP_DEFAULT; bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; }
               else { bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'flex'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; }
             })();
 
-            // consent given in the cookie bar: the player comes up as before (unless it was minimised)
-            document.addEventListener('consent-granted', function () { if (localStorage.getItem('sp_min') !== '1' && !shortScreen()) openBar(); });
 
             // Autowire any element with data-spotify-src
             document.addEventListener('click', function (e) { const t = e.target.closest('[data-spotify-src]'); if (t) { e.preventDefault(); window.playSpotify(t.getAttribute('data-spotify-src')); } });

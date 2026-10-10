@@ -1,4 +1,4 @@
-// Profile photo: choose any picture, crop a square, save 512×512 JPG (uzivatel.jsp, profile.jsp).
+// Profile photo: choose any picture, crop a square, save 512×512 JPG (uzivatel.jsp, "My account").
 // - any size works: a big photo is first scaled down in the browser (max 2400 px), so the
 //   cropper stays smooth and only a small square goes to the server
 // - messages appear under the file field (no browser alert boxes); texts come from data-* on #avatar-input
@@ -162,7 +162,7 @@
         if (res.status === 401 || res.status === 403 || data.error === 'unauthorized') { say(text.msgSignedOut, 'warn'); return; }
         if (!res.ok || !data.ok) { say(text.msgFailed, 'warn'); return; }
         preview.src = data.url;
-        document.querySelectorAll('img.user-avatar').forEach(function (i) { i.src = data.url; }); // the header too
+        document.querySelectorAll('img.user-avatar, img.acct-avatar').forEach(function (i) { i.src = data.url; }); // the header too
         close();
         say(text.msgSaved, 'ok');
         window.dispatchEvent(new CustomEvent('kevin', { detail: { avatar: 'saved' } }));

@@ -8,8 +8,8 @@ public class LyricView {
     public String words;
     public String youtubeId;
     public long views;
-    public int votesUp;
-    public int votesDown;
+    /** hearts for the whole song (all its languages) */
+    public int likes;
     public String appleMusicId;
     public String previewImageUrl;
     /** Stable public song id. */
@@ -36,8 +36,7 @@ public class LyricView {
     public String getWords() { return words; }
     public String getYoutubeId() { return youtubeId; }
     public long getViews() { return views; }
-    public int getVotesUp() { return votesUp; }
-    public int getVotesDown() { return votesDown; }
+    public int getLikes() { return likes; }
     public String getAppleMusicId() { return appleMusicId; }
     public String getPreviewImageUrl() { return previewImageUrl; }
     public String getSongUuid() { return songUuid; }

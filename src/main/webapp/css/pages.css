@@ -574,6 +574,10 @@ body.light .lyric-page .lyric-nav a:hover { border-color: rgba(0, 0, 0, 0.22); b
   margin: 0;
 }
 
+/* "Aa": the lyrics in a plain mixed-case font, easier to read than the capitals of Bruno Ace */
+html.lyric-plain .lyric-page .lyrics-text pre { font-family: 'Exo 2', system-ui, sans-serif; font-weight: 500; letter-spacing: 0.01em; line-height: 1.75; }
+.lyric-textsize .ts-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
 /* the bar at the top of the lyrics: listen links on the left, text size and views on the right */
 .lyric-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; padding: 6px 6px 16px; border-bottom: 1px solid var(--panel-border); }
 .lyric-page .action-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -593,62 +597,22 @@ body.light .lyric-page .lyric-nav a:hover { border-color: rgba(0, 0, 0, 0.22); b
 }
 .lyric-page .action-btn:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-1px); text-decoration: none; }
 .lyric-page .views-count { font-size: var(--fs-small); color: var(--text-dim); white-space: nowrap; }
-.lyric-toolbar-end { display: flex; align-items: center; gap: 14px; }
+.lyric-toolbar-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 14px; }
 @media (max-width: 600px) {
   .lyric-toolbar { justify-content: center; }
+  .lyric-toolbar-end { width: 100%; }
   .lyric-page .action-buttons { justify-content: center; }
   .lyric-page .action-btn { padding: 8px 12px; }
 }
 
-.lyric-page .votes-section { display: flex; align-items: center; justify-content: center; gap: 16px; }
-.lyric-page .vote-form { display: inline; margin: 0; }
-.lyric-page .vote-btn {
-  width: 46px;
-  height: 46px;
-  padding: 0;
-  border-radius: 50%;
-  border: 1px solid;
-  font-size: 1.1rem;
-  color: var(--text);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color .2s, transform .15s;
-}
-.lyric-page .vote-btn:hover { text-decoration: none; }
-.lyric-page .vote-btn.up { border-color: rgba(0, 220, 150, 0.45); background: rgba(0, 220, 150, 0.08); }
-.lyric-page .vote-btn.down { border-color: rgba(255, 80, 80, 0.45); background: rgba(255, 80, 80, 0.08); }
-.lyric-page .vote-btn.up:hover { background: rgba(0, 220, 150, 0.2); transform: translateY(-2px); }
-.lyric-page .vote-btn.down:hover { background: rgba(255, 80, 80, 0.2); transform: translateY(-2px); }
-.vote-score { font-size: var(--fs-h4); }
-.vote-score .up { color: #1fd69a; }
-.vote-score .down { color: #ff6060; }
-.vote-score .sep { opacity: 0.4; margin: 0 4px; }
-
-.comments-title { margin: 0 0 14px; }
-.lyric-page .comment-item {
-  display: flex;
-  gap: 12px;
-  margin: 0 0 10px;
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--panel-border);
-  border-radius: 14px;
-}
-.lyric-page .comment-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.comment-avatar-empty {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.lyric-page .comment-content { flex: 1; min-width: 0; }
-.lyric-page .comment-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.lyric-page .comment-username { color: var(--accent); font-size: var(--fs-card); font-weight: 400; }
-.lyric-page .comment-date { font-size: var(--fs-small); color: var(--text-dim); margin-left: 8px; }
-.lyric-page .comment-text { color: var(--text); font-size: var(--fs-card); overflow-wrap: anywhere; white-space: pre-line; }
+/* the heart next to Share: red when you like the song, a short pop when you give it */
+.lyric-page .like-btn .like-count:empty { display: none; }
+.lyric-page .like-btn .like-count { color: var(--text-dim); }
+.lyric-page .like-btn.on { border-color: rgba(255, 77, 109, 0.55); }
+.lyric-page .like-btn.on i { color: #ff4d6d; }
+.lyric-page .like-btn.pop i { animation: like-pop .45s ease; }
+@keyframes like-pop { 0% { transform: scale(1); } 40% { transform: scale(1.45); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lyric-page .like-btn.pop i { animation: none; } }
 .comments-count {
   display: inline-block;
   min-width: 26px;
@@ -661,43 +625,10 @@ body.light .lyric-page .lyric-nav a:hover { border-color: rgba(0, 0, 0, 0.22); b
   text-align: center;
   vertical-align: middle;
 }
-.comment-edited { font-size: var(--fs-small); color: var(--text-dim); margin-left: 4px; }
 
-/* Edit / delete icons on your own comments (and on all comments for admins) */
-.comment-actions { display: flex; gap: 2px; flex-shrink: 0; }
-.comment-action {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border-radius: 50%;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-dim);
-  cursor: pointer;
-}
-.comment-edit-toggle:hover, .comment-edit-toggle.active { color: var(--accent); border-color: var(--accent); }
-.comment-delete:hover { color: #ff5a5a; border-color: rgba(255, 90, 90, 0.4); }
-
-.comment-form { margin: 0 0 20px; display: flex; flex-direction: column; gap: 10px; }
-/* typing happens in the same font the comment is shown in (Oswald) */
-.comment-form textarea, .comment-edit-form textarea, .ep-comment-form textarea {
-  min-height: 90px;
-  resize: vertical;
-  font-family: var(--font-text);
-  font-weight: 300;
-  font-size: var(--fs-text);
-  letter-spacing: 0.02em;
-}
-.comment-form-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.comment-hint { font-size: var(--fs-small); color: var(--text-dim); }
-.comment-edit-form { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
-.comment-edit-form[hidden] { display: none; }
-.comment-edit-actions { display: flex; justify-content: flex-end; gap: 8px; }
-.comment-edit-actions button { padding: 7px 16px; }
 .comment-login { margin: 0 0 20px; text-align: center; color: var(--text-dim); }
 .comment-login a { font-weight: 600; }
 
-body.light .lyric-page .comment-item,
 body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 
 @media (max-width: 960px) {
@@ -866,7 +797,6 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 .music-page { overflow-x: clip; }
 .ep-wrap{width:100%;margin:0 auto;}
 .ep-stage{position:relative;padding:4px clamp(0px, 8vw, 130px) clamp(70px, 8vw, 128px);}
-.ep-stage .clip-fx-switch{position:relative;z-index:1;}
 .ep-frame-wrap{position:relative;z-index:1;width:100%;max-width:880px;margin:0 auto;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;box-shadow:0 24px 50px -20px rgba(0,0,0,.8);}
 .ep-frame-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
 .ep-poster{position:absolute;inset:0;z-index:2;background:#000 center/cover no-repeat;cursor:pointer;}
@@ -896,28 +826,8 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 #ep-prev{left:2%;}
 #ep-next{right:2%;}
 .ep-arrow:hover{background:rgba(255,255,255,0.2);transform:translateY(-50%) scale(1.05);}
-.ep-comments{max-width:880px;margin:24px auto 0;background:rgba(255,255,255,0.06);border:1px solid var(--panel-border);border-radius:12px;padding:10px;display:flex;flex-direction:column;}
-body.light .ep-comments{background:rgba(0,0,0,0.04);}
-.ep-comments-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
-.ep-comment{background:rgba(0,0,0,0.18);border:1px solid var(--panel-border);border-radius:8px;padding:8px;}
-body.light .ep-comment{background:rgba(0,0,0,0.06);}
-.ep-comment .act{display:flex;gap:8px;align-items:center;}
-.ep-comments textarea{background:rgba(255,255,255,0.08);color:var(--text);}
-body.light .ep-comments textarea{background:rgba(0,0,0,0.04);color:#111;}
-.ep-comments button{background:rgba(255,255,255,0.12);color:var(--text);border:1px solid var(--panel-border);}
-body.light .ep-comments button{background:rgba(0,0,0,0.06);color:#111;}
-.ep-comment .act button{border:1px solid var(--panel-border);border-radius:6px;padding:6px 10px;}
-.ep-comment .act button[disabled]{opacity:.5;cursor:not-allowed;}
-.btn-vote{ width:36px; height:36px; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; backdrop-filter: blur(2px); transition: transform .12s ease, background-color .2s ease, box-shadow .2s ease, opacity .2s ease; background: rgba(255,255,255,0.08); color:#fff; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
-.btn-vote:hover { background: rgba(255,255,255,0.16); transform: translateY(-1px); }
-.btn-vote.up { border-color: rgba(0,255,170,0.35); }
-.btn-vote.down { border-color: rgba(255,80,80,0.35); }
-.btn-vote.up:hover { box-shadow: 0 8px 22px rgba(0,255,170,.25); }
-.btn-vote.down:hover { box-shadow: 0 8px 22px rgba(255,80,80,.25); }
-body.light .btn-vote { background: rgba(0,0,0,0.06); color:#111; box-shadow: 0 6px 18px rgba(0,0,0,.12); }
-body.light .btn-vote:hover { background: rgba(0,0,0,0.12); }
-.vote-sum{ margin-left:6px; white-space:nowrap; }
-.ep-frame-wrap, .ep-carousel, .ep-comments{ box-sizing:border-box; }
+.ep-frame-wrap,
+.ep-carousel { box-sizing:border-box; }
 @media (max-width: 800px){
   .ep-carousel{padding:4% 6%!important;}
   .ep-viewport{padding-top:60%!important;}
@@ -927,19 +837,6 @@ body.light .btn-vote:hover { background: rgba(0,0,0,0.12); }
   .ep-item.is-prev2,.ep-item.is-next2{display:none!important;}
   .ep-arrow{width:38px!important;height:38px!important;font-size:130%!important;}
 }
-
-/* Votes on the song page (WEB-INF/views/lyric.jsp) */
-
-.votes { margin-bottom:10px; display:flex; align-items:center; gap:10px; }
-.btn-vote { width:40px; height:40px; border-radius:50%; border:1px solid var(--panel-border); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; background: rgba(255,255,255,0.06); color:var(--text); transition: all 0.2s; }
-.btn-vote:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); }
-.btn-vote.up { border-color: rgba(0,255,170,0.35); }
-.btn-vote.down { border-color: rgba(255,80,80,0.35); }
-
-.comments { margin-top:14px; background: rgba(0,0,0,0.3); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px 16px; }
-.comment-item { display:flex; gap:10px; align-items:flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.comment-avatar { width:36px; height:36px; border-radius:50%; object-fit:cover; }
-.comment-meta { font-size:0.9em; opacity: 0.7; }
 
 /* ---------- News / Aktuality ---------- */
 .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
@@ -1069,13 +966,6 @@ body.light .form-success { color: #16803f; }
 .icon-spotify { color: #1DB954; }
 .icon-apple { color: var(--apple-music); }
 
-/* Music: comment form next to the carousel */
-.ep-comments { padding: 16px; border-radius: 14px; }
-.ep-comments-title { margin: 0 0 10px; text-align: center; font-size: var(--fs-h4); }
-.ep-comment-form { display: flex; flex-direction: column; gap: 8px; }
-.ep-comment-form textarea { resize: vertical; }
-.ep-comment-form button[type=submit] { align-self: flex-end; background: var(--accent); color: var(--accent-ink); border-color: transparent; }
-
 /* Paragraph text inside cards, site-wide: Oswald Light.
    Kept last so it wins over the per-card rules above. */
 .feature-card p,
@@ -1084,9 +974,7 @@ body.light .form-success { color: #16803f; }
 .news-title,
 .home-social-caption,
 .donate-section li,
-.donate-section p,
-.lyric-page .comment-text,
-.ep-comment-text {
+.donate-section p {
   font-family: var(--font-text);
   font-weight: 300;
   font-size: var(--fs-text);
@@ -1112,43 +1000,6 @@ body.light .ep-carousel { background: rgba(255, 255, 255, 0.55); }
 .prose-card li + li { margin-top: 10px; }
 @media (max-width: 600px) { .prose-card { padding: 22px; } }
 
-/* Music: video comments (rendered by the script in EllipticPlayerServlet) */
-.ep-comment-head { display: flex; align-items: center; gap: 10px; }
-.ep-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.ep-avatar-empty { display: inline-flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent); font-size: 0.8rem; }
-.ep-comment-who { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
-.ep-comment-who strong { color: var(--accent); font-weight: 400; font-size: var(--fs-card); }
-.ep-comment-date { font-size: var(--fs-small); color: var(--text-dim); }
-.ep-comment-text { margin: 8px 0; white-space: pre-line; overflow-wrap: anywhere; }
-/* the older ".ep-comments button" rule would paint these grey */
-.ep-comments .comment-action,
-body.light .ep-comments .comment-action { background: transparent; border-color: transparent; }
-.ep-comments .comment-edit-toggle:hover { color: var(--accent); border-color: var(--accent); }
-.ep-comments .comment-delete:hover { color: #ff5a5a; border-color: rgba(255, 90, 90, 0.4); }
-.ep-comments .comment-edit-actions button[type=submit],
-body.light .ep-comments .comment-edit-actions button[type=submit] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
-
-/* ---------- Comment threads: replies, report, verification notice ---------- */
-.comment-thread + .comment-thread { margin-top: 2px; }
-.comment-replies { margin: -4px 0 10px 52px; padding-left: 14px; border-left: 2px solid var(--panel-border); }
-.lyric-page .comment-item.comment-reply { padding: 10px 12px; }
-.lyric-page .comment-reply .comment-avatar { width: 32px; height: 32px; }
-.comment-reply-toggle,
-body.light .comment-reply-toggle {
-  margin-top: 6px;
-  padding: 2px 0;
-  border: 0;
-  background: transparent;
-  color: var(--text-dim);
-  font-size: var(--fs-small);
-  cursor: pointer;
-}
-.comment-reply-toggle:hover { color: var(--accent); border-color: transparent; }
-.comment-reply-form { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-.comment-reply-form[hidden] { display: none; }
-.comment-reply-form textarea { min-height: 70px; resize: vertical; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); }
-.comment-report:hover { color: #ffb84d; border-color: rgba(255, 170, 40, 0.45); }
-
 .verify-notice {
   margin: 0 0 20px;
   padding: 16px 18px;
@@ -1159,18 +1010,6 @@ body.light .comment-reply-toggle {
 .verify-notice p { margin: 0 0 12px; font-size: var(--fs-card); }
 .verify-notice i { color: #ffb84d; }
 body.light .verify-notice i { color: #8a4b00; }
-
-@media (max-width: 600px) {
-  .comment-replies { margin-left: 16px; padding-left: 10px; }
-}
-
-/* Music page: replies to video comments */
-.ep-replies { margin: 6px 0 0 18px; padding-left: 10px; border-left: 2px solid var(--panel-border); display: flex; flex-direction: column; gap: 8px; }
-.ep-comments .act .comment-reply-toggle,
-body.light .ep-comments .act .comment-reply-toggle { background: transparent; border: 0; padding: 2px 0; margin: 0 0 0 auto; }
-.ep-comments .comment-report:hover { color: #ffb84d; border-color: rgba(255, 170, 40, 0.45); }
-.ep-comments .comment-reply-form button[type=submit],
-body.light .ep-comments .comment-reply-form button[type=submit] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 
 /* ---------- About: the story under the portrait ---------- */
 .about-header h2 { margin-top: 28px; }
@@ -1278,24 +1117,38 @@ body.light .clip-stage canvas { mix-blend-mode: normal; }
 .lyric-page .lyric-stage .video-box { padding: 0; margin: 0; background: transparent; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
 .lyric-page .lyric-stage .video-wrapper { box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.8); }
 .lyric-page .lyric-stage .clip-versions { margin: 0 0 12px; justify-content: center; }
-/* Full / Soft / Off for the effect, under the video */
-.clip-fx-switch { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; margin-top: 14px; font-size: var(--fs-small); color: var(--text-dim); }
-.clip-fx-switch .clip-fx-name { margin-right: 4px; }
-.clip-fx-switch button,
-body.light .clip-fx-switch button {
-  padding: 5px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border);
-  background: color-mix(in srgb, var(--bg) 55%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: var(--text);
-  font-size: var(--fs-small);
-  cursor: pointer;
+/* Full / Soft / Off for the effect: a small drop-down outside it (includes/clip-fx-switch.jspf) */
+.clip-fx-switch { position: relative; font-size: var(--fs-small); color: var(--text-dim); }
+.clip-fx-switch[hidden] { display: none; }
+.clip-fx-switch summary {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid var(--panel-border);
+  color: var(--text); cursor: pointer; list-style: none; white-space: nowrap; user-select: none;
+  font-family: var(--font-body); font-size: var(--fs-small); letter-spacing: normal;
 }
-.clip-fx-switch button:hover { border-color: var(--accent); }
-.clip-fx-switch button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-.clip-stage.no-fx .clip-fx-switch { display: none; }
+.clip-fx-switch summary::-webkit-details-marker { display: none; }
+.clip-fx-switch summary:hover, .clip-fx-switch[open] summary { border-color: var(--accent); }
+.clip-fx-switch summary .fa-fire-flame-curved { color: var(--accent); }
+.clip-fx-switch.is-off summary .fa-fire-flame-curved { color: var(--text-dim); }
+.clip-fx-switch .clip-fx-label { color: var(--text-dim); }
+.clip-fx-switch .clip-fx-caret { font-size: 0.7em; transition: transform 0.2s ease; }
+.clip-fx-switch[open] .clip-fx-caret { transform: rotate(180deg); }
+.clip-fx-options {
+  position: absolute; z-index: 30; top: calc(100% + 6px); right: 0; min-width: 100%;
+  display: flex; flex-direction: column; gap: 2px; padding: 6px;
+  border-radius: 14px; border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--bg) 94%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: var(--shadow);
+}
+.clip-fx-options button,
+body.light .clip-fx-options button {
+  padding: 7px 14px; border: 0; border-radius: 9px; background: transparent; color: var(--text);
+  font-family: var(--font-body); font-size: var(--fs-small); text-align: left; cursor: pointer; white-space: nowrap;
+}
+.clip-fx-options button:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.clip-fx-options button[aria-pressed="true"] { color: var(--accent); }
+.clip-fx-options button[aria-pressed="true"]::after { content: " ✓"; }
+/* on Music it sits at the right end of the heading */
+.music-page .section.youtube .section-title .clip-fx-switch { margin-left: auto; letter-spacing: normal; }
 @media (max-width: 960px) { .lyric-stage, .ep-stage { padding-left: 6vw; padding-right: 6vw; } }
 @media (max-width: 600px) {
   .lyric-stage, .ep-stage { padding-left: 0; padding-right: 0; }
@@ -1439,8 +1292,14 @@ body.light .clip-version {
 body.light .clip-version.active { color: var(--accent); border-color: var(--accent); }
 
 /* Card text in Oswald: medium instead of light in the easier-reading mode */
-html.bold-text body :where(.feature-card p, .side-card p, .about-card p, .news-title, .home-social-caption,
-  .donate-section li, .donate-section p, .lyric-page .comment-text, .ep-comment-text, .about-text p) { font-weight: 500; }
+html.bold-text body :where(.feature-card p,
+.side-card p,
+.about-card p,
+.news-title,
+.home-social-caption,
+.donate-section li,
+.donate-section p,
+.about-text p) { font-weight: 500; }
 
 /* Card thumbnail of a song with two versions: the newest clip on top fades out
    at the middle into the older one below, so both are visible at a glance */
@@ -1481,3 +1340,121 @@ html.bold-text body :where(.feature-card p, .side-card p, .about-card p, .news-t
   .split-tag-bottom { bottom: 6px; }
 }
 .spotify-block .listen-links { display: inline-flex; flex-wrap: wrap; gap: 6px 18px; }
+
+/* ---------- "My account" (uzivatel.jsp): a card with you on top, jumps to the parts, a card per part ---------- */
+.account-page { max-width: 980px; margin: 0 auto; padding-top: 10px; }
+.acct-card {
+  margin: 0 0 18px; padding: 24px 26px; border-radius: var(--radius); border: 1px solid var(--panel-border);
+  background: var(--panel); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: var(--shadow);
+  scroll-margin-top: calc(var(--header-h) + 70px);
+}
+.acct-signed-out { max-width: 460px; }
+.acct-hero { display: grid; grid-template-columns: auto 1fr auto; gap: 22px; align-items: center; position: relative; overflow: hidden; }
+.acct-hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: -1;
+  background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 55%);
+}
+.acct-photo { position: relative; display: block; width: 116px; height: 116px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
+.acct-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.7); }
+.acct-photo-edit {
+  position: absolute; right: 2px; bottom: 2px; width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; background: var(--accent); color: var(--accent-ink);
+  box-shadow: 0 0 0 3px var(--bg); transition: transform .2s ease;
+}
+.acct-photo:hover .acct-photo-edit { transform: scale(1.1); }
+.acct-who { min-width: 0; }
+.acct-name { margin: 0; font-size: var(--fs-h2); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; overflow-wrap: anywhere; }
+.acct-badge {
+  display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: var(--fs-small);
+  color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); letter-spacing: normal;
+}
+.acct-meta { margin: 6px 0 0; color: var(--text-dim); font-size: var(--fs-small); }
+.acct-bio { margin: 10px 0 0; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); line-height: 1.5; color: var(--text); }
+.acct-stats { list-style: none; margin: 0; padding: 0; display: flex; gap: 10px; }
+.acct-stats li {
+  min-width: 92px; padding: 12px 14px; border-radius: 16px; text-align: center;
+  border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--bg) 35%, transparent);
+}
+.acct-stats strong { display: block; font-size: var(--fs-h2); font-weight: 400; color: var(--accent); line-height: 1.1; }
+.acct-stats span { font-size: var(--fs-small); color: var(--text-dim); }
+.acct-stats .fa-heart { color: #ff4d6d; }
+
+/* the bar of jumps: sticks under the header while scrolling */
+.acct-tabs {
+  position: sticky; top: calc(var(--header-h) + 6px); z-index: 20; display: flex; gap: 6px; margin: 0 0 18px; padding: 6px;
+  overflow-x: auto; scrollbar-width: none; border-radius: 999px; border: 1px solid var(--panel-border);
+  background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.acct-tabs::-webkit-scrollbar { display: none; }
+.acct-tabs a {
+  flex: 1 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px;
+  border-radius: 999px; color: var(--text-dim); font-size: var(--fs-card); white-space: nowrap; text-decoration: none;
+}
+.acct-tabs a:hover { color: var(--text); background: color-mix(in srgb, var(--text) 8%, transparent); text-decoration: none; }
+.acct-tabs a.active { color: var(--accent-ink); background: var(--accent); }
+.acct-count { padding: 0 7px; border-radius: 999px; font-size: var(--fs-small); background: color-mix(in srgb, currentColor 18%, transparent); }
+
+.acct-card-head { margin: 0 0 18px; }
+.acct-card-head h3 { margin: 0; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+.acct-card-head p { margin: 6px 0 0; color: var(--text-dim); font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); }
+.acct-block { padding: 18px; border-radius: 16px; border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--bg) 25%, transparent); }
+.acct-block + .acct-block { margin-top: 14px; }
+.acct-block h3, .acct-block h4 { margin: 0 0 12px; font-size: var(--fs-h4); }
+.acct-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.acct-cols .acct-block + .acct-block { margin-top: 0; }
+.acct-dim { color: var(--text-dim); font-size: var(--fs-small); }
+p.acct-dim { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); line-height: 1.5; margin: 0 0 14px; }
+.acct-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+.acct-form-grid .wide { grid-column: 1 / -1; }
+.acct-form-grid .checkbox-label { align-self: end; }
+.acct-danger { border-color: rgba(255, 90, 90, 0.35); background: rgba(255, 90, 90, 0.05); }
+.acct-danger h4 { color: #ff6a6a; }
+
+/* your comments: one small card each */
+.acct-empty { margin: 0; color: var(--text-dim); text-align: center; font-family: var(--font-text); font-size: var(--fs-text); }
+.acct-comments { display: flex; flex-direction: column; gap: 10px; }
+.acct-comment { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--bg) 25%, transparent); }
+.acct-comment-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: var(--fs-small); }
+.acct-comment-head > i { color: var(--accent); }
+.acct-comment-head a { color: var(--text); }
+.acct-comment-head a:hover { color: var(--accent); }
+.acct-comment-text { margin: 8px 0 10px; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
+.acct-comment-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
+.acct-edit { flex: 1 1 260px; }
+.acct-edit summary, .acct-delete, body.light .acct-delete {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; cursor: pointer; list-style: none;
+  border: 1px solid var(--panel-border); background: transparent; color: var(--text-dim); font-size: var(--fs-small);
+}
+.acct-edit summary::-webkit-details-marker { display: none; }
+.acct-edit summary:hover, .acct-edit[open] summary { color: var(--accent); border-color: var(--accent); }
+.acct-delete:hover { color: #ff6a6a; border-color: rgba(255, 90, 90, 0.5); }
+.acct-edit form { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.acct-edit form button { align-self: flex-end; }
+.acct-edit textarea { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); }
+
+@media (max-width: 760px) {
+  .acct-card { padding: 18px; }
+  .acct-hero { grid-template-columns: auto 1fr; }
+  .acct-stats { grid-column: 1 / -1; }
+  .acct-stats li { flex: 1; min-width: 0; }
+  .acct-photo { width: 84px; height: 84px; }
+  .acct-cols, .acct-form-grid { grid-template-columns: 1fr; }
+  .acct-tabs a { flex: 0 0 auto; padding: 9px 13px; }
+}
+.acct-danger .btn-delete, .acct-block button[type=submit] { padding: 10px 18px; }
+@media (max-width: 760px) { .acct-stats span { display: block; line-height: 1.25; } .acct-stats strong { font-size: var(--fs-h3); } }
+
+/* ---------- Karaoke (js/karaoke.js): the sung line is burnt in by the laser, the sung ones glow like embers ---------- */
+.lyric-page { --k-burn: #ffad5c; --k-glow: 0 0 5px rgba(255, 120, 30, .6), 0 0 16px rgba(255, 70, 0, .3); --k-hot: #fffaf0; --k-hot-glow: 0 0 3px #fff, 0 0 9px #ffe08a, 0 0 20px #ff7a10; }
+body.light .lyric-page { --k-burn: #5a2606; --k-glow: 0 0 1px rgba(90, 30, 0, .8), 0 0 8px rgba(255, 120, 30, .25); --k-hot: #ff6a00; --k-hot-glow: 0 0 6px rgba(255, 140, 40, .9), 0 0 14px rgba(255, 90, 0, .5); }
+.lyric-page .lyrics-text pre.karaoke .k-line { color: var(--text-dim); transition: color .8s ease, text-shadow .8s ease, opacity .8s ease; opacity: .6; }
+.lyric-page .lyrics-text pre.karaoke .k-line.k-past { color: var(--k-burn); text-shadow: var(--k-glow); opacity: .9; }
+.lyric-page .lyrics-text pre.karaoke .k-line.k-now { color: var(--text); opacity: 1; transition: none; }
+.lyric-page .lyrics-text pre.karaoke .k-ch.b { color: var(--k-burn); text-shadow: var(--k-glow); transition: color .5s ease, text-shadow .5s ease; }
+.lyric-page .lyrics-text pre.karaoke .k-ch.hot { color: var(--k-hot); text-shadow: var(--k-hot-glow); transition: none; }
+.karaoke-fx { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 40; }
+.lyric-page .karaoke-btn[hidden] { display: none; }
+.lyric-page .karaoke-btn.on { border-color: var(--accent); color: var(--accent); }
+.lyric-page .karaoke-btn.on i { animation: karaoke-mic 1.6s ease-in-out infinite; }
+@keyframes karaoke-mic { 50% { transform: rotate(-12deg); } }
+@media (prefers-reduced-motion: reduce) { .lyric-page .karaoke-btn.on i { animation: none; } }

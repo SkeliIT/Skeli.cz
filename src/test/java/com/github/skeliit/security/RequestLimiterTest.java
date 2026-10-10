@@ -2,12 +2,8 @@ package com.github.skeliit.security;
 
 import com.github.skeliit.EmailUtil;
 import com.github.skeliit.WebUtils;
-import com.github.skeliit.model.CommentView;
 import com.github.skeliit.web.auth.EmailVerification;
 import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -39,22 +35,5 @@ class RequestLimiterTest {
         assertFalse(WebUtils.isLocalAddress("203.0.113.9"));
         assertFalse(WebUtils.isLocalAddress("localhost"), "host names are not trusted");
         assertFalse(WebUtils.isLocalAddress(null));
-    }
-
-    private static CommentView c(int id, Integer parent) {
-        CommentView v = new CommentView();
-        v.id = id;
-        v.parentId = parent;
-        return v;
-    }
-
-    @Test
-    void repliesAreNestedOldestFirst() {
-        // DAO order: newest first
-        List<CommentView> rows = new ArrayList<>(List.of(c(5, 1), c(4, null), c(3, 1), c(2, 99), c(1, null)));
-        List<CommentView> threads = com.github.skeliit.dao.LyricDaoAccess.threads(rows);
-        assertEquals(List.of(4, 1), threads.stream().map(v -> v.id).toList());
-        assertEquals(List.of(3, 5), threads.get(1).replies.stream().map(v -> v.id).toList());
-        assertTrue(threads.get(0).replies.isEmpty());
     }
 }

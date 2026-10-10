@@ -1,7 +1,6 @@
 package com.github.skeliit.dao;
 
 import com.github.skeliit.Db;
-import com.github.skeliit.model.CommentView;
 import com.github.skeliit.model.LyricView;
 
 import java.sql.*;
@@ -222,51 +221,56 @@ public class LyricDao {
             sel.setInt(1, v.id);
             try (ResultSet rv = sel.executeQuery()) { if (rv.next()) v.views = rv.getLong(1); }
         }
-        // votes
-        try (PreparedStatement vv = c.prepareStatement("SELECT SUM(vote=1) AS up, SUM(vote=-1) AS down FROM lyrics_votes WHERE lyric_id=?")) {
-            vv.setInt(1, v.id);
-            try (ResultSet rv = vv.executeQuery()) { if (rv.next()) { v.votesUp = rv.getInt("up"); v.votesDown = rv.getInt("down"); } }
-        }
+        v.likes = likes(c, v.songId);
         return v;
     }
 
-    /** Top-level comments newest first, each with its replies oldest first. */
-    public List<CommentView> listComments(int lyricId) throws SQLException {
-        String sql = "SELECT c.id, c.user_id, c.parent_id, c.content, c.created_at, c.updated_at, CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.username END AS username, CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.avatar_url END AS avatar_url FROM comments c JOIN users u ON u.id=c.user_id WHERE c.lyric_id=? ORDER BY c.created_at DESC, c.id DESC";
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, lyricId);
-            try (ResultSet rs = ps.executeQuery()) {
-                List<CommentView> out = new ArrayList<>();
-                while (rs.next()) {
-                    CommentView cv = new CommentView();
-                    cv.id = rs.getInt("id");
-                    cv.userId = rs.getInt("user_id");
-                    int parent = rs.getInt("parent_id");
-                    cv.parentId = rs.wasNull() ? null : parent;
-                    cv.username = rs.getString("username");
-                    cv.avatarUrl = rs.getString("avatar_url");
-                    cv.createdAt = rs.getTimestamp("created_at");
-                    cv.updatedAt = rs.getTimestamp("updated_at");
-                    cv.content = rs.getString("content");
-                    out.add(cv);
-                }
-                return threads(out);
-            }
+    // ---------- "I like it" hearts: lyrics_votes rows with vote = 1, counted for the whole song ----------
+
+    private static int likes(Connection c, int songId) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement(
+                "SELECT COUNT(DISTINCT v.user_id) FROM lyrics_votes v JOIN lyrics l ON l.id = v.lyric_id WHERE l.song_id = ? AND v.vote = 1")) {
+            ps.setInt(1, songId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getInt(1) : 0; }
         }
     }
 
-    /** Nests replies under their top-level comment; input is newest first. */
-    static List<CommentView> threads(List<CommentView> newestFirst) {
-        java.util.Map<Integer, CommentView> top = new java.util.LinkedHashMap<>();
-        for (CommentView c : newestFirst) if (c.parentId == null) top.put(c.id, c);
-        List<CommentView> reversed = new ArrayList<>(newestFirst);
-        java.util.Collections.reverse(reversed);
-        for (CommentView c : reversed) {
-            if (c.parentId == null) continue;
-            CommentView parent = top.get(c.parentId);
-            if (parent != null) parent.replies.add(c); // oldest reply first
+    /** Has this user given the song (in any language) a heart? */
+    public boolean likedBy(int songId, int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT 1 FROM lyrics_votes v JOIN lyrics l ON l.id = v.lyric_id WHERE l.song_id = ? AND v.user_id = ? AND v.vote = 1 LIMIT 1")) {
+            ps.setInt(1, songId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
         }
-        return new ArrayList<>(top.values());
+    }
+
+    /** Gives or takes back the heart; returns {liked (1/0), count} afterwards, or null for an unknown lyric. */
+    public int[] toggleLike(int lyricId, int userId) throws SQLException {
+        try (Connection c = Db.get()) {
+            Integer songId = null;
+            try (PreparedStatement ps = c.prepareStatement("SELECT song_id FROM lyrics WHERE id = ?")) {
+                ps.setInt(1, lyricId);
+                try (ResultSet rs = ps.executeQuery()) { if (rs.next()) songId = rs.getInt(1); }
+            }
+            if (songId == null) return null;
+            boolean liked = likedBy(songId, userId);
+            // old thumbs down and the rows of the other languages go too: one heart per person and song
+            try (PreparedStatement ps = c.prepareStatement(
+                    "DELETE v FROM lyrics_votes v JOIN lyrics l ON l.id = v.lyric_id WHERE l.song_id = ? AND v.user_id = ?")) {
+                ps.setInt(1, songId);
+                ps.setInt(2, userId);
+                ps.executeUpdate();
+            }
+            if (!liked) {
+                try (PreparedStatement ps = c.prepareStatement("INSERT INTO lyrics_votes (lyric_id, user_id, vote) VALUES (?, ?, 1)")) {
+                    ps.setInt(1, lyricId);
+                    ps.setInt(2, userId);
+                    ps.executeUpdate();
+                }
+            }
+            return new int[] { liked ? 0 : 1, likes(c, songId) };
+        }
     }
 
     public record LyricExportRow(int songId, String songName, Integer year, String lang, String words, String timedLyrics) {}

@@ -70,48 +70,52 @@ public class AdminDao {
     }
 
     /**
-     * The newest comments on lyrics and on clips together, newest first. Two queries merged here:
-     * the two tables have different collations, so they are not joined in SQL.
+     * Comment threads on lyrics and on clips together: each top-level comment with its replies under it
+     * (oldest first), the thread with the newest activity first. Two queries merged here: the two tables
+     * have different collations, so they are not joined in SQL. A reply whose comment is gone is shown alone.
      */
     public List<AdminComment> latestComments(int limit) throws SQLException {
-        String lyricSql = "SELECT c.id, c.content, c.created_at, c.updated_at, c.parent_id, c.lyric_id, s.name, "
+        String lyricSql = "SELECT c.id, c.parent_id, c.content, c.created_at, c.updated_at, c.pinned_at, c.hearted_at, c.lyric_id, s.name, "
                 + "CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.username END AS author, "
                 + "(SELECT COUNT(*) FROM comment_reports r WHERE r.kind = 'lyric' AND r.comment_id = c.id) AS reports "
                 + "FROM comments c LEFT JOIN users u ON u.id = c.user_id "
                 + "LEFT JOIN lyrics l ON l.id = c.lyric_id LEFT JOIN songs s ON s.id = l.song_id "
-                + "ORDER BY c.created_at DESC, c.id DESC LIMIT ?";
-        String videoSql = "SELECT vc.id, vc.content, vc.created_at, vc.updated_at, vc.parent_id, vc.youtube_id, "
+                + "ORDER BY c.created_at, c.id";
+        String videoSql = "SELECT vc.id, vc.parent_id, vc.content, vc.created_at, vc.updated_at, vc.pinned_at, vc.hearted_at, vc.youtube_id, "
                 // BINARY: videos and video_comments have different collations, IDs are plain ASCII
                 + "(SELECT v.title FROM videos v WHERE BINARY v.youtube_id = BINARY vc.youtube_id LIMIT 1) AS title, "
                 + "CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.username END AS author, "
                 + "(SELECT COUNT(*) FROM comment_reports r WHERE r.kind = 'video' AND r.comment_id = vc.id) AS reports "
                 + "FROM video_comments vc LEFT JOIN users u ON u.id = vc.user_id "
-                + "ORDER BY vc.created_at DESC, vc.id DESC LIMIT ?";
-        List<AdminComment> out = new ArrayList<>();
+                + "ORDER BY vc.created_at, vc.id";
+        List<AdminComment> threads = new ArrayList<>();
         try (Connection conn = Db.get()) {
-            try (PreparedStatement ps = conn.prepareStatement(lyricSql)) {
-                ps.setInt(1, limit);
-                try (ResultSet rs = ps.executeQuery()) {
+            for (String kind : new String[] { "lyric", "video" }) {
+                boolean lyric = kind.equals("lyric");
+                java.util.Map<Integer, AdminComment> top = new java.util.LinkedHashMap<>();
+                List<AdminComment> orphans = new ArrayList<>();
+                try (PreparedStatement ps = conn.prepareStatement(lyric ? lyricSql : videoSql);
+                     ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        out.add(new AdminComment("lyric", rs.getInt("id"), rs.getString("author"), rs.getString("content"),
-                                rs.getTimestamp("created_at"), rs.getTimestamp("updated_at") != null, rs.getObject("parent_id") != null,
-                                rs.getInt("lyric_id"), rs.getString("name"), null, null, rs.getInt("reports")));
+                        int p = rs.getInt("parent_id");
+                        Integer parentId = rs.wasNull() ? null : p;
+                        AdminComment c = new AdminComment(kind, rs.getInt("id"), parentId, rs.getString("author"),
+                                rs.getString("content"), rs.getTimestamp("created_at"), rs.getTimestamp("updated_at") != null,
+                                rs.getTimestamp("pinned_at") != null, rs.getTimestamp("hearted_at") != null,
+                                lyric ? rs.getInt("lyric_id") : 0, lyric ? rs.getString("name") : null,
+                                lyric ? null : rs.getString("youtube_id"),
+                                lyric ? null : VideoTitles.display(rs.getString("title")), rs.getInt("reports"));
+                        if (parentId == null) top.put(c.id, c);
+                        else if (top.containsKey(parentId)) top.get(parentId).replies.add(c);
+                        else orphans.add(c);
                     }
                 }
-            }
-            try (PreparedStatement ps = conn.prepareStatement(videoSql)) {
-                ps.setInt(1, limit);
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        out.add(new AdminComment("video", rs.getInt("id"), rs.getString("author"), rs.getString("content"),
-                                rs.getTimestamp("created_at"), rs.getTimestamp("updated_at") != null, rs.getObject("parent_id") != null,
-                                0, null, rs.getString("youtube_id"), VideoTitles.display(rs.getString("title")), rs.getInt("reports")));
-                    }
-                }
+                threads.addAll(top.values());
+                threads.addAll(orphans);
             }
         }
-        out.sort(Comparator.comparing((AdminComment c) -> c.createdAt, Comparator.nullsLast(Comparator.reverseOrder())));
-        return out.size() > limit ? new ArrayList<>(out.subList(0, limit)) : out;
+        threads.sort(Comparator.comparing(AdminComment::lastActivity, Comparator.nullsLast(Comparator.reverseOrder())));
+        return threads.size() > limit ? new ArrayList<>(threads.subList(0, limit)) : threads;
     }
 
     /** Every account, newest first (deleted ones too: the page hides them unless asked). */

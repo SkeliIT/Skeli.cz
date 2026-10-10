@@ -1,0 +1,48 @@
+<%-- Comments like on YouTube under a song or a clip; js/comments.js draws them from /api/comments.
+     Before including, set cmtKind ("lyric" or "video") and cmtTarget (the lyric id, or "" when a script
+     fills it in later: the Music player sets data-target to the clip that plays). --%>
+<%
+  java.util.Map<String, String> cmtTexts = new java.util.LinkedHashMap<>();
+  for (String k : new String[] { "comment.placeholder", "comment.reply", "comment.replyPlaceholder", "comment.edited",
+      "comment.deleteConfirm", "comment.report", "comment.reportConfirm", "common.edit", "common.delete", "common.save",
+      "common.cancel", "common.send", "vote.like", "vote.dislike", "vote.loginToVote", "flash.reported", "flash.commentLimit",
+      "verify.notice", "account.deleted", "cmt.sort.top", "cmt.sort.new", "cmt.replies.one", "cmt.replies.few",
+      "cmt.replies.many", "cmt.replies.other", "cmt.hideReplies", "cmt.pin", "cmt.unpin", "cmt.pinned", "cmt.heart",
+      "cmt.unheart", "cmt.hearted", "cmt.artist", "cmt.emoji", "cmt.empty", "cmt.error", "cmt.more" }) {
+    cmtTexts.put(k, t.getProperty(k, ""));
+  }
+  boolean cmtSignedIn = session.getAttribute("userId") != null;
+  boolean cmtCanPost = cmtSignedIn && com.github.skeliit.web.auth.EmailVerification.isVerified(session);
+%>
+<section class="cmts" id="comments" data-comments data-kind="<%= cmtKind %>"
+         data-target="<%= com.github.skeliit.WebUtils.escapeHtml(cmtTarget) %>"
+         data-csrf="<%= cmtSignedIn ? com.github.skeliit.filter.CsrfFilter.token(session) : "" %>"
+         data-t="<%= com.github.skeliit.WebUtils.escapeHtml(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(cmtTexts)) %>">
+  <header class="cmts-head">
+    <h3 class="cmts-title"><%= t.getProperty("comments.title") %> <span class="comments-count" data-cmts-count>0</span></h3>
+    <details class="cmts-sort">
+      <summary><i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i>
+        <span class="cmts-sort-label"><%= t.getProperty("cmt.sort") %>:</span> <span class="cmts-sort-current"><%= t.getProperty("cmt.sort.top") %></span></summary>
+      <div class="cmts-sort-list" role="group" aria-label="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("cmt.sort")) %>">
+        <button type="button" data-sort="top" aria-pressed="true"><%= t.getProperty("cmt.sort.top") %></button>
+        <button type="button" data-sort="new" aria-pressed="false"><%= t.getProperty("cmt.sort.new") %></button>
+      </div>
+    </details>
+  </header>
+  <% if (!cmtSignedIn) { %>
+    <p class="comment-login"><a href="/login.jsp" data-login><%= t.getProperty("comment.login.link") %></a><%= t.getProperty("comment.login.toComment") %></p>
+  <% } else if (!cmtCanPost) { %>
+    <div class="verify-notice">
+      <p><i class="fa-solid fa-envelope-circle-check"></i> <%= t.getProperty("verify.notice") %></p>
+      <form method="post" action="/verify/resend">
+        <input type="hidden" name="csrf" value="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
+        <input type="hidden" name="back" value="<%= "lyric".equals(cmtKind) ? "/lyrics/" + com.github.skeliit.WebUtils.escapeHtml(cmtTarget) + "#comments" : "/music.jsp" %>">
+        <button type="submit" class="btn"><%= t.getProperty("verify.resend") %></button>
+      </form>
+    </div>
+  <% } %>
+  <div class="cmts-composer-slot"></div>
+  <p class="cmts-note" role="status" hidden></p>
+  <div class="cmts-list" aria-live="polite"></div>
+</section>
+<script src="/js/comments.js?v=<%= assetVersion %>"></script>

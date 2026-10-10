@@ -78,6 +78,8 @@ public class ProfileExportServlet extends HttpServlet {
                     "SELECT id, youtube_id, parent_id, content, created_at, updated_at FROM video_comments WHERE user_id=? ORDER BY created_at DESC", uid);
             section(c, m, root, "lyric_votes", "SELECT * FROM lyrics_votes WHERE user_id=?", uid);
             section(c, m, root, "video_comment_votes", "SELECT * FROM video_comment_votes WHERE user_id=?", uid);
+            section(c, m, root, "lyric_comment_votes", "SELECT * FROM lyric_comment_votes WHERE user_id=?", uid);
+            section(c, m, root, "notifications", "SELECT type, comment_kind, comment_id, created_at, read_at FROM notifications WHERE user_id=?", uid);
             section(c, m, root, "reported_comments", "SELECT kind, comment_id, created_at FROM comment_reports WHERE reporter_id=?", uid);
             if (email != null && !email.isBlank()) {
                 section(c, m, root, "newsletter",

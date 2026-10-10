@@ -1,6 +1,7 @@
 package com.github.skeliit.web.site;
 
-import com.github.skeliit.Db;
+import com.github.skeliit.dao.LyricDao;
+import com.github.skeliit.security.RequestLimiter;
 import com.github.skeliit.web.auth.EmailVerification;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -10,40 +11,30 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.SQLException;
 
+/**
+ * POST /vote with lyric_id: the "I like it" heart on a song page, given or taken back (one per person
+ * and song, whatever the language). Answers {"liked": true, "likes": 12} for the page script.
+ */
 @WebServlet(name = "VotesServlet", urlPatterns = {"/vote"})
 public class VotesServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
-        Integer userId = (session != null) ? (Integer) session.getAttribute("userId") : null;
-        String lyricIdStr = req.getParameter("lyric_id");
-        String action = req.getParameter("action"); // up|down
-        if (userId == null || lyricIdStr == null || action == null) {
-            resp.setStatus(400);
-            return;
-        }
-        int lyricId = Integer.parseInt(lyricIdStr);
-        int vote = "up".equals(action) ? 1 : -1;
-        // back to the lyric page
-        String back = "/lyrics/" + lyricId; // the old lyric.jsp redirects there too
-        if (!EmailVerification.isVerified(session)) {
-            resp.sendRedirect(back + (back.contains("?") ? "&" : "?") + "verify=required#comments");
-            return;
-        }
-        try (Connection conn = Db.get()) {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO lyrics_votes (lyric_id, user_id, vote) VALUES (?, ?, ?) " +
-                    "ON DUPLICATE KEY UPDATE vote = VALUES(vote)")) {
-                ps.setInt(1, lyricId);
-                ps.setInt(2, userId);
-                ps.setInt(3, vote);
-                ps.executeUpdate();
-            }
+        Integer userId = session != null ? (Integer) session.getAttribute("userId") : null;
+        String lyricId = req.getParameter("lyric_id");
+        resp.setContentType("application/json; charset=UTF-8");
+        if (userId == null) { resp.setStatus(401); resp.getWriter().write("{\"ok\":false}"); return; }
+        if (lyricId == null || !lyricId.matches("\\d{1,9}")) { resp.setStatus(400); resp.getWriter().write("{\"ok\":false}"); return; }
+        if (!EmailVerification.isVerified(session)) { resp.setStatus(403); resp.getWriter().write("{\"error\":\"verify\"}"); return; }
+        if (!RequestLimiter.tryAcquire("like", userId, 60, RequestLimiter.MINUTE)) { resp.setStatus(429); resp.getWriter().write("{\"ok\":false}"); return; }
+        try {
+            int[] r = new LyricDao().toggleLike(Integer.parseInt(lyricId), userId);
+            if (r == null) { resp.setStatus(404); resp.getWriter().write("{\"ok\":false}"); return; }
+            resp.getWriter().write("{\"liked\":" + (r[0] == 1) + ",\"likes\":" + r[1] + "}");
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        resp.sendRedirect(back);
     }
 }
