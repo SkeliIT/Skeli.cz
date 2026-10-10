@@ -196,6 +196,7 @@
       function grow() {
         ta.style.height = 'auto';
         ta.style.height = Math.min(ta.scrollHeight, 320) + 'px';
+        ta.classList.toggle('is-long', ta.scrollHeight > 320);   // a scrollbar only for a really long comment
         var len = ta.value.trim().length;
         send.disabled = !len || len > 1000;
         counter.textContent = ta.value.length > 850 ? ta.value.length + ' / 1000' : '';
