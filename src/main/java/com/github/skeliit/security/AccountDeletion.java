@@ -45,6 +45,7 @@ public final class AccountDeletion {
             run(c, "DELETE FROM password_resets WHERE user_id = ?", userId);
             run(c, "DELETE FROM comment_reports WHERE reporter_id = ?", userId);
             run(c, "DELETE FROM user_profiles WHERE user_id = ?", userId);
+            run(c, "DELETE FROM notifications WHERE user_id = ?", userId);
             if (email != null && !email.isBlank()) {
                 try (PreparedStatement ps = c.prepareStatement("DELETE FROM newsletter_emails WHERE email = ?")) {
                     ps.setString(1, email);

@@ -11,7 +11,8 @@ class LegacyRedirectTest {
         assertEquals("/about.jsp", LegacyRedirectServlet.target("/bio.jsp", null));
         assertEquals("/privacy.jsp", LegacyRedirectServlet.target("/gdpr.jsp", null));
         assertEquals("/music.jsp", LegacyRedirectServlet.target("/music", null));
-        assertEquals("/profile.jsp", LegacyRedirectServlet.target("/profile/", null));
+        assertEquals("/uzivatel.jsp", LegacyRedirectServlet.target("/profile/", null));
+        assertEquals("/uzivatel.jsp", LegacyRedirectServlet.target("/profile.jsp", null));
     }
 
     @Test

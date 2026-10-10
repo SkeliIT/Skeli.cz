@@ -154,6 +154,22 @@
           <button type="button" class="action-btn" id="shareLyric" data-copied="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("lyric.linkCopied")) %>" title="<%= t.getProperty("lyric.shareLink") %>">
             <i class="fas fa-share-alt"></i> <span><%= t.getProperty("common.share") %></span>
           </button>
+          <%-- one heart per person and song (js below; signed out = a link to the login) --%>
+          <c:choose>
+            <c:when test="${not empty sessionScope.userId}">
+              <button type="button" class="action-btn like-btn${liked ? ' on' : ''}" id="likeSong" data-lyric="${lyric.id}"
+                      aria-pressed="${liked}" title="<%= t.getProperty("vote.like") %>">
+                <i class="fa-${liked ? 'solid' : 'regular'} fa-heart"></i> <span><%= t.getProperty("vote.like") %></span>
+                <span class="like-count">${lyric.likes > 0 ? lyric.likes : ''}</span>
+              </button>
+            </c:when>
+            <c:otherwise>
+              <a class="action-btn like-btn" href="/login.jsp" data-login-next title="<%= t.getProperty("vote.loginToVote") %>">
+                <i class="fa-regular fa-heart"></i> <span><%= t.getProperty("vote.like") %></span>
+                <span class="like-count">${lyric.likes > 0 ? lyric.likes : ''}</span>
+              </a>
+            </c:otherwise>
+          </c:choose>
           <a class="action-btn" href="https://open.spotify.com/search/<c:out value='${lyric.songName}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.findSpotify") %>">
             <i class="fab fa-spotify icon-spotify"></i> Spotify
           </a>
@@ -174,6 +190,8 @@
             <span><%= t.getProperty("lyric.textSize") %></span>
             <button type="button" class="ts-btn" data-step="-1" aria-label="<%= t.getProperty("lyric.textSmaller") %>" title="<%= t.getProperty("lyric.textSmaller") %>">A−</button>
             <button type="button" class="ts-btn" data-step="1" aria-label="<%= t.getProperty("lyric.textBigger") %>" title="<%= t.getProperty("lyric.textBigger") %>">A+</button>
+            <%-- a plain, easier to read font for the lyrics (remembered in this browser) --%>
+            <button type="button" class="ts-btn ts-font" id="plainFont" aria-pressed="false" aria-label="<%= t.getProperty("lyric.plainFont") %>" title="<%= t.getProperty("lyric.plainFont") %>">Aa</button>
           </div>
           <div class="views-count"><i class="fa-regular fa-eye"></i> <%= t.getProperty("lyric.views") %> ${lyric.views}</div>
         </div>
@@ -210,47 +228,8 @@
         </nav>
       </c:if>
 
-      <!-- Votes & Comments Box -->
+      <!-- Comments -->
       <div class="content-box lyric-comments">
-        <!-- Votes -->
-        <div class="votes-section">
-          <c:choose>
-            <c:when test="${not empty sessionScope.username}">
-              <form method="post" action="/vote" class="vote-form">
-                <input type="hidden" name="lyric_id" value="${lyric.id}">
-                <input type="hidden" name="action" value="up">
-                <input type="hidden" name="csrf" value="${csrf}">
-                <button type="submit" class="vote-btn up" title="<%= t.getProperty("vote.like") %>">👍</button>
-              </form>
-            </c:when>
-            <c:otherwise>
-              <a href="/login.jsp" class="vote-btn up" title="<%= t.getProperty("vote.loginToVote") %>">👍</a>
-            </c:otherwise>
-          </c:choose>
-          
-          <span class="vote-score">
-            <strong class="up">${lyric.votesUp}</strong>
-            <span class="sep">/</span>
-            <strong class="down">${lyric.votesDown}</strong>
-          </span>
-          
-          <c:choose>
-            <c:when test="${not empty sessionScope.username}">
-              <form method="post" action="/vote" class="vote-form">
-                <input type="hidden" name="lyric_id" value="${lyric.id}">
-                <input type="hidden" name="action" value="down">
-                <input type="hidden" name="csrf" value="${csrf}">
-                <button type="submit" class="vote-btn down" title="<%= t.getProperty("vote.dislike") %>">👎</button>
-              </form>
-            </c:when>
-            <c:otherwise>
-              <a href="/login.jsp" class="vote-btn down" title="<%= t.getProperty("vote.loginToVote") %>">👎</a>
-            </c:otherwise>
-          </c:choose>
-        </div>
-        
-        <hr>
-        
         <%-- comments like on YouTube (includes/comments.jspf + js/comments.js) --%>
 <%
   com.github.skeliit.model.LyricView lyricView = (com.github.skeliit.model.LyricView) request.getAttribute("lyric");
@@ -353,6 +332,45 @@
           apply();
           try { localStorage.setItem(KEY, scale.toFixed(2)); } catch (e) {}
         });
+      });
+      // Aa: the lyrics in a plain font instead of the capitals of Bruno Ace
+      const font = document.getElementById('plainFont');
+      let plain = false;
+      try { plain = localStorage.getItem('lyricFont') === 'plain'; } catch (e) {}
+      function paintFont() {
+        document.documentElement.classList.toggle('lyric-plain', plain);
+        if (font) font.setAttribute('aria-pressed', String(plain));
+      }
+      paintFont();
+      if (font) font.addEventListener('click', function () {
+        plain = !plain;
+        paintFont();
+        try { localStorage.setItem('lyricFont', plain ? 'plain' : 'brand'); } catch (e) {}
+      });
+    })();
+
+    // the heart: given or taken back without reloading the page
+    (function () {
+      const like = document.getElementById('likeSong');
+      document.querySelectorAll('a[data-login-next]').forEach(function (a) { a.href = '/login.jsp?next=' + encodeURIComponent(location.pathname); });
+      if (!like) return;
+      const csrf = (document.querySelector('input[name=csrf]') || {}).value || '';
+      like.addEventListener('click', function () {
+        like.disabled = true;
+        fetch('/vote', { method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': csrf },
+          body: 'lyric_id=' + encodeURIComponent(like.dataset.lyric) })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            like.disabled = false;
+            if (!d) return;
+            like.classList.toggle('on', d.liked);
+            like.setAttribute('aria-pressed', String(d.liked));
+            like.querySelector('i').className = (d.liked ? 'fa-solid' : 'fa-regular') + ' fa-heart';
+            like.querySelector('.like-count').textContent = d.likes > 0 ? d.likes : '';
+            if (d.liked) { like.classList.remove('pop'); void like.offsetWidth; like.classList.add('pop'); }
+          })
+          .catch(function () { like.disabled = false; });
       });
     })();
 

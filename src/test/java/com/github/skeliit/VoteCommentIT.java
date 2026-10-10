@@ -48,21 +48,25 @@ public class VoteCommentIT {
     }
 
     @Test
-    @DisplayName("Voting up then down on a lyric updates the stored vote")
-    void voteUpThenDown() throws Exception {
+    @DisplayName("The heart next to Share likes the song, a second click takes it back; it survives a reload")
+    void heartOnOffThenStays() throws Exception {
         assertNull(queryVote(LYRIC_ID, userId), "should have no pre-existing vote");
 
         driver.get(BASE_URL + "/lyrics/" + LYRIC_ID);
         waitReady();
-        jsClick(driver.findElement(By.cssSelector("button.vote-btn.up")));
-        waitReady();
-        assertEquals(1, queryVote(LYRIC_ID, userId), "vote should be recorded as up (1)");
+        WebElement like = driver.findElement(By.id("likeSong"));
+        jsClick(like);
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> "true".equals(like.getAttribute("aria-pressed")));
+        assertEquals(1, queryVote(LYRIC_ID, userId), "the heart is stored as a vote of 1");
+        assertEquals("1", like.findElement(By.cssSelector(".like-count")).getText());
 
         driver.get(BASE_URL + "/lyrics/" + LYRIC_ID);
         waitReady();
-        jsClick(driver.findElement(By.cssSelector("button.vote-btn.down")));
-        waitReady();
-        assertEquals(-1, queryVote(LYRIC_ID, userId), "vote should flip to down (-1)");
+        WebElement again = driver.findElement(By.id("likeSong"));
+        assertEquals("true", again.getAttribute("aria-pressed"), "still filled after a reload");
+        jsClick(again);
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> "false".equals(again.getAttribute("aria-pressed")));
+        assertNull(queryVote(LYRIC_ID, userId), "a second click takes the heart back");
     }
 
     @Test

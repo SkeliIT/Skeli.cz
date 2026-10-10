@@ -1,5 +1,5 @@
 // Redesign 2026 effects (css/effects.css): embers / snow in the home hero, the song
-// marquee, the light that follows the mouse and the 3D tilt of cards. Nothing runs when
+// marquee and the 3D tilt of cards. Nothing runs when
 // the visitor asked for less motion; PJAX page swaps re-run the per-page parts.
 (function () {
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -57,23 +57,6 @@
         el.style.removeProperty('--ry');
       });
     });
-  }
-
-  // a warm light under the mouse, as if the smoke were lit by it
-  if (!reduced && finePointer) {
-    var light = document.createElement('div');
-    light.className = 'cursor-light';
-    light.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(light);
-    var raf = 0, mx = 0, my = 0;
-    window.addEventListener('pointermove', function (e) {
-      mx = e.clientX; my = e.clientY;
-      if (!raf) raf = requestAnimationFrame(function () {
-        raf = 0;
-        light.style.setProperty('--mx', mx + 'px');
-        light.style.setProperty('--my', my + 'px');
-      });
-    }, { passive: true });
   }
 
   // The background of every page: Skeli's photos cross-fade over the usual one, then back to it.

@@ -762,3 +762,56 @@ body.light .flash-warn { background: rgba(255, 170, 40, 0.16); color: #8a4b00; }
     font-size: 0.9em;
 }
 .btn-delete:hover { background: #9b2e2e; }
+
+/* ---------- The bell: replies to your comments, hearts from Skeli (js/notifications.js) ---------- */
+.notif-btn { position: relative; }
+.notif-badge {
+  position: absolute; top: -3px; right: -3px; min-width: 17px; height: 17px; padding: 0 4px;
+  border-radius: 999px; background: #ff4d6d; color: #fff; font: 600 0.62rem/17px system-ui, sans-serif; text-align: center;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+.notif-badge[hidden] { display: none; }
+.nav-notif { display: none; }
+.nav-notif .notif-badge { position: static; margin-left: 4px; box-shadow: none; }
+/* phones: a red dot on "Menu" while something is unread */
+.menu-toggle.has-unread { position: relative; }
+.menu-toggle.has-unread::after {
+  content: ""; position: absolute; top: 2px; right: 2px; width: 10px; height: 10px; border-radius: 50%;
+  background: #ff4d6d; box-shadow: 0 0 0 2px var(--bg);
+}
+@media (max-width: 1024px) {
+  .main-nav .nav-notif,
+  body.light .main-nav .nav-notif {
+    display: flex; align-items: center; gap: 6px; width: 100%; padding: 12px 14px; border: 0; border-radius: 10px;
+    background: transparent; color: var(--text); font: inherit; font-size: 0.95rem; text-align: left; cursor: pointer;
+  }
+}
+.notif-panel {
+  position: fixed; z-index: 1200; top: calc(var(--header-h) + 8px); right: 16px; width: min(400px, calc(100vw - 32px));
+  max-height: min(70vh, 560px); display: flex; flex-direction: column;
+  border-radius: 18px; border: 1px solid var(--panel-border);
+  background: color-mix(in srgb, var(--bg) 95%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+}
+.notif-panel[hidden] { display: none; }
+.notif-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid var(--panel-border); }
+.notif-head strong { font-weight: 400; font-size: var(--fs-h4); }
+.notif-close, body.light .notif-close {
+  width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--text-dim); cursor: pointer;
+}
+.notif-close:hover { background: color-mix(in srgb, var(--text) 10%, transparent); color: var(--text); }
+.notif-list { overflow-y: auto; padding: 6px; }
+.notif-empty { margin: 18px 10px; color: var(--text-dim); text-align: center; font-family: var(--font-text); font-size: var(--fs-text); }
+.notif-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px; border-radius: 12px; color: var(--text); text-decoration: none; }
+.notif-item:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); text-decoration: none; }
+.notif-item.unread { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.notif-item.unread .notif-text::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--accent); vertical-align: middle; }
+.notif-icon {
+  width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; object-fit: cover;
+  display: inline-flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent);
+}
+.notif-icon.heart { color: #ff4d6d; background: rgba(255, 77, 109, 0.14); }
+.notif-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.notif-text { font-size: var(--fs-card); }
+.notif-snippet { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); color: var(--text-dim); overflow-wrap: anywhere; }
+.notif-meta { font-size: var(--fs-small); color: var(--text-dim); }

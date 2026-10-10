@@ -13,7 +13,7 @@ import java.util.Map;
  */
 @WebServlet(name = "LegacyRedirectServlet", urlPatterns = {
         "/bio.jsp", "/domu.jsp", "/video.jsp", "/gdpr.jsp", "/text.jsp", "/lyric.jsp", "/music",
-        "/profile", "/profile/", "/profile/index.jsp"})
+        "/profile", "/profile/", "/profile/index.jsp", "/profile.jsp"})
 public class LegacyRedirectServlet extends HttpServlet {
     static final Map<String, String> MOVED = Map.of(
             "/bio.jsp", "/about.jsp",
@@ -22,9 +22,10 @@ public class LegacyRedirectServlet extends HttpServlet {
             "/gdpr.jsp", "/privacy.jsp",       // the privacy rules live in one place only
             "/text.jsp", "/texty.jsp",
             "/music", "/music.jsp",            // an old template that answered 500
-            "/profile", "/profile.jsp",
-            "/profile/", "/profile.jsp",
-            "/profile/index.jsp", "/profile.jsp");
+            "/profile", "/uzivatel.jsp",       // Profile and Settings are one page ("My account")
+            "/profile/", "/uzivatel.jsp",
+            "/profile/index.jsp", "/uzivatel.jsp",
+            "/profile.jsp", "/uzivatel.jsp");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {

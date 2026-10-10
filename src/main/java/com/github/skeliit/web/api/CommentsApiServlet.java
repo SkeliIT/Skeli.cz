@@ -8,6 +8,7 @@ import com.github.skeliit.dao.CommentDao.Kind;
 import com.github.skeliit.dao.CommentDao.Ref;
 import com.github.skeliit.dao.CommentDao.Sort;
 import com.github.skeliit.dao.CommentDao.Viewer;
+import com.github.skeliit.dao.NotificationDao;
 import com.github.skeliit.model.CommentItem;
 import com.github.skeliit.security.RequestLimiter;
 import com.github.skeliit.web.auth.EmailVerification;
@@ -42,6 +43,7 @@ import java.util.Map;
 public class CommentsApiServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
     private final CommentDao dao = new CommentDao();
+    private final NotificationDao notifications = new NotificationDao();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -131,7 +133,11 @@ public class CommentsApiServlet extends HttpServlet {
                 }
                 case "heart" -> {
                     if (!viewer.artist()) { answer(resp, back, 403, null); return; }
-                    dao.heart(kind, ref.id(), "1".equals(req.getParameter("on")));
+                    boolean on = "1".equals(req.getParameter("on"));
+                    dao.heart(kind, ref.id(), on);
+                    // the author sees it under the bell (taken back while still unread when the heart goes)
+                    if (on) notifications.add(ref.userId(), "heart", kind, ref.id(), userId);
+                    else notifications.removeUnreadHeart(kind, ref.id());
                     answer(resp, back, 200, Map.of("hearted", dao.isHearted(kind, ref.id())));
                 }
                 default -> answer(resp, back, 400, null);
@@ -161,8 +167,27 @@ public class CommentsApiServlet extends HttpServlet {
             answer(resp, back, 429, null);
             return;
         }
-        int id = dao.add(kind, target, viewer.userId(), number(req.getParameter("parent")), content);
+        Integer answering = number(req.getParameter("parent"));
+        int id = dao.add(kind, target, viewer.userId(), answering, content);
+        notifyReply(kind, target, answering, id, viewer.userId());
         answer(resp, back, 200, Map.of("ok", true, "id", id));
+    }
+
+    /**
+     * The bell: the author of the comment answered hears about the reply, and so does the author
+     * of the thread's first comment when that is someone else (each person once, never yourself).
+     */
+    private void notifyReply(Kind kind, String target, Integer answering, int replyId, int actorId) throws SQLException {
+        if (answering == null || replyId == 0) return;
+        Ref answered = dao.find(kind, answering);
+        if (answered == null || !answered.target().equals(target)) return;
+        java.util.Set<Integer> told = new java.util.HashSet<>();
+        told.add(actorId);
+        if (told.add(answered.userId())) notifications.add(answered.userId(), "reply", kind, replyId, actorId);
+        if (answered.parentId() != null) {
+            Ref top = dao.find(kind, answered.parentId());
+            if (top != null && told.add(top.userId())) notifications.add(top.userId(), "reply", kind, replyId, actorId);
+        }
     }
 
     /** The signed-in user's role and artist flag come from the database, not the session (they can change). */
