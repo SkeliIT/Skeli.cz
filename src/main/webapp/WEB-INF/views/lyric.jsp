@@ -183,6 +183,12 @@
               <i class="fab fa-apple icon-apple"></i> Apple Music
             </a>
           </c:if>
+          <%-- shows up when the clip has timings: the sung line is burnt in by the laser (js/karaoke.js) --%>
+          <c:if test="${not empty lyric.youtubeId}">
+            <button type="button" class="action-btn karaoke-btn" id="karaokeToggle" hidden aria-pressed="true" title="<%= t.getProperty("lyric.karaokeHint") %>">
+              <i class="fa-solid fa-microphone-lines"></i> <span>Karaoke</span>
+            </button>
+          </c:if>
         </div>
         <div class="lyric-toolbar-end">
           <c:if test="${not empty lyric.youtubeId}"><%@ include file="/includes/clip-fx-switch.jspf" %></c:if>
@@ -204,7 +210,7 @@
         </div>
       </article>
       </section>
-      <c:if test="${not empty lyric.youtubeId}"><script src="/js/clip-fx.js?v=<%= assetVersion %>"></script></c:if>
+      <c:if test="${not empty lyric.youtubeId}"><script src="/js/clip-fx.js?v=<%= assetVersion %>"></script><script src="/js/karaoke.js?v=<%= assetVersion %>"></script></c:if>
 
       <%-- the songs around this one in the newest-first list (also the ← → keys) --%>
       <c:if test="${not empty prevSong or not empty nextSong}">

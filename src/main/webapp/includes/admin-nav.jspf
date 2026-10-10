@@ -10,6 +10,7 @@
       {"/admin/track", "fa-plus", "Přidat track", "/admin/track"},
       {"/admin/lyrics", "fa-align-left", "Texty", "/admin/lyrics"},
       {"/admin/quotes", "fa-quote-left", "Citáty", "/admin/quotes"},
+      {"/admin/karaoke", "fa-microphone-lines", "Karaoke", "/admin/karaoke"},
       {"/admin/comments", "fa-comments", "Komentáře", "/admin/comments"},
       {"/admin_users.jsp", "fa-users", "Uživatelé", "/admin_users"},
       {"/admin/newsletter", "fa-envelope-open-text", "Newsletter", "/admin/newsletter"}
