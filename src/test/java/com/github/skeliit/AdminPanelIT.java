@@ -94,7 +94,7 @@ public class AdminPanelIT extends UiTestSupport {
         int commentId = queryInt("SELECT id FROM comments WHERE user_id=? AND content=?", authorId, text);
 
         driver.get(BASE_URL + "/admin/comments");
-        WebElement row = driver.findElement(By.xpath("//div[@id='commentList']/div[contains(@class,'report-row')][.//div[contains(@class,'report-text')][normalize-space()='" + text + "']]"));
+        WebElement row = driver.findElement(By.xpath("//div[@id='commentList']//div[contains(@class,'report-row')][.//div[contains(@class,'report-text')][normalize-space()='" + text + "']]"));
         assertEquals("lyric", row.getAttribute("data-kind"));
         clickAndWaitReload(row.findElement(By.cssSelector("button.btn-delete")), true);
 

@@ -202,6 +202,12 @@ body.light .lang-flag { background: rgba(0,0,0,0.06); }
 .admin-inline-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .report-row { display: flex; gap: 16px; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-top: 1px solid var(--panel-border); }
 .report-row[hidden] { display: none; }
+/* comments page: a thread = the comment, its replies indented under it */
+.admin-thread[hidden] { display: none; }
+.admin-thread .report-row.is-reply { margin-left: 34px; padding-left: 14px; border-top: 0; border-left: 2px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+.reply-mark { color: var(--text-dim); }
+.text-heart { color: #ff4d6d; }
+@media (max-width: 700px) { .admin-thread .report-row.is-reply { margin-left: 14px; } }
 .report-main { min-width: 0; }
 .report-meta { font-size: var(--fs-small); color: var(--text-dim); }
 .report-meta strong { color: var(--accent); font-weight: 400; }

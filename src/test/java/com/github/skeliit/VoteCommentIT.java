@@ -72,27 +72,27 @@ public class VoteCommentIT {
 
         driver.get(BASE_URL + "/lyrics/" + LYRIC_ID);
         waitReady();
-        WebElement textarea = driver.findElement(By.cssSelector("form[action='/comment'] textarea[name=content]"));
+        // the comment box is drawn by js/comments.js
+        WebElement textarea = new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(d -> d.findElement(By.cssSelector(".cmts-composer-slot textarea")));
+        textarea.click();
         textarea.sendKeys(commentText);
-        jsClick(driver.findElement(
-                By.xpath("//form[@action='/comment'][.//textarea[@name='content']]//button[@type='submit']")));
-        // readyState is already "complete" on the old page, so wait for the POST to replace it
-        new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.stalenessOf(textarea));
-        waitReady();
-
+        jsClick(driver.findElement(By.cssSelector(".cmts-composer-slot .cmt-send")));
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> {
+            try { return queryCommentId(LYRIC_ID, userId, commentText) != null; } catch (SQLException e) { return false; }
+        });
         Integer commentId = queryCommentId(LYRIC_ID, userId, commentText);
         assertNotNull(commentId, "comment should be persisted in DB");
 
         driver.get(BASE_URL + "/lyrics/" + LYRIC_ID);
         waitReady();
-        WebElement deleteBtn = driver.findElement(By.xpath(
-                "//form[@action='/comment'][.//input[@name='comment_id'][@value='" + commentId + "']]"
-                        + "[.//input[@name='action'][@value='delete']]//button"));
-        jsClick(deleteBtn);
+        WebElement item = new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElement(By.id("comment-" + commentId)));
+        jsClick(item.findElement(By.cssSelector(".cmt-menu summary")));
+        item.findElement(By.cssSelector(".cmt-menu-list .cmt-delete")).click();
         acceptAlertIfPresent();
-        waitReady();
-
-        assertNull(queryCommentId(LYRIC_ID, userId, commentText), "comment should be removed after delete");
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> {
+            try { return queryCommentId(LYRIC_ID, userId, commentText) == null; } catch (SQLException e) { return false; }
+        });
     }
 
     private void registerAndLogin(String username, String email, String password) {

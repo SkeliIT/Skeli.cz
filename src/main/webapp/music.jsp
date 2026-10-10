@@ -8,9 +8,13 @@
                title='<%= t.getProperty("menu.music") %>' lead='<%= t.getProperty("music.lead") %>'/>
 
   <section class="section youtube">
-    <h3 class="section-title"><span class="ico"><i class="fab fa-youtube icon-youtube"></i></span> <%= t.getProperty("music.videos") %></h3>
+    <h3 class="section-title"><span class="ico"><i class="fab fa-youtube icon-youtube"></i></span> <%= t.getProperty("music.videos") %>
+      <%@ include file="/includes/clip-fx-switch.jspf" %></h3>
     <jsp:include page="/elliptic" flush="true" />
     <script src="/js/clip-fx.js?v=<%= assetVersion %>"></script>
+    <%-- comments under the clip that plays (the player sets data-target) --%>
+    <% String cmtKind = "video", cmtTarget = ""; %>
+    <div class="ep-comments-wrap"><%@ include file="/includes/comments.jspf" %></div>
   </section>
 
   <section class="discography" data-reveal>

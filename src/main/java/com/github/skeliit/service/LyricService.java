@@ -2,7 +2,6 @@ package com.github.skeliit.service;
 
 import com.github.skeliit.dao.LyricDao;
 import com.github.skeliit.dao.SongDao;
-import com.github.skeliit.model.CommentView;
 import com.github.skeliit.model.LyricView;
 import com.github.skeliit.model.Song;
 
@@ -18,5 +17,4 @@ public class LyricService {
     public Integer findLyricIdBySongUuid(String uuid, String lang) throws SQLException {
         return lyrics.findLyricIdBySongUuid(uuid, lang);
     }
-    public List<CommentView> comments(int lyricId) throws SQLException { return lyrics.listComments(lyricId); }
 }

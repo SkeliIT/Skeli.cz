@@ -65,7 +65,6 @@ public class LyricRouterServlet extends HttpServlet {
             }
             // all clips of the song (newest first): the page offers a version switch when there are several
             req.setAttribute("clips", com.github.skeliit.model.SongClip.forSong(v.songId));
-            req.setAttribute("comments", svc.comments(v.id));   // v may be another language's row of the song
             req.getRequestDispatcher("/WEB-INF/views/lyric.jsp").forward(req, resp);
         } catch (Exception e) { throw new ServletException(e); }
     }

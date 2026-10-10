@@ -24,6 +24,8 @@ are easy to get wrong.
 - Where code goes: SQL in `dao/` (JSPs only render what a DAO returns, as plain classes in `model/`:
   the JSP compiler can't read records), servlets in `web/<area>/`, filters in `filter/`, background jobs
   in `job/`. Admin templates live in `WEB-INF/views/admin/`; old addresses go to `LegacyRedirectServlet`.
+- Comments under lyrics and under clips are one system: `dao/CommentDao` (the `Kind` picks the table),
+  `/api/comments`, drawn by `js/comments.js` from `includes/comments.jspf`. Change both kinds together.
 - The water-and-fire effect round a clip (`js/clip-fx.js`) reads `eq/<youtubeId>.json`, made once per clip
   with `tools/clip-fx-data.js`; a clip without the file still works (calm rhythm, thumbnail colours).
 

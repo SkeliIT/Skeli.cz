@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Song page: the clip stands on its own stage with water and fire round it; the effect can be switched off. */
@@ -42,12 +43,18 @@ class SongStageIT extends UiTestSupport {
         Number lyricsTop = (Number) ((JavascriptExecutor) driver).executeScript("return document.querySelector('.lyric-main').getBoundingClientRect().top");
         assertTrue(stageTop.doubleValue() < lyricsTop.doubleValue(), "the clip is above the lyrics");
 
-        driver.findElement(By.cssSelector(".clip-fx-switch button[data-mode='off']")).click();
+        // the switch is a small drop-down in the bar above the lyrics, outside the effect
+        WebElement fxSwitch = driver.findElement(By.cssSelector(".lyric-toolbar .clip-fx-switch"));
+        assertTrue(fxSwitch.isDisplayed());
+        assertTrue(driver.findElements(By.cssSelector(".lyric-stage .clip-fx-switch")).isEmpty(), "nothing to click inside the water and fire");
+        fxSwitch.findElement(By.tagName("summary")).click();
+        fxSwitch.findElement(By.cssSelector("button[data-mode='off']")).click();
         assertTrue(stage.getAttribute("class").contains("fx-off"));
+        assertNull(fxSwitch.getAttribute("open"), "the menu closes after a choice");
         driver.navigate().refresh();
         new WebDriverWait(driver, Duration.ofSeconds(5)).until(d ->
                 "true".equals(d.findElement(By.cssSelector(".clip-fx-switch button[data-mode='off']")).getAttribute("aria-pressed")));
-        driver.findElement(By.cssSelector(".clip-fx-switch button[data-mode='on']")).click();   // leave it on for the next tests
+        jsClick(driver.findElement(By.cssSelector(".clip-fx-switch button[data-mode='on']")));   // leave it on for the next tests
 
         // playing the clip asks YouTube to report its time, so the effect stays in step
         driver.findElement(By.cssSelector("#ytFacade .yt-facade")).click();
@@ -66,7 +73,7 @@ class SongStageIT extends UiTestSupport {
         assertTrue(clip != null && clip.matches("[A-Za-z0-9_-]{6,20}"), "the player tells the effect its clip, got " + clip);
         // the comments sit under the carousel now, not beside the video
         Number carouselBottom = (Number) ((JavascriptExecutor) driver).executeScript("return document.querySelector('.ep-carousel').getBoundingClientRect().bottom");
-        Number commentsTop = (Number) ((JavascriptExecutor) driver).executeScript("return document.querySelector('.ep-comments').getBoundingClientRect().top");
+        Number commentsTop = (Number) ((JavascriptExecutor) driver).executeScript("return document.querySelector('.ep-comments-wrap').getBoundingClientRect().top");
         assertTrue(commentsTop.doubleValue() >= carouselBottom.doubleValue(), "comments come after the carousel");
     }
 }

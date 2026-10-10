@@ -1,7 +1,6 @@
 package com.github.skeliit.dao;
 
 import com.github.skeliit.Db;
-import com.github.skeliit.model.CommentView;
 import com.github.skeliit.model.LyricView;
 
 import java.sql.*;
@@ -228,45 +227,6 @@ public class LyricDao {
             try (ResultSet rv = vv.executeQuery()) { if (rv.next()) { v.votesUp = rv.getInt("up"); v.votesDown = rv.getInt("down"); } }
         }
         return v;
-    }
-
-    /** Top-level comments newest first, each with its replies oldest first. */
-    public List<CommentView> listComments(int lyricId) throws SQLException {
-        String sql = "SELECT c.id, c.user_id, c.parent_id, c.content, c.created_at, c.updated_at, CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.username END AS username, CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.avatar_url END AS avatar_url FROM comments c JOIN users u ON u.id=c.user_id WHERE c.lyric_id=? ORDER BY c.created_at DESC, c.id DESC";
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setInt(1, lyricId);
-            try (ResultSet rs = ps.executeQuery()) {
-                List<CommentView> out = new ArrayList<>();
-                while (rs.next()) {
-                    CommentView cv = new CommentView();
-                    cv.id = rs.getInt("id");
-                    cv.userId = rs.getInt("user_id");
-                    int parent = rs.getInt("parent_id");
-                    cv.parentId = rs.wasNull() ? null : parent;
-                    cv.username = rs.getString("username");
-                    cv.avatarUrl = rs.getString("avatar_url");
-                    cv.createdAt = rs.getTimestamp("created_at");
-                    cv.updatedAt = rs.getTimestamp("updated_at");
-                    cv.content = rs.getString("content");
-                    out.add(cv);
-                }
-                return threads(out);
-            }
-        }
-    }
-
-    /** Nests replies under their top-level comment; input is newest first. */
-    static List<CommentView> threads(List<CommentView> newestFirst) {
-        java.util.Map<Integer, CommentView> top = new java.util.LinkedHashMap<>();
-        for (CommentView c : newestFirst) if (c.parentId == null) top.put(c.id, c);
-        List<CommentView> reversed = new ArrayList<>(newestFirst);
-        java.util.Collections.reverse(reversed);
-        for (CommentView c : reversed) {
-            if (c.parentId == null) continue;
-            CommentView parent = top.get(c.parentId);
-            if (parent != null) parent.replies.add(c); // oldest reply first
-        }
-        return new ArrayList<>(top.values());
     }
 
     public record LyricExportRow(int songId, String songName, Integer year, String lang, String words, String timedLyrics) {}

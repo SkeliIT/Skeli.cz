@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "4.5.1";
+  String assetVersion = "4.6.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -109,6 +109,7 @@
     <link rel="stylesheet" href="<%= ctx %>/css/base.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/components.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/css/pages.css?v=<%= assetVersion %>">
+    <link rel="stylesheet" href="<%= ctx %>/css/comments.css?v=<%= assetVersion %>">
     <% if (String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin")) { %><link rel="stylesheet" href="<%= ctx %>/css/admin.css?v=<%= assetVersion %>"><% } %>
     <link rel="stylesheet" href="<%= ctx %>/css/effects.css?v=<%= assetVersion %>">
     <%-- structured data for search engines: Skeli as a musician, the site, a song (SeoJsonLd) --%>

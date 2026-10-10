@@ -118,7 +118,7 @@ public class UserAccessIT extends UiTestSupport {
         String text = "CSRF probe " + uniq();
 
         driver.get(BASE_URL + "/lyrics/1");
-        long status = browserPost("/comment", Map.of("lyric_id", "1", "content", text), false);
+        long status = browserPost("/api/comments", Map.of("action", "add", "kind", "lyric", "target", "1", "content", text), false);
 
         assertEquals(400, status);
         assertFalse(exists("SELECT 1 FROM comments WHERE user_id=? AND content=?", userId, text),

@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="/includes/header.jsp" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 <main class="lyric-page" data-lyric-id="${lyric.id}">
   <%-- every song has its own colours: its clip's thumbnail (or preview photo), blurred far behind the page --%>
   <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
@@ -134,13 +133,6 @@
           });
         })();
         </script>
-        <div class="clip-fx-switch" role="group" aria-label="<%= t.getProperty("clipfx.label") %>">
-          <span class="clip-fx-name"><i class="fa-solid fa-fire-flame-curved" aria-hidden="true"></i> <span class="clip-fx-label"><%= t.getProperty("clipfx.label") %></span></span>
-          <button type="button" data-mode="on" aria-pressed="true"><%= t.getProperty("clipfx.on") %></button>
-          <button type="button" data-mode="soft" aria-pressed="false"><%= t.getProperty("clipfx.soft") %></button>
-          <button type="button" data-mode="off" aria-pressed="false"><%= t.getProperty("clipfx.off") %></button>
-        </div>
-        <script src="/js/clip-fx.js?v=<%= assetVersion %>"></script>
       </c:when>
       <c:otherwise>
         <div class="content-box video-box">
@@ -177,6 +169,7 @@
           </c:if>
         </div>
         <div class="lyric-toolbar-end">
+          <c:if test="${not empty lyric.youtubeId}"><%@ include file="/includes/clip-fx-switch.jspf" %></c:if>
           <div class="lyric-textsize" role="group" aria-label="<%= t.getProperty("lyric.textSize") %>">
             <span><%= t.getProperty("lyric.textSize") %></span>
             <button type="button" class="ts-btn" data-step="-1" aria-label="<%= t.getProperty("lyric.textSmaller") %>" title="<%= t.getProperty("lyric.textSmaller") %>">A−</button>
@@ -193,6 +186,7 @@
         </div>
       </article>
       </section>
+      <c:if test="${not empty lyric.youtubeId}"><script src="/js/clip-fx.js?v=<%= assetVersion %>"></script></c:if>
 
       <%-- the songs around this one in the newest-first list (also the ← → keys) --%>
       <c:if test="${not empty prevSong or not empty nextSong}">
@@ -257,61 +251,12 @@
         
         <hr>
         
-        <!-- Comments: new-comment form first, then the threads (newest first, replies oldest first) -->
+        <%-- comments like on YouTube (includes/comments.jspf + js/comments.js) --%>
 <%
-  @SuppressWarnings("unchecked")
-  java.util.List<com.github.skeliit.model.CommentView> threads =
-      (java.util.List<com.github.skeliit.model.CommentView>) request.getAttribute("comments");
-  int commentTotal = 0;
-  if (threads != null) for (com.github.skeliit.model.CommentView c0 : threads) commentTotal += 1 + c0.replies.size();
-  boolean canPost = com.github.skeliit.web.auth.EmailVerification.isVerified(session);
   com.github.skeliit.model.LyricView lyricView = (com.github.skeliit.model.LyricView) request.getAttribute("lyric");
+  String cmtKind = "lyric", cmtTarget = String.valueOf(lyricView.id);
 %>
-        <h3 class="comments-title" id="comments"><%= t.getProperty("comments.title") %> <span class="comments-count"><%= commentTotal %></span></h3>
-
-        <c:if test="${not empty sessionScope.username}">
-          <% if (canPost) { %>
-          <form method="post" action="/comment" class="comment-form">
-            <input type="hidden" name="lyric_id" value="${lyric.id}">
-            <input type="hidden" name="csrf" value="${csrf}">
-            <div class="hp-field" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
-            <textarea name="content" maxlength="<%= com.github.skeliit.WebUtils.COMMENT_MAX_LENGTH %>"
-                      placeholder="<%= t.getProperty("comment.placeholder") %>"
-                      required></textarea>
-            <div class="comment-form-foot">
-              <span class="comment-hint"><%= t.getProperty("comment.maxLength") %></span>
-              <button type="submit"><%= t.getProperty("comment.add") %></button>
-            </div>
-          </form>
-          <% } else { %>
-          <div class="verify-notice">
-            <p><i class="fa-solid fa-envelope-circle-check"></i> <%= t.getProperty("verify.notice") %></p>
-            <form method="post" action="/verify/resend">
-              <input type="hidden" name="csrf" value="${csrf}">
-              <input type="hidden" name="back" value="/lyrics/${lyric.id}#comments">
-              <button type="submit" class="btn"><%= t.getProperty("verify.resend") %></button>
-            </form>
-          </div>
-          <% } %>
-        </c:if>
-        <c:if test="${empty sessionScope.username}">
-          <p class="comment-login">
-            <a href="/login.jsp"><%= t.getProperty("comment.login.link") %></a><%= t.getProperty("comment.login.toComment") %>
-          </p>
-        </c:if>
-
-        <% if (threads != null) for (com.github.skeliit.model.CommentView thread : threads) { %>
-          <div class="comment-thread">
-            <sk:lyricComment cmt="<%= thread %>" lyricId="<%= lyricView.id %>" t="<%= t %>" lang="<%= cur %>" canPost="<%= canPost %>"/>
-            <% if (!thread.replies.isEmpty()) { %>
-            <div class="comment-replies">
-              <% for (com.github.skeliit.model.CommentView reply : thread.replies) { %>
-                <sk:lyricComment cmt="<%= reply %>" lyricId="<%= lyricView.id %>" t="<%= t %>" lang="<%= cur %>" canPost="<%= canPost %>" isReply="<%= true %>"/>
-              <% } %>
-            </div>
-            <% } %>
-          </div>
-        <% } %>
+<%@ include file="/includes/comments.jspf" %>
       </div>
       
     </div>
@@ -408,42 +353,6 @@
           apply();
           try { localStorage.setItem(KEY, scale.toFixed(2)); } catch (e) {}
         });
-      });
-    })();
-
-    // Edit a comment in place (the pencil swaps the text for a small form) and open reply forms
-    (function () {
-      document.querySelectorAll('.comment-item').forEach(function (item) {
-        const toggle = item.querySelector('.comment-edit-toggle');
-        const form = item.querySelector('.comment-edit-form');
-        const text = item.querySelector('.comment-text');
-        if (toggle && form && text) {
-          function setEditing(on) {
-            form.hidden = !on;
-            text.hidden = on;
-            toggle.classList.toggle('active', on);
-            if (on) { const ta = form.querySelector('textarea'); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
-          }
-          toggle.addEventListener('click', function () { setEditing(form.hidden); });
-          form.querySelector('.comment-edit-cancel').addEventListener('click', function () {
-            form.reset();
-            setEditing(false);
-          });
-        }
-        const replyBtn = item.querySelector('.comment-reply-toggle');
-        const replyForm = item.querySelector('.comment-reply-form');
-        if (replyBtn && replyForm) {
-          replyBtn.addEventListener('click', function () {
-            replyForm.hidden = !replyForm.hidden;
-            replyBtn.hidden = !replyForm.hidden;
-            if (!replyForm.hidden) replyForm.querySelector('textarea').focus();
-          });
-          replyForm.querySelector('.comment-reply-cancel').addEventListener('click', function () {
-            replyForm.reset();
-            replyForm.hidden = true;
-            replyBtn.hidden = false;
-          });
-        }
       });
     })();
 

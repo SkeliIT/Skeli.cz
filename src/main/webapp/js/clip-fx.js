@@ -26,16 +26,28 @@
   // ---------- the switch ----------
   var mode = 'on';
   try { mode = localStorage.getItem('eqMode') || 'on'; } catch (e) {}
-  var switcher = stage.querySelector('.clip-fx-switch');
+  // a small drop-down outside the effect (includes/clip-fx-switch.jspf), hidden until the effect can run
+  var switcher = document.querySelector('.clip-fx-switch');
   function paintSwitch() {
     stage.classList.toggle('fx-off', mode === 'off');
-    if (switcher) switcher.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === mode)); });
+    if (!switcher) return;
+    switcher.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === mode)); });
+    var cur = switcher.querySelector('.clip-fx-current');
+    if (cur) cur.textContent = cur.getAttribute('data-' + mode) || '';
+    switcher.classList.toggle('is-off', mode === 'off');
   }
-  if (switcher) switcher.addEventListener('click', function (e) {
-    var b = e.target.closest('button[data-mode]'); if (!b) return;
-    mode = b.dataset.mode; paintSwitch();
-    try { localStorage.setItem('eqMode', mode); } catch (er) {}
-  });
+  if (switcher) {
+    switcher.hidden = false;
+    switcher.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-mode]'); if (!b) return;
+      mode = b.dataset.mode; paintSwitch();
+      switcher.open = false;
+      try { localStorage.setItem('eqMode', mode); } catch (er) {}
+    });
+    // a click anywhere else or Esc closes it
+    document.addEventListener('click', function (e) { if (switcher.open && !switcher.contains(e.target)) switcher.open = false; });
+    switcher.addEventListener('keydown', function (e) { if (e.key === 'Escape' && switcher.open) { switcher.open = false; switcher.querySelector('summary').focus(); } });
+  }
   paintSwitch();
 
   // ---------- data of the clip (or the colours of its thumbnail) ----------

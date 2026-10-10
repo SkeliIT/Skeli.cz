@@ -44,20 +44,22 @@
             <td class="dim"><%= ts %></td>
             <td><a href="/lyrics/<%= lid %>"><%= com.github.skeliit.WebUtils.escapeHtml(sname) %></a></td>
             <td class="comment-cell">
-              <form method="post" action="/comment" class="inline-edit">
-                <input type="hidden" name="lyric_id" value="<%= lid %>">
-                <input type="hidden" name="comment_id" value="<%= cid %>">
-                <input type="hidden" name="action" value="update">
+              <form method="post" action="/api/comments" class="inline-edit">
+                <input type="hidden" name="kind" value="lyric">
+                <input type="hidden" name="id" value="<%= cid %>">
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" name="back" value="/profile.jsp">
                 <input type="hidden" name="csrf" value="${csrf}">
                 <textarea name="content" rows="2"><%= com.github.skeliit.WebUtils.escapeHtml(ctext) %></textarea>
                 <button type="submit"><%= t.getProperty("common.save") %></button>
               </form>
             </td>
             <td class="act">
-              <form method="post" action="/comment" onsubmit="return confirm('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("comment.deleteConfirm")) %>');">
-                <input type="hidden" name="lyric_id" value="<%= lid %>">
-                <input type="hidden" name="comment_id" value="<%= cid %>">
+              <form method="post" action="/api/comments" onsubmit="return confirm('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("comment.deleteConfirm")) %>');">
+                <input type="hidden" name="kind" value="lyric">
+                <input type="hidden" name="id" value="<%= cid %>">
                 <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="back" value="/profile.jsp">
                 <input type="hidden" name="csrf" value="${csrf}">
                 <button type="submit" class="btn-delete"><%= t.getProperty("common.delete") %></button>
               </form>
