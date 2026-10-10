@@ -65,11 +65,13 @@ body.light .cmts-sort-list button, body.light .cmt-menu-list button {
 .cmt-composer-main { flex: 1; min-width: 0; position: relative; }
 .cmt-composer textarea,
 body.light .cmt-composer textarea {
-  width: 100%; min-height: 0; padding: 6px 2px; resize: none; overflow-y: auto;
+  width: 100%; min-height: 2.2em; padding: 6px 2px; resize: none; overflow-y: hidden; scrollbar-width: thin;
   border: 0; border-bottom: 1px solid var(--panel-border); border-radius: 0; background: transparent; box-shadow: none;
   color: var(--text); font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); letter-spacing: 0.02em; line-height: 1.45;
   transition: border-color 0.2s ease;
 }
+.cmt-composer textarea.is-long { overflow-y: auto; }
+.cmt-composer textarea::-webkit-scrollbar-button { display: none; }
 .cmt-composer textarea:focus { outline: none; border-bottom: 2px solid var(--accent); }
 .cmt-composer-bar { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
 .cmt-composer-bar[hidden] { display: none; }
