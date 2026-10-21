@@ -183,6 +183,47 @@ public class AdminPanelIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Deleting for real: a clip of a song, then its text, then the song – a song with text can't go by mistake")
+    void deleteClipTextAndSong() throws Exception {
+        String name = "IT Delete " + uniq(), youtubeId = ("it" + uniq() + "xxxxxxxxxxx").substring(0, 11);   // a real YouTube id is 11 characters
+        update("INSERT INTO songs (name, uuid) VALUES (?, UUID())", name);
+        int songId = queryInt("SELECT id FROM songs WHERE name=?", name);
+        String uuid = queryString("SELECT uuid FROM songs WHERE id=?", songId);
+        update("INSERT INTO videos (youtube_id, title, song_id) VALUES (?, 'IT clip', ?)", youtubeId, songId);
+        update("INSERT INTO lyrics (song_id, lang, words) VALUES (?, 'cs', 'Řádek')", songId);
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        try {
+            // the clip: from the database and onto the list the YouTube sync skips
+            driver.get(BASE_URL + "/admin/song?uuid=" + uuid);
+            js.executeScript("window.confirm = function () { return true; }");
+            clickAndWaitReload(driver.findElement(By.xpath("//form[.//input[@name='action'][@value='delete_video']]//button")), false);
+            assertFalse(exists("SELECT 1 FROM videos WHERE youtube_id=?", youtubeId), "the clip is gone from the database");
+            assertTrue(exists("SELECT 1 FROM video_blocklist WHERE youtube_id=?", youtubeId));
+
+            // the song still has its text: no delete button, only the way to the lyrics editor
+            assertTrue(driver.findElements(By.xpath("//form[.//input[@name='action'][@value='delete_song']]")).isEmpty());
+
+            // the text, on its own
+            driver.get(BASE_URL + "/admin/lyrics?song=" + songId + "&lang=cs");
+            js.executeScript("window.confirm = function () { return true; }");
+            clickAndWaitReload(driver.findElement(By.cssSelector(".lyrics-delete button")), false);
+            assertFalse(exists("SELECT 1 FROM lyrics WHERE song_id=?", songId), "the text is gone from the database");
+            assertTrue(exists("SELECT 1 FROM songs WHERE id=?", songId), "the song stays");
+
+            // now the song
+            driver.get(BASE_URL + "/admin/song?uuid=" + uuid);
+            jsClick(driver.findElement(By.cssSelector(".admin-danger input[name=confirm]")));
+            clickAndWaitReload(driver.findElement(By.cssSelector(".admin-danger button[type=submit]")), false);
+            assertFalse(exists("SELECT 1 FROM songs WHERE id=?", songId), "the song is gone from the database");
+        } finally {
+            update("DELETE FROM videos WHERE youtube_id=?", youtubeId);
+            update("DELETE FROM video_blocklist WHERE youtube_id=?", youtubeId);
+            update("DELETE FROM lyrics WHERE song_id=?", songId);
+            update("DELETE FROM songs WHERE id=?", songId);
+        }
+    }
+
+    @Test
     @DisplayName("A clip that isn't a finished song is hidden from the site and stays on the blocklist for the YouTube sync")
     void hideUnfinishedClip() throws Exception {
         String youtubeId = "it" + uniq();

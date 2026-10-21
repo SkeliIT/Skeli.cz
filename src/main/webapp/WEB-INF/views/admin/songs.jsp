@@ -6,6 +6,7 @@
   <%@ include file="/includes/admin-nav.jspf" %>
   <h2 class="admin-page-title">Písně <a class="admin-btn primary admin-title-btn" href="/admin/track"><i class="fa-solid fa-plus"></i> Přidat track z YouTube</a></h2>
   <p class="text-dim">Píseň je střed administrace — YouTube, Spotify, Apple Music a náhled se vážou k ní.</p>
+  <% if ("1".equals(request.getParameter("deleted"))) { %><p class="admin-flash"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Píseň je smazaná i s texty.</p><% } %>
 
   <c:if test="${not empty param.msg}">
     <p class="admin-flash"><c:out value="${param.msg}"/></p>

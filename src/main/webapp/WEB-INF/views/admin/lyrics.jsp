@@ -15,7 +15,8 @@
   <h2 class="admin-page-title">Texty písní</h2>
 
   <% if ("1".equals(request.getParameter("saved"))) { %><div class="form-success">Text uložen.</div><% } %>
-  <% if ("1".equals(request.getParameter("hidden"))) { %><div class="form-success">Klip je pryč z webu a synchronizace z YouTube ho už nevrátí. Až bude písnička hotová, přidej ji přes „Přidat track“.</div><% } %>
+  <% if ("1".equals(request.getParameter("textDeleted"))) { %><div class="form-success">Text v tomhle jazyce je smazaný. Píseň a klipy zůstaly.</div><% } %>
+  <% if ("1".equals(request.getParameter("hidden"))) { %><div class="form-success">Klip je smazaný z webu i z databáze a synchronizace z YouTube ho už nevrátí. Až bude písnička hotová, přidej ji přes „Přidat track“.</div><% } %>
   <% if ("1".equals(request.getParameter("error"))) { %><div class="form-alert">Něco chybí nebo je text moc dlouhý (max 20 000 znaků).</div><% } %>
 
   <div class="lyrics-editor-layout">
@@ -34,7 +35,7 @@
 
       <% if (!videos.isEmpty()) { %>
       <h3>Klipy bez songu</h3>
-      <p class="text-dim">Kliknutím z klipu uděláš song a můžeš mu doplnit text. Klip, který ještě není hotová písnička, schováš křížkem – z webu zmizí a synchronizace z YouTube ho už nevrátí.</p>
+      <p class="text-dim">Kliknutím z klipu uděláš song a můžeš mu doplnit text. Klip, který ještě není hotová písnička, smažeš košem – zmizí z webu i z databáze a synchronizace z YouTube ho už nevrátí.</p>
       <% for (VideoRow v : videos) { String vid = com.github.skeliit.WebUtils.escapeHtml(v.youtubeId), vtitle = com.github.skeliit.WebUtils.escapeHtml(v.title); %>
         <div class="ls-video-row">
           <form method="post" action="/admin/lyrics" class="ls-video">
@@ -43,11 +44,11 @@
             <input type="hidden" name="youtube_id" value="<%= vid %>">
             <button type="submit"><i class="fab fa-youtube"></i> <%= vtitle %></button>
           </form>
-          <form method="post" action="/admin/lyrics" class="ls-video-hide" onsubmit="return confirm('Schovat tenhle klip z webu?')">
+          <form method="post" action="/admin/lyrics" class="ls-video-hide" onsubmit="return confirm('Smazat tenhle klip z webu i z databáze?')">
             <input type="hidden" name="csrf" value="<%= csrfToken %>">
             <input type="hidden" name="action" value="hide_video">
             <input type="hidden" name="youtube_id" value="<%= vid %>">
-            <button type="submit" title="Skrýt z webu" aria-label="Skrýt z webu: <%= vtitle %>"><i class="fa-solid fa-eye-slash" aria-hidden="true"></i></button>
+            <button type="submit" title="Smazat klip" aria-label="Smazat klip: <%= vtitle %>"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
           </form>
         </div>
       <% } %>
@@ -83,6 +84,16 @@
           <p class="form-note">Když text úplně smažeš a uložíš, tahle jazyková verze zmizí z webu i s komentáři u ní.</p>
           <button type="submit" class="btn-primary">Uložit text</button>
         </form>
+        <% if (lyricId != null) { %>
+        <%-- the text of this one language off the site (its comments go with it); the song and its clips stay --%>
+        <form method="post" action="/admin/lyrics" class="lyrics-delete" onsubmit="return confirm('Smazat text v jazyce <%= editLang.toUpperCase() %>? Komentáře u něj zmizí taky. Píseň a klipy zůstanou.')">
+          <input type="hidden" name="csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="action" value="delete_text">
+          <input type="hidden" name="song_id" value="<%= song.id %>">
+          <input type="hidden" name="lang" value="<%= editLang %>">
+          <button type="submit" class="btn-delete"><i class="fa-solid fa-trash" aria-hidden="true"></i> Smazat text (<%= editLang.toUpperCase() %>)</button>
+        </form>
+        <% } %>
       <% } %>
     </section>
   </div>

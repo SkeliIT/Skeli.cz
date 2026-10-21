@@ -97,25 +97,21 @@ public class AdminLyricsServlet extends HttpServlet {
             } else if ("from_video".equals(action)) {
                 Integer songId = songFromVideo(req.getParameter("youtube_id"));
                 resp.sendRedirect(songId == null ? "/admin/lyrics?error=1" : "/admin/lyrics?song=" + songId);
-            } else if ("hide_video".equals(action)) {
-                // a clip that isn't a finished song: off the site, and the YouTube sync won't bring it back (V83)
-                String yt = req.getParameter("youtube_id");
-                if (yt != null && yt.matches("[A-Za-z0-9_-]{6,32}")) {
-                    try (Connection c = Db.get()) {
-                        try (PreparedStatement ps = c.prepareStatement("INSERT IGNORE INTO video_blocklist (youtube_id) VALUES (?)")) {
-                            ps.setString(1, yt);
-                            ps.executeUpdate();
-                        }
-                        try (PreparedStatement ps = c.prepareStatement("DELETE FROM video_comments WHERE youtube_id = ?")) {
-                            ps.setString(1, yt);
-                            ps.executeUpdate();
-                        }
-                        try (PreparedStatement ps = c.prepareStatement("DELETE FROM videos WHERE youtube_id = ? AND song_id IS NULL")) {
-                            ps.setString(1, yt);
-                            ps.executeUpdate();
-                        }
-                    }
+            } else if ("delete_text".equals(action)) {
+                // one language of the text off the site (with its comments); the song and its clips stay
+                Integer songId = parseId(req.getParameter("song_id"));
+                String lang = langParam(req);
+                if (songId == null) {
+                    resp.sendRedirect("/admin/lyrics?error=1");
+                    return;
                 }
+                lyrics.saveWords(songId, lang, null);
+                resp.sendRedirect("/admin/lyrics?song=" + songId + "&lang=" + lang + "&textDeleted=1");
+            } else if ("hide_video".equals(action)) {
+                // a clip that isn't a finished song: deleted from the database and the site (with its comments and
+                // karaoke timings), and the YouTube sync won't bring it back (V83) – the same as Delete clip on a song
+                String yt = req.getParameter("youtube_id");
+                if (yt != null && yt.matches("[A-Za-z0-9_-]{6,32}")) new com.github.skeliit.dao.SongDao().deleteVideo(yt);
                 resp.sendRedirect("/admin/lyrics?hidden=1");
             } else if ("new_song".equals(action)) {
                 String name = req.getParameter("name");

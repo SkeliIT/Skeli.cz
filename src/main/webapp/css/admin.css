@@ -458,6 +458,10 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .admin-top small { color: var(--text-dim); font-size: var(--fs-small); }
 .admin-top b { font-weight: 400; color: var(--accent); }
 .admin-reset { display: grid; gap: 10px; margin-top: 8px; justify-items: start; }
+/* a song's page: deleting it, at the very end and set apart */
+.admin-danger { margin-top: 24px; border-color: rgba(255, 107, 110, .45); }
+.admin-danger h3 i { color: #ff6b6e; }
+.admin-danger p { margin: 0; }
 
 /* Song hub: the picture in the song's Texty row, moved and resized by hand. The rows use the
    Texty page's own .song-row styles; the phone one copies its ≤600 px rules. */
@@ -594,3 +598,6 @@ body.light .play-day, body.light .play-top li { --heat: oklch(calc(.5 + var(--v,
 .stats-more[open] > summary i { transform: rotate(180deg); }
 @media (prefers-reduced-motion: reduce) { .stats-more > summary i { transition: none; } }
 @media (max-width: 600px) { .play-switch { flex-direction: column; } .play-days { height: 100px; gap: 2px; } }
+
+/* the lyrics editor: one language of the text off the site, set apart under Save */
+.lyrics-delete { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--panel-border); }

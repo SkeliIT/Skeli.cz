@@ -275,6 +275,68 @@ public class SongDao {
         }
     }
 
+    /**
+     * Deletes a clip from the whole site (music page, discography, home page, Kevin, karaoke): its comments and their
+     * votes and its karaoke timings go with it, and it goes on the list the YouTube sync skips (V83), so it doesn't
+     * come back from the channel. Adding it again by hand (Add track) takes it off that list.
+     */
+    public void deleteVideo(String youtubeId) throws SQLException {
+        try (Connection c = Db.get()) {
+            c.setAutoCommit(false);
+            try {
+                String[] sql = {
+                        "INSERT IGNORE INTO video_blocklist (youtube_id) VALUES (?)",
+                        "DELETE FROM video_comment_votes WHERE comment_id IN (SELECT id FROM video_comments WHERE youtube_id = ?)",
+                        "DELETE FROM video_comments WHERE youtube_id = ? AND parent_id IS NOT NULL",
+                        "DELETE FROM video_comments WHERE youtube_id = ?",
+                        "DELETE FROM karaoke_timings WHERE youtube_id = ?",
+                        "DELETE FROM videos WHERE youtube_id = ?"
+                };
+                for (String q : sql) {
+                    try (PreparedStatement ps = c.prepareStatement(q)) {
+                        ps.setString(1, youtubeId);
+                        ps.executeUpdate();
+                    }
+                }
+                c.commit();
+            } catch (SQLException e) {
+                c.rollback();
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * Deletes a song that has no lyrics (the admin deletes those first, each language on its own in the lyrics
+     * editor: a song is never taken with its text by mistake). Its clips stay, as clips without a song (to be deleted
+     * on their own if they should go too). Returns false (nothing deleted) when the song still has lyrics.
+     */
+    public boolean deleteSong(int songId) throws SQLException {
+        try (Connection c = Db.get()) {
+            try (PreparedStatement ps = c.prepareStatement("SELECT 1 FROM lyrics WHERE song_id = ? LIMIT 1")) {
+                ps.setInt(1, songId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) return false;
+                }
+            }
+            try (PreparedStatement ps = c.prepareStatement("DELETE FROM songs WHERE id = ?")) {
+                ps.setInt(1, songId);
+                ps.executeUpdate();
+            }
+            return true;
+        }
+    }
+
+    /** How many languages of lyrics the song has (0 = it can be deleted). */
+    public int lyricLanguages(int songId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM lyrics WHERE song_id = ?")) {
+            ps.setInt(1, songId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
     private Song mapSong(ResultSet rs, boolean withFirstLyric) throws SQLException {
         Song s = new Song();
         s.id = rs.getInt("id");
