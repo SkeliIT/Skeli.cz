@@ -200,4 +200,26 @@ class KevinIT extends UiTestSupport {
             driver.manage().window().setSize(new org.openqa.selenium.Dimension(1400, 900));
         }
     }
+
+    @Test
+    @DisplayName("Report a problem: a visitor tells Kevin what's wrong, the admin gets it with the page's address")
+    void reportsAProblem() throws Exception {
+        String note = "IT chybí video " + uniq();
+        try {
+            openWithKevin("/texty.jsp", "sessionStorage.setItem('kevinHello','1');");
+            jsClick(waitFor(".kevin-paw"));
+            new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 5);
+            jsClick(driver.findElements(By.cssSelector(".kevin-menu .kevin-chip")).get(4));
+            WebElement area = waitFor(".kevin-report textarea");
+            area.sendKeys(note);
+            jsClick(driver.findElement(By.cssSelector(".kevin-report .kevin-chip")));
+            new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> {
+                try { return exists("SELECT 1 FROM site_reports WHERE message=?", note); } catch (Exception e) { return false; }
+            });
+            assertEquals("/texty.jsp", queryString("SELECT page FROM site_reports WHERE message=?", note));
+            assertNull(queryString("SELECT user_id FROM site_reports WHERE message=?", note), "not signed in: no account");
+        } finally {
+            update("DELETE FROM site_reports WHERE message=?", note);
+        }
+    }
 }

@@ -194,7 +194,7 @@ public class YouTubeSyncServlet extends HttpServlet {
                 "WHERE NOT EXISTS (SELECT 1 FROM video_blocklist WHERE youtube_id = ?) " +
                 "ON DUPLICATE KEY UPDATE title = VALUES(title), published_at = COALESCE(VALUES(published_at), published_at)")) {
             ps.setString(1, videoId);
-            ps.setString(2, title);
+            ps.setString(2, com.github.skeliit.job.VideoTitles.unescape(title));   // the API sends "&amp;": stored as "&"
             if (ts == null) ps.setNull(3, Types.TIMESTAMP); else ps.setTimestamp(3, ts);
             ps.setString(4, videoId);
             ps.executeUpdate();

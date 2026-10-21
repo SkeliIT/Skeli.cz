@@ -121,9 +121,9 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>10.13.0</version>
                 <configuration>
+                    <!-- the local database; the login is never here: locally from ~/.m2/settings.xml
+                         (properties flyway.user / flyway.password), on the server from .env (deploy/remote-deploy.sh) -->
                     <url>jdbc:mariadb://localhost:3306/skeliweb?useUnicode=true&amp;characterEncoding=utf8mb4</url>
-                    <user>Skeli</user>
-                    <password>skeli</password>
                 </configuration>
                 <dependencies>
                     <!-- Flyway database support for MySQL/MariaDB -->

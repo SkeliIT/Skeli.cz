@@ -526,14 +526,14 @@
     var items = adminPage
       ? [['status', 'fa-clipboard-check', L.admin.status], ['find', 'fa-magnifying-glass', L.menu.find], ['play', 'fa-play', L.menu.play]]
       : [['find', 'fa-magnifying-glass', L.menu.find], ['play', 'fa-play', L.menu.play],   // (Zarapuj is off for now: kevin-napady.md)
-         ['news', 'fa-bolt', L.menu.news], ['fun', 'fa-wand-magic-sparkles', L.menu.fun]];
+         ['news', 'fa-bolt', L.menu.news], ['fun', 'fa-wand-magic-sparkles', L.menu.fun], ['report', 'fa-triangle-exclamation', L.menu.report]];
     items.forEach(function (it) {
       var b = el('button', 'kevin-chip');
       b.type = 'button';
       b.innerHTML = '<i class="fa-solid ' + it[1] + '" aria-hidden="true"></i> ';
       b.appendChild(document.createTextNode(it[2]));
       b.addEventListener('click', function () {
-        ({ status: adminStatus, find: find, play: play, rap: rap, news: function () { news(true); }, fun: surprise })[it[0]]();
+        ({ status: adminStatus, find: find, play: play, rap: rap, news: function () { news(true); }, fun: surprise, report: report })[it[0]]();
       });
       box.appendChild(b);
     });
@@ -541,6 +541,41 @@
   }
 
   // 1) find a song by its name or a line of its lyrics
+  // "Nahlásit problém" (issue #28): the visitor tells him what is wrong on this page; it goes to the admin
+  // (Hodnocení webu → Nahlášené problémy) with the page's address. The CSRF token is asked only now (GET /api/report).
+  function report() {
+    var box = el('div', 'kevin-find kevin-report');
+    var area = el('textarea');
+    area.rows = 3;
+    area.maxLength = 1000;
+    area.placeholder = L.report.placeholder;
+    area.setAttribute('aria-label', L.menu.report);
+    var send = el('button', 'kevin-chip', L.report.send);
+    send.type = 'button';
+    box.appendChild(area);
+    box.appendChild(send);
+    show(pick(L.report.prompt), { pose: 'idle', extra: box, ms: 90000 });
+    setTimeout(function () { area.focus(); }, 50);
+    send.addEventListener('click', function () {
+      var message = area.value.trim();
+      if (message.length < 3) { text.textContent = L.report.empty; area.focus(); return; }
+      send.disabled = true;
+      fetch('/api/report', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (tok) {
+        var body = new URLSearchParams();
+        body.set('message', message);
+        body.set('page', location.pathname + location.search);
+        return fetch('/api/report', { method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': tok.csrf }, body: body.toString() });
+      }).then(function (r) {
+        if (r.status === 429) throw new Error('limit');
+        if (!r.ok) throw new Error('fail');
+        show(pick(L.report.thanks), { pose: 'cool' });
+      }).catch(function (e) {
+        text.textContent = e && e.message === 'limit' ? L.report.limit : L.report.fail;
+        send.disabled = false;
+      });
+    });
+  }
   function find() {
     var box = el('div', 'kevin-find');
     var input = el('input');

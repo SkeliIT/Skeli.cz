@@ -280,7 +280,17 @@ window.KEVIN_LINES = {
         "Teď to nevyšlo. Zkus jiný klip nebo to za chvíli opakuj."
       ]
     },
-    menu: { hint: "Co pro tebe můžu udělat?", find: "Najdi song", play: "Pusť něco", rap: "Zarapuj", news: "Co je nového?", fun: "Něco udělej" },
+    menu: { hint: "Co pro tebe můžu udělat?", find: "Najdi song", play: "Pusť něco", rap: "Zarapuj", news: "Co je nového?", fun: "Něco udělej", report: "Nahlásit problém" },
+    // "Nahlásit problém" (issue #28): the message goes to the admin (Hodnocení webu → Nahlášené problémy)
+    report: {
+      prompt: ["Něco tu nefunguje? Napiš mi co a já to předám Skelimu.","Chybí video, špatný řádek, něco rozbitého? Povídej, vyřídím to."],
+      placeholder: "Co je špatně? (třeba: u písně chybí video)",
+      send: "Poslat",
+      thanks: ["Mám to. Předám to Skelimu, ať to spraví.","Díky! Zapsal jsem si to za ucho."],
+      empty: "Napiš aspoň pár slov, ať vím, co hledat.",
+      fail: "Teď se mi to nepovedlo odeslat. Zkus to za chvíli.",
+      limit: "Toho už je na teď dost, zkus to zase za hodinu."
+    },
     find: {
       prompt: [
         "Co hledáš? Název, kus textu, cokoliv. Jen po mně nechtěj, ať to zazpívám.",
@@ -672,7 +682,17 @@ window.KEVIN_LINES = {
         "That didn't work. Try another clip or try again in a moment."
       ]
     },
-    menu: { hint: "What can I do for you?", find: "Find a song", play: "Play something", rap: "Rap for me", news: "What's new?", fun: "Do something" },
+    menu: { hint: "What can I do for you?", find: "Find a song", play: "Play something", rap: "Rap for me", news: "What's new?", fun: "Do something", report: "Report a problem" },
+    // "Nahlásit problém" (issue #28): the message goes to the admin (Hodnocení webu → Nahlášené problémy)
+    report: {
+      prompt: ["Something not working? Tell me what and I'll pass it on to Skeli.","A missing video, a wrong line, something broken? Tell me, I'll sort it."],
+      placeholder: "What's wrong? (e.g. the song has no video)",
+      send: "Send",
+      thanks: ["Got it. I'll pass it on to Skeli to fix.","Thanks! I've made a note of it."],
+      empty: "Write a few words so I know what to look for.",
+      fail: "I couldn't send it right now. Try again in a moment.",
+      limit: "That's enough for now, try again in an hour."
+    },
     find: {
       prompt: [
         "What are you looking for? A title, a bit of the lyrics, anything. Just don't ask me to sing it.",
@@ -1063,7 +1083,17 @@ window.KEVIN_LINES = {
         "Hat nicht geklappt. Probier einen anderen Clip oder gleich nochmal."
       ]
     },
-    menu: { hint: "Was kann ich für dich tun?", find: "Song finden", play: "Spiel was", rap: "Rapp mal", news: "Was gibt's Neues?", fun: "Mach was" },
+    menu: { hint: "Was kann ich für dich tun?", find: "Song finden", play: "Spiel was", rap: "Rapp mal", news: "Was gibt's Neues?", fun: "Mach was", report: "Problem melden" },
+    // "Nahlásit problém" (issue #28): the message goes to the admin (Hodnocení webu → Nahlášené problémy)
+    report: {
+      prompt: ["Funktioniert hier was nicht? Sag mir was, ich geb's an Skeli weiter.","Fehlt ein Video, eine falsche Zeile, was kaputt? Erzähl, ich kümmere mich."],
+      placeholder: "Was ist falsch? (z. B. beim Song fehlt das Video)",
+      send: "Senden",
+      thanks: ["Hab's. Ich geb's an Skeli weiter.","Danke! Hab's mir notiert."],
+      empty: "Schreib ein paar Worte, damit ich weiß, wonach ich suchen soll.",
+      fail: "Konnte es gerade nicht senden. Versuch's gleich nochmal.",
+      limit: "Für jetzt reicht's, versuch's in einer Stunde wieder."
+    },
     find: {
       prompt: [
         "Was suchst du? Titel, ein Stück Text, egal. Nur verlang nicht, dass ich's singe.",
@@ -1454,7 +1484,17 @@ window.KEVIN_LINES = {
         "Зараз не вийшло. Спробуй інший кліп або повтори за хвилинку."
       ]
     },
-    menu: { hint: "Що я можу для тебе зробити?", find: "Знайди пісню", play: "Увімкни щось", rap: "Зачитай", news: "Що нового?", fun: "Зроби щось" },
+    menu: { hint: "Що я можу для тебе зробити?", find: "Знайди пісню", play: "Увімкни щось", rap: "Зачитай", news: "Що нового?", fun: "Зроби щось", report: "Повідомити про проблему" },
+    // "Nahlásit problém" (issue #28): the message goes to the admin (Hodnocení webu → Nahlášené problémy)
+    report: {
+      prompt: ["Щось тут не працює? Напиши мені що, я передам Скелі.","Немає відео, неправильний рядок, щось зламане? Розкажи, я все владнаю."],
+      placeholder: "Що не так? (напр.: у пісні немає відео)",
+      send: "Надіслати",
+      thanks: ["Є. Передам Скелі, хай виправить.","Дякую! Я собі записав."],
+      empty: "Напиши хоч кілька слів, щоб я знав, що шукати.",
+      fail: "Зараз не вдалося надіслати. Спробуй трохи пізніше.",
+      limit: "На зараз досить, спробуй знову за годину."
+    },
     find: {
       prompt: [
         "Що шукаєш? Назву, шматок тексту, будь-що. Тільки не проси заспівати.",
@@ -1845,7 +1885,17 @@ window.KEVIN_LINES = {
         "Lần này không được. Thử clip khác hoặc lát nữa thử lại."
       ]
     },
-    menu: { hint: "Tôi có thể làm gì cho bạn?", find: "Tìm bài hát", play: "Bật gì đó", rap: "Rap đi", news: "Có gì mới?", fun: "Làm gì đi" },
+    menu: { hint: "Tôi có thể làm gì cho bạn?", find: "Tìm bài hát", play: "Bật gì đó", rap: "Rap đi", news: "Có gì mới?", fun: "Làm gì đi", report: "Báo lỗi" },
+    // "Nahlásit problém" (issue #28): the message goes to the admin (Hodnocení webu → Nahlášené problémy)
+    report: {
+      prompt: ["Có gì không hoạt động à? Nói tôi biết, tôi sẽ chuyển cho Skeli.","Thiếu video, sai lời, có gì hỏng? Kể đi, tôi lo."],
+      placeholder: "Có gì sai? (vd: bài hát không có video)",
+      send: "Gửi",
+      thanks: ["Rồi. Tôi sẽ chuyển cho Skeli sửa.","Cảm ơn! Tôi ghi lại rồi."],
+      empty: "Viết vài chữ để tôi biết cần tìm gì.",
+      fail: "Giờ chưa gửi được. Thử lại sau chút nhé.",
+      limit: "Thế là đủ rồi, thử lại sau một giờ nhé."
+    },
     find: {
       prompt: [
         "Bạn tìm gì? Tên bài, một đoạn lời, gì cũng được. Chỉ đừng bắt tôi hát.",

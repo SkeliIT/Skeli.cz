@@ -6,6 +6,28 @@
   <%@ include file="/includes/admin-nav.jspf" %>
   <h2 class="admin-page-title">Co říkáš na web?</h2>
   <p class="text-dim">Hodnocení webu od přihlášených návštěvníků. Vzkazy vidíš jen ty. Když se ti nějaký líbí, dej <b>Zobrazit jako referenci</b> a objeví se na hlavní stránce v pruhu „Co o webu říkáte“ (nejvýš 6 nejnovějších). Když člověk vzkaz změní, z referencí zmizí, ať ho zase vidíš.</p>
+  <%-- problems visitors reported to MC Kevin (Nahlásit problém): sorted out = deleted --%>
+  <section class="admin-card fb-reports" id="reports">
+    <h3><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Nahlášené problémy</h3>
+    <c:choose>
+      <c:when test="${empty reports}"><p class="text-dim">Nikdo nic nenahlásil. Návštěvníci hlásí problémy Kevinovi (v jeho menu Nahlásit problém).</p></c:when>
+      <c:otherwise>
+        <c:forEach var="r" items="${reports}">
+          <div class="fb-report">
+            <div class="fb-admin-head">
+              <a href="<c:out value='${r.page}'/>" target="_blank" rel="noopener"><c:out value="${r.page}"/></a>
+              <span class="text-dim"><%= com.github.skeliit.WebUtils.formatDateTime(((com.github.skeliit.model.SiteReport) pageContext.getAttribute("r")).at, cur) %></span>
+              <span class="text-dim"><c:out value="${empty r.username ? 'nepřihlášený návštěvník' : r.username}"/></span>
+            </div>
+            <p class="fb-admin-msg"><c:out value="${r.message}"/></p>
+            <form method="post" action="/admin/feedback"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="id" value="${r.id}">
+              <input type="hidden" name="action" value="delete_report"><button type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i> Vyřešeno (smazat)</button></form>
+          </div>
+        </c:forEach>
+      </c:otherwise>
+    </c:choose>
+  </section>
+
   <p class="fb-admin-counts"><span><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i> ${up}</span> <span><i class="fa-solid fa-thumbs-down" aria-hidden="true"></i> ${down}</span></p>
 
   <c:if test="${empty items}"><p class="text-dim">Zatím nikdo nehodnotil.</p></c:if>

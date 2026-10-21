@@ -136,8 +136,19 @@ public class VideoTitles implements ServletContextListener {
      * "[Official video]" / "OFFICIAL VIDEOKLIP" style suffixes.
      * "Skeli - Tisíc kousků [Official video]" becomes "Tisíc kousků".
      */
+    /**
+     * YouTube's API sends titles HTML-escaped ("Skeli &amp; Babar"); the pages escape them again when they print
+     * them, so stored and shown titles are plain text: the usual entities turned back into characters.
+     */
+    public static String unescape(String s) {
+        if (s == null || s.indexOf('&') < 0) return s;
+        return s.replace("&quot;", "\"").replace("&#39;", "'").replace("&#039;", "'").replace("&lt;", "<")
+                .replace("&gt;", ">").replace("&amp;", "&");
+    }
+
     public static String display(String title) {
         if (title == null) return null;
+        title = unescape(title);
         // decorations used on the channel: leading emoji (🔊 ☹) and trailing
         // "bubble letter" tags like ⓐⓤⓓⓘⓞ / ⓁⓎⓇⒾⒸ (Unicode enclosed alphanumerics)
         String t = title.replaceFirst("^[^\\p{L}\\p{N}]+", "")

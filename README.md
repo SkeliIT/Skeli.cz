@@ -27,7 +27,17 @@ export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-25.0.4.101-hotspot"   # 
    C:\xampp\mysql\bin\mysqld.exe --defaults-file=C:\xampp\mysql\bin\my.ini --standalone
    ```
 2. **Konfigurace:** zkopírujte `.env.example` na `.env` a doplňte hodnoty (viz níže). `.env` je v `.gitignore`.
-3. **Migrace a spuštění:**
+3. **Migrace a spuštění:** jméno a heslo k databázi nejsou v `pom.xml`. Pro `mvn flyway:migrate` si je každý dá do
+   svého `~/.m2/settings.xml` (mimo projekt, nikdy do Gitu):
+   ```xml
+   <settings>
+     <profiles><profile><id>skeli-local-db</id><properties>
+       <flyway.user>Skeli</flyway.user><flyway.password>skeli</flyway.password>
+     </properties></profile></profiles>
+     <activeProfiles><activeProfile>skeli-local-db</activeProfile></activeProfiles>
+   </settings>
+   ```
+   (nebo jednorázově `mvn flyway:migrate -Dflyway.user=… -Dflyway.password=…`). Pak:
    ```bash
    mvn flyway:migrate
    mvn jetty:run

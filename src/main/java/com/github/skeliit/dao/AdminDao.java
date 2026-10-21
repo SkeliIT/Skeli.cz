@@ -24,6 +24,9 @@ public class AdminDao {
         String sql = "SELECT "
                 + "(SELECT COUNT(*) FROM songs) AS songs, "
                 + "(SELECT COUNT(*) FROM videos) AS clips, "
+                // a song with no clip but out on Spotify: the only kind of song that isn't also a clip
+                + "(SELECT COUNT(*) FROM songs s WHERE s.spotify_id IS NOT NULL AND s.spotify_id <> '' "
+                + "   AND NOT EXISTS (SELECT 1 FROM videos v WHERE v.song_id = s.id)) AS spotifyOnly, "
                 + "(SELECT COUNT(DISTINCT song_id) FROM lyrics) AS lyrics, "
                 + "(SELECT COUNT(*) FROM comments) + (SELECT COUNT(*) FROM video_comments) AS comments, "
                 + "(SELECT COUNT(*) FROM users WHERE role <> 'DELETED') AS users, "
@@ -31,6 +34,7 @@ public class AdminDao {
                 + "(SELECT COUNT(*) FROM (SELECT DISTINCT kind, comment_id FROM comment_reports) r) AS reports, "
                 + "(SELECT COUNT(*) FROM videos WHERE song_id IS NULL) AS clipsWithoutSong, "
                 + "(SELECT COUNT(*) FROM songs s WHERE NOT EXISTS (SELECT 1 FROM lyrics l WHERE l.song_id = s.id)) AS songsWithoutLyrics, "
+                + "(SELECT COUNT(*) FROM site_reports) AS siteReports, "
                 // messages about the site from the last week that the admin hasn't picked as a reference
                 + "(SELECT COUNT(*) FROM site_feedback WHERE message IS NOT NULL AND message <> '' AND hearted_at IS NULL "
                 + "   AND COALESCE(updated_at, created_at) > NOW() - INTERVAL 7 DAY) AS newFeedback";

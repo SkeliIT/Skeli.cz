@@ -9,7 +9,7 @@
     application.log("Admin stats", e);
   }
   String adminName = com.github.skeliit.WebUtils.escapeHtml(session.getAttribute("username"));
-  int nReports = st.getOrDefault("reports", 0), nClipsAlone = st.getOrDefault("clipsWithoutSong", 0), nNoText = st.getOrDefault("songsWithoutLyrics", 0);
+  int nReports = st.getOrDefault("reports", 0), nClipsAlone = st.getOrDefault("clipsWithoutSong", 0), nNoText = st.getOrDefault("songsWithoutLyrics", 0), nSiteReports = st.getOrDefault("siteReports", 0);
   // which ones, so the to-do list says what it means (a clip on YouTube that isn't joined to a song of the catalogue
   // doesn't show in the discography or among the lyrics)
   java.util.List<String> clipNames = new java.util.ArrayList<>(), noTextNames = new java.util.ArrayList<>();
@@ -25,11 +25,13 @@
   String clipsText = nClipsAlone == 1 ? "klip z YouTube zatím není u žádné písně" : nClipsAlone < 5 ? "klipy z YouTube zatím nejsou u žádné písně" : "klipů z YouTube zatím není u žádné písně";
   String clipsTail = nClipsAlone == 1 ? " – v Diskografii je jen jako klip, bez textu a bez stránky písně" : " – v Diskografii jsou jen jako klipy, bez textu a bez stránky písně";
   String clipsHint = nClipsAlone == 1 ? "V editoru textů ho přiřadíš k písni, uděláš z něj novou, nebo ho schováš, když to ještě není hotová písnička." : "V editoru textů je přiřadíš k písni, uděláš z nich nové, nebo je schováš, když to ještě nejsou hotové písničky.";
+  String siteReportsText = nSiteReports == 1 ? "problém nahlásil návštěvník Kevinovi" : nSiteReports < 5 ? "problémy nahlásili návštěvníci Kevinovi" : "problémů nahlásili návštěvníci Kevinovi";
   String noTextText = nNoText == 1 ? "píseň nemá text" : nNoText < 5 ? "písně nemají text" : "písní nemá text";
   // {link, icon, label, key}
   String[][] tiles = {
+      // songs and clips are one thing (every song on YouTube has its clip); only a song with no clip, out just on
+      // Spotify, is told apart under the number
       {"/admin/songs", "fa-music", "Písně", "songs"},
-      {"/admin/songs", "fa-film", "Klipy", "clips"},
       {"/admin/lyrics", "fa-align-left", "Songy s textem", "lyrics"},
       {"/admin/comments", "fa-comments", "Komentáře", "comments"},
       {"/admin_users.jsp", "fa-users", "Uživatelé", "users"},
@@ -52,6 +54,7 @@
       <i class="fa-solid <%= tile[1] %>" aria-hidden="true"></i>
       <b><%= n %></b>
       <span><%= tile[2] %></span>
+      <% if ("songs".equals(tile[3]) && st.getOrDefault("spotifyOnly", 0) > 0) { %><small><%= st.get("spotifyOnly") %> jen na Spotify</small><% } %>
     </a>
     <% } %>
   </div>
@@ -59,11 +62,12 @@
   <%-- what is waiting for the admin (the same list MC Kevin reads out) --%>
   <section class="admin-card admin-todo">
     <h3><i class="fa-solid fa-list-check" aria-hidden="true"></i> Co čeká</h3>
-    <% if (nReports + nClipsAlone + nNoText == 0) { %>
+    <% if (nReports + nClipsAlone + nNoText + nSiteReports == 0) { %>
       <p class="admin-done"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Všechno hotovo. Můžeš jít nahrávat.</p>
     <% } else { %>
     <ul>
       <% if (nReports > 0) { %><li class="urgent"><a href="/admin/comments#reports"><i class="fa-solid fa-flag"></i> <span><b><%= nReports %></b> <%= reportsText %></span></a></li><% } %>
+      <% if (nSiteReports > 0) { %><li class="urgent"><a href="/admin/feedback#reports"><i class="fa-solid fa-triangle-exclamation"></i> <span><b><%= nSiteReports %></b> <%= siteReportsText %></span></a></li><% } %>
       <% if (nClipsAlone > 0) { %><li><a href="/admin/lyrics"><i class="fa-solid fa-film"></i> <span><b><%= nClipsAlone %></b> <%= clipsText %><%= clipsTail %><% if (!clipNames.isEmpty()) { %><small><%= com.github.skeliit.WebUtils.escapeHtml(String.join(" · ", clipNames)) %></small><% } %><small><%= clipsHint %></small></span></a></li><% } %>
       <% if (nNoText > 0) { %><li><a href="/admin/lyrics"><i class="fa-solid fa-align-left"></i> <span><b><%= nNoText %></b> <%= noTextText %><% if (!noTextNames.isEmpty()) { %><small><%= com.github.skeliit.WebUtils.escapeHtml(String.join(" · ", noTextNames)) %></small><% } %></span></a></li><% } %>
     </ul>

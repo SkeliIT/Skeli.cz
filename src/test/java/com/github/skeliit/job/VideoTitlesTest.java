@@ -35,4 +35,11 @@ class VideoTitlesTest {
         assertEquals("Live v Plzni", VideoTitles.display("Live v Plzni"));
         assertNull(VideoTitles.display(null));
     }
+
+    @Test
+    void youTubesEscapedTitlesBecomePlainText() {
+        // the API sends "&amp;"; printed escaped again it showed as "Skeli &amp;amp; Babar"
+        assertEquals("Farri - Kalba (feat. Skeli & Babar)", VideoTitles.display("Farri - Kalba (feat. Skeli &amp; Babar)"));
+        assertEquals("\"Já\" & 'ty'", VideoTitles.unescape("&quot;Já&quot; &amp; &#39;ty&#39;"));
+    }
 }

@@ -423,7 +423,7 @@ body.light .photo-band::before {
 .kevin-canvas, .kevin-still { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* the 3D canvas reaches 40 % past his box on every side (KEVIN_OVERSCAN 1.8 in kevin.js): his arms and legs in a
    dance never get cut off; clicks still go to his box only */
-.kevin-canvas { inset: -40%; width: auto; height: auto; pointer-events: none; }
+.kevin-canvas { left: -40%; top: -40%; right: auto; bottom: auto; width: 180%; height: 180%; pointer-events: none; }   /* a canvas is a replaced element: insets alone would not stretch it */
 .kevin-still { object-fit: contain; }
 .kevin-still[hidden], .kevin-canvas[hidden] { display: none; }
 /* small round buttons beside his head: beat on/off and hide */
@@ -871,6 +871,23 @@ body.light .lyric-page .lyric-title {
   font-size: 1rem;
 }
 .kevin-find input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+/* "Nahlásit problém": a few lines of text and the send button under them */
+.kevin-report { display: grid; gap: 8px; }
+.kevin-report textarea {
+  width: 100%;
+  min-height: 84px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  background: var(--field);
+  color: var(--text);
+  font-family: var(--font-text);
+  font-size: 1rem;
+  resize: vertical;
+}
+.kevin-report textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.kevin-report .kevin-chip { justify-self: end; }
+.kevin-report .kevin-chip:disabled { opacity: .6; cursor: wait; }
 .kevin-results { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 240px; overflow-y: auto; }
 .kevin-results a {
   display: block;
