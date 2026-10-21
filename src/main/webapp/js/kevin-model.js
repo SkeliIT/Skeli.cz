@@ -20,7 +20,7 @@ const ACTS = {
   hide: null, freeze: null, leave: 'walk'
 };
 // surprises whose words need something this model hasn't got, or whose move doesn't fit his picture
-const CANNOT = new Set(['shades', 'tail', 'lick', 'dive']);   // dive: the clip throws him far out of his picture
+const CANNOT = new Set(['shades', 'tail', 'lick']);
 // looping clips played as an act run this long (dances longer: they are the fun), then he goes back
 const LOOP_ACT_S = 4.5, DANCE_S = 7.5;
 const DANCES = new Set(['dance', 'dance2', 'dance3', 'robot', 'silly', 'breakdance', 'flair', 'sing', 'rap']);
@@ -75,6 +75,7 @@ export function createKevin(canvas, opts = {}) {
   let pose = 'idle', talking = false, talkClip = 'talk', act = null, actEnd = 0, paused = false, disposed = false;
   let lookX = 0, lookY = 0, spinT = -1, special = null, specialT = 0, frozenUntil = 0, held = null, turnTo = 0;
   let mixer = null, actions = {}, playing = null, head = null, hips = null, hipsRest = null, clock = 0;
+  let foot = null, walkSpeed = 0;   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
 
   function wanted() {
     if (act) return act;
@@ -97,8 +98,10 @@ export function createKevin(canvas, opts = {}) {
     if (disposed) return;
     const model = g.scene;
     model.traverse(o => {
-      if (o.isBone && o.name === 'mixamorig:Head') head = o;
-      if (o.isBone && o.name === 'mixamorig:Hips') hips = o;
+      // Mixamo's bones are 'mixamorig:Hips' …; the loader drops the ':' from node names (mixamorigHips), so match the end
+      if (o.isBone && /mixamorig:?Head$/.test(o.name)) head = o;
+      if (o.isBone && /mixamorig:?Hips$/.test(o.name)) hips = o;
+      if (o.isBone && /mixamorig:?LeftFoot$/.test(o.name)) foot = o;
       if (!o.isMesh) return;
       o.frustumCulled = false;   // the moves take him out of his resting box
       const m = o.material;
@@ -113,10 +116,40 @@ export function createKevin(canvas, opts = {}) {
     if (hips) hipsRest = hips.position.clone();
     mixer = new THREE.AnimationMixer(model);
     for (const clip of g.animations) actions[clip.name] = mixer.clipAction(clip);
+    walkSpeed = measureWalk(model);
     crossfade();
     renderer.render(scene, cam);
     if (opts.onReady) opts.onReady();
   }, undefined, err => { if (opts.onError) opts.onError(err); });
+
+  // The walk is in place (the hips are held still), so a planted foot slides back under him at the speed he would
+  // move: sampled once over the clip, the foot's speed while it is down on the floor. Moving him by just that much
+  // keeps his feet from skating (js/kevin.js walk).
+  function measureWalk(model) {
+    const a = actions.walk;
+    if (!a || !foot || !hips) return 0;
+    const d = a.getClip().duration, n = 60, v = new THREE.Vector3(), z = [], y = [];
+    a.reset().play();
+    for (let i = 0; i <= n; i++) {
+      mixer.setTime(d * i / n);
+      hips.position.x = hipsRest.x;
+      hips.position.z = hipsRest.z;
+      model.updateMatrixWorld(true);
+      foot.getWorldPosition(v);
+      z.push(v.z);
+      y.push(v.y);
+    }
+    a.stop();
+    mixer.setTime(0);
+    const floor = Math.min(...y), dt = d / n;
+    let sum = 0, steps = 0;
+    for (let i = 1; i <= n; i++) {
+      // both samples with the foot down (within 2 % of his height of its lowest point)
+      if (y[i] - floor < 0.04 && y[i - 1] - floor < 0.04) { sum += Math.abs(z[i] - z[i - 1]) / dt; steps++; }
+    }
+    if (steps >= 3) return sum / steps;
+    return 1.7 * (Math.max(...z) - Math.min(...z)) / d;   // stance about 60 % of the cycle
+  }
 
   // ---------- drawing ----------
   let last = -1, drawn = false;
@@ -211,6 +244,11 @@ export function createKevin(canvas, opts = {}) {
     look(x, y) { lookX = Math.max(-1, Math.min(1, x)); lookY = Math.max(-1, Math.min(1, y)); },
     setLight,
     setPaused(p) { paused = !!p; },
+    // css pixels a second the walker must move so his feet don't skate (0 before the model is loaded)
+    walkPxPerSec() {
+      if (!walkSpeed) return 0;
+      return walkSpeed * canvas.clientHeight / (2 * view.z * Math.tan(cam.fov * Math.PI / 360));
+    },
     dispose() {
       disposed = true;
       ro.disconnect();

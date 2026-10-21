@@ -1090,7 +1090,7 @@ button.is-sending { cursor: progress; opacity: 0.85; }
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35));
 }
 .kevin-walker[hidden] { display: none; }
-.kevin-walker canvas { position: relative; width: 100%; height: 100%; display: block; }
+.kevin-walker canvas { position: absolute; left: -40%; top: -40%; width: 180%; height: 180%; display: block; pointer-events: none; }   /* 40 % past his box on every side (overscan 1.8): his dances are never cut off; a canvas needs the size set, insets alone would not stretch it */
 /* his shadow on the ground he walks on (the feet are 12.7 % above the bottom of his picture: WALK_FEET in kevin.js) */
 .kevin-walker::before {
   content: "";

@@ -894,6 +894,8 @@
   // types, while Kevin is out talking, in the admin, when he was sent away with the cross, with reduced motion or
   // save-data. A click on him opens his menu.
   var walker = null, walkK = null, walking = false;
+  // what he dances when he stops on his walk
+  var WALK_DANCES = ['dance', 'dance2', 'dance3', 'robot', 'silly', 'breakdance', 'flair', 'cheer', 'fistPump'];
   // where his feet are in his picture (the walker's camera: view below), as a share of its height
   var WALK_FEET = (1 + 1 / (5.0 * Math.tan(15 * Math.PI / 180))) / 2;
   // the surfaces he can walk on: cards and panels of the page, the footer
@@ -981,13 +983,21 @@
       }
       var dir = Math.random() < 0.5 ? 1 : -1, x = dir > 0 ? x0 : x1;
       var inFromSide = dir > 0 ? fromSide : toSide, outToSide = dir > 0 ? toSide : fromSide;
-      var stopAt = x0 + w / 2 + (x1 - x0) * (0.25 + Math.random() * 0.5), stopped = false, last = performance.now();
+      var stopAt = x0 + w / 2 + (x1 - x0) * (0.25 + Math.random() * 0.5), last = performance.now();
       // the box (160 px) must stand whole on the free stretch
       var rl = s.r.left + (s.el ? window.scrollX : 0), rr = s.r.right + (s.el ? window.scrollX : 0);
       stopAt = Math.min(Math.max(stopAt, rl + 85), rr - 85);
       // a cardboard box on the way now and then (cats and boxes), on the same ground
       var box = boxNext && x1 - x0 > 320 ? cardboardBox(stopAt, ground) : null;   // only on request (tests) until the box has a real look
       boxNext = false;
+      // where he stops on the way (in the order he reaches them): one stop, two on a long stretch – mostly to dance
+      var stops = !box && x1 - x0 > 700
+        ? [x0 + w / 2 + (x1 - x0) * (0.22 + Math.random() * 0.15), x0 + w / 2 + (x1 - x0) * (0.6 + Math.random() * 0.15)]
+        : [stopAt];
+      if (dir < 0) stops.reverse();
+      // his pace: as fast as the floor runs under his planted foot in the walk, so the feet don't skate
+      var speed = walkK.walkPxPerSec() || 95;
+      walker.dataset.speed = Math.round(speed);   // (for the tests)
       walker.style.transform = 'translateX(' + x + 'px)';
       walkK.setPaused(false);
       var goOn = function () { if (!walking) return; walkK.turn(dir * Math.PI / 2); walkK.hold('walk'); last = performance.now(); requestAnimationFrame(step); };
@@ -1027,23 +1037,22 @@
         if (!onGround()) return ground != null && !s.el.isConnected ? endWalk() : jumpOff();
         var dt = Math.min(0.1, (now - last) / 1000);
         last = now;
-        var there = dir > 0 ? x + w / 2 >= stopAt : x + w / 2 <= stopAt;
-        // the box: he jumps in, peeks out over its edge for a while, jumps out and goes on
-        if (!stopped && there && box) {
-          stopped = true;
+        var there = stops.length && (dir > 0 ? x + w / 2 >= stops[0] : x + w / 2 <= stops[0]);
+        if (there) {
+          stops.shift();
           walker.style.transform = 'translateX(' + x + 'px)';
-          return intoTheBox(box, goOn);
-        }
-        // or a stop half way: he turns to you, looks round or waves, then goes on
-        if (!stopped && there && Math.random() < 0.6) {
-          stopped = true;
+          // the box: he jumps in, peeks out over its edge for a while, jumps out and goes on
+          if (box) return intoTheBox(box, goOn);
           walkK.turn(0);
-          var what = Math.random() < 0.5 ? 'wave' : 'lookAround', ms = walkK.once(what) || 2500;
-          walker.style.transform = 'translateX(' + x + 'px)';
-          return setTimeout(goOn, ms);
+          // mostly a dance (5–7 s), else a wave or a look round – then on his way
+          var moves = WALK_DANCES.filter(function (d) { return walkK.has(d); });
+          if (moves.length && Math.random() < 0.65) {
+            walkK.hold(moves[Math.floor(Math.random() * moves.length)]);
+            return setTimeout(goOn, 5000 + Math.random() * 2000);
+          }
+          return setTimeout(goOn, walkK.once(Math.random() < 0.5 ? 'wave' : 'lookAround') || 2500);
         }
-        if (!stopped && (dir > 0 ? x + w / 2 >= stopAt : x + w / 2 <= stopAt)) stopped = true;
-        x += dir * 95 * dt;   // about his stride at this size
+        x += dir * speed * dt;
         walker.style.transform = 'translateX(' + x + 'px)';
         if ((dir > 0 && x >= x1) || (dir < 0 && x <= x0)) return outToSide ? endWalk() : jumpOff();
         requestAnimationFrame(step);
@@ -1055,6 +1064,7 @@
         light: document.body.classList.contains('light'),
         src: '/kevin/kevin.glb' + (version ? '?' + version : ''),
         view: { y: 1.0, z: 5.0, look: 1.0 },
+        overscan: 1.8,   // the canvas reaches 40 % past his box (effects.css): a dance never gets cut off
         onReady: function () {
           new MutationObserver(function () { walkK.setLight(document.body.classList.contains('light')); })
             .observe(document.body, { attributes: true, attributeFilter: ['class'] });
