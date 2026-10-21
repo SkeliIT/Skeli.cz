@@ -36,16 +36,16 @@ public class AdminKevinServlet extends HttpServlet {
         try (Connection conn = Db.get()) {
             // one report per comment, however many people reported it
             out.put("reports", count(conn, "SELECT COUNT(*) FROM (SELECT DISTINCT kind, comment_id FROM comment_reports) r"));
-            out.put("clipsWithoutSong", count(conn, "SELECT COUNT(*) FROM videos WHERE song_id IS NULL"));
+            out.put("clipsWithoutSong", count(conn, "SELECT COUNT(*) FROM videos WHERE song_id IS NULL AND no_song_ok_at IS NULL"));
             List<String> newest = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT title FROM videos WHERE song_id IS NULL ORDER BY published_at DESC, id DESC LIMIT 1");
+                    "SELECT title FROM videos WHERE song_id IS NULL AND no_song_ok_at IS NULL ORDER BY published_at DESC, id DESC LIMIT 1");
                  ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) newest.add(VideoTitles.display(rs.getString(1)));
             }
             out.put("newestClipWithoutSong", newest.isEmpty() ? null : newest.get(0));
             out.put("songsWithoutLyrics", count(conn,
-                    "SELECT COUNT(*) FROM songs s WHERE NOT EXISTS (SELECT 1 FROM lyrics l WHERE l.song_id = s.id)"));
+                    "SELECT COUNT(*) FROM songs s WHERE s.no_lyrics_ok_at IS NULL AND NOT EXISTS (SELECT 1 FROM lyrics l WHERE l.song_id = s.id)"));
         } catch (SQLException e) {
             getServletContext().log("Admin Kevin", e);
             resp.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);

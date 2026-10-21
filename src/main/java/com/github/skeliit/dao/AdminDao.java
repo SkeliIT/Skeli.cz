@@ -32,8 +32,8 @@ public class AdminDao {
                 + "(SELECT COUNT(*) FROM users WHERE role <> 'DELETED') AS users, "
                 + "(SELECT COUNT(*) FROM newsletter_emails WHERE confirmed_at IS NOT NULL) AS subscribers, "
                 + "(SELECT COUNT(*) FROM (SELECT DISTINCT kind, comment_id FROM comment_reports) r) AS reports, "
-                + "(SELECT COUNT(*) FROM videos WHERE song_id IS NULL) AS clipsWithoutSong, "
-                + "(SELECT COUNT(*) FROM songs s WHERE NOT EXISTS (SELECT 1 FROM lyrics l WHERE l.song_id = s.id)) AS songsWithoutLyrics, "
+                + "(SELECT COUNT(*) FROM videos WHERE song_id IS NULL AND no_song_ok_at IS NULL) AS clipsWithoutSong, "
+                + "(SELECT COUNT(*) FROM songs s WHERE s.no_lyrics_ok_at IS NULL AND NOT EXISTS (SELECT 1 FROM lyrics l WHERE l.song_id = s.id)) AS songsWithoutLyrics, "
                 + "(SELECT COUNT(*) FROM site_reports) AS siteReports, "
                 // messages about the site from the last week that the admin hasn't picked as a reference
                 + "(SELECT COUNT(*) FROM site_feedback WHERE message IS NOT NULL AND message <> '' AND hearted_at IS NULL "
@@ -49,29 +49,51 @@ public class AdminDao {
         return out;
     }
 
-    /** The names of the clips not joined to any song yet (newest first, at most 5), for the dashboard's to-do list. */
-    public List<String> clipsWithoutSong() throws SQLException {
-        List<String> out = new ArrayList<>();
+    /** {youtube id, name} of the clips not joined to any song yet and not ticked off (newest first, at most 10),
+     *  for the dashboard's to-do list. */
+    public List<String[]> clipsWithoutSong() throws SQLException {
+        List<String[]> out = new ArrayList<>();
         try (Connection conn = Db.get(); PreparedStatement ps = conn.prepareStatement(
-                "SELECT title, youtube_id FROM videos WHERE song_id IS NULL ORDER BY published_at DESC, id DESC LIMIT 5");
+                "SELECT title, youtube_id FROM videos WHERE song_id IS NULL AND no_song_ok_at IS NULL "
+                + "ORDER BY published_at DESC, id DESC LIMIT 10");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                String t = rs.getString(1);
-                out.add(t == null || t.isBlank() ? rs.getString(2) : com.github.skeliit.job.VideoTitles.display(t));
+                String t = rs.getString(1), yt = rs.getString(2);
+                out.add(new String[] { yt, t == null || t.isBlank() ? yt : com.github.skeliit.job.VideoTitles.display(t) });
             }
         }
         return out;
     }
 
-    /** The names of the songs that have no lyrics in any language (at most 5). */
-    public List<String> songsWithoutLyrics() throws SQLException {
-        List<String> out = new ArrayList<>();
+    /** {song id, name} of the songs that have no lyrics in any language and aren't ticked off (at most 10). */
+    public List<String[]> songsWithoutLyrics() throws SQLException {
+        List<String[]> out = new ArrayList<>();
         try (Connection conn = Db.get(); PreparedStatement ps = conn.prepareStatement(
-                "SELECT s.name FROM songs s WHERE NOT EXISTS (SELECT 1 FROM lyrics l WHERE l.song_id = s.id) ORDER BY s.id DESC LIMIT 5");
+                "SELECT s.id, s.name FROM songs s WHERE s.no_lyrics_ok_at IS NULL "
+                + "AND NOT EXISTS (SELECT 1 FROM lyrics l WHERE l.song_id = s.id) ORDER BY s.id DESC LIMIT 10");
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) out.add(rs.getString(1));
+            while (rs.next()) out.add(new String[] { rs.getString(1), rs.getString(2) });
         }
         return out;
+    }
+
+    /** The tick in the to-do list: a clip stays without a song (kind clip, id = youtube id) or a song stays
+     *  without lyrics (kind song, id = song id); it stops showing. */
+    public void markTodoDone(String kind, String id) throws SQLException {
+        String sql = switch (kind) {
+            case "clip" -> "UPDATE videos SET no_song_ok_at = NOW() WHERE youtube_id = ?";
+            case "song" -> "UPDATE songs SET no_lyrics_ok_at = NOW() WHERE id = ?";
+            default -> null;
+        };
+        if (sql == null) return;
+        try (Connection conn = Db.get(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            if ("song".equals(kind)) {
+                try { ps.setInt(1, Integer.parseInt(id)); } catch (NumberFormatException e) { return; }
+            } else {
+                ps.setString(1, id);
+            }
+            ps.executeUpdate();
+        }
     }
 
     /** Reported comments that still exist, the most reported first (at most 50). */

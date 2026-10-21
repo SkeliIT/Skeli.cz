@@ -60,21 +60,10 @@ public class LoginServlet extends HttpServlet {
                     if (hash != null && hash.startsWith("$2") && !"DELETED".equals(rs.getString("role"))
                             && BCrypt.checkpw(password, hash)) {
                         LoginRateLimiter.reset(username);
-                        HttpSession session = signIn(req, rs.getInt("id"), rs.getString("username"), rs.getString("role"),
-                                rs.getString("avatar_url"), rs.getTimestamp("email_verified_at") != null);
-                        // remember me (persistent JSESSIONID)
-                        if ("1".equals(req.getParameter("remember"))) {
-                            session.setMaxInactiveInterval(60*60*24*30); // 30 dní
-                            jakarta.servlet.http.Cookie c = new jakarta.servlet.http.Cookie("JSESSIONID", session.getId());
-                            c.setHttpOnly(true);
-                            c.setSecure(isHttps(req));
-                            c.setComment("__SAME_SITE_LAX__"); // Jetty emits SameSite=Lax
-                            c.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
-                            c.setMaxAge(60*60*24*30);
-                            resp.addCookie(c);
-                        }
                         String next = safeNext(req.getParameter("next"));
-                        resp.sendRedirect(next != null ? next : "index.jsp");
+                        finish(req, resp, rs.getInt("id"), rs.getString("username"), rs.getString("role"),
+                                rs.getString("avatar_url"), rs.getTimestamp("email_verified_at") != null,
+                                "1".equals(req.getParameter("remember")), next != null ? next : "index.jsp");
                         return;
                     }
                 }
@@ -92,6 +81,37 @@ public class LoginServlet extends HttpServlet {
     /** A page on this site to go back to after signing in (e.g. the admin page), or null. Never another site. */
     public static String safeNext(String next) {
         return next != null && next.length() <= 200 && next.matches("/(?!/)[A-Za-z0-9/._~%?=&-]*") ? next : null;
+    }
+
+    /**
+     * The password (or Google) was right: an account with two-factor sign-in goes on to /login/2fa for the code from
+     * its app (the session holds only who is on the way, not signed in); any other is signed in and sent to target.
+     */
+    static void finish(HttpServletRequest req, HttpServletResponse resp, int uid, String username, String role, String avatar,
+                       boolean emailVerified, boolean remember, String target) throws IOException, SQLException {
+        if (new com.github.skeliit.dao.TwoFactorDao().isEnabled(uid)) {
+            HttpSession s = req.getSession(true);
+            req.changeSessionId();
+            s.setAttribute(TwoFactorLoginServlet.PENDING,
+                    new TwoFactorLoginServlet.Pending(uid, username, role, avatar, emailVerified, remember, target));
+            resp.sendRedirect("/login/2fa");
+            return;
+        }
+        HttpSession session = signIn(req, uid, username, role, avatar, emailVerified);
+        if (remember) rememberMe(req, resp, session);
+        resp.sendRedirect(target);
+    }
+
+    /** "Zapamatovat na tomto zařízení": the session lives 30 days, in a cookie that outlasts the browser. */
+    static void rememberMe(HttpServletRequest req, HttpServletResponse resp, HttpSession session) {
+        session.setMaxInactiveInterval(60 * 60 * 24 * 30);
+        jakarta.servlet.http.Cookie c = new jakarta.servlet.http.Cookie("JSESSIONID", session.getId());
+        c.setHttpOnly(true);
+        c.setSecure(isHttps(req));
+        c.setComment("__SAME_SITE_LAX__"); // Jetty emits SameSite=Lax
+        c.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
+        c.setMaxAge(60 * 60 * 24 * 30);
+        resp.addCookie(c);
     }
 
     /** Puts the user into the session; shared by sign-in and registration (a new account is signed in right away). */

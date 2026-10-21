@@ -15,6 +15,11 @@
       <% if ("1".equals(request.getParameter("reset"))) { %>
       <div class="form-success"><%= t.getProperty("reset.success") %></div>
       <% } %>
+      <% if ("expired".equals(request.getParameter("tfa"))) { %>
+      <div class="form-alert"><%= t.getProperty("tfa.login.expired") %></div>
+      <% } else if ("locked".equals(request.getParameter("tfa"))) { %>
+      <div class="form-alert"><%= t.getProperty("tfa.login.locked") %></div>
+      <% } %>
       <% if ("failed".equals(request.getParameter("google"))) { %>
       <div class="form-alert"><%= t.getProperty("auth.google.failed") %></div>
       <% } %>

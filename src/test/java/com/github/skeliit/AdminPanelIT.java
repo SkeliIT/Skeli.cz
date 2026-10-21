@@ -244,6 +244,23 @@ public class AdminPanelIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Co čeká: a tick takes a clip without a song off the list (the clip stays on the site)")
+    void tickOffTodo() throws Exception {
+        String youtubeId = "it" + uniq();
+        update("INSERT INTO videos (youtube_id, title, published_at) VALUES (?, 'Skeli - IT Feat Elsewhere', NOW())", youtubeId);
+        try {
+            driver.get(BASE_URL + "/admin.jsp");
+            By tick = By.xpath("//section[@id='todo']//form[.//input[@name='id'][@value='" + youtubeId + "']]//button");
+            assertFalse(driver.findElements(tick).isEmpty(), "the clip is on the to-do list with a tick");
+            clickAndWaitReload(driver.findElement(tick), false);
+            assertTrue(driver.findElements(tick).isEmpty(), "gone from the list");
+            assertTrue(exists("SELECT 1 FROM videos WHERE youtube_id=? AND no_song_ok_at IS NOT NULL", youtubeId), "kept, marked fine");
+        } finally {
+            update("DELETE FROM videos WHERE youtube_id=?", youtubeId);
+        }
+    }
+
+    @Test
     @DisplayName("Lyrics editor: new song, text saved and shown, clip turned into a song")
     void lyricsEditor() throws Exception {
         String songName = "IT Lyrics " + uniq();

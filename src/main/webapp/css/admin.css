@@ -362,6 +362,16 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 /* which ones and what to do, under the line */
 .admin-todo li small { display: block; margin-top: 3px; color: var(--text-dim); font-size: var(--fs-small); }
 .admin-done { margin: 0; color: #4fdc8c; }
+/* each clip / song under its to-do line, with a tick: "fine as it is", it stops showing */
+.admin-todo .todo-items { margin: 4px 0 2px 40px; gap: 4px; }
+.admin-todo .todo-items li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 3px 4px 3px 12px; border-radius: 10px; background: var(--field); }
+.admin-todo .todo-items span { min-width: 0; overflow-wrap: anywhere; }
+.admin-todo .todo-items form { margin: 0; flex: none; }
+.admin-todo .todo-ok { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--accent); border-radius: 50%; background: transparent; color: var(--accent); cursor: pointer; }
+.admin-todo .todo-ok:hover, .admin-todo .todo-ok:focus-visible { background: var(--accent); color: var(--accent-ink); }
+.admin-todo .todo-ok i { color: inherit; width: auto; margin: 0; align-self: auto; }
+@media (max-width: 600px) { .admin-todo .todo-items { margin-left: 12px; } }
+@media (pointer: coarse) { .admin-todo .todo-ok { width: 40px; height: 40px; } }
 .admin-section-title { display: flex; align-items: center; gap: 10px; margin: 38px 0 14px; font-size: var(--fs-h3); letter-spacing: 0.08em; }
 
 /* cards and buttons */

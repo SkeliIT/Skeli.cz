@@ -1456,6 +1456,20 @@ html.bold-text body :where(.side-card p,
 .acct-block { padding: 18px; border-radius: 16px; border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--bg) 25%, transparent); }
 .acct-block + .acct-block { margin-top: 14px; }
 .acct-block h3, .acct-block h4 { margin: 0 0 12px; font-size: var(--fs-h4); }
+/* two-factor sign-in in My account → Security: under the password and devices, the QR code beside the key */
+.acct-tfa { margin-top: 16px; }
+.acct-tfa h4 i, .tfa-ok { color: var(--accent); }
+.tfa-setup { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin: 12px 0; }
+.tfa-qr { width: 184px; max-width: 100%; padding: 8px; border-radius: 12px; background: #fff; line-height: 0; }
+.tfa-qr svg { width: 100%; height: auto; }
+.tfa-key { font-size: var(--fs-card); letter-spacing: .08em; word-break: break-all; }
+.tfa-open { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); }
+.tfa-form label { display: block; max-width: 280px; }
+.tfa-code-input { font-family: ui-monospace, Consolas, monospace; font-size: 1.2rem; letter-spacing: .25em; }
+.tfa-codes { margin: 12px 0; padding: 14px; border-radius: 12px; border: 1px dashed var(--accent); }
+.tfa-codes ol { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 18px; margin: 10px 0 0; padding-left: 22px; }
+.tfa-codes code { font-size: 1rem; letter-spacing: .06em; }
+.auth-lead { color: var(--text-dim); margin: 0 0 14px; }
 .acct-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .acct-cols .acct-block + .acct-block { margin-top: 0; }
 .acct-dim { color: var(--text-dim); font-size: var(--fs-small); }

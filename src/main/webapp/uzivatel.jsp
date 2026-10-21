@@ -199,6 +199,71 @@
         </form>
       </div>
     </div>
+    <%-- two-factor sign-in (web/profile/TwoFactorSetupServlet): off → a QR code for the app → on, with backup codes --%>
+    <%
+      com.github.skeliit.dao.TwoFactorDao.State tfa = null;
+      try { tfa = new com.github.skeliit.dao.TwoFactorDao().state(uid); } catch (Exception ignore) {}
+      String tfaSetup = (String) session.getAttribute(com.github.skeliit.web.profile.TwoFactorSetupServlet.SETUP);
+      @SuppressWarnings("unchecked")
+      java.util.List<String> tfaCodes = (java.util.List<String>) session.getAttribute(com.github.skeliit.web.profile.TwoFactorSetupServlet.NEW_CODES);
+      if (tfaCodes != null) session.removeAttribute(com.github.skeliit.web.profile.TwoFactorSetupServlet.NEW_CODES);   // shown once
+      String tfaMsg = request.getParameter("tfa");
+      boolean tfaGood = "on".equals(tfaMsg) || "off".equals(tfaMsg) || "codes".equals(tfaMsg);
+      boolean tfaBad = "wrong".equals(tfaMsg) || "required".equals(tfaMsg) || "admin".equals(tfaMsg);
+      boolean tfaAdminLocked = "ADMIN".equals(session.getAttribute("role")) && com.github.skeliit.web.profile.TwoFactorSetupServlet.requiredForAdmins();
+      String tfaAccount = me != null ? me.username : String.valueOf(session.getAttribute("username"));
+    %>
+    <div class="settings-form acct-block acct-tfa" id="dvoufazove">
+      <h4><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> <%= t.getProperty("tfa.title") %></h4>
+      <% if (tfaGood) { %><div class="form-success"><%= t.getProperty("tfa.msg." + tfaMsg) %></div><% } %>
+      <% if (tfaBad) { %><div class="form-alert"><%= t.getProperty("tfa.msg." + tfaMsg) %></div><% } %>
+      <p class="acct-dim"><%= t.getProperty("tfa.lead") %></p>
+      <% if (tfaCodes != null) { %>
+        <div class="tfa-codes">
+          <b><%= t.getProperty("tfa.newCodesTitle") %></b>
+          <p class="acct-dim"><%= t.getProperty("tfa.newCodesText") %></p>
+          <ol><% for (String c : tfaCodes) { %><li><code><%= WebUtils.escapeHtml(c) %></code></li><% } %></ol>
+        </div>
+      <% } %>
+      <% if (tfa != null && tfa.isEnabled()) { %>
+        <p><i class="fa-solid fa-circle-check tfa-ok" aria-hidden="true"></i> <%= t.getProperty("tfa.on").replace("{date}", WebUtils.formatDateTime(tfa.enabledAt, cur)) %>
+          <%= t.getProperty("tfa.codesLeft").replace("{n}", String.valueOf(tfa.codesLeft)) %></p>
+        <p class="acct-dim"><%= t.getProperty("tfa.disableText") %></p>
+        <form method="post" action="/profile/2fa" class="tfa-form">
+          <input type="hidden" name="csrf" value="${csrf}">
+          <label><%= t.getProperty("tfa.code") %> <input type="text" name="code" required autocomplete="one-time-code" inputmode="numeric" maxlength="12" class="tfa-code-input"></label>
+          <div class="form-actions">
+            <button type="submit" name="action" value="codes" class="btn-outline"><i class="fa-solid fa-key" aria-hidden="true"></i> <%= t.getProperty("tfa.regenerate") %></button>
+            <% if (!tfaAdminLocked) { %><button type="submit" name="action" value="disable" class="btn-delete"><%= t.getProperty("tfa.disable") %></button><% } %>
+          </div>
+        </form>
+        <% if (tfaAdminLocked) { %><p class="acct-dim"><%= t.getProperty("tfa.adminLocked") %></p><% } %>
+      <% } else if (tfaSetup != null) { String uri = com.github.skeliit.security.Totp.otpauthUri(tfaAccount, tfaSetup); %>
+        <p><%= t.getProperty("tfa.scan") %></p>
+        <div class="tfa-setup">
+          <div class="tfa-qr" role="img" aria-label="QR"><%= com.github.skeliit.security.Totp.qrSvg(uri) %></div>
+          <div>
+            <p class="acct-dim"><%= t.getProperty("tfa.key") %><br><code class="tfa-key"><%= com.github.skeliit.security.Totp.grouped(tfaSetup) %></code></p>
+            <p><a href="<%= WebUtils.escapeHtml(uri) %>" class="tfa-open"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> <%= t.getProperty("tfa.openApp") %></a></p>
+          </div>
+        </div>
+        <form method="post" action="/profile/2fa" class="tfa-form">
+          <input type="hidden" name="csrf" value="${csrf}">
+          <label><%= t.getProperty("tfa.code") %> <input type="text" name="code" required autofocus autocomplete="one-time-code" inputmode="numeric" maxlength="12" class="tfa-code-input" placeholder="123456"></label>
+          <div class="form-actions">
+            <button type="submit" name="action" value="confirm"><%= t.getProperty("tfa.confirm") %></button>
+            <button type="submit" name="action" value="cancel" class="btn-outline" formnovalidate><%= t.getProperty("tfa.cancel") %></button>
+          </div>
+        </form>
+      <% } else { %>
+        <p><%= t.getProperty("tfa.off") %></p>
+        <form method="post" action="/profile/2fa">
+          <input type="hidden" name="csrf" value="${csrf}">
+          <input type="hidden" name="action" value="start">
+          <button type="submit"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> <%= t.getProperty("tfa.start") %></button>
+        </form>
+      <% } %>
+    </div>
   </section>
 
   <%-- Privacy: your data as a file, or the account gone for good --%>

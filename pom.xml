@@ -51,6 +51,12 @@
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
         </dependency>
+        <!-- QR codes for setting up two-factor sign-in (drawn on our server, nothing sent anywhere) -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.3</version>
+        </dependency>
         <!-- JUnit 5 for tests -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

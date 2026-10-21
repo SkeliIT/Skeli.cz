@@ -22,6 +22,8 @@
         <li><%= t.getProperty("privacy.s2.newsletter") %></li>
         <li><%= t.getProperty("privacy.s2.security") %></li>
         <li><%= t.getProperty("privacy.s2.stats") %></li>
+        <li><%= t.getProperty("privacy.s2.plays") %></li>
+        <li><%= t.getProperty("privacy.s2.reports") %></li>
       </ul>
     </section>
     <section class="card prose-card" id="cookies">
@@ -37,6 +39,7 @@
     <section class="card prose-card" id="s<%= i %>">
       <h3><span class="privacy-num"><%= i %></span> <%= t.getProperty("privacy.s" + i + ".t") %></h3>
       <p><%= t.getProperty("privacy.s" + i + ".p") %></p>
+      <% if (i == 6) { %><p><%= t.getProperty("privacy.s6.more") %></p><% } %>
     </section>
     <% } %>
   </div>

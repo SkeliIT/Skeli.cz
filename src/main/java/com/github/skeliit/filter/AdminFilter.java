@@ -52,6 +52,15 @@ public class AdminFilter implements Filter {
             forbid(resp);
             return;
         }
+        // an admin must have two-factor sign-in: without it, off to My account → Security to switch it on
+        try {
+            if (com.github.skeliit.web.profile.TwoFactorSetupServlet.requiredForAdmins() && !new com.github.skeliit.dao.TwoFactorDao().isEnabled(id)) {
+                resp.sendRedirect("/uzivatel.jsp?tfa=required#zabezpeceni");
+                return;
+            }
+        } catch (SQLException e) {
+            throw new ServletException(e);
+        }
         chain.doFilter(request, response);
     }
 

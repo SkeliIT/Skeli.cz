@@ -150,8 +150,9 @@ public class GoogleSignInServlet extends HttpServlet {
             }
             if (a == null) { a = create(c, sub, verified ? email : null, name, picture); fresh = true; }
             if ("DELETED".equals(a.role)) { fail(req, resp); return; }
-            LoginServlet.signIn(req, a.id, a.username, a.role, a.avatar, a.verified);
-            resp.sendRedirect(next != null ? next : fresh ? "/index.jsp?welcome=1" : "/index.jsp");
+            // signed in, or on to the code from the app when the account has two-factor sign-in
+            LoginServlet.finish(req, resp, a.id, a.username, a.role, a.avatar, a.verified, false,
+                    next != null ? next : fresh ? "/index.jsp?welcome=1" : "/index.jsp");
         } catch (SQLException e) {
             throw new ServletException(e);
         }
