@@ -30,7 +30,8 @@
       {"Novinky"},
       {"/admin/newsletter", "fa-envelope-open-text", "Novinky e-mailem", "/admin/newsletter", "", ""},
       {"Systém"},
-      {"/admin/system", "fa-arrows-rotate", "Synchronizace a export", "/admin/system", "", ""}
+      {"/admin/system", "fa-arrows-rotate", "Synchronizace a export", "/admin/system", "", ""},
+      {"/admin/history", "fa-clock-rotate-left", "Záznam změn a koš", "/admin/history", "", ""}
   };
   String anHere = "Nástěnka";
   for (String[] it : anItems) if (it.length > 1 && anUri.startsWith(it[3])) anHere = it[2];

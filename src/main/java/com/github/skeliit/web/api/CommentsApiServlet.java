@@ -116,6 +116,8 @@ public class CommentsApiServlet extends HttpServlet {
                 }
                 case "delete" -> {
                     if (!mineOrAdmin) { answer(resp, back, 403, null); return; }
+                    // admin maže cizí komentář: kopie do koše (vlastní komentář, který smaže autor, se neuchovává)
+                    if (ref.userId() != userId) com.github.skeliit.service.Trash.comment(req, kind.code, ref.id());
                     dao.delete(kind, ref.id());
                     answer(resp, back, 200, Map.of("ok", true));
                 }

@@ -224,6 +224,57 @@ public class AdminPanelIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Koš: smazaný klip i text (s komentáři) jdou vrátit, a záznam změn ví, kdo co smazal")
+    void trashRestoresAndLogRemembers() throws Exception {
+        String name = "IT Trash " + uniq(), youtubeId = ("it" + uniq() + "xxxxxxxxxxx").substring(0, 11);
+        update("INSERT INTO songs (name, uuid) VALUES (?, UUID())", name);
+        int songId = queryInt("SELECT id FROM songs WHERE name=?", name);
+        String uuid = queryString("SELECT uuid FROM songs WHERE id=?", songId);
+        int adminId = queryInt("SELECT id FROM users WHERE username=?", adminName);
+        update("INSERT INTO videos (youtube_id, title, song_id) VALUES (?, 'IT trash clip', ?)", youtubeId, songId);
+        update("INSERT INTO video_comments (youtube_id, user_id, content) VALUES (?, ?, 'Komentář u klipu')", youtubeId, adminId);
+        update("INSERT INTO lyrics (song_id, lang, words) VALUES (?, 'cs', 'Řádek textu')", songId);
+        int lyricId = queryInt("SELECT id FROM lyrics WHERE song_id=?", songId);
+        update("INSERT INTO comments (lyric_id, user_id, content) VALUES (?, ?, 'Komentář u textu')", lyricId, adminId);
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        try {
+            // smazat klip a text
+            driver.get(BASE_URL + "/admin/song?uuid=" + uuid);
+            js.executeScript("window.confirm = function () { return true; }");
+            clickAndWaitReload(driver.findElement(By.xpath("//form[.//input[@name='action'][@value='delete_video']]//button")), false);
+            driver.get(BASE_URL + "/admin/lyrics?song=" + songId + "&lang=cs");
+            js.executeScript("window.confirm = function () { return true; }");
+            clickAndWaitReload(driver.findElement(By.cssSelector(".lyrics-delete button")), false);
+            assertFalse(exists("SELECT 1 FROM videos WHERE youtube_id=?", youtubeId));
+            assertFalse(exists("SELECT 1 FROM comments WHERE lyric_id=?", lyricId));
+
+            // v záznamu změn: kdo a co
+            driver.get(BASE_URL + "/admin/history");
+            String log = driver.findElement(By.id("log")).getText();
+            assertTrue(log.contains("Smazání klipu") && log.contains("Smazání textu") && log.contains(adminName), log);
+
+            // vrátit obojí z koše
+            for (String label : new String[]{"Klip: IT trash clip", "Text (CS): " + name}) {
+                WebElement btn = driver.findElement(By.xpath("//li[contains(@class,'trash-item')][.//span[contains(.,'" + label + "')]]//button"));
+                clickAndWaitReload(btn, false);
+            }
+            assertTrue(exists("SELECT 1 FROM videos WHERE youtube_id=? AND song_id=?", youtubeId, songId), "klip je zpátky u písně");
+            assertTrue(exists("SELECT 1 FROM video_comments WHERE youtube_id=?", youtubeId), "i s komentářem");
+            assertFalse(exists("SELECT 1 FROM video_blocklist WHERE youtube_id=?", youtubeId), "a už není blokovaný");
+            assertTrue(exists("SELECT 1 FROM lyrics WHERE id=? AND words='Řádek textu'", lyricId), "text je zpátky");
+            assertTrue(exists("SELECT 1 FROM comments WHERE lyric_id=?", lyricId), "i s komentářem");
+            assertTrue(driver.findElement(By.id("log")).getText().contains("Obnovení z koše"));
+        } finally {
+            update("DELETE FROM video_comments WHERE youtube_id=?", youtubeId);
+            update("DELETE FROM videos WHERE youtube_id=?", youtubeId);
+            update("DELETE FROM video_blocklist WHERE youtube_id=?", youtubeId);
+            update("DELETE FROM lyrics WHERE song_id=?", songId);
+            update("DELETE FROM songs WHERE id=?", songId);
+            update("DELETE FROM admin_trash WHERE label LIKE ? OR label LIKE ?", "%IT trash clip%", "%" + name + "%");
+        }
+    }
+
+    @Test
     @DisplayName("A clip that isn't a finished song is hidden from the site and stays on the blocklist for the YouTube sync")
     void hideUnfinishedClip() throws Exception {
         String youtubeId = "it" + uniq();

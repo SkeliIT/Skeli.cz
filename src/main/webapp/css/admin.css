@@ -674,3 +674,31 @@ body.light .mk-dev-tablet { background: #8a4fd0; color: #8a4fd0; }
   .mk-heat { gap: 2px; grid-template-columns: 22px repeat(24, minmax(0, 1fr)); }
   .mk-cell { border-radius: 2px; min-height: 8px; }
 }
+
+/* ---------- Záznam změn a koš (/admin/history) ---------- */
+.trash-list, .history-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.trash-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--field); }
+.trash-item > i { color: var(--accent); width: 18px; text-align: center; flex: none; }
+.trash-label { flex: 1; min-width: 0; font-family: var(--font-text); font-size: var(--fs-text); font-weight: 300; overflow-wrap: anywhere; }
+.trash-label small { display: block; color: var(--text-dim); font-size: var(--fs-small); }
+.trash-days { color: var(--text-dim); font-size: var(--fs-small); white-space: nowrap; }
+.trash-restore { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: var(--fs-small); cursor: pointer; white-space: nowrap; }
+.trash-restore:hover, .trash-restore:focus-visible { background: var(--accent); color: var(--accent-ink); }
+.trash-item.restored { opacity: .6; }
+.trash-state { color: #4fdc8c; font-size: var(--fs-small); white-space: nowrap; }
+body.light .trash-state { color: #1e7a45; }
+.history-list li { display: grid; grid-template-columns: 130px 110px minmax(0, 1fr); gap: 10px; align-items: baseline; padding: 8px 12px;
+  border-radius: 10px; background: var(--field); font-family: var(--font-text); font-size: var(--fs-text); font-weight: 300; }
+.history-when { color: var(--text-dim); font-size: var(--fs-small); }
+.history-who { color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-what b { font-weight: 400; }
+.history-what small { color: var(--text-dim); overflow-wrap: anywhere; }
+.admin-history-page .play-tabs { margin-bottom: 12px; }
+@media (max-width: 600px) {
+  .history-list li { grid-template-columns: 1fr auto; }
+  .history-what { grid-column: 1 / -1; }
+  .trash-item { flex-wrap: wrap; }
+  .trash-label { flex-basis: calc(100% - 40px); }
+  .trash-item form { margin-left: auto; }
+}

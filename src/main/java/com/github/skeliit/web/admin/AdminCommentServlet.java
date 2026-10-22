@@ -30,6 +30,7 @@ public class AdminCommentServlet extends HttpServlet {
                 try (Connection conn = Db.get()) { CommentReportServlet.deleteReports(conn, kind, id); }
             } else {
                 // with its replies, their votes and reports
+                com.github.skeliit.service.Trash.comment(req, kind, id);   // kopie do koše
                 new CommentDao().delete(CommentDao.Kind.of(kind), id);
             }
         } catch (SQLException e) { throw new ServletException(e); }

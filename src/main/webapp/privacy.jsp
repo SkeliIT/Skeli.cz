@@ -26,6 +26,7 @@
         <li><%= t.getProperty("privacy.s2.reports") %></li>
         <li><%= t.getProperty("privacy.s2.help") %></li>
         <li><%= t.getProperty("privacy.s2.marketing") %></li>
+        <li><%= t.getProperty("privacy.s2.trash") %></li>
       </ul>
     </section>
     <section class="card prose-card" id="cookies">

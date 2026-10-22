@@ -164,7 +164,7 @@ public class AdminSongDetailServlet extends HttpServlet {
                 case "delete_video" -> {
                     // off the whole site, and the YouTube sync won't bring it back
                     String yt = normalizeYoutubeId(req.getParameter("youtube_id"));
-                    if (yt != null) songs.deleteVideo(yt);
+                    if (yt != null) { com.github.skeliit.service.Trash.video(req, yt); songs.deleteVideo(yt); }   // nejdřív kopie do koše
                     resp.sendRedirect(hub + "&msg=video_deleted");
                 }
                 case "delete_song" -> {
@@ -174,6 +174,7 @@ public class AdminSongDetailServlet extends HttpServlet {
                         resp.sendRedirect(hub + "&msg=confirm_delete");
                         return;
                     }
+                    if (songs.lyricLanguages(id) == 0) com.github.skeliit.service.Trash.song(req, id);   // kopie do koše (smazat jde jen bez textu)
                     if (!songs.deleteSong(id)) {
                         resp.sendRedirect(hub + "&msg=has_lyrics");
                         return;

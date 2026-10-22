@@ -92,6 +92,7 @@ public class AdminLyricsServlet extends HttpServlet {
                     resp.sendRedirect("/admin/lyrics?error=1");
                     return;
                 }
+                if (words == null || words.isBlank()) com.github.skeliit.service.Trash.lyrics(req, songId, lang);   // prázdný text = smazání: kopie do koše
                 lyrics.saveWords(songId, lang, words);
                 resp.sendRedirect("/admin/lyrics?song=" + songId + "&lang=" + lang + "&saved=1");
             } else if ("from_video".equals(action)) {
@@ -105,13 +106,17 @@ public class AdminLyricsServlet extends HttpServlet {
                     resp.sendRedirect("/admin/lyrics?error=1");
                     return;
                 }
+                com.github.skeliit.service.Trash.lyrics(req, songId, lang);   // kopie do koše
                 lyrics.saveWords(songId, lang, null);
                 resp.sendRedirect("/admin/lyrics?song=" + songId + "&lang=" + lang + "&textDeleted=1");
             } else if ("hide_video".equals(action)) {
                 // a clip that isn't a finished song: deleted from the database and the site (with its comments and
                 // karaoke timings), and the YouTube sync won't bring it back (V83) – the same as Delete clip on a song
                 String yt = req.getParameter("youtube_id");
-                if (yt != null && yt.matches("[A-Za-z0-9_-]{6,32}")) new com.github.skeliit.dao.SongDao().deleteVideo(yt);
+                if (yt != null && yt.matches("[A-Za-z0-9_-]{6,32}")) {
+                    com.github.skeliit.service.Trash.video(req, yt);   // kopie do koše
+                    new com.github.skeliit.dao.SongDao().deleteVideo(yt);
+                }
                 resp.sendRedirect("/admin/lyrics?hidden=1");
             } else if ("new_song".equals(action)) {
                 String name = req.getParameter("name");
