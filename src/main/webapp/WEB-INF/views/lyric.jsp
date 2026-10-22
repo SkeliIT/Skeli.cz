@@ -207,11 +207,21 @@
 
       <!-- Lyrics Text -->
       <article class="lyric-body">
+        <%-- text v cizím jazyce: přepínač Originál (česky) · Překlad · Obojí (js/lyric-bilingual.js) --%>
+        <c:if test="${not empty originalWords}">
+          <div class="lyric-mode" role="group" aria-label="<%= t.getProperty("lyric.mode.label") %>">
+            <button type="button" data-mode="orig" aria-pressed="false"><%= t.getProperty("lyric.mode.orig") %></button>
+            <button type="button" data-mode="tr" aria-pressed="false"><%= t.getProperty("lyric.mode.tr") %></button>
+            <button type="button" data-mode="both" aria-pressed="true"><%= t.getProperty("lyric.mode.both") %></button>
+          </div>
+        </c:if>
         <div class="lyrics-text">
-          <pre><c:out value="${lyric.words}"/></pre>
+          <pre lang="<%= cur %>"><c:out value="${lyric.words}"/></pre>
+          <c:if test="${not empty originalWords}"><template id="lyric-original"><c:out value="${originalWords}"/></template></c:if>
         </div>
       </article>
       </section>
+      <c:if test="${not empty originalWords}"><script src="/js/lyric-bilingual.js?v=<%= assetVersion %>"></script></c:if>
       <c:if test="${not empty lyric.youtubeId}"><script src="/js/clip-fx.js?v=<%= assetVersion %>"></script><script src="/js/yt-clock.js?v=<%= assetVersion %>"></script><script src="/js/karaoke.js?v=<%= assetVersion %>"></script></c:if>
 
       <%-- v textu chybí kus (admin → píseň → „Hledáme pomoc s textem“): návštěvník, který tomu rozumí, ho napíše;

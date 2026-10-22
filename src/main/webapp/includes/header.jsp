@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "5.8.9";
+  String assetVersion = "5.9.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -436,7 +436,7 @@
                   if (curMain) { curMain.replaceWith(newMain); } else { document.body.appendChild(newMain); }
                   const titleMatch = text.match(/<title>([\s\S]*?)<\/title>/i); if (titleMatch) document.title = titleMatch[1];
                   // re-execute inline scripts in main
-                  newMain.querySelectorAll('script').forEach(old => { const s = document.createElement('script'); if (old.src) { s.src = old.src; } else { s.textContent = old.textContent; } (old.type && (s.type = old.type)); old.replaceWith(s); });
+                  newMain.querySelectorAll('script').forEach(old => { const s = document.createElement('script'); if (old.src) { s.src = old.src; s.async = false; /* popořadě: např. lyric-bilingual.js před karaoke.js */ } else { s.textContent = old.textContent; } (old.type && (s.type = old.type)); old.replaceWith(s); });
                   if (push) history.pushState({ url }, '', url);
                   const target = new URL(url, location.href);
                   loadedPage = target.pathname + target.search;

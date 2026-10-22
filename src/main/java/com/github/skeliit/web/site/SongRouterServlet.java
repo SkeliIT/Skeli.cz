@@ -167,6 +167,7 @@ public class SongRouterServlet extends HttpServlet {
             Object likeUser = req.getSession(false) != null ? req.getSession(false).getAttribute("userId") : null;
             req.setAttribute("liked", likeUser instanceof Integer u && new com.github.skeliit.dao.LyricDao().likedBy(v.songId, u));
             LyricRouterServlet.setHelp(req, v.songId);
+            LyricRouterServlet.setOriginal(req, v);
             req.getRequestDispatcher("/WEB-INF/views/lyric.jsp").forward(req, resp);
         } catch (Exception e) {
             throw new ServletException(e);

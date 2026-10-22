@@ -69,6 +69,7 @@ public class LyricRouterServlet extends HttpServlet {
             Object likeUser = req.getSession(false) != null ? req.getSession(false).getAttribute("userId") : null;
             req.setAttribute("liked", likeUser instanceof Integer u && new com.github.skeliit.dao.LyricDao().likedBy(v.songId, u));
             setHelp(req, v.songId);
+            setOriginal(req, v);
             req.getRequestDispatcher("/WEB-INF/views/lyric.jsp").forward(req, resp);
         } catch (Exception e) { throw new ServletException(e); }
     }
@@ -78,6 +79,25 @@ public class LyricRouterServlet extends HttpServlet {
      * helpLang (název jazyka v jazyce stránky, např. „španělština“) a helpFrom / helpTime (vteřina klipu, kde ten kus
      * začíná, a „2:15“; nebo nic).
      */
+    /**
+     * Text v jiném jazyce než česky: stránka dostane i český originál (originalWords), aby si návštěvník mohl přepnout
+     * Originál · Překlad · Obojí (řádek pod řádkem, js/lyric-bilingual.js). Jen když mají oba stejně řádků – jinak
+     * by se překlad posunul vůči originálu.
+     */
+    static void setOriginal(HttpServletRequest req, com.github.skeliit.model.LyricView v) throws java.sql.SQLException {
+        if (v == null || v.lang == null || "cs".equals(v.lang) || v.words == null) return;
+        String cs = new com.github.skeliit.dao.LyricDao().getWords(v.songId, "cs");
+        if (cs == null || cs.isBlank() || lineCount(cs) != lineCount(v.words)) return;
+        req.setAttribute("originalWords", cs);
+    }
+
+    /** Počet neprázdných řádků textu. */
+    static int lineCount(String words) {
+        int n = 0;
+        for (String line : words.split("\\R")) if (!line.isBlank()) n++;
+        return n;
+    }
+
     static void setHelp(HttpServletRequest req, int songId) throws java.sql.SQLException {
         String[] w = new com.github.skeliit.dao.LyricHelpDao().wanted(songId);
         if (w == null) return;

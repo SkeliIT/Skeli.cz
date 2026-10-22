@@ -13,15 +13,27 @@
   if (!pre || !player || !button || pre.dataset.karaoke) return;
   pre.dataset.karaoke = '1';
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var original = pre.textContent;
+  // zpívaný text: u překladu s českým originálem (js/lyric-bilingual.js) čeština, jinak to, co je na stránce
+  var original = window.LyricText ? LyricText.primary() : pre.textContent;
   var lines = [];            // the spans of the non-empty lines, in order
   var data = null, clipId = null, on = true, cur = -1;
   try { on = localStorage.getItem('karaoke') !== 'off'; } catch (e) {}
 
   // ---------- the lyrics as one span per line ----------
   function split() {
-    pre.textContent = '';
     lines = [];
+    if (window.LyricText) {
+      // řádky skládá lyric-bilingual.js (v režimu Obojí pod každým zpívaným řádkem překlad)
+      LyricText.build(pre, function (line) {
+        var s = document.createElement('span');
+        s.className = 'k-line';
+        s.textContent = line;
+        lines.push(s);
+        return s;
+      });
+      return;
+    }
+    pre.textContent = '';
     original.split('\n').forEach(function (line, i, all) {
       if (line.trim()) {
         var s = document.createElement('span');
@@ -35,7 +47,7 @@
       if (i < all.length - 1) pre.appendChild(document.createTextNode('\n'));
     });
   }
-  function unsplit() { pre.textContent = original; lines = []; }
+  function unsplit() { lines = []; if (window.LyricText) LyricText.build(pre); else pre.textContent = original; }
 
   // ---------- word by word: each word fills with gold on its own (a wrapped line no longer fills both rows) ----------
   // The words of line i get their sung times from data.words; without them the line's time is shared by length.
@@ -303,13 +315,23 @@
       if (i !== fsIdx) {
         fsIdx = i;
         fsWords = wordSpans(fsNow, i >= 0 ? allLines[i] : '');
-        fsNext.textContent = allLines[i + 1] || '';
+        // v režimu Obojí je pod zpívaným řádkem jeho překlad (titulky), jinak další řádek
+        var trLine = window.LyricText && i >= 0 ? LyricText.translation(i) : '';
+        fsNext.textContent = trLine || allLines[i + 1] || '';
+        fsNext.classList.toggle('fs-tr', !!trLine);
       }
       if (i >= 0 && fsWords) paintWords(fsWords, i, time);
     }
     requestAnimationFrame(fsTick);
   }
   makeFs();
+  // návštěvník přepnul Originál · Překlad · Obojí: když karaoke běží, přeskládá řádky samo (se svými značkami)
+  window.addEventListener('lyric:mode', function (e) {
+    original = LyricText.primary();
+    allLines = original.split('\n').filter(function (l) { return l.trim(); });
+    fsIdx = -2;
+    if (lines.length) { e.preventDefault(); cur = -1; split(); }
+  });
 
   // K turns it on and off (not while typing)
   document.addEventListener('keydown', function (e) {
