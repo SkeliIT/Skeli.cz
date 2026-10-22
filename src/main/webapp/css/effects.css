@@ -1117,44 +1117,50 @@ button.is-sending { cursor: progress; opacity: 0.85; }
 @keyframes kevin-box-out { to { transform: translateY(30px) scale(.95); opacity: 0; } }
 @media (max-width: 1024px), (prefers-reduced-motion: reduce) { .kevin-box { display: none !important; } }
 
-/* ---------- Kevin's bubble like in a comic: cream paper, a hand-drawn ink outline, a curved tail ----------
-   (the same in both themes – a comic bubble is paper; the colours inside are switched to ink on paper).
-   The uneven corners make the outline look drawn by hand; the tail is an SVG in the bubble (js/kevin.js). */
+/* ---------- Kevinova bublina ze skla: matné sklo, rozmazané pozadí, zlatý odlesk na okraji ----------
+   (tmavé sklo v tmavém režimu, bílé ve světlém; špička je natočený čtvereček ze stejného skla) */
 .kevin-bubble {
-  --ink: #15110a;
-  --paper: #fbf6e9;
-  --text: var(--ink);
-  --text-dim: #5d533f;
-  --field: rgba(21, 17, 10, 0.06);
-  --panel-border: rgba(21, 17, 10, 0.24);
-  --accent: #8a5d00;
-  --accent-ink: #fffaf0;
-  --accent-soft: rgba(138, 93, 0, 0.18);
-  color: var(--ink);
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  border-radius: 255px 22px 225px 22px / 22px 225px 22px 255px;
-  padding: 16px 20px;
-  box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.38);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  --glass: rgba(18, 17, 22, 0.58);
+  --glass-edge: rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.02) 45%, rgba(255, 210, 90, 0.05)),
+    var(--glass);
+  border: 1px solid var(--glass-edge);
+  border-radius: 22px;
+  padding: 14px 18px;
+  box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 0 34px -14px color-mix(in srgb, var(--accent) 70%, transparent);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
 }
-.kevin.from-header .kevin-bubble { border-radius: 225px 22px 255px 22px / 22px 255px 22px 225px; }
-.kevin-bubble::before, .kevin-bubble::after,
-.kevin.from-header .kevin-bubble::after { content: none; }
-/* the tail: a paper shape with ink on its two long sides; it covers the outline where it leaves the bubble */
-.kevin-tail { position: absolute; overflow: visible; pointer-events: none; }
-.kevin-tail .fill { fill: var(--paper); }
-.kevin-tail .ink { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-.kevin-tail.down { left: 28px; top: 100%; width: 44px; height: 34px; }
-.kevin-tail.side { display: none; left: 100%; top: 12px; width: 36px; height: 34px; }
-/* out of the paw the bubble is on his left: the tail comes out of its right side to him */
-.kevin.from-header .kevin-tail.down { display: none; }
-.kevin.from-header .kevin-tail.side { display: block; }
-/* peeking from the right edge: the tail on the right, mirrored */
-.kevin.peek-right .kevin-tail.down,
-.kevin.peek-stack.peek-right .kevin-tail.down { left: auto; right: 28px; transform: scaleX(-1); }
-.kevin-bubble .kevin-chip { border-width: 1.5px; }
+/* zlatý odlesk po okraji (jen obrys: maska vyřízne vnitřek) */
+.kevin-bubble::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 75%, transparent), transparent 35%, transparent 65%,
+    color-mix(in srgb, var(--accent) 40%, transparent));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  transform: none; border: 0; clip-path: none; left: auto; bottom: auto; width: auto; height: auto;
+}
+/* špička k Kevinovi */
+.kevin-bubble::after,
+.kevin.from-header .kevin-bubble::after {
+  content: ""; position: absolute; width: 14px; height: 14px; clip-path: none;
+  background: var(--glass); border: 1px solid var(--glass-edge); border-top: 0; border-left: 0;
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  left: 26px; bottom: -8px; top: auto; right: auto; transform: rotate(45deg); border-radius: 0 0 4px 0;
+}
+.kevin.from-header .kevin-bubble { border-radius: 22px; }
+.kevin.from-header .kevin-bubble::after { left: auto; right: -8px; top: 18px; bottom: auto; transform: rotate(-45deg); }
+.kevin.peek-right .kevin-bubble::after,
+.kevin.peek-stack.peek-right .kevin-bubble::after { left: auto; right: 26px; }
+.kevin-tail { display: none; }
+body.light .kevin-bubble {
+  --glass: rgba(255, 255, 255, 0.62);
+  --glass-edge: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 14px 40px -12px rgba(60, 40, 0, 0.35), inset 0 1px 0 #fff, 0 0 30px -14px color-mix(in srgb, var(--accent) 60%, transparent);
+}
 
 /* ---------- what he does on his own (js/kevin.js LIFE): a small comic caption by his head ---------- */
 .kevin-emote {
@@ -1166,16 +1172,24 @@ button.is-sending { cursor: progress; opacity: 0.85; }
   gap: 6px;
   width: max-content;
   max-width: min(230px, calc(100vw - 150px));
-  padding: 5px 12px 5px 8px;
-  border: 2px solid #15110a;
-  border-radius: 16px;
-  background: #fbf6e9;
-  color: #15110a;
+  padding: 6px 13px 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02)), rgba(18, 17, 22, 0.55);
+  color: var(--text);
   font-family: var(--font-text);
   font-size: var(--fs-small);
   line-height: 1.3;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.32);
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 22px -10px color-mix(in srgb, var(--accent) 70%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
   pointer-events: none;
+}
+body.light .kevin-emote {
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5)), rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px -10px rgba(60, 40, 0, 0.35), inset 0 1px 0 #fff;
 }
 .kevin-emote[hidden] { display: none; }
 .kevin-emote-icon { font-size: 1.15em; line-height: 1; }
