@@ -68,9 +68,17 @@
 
   function syncButtons() {
     document.querySelectorAll('.lyric-mode [data-mode]').forEach(function (b) {
-      b.setAttribute('aria-pressed', b.dataset.mode === mode ? 'true' : 'false');
+      var on = b.dataset.mode === mode;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      // zlatá výplň přejede pod vybranou volbu a vezme si její šířku (volby jsou různě dlouhé)
+      if (on) {
+        b.parentNode.style.setProperty('--ind-x', b.offsetLeft + 'px');
+        b.parentNode.style.setProperty('--ind-w', b.offsetWidth + 'px');
+      }
     });
   }
+  // písmo se může načíst až po prvním vykreslení: pak se šířky voleb změní
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { syncButtons(); });
 
   window.LyricText = {
     get mode() { return mode; },

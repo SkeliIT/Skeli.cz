@@ -1794,14 +1794,13 @@ body.light .k-poster:hover .k-ticket { background: #e6b730; color: #141414; }
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 .lyric-mode::before {
-  content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 999px;
+  /* poloha a šířka vybrané volby (nastaví js/lyric-bilingual.js podle tlačítka) */
+  content: ""; position: absolute; top: 4px; bottom: 4px; left: var(--ind-x, 4px); width: var(--ind-w, 33%); border-radius: 999px;
   background: linear-gradient(135deg, #ffd96a, var(--accent)); box-shadow: 0 4px 18px -6px color-mix(in srgb, var(--accent) 80%, transparent);
-  transition: transform .35s cubic-bezier(.3, .9, .3, 1);
+  transition: left .35s cubic-bezier(.3, .9, .3, 1), width .35s cubic-bezier(.3, .9, .3, 1);
 }
-.lyric-mode:has([data-mode="tr"][aria-pressed="true"])::before { transform: translateX(100%); }
-.lyric-mode:has([data-mode="both"][aria-pressed="true"])::before { transform: translateX(200%); }
 .lyric-mode button {
-  position: relative; z-index: 1; flex: 1 1 0; min-width: 0; min-height: 34px; padding: 0 16px; border: 0; border-radius: 999px;
+  position: relative; z-index: 1; flex: none; min-height: 34px; padding: 0 16px; border: 0; border-radius: 999px;
   background: transparent; color: var(--text-dim); font-family: var(--font-body); font-size: var(--fs-small);
   white-space: nowrap; cursor: pointer; transition: color .25s ease;
 }
@@ -1812,8 +1811,10 @@ body.light .k-poster:hover .k-ticket { background: #e6b730; color: #141414; }
 .lyric-page .lyrics-text pre.bi .bi-orig,
 .lyric-page .lyrics-text pre.bi .k-line { display: block; }
 .lyric-page .lyrics-text pre.bi .bi-tr {
-  display: block; margin: 0.05em 0 0.75em; font-family: 'Exo 2', system-ui, sans-serif; font-weight: 400;
-  font-size: 0.74em; line-height: 1.45; letter-spacing: 0.01em; color: var(--text-dim); font-style: italic;
+  /* čitelné i na telefonu: aspoň ~13 px, světlejší šedá, bez kurzívy (ta se v malém čte hůř) */
+  display: block; margin: 0.1em 0 0.8em; font-family: 'Exo 2', system-ui, sans-serif; font-weight: 400;
+  font-size: max(0.84em, 0.82rem); line-height: 1.45; letter-spacing: 0.01em;
+  color: color-mix(in srgb, var(--text) 74%, transparent);
 }
 .lyric-page .lyrics-text pre.bi .bi-gap { display: block; height: 1.1em; }
 /* na celé obrazovce v karaoke: překlad zpívaného řádku jako titulky */
