@@ -67,7 +67,10 @@
   paw.className = 'kevin-paw';
   paw.title = L.ui.show;
   paw.setAttribute('aria-label', L.ui.show);
-  paw.innerHTML = '<i class="fa-solid fa-paw"></i>';
+  // kroužek, který se při příchodu „nabije“, a jiskry, které při „puf“ odletí (css/effects.css: paw-arrive)
+  paw.innerHTML = '<span class="paw-charge" aria-hidden="true"></span>'
+    + [0, 1, 2, 3, 4, 5, 6, 7].map(function (i) { return '<span class="paw-spark" style="--i:' + i + '" aria-hidden="true"></span>'; }).join('')
+    + '<i class="fa-solid fa-paw"></i>';
   paw.hidden = true;
   // The paw lives in the header bar, never over the page: on a PC among the round buttons on the
   // right, on phones and tablets next to Menu. (Only a page without the header gets it floating.)
@@ -1230,7 +1233,7 @@
       root.classList.remove('kevin-in');
     });
     if (userHidden) { place(false); if (!adminPage) scheduleTip(); return; }
-    if (pocket()) place(false);   // in the paw until he has something to say (greet below)
+    if (pocket()) { place(false); introPaw(); }   // in the paw until he has something to say (greet below)
     else ensureModel();          // a page without the header bar: he stands there from the start
     wake();
     greet();
@@ -1264,7 +1267,26 @@
   });
   root.querySelector('.kevin-hide').addEventListener('click', function () { setHidden(true); });
   // the paw: on a phone straight to his menu (that is why it was tapped), elsewhere a hello
+  // ---------- příchod pacičky do lišty ----------
+  // Kevin naskočí až po načtení stránky, tak z toho děláme efekt: kroužek se nabije, puf, jiskry a pacička.
+  // Celé jen na první stránce návštěvy, na dalších krátké „hop“. Dokud na ni člověk nikdy neklikl,
+  // jednou za čas se pacička zavrtí a zazáří, ať je vidět, že se za ní něco skrývá.
+  var pawUsed = store.get('kevinPawUsed') === '1', nudgeTimer = 0;
+  function introPaw() {
+    if (paw.hidden) return;
+    var first = !session.get('kevinPawIntro');
+    session.set('kevinPawIntro', '1');
+    paw.classList.add(first ? 'paw-arrive' : 'paw-quick');
+    setTimeout(function () { paw.classList.remove('paw-arrive', 'paw-quick'); }, first ? 3600 : 900);
+    if (!pawUsed && !nudgeTimer) nudgeTimer = setInterval(function () {
+      if (document.hidden || paw.hidden || !root.hidden) return;
+      paw.classList.remove('paw-nudge');
+      void paw.offsetWidth;   // znovu spustit animaci
+      paw.classList.add('paw-nudge');
+    }, 24000);
+  }
   paw.addEventListener('click', function () {
+    if (!pawUsed) { pawUsed = true; store.set('kevinPawUsed', '1'); clearInterval(nudgeTimer); paw.classList.remove('paw-nudge'); }
     if (walking) endWalk();   // only one Kevin at a time
     if (!root.hidden) { endRap(); hideBubble('idle'); place(false); return; }   // a second tap: back in
     var said = pending;
