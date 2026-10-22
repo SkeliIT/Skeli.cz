@@ -68,8 +68,28 @@ public class LyricRouterServlet extends HttpServlet {
             // the heart next to Share: filled when this visitor already likes the song
             Object likeUser = req.getSession(false) != null ? req.getSession(false).getAttribute("userId") : null;
             req.setAttribute("liked", likeUser instanceof Integer u && new com.github.skeliit.dao.LyricDao().likedBy(v.songId, u));
+            setHelp(req, v.songId);
             req.getRequestDispatcher("/WEB-INF/views/lyric.jsp").forward(req, resp);
         } catch (Exception e) { throw new ServletException(e); }
+    }
+
+    /**
+     * „Pomoz nám dopsat text“: když píseň žádá o chybějící kus (nastaví admin, V92), dostane stránka helpSong (id),
+     * helpLang (název jazyka v jazyce stránky, např. „španělština“) a helpFrom / helpTime (vteřina klipu, kde ten kus
+     * začíná, a „2:15“; nebo nic).
+     */
+    static void setHelp(HttpServletRequest req, int songId) throws java.sql.SQLException {
+        String[] w = new com.github.skeliit.dao.LyricHelpDao().wanted(songId);
+        if (w == null) return;
+        java.util.Locale page = java.util.Locale.forLanguageTag(com.github.skeliit.I18n.current(req));
+        String name = w[0] == null || w[0].isBlank() ? "" : java.util.Locale.forLanguageTag(w[0]).getDisplayLanguage(page);
+        req.setAttribute("helpSong", songId);
+        req.setAttribute("helpLang", name);
+        int from = Integer.parseInt(w[1]);
+        if (from >= 0) {
+            req.setAttribute("helpFrom", from);
+            req.setAttribute("helpTime", from / 60 + ":" + String.format("%02d", from % 60));
+        }
     }
 
     /**

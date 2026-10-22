@@ -63,7 +63,7 @@ public class LoginServlet extends HttpServlet {
                         String next = safeNext(req.getParameter("next"));
                         finish(req, resp, rs.getInt("id"), rs.getString("username"), rs.getString("role"),
                                 rs.getString("avatar_url"), rs.getTimestamp("email_verified_at") != null,
-                                "1".equals(req.getParameter("remember")), next != null ? next : "index.jsp");
+                                "1".equals(req.getParameter("remember")), next != null ? next : "/index.jsp");
                         return;
                     }
                 }

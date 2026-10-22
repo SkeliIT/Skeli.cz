@@ -35,6 +35,7 @@ public class AdminDao {
                 + "(SELECT COUNT(*) FROM videos WHERE song_id IS NULL AND no_song_ok_at IS NULL) AS clipsWithoutSong, "
                 + "(SELECT COUNT(*) FROM songs s WHERE s.no_lyrics_ok_at IS NULL AND NOT EXISTS (SELECT 1 FROM lyrics l WHERE l.song_id = s.id)) AS songsWithoutLyrics, "
                 + "(SELECT COUNT(*) FROM site_reports) AS siteReports, "
+                + "(SELECT COUNT(*) FROM lyric_help) AS lyricHelp, "
                 // messages about the site from the last week that the admin hasn't picked as a reference
                 + "(SELECT COUNT(*) FROM site_feedback WHERE message IS NOT NULL AND message <> '' AND hearted_at IS NULL "
                 + "   AND COALESCE(updated_at, created_at) > NOW() - INTERVAL 7 DAY) AS newFeedback";

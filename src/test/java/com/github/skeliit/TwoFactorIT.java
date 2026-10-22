@@ -67,6 +67,9 @@ class TwoFactorIT extends UiTestSupport {
         login(name, PASSWORD);
         loginCode(Totp.code(key, step + 1));
         assertFalse(driver.findElements(By.cssSelector("form.logout-form")).isEmpty(), "signed in with the app's code");
+        // po kódu na úvodní stránku webu, ne na neexistující /login/index.jsp (404)
+        assertTrue(driver.getCurrentUrl().endsWith("/index.jsp"), "po přihlášení na úvod: " + driver.getCurrentUrl());
+        assertTrue(driver.findElements(By.cssSelector(".error-page")).isEmpty(), "žádná chybová stránka");
 
         // off again, with another backup code
         driver.get(BASE_URL + "/uzivatel.jsp#zabezpeceni");

@@ -530,7 +530,7 @@ body.light .photo-band::before {
 
 /* Out of the paw: he drops in under the header bar on the right (under his paw), the bubble on his
    left, his buttons under him – like an opened menu, never left standing over the page */
-.kevin.from-header { left: auto; right: 12px; bottom: auto; top: calc(var(--header-h) + 4px); }
+.kevin.from-header { left: auto; right: 12px; bottom: auto; top: var(--kevin-top, calc(var(--header-h) + 4px)); }
 .kevin.from-header.kevin-in { animation-name: kevin-drop; }
 @keyframes kevin-drop { from { opacity: 0; transform: translateY(-24px) scale(.85); } }
 .kevin.from-header .kevin-bubble {
@@ -1116,3 +1116,79 @@ button.is-sending { cursor: progress; opacity: 0.85; }
 @keyframes kevin-box-in { from { transform: translateY(40px) scale(.9); opacity: 0; } }
 @keyframes kevin-box-out { to { transform: translateY(30px) scale(.95); opacity: 0; } }
 @media (max-width: 1024px), (prefers-reduced-motion: reduce) { .kevin-box { display: none !important; } }
+
+/* ---------- Kevin's bubble like in a comic: cream paper, a hand-drawn ink outline, a curved tail ----------
+   (the same in both themes – a comic bubble is paper; the colours inside are switched to ink on paper).
+   The uneven corners make the outline look drawn by hand; the tail is an SVG in the bubble (js/kevin.js). */
+.kevin-bubble {
+  --ink: #15110a;
+  --paper: #fbf6e9;
+  --text: var(--ink);
+  --text-dim: #5d533f;
+  --field: rgba(21, 17, 10, 0.06);
+  --panel-border: rgba(21, 17, 10, 0.24);
+  --accent: #8a5d00;
+  --accent-ink: #fffaf0;
+  --accent-soft: rgba(138, 93, 0, 0.18);
+  color: var(--ink);
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 255px 22px 225px 22px / 22px 225px 22px 255px;
+  padding: 16px 20px;
+  box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.38);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.kevin.from-header .kevin-bubble { border-radius: 225px 22px 255px 22px / 22px 255px 22px 225px; }
+.kevin-bubble::before, .kevin-bubble::after,
+.kevin.from-header .kevin-bubble::after { content: none; }
+/* the tail: a paper shape with ink on its two long sides; it covers the outline where it leaves the bubble */
+.kevin-tail { position: absolute; overflow: visible; pointer-events: none; }
+.kevin-tail .fill { fill: var(--paper); }
+.kevin-tail .ink { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.kevin-tail.down { left: 28px; top: 100%; width: 44px; height: 34px; }
+.kevin-tail.side { display: none; left: 100%; top: 12px; width: 36px; height: 34px; }
+/* out of the paw the bubble is on his left: the tail comes out of its right side to him */
+.kevin.from-header .kevin-tail.down { display: none; }
+.kevin.from-header .kevin-tail.side { display: block; }
+/* peeking from the right edge: the tail on the right, mirrored */
+.kevin.peek-right .kevin-tail.down,
+.kevin.peek-stack.peek-right .kevin-tail.down { left: auto; right: 28px; transform: scaleX(-1); }
+.kevin-bubble .kevin-chip { border-width: 1.5px; }
+
+/* ---------- what he does on his own (js/kevin.js LIFE): a small comic caption by his head ---------- */
+.kevin-emote {
+  position: absolute;
+  left: 64%;
+  top: 2%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  max-width: min(230px, calc(100vw - 150px));
+  padding: 5px 12px 5px 8px;
+  border: 2px solid #15110a;
+  border-radius: 16px;
+  background: #fbf6e9;
+  color: #15110a;
+  font-family: var(--font-text);
+  font-size: var(--fs-small);
+  line-height: 1.3;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.32);
+  pointer-events: none;
+}
+.kevin-emote[hidden] { display: none; }
+.kevin-emote-icon { font-size: 1.15em; line-height: 1; }
+.kevin.from-header .kevin-emote { left: auto; right: 66%; }
+.kevin-emote.on { animation: kevin-emote 3.2s ease both; }
+@keyframes kevin-emote {
+  0% { opacity: 0; transform: translateY(6px) scale(.85); }
+  10%, 80% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+@media (max-width: 600px) {
+  .kevin-emote { max-width: calc(100vw - 120px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kevin-emote.on { animation: none; }
+}

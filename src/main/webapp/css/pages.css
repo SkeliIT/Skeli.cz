@@ -462,7 +462,7 @@ body.light .lyric-page .lyric-nav a:hover { border-color: rgba(0, 0, 0, 0.22); b
 .lyric-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "head" "stage" "main" "pager" "comments";
+  grid-template-areas: "head" "stage" "main" "help" "pager" "comments";
   gap: 22px;
   align-items: start;
 }
@@ -474,11 +474,26 @@ body.light .lyric-page .lyric-nav a:hover { border-color: rgba(0, 0, 0, 0.22); b
   align-items: center;
   gap: 14px 8px;
 }
-.lyric-title { margin: 0; }
+.lyric-title { margin: 0; overflow-wrap: anywhere; }   /* jedno dlouhé slovo (Marihuanaalamadama) nesmí na telefonu utéct z obrazovky */
 /* under the clip: lyrics, pager and comments in one centred column */
 .lyric-main, .lyric-pager, .lyric-comments { width: 100%; max-width: 880px; justify-self: center; }
 
 .lyric-comments { grid-area: comments; }
+
+/* „Pomoz nám dopsat text“ (píseň, které chybí kus): zlatá karta pod textem */
+.lyric-help { grid-area: help; width: 100%; max-width: 880px; justify-self: center; }
+.lyric-help h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: var(--fs-h3); color: var(--accent); }
+.lyric-help p { margin: 0 0 10px; }
+.lyric-help > p:not(.lyric-help-meta), .lyric-help-form textarea { font-family: var(--font-text); font-size: var(--fs-text); font-weight: 300; line-height: 1.5; }
+.lyric-help-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--text-dim); font-size: var(--fs-small); }
+.lyric-help-meta b { color: var(--text); font-weight: 400; }
+.lyric-help-play { margin: 2px 0 14px; }
+.lyric-help-form textarea { width: 100%; min-height: 150px; resize: vertical; box-sizing: border-box; }
+.lyric-help-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 10px; }
+.lyric-help-msg { margin: 0; color: #ff8a8c; }
+.lyric-help-msg.ok { color: #4fdc8c; }
+body.light .lyric-help-msg { color: #b3261e; }
+body.light .lyric-help-msg.ok { color: #1e7a45; }
 
 .lyric-page .content-box { padding: 26px; }
 .lyric-page .video-box { padding: 8px; }
@@ -641,7 +656,7 @@ body.light .lyric-page .action-btn { background: rgba(0, 0, 0, 0.02); }
 
 @media (max-width: 960px) {
   .lyric-grid {
-    grid-template-areas: "head" "stage" "main" "pager" "comments";
+    grid-template-areas: "head" "stage" "main" "help" "pager" "comments";
   }
 }
 

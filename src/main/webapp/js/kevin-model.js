@@ -9,7 +9,7 @@ import { RoomEnvironment } from './vendor/three/RoomEnvironment.js';
 import { MeshoptDecoder } from './vendor/three/meshopt_decoder.module.js';
 
 // poses he stays in (looping clips)
-const POSES = { idle: 'idle', rap: 'rap', beatbox: 'silly', cool: 'bored', point: 'idle', sleep: 'lie', sulk: 'bored' };
+const POSES = { idle: 'idle', rap: 'rap', beatbox: 'silly', cool: 'bored', point: 'idle', sleep: 'bored', sulk: 'bored' };
 // one-shot acts for "Do something" (keys of KEVIN_LINES.surprise) → clips; null = done in code here
 // (each surprise in kevin-lines.js is one of his real moves; beatbox and the rhyme dance with a beat)
 const ACTS = {
@@ -20,7 +20,7 @@ const ACTS = {
   hide: null, freeze: null, leave: 'walk'
 };
 // surprises whose words need something this model hasn't got, or whose move doesn't fit his picture
-const CANNOT = new Set(['shades', 'tail', 'lick']);
+const CANNOT = new Set(['shades', 'tail', 'lick', 'lie']);   // lie: his tail sticks up into the air
 // looping clips played as an act run this long (dances longer: they are the fun), then he goes back
 const LOOP_ACT_S = 4.5, DANCE_S = 7.5;
 const DANCES = new Set(['dance', 'dance2', 'dance3', 'robot', 'silly', 'breakdance', 'flair', 'sing', 'rap']);

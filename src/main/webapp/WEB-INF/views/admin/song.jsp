@@ -17,6 +17,8 @@
         <c:when test="${param.msg == 'video_linked'}">YouTube video napojeno.</c:when>
         <c:when test="${param.msg == 'video_unlinked'}">YouTube video odpojeno.</c:when>
         <c:when test="${param.msg == 'video_deleted'}">Klip je smazaný z celého webu a synchronizace z YouTube ho už nevrátí.</c:when>
+        <c:when test="${param.msg == 'help_saved'}">Výzva k pomoci s textem uložena.</c:when>
+        <c:when test="${param.msg == 'help_deleted'}">Text od návštěvníka smazán.</c:when>
         <c:when test="${param.msg == 'confirm_delete'}">Pro smazání písně zaškrtni potvrzení.</c:when>
         <c:when test="${param.msg == 'has_lyrics'}">Píseň má text – nejdřív ho smaž v editoru textů (Smazat text), pak půjde smazat i píseň.</c:when>
         <c:when test="${param.msg == 'preview_saved'}">Náhledový obrázek uložen.</c:when>
@@ -241,6 +243,45 @@
           </form>
         </c:otherwise>
       </c:choose>
+    </section>
+
+    <!-- „Hledáme pomoc s textem“: karta pod textem žádá návštěvníky o chybějící kus (MC Kevin na ni upozorní) -->
+    <section class="admin-card admin-card-wide" id="lyric-help">
+      <h3>Hledáme pomoc s textem</h3>
+      <p class="text-dim">Když v textu chybí kus (třeba cizí jazyk hostů), zapni to: pod textem písně se objeví karta, kam
+        to návštěvníci můžou napsat, a Kevin je na ni upozorní. Co pošlou, uvidíš jen tady – na web nic nejde samo.</p>
+      <form method="post" action="/admin/song" class="admin-form help-form">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="id" value="${song.id}">
+        <input type="hidden" name="action" value="save_help">
+        <label class="admin-check"><input type="checkbox" name="help_on" value="on" ${helpOn ? 'checked' : ''}> Zobrazit výzvu u písně</label>
+        <label>Jazyk chybějící části
+          <select name="help_lang">
+            <c:forEach var="hl" items="${['es','en','de','fr','it','pt','pl','sk','uk','ru','vi']}">
+              <option value="${hl}" ${hl == helpLangCode ? 'selected' : ''}>${hl}</option>
+            </c:forEach>
+          </select>
+        </label>
+        <label>V klipu od (min:s)
+          <input name="help_from" value="<c:out value='${helpFromText}'/>" placeholder="např. 2:15" inputmode="numeric">
+        </label>
+        <button type="submit">Uložit</button>
+      </form>
+      <h4>Co návštěvníci poslali (${helpSent.size()})</h4>
+      <c:if test="${empty helpSent}"><p class="text-dim">Zatím nic.</p></c:if>
+      <c:forEach var="h" items="${helpSent}">
+        <article class="help-sent">
+          <p class="help-sent-meta"><c:out value="${empty h.username ? 'Nepřihlášený návštěvník' : h.username}"/> · ${h.when}</p>
+          <pre class="help-sent-text"><c:out value="${h.message}"/></pre>
+          <form method="post" action="/admin/song" class="inline-form" onsubmit="return confirm('Smazat tenhle text? (Až ho máš přepsaný do písně.)');">
+            <input type="hidden" name="csrf" value="${csrf}">
+            <input type="hidden" name="id" value="${song.id}">
+            <input type="hidden" name="action" value="delete_help">
+            <input type="hidden" name="help_id" value="${h.id}">
+            <button type="submit" class="btn-delete"><i class="fa-solid fa-trash" aria-hidden="true"></i> Hotovo, smazat</button>
+          </form>
+        </article>
+      </c:forEach>
     </section>
 
     <!-- Streaming IDs -->

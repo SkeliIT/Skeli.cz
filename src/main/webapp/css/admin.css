@@ -611,3 +611,9 @@ body.light .play-day, body.light .play-top li { --heat: oklch(calc(.5 + var(--v,
 
 /* the lyrics editor: one language of the text off the site, set apart under Save */
 .lyrics-delete { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--panel-border); }
+
+/* karta „Hledáme pomoc s textem“ u písně: co návštěvníci napsali, každý text s vlastním Smazat */
+.help-form { display: grid; gap: 10px; max-width: 420px; }
+.help-sent { margin-top: 10px; padding: 12px 14px; border-radius: 12px; background: var(--field); }
+.help-sent-meta { margin: 0 0 6px; color: var(--text-dim); font-size: var(--fs-small); }
+.help-sent-text { margin: 0 0 10px; white-space: pre-wrap; font-family: var(--font-text); font-size: var(--fs-text); }

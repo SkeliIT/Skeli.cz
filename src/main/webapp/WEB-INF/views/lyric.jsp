@@ -125,7 +125,8 @@
             btn.addEventListener('click', function(){
               var iframe = document.createElement('iframe');
               // enablejsapi lets the player tell the effect around it where the song is
-              iframe.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0&enablejsapi=1&origin=' + encodeURIComponent(location.origin);
+              iframe.src = 'https://www.youtube-nocookie.com/embed/' + box.getAttribute('data-yt') + '?autoplay=1&rel=0&enablejsapi=1&origin=' + encodeURIComponent(location.origin)
+                + (box.dataset.start ? '&start=' + parseInt(box.dataset.start, 10) : '');   // „Pustit od 2:15“ (karta s výzvou)
               iframe.setAttribute('frameborder', '0');
               iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
               iframe.setAttribute('allowfullscreen', '');
@@ -212,6 +213,78 @@
       </article>
       </section>
       <c:if test="${not empty lyric.youtubeId}"><script src="/js/clip-fx.js?v=<%= assetVersion %>"></script><script src="/js/yt-clock.js?v=<%= assetVersion %>"></script><script src="/js/karaoke.js?v=<%= assetVersion %>"></script></c:if>
+
+      <%-- v textu chybí kus (admin → píseň → „Hledáme pomoc s textem“): návštěvník, který tomu rozumí, ho napíše;
+           čeká to v adminu, na web nic nejde samo. MC Kevin na kartu jednou upozorní. --%>
+      <c:if test="${not empty helpSong}">
+        <section class="lyric-help content-box card-gold" id="lyric-help" data-song="${helpSong}" data-lang="<c:out value='${helpLang}'/>">
+          <h2><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> <%= t.getProperty("help.title") %></h2>
+          <p><%= t.getProperty("help.text") %></p>
+          <p class="lyric-help-meta">
+            <c:if test="${not empty helpLang}"><span><%= t.getProperty("help.lang") %>: <b><c:out value="${helpLang}"/></b></span></c:if>
+            <c:if test="${not empty helpTime}"><span><%= t.getProperty("help.from") %> <b><c:out value="${helpTime}"/></b></span></c:if>
+          </p>
+          <c:if test="${not empty helpFrom and not empty lyric.youtubeId}">
+            <button type="button" class="link-btn lyric-help-play" data-from="${helpFrom}"><i class="fa-solid fa-play" aria-hidden="true"></i>
+              <%= t.getProperty("help.play").replace("{time}", String.valueOf(request.getAttribute("helpTime"))) %></button>
+          </c:if>
+          <form class="lyric-help-form" method="post" action="/api/lyric-help"
+                data-thanks="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("help.thanks")) %>"
+                data-empty="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("help.empty")) %>"
+                data-fail="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("help.fail")) %>"
+                data-limit="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("help.limit")) %>">
+            <input type="hidden" name="csrf" value="${csrf}">
+            <input type="hidden" name="song" value="${helpSong}">
+            <div class="hp-field" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+            <textarea name="message" rows="7" maxlength="5000" aria-label="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("help.title")) %>"
+                      placeholder="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("help.placeholder")) %>"></textarea>
+            <div class="lyric-help-actions">
+              <button type="submit" class="btn-primary"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> <%= t.getProperty("help.send") %></button>
+              <p class="lyric-help-msg" role="status" hidden></p>
+            </div>
+          </form>
+          <script>
+          (function () {
+            var card = document.getElementById('lyric-help');
+            if (!card) return;
+            // pustit od místa, kde chybějící kus začíná: náhled spustí klip rovnou tam, běžící klip tam skočí
+            var play = card.querySelector('.lyric-help-play');
+            if (play) play.addEventListener('click', function () {
+              var from = parseInt(play.dataset.from, 10) || 0, box = document.getElementById('ytFacade');
+              if (!box) return;
+              var frame = box.querySelector('iframe'), facade = box.querySelector('.yt-facade');
+              if (frame) {
+                ['seekTo', 'playVideo'].forEach(function (fn) {
+                  frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: fn, args: fn === 'seekTo' ? [from, true] : [] }), '*');
+                });
+              } else if (facade) {
+                box.dataset.start = String(from);
+                facade.click();
+              }
+              box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+            var form = card.querySelector('.lyric-help-form'), msg = card.querySelector('.lyric-help-msg');
+            function note(text, ok) { msg.textContent = text; msg.hidden = false; msg.classList.toggle('ok', !!ok); }
+            form.addEventListener('submit', function (e) {
+              e.preventDefault();
+              var text = form.message.value.trim(), btn = form.querySelector('button[type=submit]');
+              if (text.length < 3) { note(form.dataset.empty); form.message.focus(); return; }
+              btn.disabled = true;
+              fetch(form.action, { method: 'POST', body: new URLSearchParams(new FormData(form)), credentials: 'same-origin' })
+                .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return [r.status, j]; }); })
+                .then(function (res) {
+                  if (res[1].ok) {
+                    form.message.value = '';
+                    note(form.dataset.thanks, true);
+                  } else note(res[0] === 429 ? form.dataset.limit : res[1].error === 'empty' ? form.dataset.empty : form.dataset.fail);
+                })
+                .catch(function () { note(form.dataset.fail); })
+                .then(function () { btn.disabled = false; });
+            });
+          })();
+          </script>
+        </section>
+      </c:if>
 
       <%-- the songs around this one in the newest-first list (also the ← → keys) --%>
       <c:if test="${not empty prevSong or not empty nextSong}">

@@ -32,6 +32,7 @@ public class AdminSongDetailServlet extends HttpServlet {
     private static final String[] LANGS = { "cs", "en", "de", "uk", "vi" };
 
     private final SongDao songs = new SongDao();
+    private final com.github.skeliit.dao.LyricHelpDao help = new com.github.skeliit.dao.LyricHelpDao();
     private final LyricDao lyrics = new LyricDao();
     private final TranslationService translator = new TranslationService();
 
@@ -58,6 +59,13 @@ public class AdminSongDetailServlet extends HttpServlet {
             req.setAttribute("videos", videos);
             // the delete box at the end: a song can go only once its lyrics are gone
             req.setAttribute("lyricLangs", songs.lyricLanguages(song.id));
+            // „Hledáme pomoc s textem“: je zapnutá, v jakém jazyce, od kdy; a co návštěvníci poslali
+            String[] helpWanted = help.wanted(song.id);
+            req.setAttribute("helpOn", helpWanted != null);
+            req.setAttribute("helpLangCode", helpWanted != null ? helpWanted[0] : "es");
+            req.setAttribute("helpFromText", helpWanted != null && !"-1".equals(helpWanted[1])
+                    ? Integer.parseInt(helpWanted[1]) / 60 + ":" + String.format("%02d", Integer.parseInt(helpWanted[1]) % 60) : "");
+            req.setAttribute("helpSent", help.sent(song.id));
             // the picture in the song's Texty row: its newest clip, else its preview photo
             String rowArt = !videos.isEmpty() && videos.get(0).youtubeId != null
                     ? "/yt-thumb/" + videos.get(0).youtubeId + "/hqdefault.jpg"
@@ -139,6 +147,19 @@ public class AdminSongDetailServlet extends HttpServlet {
                     String yt = normalizeYoutubeId(req.getParameter("youtube_id"));
                     if (yt != null) songs.unlinkVideo(yt, id);
                     resp.sendRedirect(hub + "&msg=video_unlinked");
+                }
+                case "save_help" -> {
+                    // karta pod textem, která žádá návštěvníky o chybějící kus (kód jazyka, od min:s)
+                    String lang = String.valueOf(req.getParameter("help_lang")).trim().toLowerCase();
+                    if (!lang.matches("[a-z]{2,3}")) lang = null;
+                    help.setWanted(id, "on".equals(req.getParameter("help_on")), lang, minutesSeconds(req.getParameter("help_from")));
+                    resp.sendRedirect(hub + "&msg=help_saved#lyric-help");
+                }
+                case "delete_help" -> {
+                    // text od návštěvníka je přečtený a hotový: smaže se z databáze
+                    int hid = parseId(req.getParameter("help_id"));
+                    if (hid > 0) help.delete(hid);
+                    resp.sendRedirect(hub + "&msg=help_deleted#lyric-help");
                 }
                 case "delete_video" -> {
                     // off the whole site, and the YouTube sync won't bring it back
@@ -342,5 +363,14 @@ public class AdminSongDetailServlet extends HttpServlet {
         if (slug.isEmpty() || slug.length() > 120) return "";
         if (slug.matches("(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")) return "";
         return slug;
+    }
+
+    /** „2:15“ nebo „135“ → 135 vteřin; cokoli jiného → null. */
+    static Integer minutesSeconds(String v) {
+        if (v == null) return null;
+        v = v.trim();
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d{1,3}):([0-5]\\d)").matcher(v);
+        if (m.matches()) return Integer.parseInt(m.group(1)) * 60 + Integer.parseInt(m.group(2));
+        return v.matches("\\d{1,5}") ? Integer.valueOf(v) : null;
     }
 }

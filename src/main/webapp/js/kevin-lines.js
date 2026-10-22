@@ -291,6 +291,24 @@ window.KEVIN_LINES = {
       fail: "Teď se mi to nepovedlo odeslat. Zkus to za chvíli.",
       limit: "Toho už je na teď dost, zkus to zase za hodinu."
     },
+    // „Pomoz nám dopsat text“ na stránce písně, která o to žádá (řekne to jednou u písně, odkaz sjede ke kartě)
+    help: {
+      say: ["Kus textu nám tu chybí (jazyk: {lang}). Rozumíš mu? Dole je na to políčko.", "Tady někdo rapuje a nikdo neví co. Jazyk: {lang}. Jestli mu rozumíš, zachraň nás."],
+      link: "Ukaž mi to"
+    },
+    // what he does on his own once his menu is gone (js/kevin.js LIFE): one short line by his head
+    life: {
+      stretch: ["Protáhnout. Kočičí jóga.","Hřbet do oblouku. Profík."],
+      knead: ["Hnětu. Nevím proč. Musím.","Dělám těsto. Z ničeho."],
+      look: ["Něco tam šustlo…","Viděl jsi to taky? Ne? Tak nic."],
+      fly: ["Moucha! …Utekla.","Skoro jsem ji měl. Skoro."],
+      neck: ["Křup. Hned lepší.","Krk po celodenním sledování ptáků."],
+      startle: ["Co to bylo?! …Aha, můj ocas.","Lekl jsem se vlastního stínu. Zase."],
+      shrug: ["Mám hlad? Mám hlad.","Nevím, co tu dělám. Ale dělám to dobře."],
+      dance: ["Nikdo se nedívá? Tak jo.","Tenhle krok mě naučil Skeli. Lže."],
+      nap: ["Jen na vteřinku zavřu oči…","Šlofík. Dvacetiminutovej. Na tři hodiny."],
+      bored: ["Nuda. Hoď mi klubíčko.","Shodil bych něco ze stolu, ale nemám stůl."]
+    },
     find: {
       prompt: [
         "Co hledáš? Název, kus textu, cokoliv. Jen po mně nechtěj, ať to zazpívám.",
@@ -693,6 +711,22 @@ window.KEVIN_LINES = {
       fail: "I couldn't send it right now. Try again in a moment.",
       limit: "That's enough for now, try again in an hour."
     },
+    help: {
+      say: ["Part of these lyrics is missing. Know {lang}? There's a box for it down below.", "Someone raps here and nobody knows what. If you know {lang}, save us."],
+      link: "Show me"
+    },
+    life: {
+      stretch: ["Stretch. Cat yoga.","Back in an arch. A pro."],
+      knead: ["Kneading. Don't know why. Have to.","Making dough. Out of nothing."],
+      look: ["Something rustled over there…","Did you see that too? No? Never mind."],
+      fly: ["A fly! …Gone.","Almost had it. Almost."],
+      neck: ["Crack. Much better.","Neck after a whole day of watching birds."],
+      startle: ["What was that?! …Oh, my tail.","Scared of my own shadow. Again."],
+      shrug: ["Am I hungry? I am hungry.","No idea what I'm doing here. But I'm doing it well."],
+      dance: ["Nobody's watching? Right then.","Skeli taught me this move. He lies."],
+      nap: ["I'll just close my eyes for a second…","A twenty-minute nap. For three hours."],
+      bored: ["Boring. Throw me a ball of yarn.","I'd knock something off the table, but I haven't got a table."]
+    },
     find: {
       prompt: [
         "What are you looking for? A title, a bit of the lyrics, anything. Just don't ask me to sing it.",
@@ -1093,6 +1127,22 @@ window.KEVIN_LINES = {
       empty: "Schreib ein paar Worte, damit ich weiß, wonach ich suchen soll.",
       fail: "Konnte es gerade nicht senden. Versuch's gleich nochmal.",
       limit: "Für jetzt reicht's, versuch's in einer Stunde wieder."
+    },
+    help: {
+      say: ["Hier fehlt ein Stück Text. Kannst du {lang}? Unten gibt es ein Feld dafür.", "Hier rappt jemand und keiner weiß, was. Wenn du {lang} kannst, rette uns."],
+      link: "Zeig's mir"
+    },
+    life: {
+      stretch: ["Strecken. Katzen-Yoga.","Rücken im Bogen. Ein Profi."],
+      knead: ["Ich knete. Weiß nicht, warum. Muss.","Ich mache Teig. Aus nichts."],
+      look: ["Da hat was geraschelt…","Hast du das auch gesehen? Nein? Egal."],
+      fly: ["Eine Fliege! …Weg.","Fast hätte ich sie gehabt. Fast."],
+      neck: ["Knack. Gleich besser.","Der Nacken nach einem Tag Vögel beobachten."],
+      startle: ["Was war das?! …Ach, mein Schwanz.","Vor dem eigenen Schatten erschrocken. Schon wieder."],
+      shrug: ["Hab ich Hunger? Ich hab Hunger.","Keine Ahnung, was ich hier mache. Aber ich mache es gut."],
+      dance: ["Schaut keiner? Na gut.","Den Schritt hat mir Skeli beigebracht. Er lügt."],
+      nap: ["Ich mach nur kurz die Augen zu…","Ein Zwanzig-Minuten-Nickerchen. Für drei Stunden."],
+      bored: ["Langweilig. Wirf mir ein Wollknäuel.","Ich würde was vom Tisch werfen, aber ich hab keinen Tisch."]
     },
     find: {
       prompt: [
@@ -1495,6 +1545,22 @@ window.KEVIN_LINES = {
       fail: "Зараз не вдалося надіслати. Спробуй трохи пізніше.",
       limit: "На зараз досить, спробуй знову за годину."
     },
+    help: {
+      say: ["Тут бракує шматка тексту (мова: {lang}). Розумієш? Внизу є для цього поле.", "Тут хтось читає реп, і ніхто не знає що. Мова: {lang}. Якщо розумієш, рятуй."],
+      link: "Покажи"
+    },
+    life: {
+      stretch: ["Потягнутися. Котяча йога.","Спина дугою. Профі."],
+      knead: ["Мну лапками. Не знаю навіщо. Мушу.","Мішу тісто. З нічого."],
+      look: ["Там щось зашаруділо…","Ти теж бачив? Ні? Ну й гаразд."],
+      fly: ["Муха! …Втекла.","Майже впіймав. Майже."],
+      neck: ["Хрусь. Одразу краще.","Шия після цілого дня спостереження за птахами."],
+      startle: ["Що це було?! …А, мій хвіст.","Злякався власної тіні. Знову."],
+      shrug: ["Я голодний? Я голодний.","Не знаю, що я тут роблю. Але роблю це добре."],
+      dance: ["Ніхто не дивиться? Ну гаразд.","Цього кроку мене навчив Skeli. Бреше."],
+      nap: ["Лише на секундочку заплющу очі…","Двадцятихвилинний сон. На три години."],
+      bored: ["Нудно. Кинь мені клубочок.","Я б щось скинув зі столу, але в мене немає столу."]
+    },
     find: {
       prompt: [
         "Що шукаєш? Назву, шматок тексту, будь-що. Тільки не проси заспівати.",
@@ -1895,6 +1961,22 @@ window.KEVIN_LINES = {
       empty: "Viết vài chữ để tôi biết cần tìm gì.",
       fail: "Giờ chưa gửi được. Thử lại sau chút nhé.",
       limit: "Thế là đủ rồi, thử lại sau một giờ nhé."
+    },
+    help: {
+      say: ["Bài này thiếu một đoạn lời. Bạn biết {lang} không? Bên dưới có ô để viết.", "Có người rap ở đây mà chẳng ai biết họ nói gì. Nếu bạn biết {lang}, cứu chúng tôi với."],
+      link: "Chỉ cho tôi"
+    },
+    life: {
+      stretch: ["Vươn vai. Yoga của mèo.","Cong lưng. Chuyên nghiệp."],
+      knead: ["Đang nhào. Không biết tại sao. Phải làm.","Đang nhào bột. Từ không khí."],
+      look: ["Có gì đó sột soạt đằng kia…","Bạn cũng thấy à? Không? Thôi kệ."],
+      fly: ["Con ruồi! …Bay mất rồi.","Suýt bắt được. Suýt thôi."],
+      neck: ["Rắc. Đỡ hẳn.","Cái cổ sau cả ngày ngắm chim."],
+      startle: ["Cái gì thế?! …À, đuôi của tôi.","Lại giật mình vì cái bóng của mình."],
+      shrug: ["Tôi đói à? Tôi đói.","Không biết tôi làm gì ở đây. Nhưng tôi làm giỏi."],
+      dance: ["Không ai nhìn à? Được thôi.","Bước này Skeli dạy tôi. Anh ấy nói dối."],
+      nap: ["Chỉ nhắm mắt một giây thôi…","Ngủ trưa hai mươi phút. Trong ba tiếng."],
+      bored: ["Chán quá. Ném cho tôi cuộn len.","Tôi sẽ hất gì đó khỏi bàn, nhưng tôi không có bàn."]
     },
     find: {
       prompt: [

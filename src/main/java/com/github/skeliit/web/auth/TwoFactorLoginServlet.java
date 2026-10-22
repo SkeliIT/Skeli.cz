@@ -88,7 +88,8 @@ public class TwoFactorLoginServlet extends HttpServlet {
         s.removeAttribute(PENDING);
         HttpSession session = LoginServlet.signIn(req, p.uid, p.username, p.role, p.avatar, p.emailVerified);
         if (p.remember) LoginServlet.rememberMe(req, resp, session);
-        resp.sendRedirect(p.target);
+        // vždy cesta od kořene webu („index.jsp“ by se z /login/2fa složilo na /login/index.jsp = 404)
+        resp.sendRedirect(p.target != null && p.target.startsWith("/") ? p.target : "/" + (p.target == null ? "index.jsp" : p.target));
     }
 
     /** The one on the way, if not too old. */
