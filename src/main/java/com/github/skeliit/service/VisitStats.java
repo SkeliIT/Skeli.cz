@@ -426,6 +426,7 @@ public final class VisitStats {
                     ps.executeUpdate();
                 }
             }
+            MarketingStats.reset(c);   // i odkud lidi chodí, kliky ven a hledání
         }
     }
 }

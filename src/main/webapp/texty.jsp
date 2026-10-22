@@ -143,7 +143,10 @@
           // Kevin says a word once the visitor stops typing for a moment
           clearTimeout(kevinTimer);
           kevinTimer = setTimeout(function () {
-            if (asked === q) window.dispatchEvent(new CustomEvent('kevin', { detail: { search: list.length ? 'found' : 'none' } }));
+            if (asked !== q) return;
+            window.dispatchEvent(new CustomEvent('kevin', { detail: { search: list.length ? 'found' : 'none' } }));
+            // do statistik (co lidi hledají), až když dopíše – ne každé písmeno
+            window.dispatchEvent(new CustomEvent('skeli:search', { detail: { q: q, found: list.length > 0 } }));
           }, 1500);
         });
     }, 220);
