@@ -976,8 +976,9 @@ button.is-sending { cursor: progress; opacity: 0.85; }
 
 /* ---------- Kevin peeks out from the side of the screen (js/kevin.js startPeek) ---------- */
 .kevin.peek { top: var(--peek-y, 40vh); bottom: auto; }
-.kevin.peek-right { left: auto; right: -46px; rotate: -18deg; animation: kevin-peek-in-right .75s cubic-bezier(.2, .9, .3, 1.15) both; }
-.kevin.peek-left { left: -46px; rotate: 18deg; animation: kevin-peek-in-left .75s cubic-bezier(.2, .9, .3, 1.15) both; }
+/* vykoukne zpoza okraje jako zpoza rohu: nakloněný kolem nohou, které zůstanou za okrajem (nevisí ve vzduchu) */
+.kevin.peek-right { left: auto; right: -128px; rotate: -34deg; transform-origin: 50% 100%; animation: kevin-peek-in-right .75s cubic-bezier(.2, .9, .3, 1.15) both; }
+.kevin.peek-left { left: -142px; rotate: 34deg; transform-origin: 50% 100%; animation: kevin-peek-in-left .75s cubic-bezier(.2, .9, .3, 1.15) both; }
 .kevin.peek-out.peek-right { animation: kevin-peek-out-right .5s ease-in both; }
 .kevin.peek-out.peek-left { animation: kevin-peek-out-left .5s ease-in both; }
 @keyframes kevin-peek-in-right { from { translate: 130% 0; } }
@@ -993,9 +994,9 @@ button.is-sending { cursor: progress; opacity: 0.85; }
 .kevin.peek-stack.peek-left .kevin-bubble::after { left: 30px; }
 .kevin.peek-stack.peek-right .kevin-bubble::after { left: auto; right: 30px; }
 /* the bubble beside him, kept upright, its tail pointing at him */
-.kevin.peek-right .kevin-bubble { left: auto; right: 72%; bottom: 58%; rotate: 18deg; border-radius: 18px 18px 6px 18px; }
+.kevin.peek-right .kevin-bubble { left: auto; right: 80%; bottom: 82%; rotate: 34deg; transform-origin: 100% 100%; border-radius: 18px 18px 6px 18px; }
 .kevin.peek-right .kevin-bubble::after { left: auto; right: 22px; }
-.kevin.peek-left .kevin-bubble { left: 66%; bottom: 58%; rotate: -18deg; }
+.kevin.peek-left .kevin-bubble { left: 80%; bottom: 82%; rotate: -34deg; transform-origin: 0 100%; }
 
 /* ---------- Third-party players behind a "load the player" card until consent (footer.jsp) ---------- */
 .consent-embed { position: relative; }

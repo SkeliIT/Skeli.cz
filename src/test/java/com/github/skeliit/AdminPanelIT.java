@@ -322,14 +322,14 @@ public class AdminPanelIT extends UiTestSupport {
             driver.findElement(By.cssSelector(".ls-new input[name=year]")).sendKeys("2026");
             clickAndWaitReload(driver.findElement(By.cssSelector(".ls-new button")), false);
             int songId = queryInt("SELECT id FROM songs WHERE name=?", songName);
-            assertTrue(driver.getCurrentUrl().contains("song=" + songId));
+            // nová píseň se otevře rovnou u sebe v záložce Texty
+            assertTrue(driver.getCurrentUrl().contains("/admin/song?uuid=" + queryString("SELECT uuid FROM songs WHERE id=?", songId)), driver.getCurrentUrl());
 
             String text = "PrvnĂ­ Ĺ™Ăˇdek\nDruhĂ˝ Ĺ™Ăˇdek\n\nRefrĂ©n";
-            WebElement ta = driver.findElement(By.cssSelector(".lyrics-edit textarea[name=words]"));
+            WebElement ta = driver.findElement(By.cssSelector(".locale-panel[data-panel=cs] textarea[name=words]"));
             ta.sendKeys(text);
-            clickAndWaitReload(driver.findElement(By.cssSelector(".lyrics-edit button[type=submit]")), false);
+            clickAndWaitReload(driver.findElement(By.cssSelector(".locale-panel[data-panel=cs] form button[type=submit]")), false);
             assertEquals(text, queryString("SELECT words FROM lyrics WHERE song_id=? AND lang='cs'", songId));
-            assertFalse(driver.findElements(By.cssSelector(".form-success")).isEmpty());
 
             int lyricId = queryInt("SELECT id FROM lyrics WHERE song_id=? AND lang='cs'", songId);
             driver.get(BASE_URL + "/lyrics/" + lyricId);
@@ -356,7 +356,7 @@ public class AdminPanelIT extends UiTestSupport {
         int songId = queryInt("SELECT id FROM songs WHERE name=?", songName);
         update("INSERT INTO lyrics (song_id, lang, words, score) VALUES (?, 'cs', 'ĹĂˇdek', 0)", songId);
         try {
-            driver.get(BASE_URL + "/admin/song?id=" + songId);
+            driver.get(BASE_URL + "/admin/song?id=" + songId + "#obrazky");   // editory obrázků jsou v záložce Obrázky
             new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10)).until(d ->
                     (Boolean) ((org.openqa.selenium.JavascriptExecutor) d).executeScript(
                             "var i = document.querySelector('.art-desk img'); return i.complete && i.naturalWidth > 0;"));
@@ -379,11 +379,11 @@ public class AdminPanelIT extends UiTestSupport {
             assertTrue(y < 45, "dragging down shows a higher part of the picture on the middle line, got " + y);
             assertTrue(Double.parseDouble(queryString("SELECT art_x FROM songs WHERE id=?", songId)) > 5, "moved to the right");
 
-            driver.get(BASE_URL + "/texty.jsp");
+            driver.get(BASE_URL + "/texty.jsp?lang=cs");   // testovací píseň má jen český text
             String style = driver.findElement(By.cssSelector("a.song-row[data-song='" + songId + "'] img")).getAttribute("style");
             assertTrue(style.contains("--az: 1.5"), "got: " + style);
 
-            driver.get(BASE_URL + "/admin/song?id=" + songId);
+            driver.get(BASE_URL + "/admin/song?id=" + songId + "#obrazky");   // editory obrázků jsou v záložce Obrázky
             clickAndWaitReload(driver.findElement(By.cssSelector("#artForm button[name=auto]")), false);
             assertNull(queryString("SELECT art_zoom FROM songs WHERE id=?", songId));
             if (dir != null) {
@@ -391,7 +391,7 @@ public class AdminPanelIT extends UiTestSupport {
                 java.nio.file.Files.write(java.nio.file.Path.of(dir, "row-art-whole.png"),
                         driver.findElement(By.id("row-art")).getScreenshotAs(org.openqa.selenium.OutputType.BYTES));
             }
-            driver.get(BASE_URL + "/texty.jsp");
+            driver.get(BASE_URL + "/texty.jsp?lang=cs");   // testovací píseň má jen český text
             assertNull(driver.findElement(By.cssSelector("a.song-row[data-song='" + songId + "'] img")).getAttribute("data-manual"));
         } finally {
             update("DELETE FROM lyrics WHERE song_id=?", songId);

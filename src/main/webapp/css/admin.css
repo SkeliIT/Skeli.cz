@@ -731,3 +731,31 @@ body.is-admin main.admin-page { padding-bottom: 60px; }
 /* zaškrtávátko vedle textu, ne roztažené přes celý řádek */
 .admin-form label.admin-check { display: flex; flex-direction: row; align-items: center; gap: 10px; }
 .admin-form label.admin-check input { width: auto; margin: 0; flex: none; }
+
+/* stránka písně: záložky Základ · Texty · Obrázky · Klipy (skleněná lišta, vybraná zlatá) */
+.song-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 16px; padding: 5px; width: max-content; max-width: 100%;
+  border-radius: 999px; border: 1px solid var(--panel-border); background: var(--panel); }
+.song-tabs button { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 18px; border: 0; border-radius: 999px;
+  background: transparent; color: var(--text-dim); font-family: var(--font-body); font-size: var(--fs-card); cursor: pointer; }
+.song-tabs button:hover { color: var(--text); }
+.song-tabs button.on { background: var(--accent); color: var(--accent-ink); }
+.song-tab-panel[hidden], .song-tab-extra[hidden] { display: none !important; }
+.lyrics-delete { margin-top: 10px; }
+@media (max-width: 600px) {
+  .song-tabs { width: 100%; border-radius: 18px; }
+  .song-tabs button { flex: 1 1 40%; justify-content: center; padding: 0 10px; }
+}
+
+/* Texty: přehled, co u písní chybí (zelená = všech 5 jazyků, zlatá = něco chybí, červená = bez textu) */
+.texts-overview { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 6px; }
+.texts-overview a { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 8px 12px;
+  border-radius: 10px; background: var(--field); color: var(--text); text-decoration: none; font-family: var(--font-text); font-size: var(--fs-text); font-weight: 300; }
+.texts-overview a:hover { background: var(--accent-soft); }
+.to-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.to-name small { color: var(--text-dim); }
+.to-state { flex: none; font-size: var(--fs-small); color: var(--text-dim); white-space: nowrap; }
+.texts-overview .done .to-state i { color: #4fdc8c; }
+.texts-overview .part .to-state { color: var(--accent); }
+.texts-overview .none .to-state { color: #ff8a8c; }
+body.light .texts-overview .done .to-state i { color: #1e7a45; }
+body.light .texts-overview .none .to-state { color: #b3261e; }

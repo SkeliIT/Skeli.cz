@@ -17,6 +17,7 @@
         <c:when test="${param.msg == 'video_linked'}">YouTube video napojeno.</c:when>
         <c:when test="${param.msg == 'video_unlinked'}">YouTube video odpojeno.</c:when>
         <c:when test="${param.msg == 'video_deleted'}">Klip je smazaný z celého webu a synchronizace z YouTube ho už nevrátí.</c:when>
+        <c:when test="${param.msg == 'text_deleted'}">Text smazaný. 30 dní ho najdeš v Koši (Systém → Záznam změn a koš).</c:when>
         <c:when test="${param.msg == 'help_saved'}">Výzva k pomoci s textem uložena.</c:when>
         <c:when test="${param.msg == 'help_deleted'}">Text od návštěvníka smazán.</c:when>
         <c:when test="${param.msg == 'confirm_delete'}">Pro smazání písně zaškrtni potvrzení.</c:when>
@@ -82,8 +83,15 @@
     </div>
   </header>
 
-  <div class="admin-grid song-hub-grid">
+  <%-- všechno o písni na jednom místě, rozdělené do záložek (přepínání: skript dole, adresa #texty apod.) --%>
+  <nav class="song-tabs" role="tablist" aria-label="Části písně">
+    <button type="button" role="tab" data-tab="zaklad"><i class="fa-solid fa-music" aria-hidden="true"></i> Základ</button>
+    <button type="button" role="tab" data-tab="texty"><i class="fa-solid fa-align-left" aria-hidden="true"></i> Texty</button>
+    <button type="button" role="tab" data-tab="obrazky"><i class="fa-regular fa-image" aria-hidden="true"></i> Obrázky</button>
+    <button type="button" role="tab" data-tab="klipy"><i class="fa-brands fa-youtube" aria-hidden="true"></i> Klipy</button>
+  </nav>
 
+  <div class="song-tab-panel admin-grid song-hub-grid" id="zaklad" role="tabpanel">
     <!-- Základní údaje -->
     <section class="admin-card">
       <h3>Píseň</h3>
@@ -155,7 +163,6 @@
       </form>
     </section>
 
-    <!-- Obrázek v řádku na stránce Texty: posun a velikost ručně -->
     <!-- Streaming IDs -->
     <section class="admin-card">
       <h3>Streaming</h3>
@@ -181,6 +188,144 @@
       </form>
     </section>
 
+  </div>
+  <%-- the song off the site – only once it has no lyrics (the text is deleted on its own, never with the song by
+       mistake); its clips stay as clips without a song --%>
+  <section class="admin-card admin-danger song-tab-extra" data-for="zaklad">
+    <h3><i class="fa-solid fa-trash" aria-hidden="true"></i> Smazat píseň</h3>
+    <c:choose>
+      <c:when test="${lyricLangs > 0}">
+        <p class="text-dim">Píseň <b><c:out value="${song.name}"/></b> má text (jazyků: ${lyricLangs}). Aby se nesmazal omylem, smaž ho nejdřív
+          v záložce <a href="#texty">Texty</a> (Smazat text u každého jazyka). Klipy smažeš v záložce <a href="#klipy">Klipy</a>.</p>
+      </c:when>
+      <c:otherwise>
+        <p class="text-dim">Smaže píseň <b><c:out value="${song.name}"/></b>. Text nemá. Její klipy zůstanou jako klipy bez písně – když mají zmizet taky, smaž je předtím v záložce Klipy.</p>
+        <form method="post" action="/admin/song" class="admin-reset">
+          <input type="hidden" name="csrf" value="${csrf}">
+          <input type="hidden" name="id" value="${song.id}">
+          <input type="hidden" name="action" value="delete_song">
+          <label class="checkbox-label"><input type="checkbox" name="confirm" value="ANO" required> Opravdu smazat tuhle píseň</label>
+          <button type="submit" class="btn-delete"><i class="fa-solid fa-trash" aria-hidden="true"></i> Smazat píseň</button>
+        </form>
+      </c:otherwise>
+    </c:choose>
+  </section>
+
+  <div class="song-tab-panel admin-grid song-hub-grid" id="texty" role="tabpanel" hidden>
+    <!-- Texty + SEO per language -->
+    <section class="admin-card admin-card-wide">
+      <h3>Texty a překlady</h3>
+      <p class="text-dim">
+        Text v každém jazyce zvlášť.
+        <c:choose>
+          <c:when test="${translatorReady}">Automatický překlad: <strong><c:out value="${translatorName}"/></strong>.</c:when>
+          <c:otherwise>Automatický překlad není zapnutý – překlady píšeme ručně.</c:otherwise>
+        </c:choose>
+      </p>
+      <div class="locale-tabs" id="locale-tabs">
+        <c:forEach var="lang" items="${langs}">
+          <button type="button" class="locale-tab${param.tab == lang || (empty param.tab && lang == 'cs') ? ' active' : ''}" data-lang="${lang}">${lang}</button>
+        </c:forEach>
+      </div>
+      <c:forEach var="lang" items="${langs}">
+        <c:set var="loc" value="${locales[lang]}"/>
+        <div class="locale-panel${param.tab == lang || (empty param.tab && lang == 'cs') ? '' : ' hidden'}" data-panel="${lang}">
+          <form method="post" action="/admin/song" class="admin-form">
+            <input type="hidden" name="csrf" value="${csrf}">
+            <input type="hidden" name="id" value="${song.id}">
+            <input type="hidden" name="action" value="save_locale">
+            <input type="hidden" name="lang" value="${lang}">
+            <label>Text (${lang})
+              <textarea name="words" rows="12"><c:out value="${loc.words}"/></textarea>
+            </label>
+            <label>Krátká adresa písně (${lang}) – nepovinné
+              <input name="seo_slug" value="<c:out value='${loc.seoSlug}'/>"
+                     pattern="[a-z0-9]+(?:-[a-z0-9]+)*" maxlength="120"
+                     placeholder="napr. musis-odejit" autocomplete="off">
+            </label>
+            <p class="text-dim">
+              Veřejná URL:
+              <code>/<c:out value="${lang}"/>/song/<c:out value="${empty loc.seoSlug ? song.uuid : loc.seoSlug}"/></code>
+              · <a href="/<c:out value='${lang}'/>/song/<c:out value='${empty loc.seoSlug ? song.uuid : loc.seoSlug}'/>" target="_blank" rel="noopener">otevřít ↗</a>
+            </p>
+            <label>Popis pro Google (nepovinné, max 320 znaků)
+              <textarea name="meta_description" rows="3" maxlength="320"><c:out value="${loc.metaDescription}"/></textarea>
+            </label>
+            <div class="admin-inline-form">
+              <button type="submit">Uložit ${lang}</button>
+            </div>
+          </form>
+          <%-- smazat text v tomhle jazyce (i s komentáři pod ním); 30 dní ho jde vrátit z Koše --%>
+          <c:if test="${not empty loc.words}">
+            <form method="post" action="/admin/song" class="admin-inline-form lyrics-delete" onsubmit="return confirm('Smazat text ${lang} i s komentáři? 30 dní ho najdeš v Koši.');">
+              <input type="hidden" name="csrf" value="${csrf}">
+              <input type="hidden" name="id" value="${song.id}">
+              <input type="hidden" name="action" value="delete_text">
+              <input type="hidden" name="lang" value="${lang}">
+              <button type="submit" class="btn-delete"><i class="fa-solid fa-trash" aria-hidden="true"></i> Smazat text (${lang})</button>
+            </form>
+          </c:if>
+          <c:if test="${lang != 'cs' and translatorReady}">
+            <form method="post" action="/admin/song" class="admin-form admin-inline-form translate-form">
+              <input type="hidden" name="csrf" value="${csrf}">
+              <input type="hidden" name="id" value="${song.id}">
+              <input type="hidden" name="action" value="translate_locale">
+              <input type="hidden" name="lang" value="${lang}">
+              <button type="submit" ${translatorReady ? '' : 'disabled'}>
+                Přeložit z CS (<c:out value="${translatorName}"/>)
+              </button>
+              <label class="inline-check">
+                <input type="checkbox" name="overwrite" value="1"> přepsat existující text
+              </label>
+            </form>
+          </c:if>
+        </div>
+      </c:forEach>
+    </section>
+
+    <!-- „Hledáme pomoc s textem“: karta pod textem žádá návštěvníky o chybějící kus (MC Kevin na ni upozorní) -->
+    <section class="admin-card admin-card-wide" id="lyric-help">
+      <h3>Hledáme pomoc s textem</h3>
+      <p class="text-dim">Když v textu chybí kus (třeba cizí jazyk hostů), zapni to: pod textem písně se objeví karta, kam
+        to návštěvníci můžou napsat, a Kevin je na ni upozorní. Co pošlou, uvidíš jen tady – na web nic nejde samo.</p>
+      <form method="post" action="/admin/song" class="admin-form help-form">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="id" value="${song.id}">
+        <input type="hidden" name="action" value="save_help">
+        <label class="admin-check"><input type="checkbox" name="help_on" value="on" ${helpOn ? 'checked' : ''}> Zobrazit výzvu u písně</label>
+        <label>Jazyk chybějící části
+          <select name="help_lang">
+            <c:forEach var="hl" items="${['es','en','de','fr','it','pt','pl','sk','uk','ru','vi']}">
+              <option value="${hl}" ${hl == helpLangCode ? 'selected' : ''}>${hl}</option>
+            </c:forEach>
+          </select>
+        </label>
+        <label>V klipu od (min:s)
+          <input name="help_from" value="<c:out value='${helpFromText}'/>" placeholder="např. 2:15" inputmode="numeric">
+        </label>
+        <button type="submit">Uložit</button>
+      </form>
+      <h4>Co návštěvníci poslali (${helpSent.size()})</h4>
+      <c:if test="${empty helpSent}"><p class="text-dim">Zatím nic.</p></c:if>
+      <c:forEach var="h" items="${helpSent}">
+        <article class="help-sent">
+          <p class="help-sent-meta"><c:out value="${empty h.username ? 'Nepřihlášený návštěvník' : h.username}"/> · ${h.when}</p>
+          <pre class="help-sent-text"><c:out value="${h.message}"/></pre>
+          <form method="post" action="/admin/song" class="inline-form" onsubmit="return confirm('Smazat tenhle text? (Až ho máš přepsaný do písně.)');">
+            <input type="hidden" name="csrf" value="${csrf}">
+            <input type="hidden" name="id" value="${song.id}">
+            <input type="hidden" name="action" value="delete_help">
+            <input type="hidden" name="help_id" value="${h.id}">
+            <button type="submit" class="btn-delete"><i class="fa-solid fa-trash" aria-hidden="true"></i> Hotovo, smazat</button>
+          </form>
+        </article>
+      </c:forEach>
+    </section>
+
+
+  </div>
+
+  <div class="song-tab-panel admin-grid song-hub-grid" id="obrazky" role="tabpanel" hidden>
     <section class="admin-card admin-card-wide" id="row-art">
       <h3>Obrázek v seznamu Texty</h3>
       <c:choose>
@@ -270,107 +415,9 @@
       </c:choose>
     </section>
 
-    <!-- „Hledáme pomoc s textem“: karta pod textem žádá návštěvníky o chybějící kus (MC Kevin na ni upozorní) -->
-    <section class="admin-card admin-card-wide" id="lyric-help">
-      <h3>Hledáme pomoc s textem</h3>
-      <p class="text-dim">Když v textu chybí kus (třeba cizí jazyk hostů), zapni to: pod textem písně se objeví karta, kam
-        to návštěvníci můžou napsat, a Kevin je na ni upozorní. Co pošlou, uvidíš jen tady – na web nic nejde samo.</p>
-      <form method="post" action="/admin/song" class="admin-form help-form">
-        <input type="hidden" name="csrf" value="${csrf}">
-        <input type="hidden" name="id" value="${song.id}">
-        <input type="hidden" name="action" value="save_help">
-        <label class="admin-check"><input type="checkbox" name="help_on" value="on" ${helpOn ? 'checked' : ''}> Zobrazit výzvu u písně</label>
-        <label>Jazyk chybějící části
-          <select name="help_lang">
-            <c:forEach var="hl" items="${['es','en','de','fr','it','pt','pl','sk','uk','ru','vi']}">
-              <option value="${hl}" ${hl == helpLangCode ? 'selected' : ''}>${hl}</option>
-            </c:forEach>
-          </select>
-        </label>
-        <label>V klipu od (min:s)
-          <input name="help_from" value="<c:out value='${helpFromText}'/>" placeholder="např. 2:15" inputmode="numeric">
-        </label>
-        <button type="submit">Uložit</button>
-      </form>
-      <h4>Co návštěvníci poslali (${helpSent.size()})</h4>
-      <c:if test="${empty helpSent}"><p class="text-dim">Zatím nic.</p></c:if>
-      <c:forEach var="h" items="${helpSent}">
-        <article class="help-sent">
-          <p class="help-sent-meta"><c:out value="${empty h.username ? 'Nepřihlášený návštěvník' : h.username}"/> · ${h.when}</p>
-          <pre class="help-sent-text"><c:out value="${h.message}"/></pre>
-          <form method="post" action="/admin/song" class="inline-form" onsubmit="return confirm('Smazat tenhle text? (Až ho máš přepsaný do písně.)');">
-            <input type="hidden" name="csrf" value="${csrf}">
-            <input type="hidden" name="id" value="${song.id}">
-            <input type="hidden" name="action" value="delete_help">
-            <input type="hidden" name="help_id" value="${h.id}">
-            <button type="submit" class="btn-delete"><i class="fa-solid fa-trash" aria-hidden="true"></i> Hotovo, smazat</button>
-          </form>
-        </article>
-      </c:forEach>
-    </section>
+  </div>
 
-
-    <!-- Texty + SEO per language -->
-    <section class="admin-card admin-card-wide">
-      <h3>Texty a překlady</h3>
-      <p class="text-dim">
-        Text v každém jazyce zvlášť.
-        <c:choose>
-          <c:when test="${translatorReady}">Automatický překlad: <strong><c:out value="${translatorName}"/></strong>.</c:when>
-          <c:otherwise>Automatický překlad není zapnutý – překlady píšeme ručně.</c:otherwise>
-        </c:choose>
-      </p>
-      <div class="locale-tabs" id="locale-tabs">
-        <c:forEach var="lang" items="${langs}">
-          <button type="button" class="locale-tab${param.tab == lang || (empty param.tab && lang == 'cs') ? ' active' : ''}" data-lang="${lang}">${lang}</button>
-        </c:forEach>
-      </div>
-      <c:forEach var="lang" items="${langs}">
-        <c:set var="loc" value="${locales[lang]}"/>
-        <div class="locale-panel${param.tab == lang || (empty param.tab && lang == 'cs') ? '' : ' hidden'}" data-panel="${lang}">
-          <form method="post" action="/admin/song" class="admin-form">
-            <input type="hidden" name="csrf" value="${csrf}">
-            <input type="hidden" name="id" value="${song.id}">
-            <input type="hidden" name="action" value="save_locale">
-            <input type="hidden" name="lang" value="${lang}">
-            <label>Text (${lang})
-              <textarea name="words" rows="12"><c:out value="${loc.words}"/></textarea>
-            </label>
-            <label>Krátká adresa písně (${lang}) – nepovinné
-              <input name="seo_slug" value="<c:out value='${loc.seoSlug}'/>"
-                     pattern="[a-z0-9]+(?:-[a-z0-9]+)*" maxlength="120"
-                     placeholder="napr. musis-odejit" autocomplete="off">
-            </label>
-            <p class="text-dim">
-              Veřejná URL:
-              <code>/<c:out value="${lang}"/>/song/<c:out value="${empty loc.seoSlug ? song.uuid : loc.seoSlug}"/></code>
-              · <a href="/<c:out value='${lang}'/>/song/<c:out value='${empty loc.seoSlug ? song.uuid : loc.seoSlug}'/>" target="_blank" rel="noopener">otevřít ↗</a>
-            </p>
-            <label>Popis pro Google (nepovinné, max 320 znaků)
-              <textarea name="meta_description" rows="3" maxlength="320"><c:out value="${loc.metaDescription}"/></textarea>
-            </label>
-            <div class="admin-inline-form">
-              <button type="submit">Uložit ${lang}</button>
-            </div>
-          </form>
-          <c:if test="${lang != 'cs'}">
-            <form method="post" action="/admin/song" class="admin-form admin-inline-form translate-form">
-              <input type="hidden" name="csrf" value="${csrf}">
-              <input type="hidden" name="id" value="${song.id}">
-              <input type="hidden" name="action" value="translate_locale">
-              <input type="hidden" name="lang" value="${lang}">
-              <button type="submit" ${translatorReady ? '' : 'disabled'}>
-                Přeložit z CS (<c:out value="${translatorName}"/>)
-              </button>
-              <label class="inline-check">
-                <input type="checkbox" name="overwrite" value="1"> přepsat existující text
-              </label>
-            </form>
-          </c:if>
-        </div>
-      </c:forEach>
-    </section>
-
+  <div class="song-tab-panel admin-grid song-hub-grid" id="klipy" role="tabpanel" hidden>
     <!-- YouTube -->
     <section class="admin-card admin-card-wide">
       <h3><i class="fab fa-youtube icon-youtube"></i> YouTube videa</h3>
@@ -433,29 +480,51 @@
       </form>
     </section>
   </div>
-
-  <%-- the song off the site – only once it has no lyrics (the text is deleted on its own, never with the song by
-       mistake); its clips stay as clips without a song --%>
-  <section class="admin-card admin-danger">
-    <h3><i class="fa-solid fa-trash" aria-hidden="true"></i> Smazat píseň</h3>
-    <c:choose>
-      <c:when test="${lyricLangs > 0}">
-        <p class="text-dim">Píseň <b><c:out value="${song.name}"/></b> má text (jazyků: ${lyricLangs}). Aby se text nesmazal omylem, smaž ho nejdřív zvlášť v
-          <a href="/admin/lyrics?song=${song.id}">editoru textů</a> tlačítkem Smazat text u každého jazyka. Klipy smažeš nahoře tlačítkem Smazat klip.</p>
-      </c:when>
-      <c:otherwise>
-        <p class="text-dim">Smaže píseň <b><c:out value="${song.name}"/></b>. Text nemá. Její klipy zůstanou jako klipy bez písně – když mají zmizet taky, smaž je nahoře tlačítkem Smazat klip (nejlíp ještě předtím).</p>
-        <form method="post" action="/admin/song" class="admin-reset">
-          <input type="hidden" name="csrf" value="${csrf}">
-          <input type="hidden" name="id" value="${song.id}">
-          <input type="hidden" name="action" value="delete_song">
-          <label class="checkbox-label"><input type="checkbox" name="confirm" value="ANO" required> Opravdu smazat tuhle píseň</label>
-          <button type="submit" class="btn-delete"><i class="fa-solid fa-trash" aria-hidden="true"></i> Smazat píseň</button>
-        </form>
-      </c:otherwise>
-    </c:choose>
-  </section>
 </main>
+<script>
+// Záložky písně: Základ · Texty · Obrázky · Klipy. Která je otevřená, říká adresa (#texty); odkaz na prvek
+// uvnitř záložky (#lyric-help, #row-art…) otevře jeho záložku. Po uložení vrací server hlášku (msg), podle ní
+// se otevře záložka, ve které se pracovalo.
+(function () {
+  var tabs = document.querySelectorAll('.song-tabs [data-tab]');
+  if (!tabs.length) return;
+  var byMsg = { video_linked: 'klipy', video_unlinked: 'klipy', video_deleted: 'klipy', bad_youtube: 'klipy',
+    text_deleted: 'texty', locale_saved: 'texty', bad_seo_slug: 'texty', seo_slug_taken: 'texty', translated: 'texty',
+    no_translator: 'texty', no_cs_source: 'texty', translate_failed: 'texty', help_saved: 'texty', help_deleted: 'texty',
+    art_saved: 'obrazky', poster_saved: 'obrazky', bad_art: 'obrazky' };
+  function show(name, push) {
+    if (!document.getElementById(name)) name = 'zaklad';
+    document.querySelectorAll('.song-tab-panel').forEach(function (p) { p.hidden = p.id !== name; });
+    document.querySelectorAll('.song-tab-extra').forEach(function (p) { p.hidden = p.dataset.for !== name; });
+    tabs.forEach(function (t) {
+      var on = t.dataset.tab === name;
+      t.classList.toggle('on', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    if (push) history.replaceState(null, '', location.pathname + location.search + '#' + name);
+    // editory obrázků si při zobrazení přeměří velikost
+    window.dispatchEvent(new Event('resize'));
+  }
+  function fromAddress() {
+    var hash = decodeURIComponent(location.hash.slice(1));
+    var el = hash && document.getElementById(hash);
+    if (el && el.classList.contains('song-tab-panel')) return hash;
+    if (el) { var p = el.closest('.song-tab-panel'); if (p) return p.id; }
+    var q = new URLSearchParams(location.search);
+    if (byMsg[q.get('msg')]) return byMsg[q.get('msg')];
+    if (q.get('tab')) return 'texty';
+    return 'zaklad';
+  }
+  tabs.forEach(function (t) { t.addEventListener('click', function () { show(t.dataset.tab, true); }); });
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function () { setTimeout(function () { show(fromAddress(), false); }, 0); });
+  });
+  addEventListener('hashchange', function () { show(fromAddress(), false); });
+  show(fromAddress(), false);
+  var target = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  if (target && !target.classList.contains('song-tab-panel')) target.scrollIntoView();
+})();
+</script>
 
 <link href="/vendor/cropper/cropper.min.css" rel="stylesheet">
 <script src="/vendor/cropper/cropper.min.js"></script>

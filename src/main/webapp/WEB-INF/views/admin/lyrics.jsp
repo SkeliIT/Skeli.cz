@@ -1,41 +1,41 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="/includes/header.jsp" %>
 <%@ page import="java.util.List, com.github.skeliit.web.admin.AdminLyricsServlet.SongRow, com.github.skeliit.web.admin.AdminLyricsServlet.VideoRow" %>
+<%-- Texty: přehled, co u písní chybí. Samotné texty se upravují u písně v záložce Texty (/admin/song#texty);
+     tady zůstaly klipy bez písně (udělat z nich píseň / smazat) a nová píseň bez klipu. --%>
 <%
   @SuppressWarnings("unchecked") List<SongRow> songs = (List<SongRow>) request.getAttribute("songs");
   @SuppressWarnings("unchecked") List<VideoRow> videos = (List<VideoRow>) request.getAttribute("videos");
-  SongRow song = (SongRow) request.getAttribute("song");
-  String editLang = (String) request.getAttribute("lang");
-  String words = (String) request.getAttribute("words");
-  Integer lyricId = (Integer) request.getAttribute("lyricId");
   String csrfToken = com.github.skeliit.filter.CsrfFilter.token(session);
+  int complete = 0;
+  for (SongRow s : songs) if ("všech 5 jazyků".equals(s.getLangSummary())) complete++;
 %>
 <main class="admin-page admin-lyrics">
   <%@ include file="/includes/admin-nav.jspf" %>
-  <h2 class="admin-page-title">Texty písní</h2>
+  <h2 class="admin-page-title">Texty</h2>
+  <p class="text-dim">Kompletní (všech 5 jazyků): <b><%= complete %> z <%= songs.size() %></b>. Kliknutím otevřeš píseň rovnou v záložce Texty.</p>
 
-  <% if ("1".equals(request.getParameter("saved"))) { %><div class="form-success">Text uložen.</div><% } %>
-  <% if ("1".equals(request.getParameter("textDeleted"))) { %><div class="form-success">Text v tomhle jazyce je smazaný. Píseň a klipy zůstaly.</div><% } %>
-  <% if ("1".equals(request.getParameter("hidden"))) { %><div class="form-success">Klip je smazaný z webu i z databáze a synchronizace z YouTube ho už nevrátí. Až bude písnička hotová, přidej ji přes „Přidat track“.</div><% } %>
-  <% if ("1".equals(request.getParameter("error"))) { %><div class="form-alert">Něco chybí nebo je text moc dlouhý (max 20 000 znaků).</div><% } %>
+  <% if ("1".equals(request.getParameter("hidden"))) { %><div class="form-success">Klip je smazaný z webu i z databáze a synchronizace z YouTube ho už nevrátí. 30 dní ho najdeš v Koši.</div><% } %>
+  <% if ("1".equals(request.getParameter("error"))) { %><div class="form-alert">Něco chybí, zkus to znovu.</div><% } %>
 
-  <div class="lyrics-editor-layout">
-    <aside class="card lyrics-song-list">
-      <h3>Songy</h3>
-      <ul>
-      <% for (SongRow s : songs) { boolean empty = s.langs.isEmpty(); %>
-        <li>
-          <a href="/admin/lyrics?song=<%= s.id %>" class="<%= song != null && song.id == s.id ? "active" : "" %> <%= empty ? "missing" : "" %>">
-            <span class="ls-name"><%= com.github.skeliit.WebUtils.escapeHtml(s.name) %></span>
-            <span class="ls-meta"><%= s.year != null ? s.year : "" %> · <%= s.getLangSummary() %></span>
-          </a>
-        </li>
-      <% } %>
-      </ul>
+  <section class="admin-card">
+    <ul class="texts-overview">
+    <% for (SongRow s : songs) { String sum = s.getLangSummary(); boolean done = "všech 5 jazyků".equals(sum), none = "bez textu".equals(sum); %>
+      <li class="<%= done ? "done" : none ? "none" : "part" %>">
+        <a href="/admin/song?id=<%= s.id %>#texty">
+          <span class="to-name"><%= com.github.skeliit.WebUtils.escapeHtml(s.name) %><% if (s.year != null) { %> <small><%= s.year %></small><% } %></span>
+          <span class="to-state"><i class="fa-solid <%= done ? "fa-circle-check" : none ? "fa-circle-xmark" : "fa-circle-half-stroke" %>" aria-hidden="true"></i> <%= sum %></span>
+        </a>
+      </li>
+    <% } %>
+    </ul>
+  </section>
 
-      <% if (!videos.isEmpty()) { %>
-      <h3>Klipy bez songu</h3>
-      <p class="text-dim">Kliknutím z klipu uděláš song a můžeš mu doplnit text. Klip, který ještě není hotová písnička, smažeš košem – zmizí z webu i z databáze a synchronizace z YouTube ho už nevrátí.</p>
+  <div class="admin-grid">
+    <% if (!videos.isEmpty()) { %>
+    <section class="admin-card">
+      <h3><i class="fa-brands fa-youtube" aria-hidden="true"></i> Klipy bez písně</h3>
+      <p class="text-dim">Klikni na klip a udělá se z něj píseň. Klip, který ještě není hotová písnička, smaž košem.</p>
       <% for (VideoRow v : videos) { String vid = com.github.skeliit.WebUtils.escapeHtml(v.youtubeId), vtitle = com.github.skeliit.WebUtils.escapeHtml(v.title); %>
         <div class="ls-video-row">
           <form method="post" action="/admin/lyrics" class="ls-video">
@@ -44,7 +44,7 @@
             <input type="hidden" name="youtube_id" value="<%= vid %>">
             <button type="submit"><i class="fab fa-youtube"></i> <%= vtitle %></button>
           </form>
-          <form method="post" action="/admin/lyrics" class="ls-video-hide" onsubmit="return confirm('Smazat tenhle klip z webu i z databáze?')">
+          <form method="post" action="/admin/lyrics" class="ls-video-hide" onsubmit="return confirm('Smazat tenhle klip z webu i z databáze? 30 dní ho najdeš v Koši.')">
             <input type="hidden" name="csrf" value="<%= csrfToken %>">
             <input type="hidden" name="action" value="hide_video">
             <input type="hidden" name="youtube_id" value="<%= vid %>">
@@ -52,49 +52,19 @@
           </form>
         </div>
       <% } %>
-      <% } %>
+    </section>
+    <% } %>
 
-      <h3>Nový song</h3>
+    <section class="admin-card">
+      <h3><i class="fa-solid fa-plus" aria-hidden="true"></i> Nová píseň bez klipu</h3>
+      <p class="text-dim">Píseň s klipem přidáš přes „Přidat track“.</p>
       <form method="post" action="/admin/lyrics" class="ls-new">
         <input type="hidden" name="csrf" value="<%= csrfToken %>">
         <input type="hidden" name="action" value="new_song">
-        <input name="name" placeholder="Název songu" required>
+        <input name="name" placeholder="Název písně" required>
         <input name="year" type="number" min="1990" max="2100" placeholder="Rok">
         <button type="submit">Přidat</button>
       </form>
-    </aside>
-
-    <section class="card lyrics-edit">
-      <% if (song == null) { %>
-        <p class="text-dim">Vyber vlevo song. Songy bez textu jsou nahoře a zvýrazněné.</p>
-      <% } else { %>
-        <h3><%= com.github.skeliit.WebUtils.escapeHtml(song.name) %> <% if (song.year != null) { %><span class="song-year"><%= song.year %></span><% } %></h3>
-        <nav class="lyrics-langs">
-          <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %>
-            <a href="/admin/lyrics?song=<%= song.id %>&lang=<%= l %>" class="<%= l.equals(editLang) ? "active" : "" %>"><%= l.toUpperCase() %></a>
-          <% } %>
-          <% if (lyricId != null) { %><a class="lyrics-view" href="/lyrics/<%= lyricId %>" target="_blank">Zobrazit na webu ↗</a><% } %>
-        </nav>
-        <form method="post" action="/admin/lyrics">
-          <input type="hidden" name="csrf" value="<%= csrfToken %>">
-          <input type="hidden" name="action" value="save">
-          <input type="hidden" name="song_id" value="<%= song.id %>">
-          <input type="hidden" name="lang" value="<%= editLang %>">
-          <textarea name="words" rows="24" placeholder="Sem vlož text písně. Prázdné řádky oddělují sloky."><%= com.github.skeliit.WebUtils.escapeHtml(words) %></textarea>
-          <p class="form-note">Když text úplně smažeš a uložíš, tahle jazyková verze zmizí z webu i s komentáři u ní.</p>
-          <button type="submit" class="btn-primary">Uložit text</button>
-        </form>
-        <% if (lyricId != null) { %>
-        <%-- the text of this one language off the site (its comments go with it); the song and its clips stay --%>
-        <form method="post" action="/admin/lyrics" class="lyrics-delete" onsubmit="return confirm('Smazat text v jazyce <%= editLang.toUpperCase() %>? Komentáře u něj zmizí taky. Píseň a klipy zůstanou.')">
-          <input type="hidden" name="csrf" value="<%= csrfToken %>">
-          <input type="hidden" name="action" value="delete_text">
-          <input type="hidden" name="song_id" value="<%= song.id %>">
-          <input type="hidden" name="lang" value="<%= editLang %>">
-          <button type="submit" class="btn-delete"><i class="fa-solid fa-trash" aria-hidden="true"></i> Smazat text (<%= editLang.toUpperCase() %>)</button>
-        </form>
-        <% } %>
-      <% } %>
     </section>
   </div>
 </main>

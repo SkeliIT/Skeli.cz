@@ -161,6 +161,15 @@ public class AdminSongDetailServlet extends HttpServlet {
                     if (hid > 0) help.delete(hid);
                     resp.sendRedirect(hub + "&msg=help_deleted#lyric-help");
                 }
+                case "delete_text" -> {
+                    // text v jednom jazyce pryč (s komentáři pod ním); nejdřív kopie do koše
+                    String lang = String.valueOf(req.getParameter("lang"));
+                    if (java.util.Arrays.asList(LANGS).contains(lang)) {
+                        com.github.skeliit.service.Trash.lyrics(req, id, lang);
+                        lyrics.saveWords(id, lang, null);
+                    }
+                    resp.sendRedirect(hub + "&msg=text_deleted&tab=" + lang + "#texty");
+                }
                 case "delete_video" -> {
                     // off the whole site, and the YouTube sync won't bring it back
                     String yt = normalizeYoutubeId(req.getParameter("youtube_id"));
@@ -213,8 +222,20 @@ public class AdminSongDetailServlet extends HttpServlet {
                 }
                 case "save_locale" -> {
                     String lang = I18n.safeLang(req.getParameter("lang"));
-                    String words = req.getParameter("words");
-                    if (words == null) words = "";
+                    // stejné čištění jako dřív v editoru textů: konce řádků, mezery na konci řádků, okraje
+                    String words = AdminLyricsServlet.cleanWords(req.getParameter("words"));
+                    if (words == null) {
+                        // prázdný text = smazání toho jazyka (kopie do koše)
+                        if (lyrics.getWords(id, lang) != null) {
+                            com.github.skeliit.service.Trash.lyrics(req, id, lang);
+                            lyrics.saveWords(id, lang, null);
+                            resp.sendRedirect(hub + "&msg=text_deleted&tab=" + lang + "#texty");
+                        } else {
+                            resp.sendRedirect(hub + "&tab=" + lang + "#texty");
+                        }
+                        return;
+                    }
+                    if (words.length() > 20_000) words = words.substring(0, 20_000);
                     String seoSlug = normalizeSeoSlug(req.getParameter("seo_slug"));
                     if (seoSlug != null && seoSlug.isEmpty()) {
                         resp.sendRedirect(hub + "&msg=bad_seo_slug&tab=" + lang);
@@ -233,7 +254,7 @@ public class AdminSongDetailServlet extends HttpServlet {
                     if ("cs".equals(lang)) {
                         songs.updateBasics(id, song.name, song.year, song.appleMusicId, song.spotifyId, seoSlug);
                     }
-                    resp.sendRedirect(hub + "&msg=locale_saved&tab=" + lang);
+                    resp.sendRedirect(hub + "&msg=locale_saved&tab=" + lang + "#texty");
                 }
                 case "translate_locale" -> {
                     String lang = I18n.safeLang(req.getParameter("lang"));

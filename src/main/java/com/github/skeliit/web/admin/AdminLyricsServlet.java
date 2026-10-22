@@ -68,6 +68,11 @@ public class AdminLyricsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String lang = langParam(req);
         Integer songId = parseId(req.getParameter("song"));
+        if (songId != null) {
+            // texty se teď upravují u písně v záložce Texty (staré odkazy ?song= vedou tam)
+            resp.sendRedirect("/admin/song?id=" + songId + "&tab=" + lang + "#texty");
+            return;
+        }
         try {
             List<SongRow> songs = listSongs();
             req.setAttribute("songs", songs);
@@ -103,10 +108,10 @@ public class AdminLyricsServlet extends HttpServlet {
                 }
                 if (words == null || words.isBlank()) com.github.skeliit.service.Trash.lyrics(req, songId, lang);   // prázdný text = smazání: kopie do koše
                 lyrics.saveWords(songId, lang, words);
-                resp.sendRedirect("/admin/lyrics?song=" + songId + "&lang=" + lang + "&saved=1");
+                resp.sendRedirect("/admin/song?id=" + songId + "&msg=locale_saved&tab=" + lang + "#texty");
             } else if ("from_video".equals(action)) {
                 Integer songId = songFromVideo(req.getParameter("youtube_id"));
-                resp.sendRedirect(songId == null ? "/admin/lyrics?error=1" : "/admin/lyrics?song=" + songId);
+                resp.sendRedirect(songId == null ? "/admin/lyrics?error=1" : "/admin/song?id=" + songId + "#texty");
             } else if ("delete_text".equals(action)) {
                 // one language of the text off the site (with its comments); the song and its clips stay
                 Integer songId = parseId(req.getParameter("song_id"));
@@ -117,7 +122,7 @@ public class AdminLyricsServlet extends HttpServlet {
                 }
                 com.github.skeliit.service.Trash.lyrics(req, songId, lang);   // kopie do koše
                 lyrics.saveWords(songId, lang, null);
-                resp.sendRedirect("/admin/lyrics?song=" + songId + "&lang=" + lang + "&textDeleted=1");
+                resp.sendRedirect("/admin/song?id=" + songId + "&msg=text_deleted&tab=" + lang + "#texty");
             } else if ("hide_video".equals(action)) {
                 // a clip that isn't a finished song: deleted from the database and the site (with its comments and
                 // karaoke timings), and the YouTube sync won't bring it back (V83) – the same as Delete clip on a song
@@ -136,7 +141,7 @@ public class AdminLyricsServlet extends HttpServlet {
                 }
                 try (Connection c = Db.get()) {
                     int songId = ensureSong(c, name.trim(), year);
-                    resp.sendRedirect("/admin/lyrics?song=" + songId);
+                    resp.sendRedirect("/admin/song?id=" + songId + "#texty");
                 }
             } else {
                 resp.sendRedirect("/admin/lyrics");
