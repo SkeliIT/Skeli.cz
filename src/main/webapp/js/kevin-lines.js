@@ -299,7 +299,7 @@ window.KEVIN_LINES = {
     // what he does on his own once his menu is gone (js/kevin.js LIFE): one short line by his head
     life: {
       stretch: ["Protáhnout. Kočičí jóga.","Hřbet do oblouku. Profík."],
-      knead: ["Hnětu. Nevím proč. Musím.","Dělám těsto. Z ničeho."],
+      robot: ["Robotí tanec. Naučil jsem se ho od vysavače.","Bip bup. Kočka v režimu robot."],
       look: ["Něco tam šustlo?","Viděl jsi to taky? Ne? Tak nic."],
       fly: ["Moucha! …Utekla.","Skoro jsem ji měl. Skoro."],
       neck: ["Křup. Hned lepší.","Bolí mě krk po celodenním spaní."],
@@ -717,7 +717,7 @@ window.KEVIN_LINES = {
     },
     life: {
       stretch: ["Stretch. Cat yoga.","Back in an arch. A pro."],
-      knead: ["Kneading. Don't know why. Have to.","Making dough. Out of nothing."],
+      robot: ["Robot dance. Learned it from the vacuum cleaner.","Beep boop. Cat in robot mode."],
       look: ["Did something rustle over there?","Did you see that too? No? Never mind."],
       fly: ["A fly! …Gone.","Almost had it. Almost."],
       neck: ["Crack. Much better.","My neck hurts from sleeping all day."],
@@ -1134,7 +1134,7 @@ window.KEVIN_LINES = {
     },
     life: {
       stretch: ["Strecken. Katzen-Yoga.","Rücken im Bogen. Ein Profi."],
-      knead: ["Ich knete. Weiß nicht, warum. Muss.","Ich mache Teig. Aus nichts."],
+      robot: ["Robotertanz. Vom Staubsauger gelernt.","Piep pup. Katze im Robotermodus."],
       look: ["Hat da was geraschelt?","Hast du das auch gesehen? Nein? Egal."],
       fly: ["Eine Fliege! …Weg.","Fast hätte ich sie gehabt. Fast."],
       neck: ["Knack. Gleich besser.","Mir tut der Nacken weh vom Schlafen den ganzen Tag."],
@@ -1551,7 +1551,7 @@ window.KEVIN_LINES = {
     },
     life: {
       stretch: ["Потягнутися. Котяча йога.","Спина дугою. Профі."],
-      knead: ["Мну лапками. Не знаю навіщо. Мушу.","Мішу тісто. З нічого."],
+      robot: ["Танець робота. Навчився в пилососа.","Біп-буп. Кіт у режимі робота."],
       look: ["Там щось зашаруділо?","Ти теж бачив? Ні? Ну й гаразд."],
       fly: ["Муха! …Втекла.","Майже впіймав. Майже."],
       neck: ["Хрусь. Одразу краще.","Болить шия після цілоденного сну."],
@@ -1968,7 +1968,7 @@ window.KEVIN_LINES = {
     },
     life: {
       stretch: ["Vươn vai. Yoga của mèo.","Cong lưng. Chuyên nghiệp."],
-      knead: ["Đang nhào. Không biết tại sao. Phải làm.","Đang nhào bột. Từ không khí."],
+      robot: ["Điệu nhảy robot. Học từ máy hút bụi.","Bíp búp. Mèo ở chế độ robot."],
       look: ["Có gì đó sột soạt đằng kia à?","Bạn cũng thấy à? Không? Thôi kệ."],
       fly: ["Con ruồi! …Bay mất rồi.","Suýt bắt được. Suýt thôi."],
       neck: ["Rắc. Đỡ hẳn.","Đau cổ vì ngủ cả ngày."],

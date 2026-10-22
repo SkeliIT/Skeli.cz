@@ -782,7 +782,7 @@
   // every few seconds something cat-like with a short line by his head (L.life); act = a move of the model,
   // pose = a pose held for ms. Never the same twice in a row; nothing while he talks, raps, sleeps or shows the TV.
   var LIFE = {
-    stretch: { act: 'stretchArms', icon: '🙆' }, knead: { act: 'typing', icon: '🐾' }, look: { act: 'lookAround', icon: '👀' },
+    stretch: { act: 'stretchArms', icon: '🙆' }, robot: { act: 'robot', icon: '🤖' }, look: { act: 'lookAround', icon: '👀' },
     fly: { act: 'jump', icon: '🪰' }, neck: { act: 'neck', icon: '😼' }, startle: { act: 'nervous', icon: '❗' },
     shrug: { act: 'shrug', icon: '🐟' }, dance: { act: 'dance2', icon: '🎵' },
     bored: { pose: 'cool', ms: 6000, icon: '🧶' }   // (no nap: the lying clip sticks his tail up into the air)
