@@ -89,7 +89,7 @@ public class AdminVideoServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        resp.sendRedirect("/admin.jsp?manual=saved#manual");   // back to the form, unfolded
+        resp.sendRedirect("/admin/songs?manual=saved#manual");   // zpět k formuláři (rozbalenému) na stránce Písně
     }
 
     private Integer ensureSong(Connection conn, String name, Integer year, String uuid) throws SQLException {

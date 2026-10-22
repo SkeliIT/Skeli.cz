@@ -27,7 +27,7 @@
         <li>
           <a href="/admin/lyrics?song=<%= s.id %>" class="<%= song != null && song.id == s.id ? "active" : "" %> <%= empty ? "missing" : "" %>">
             <span class="ls-name"><%= com.github.skeliit.WebUtils.escapeHtml(s.name) %></span>
-            <span class="ls-meta"><%= s.year != null ? s.year : "" %> · <%= empty ? "bez textu" : s.langs %></span>
+            <span class="ls-meta"><%= s.year != null ? s.year : "" %> · <%= s.getLangSummary() %></span>
           </a>
         </li>
       <% } %>

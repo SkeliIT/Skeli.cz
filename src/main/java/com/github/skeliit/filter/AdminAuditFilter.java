@@ -60,6 +60,7 @@ public class AdminAuditFilter implements Filter {
             Map.entry("/admin/quotes#delete", "Smazání citátu"),
             Map.entry("/admin/newsletter#send", "Rozeslání novinek e-mailem"),
             Map.entry("/admin/newsletter#test", "Zkušební e-mail novinek"),
+            Map.entry("/admin/newsletter#", "Úprava odběratelů novinek"),
             Map.entry("/admin/track#", "Přidání tracku z YouTube"),
             Map.entry("/admin/video#", "Ruční úprava songu a videa"),
             Map.entry("/admin/karaoke#", "Úprava časů karaoke"),

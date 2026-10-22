@@ -19,18 +19,17 @@
     <div class="admin-card admin-table-card">
       <table class="admin-table" id="userTable">
         <thead>
-          <tr><th>ID</th><th>Jméno</th><th>Email</th><th>Role</th><th>Vytvořen</th><th>Akce</th></tr>
+          <tr><th>Jméno</th><th>E-mail</th><th>Registrace</th><th>Role</th><th></th></tr>
         </thead>
         <tbody>
           <%
             for (AdminUser u : users) {
           %>
           <tr class="role-<%= WebUtils.escapeHtml(u.role).toLowerCase() %>">
-            <td><%= u.id %></td>
             <td><%= WebUtils.escapeHtml(u.username) %></td>
             <td><%= WebUtils.escapeHtml(WebUtils.maskEmail(u.email)) %></td>
-            <td><span class="role-badge"><%= WebUtils.escapeHtml(u.role) %></span></td>
             <td><%= u.createdAt == null ? "" : new java.text.SimpleDateFormat("d. M. yyyy HH:mm").format(u.createdAt) %></td>
+            <%-- role jen jednou: výběr, Uložit ji změní (žádný štítek navíc) --%>
             <td class="act">
               <form method="post" action="/admin/users">
                 <input type="hidden" name="csrf" value="${csrf}">
@@ -42,6 +41,8 @@
                 </select>
                 <button type="submit">Uložit</button>
               </form>
+            </td>
+            <td class="act">
               <form method="post" action="/admin/users" onsubmit="return confirm('Smazat uživatele?');">
                 <input type="hidden" name="csrf" value="${csrf}">
                 <input type="hidden" name="user_id" value="<%= u.id %>">

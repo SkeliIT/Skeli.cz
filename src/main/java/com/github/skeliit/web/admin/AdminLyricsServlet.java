@@ -45,6 +45,15 @@ public class AdminLyricsServlet extends HttpServlet {
         public String getName() { return name; }
         public Integer getYear() { return year; }
         public String getLangs() { return langs; }
+        /** Pro seznam v adminu: „bez textu“, „všech 5 jazyků“, nebo „chybí DE, VI“. */
+        public String getLangSummary() {
+            if (langs == null || langs.isBlank()) return "bez textu";
+            java.util.List<String> missing = new java.util.ArrayList<>();
+            for (String l : new String[] { "cs", "en", "de", "uk", "vi" }) {
+                if (!(", " + langs + ",").contains(" " + l + ",") && !langs.startsWith(l)) missing.add(l.toUpperCase());
+            }
+            return missing.isEmpty() ? "všech 5 jazyků" : "chybí " + String.join(", ", missing);
+        }
     }
 
     /** A clip that isn't linked to any song yet. */

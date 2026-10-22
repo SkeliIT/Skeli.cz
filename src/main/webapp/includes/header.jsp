@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "5.8.8";
+  String assetVersion = "5.8.9";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -117,7 +117,13 @@
            "music.song".equals(headType) ? headTitle : null, headImage, cur, t.getProperty("menu.home"), t.getProperty("menu.lyrics"));
        if (headLd != null) { %><script type="application/ld+json"><%= headLd %></script><% } %>
   </head>
-  <body>
+  <%-- v adminu (is-admin): klidné pozadí bez fotek, bez Spotify a bez veřejné patičky (css/admin.css) --%>
+  <body<%= String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin") ? " class=\"is-admin\"" : "" %>>
+    <%-- na stránce písně vede přepínač rovnou na adresu písně v daném jazyce (/en/song/…), jinak by
+         adresa /cs/song/… nechala text česky; jinde jen ?lang= --%>
+    <% @SuppressWarnings("unchecked") java.util.Map<String, String> songLangs = (java.util.Map<String, String>) request.getAttribute("hreflang");
+       java.util.function.Function<String, String> langHref = l -> songLangs != null && songLangs.containsKey(l)
+           ? com.github.skeliit.WebUtils.escapeHtml(songLangs.get(l)) + "?lang=" + l : "?lang=" + l; %>
     <%-- keyboard and screen reader users jump over the header straight to the page (footer.jsp moves the focus) --%>
     <a class="skip-link" href="#main"><%= t.getProperty("a11y.skip") %></a>
     <%-- the background of every page slowly cross-fades through Skeli's photos and back to the usual one;
@@ -155,7 +161,7 @@
                 <button type="button" class="icon-btn" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold"></i></button>
                 <button type="button" class="icon-btn" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke"></i></button>
                 <span class="nav-langs" aria-label="<%= t.getProperty("header.language") %>">
-                  <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="?lang=<%= l %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= com.github.skeliit.I18n.label(l) %></a><% } %>
+                  <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="<%= langHref.apply(l) %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= com.github.skeliit.I18n.label(l) %></a><% } %>
                 </span>
               </div>
               <div class="nav-account">
@@ -190,11 +196,11 @@
                   <span class="lang-code"><%= com.github.skeliit.I18n.label(cur) %></span>
                 </button>
                 <ul class="menu">
-                  <li><a href="?lang=cs"><img class="flag" src="<%= ctx %>/img/flags/cs.svg" alt="" width="18" height="12">Čeština</a></li>
-                  <li><a href="?lang=en"><img class="flag" src="<%= ctx %>/img/flags/en.svg" alt="" width="18" height="12">English</a></li>
-                  <li><a href="?lang=de"><img class="flag" src="<%= ctx %>/img/flags/de.svg" alt="" width="18" height="12">Deutsch</a></li>
-                  <li><a href="?lang=uk"><img class="flag" src="<%= ctx %>/img/flags/uk.svg" alt="" width="18" height="12">Українська</a></li>
-                  <li><a href="?lang=vi" lang="vi"><img class="flag" src="<%= ctx %>/img/flags/vi.svg" alt="" width="18" height="12">Tiếng Việt</a></li>
+                  <li><a href="<%= langHref.apply("cs") %>"><img class="flag" src="<%= ctx %>/img/flags/cs.svg" alt="" width="18" height="12">Čeština</a></li>
+                  <li><a href="<%= langHref.apply("en") %>"><img class="flag" src="<%= ctx %>/img/flags/en.svg" alt="" width="18" height="12">English</a></li>
+                  <li><a href="<%= langHref.apply("de") %>"><img class="flag" src="<%= ctx %>/img/flags/de.svg" alt="" width="18" height="12">Deutsch</a></li>
+                  <li><a href="<%= langHref.apply("uk") %>"><img class="flag" src="<%= ctx %>/img/flags/uk.svg" alt="" width="18" height="12">Українська</a></li>
+                  <li><a href="<%= langHref.apply("vi") %>" lang="vi"><img class="flag" src="<%= ctx %>/img/flags/vi.svg" alt="" width="18" height="12">Tiếng Việt</a></li>
                 </ul>
               </div>
               <% if (currentUser == null) { %>
@@ -456,6 +462,7 @@
                 // disable PJAX for pages that need full refresh or include page-scoped styles/scripts
                 const noPjax = ['/auth/', '/karaoke-kino/', '/lyrics/', '/texty', '/admin', '/logout', '/login.jsp', '/register.jsp', '/uzivatel.jsp', '/profile.jsp'];
                 if (noPjax.some(p => href.includes(p))) return;
+                if (document.body.classList.contains('is-admin')) return;   // z adminu ven vždy celou stránkou (jiné pozadí a patička)
                 e.preventDefault();
                 navigate(href, true);
               });

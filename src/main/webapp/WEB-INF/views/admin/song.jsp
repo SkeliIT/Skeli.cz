@@ -30,10 +30,10 @@
         <c:when test="${param.msg == 'bad_name'}">Název písně je povinný.</c:when>
         <c:when test="${param.msg == 'locale_saved'}">Překlad / SEO uloženo.</c:when>
         <c:when test="${param.msg == 'translated'}">Přeloženo.</c:when>
-        <c:when test="${param.msg == 'no_translator'}">Není nastaven překladač (DEEPL_API_KEY nebo LIBRETRANSLATE_URL).</c:when>
+        <c:when test="${param.msg == 'no_translator'}">Automatický překlad není zapnutý.</c:when>
         <c:when test="${param.msg == 'no_cs_source'}">Nejdřív ulož český text.</c:when>
         <c:when test="${param.msg == 'translate_failed'}">Překlad selhal.</c:when>
-        <c:when test="${param.msg == 'bad_seo_slug'}">SEO URL musí být krátký alias (a–z, 0–9, pomlčky).</c:when>
+        <c:when test="${param.msg == 'bad_seo_slug'}">Krátká adresa smí mít jen malá písmena bez háčků, číslice a pomlčky (např. musis-odejit).</c:when>
         <c:when test="${param.msg == 'seo_slug_taken'}">Tento SEO alias už v tomto jazyce používá jiná píseň.</c:when>
         <c:when test="${param.msg == 'no_file'}">Nebyl vybrán žádný soubor.</c:when>
         <c:when test="${param.msg == 'too_large'}">Soubor je příliš velký (max 20&nbsp;MB).</c:when>
@@ -48,37 +48,37 @@
       <c:when test="${not empty song.previewImageUrl}">
         <img class="song-hub-cover" src="<c:out value='${song.previewImageUrl}'/>" alt="">
       </c:when>
+      <c:when test="${not empty rowArt}">
+        <img class="song-hub-cover" src="<c:out value='${rowArt}'/>" alt="">
+      </c:when>
       <c:otherwise>
         <div class="song-hub-cover song-hub-cover-empty"><i class="fa-solid fa-music"></i></div>
       </c:otherwise>
     </c:choose>
     <div>
       <h2><c:out value="${song.name}"/></h2>
-      <p class="song-uuid-row">
-        <span class="text-dim">UUID</span>
-        <code id="song-uuid" class="song-uuid"><c:out value="${song.uuid}"/></code>
-        <button type="button" id="song-uuid-copy" class="control-btn song-uuid-copy" title="Kopírovat UUID" aria-label="Kopírovat UUID">
-          <i class="fa-regular fa-copy"></i>
-        </button>
-        <span id="song-uuid-copied" class="song-uuid-copied" hidden>Zkopírováno</span>
-      </p>
       <p class="text-dim song-hub-meta">
         <c:if test="${not empty song.year}">${song.year} · </c:if>
-        interní ID ${song.id}
-        <c:if test="${not empty song.uuid}">
-          · <a href="<c:out value='${song.publicPath}'/>" target="_blank" rel="noopener">veřejná stránka ↗</a>
+        <c:if test="${not empty song.uuid}"><a href="<c:out value='${song.publicPath}'/>" target="_blank" rel="noopener">otevřít na webu ↗</a></c:if>
+        <c:if test="${not empty publicSongUrl}">
+          · <code id="song-share-url" class="song-share-url" hidden><c:out value="${publicSongUrl}"/></code>
+          <button type="button" id="song-share-copy" class="link-btn song-copy-btn" title="Kopírovat odkaz na píseň"><i class="fa-regular fa-copy" aria-hidden="true"></i> kopírovat odkaz</button>
+          <span id="song-share-copied" class="song-uuid-copied" hidden>Zkopírováno</span>
         </c:if>
       </p>
-      <c:if test="${not empty publicSongUrl}">
+      <%-- technické údaje (pro mě / pro bratra): schované, ať nepletou --%>
+      <details class="song-adv">
+        <summary>Pokročilé</summary>
         <p class="song-uuid-row">
-          <span class="text-dim">Sdílecí odkaz</span>
-          <code id="song-share-url" class="song-uuid song-share-url"><c:out value="${publicSongUrl}"/></code>
-          <button type="button" id="song-share-copy" class="control-btn song-uuid-copy" title="Kopírovat odkaz" aria-label="Kopírovat odkaz">
+          <span class="text-dim">UUID</span>
+          <code id="song-uuid" class="song-uuid"><c:out value="${song.uuid}"/></code>
+          <button type="button" id="song-uuid-copy" class="control-btn song-uuid-copy" title="Kopírovat UUID" aria-label="Kopírovat UUID">
             <i class="fa-regular fa-copy"></i>
           </button>
-          <span id="song-share-copied" class="song-uuid-copied" hidden>Zkopírováno</span>
+          <span id="song-uuid-copied" class="song-uuid-copied" hidden>Zkopírováno</span>
+          <span class="text-dim">· interní ID ${song.id}</span>
         </p>
-      </c:if>
+      </details>
     </div>
   </header>
 
@@ -103,8 +103,8 @@
 
     <!-- Náhled / OG -->
     <section class="admin-card">
-      <h3>Náhledový obrázek (Open Graph)</h3>
-      <p class="text-dim">16:9, 1280×720. Před uložením ořízni, přibliž nebo otoč. Max. 20&nbsp;MB (JPEG/PNG/WebP).</p>
+      <h3>Vlastní obrázek písně</h3>
+      <p class="text-dim">Ukáže se u písně bez klipu a při sdílení odkazu (Facebook, WhatsApp). Na šířku 16:9, max. 20&nbsp;MB.</p>
       <c:if test="${param.msg == 'too_large'}"><p class="admin-error">Soubor je příliš velký (max. 20&nbsp;MB).</p></c:if>
       <c:if test="${param.msg == 'invalid_image'}"><p class="admin-error">Soubor není platný obrázek.</p></c:if>
       <c:if test="${param.msg == 'no_file'}"><p class="admin-error">Nebyl vybrán žádný soubor.</p></c:if>
@@ -156,6 +156,31 @@
     </section>
 
     <!-- Obrázek v řádku na stránce Texty: posun a velikost ručně -->
+    <!-- Streaming IDs -->
+    <section class="admin-card">
+      <h3>Streaming</h3>
+      <form method="post" action="/admin/song" class="admin-form">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="id" value="${song.id}">
+        <input type="hidden" name="action" value="save">
+        <input type="hidden" name="name" value="<c:out value='${song.name}'/>">
+        <input type="hidden" name="year" value="${song.year != null ? song.year : ''}">
+        <label>Apple Music ID
+          <input name="apple_music_id" value="<c:out value='${song.appleMusicId}'/>" placeholder="např. 1234567890">
+        </label>
+        <c:if test="${not empty song.appleMusicId}">
+          <p><a href="https://music.apple.com/song/<c:out value='${song.appleMusicId}'/>" target="_blank" rel="noopener">Otevřít v Apple Music ↗</a></p>
+        </c:if>
+        <label>Spotify track ID
+          <input name="spotify_id" value="<c:out value='${song.spotifyId}'/>" placeholder="např. 4iV5W9uYEdYUVa79Axb7Rh">
+        </label>
+        <c:if test="${not empty song.spotifyId}">
+          <p><a href="https://open.spotify.com/track/<c:out value='${song.spotifyId}'/>" target="_blank" rel="noopener">Otevřít ve Spotify ↗</a></p>
+        </c:if>
+        <button type="submit">Uložit streaming ID</button>
+      </form>
+    </section>
+
     <section class="admin-card admin-card-wide" id="row-art">
       <h3>Obrázek v seznamu Texty</h3>
       <c:choose>
@@ -164,7 +189,7 @@
         </c:when>
         <c:otherwise>
           <p class="text-dim">
-            Obrázek <strong>táhni myší</strong> (na telefonu prstem), <strong>kolečkem myši</strong> nebo posuvníkem ho zvětšíš a zmenšíš.
+            Obrázek <strong>posuň myší</strong> (prstem), <strong>kolečkem</strong> zvětšíš.
             Nahoře je řádek na počítači, pod ním na telefonu. Používá se nejnovější klip, jinak náhledová fotka.
           </p>
           <div class="art-editor" id="artEditor"
@@ -213,7 +238,7 @@
           <p class="text-dim">Song nemá klip, v Karaoke se neukazuje.</p>
         </c:when>
         <c:otherwise>
-          <p class="text-dim">Obrázek v plakátu <strong>táhni myší</strong> (na telefonu prstem), <strong>kolečkem myši</strong> nebo posuvníkem ho zvětšíš. Vlevo velký plakát nejnovější písně, vpravo běžný plakát (i na telefonu).</p>
+          <p class="text-dim">Obrázek <strong>posuň myší</strong> (prstem), <strong>kolečkem</strong> zvětšíš. Vlevo velký plakát (nejnovější píseň), vpravo běžný.</p>
           <div class="poster-editor" id="posterEditor"
                data-x="${song.posterX != null ? song.posterX : ''}" data-y="${song.posterY != null ? song.posterY : ''}" data-zoom="${song.posterZoom != null ? song.posterZoom : ''}">
             <span class="k-feature-poster poster-drag"><img src="<c:out value='${posterArt}'/>" alt="" draggable="false"></span>
@@ -284,39 +309,15 @@
       </c:forEach>
     </section>
 
-    <!-- Streaming IDs -->
-    <section class="admin-card">
-      <h3>Streaming</h3>
-      <form method="post" action="/admin/song" class="admin-form">
-        <input type="hidden" name="csrf" value="${csrf}">
-        <input type="hidden" name="id" value="${song.id}">
-        <input type="hidden" name="action" value="save">
-        <input type="hidden" name="name" value="<c:out value='${song.name}'/>">
-        <input type="hidden" name="year" value="${song.year != null ? song.year : ''}">
-        <label>Apple Music ID
-          <input name="apple_music_id" value="<c:out value='${song.appleMusicId}'/>" placeholder="např. 1234567890">
-        </label>
-        <c:if test="${not empty song.appleMusicId}">
-          <p><a href="https://music.apple.com/song/<c:out value='${song.appleMusicId}'/>" target="_blank" rel="noopener">Otevřít v Apple Music ↗</a></p>
-        </c:if>
-        <label>Spotify track ID
-          <input name="spotify_id" value="<c:out value='${song.spotifyId}'/>" placeholder="např. 4iV5W9uYEdYUVa79Axb7Rh">
-        </label>
-        <c:if test="${not empty song.spotifyId}">
-          <p><a href="https://open.spotify.com/track/<c:out value='${song.spotifyId}'/>" target="_blank" rel="noopener">Otevřít ve Spotify ↗</a></p>
-        </c:if>
-        <button type="submit">Uložit streaming ID</button>
-      </form>
-    </section>
 
     <!-- Texty + SEO per language -->
     <section class="admin-card admin-card-wide">
-      <h3>Texty, popisky a SEO URL</h3>
+      <h3>Texty a překlady</h3>
       <p class="text-dim">
-        Každý jazyk má vlastní veřejnou adresu <code>/{lang}/song/{alias}</code> (nebo UUID).
+        Text v každém jazyce zvlášť.
         <c:choose>
-          <c:when test="${translatorReady}">Překlad: <strong><c:out value="${translatorName}"/></strong>.</c:when>
-          <c:otherwise>Překladač není nastavený — doplň <code>DEEPL_API_KEY</code> nebo <code>LIBRETRANSLATE_URL</code> v <code>.env</code>.</c:otherwise>
+          <c:when test="${translatorReady}">Automatický překlad: <strong><c:out value="${translatorName}"/></strong>.</c:when>
+          <c:otherwise>Automatický překlad není zapnutý – překlady píšeme ručně.</c:otherwise>
         </c:choose>
       </p>
       <div class="locale-tabs" id="locale-tabs">
@@ -335,7 +336,7 @@
             <label>Text (${lang})
               <textarea name="words" rows="12"><c:out value="${loc.words}"/></textarea>
             </label>
-            <label>SEO URL alias (${lang})
+            <label>Krátká adresa písně (${lang}) – nepovinné
               <input name="seo_slug" value="<c:out value='${loc.seoSlug}'/>"
                      pattern="[a-z0-9]+(?:-[a-z0-9]+)*" maxlength="120"
                      placeholder="napr. musis-odejit" autocomplete="off">
@@ -345,7 +346,7 @@
               <code>/<c:out value="${lang}"/>/song/<c:out value="${empty loc.seoSlug ? song.uuid : loc.seoSlug}"/></code>
               · <a href="/<c:out value='${lang}'/>/song/<c:out value='${empty loc.seoSlug ? song.uuid : loc.seoSlug}'/>" target="_blank" rel="noopener">otevřít ↗</a>
             </p>
-            <label>Meta popisek (max 320 znaků)
+            <label>Popis pro Google (nepovinné, max 320 znaků)
               <textarea name="meta_description" rows="3" maxlength="320"><c:out value="${loc.metaDescription}"/></textarea>
             </label>
             <div class="admin-inline-form">

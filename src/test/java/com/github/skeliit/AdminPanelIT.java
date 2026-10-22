@@ -40,7 +40,6 @@ public class AdminPanelIT extends UiTestSupport {
         assertTrue(driver.getCurrentUrl().endsWith("/admin.jsp"), "got: " + driver.getCurrentUrl());
         assertEquals("Admin", driver.findElement(By.cssSelector(".admin-head h2")).getText());
         assertFalse(driver.findElements(By.cssSelector(".admin-side a.active[href='/admin.jsp']")).isEmpty(), "the side menu marks the dashboard");
-        assertFalse(driver.findElements(By.cssSelector("form[action='/admin/video']")).isEmpty());
         assertFalse(driver.findElements(By.cssSelector("a[href='/admin/comments']")).isEmpty(), "the dashboard links to the comments");
     }
 
@@ -132,8 +131,8 @@ public class AdminPanelIT extends UiTestSupport {
         String songName = "IT Song " + uniq();
         update("INSERT INTO videos (youtube_id, title) VALUES (?, 'old title')", youtubeId);
         try {
-            driver.get(BASE_URL + "/admin.jsp");
-            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("document.querySelector('.admin-manual').open = true");   // the manual form is folded on the dashboard
+            driver.get(BASE_URL + "/admin/songs");
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("document.querySelector('.admin-manual').open = true");   // ruční formulář je sbalený dole na stránce Písně
             driver.findElement(By.cssSelector("form[action='/admin/video'] input[name=youtube_id]")).sendKeys(youtubeId);
             driver.findElement(By.cssSelector("form[action='/admin/video'] input[name=title]")).sendKeys("New IT title");
             driver.findElement(By.cssSelector("form[action='/admin/video'] input[name=song_name]")).sendKeys(songName);
@@ -156,8 +155,8 @@ public class AdminPanelIT extends UiTestSupport {
         String withVideo = "IT Feat " + uniq();
         String noVideo = "IT Spotify only " + uniq();
         try {
-            driver.get(BASE_URL + "/admin.jsp");
-            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("document.querySelector('.admin-manual').open = true");   // the manual form is folded on the dashboard
+            driver.get(BASE_URL + "/admin/songs");
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("document.querySelector('.admin-manual').open = true");   // ruční formulář je sbalený dole na stránce Písně
             driver.findElement(By.cssSelector("form[action='/admin/video'] input[name=youtube_id]"))
                     .sendKeys("https://youtu.be/" + youtubeId + "?si=x");
             driver.findElement(By.cssSelector("form[action='/admin/video'] input[name=title]")).sendKeys("Other channel clip");

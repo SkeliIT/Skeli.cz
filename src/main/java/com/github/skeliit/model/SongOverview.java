@@ -21,6 +21,8 @@ public class SongOverview {
     public boolean isHasVideo() { return hasVideo; }
     public boolean isHasLyrics() { return hasLyrics; }
     public String[] getLanguages() { return languages; }
+    /** Má píseň text v daném jazyce? (seznam Písní v adminu přeškrtne chybějící) */
+    public boolean hasLang(String lang) { if (languages == null) return false; for (String l : languages) if (l != null && l.equalsIgnoreCase(lang)) return true; return false; }
     public String getPreviewImageUrl() { return previewImageUrl; }
     public Integer getFirstLyricId() { return firstLyricId; }
     public String getAppleMusicId() { return appleMusicId; }

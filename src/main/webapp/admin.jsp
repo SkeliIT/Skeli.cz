@@ -24,7 +24,7 @@
   String reportsText = nReports == 1 ? "nahlášený komentář čeká na rozhodnutí" : nReports < 5 ? "nahlášené komentáře čekají na rozhodnutí" : "nahlášených komentářů čeká na rozhodnutí";
   String clipsText = nClipsAlone == 1 ? "klip z YouTube zatím není u žádné písně" : nClipsAlone < 5 ? "klipy z YouTube zatím nejsou u žádné písně" : "klipů z YouTube zatím není u žádné písně";
   String clipsTail = nClipsAlone == 1 ? " – v Diskografii je jen jako klip, bez textu a bez stránky písně" : " – v Diskografii jsou jen jako klipy, bez textu a bez stránky písně";
-  String clipsHint = nClipsAlone == 1 ? "V editoru textů ho přiřadíš k písni, uděláš z něj novou, nebo ho schováš, když to ještě není hotová písnička. Když je to tak správně (třeba feat. na cizím kanálu), odklikni ✓." : "V editoru textů je přiřadíš k písni, uděláš z nich nové, nebo je schováš, když to ještě nejsou hotové písničky. Když je to tak správně (třeba feat. na cizím kanálu), odklikni ✓.";
+  String clipsHint = "Přiřaď k písni v Textech, nebo odklikni ✓, když je to tak správně.";
   String siteReportsText = nSiteReports == 1 ? "problém nahlásil návštěvník Kevinovi" : nSiteReports < 5 ? "problémy nahlásili návštěvníci Kevinovi" : "problémů nahlásili návštěvníci Kevinovi";
   String lyricHelpText = nLyricHelp == 1 ? "text poslal návštěvník k písni, kde hledáme pomoc" : nLyricHelp < 5 ? "texty poslali návštěvníci k písním, kde hledáme pomoc" : "textů poslali návštěvníci k písním, kde hledáme pomoc";
   // píseň, ke které patří ten nejnovější (na její stránce v adminu jsou texty)
@@ -42,8 +42,7 @@
       {"/admin/lyrics", "fa-align-left", "Songy s textem", "lyrics"},
       {"/admin/comments", "fa-comments", "Komentáře", "comments"},
       {"/admin_users.jsp", "fa-users", "Uživatelé", "users"},
-      {"/admin/newsletter", "fa-envelope-open-text", "Odběratelé", "subscribers"},
-      {"/admin/comments#reports", "fa-flag", "Nahlášené", "reports"}
+      {"/admin/newsletter", "fa-envelope-open-text", "Odběratelé", "subscribers"}
   };
 %>
 <main class="admin-page">
@@ -169,28 +168,6 @@
     </details>
   </section>
 
-  <%-- the things done most often, one tap away --%>
-  <div class="admin-quick">
-    <a class="admin-btn primary" href="/admin/track"><i class="fa-solid fa-plus" aria-hidden="true"></i> Přidat track z YouTube</a>
-    <a class="admin-btn" href="/admin/newsletter#compose"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Napsat novinky</a>
-    <a class="admin-btn" href="/admin/lyrics"><i class="fa-solid fa-align-left" aria-hidden="true"></i> Upravit text</a>
-    <a class="admin-btn" href="/admin/comments"><i class="fa-solid fa-comments" aria-hidden="true"></i> Komentáře</a>
-  </div>
-
-  <details class="admin-card admin-manual" id="manual"<%= request.getParameter("manual") != null ? " open" : "" %>>
-    <summary><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Přidat / upravit song a video ručně</summary>
-    <% if ("saved".equals(request.getParameter("manual"))) { %><p class="admin-flash"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Uloženo.</p><% } %>
-    <p class="text-dim">Song, který není na tvém kanálu (feat, cizí kanál, jen Spotify…): vlož odkaz na video a název songu – objeví se v Diskografii. Bez odkazu se přidá song bez videa. Běžně stačí „Přidat track z YouTube“.</p>
-      <form method="post" action="/admin/video" class="admin-form admin-form-cols">
-        <input type="hidden" name="csrf" value="${csrf}">
-        <label class="span-2">Odkaz na YouTube nebo ID videa <input name="youtube_id" placeholder="https://www.youtube.com/watch?v=…"></label>
-        <label>Název songu (vytvoří nebo propojí) <input name="song_name"></label>
-        <label>Název videa (nepovinné – jinak z YouTube) <input name="title"></label>
-        <label>Rok <input name="year" type="number" min="1900" max="2100"></label>
-        <label>Napojit na text (lyric ID) <input name="lyric_id" type="number" min="1"></label>
-        <button type="submit" class="span-2"><i class="fa-solid fa-floppy-disk"></i> Uložit</button>
-      </form>
-  </details>
 </main>
 
 <%@ include file="includes/footer.jsp" %>

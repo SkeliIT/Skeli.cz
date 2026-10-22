@@ -43,7 +43,7 @@ body.light .songs-table th { background: rgba(0,0,0,0.06); }
 body.light .songs-table tr:hover { background: rgba(0,0,0,0.04); }
 .indicator { display:inline-block; padding:2px 8px; border-radius:3px; margin:0 2px; font-size:0.9em; }
 .indicator.yes { background: rgba(0,255,0,0.18); color:#0f0; }
-.indicator.no { background: rgba(255,0,0,0.18); color:#f66; }
+.indicator.no { background: rgba(255,255,255,0.06); color: var(--text-dim); opacity: .6; }   /* chybí: šedě, ne poplašně červeně */
 .lang-flag { display:inline-block; padding:2px 6px; margin:0 2px; background: rgba(255,255,255,0.1); border-radius:3px; font-size:0.8em; text-transform:uppercase; }
 body.light .lang-flag { background: rgba(0,0,0,0.06); }
 .link-btn { color: var(--accent); text-decoration:none; padding:6px 14px; border:1px solid var(--accent); border-radius:999px; margin:0 4px; font-size: var(--fs-card); display:inline-block; transition: background-color .2s, color .2s; }
@@ -702,3 +702,32 @@ body.light .trash-state { color: #1e7a45; }
   .trash-label { flex-basis: calc(100% - 40px); }
   .trash-item form { margin-left: auto; }
 }
+
+/* ---------- Admin = pracovní místo: klidné tmavé pozadí bez fotek, bez Spotify a bez veřejné patičky ---------- */
+body.is-admin::before {
+  animation: none;
+  background:
+    radial-gradient(1100px 600px at 85% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%),
+    radial-gradient(900px 500px at -10% 110%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%),
+    var(--bg);
+}
+body.is-admin .bg-slides,
+body.is-admin .site-footer,
+body.is-admin .sp-bar,
+body.is-admin #sp-min { display: none !important; }
+body.is-admin main.admin-page { padding-bottom: 60px; }
+
+/* seznam Písní: legenda nad tabulkou, chybějící jazyk přeškrtnutý */
+.songs-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin: 0 0 14px; font-family: var(--font-text); font-size: var(--fs-small); font-weight: 300; }
+.songs-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.lang-flag.missing { opacity: .4; text-decoration: line-through; }
+
+/* stránka písně: technické údaje sbalené pod „Pokročilé“, tlačítko na zkopírování odkazu */
+.song-adv { margin-top: 6px; font-size: var(--fs-small); }
+.song-adv > summary { cursor: pointer; color: var(--text-dim); width: max-content; }
+.song-adv > summary:hover { color: var(--accent); }
+.song-adv .song-uuid-row { margin: 8px 0 0; }
+.song-copy-btn { min-height: 30px; padding: 0 12px; font-size: var(--fs-small); }
+/* zaškrtávátko vedle textu, ne roztažené přes celý řádek */
+.admin-form label.admin-check { display: flex; flex-direction: row; align-items: center; gap: 10px; }
+.admin-form label.admin-check input { width: auto; margin: 0; flex: none; }
