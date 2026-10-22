@@ -1232,7 +1232,7 @@
       root.removeEventListener('animationend', done);
       root.classList.remove('kevin-in');
     });
-    if (userHidden) { place(false); if (!adminPage) scheduleTip(); return; }
+    if (userHidden) { place(false); introPaw(); if (!adminPage) scheduleTip(); return; }   // pacička se vylíhne i tomu, kdo Kevina zavřel
     if (pocket()) { place(false); introPaw(); }   // in the paw until he has something to say (greet below)
     else ensureModel();          // a page without the header bar: he stands there from the start
     wake();
