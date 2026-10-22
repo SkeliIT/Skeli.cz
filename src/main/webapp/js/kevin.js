@@ -67,8 +67,8 @@
   paw.className = 'kevin-paw';
   paw.title = L.ui.show;
   paw.setAttribute('aria-label', L.ui.show);
-  // kroužek, který se při příchodu „nabije“, a jiskry, které při „puf“ odletí (css/effects.css: paw-arrive)
-  paw.innerHTML = '<span class="paw-charge" aria-hidden="true"></span>'
+  // jiskry, které odletí, když pacička vyskočí (css/effects.css: paw-arrive)
+  paw.innerHTML = ''
     + [0, 1, 2, 3, 4, 5, 6, 7].map(function (i) { return '<span class="paw-spark" style="--i:' + i + '" aria-hidden="true"></span>'; }).join('')
     + '<i class="fa-solid fa-paw"></i>';
   paw.hidden = true;
@@ -1268,7 +1268,7 @@
   root.querySelector('.kevin-hide').addEventListener('click', function () { setHidden(true); });
   // the paw: on a phone straight to his menu (that is why it was tapped), elsewhere a hello
   // ---------- příchod pacičky do lišty ----------
-  // Kevin naskočí až po načtení stránky, tak z toho děláme efekt: kroužek se nabije, puf, jiskry a pacička.
+  // Kevin naskočí až po načtení stránky, tak z toho děláme efekt líhnutí: tlačítko se cuká, praskne a vyskočí pacička.
   // Celé jen na první stránce návštěvy, na dalších krátké „hop“. Dokud na ni člověk nikdy neklikl,
   // jednou za čas se pacička zavrtí a zazáří, ať je vidět, že se za ní něco skrývá.
   var pawUsed = store.get('kevinPawUsed') === '1', nudgeTimer = 0;
@@ -1277,7 +1277,21 @@
     var first = !session.get('kevinPawIntro');
     session.set('kevinPawIntro', '1');
     paw.classList.add(first ? 'paw-arrive' : 'paw-quick');
-    setTimeout(function () { paw.classList.remove('paw-arrive', 'paw-quick'); }, first ? 3600 : 900);
+    // líhnutí: levý konec lišty s tlačítky (kulaté místo pacičky) se pocuká, přeběhne po něm prasklina, šup
+    var shell = first ? paw : null, crack = null;
+    if (shell) {
+      shell.classList.add('paw-hatch');
+      crack = document.createElement('span');
+      crack.className = 'paw-hatch-crack';
+      crack.setAttribute('aria-hidden', 'true');
+      crack.innerHTML = '<svg viewBox="0 0 100 20" preserveAspectRatio="none"><polyline points="0,8 18,14 34,5 52,15 68,6 84,13 100,9"/></svg>';
+      shell.appendChild(crack);
+    }
+    setTimeout(function () {
+      paw.classList.remove('paw-arrive', 'paw-quick');
+      if (shell) shell.classList.remove('paw-hatch');
+      if (crack) crack.remove();
+    }, first ? 4200 : 900);
     if (!pawUsed && !nudgeTimer) nudgeTimer = setInterval(function () {
       if (document.hidden || paw.hidden || !root.hidden) return;
       paw.classList.remove('paw-nudge');

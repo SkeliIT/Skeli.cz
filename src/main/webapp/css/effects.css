@@ -1208,34 +1208,47 @@ body.light .kevin-emote {
   .kevin-emote.on { animation: none; }
 }
 
-/* ---------- příchod pacičky do lišty (js/kevin.js introPaw) ----------
-   1) zlatý kroužek se kolem dokola „nabije“ a pulzuje, 2) puf: záblesk, kroužek se rozletí, 3) odletí jiskry
-   a vyskočí pacička, 4) dvakrát kolem ní zazáří. Na dalších stránkách jen krátké hop. */
-@property --paw-p { syntax: "<number>"; inherits: false; initial-value: 0; }
-.kevin-paw .paw-charge, .kevin-paw .paw-spark { position: absolute; pointer-events: none; opacity: 0; }
-.kevin-paw .paw-charge {
-  inset: -4px; border-radius: 50%;
-  background: conic-gradient(from -90deg, #ffe27a, var(--accent) calc(var(--paw-p) * 1%), transparent 0);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
-}
-.kevin-paw .paw-spark {
+/* ---------- příchod pacičky do lišty (js/kevin.js introPaw): líhnutí ----------
+   1) levý konec lišty – kulaté místo pacičky – se pár vteřin cuká (nejdřív maličko, pak víc) a rozzáří se mu okraj;
+   2) přeběhne po něm zlatá prasklina a zableskne se; 3) šup: vyskočí pacička a odletí jiskry; 4) dvakrát kolem ní
+   zazáří. Pacička mezitím drží své místo (nic v liště neposkočí), jen je neviditelná. */
+.kevin-paw .paw-spark { position: absolute; pointer-events: none; opacity: 0;
   left: 50%; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%;
-  background: #ffe27a; box-shadow: 0 0 6px 1px var(--accent);
-}
+  background: #ffe27a; box-shadow: 0 0 6px 1px var(--accent); }
 .kevin-paw i { display: inline-block; position: relative; }
-.kevin-paw.paw-arrive i { animation: paw-pop .6s 1.15s cubic-bezier(.2, 1.7, .4, 1) both; }
-.kevin-paw.paw-arrive .paw-charge { animation: paw-charge 1.15s ease-in both, paw-burst .5s 1.15s ease-out forwards; }
-.kevin-paw.paw-arrive .paw-spark { animation: paw-spark .7s 1.15s cubic-bezier(.1, .8, .3, 1) both; }
-.kevin-paw.paw-arrive { animation: paw-glow 1.3s 1.6s ease-out 2; }
-@keyframes paw-charge {
-  0% { opacity: 0; --paw-p: 0; filter: drop-shadow(0 0 0 transparent); }
-  10% { opacity: 1; }
-  100% { opacity: 1; --paw-p: 100; filter: drop-shadow(0 0 6px var(--accent)); }
+.kevin-paw.paw-arrive.paw-hatch {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
+  animation: paw-wobble 1.9s ease-in-out both, paw-flash .7s 2.15s ease-out, paw-glow 1.3s 2.9s ease-out 2;
 }
-@keyframes paw-burst { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(2.1); } }
+.paw-hatch-crack { position: absolute; left: 4%; right: 4%; top: 50%; height: 12px; margin-top: -6px; pointer-events: none; z-index: 3; opacity: 0;
+  animation: paw-crack-in .3s 1.9s ease-out forwards, paw-crack-out .35s 2.35s ease-in forwards; }
+.paw-hatch-crack svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.paw-hatch-crack polyline { fill: none; stroke: #fff7d6; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke;
+  stroke-dasharray: 200; stroke-dashoffset: 200; filter: drop-shadow(0 0 3px #ffd34d) drop-shadow(0 0 7px var(--accent));
+  animation: paw-crack-draw .4s 1.9s ease-out forwards; }
+/* časování: cukání 0–1,9 s, prasklina 1,9–2,3 s, šup ve 2,3 s */
+.kevin-paw.paw-arrive { animation: paw-glow 1.3s 2.6s ease-out 2; }
+.kevin-paw.paw-arrive i { animation: paw-pop .6s 2.3s cubic-bezier(.2, 1.7, .4, 1) both; }
+.kevin-paw.paw-arrive .paw-spark { animation: paw-spark .7s 2.3s cubic-bezier(.1, .8, .3, 1) both; }
+@keyframes paw-flash {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
+  25% { box-shadow: 0 0 26px 4px color-mix(in srgb, var(--accent) 75%, transparent); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes paw-wobble {
+  0%, 18%, 30%, 44%, 58%, 100% { rotate: 0deg; scale: 1; }
+  22% { rotate: -6deg; } 26% { rotate: 5deg; }
+  48% { rotate: -10deg; scale: 1.05; } 52% { rotate: 9deg; scale: 1.05; } 55% { rotate: -3deg; }
+  66% { rotate: -14deg; scale: 1.1; } 72% { rotate: 13deg; scale: 1.1; } 78% { rotate: -10deg; scale: 1.07; }
+  84% { rotate: 8deg; scale: 1.05; } 90% { rotate: -4deg; } 95% { rotate: 2deg; }
+}
+@keyframes paw-crack-in { to { opacity: 1; } }
+@keyframes paw-crack-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes paw-crack-draw { to { stroke-dashoffset: 0; } }
 @keyframes paw-spark {
-  0% { opacity: 1; transform: rotate(calc(var(--i) * 45deg)) translateX(0) scale(1.2); }
+  0% { opacity: 0; transform: rotate(calc(var(--i) * 45deg)) translateX(0) scale(1.2); }
+  8% { opacity: 1; }
   100% { opacity: 0; transform: rotate(calc(var(--i) * 45deg)) translateX(30px) scale(.3); }
 }
 @keyframes paw-pop {
@@ -1261,6 +1274,6 @@ body.light .kevin-emote {
   75% { transform: rotate(-4deg) scale(1.05); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .kevin-paw.paw-arrive, .kevin-paw.paw-arrive i, .kevin-paw.paw-arrive .paw-charge, .kevin-paw.paw-arrive .paw-spark,
+  .kevin-paw.paw-arrive, .kevin-paw.paw-arrive i, .kevin-paw.paw-arrive .paw-spark, .paw-hatch, .paw-hatch-crack, .paw-hatch-crack polyline,
   .kevin-paw.paw-quick i, .kevin-paw.paw-nudge, .kevin-paw.paw-nudge i { animation: none; }
 }

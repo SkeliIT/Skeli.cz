@@ -759,3 +759,43 @@ body.is-admin main.admin-page { padding-bottom: 60px; }
 .texts-overview .none .to-state { color: #ff8a8c; }
 body.light .texts-overview .done .to-state i { color: #1e7a45; }
 body.light .texts-overview .none .to-state { color: #b3261e; }
+
+/* ---------- Nástěnka: dlaždice za období (číslo, trend, křivka) ---------- */
+.live-now { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; padding: 2px 10px; border-radius: 999px;
+  background: rgba(79, 220, 140, .12); color: #4fdc8c; font-size: var(--fs-small); white-space: nowrap; }
+.live-now i { font-size: .55em; animation: live-blink 2s ease-in-out infinite; }
+@keyframes live-blink { 50% { opacity: .3; } }
+body.light .live-now { background: rgba(30, 122, 69, .1); color: #1e7a45; }
+.kpi-board { margin: 6px 0 18px; }
+.kpi-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.kpi-head h3 { display: flex; align-items: center; gap: 10px; margin: 0; }
+.kpi-head h3 i { color: var(--accent); }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }   /* 6 dlaždic = 2 řady po 3 */
+.kpi {
+  position: relative; display: grid; grid-template-rows: auto auto auto 1fr; gap: 4px; min-height: 150px; padding: 16px 16px 12px;
+  border-radius: var(--radius); border: 1px solid var(--panel-border); color: var(--text); text-decoration: none; overflow: hidden;
+  background: linear-gradient(150deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0) 55%), var(--panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); transition: transform .2s ease, border-color .2s ease;
+}
+.kpi:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 55%, transparent); text-decoration: none; }
+.kpi-label { display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: var(--fs-small); }
+.kpi-label i { color: var(--accent); }
+.kpi-value { font-family: var(--font-body); font-weight: 400; font-size: var(--fs-h2); line-height: 1.1; }
+.kpi-trend { font-family: var(--font-text); font-size: var(--fs-small); font-weight: 400; }
+.kpi-up .kpi-trend { color: #4fdc8c; }
+.kpi-down .kpi-trend { color: #ff8a8c; }
+.kpi-flat .kpi-trend { color: var(--text-dim); }
+body.light .kpi-up .kpi-trend { color: #1e7a45; }
+body.light .kpi-down .kpi-trend { color: #b3261e; }
+.kpi .spark { align-self: end; width: 100%; height: 40px; margin-top: 6px; color: var(--accent); overflow: visible; }
+.kpi-hint { color: var(--text-dim); font-size: var(--fs-small); font-family: var(--font-text); font-weight: 300; }
+/* obsah webu dole: menší dlaždice */
+.admin-content-stats .admin-stat { min-height: 0; padding: 12px 14px; }
+.admin-content-stats .admin-stat b { font-size: var(--fs-h3); }
+@media (max-width: 600px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi { min-height: 130px; padding: 12px 12px 10px; }
+  .kpi-value { font-size: var(--fs-h3); }
+  .kpi-hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .live-now i { animation: none; } }
