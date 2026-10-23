@@ -43,6 +43,16 @@ public class CsrfFilter implements Filter {
         boolean multipart = contentType != null && contentType.toLowerCase().startsWith("multipart/");
 
         if (unsafe && !multipart && !isValid(req)) {
+            // Obyčejný formulář (třeba přihlášení otevřené dlouho v záložce, mezitím vypršela relace):
+            // místo holé chyby zpátky na tutéž stránku s čerstvým formulářem a slušnou hláškou nahoře.
+            String back = formBack(req);
+            if (back != null) {
+                req.getSession(true);   // nová relace = nový token pro obnovenou stránku
+                resp.setStatus(HttpServletResponse.SC_SEE_OTHER);
+                resp.setHeader("Location", back);
+                return;
+            }
+            // skripty na pozadí (fetch s hlavičkou X-CSRF-Token, JSON): krátká chyba
             resp.setStatus(400);
             resp.setContentType("text/plain; charset=UTF-8");
             resp.getWriter().write(I18n.getText(req, "error.csrf"));
@@ -53,6 +63,45 @@ public class CsrfFilter implements Filter {
         HttpSession session = req.getSession(false);
         if (session != null) req.setAttribute(ATTR, token(session));
         chain.doFilter(request, response);
+    }
+
+    /**
+     * Kam vrátit odmítnutý obyčejný formulář: cesta stránky, ze které přišel (Referer, jen z tohoto webu),
+     * s parametrem csrf=expired (header.jsp ukáže hlášku). null = požadavek od skriptu (má hlavičku tokenu,
+     * nechce HTML), ten dostane krátkou chybu.
+     */
+    static String formBack(HttpServletRequest req) {
+        if (req.getHeader(HEADER) != null) return null;
+        String accept = String.valueOf(req.getHeader("Accept"));
+        if (!accept.contains("text/html")) return null;
+        String path = "/";
+        String ref = req.getHeader("Referer");
+        if (ref != null) {
+            try {
+                java.net.URI u = java.net.URI.create(ref);
+                // jen stejný web (jinak by šlo přesměrovat kamkoli)
+                if (u.getHost() != null && sameSite(req, u.getHost()) && u.getRawPath() != null
+                        && u.getRawPath().startsWith("/") && !u.getRawPath().startsWith("//")) {
+                    String q = u.getRawQuery() == null ? "" : u.getRawQuery().replaceAll("(^|&)csrf=[^&]*", "").replaceAll("^&", "");
+                    path = u.getRawPath() + (q.isEmpty() ? "" : "?" + q);
+                }
+            } catch (IllegalArgumentException e) {
+                path = "/";
+            }
+        }
+        return path + (path.contains("?") ? "&" : "?") + "csrf=expired";
+    }
+
+    /** Je adresa z tohoto webu? (Za Apachem se porovná i Host / X-Forwarded-Host a adresa z APP_BASE_URL.) */
+    private static boolean sameSite(HttpServletRequest req, String host) {
+        java.util.List<String> ours = new java.util.ArrayList<>();
+        ours.add(req.getServerName());
+        for (String h : new String[] { req.getHeader("Host"), req.getHeader("X-Forwarded-Host") }) {
+            if (h != null) ours.add(h.split(",")[0].trim().replaceAll(":\\d+$", ""));
+        }
+        try { ours.add(java.net.URI.create(com.github.skeliit.WebUtils.baseUrl()).getHost()); } catch (Exception ignored) { }
+        for (String o : ours) if (o != null && o.equalsIgnoreCase(host)) return true;
+        return false;
     }
 
     /** Returns the session's CSRF token, creating one if needed. */

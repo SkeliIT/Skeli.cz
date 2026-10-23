@@ -278,6 +278,7 @@
   else if ("1".equals(request.getParameter("reported"))) flashKey = "flash.reported";
   else if ("0".equals(request.getParameter("reported"))) { flashKey = "flash.reportFailed"; flashOk = false; }
   else if ("limit".equals(request.getParameter("comment"))) { flashKey = "flash.commentLimit"; flashOk = false; }
+  else if ("expired".equals(request.getParameter("csrf"))) { flashKey = "flash.csrfExpired"; flashOk = false; }   // formulář byl otevřený moc dlouho (CsrfFilter)
   if (flashKey != null) {
 %>
         <div class="flash <%= flashOk ? "flash-ok" : "flash-warn" %>" role="status">
