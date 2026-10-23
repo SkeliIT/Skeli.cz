@@ -43,6 +43,22 @@
             <c:if test="${not empty lyric.year}"><span class="song-year">${lyric.year}</span></c:if>
             <span class="head-views" title="<%= t.getProperty("lyric.views") %> ${lyric.views}"><i class="fa-regular fa-eye" aria-hidden="true"></i> ${lyric.views}<span class="sr-only"> <%= t.getProperty("lyric.views") %></span></span>
           </div>
+          <%-- premiéra, která ještě nevyšla (admin → píseň → Premiéra): odpočet, po nule „Venku!“ (js/premiere.js) --%>
+          <c:if test="${not empty premiere}">
+            <% com.github.skeliit.model.Premiere lp = (com.github.skeliit.model.Premiere) request.getAttribute("premiere"); %>
+            <div class="lyric-premiere" data-premiere="${premiere.at}">
+              <span class="lp-label"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>
+                <%= t.getProperty("song".equals(lp.kind) ? "premiere.song" : "premiere.clip") %> · <%= t.getProperty("premiere.at").replace("{when}", lp.getWhen()) %></span>
+              <span class="hp-count">
+                <span data-u="d">0</span><i><%= t.getProperty("premiere.d") %></i>
+                <span data-u="h">00</span><i><%= t.getProperty("premiere.h") %></i>
+                <span data-u="m">00</span><i><%= t.getProperty("premiere.m") %></i>
+                <span data-u="s">00</span><i><%= t.getProperty("premiere.s") %></i>
+              </span>
+              <span class="lp-out"><%= t.getProperty("premiere.out") %></span>
+            </div>
+            <script src="/js/premiere.js?v=<%= assetVersion %>"></script>
+          </c:if>
         </div>
         <c:if test="${not empty nextSong}">
           <a class="head-arrow head-next" href="/<%= cur %>/song/${nextSong.uuid}" rel="next" title="<%= t.getProperty("lyrics.next") %>: <c:out value='${nextSong.shortName}'/>" aria-label="<%= t.getProperty("lyrics.next") %>: <c:out value='${nextSong.shortName}'/>"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>

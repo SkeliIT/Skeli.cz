@@ -35,6 +35,8 @@ public class AdminAuditFilter implements Filter {
             Map.entry("/admin/song#delete_video", "Smazání klipu"),
             Map.entry("/admin/song#delete_song", "Smazání písně"),
             Map.entry("/admin/song#delete_text", "Smazání textu"),
+            Map.entry("/admin/song#save_release", "Premiéra nastavená"),
+            Map.entry("/admin/song#clear_release", "Premiéra zrušená"),
             Map.entry("/admin/song#save_art", "Obrázek v seznamu Texty"),
             Map.entry("/admin/song#save_poster", "Plakát v Karaoke"),
             Map.entry("/admin/song#save_locale", "Úprava překladu / SEO"),

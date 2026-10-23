@@ -978,7 +978,7 @@ button.is-sending { cursor: progress; opacity: 0.85; }
 .kevin.peek { top: var(--peek-y, 40vh); bottom: auto; }
 /* vykoukne zpoza okraje jako zpoza rohu: nakloněný kolem nohou, které zůstanou za okrajem (nevisí ve vzduchu) */
 .kevin.peek-right { left: auto; right: -128px; rotate: -34deg; transform-origin: 50% 100%; animation: kevin-peek-in-right .75s cubic-bezier(.2, .9, .3, 1.15) both; }
-.kevin.peek-left { left: -142px; rotate: 34deg; transform-origin: 50% 100%; animation: kevin-peek-in-left .75s cubic-bezier(.2, .9, .3, 1.15) both; }
+.kevin.peek-left { left: -104px; rotate: 34deg; transform-origin: 50% 100%; animation: kevin-peek-in-left .75s cubic-bezier(.2, .9, .3, 1.15) both; }
 .kevin.peek-out.peek-right { animation: kevin-peek-out-right .5s ease-in both; }
 .kevin.peek-out.peek-left { animation: kevin-peek-out-left .5s ease-in both; }
 @keyframes kevin-peek-in-right { from { translate: 130% 0; } }
@@ -1286,4 +1286,23 @@ body.light .kevin-emote {
 @media (prefers-reduced-motion: reduce) {
   .kevin-paw.paw-arrive, .kevin-paw.paw-arrive i, .kevin-paw.paw-arrive .paw-spark, .paw-hatch, .paw-hatch::before, .paw-hatch-crack, .paw-hatch-crack polyline,
   .kevin-paw.paw-quick i, .kevin-paw.paw-nudge, .kevin-paw.paw-nudge i { animation: none; }
+}
+
+/* ---------- premiéra s odpočtem na úvodu (index.jsp, admin → píseň → Premiéra) ---------- */
+.hero-premiere { border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: var(--shadow), 0 0 30px -12px color-mix(in srgb, var(--accent) 80%, transparent); }
+.hero-premiere small { display: flex; align-items: center; gap: 4px; }
+.hero-premiere .hp-out, .hero-premiere.is-out .hp-soon, .hero-premiere.is-out .hp-count { display: none; }
+.hero-premiere.is-out .hp-out { display: inline; }
+.hp-count { display: flex; align-items: baseline; gap: 3px; margin-top: 2px; font-family: var(--font-body); font-size: var(--fs-h4); color: var(--accent);
+  font-variant-numeric: tabular-nums; }
+.hp-count i { margin-right: 6px; font-style: normal; font-size: var(--fs-small); color: var(--text-dim); }
+.hero-premiere:not(.is-out) .play { opacity: .5; }
+/* premiéra na telefonu: popisek na jeden řádek, menší odpočet, bez kulatého tlačítka (nevejde se) */
+.hero-premiere small { white-space: nowrap; }
+.hero-premiere > span:not(.play) { min-width: 0; }
+@media (max-width: 600px) {
+  .hero-premiere .play { display: none; }
+  .hero-premiere .hp-count { font-size: var(--fs-body); }
+  .hero-premiere img { width: 84px; height: auto; }
 }

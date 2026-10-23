@@ -45,7 +45,28 @@
         <i class="fa-solid fa-align-left"></i> <%= t.getProperty("home.cta.lyrics") %>
       </a>
     </div>
-    <% if (latest != null) {
+    <%-- premiéra s odpočtem (admin → píseň → Premiéra): má přednost před kartou „Nový song“ --%>
+    <% com.github.skeliit.model.Premiere premiere = null;
+       try { premiere = new com.github.skeliit.dao.PremiereDao().forHome(); } catch (java.sql.SQLException e) { application.log("Premiere", e); }
+       if (premiere != null) {
+         String pName = com.github.skeliit.WebUtils.escapeHtml(premiere.name);
+         String pKind = t.getProperty("song".equals(premiere.kind) ? "premiere.song" : "premiere.clip"); %>
+    <a class="hero-latest hero-premiere<%= premiere.isOut() ? " is-out" : "" %>" href="<%= com.github.skeliit.I18n.songPath(request, premiere.uuid, 0) %>" data-premiere="<%= premiere.at %>">
+      <% if (premiere.thumb != null) { %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(premiere.thumb) %>" alt="" width="104" height="58"><% } %>
+      <span>
+        <small><span class="dot"></span><span class="hp-soon"><%= t.getProperty("premiere.soon") %></span><span class="hp-out"><%= t.getProperty("premiere.out") %></span> · <%= pKind %></small>
+        <b><%= pName %></b>
+        <span class="hp-count" aria-label="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("premiere.at").replace("{when}", premiere.getWhen())) %>">
+          <span data-u="d">0</span><i><%= t.getProperty("premiere.d") %></i>
+          <span data-u="h">00</span><i><%= t.getProperty("premiere.h") %></i>
+          <span data-u="m">00</span><i><%= t.getProperty("premiere.m") %></i>
+          <span data-u="s">00</span><i><%= t.getProperty("premiere.s") %></i>
+        </span>
+      </span>
+      <span class="play"><i class="fa-solid fa-play"></i></span>
+    </a>
+    <script src="/js/premiere.js?v=<%= assetVersion %>"></script>
+    <% } else if (latest != null) {
          String latestId = com.github.skeliit.WebUtils.escapeHtml(latest.youtubeId());
          String latestTitle = latest.title() == null ? "YouTube" : latest.title(); %>
     <a class="hero-latest" href="https://www.youtube.com/watch?v=<%= latestId %>" target="_blank" rel="noopener">

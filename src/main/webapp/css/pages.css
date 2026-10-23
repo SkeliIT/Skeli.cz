@@ -1819,3 +1819,14 @@ body.light .k-poster:hover .k-ticket { background: #e6b730; color: #141414; }
 .lyric-page .lyrics-text pre.bi .bi-gap { display: block; height: 1.1em; }
 /* na celé obrazovce v karaoke: překlad zpívaného řádku jako titulky */
 .fs-next.fs-tr { font-family: 'Exo 2', system-ui, sans-serif; font-style: italic; color: rgba(255, 255, 255, 0.78); }
+
+/* premiéra u písně: zlatý pruh s odpočtem pod názvem (js/premiere.js) */
+.lyric-premiere { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px; margin-top: 12px;
+  padding: 8px 16px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: var(--panel); box-shadow: 0 0 26px -12px color-mix(in srgb, var(--accent) 80%, transparent); }
+.lyric-premiere .lp-label { color: var(--text-dim); font-size: var(--fs-small); }
+.lyric-premiere .lp-label i { color: var(--accent); }
+.lyric-premiere .hp-count { display: flex; align-items: baseline; gap: 3px; font-family: var(--font-body); font-size: var(--fs-h4); color: var(--accent); font-variant-numeric: tabular-nums; }
+.lyric-premiere .hp-count i { margin-right: 6px; font-style: normal; font-size: var(--fs-small); color: var(--text-dim); }
+.lyric-premiere .lp-out, .lyric-premiere.is-out .hp-count { display: none; }
+.lyric-premiere.is-out .lp-out { display: inline; color: var(--accent); font-family: var(--font-body); }

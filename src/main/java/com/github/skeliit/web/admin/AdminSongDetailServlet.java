@@ -59,6 +59,7 @@ public class AdminSongDetailServlet extends HttpServlet {
             req.setAttribute("videos", videos);
             // the delete box at the end: a song can go only once its lyrics are gone
             req.setAttribute("lyricLangs", songs.lyricLanguages(song.id));
+            req.setAttribute("premiere", new com.github.skeliit.dao.PremiereDao().forSong(song.id));   // premiéra s odpočtem
             // „Hledáme pomoc s textem“: je zapnutá, v jakém jazyce, od kdy; a co návštěvníci poslali
             String[] helpWanted = help.wanted(song.id);
             req.setAttribute("helpOn", helpWanted != null);
@@ -160,6 +161,21 @@ public class AdminSongDetailServlet extends HttpServlet {
                     int hid = parseId(req.getParameter("help_id"));
                     if (hid > 0) help.delete(hid);
                     resp.sendRedirect(hub + "&msg=help_deleted#lyric-help");
+                }
+                case "save_release" -> {
+                    // premiéra: datum a čas z pole v adminu (pražský čas) → milisekundy
+                    try {
+                        java.time.LocalDateTime local = java.time.LocalDateTime.parse(String.valueOf(req.getParameter("release_at")));
+                        long at = local.atZone(java.time.ZoneId.of("Europe/Prague")).toInstant().toEpochMilli();
+                        new com.github.skeliit.dao.PremiereDao().set(id, at, req.getParameter("release_kind"));
+                        resp.sendRedirect(hub + "&msg=release_saved#premiere");
+                    } catch (java.time.format.DateTimeParseException e) {
+                        resp.sendRedirect(hub + "&msg=bad_release#premiere");
+                    }
+                }
+                case "clear_release" -> {
+                    new com.github.skeliit.dao.PremiereDao().set(id, null, null);
+                    resp.sendRedirect(hub + "&msg=release_cleared#premiere");
                 }
                 case "delete_text" -> {
                     // text v jednom jazyce pryč (s komentáři pod ním); nejdřív kopie do koše

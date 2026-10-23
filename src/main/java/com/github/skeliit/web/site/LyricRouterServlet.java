@@ -70,6 +70,7 @@ public class LyricRouterServlet extends HttpServlet {
             req.setAttribute("liked", likeUser instanceof Integer u && new com.github.skeliit.dao.LyricDao().likedBy(v.songId, u));
             setHelp(req, v.songId);
             setOriginal(req, v);
+            setPremiere(req, v.songId);
             req.getRequestDispatcher("/WEB-INF/views/lyric.jsp").forward(req, resp);
         } catch (Exception e) { throw new ServletException(e); }
     }
@@ -84,6 +85,12 @@ public class LyricRouterServlet extends HttpServlet {
      * Originál · Překlad · Obojí (řádek pod řádkem, js/lyric-bilingual.js). Jen když mají oba stejně řádků – jinak
      * by se překlad posunul vůči originálu.
      */
+    /** Premiéra písně nebo klipu, která ještě nevyšla: stránka písně ukáže odpočet (attribute premiere). */
+    static void setPremiere(HttpServletRequest req, int songId) throws java.sql.SQLException {
+        com.github.skeliit.model.Premiere p = new com.github.skeliit.dao.PremiereDao().forSong(songId);
+        if (p != null && !p.isOut()) req.setAttribute("premiere", p);
+    }
+
     static void setOriginal(HttpServletRequest req, com.github.skeliit.model.LyricView v) throws java.sql.SQLException {
         if (v == null || v.lang == null || "cs".equals(v.lang) || v.words == null) return;
         String cs = new com.github.skeliit.dao.LyricDao().getWords(v.songId, "cs");

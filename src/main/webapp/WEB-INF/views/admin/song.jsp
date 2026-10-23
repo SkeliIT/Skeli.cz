@@ -17,6 +17,9 @@
         <c:when test="${param.msg == 'video_linked'}">YouTube video napojeno.</c:when>
         <c:when test="${param.msg == 'video_unlinked'}">YouTube video odpojeno.</c:when>
         <c:when test="${param.msg == 'video_deleted'}">Klip je smazaný z celého webu a synchronizace z YouTube ho už nevrátí.</c:when>
+        <c:when test="${param.msg == 'release_saved'}">Premiéra uložená – na webu běží odpočet.</c:when>
+        <c:when test="${param.msg == 'release_cleared'}">Premiéra zrušená.</c:when>
+        <c:when test="${param.msg == 'bad_release'}">Datum a čas premiéry se nepodařilo přečíst.</c:when>
         <c:when test="${param.msg == 'text_deleted'}">Text smazaný. 30 dní ho najdeš v Koši (Systém → Záznam změn a koš).</c:when>
         <c:when test="${param.msg == 'help_saved'}">Výzva k pomoci s textem uložena.</c:when>
         <c:when test="${param.msg == 'help_deleted'}">Text od návštěvníka smazán.</c:when>
@@ -188,6 +191,38 @@
       </form>
     </section>
 
+
+    <!-- Premiéra: datum a čas, kdy píseň nebo klip vyjde – na webu odpočet (úvod, stránka písně) -->
+    <section class="admin-card" id="premiere">
+      <h3><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Premiéra</h3>
+      <p class="text-dim">Na úvodu i u písně poběží odpočet, po premiéře se 3 dny ukazuje „Venku!“. Čas je pražský.</p>
+      <c:if test="${not empty premiere}">
+        <p class="premiere-state">${premiere.out ? 'Vyšlo' : 'Naplánováno'}: <b>${premiere.when}</b> · ${premiere.kind == 'song' ? 'nová píseň' : 'nový klip'}</p>
+      </c:if>
+      <form method="post" action="/admin/song" class="admin-form">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="id" value="${song.id}">
+        <input type="hidden" name="action" value="save_release">
+        <label>Kdy
+          <input type="datetime-local" name="release_at" value="${empty premiere ? '' : premiere.localInput}" required>
+        </label>
+        <label>Co vychází
+          <select name="release_kind">
+            <option value="clip" ${empty premiere or premiere.kind == 'clip' ? 'selected' : ''}>Nový klip</option>
+            <option value="song" ${premiere.kind == 'song' ? 'selected' : ''}>Nová píseň</option>
+          </select>
+        </label>
+        <button type="submit">Uložit premiéru</button>
+      </form>
+      <c:if test="${not empty premiere}">
+        <form method="post" action="/admin/song" class="admin-inline-form">
+          <input type="hidden" name="csrf" value="${csrf}">
+          <input type="hidden" name="id" value="${song.id}">
+          <input type="hidden" name="action" value="clear_release">
+          <button type="submit" class="btn-delete"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Zrušit premiéru</button>
+        </form>
+      </c:if>
+    </section>
   </div>
   <%-- the song off the site – only once it has no lyrics (the text is deleted on its own, never with the song by
        mistake); its clips stay as clips without a song --%>
