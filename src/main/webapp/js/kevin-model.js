@@ -78,8 +78,8 @@ export function createKevin(canvas, opts = {}) {
   let pose = 'idle', talking = false, talkClip = 'talk', act = null, actEnd = 0, paused = false, disposed = false;
   let lookX = 0, lookY = 0, spinT = -1, special = null, specialT = 0, frozenUntil = 0, held = null, turnTo = 0;
   let mixer = null, actions = {}, playing = null, head = null, hips = null, hipsRest = null, clock = 0;
-  let foot = null, walkSpeed = 0;   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
-  let legs = [], tail = [], jaw = null, jawRest = null, mouth = null;
+  let foot = null, walkSpeed = 0, speeds = {};   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
+  let legs = [], tail = [], jaw = null, jawRest = null, mouth = null, forcedFace = null, forcedUntil = 0;
 
   function wanted() {
     if (act) return act;
@@ -127,6 +127,13 @@ export function createKevin(canvas, opts = {}) {
     for (const clip of g.animations) actions[clip.name] = mixer.clipAction(clip);
     walkSpeed = measureWalk(model);
     crossfade();
+    // další pohyby (běh, pády, sezení na hraně…) z kevin/pohyby.json – jen když o ně volající požádá (procházka)
+    if (opts.moves) fetch(opts.moves).then(r => r.ok ? r.json() : []).then(list => {
+      if (disposed) return;
+      api.addClips(list.map(j => THREE.AnimationClip.parse(j)));
+      for (const n of ['jog', 'run', 'sprint']) if (actions[n]) speeds[n] = measureWalk(model, n);
+      if (opts.onMoves) opts.onMoves();
+    }).catch(() => {});
     renderer.render(scene, cam);
     if (opts.onReady) opts.onReady();
   }, undefined, err => { if (opts.onError) opts.onError(err); });
@@ -134,8 +141,8 @@ export function createKevin(canvas, opts = {}) {
   // The walk is in place (the hips are held still), so a planted foot slides back under him at the speed he would
   // move: sampled once over the clip, the foot's speed while it is down on the floor. Moving him by just that much
   // keeps his feet from skating (js/kevin.js walk).
-  function measureWalk(model) {
-    const a = actions.walk;
+  function measureWalk(model, name = 'walk') {
+    const a = actions[name];
     if (!a || !foot || !hips) return 0;
     const d = a.getClip().duration, n = 60, v = new THREE.Vector3(), z = [], y = [];
     a.reset().play();
@@ -193,11 +200,12 @@ export function createKevin(canvas, opts = {}) {
     }).catch(() => {});
   }
   const tmpM = new THREE.Matrix4(), tmpV = new THREE.Vector3(), X_AXIS = new THREE.Vector3(1, 0, 0), jawTurn = new THREE.Quaternion();
+  const Y_AXIS = new THREE.Vector3(0, 1, 0), lookQ = new THREE.Quaternion();
   function updateMouth(t, dt) {
     const M = mouth;
     let want = 0;
-    const face = FACE[act || (talking ? '' : POSES[pose])];
-    if (talking || face === -1) {
+    const face = forcedFace !== null && t < forcedUntil ? forcedFace : FACE[act || (talking ? '' : POSES[pose])];
+    if ((talking && !(forcedFace !== null && t < forcedUntil)) || face === -1) {
       // řeč: střídání souhláska → samohláska po slabikách, mezi slovy krátce zavřená
       if (t > M.wordEnd && t > M.pauseEnd) { M.pauseEnd = t + 0.12 + Math.random() * 0.3; M.wordEnd = M.pauseEnd + 0.4 + Math.random() * 0.9; }
       if (t >= M.nextAt) { M.syll++; M.nextAt = t + 0.075 + Math.random() * 0.06; }
@@ -279,8 +287,12 @@ export function createKevin(canvas, opts = {}) {
     if (head && !frozen) {
       // když mluví, kouká na diváka: s otevřenou pusou se hlava natáčí jen málo (pusa je obrázek zepředu)
       const calm = mouth ? 1 - 0.75 * Math.min(1, mouth.cur * 2.5) : 1;
-      head.rotation.y += lookX * 0.45 * calm;
-      head.rotation.x += lookY * 0.2;
+      // natočení za myší jako malé pootočení navíc (kvaternion) – přičítání k Eulerovým úhlům hlavu
+      // v některých polohách (mluví vsedě) otočilo o 360°
+      lookQ.setFromAxisAngle(Y_AXIS, lookX * 0.45 * calm);
+      head.quaternion.multiply(lookQ);
+      lookQ.setFromAxisAngle(X_AXIS, lookY * 0.2);
+      head.quaternion.multiply(lookQ);
     }
     // a full spin on demand, hiding and walking off for two surprises (sulking he shrugs, never turns his back)
     let yaw = turnTo;
@@ -302,7 +314,7 @@ export function createKevin(canvas, opts = {}) {
   }
   requestAnimationFrame(frame);
 
-  return {
+  const api = {
     setPose(p) {
       if (!POSES[p]) return;
       // sulking: a shrug first, then he leans back bored
@@ -348,14 +360,44 @@ export function createKevin(canvas, opts = {}) {
     },
     turn(yaw) { turnTo = yaw || 0; },
     has(name) { return !!actions[name]; },
+    // výraz pusy na chvíli (index tvaru v kevin/pusy.webp: 1 úsměv, 2 zubí se, 15 olízne se, 16 zívá, 18 mňau,
+    // 19 jazyk, 20 šibal, 21 překvapený, 23 naštvaný)
+    expression(k, ms = 1600) { forcedFace = k; forcedUntil = clock + ms / 1000; },
+    // další pohyby (AnimationClip z Mixamo, např. FBXLoader): jen stopy kostí, které Kevin má; posun boků
+    // z centimetrů FBX na měřítko modelu podle výšky boků v prvním snímku
+    addClips(clips) {
+      if (!mixer) return [];
+      const names = new Set(); mixer.getRoot().traverse(o => { if (o.isBone) names.add(o.name); });
+      return clips.map(c => {
+        c.tracks = c.tracks.filter(tr => names.has(tr.name.split('.')[0]));
+        const hp = c.tracks.find(tr => /Hips\.position$/.test(tr.name));
+        if (hp && hipsRest && hp.values[1] > 0) { const k = hipsRest.y / hp.values[1]; for (let i = 0; i < hp.values.length; i++) hp.values[i] *= k; }
+        actions[c.name] = mixer.clipAction(c);
+        return c.name;
+      });
+    },
     look(x, y) { lookX = Math.max(-1, Math.min(1, x)); lookY = Math.max(-1, Math.min(1, y)); },
     setLight,
     setPaused(p) { paused = !!p; },
+    setSpeed(s) { if (mixer) mixer.timeScale = s; },   // zpomalení pohybů (přehlídka)
     // css pixels a second the walker must move so his feet don't skate (0 before the model is loaded)
-    walkPxPerSec() {
-      if (!walkSpeed) return 0;
-      return walkSpeed * canvas.clientHeight / (2 * view.z * Math.tan(cam.fov * Math.PI / 360));
+    walkPxPerSec(name) {
+      const v = name && name !== 'walk' ? speeds[name] : walkSpeed;
+      if (!v) return 0;
+      return v * canvas.clientHeight / (2 * view.z * Math.tan(cam.fov * Math.PI / 360));
     },
+    // kde je kost na obrázku: y v css px od horního okraje plátna (např. 'LeftHand', 'Hips') – podle toho se
+    // Kevin zavěsí rukama na hranu karty nebo si sedne zadkem na hranu
+    boneY(name) {
+      let b = null;
+      if (mixer) mixer.getRoot().traverse(o => { if (!b && o.isBone && new RegExp('mixamorig:?' + name + '$').test(o.name)) b = o; });
+      if (!b) return null;
+      b.updateWorldMatrix(true, false);
+      const v = b.getWorldPosition(new THREE.Vector3()).project(cam);
+      return (1 - v.y) / 2 * canvas.clientHeight;
+    },
+    // délka klipu v ms (0 = nemá ho)
+    clipMs(name) { return actions[name] ? actions[name].getClip().duration * 1000 : 0; },
     dispose() {
       disposed = true;
       ro.disconnect();
@@ -363,4 +405,5 @@ export function createKevin(canvas, opts = {}) {
       pmrem.dispose();
     }
   };
+  return api;
 }
