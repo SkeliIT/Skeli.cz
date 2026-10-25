@@ -143,7 +143,7 @@ public class LyricRouterServlet extends HttpServlet {
     }
 
     /** Makes a site-relative upload path absolute for Open Graph; leaves http(s) URLs alone. */
-    static String absoluteImage(String url) {
+    public static String absoluteImage(String url) {
         if (url == null || url.isBlank()) return null;
         if (url.startsWith("http://") || url.startsWith("https://")) return url;
         if (url.startsWith("/")) return WebUtils.baseUrl() + url;

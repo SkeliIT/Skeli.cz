@@ -30,6 +30,9 @@ are easy to get wrong.
   in `job/`. Admin templates live in `WEB-INF/views/admin/`; old addresses go to `LegacyRedirectServlet`.
 - Comments under lyrics and under clips are one system: `dao/CommentDao` (the `Kind` picks the table),
   `/api/comments`, drawn by `js/comments.js` from `includes/comments.jspf`. Change both kinds together.
+- RSS/Atom feeds (`/{lang}/feed/*`, `web/site/FeedServlet` + `dao/FeedDao`): entry ids are `tag:skeli.cz,2025:…`
+  URIs and must never change (readers would show everything as new). PJAX navigation swaps only `<main>`,
+  so the feed `<link rel="alternate">` in `<head>` stays from the first page until a full reload.
 - The water-and-fire effect round a clip (`js/clip-fx.js`) reads `eq/<youtubeId>.json`, made once per clip
   with `tools/clip-fx-data.js`; a clip without the file still works (calm rhythm, thumbnail colours).
 

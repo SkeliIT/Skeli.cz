@@ -660,6 +660,8 @@ body.light .page-hero-lead { text-shadow: 0 1px 10px rgba(255, 255, 255, 0.9); }
   margin: 16px auto 0;
 }
 .page-hero-lead + .filter-chips { margin-top: 26px; }
+.filter-chips + .feed-subscribe { margin-top: 10px; }
+.feed-subscribe .chip:hover { color: var(--rss); border-color: var(--rss); }
 .chip {
   display: inline-flex;
   align-items: center;

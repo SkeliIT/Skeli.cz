@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.3.2";
+  String assetVersion = "6.3.3";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -79,6 +79,29 @@
     <link rel="alternate" hreflang="x-default" href="<%= com.github.skeliit.WebUtils.escapeHtml(siteBase + hreflang.get("cs")) %>" />
     <%
         }
+      }
+    %>
+    <%
+      // RSS/Atom autodiscovery: nejdřív feed stránky (má-li ho), pak souhrnný
+      String feedKind = (String) request.getAttribute("feedKind");
+      if (feedKind == null) {
+        if ("music.song".equals(headType)) {
+          feedKind = "songs";
+        } else {
+          feedKind = java.util.Map.of(
+              "/texty.jsp", "songs",
+              "/music.jsp", "videos",
+              "/aktuality.jsp", "news").getOrDefault(String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()), "all");
+        }
+      }
+      java.util.List<String> feedKinds = "all".equals(feedKind) ? java.util.List.of("all") : java.util.List.of(feedKind, "all");
+      for (String fk : feedKinds) {
+        String feedTitle = com.github.skeliit.WebUtils.escapeHtml(t.getProperty("feed.title." + fk, "Skeli"));
+        String feedBase = siteBase + "/" + cur + "/feed/" + fk;
+    %>
+    <link rel="alternate" type="application/rss+xml" title="<%= feedTitle %> (RSS)" href="<%= com.github.skeliit.WebUtils.escapeHtml(feedBase) %>.rss" />
+    <link rel="alternate" type="application/atom+xml" title="<%= feedTitle %> (Atom)" href="<%= com.github.skeliit.WebUtils.escapeHtml(feedBase) %>.atom" />
+    <%
       }
     %>
     <meta property="og:site_name" content="Skeli" />

@@ -93,7 +93,7 @@ src/main/java/com/github/skeliit/   základ, který používá všechno: Config,
   web/auth/                          přihlášení, registrace, zapomenuté heslo, ověření e-mailu
   web/profile/                       profil a nastavení účtu (avatar, heslo, export dat, smazání)
   web/site/                          veřejný web: texty, písně, komentáře, hlasy, newsletter, sitemap,
-                                     staré adresy (LegacyRedirectServlet)
+                                     RSS/Atom feedy, staré adresy (LegacyRedirectServlet)
   web/api/                           JSON pro skripty (Kevin, hledání, aktuality, kdo je na webu)
   web/files/                         obrázky (avatary, náhledy písní, Instagram, YouTube)
   filter/                            filtry (CSRF, admin, bezpečnostní hlavičky, cache…)
@@ -135,6 +135,25 @@ src/test/java/                       unit testy a UI testy (*IT)
 - Loga jsou CSS masky, takže mají barvu textu: `.logo-mark` (nápis SKELOSQUAD) a `.squad-mark` (nápis s obličeji squadu, hlavička a stránka O mně).
 - Po změně CSS zvyšte `assetVersion` v `includes/header.jsp`, aby prohlížeče nenačítaly starou verzi z cache.
 - Každou změnu vzhledu kontrolujte ve světlém i tmavém režimu a na mobilu.
+
+## RSS / Atom feedy
+
+`/{jazyk}/feed/{druh}.{formát}` pro `cs | en | de | uk | vi`, formát `rss` (RSS 2.0) nebo `atom` (Atom 1.0):
+
+| Druh | Obsah |
+|---|---|
+| `songs` | texty písní v daném jazyce (krátký popis a odkaz, nikdy celý text) |
+| `videos` | YouTube klipy a shorts |
+| `news` | aktuality: příspěvky ze sociálních sítí (`social_posts`) a shorts |
+| `all` | vše dohromady, bez duplicit |
+
+- Např. `/cs/feed/all.rss`, `/en/feed/songs.atom`. `/feed` přesměruje (302, bez cache) na `/{jazyk návštěvníka}/feed/all.rss`. Parametr `?limit=` 1–100 (výchozí 30).
+- Datum písně: premiéra (`songs.release_at`), jinak první klip, jinak 1. leden roku. Jazyková verze se počítá od pozdějšího z data písně a svého přidání (`lyrics.created_at`), takže nový překlad staré písně je ve feedu toho jazyka novinkou. Píseň s premiérou teprve před sebou ve feedu není.
+- Položky mají náhled (`media:thumbnail`), klipy `media:player` a krátké HTML (`content:encoded` / `content`).
+- Hotový feed je 5 minut v paměti; `ETag` / `Last-Modified` → 304. Když nejede databáze, pošle se poslední verze, jinak 503.
+- Stránky feedy ohlašují v `<head>` (`<link rel="alternate" type="application/rss+xml|atom+xml">`): Texty a stránka písně → `songs`, Hudba → `videos`, Aktuality → `news`, všude navíc `all`. Jiný feed nastaví stránka atributem requestu `feedKind`. V patičce je ikona RSS, na Aktualitách štítek „Odebírat RSS“.
+- Id položek (`tag:skeli.cz,2025:…`) se nesmí měnit, čtečky by vše ukázaly jako nové.
+- Kód: `web/site/FeedServlet`, `dao/FeedDao`, `service/FeedWriter`, `model/FeedItem`; testy `FeedWriterTest`, `FeedDaoTest`, `FeedServletTest`, `FeedIT`.
 
 ## Administrace
 
