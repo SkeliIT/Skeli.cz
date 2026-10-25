@@ -1124,15 +1124,18 @@
       // tempo: na delší hraně se z chůze rozběhne (klus, běh; v noci nebo občas kočičí sprint) a před zastávkou
       // a koncem zase zpomalí do chůze; rychlost podle nohou daného pohybu, ať neklouzají
       var hour = new Date().getHours(), len = x1 - x0;
-      var cruise = (walkForce === 'run' || walkForce === 'all') && walkK.has('run') ? 'run' : len > 900 && walkK.has('sprint') && (hour >= 23 || hour < 4 || Math.random() < 0.15) ? 'sprint'
-        : len > 650 && walkK.has('run') && Math.random() < 0.6 ? 'run'
+      // pokaždé jiný běh (3 styly z Mixamo), občas rovnou sprint
+      function runStyle() { var r = ['run', 'run2', 'run3', 'sprint'].filter(function (n) { return walkK.has(n); }); return r[Math.floor(Math.random() * r.length)]; }
+      var cruise = (walkForce === 'run' || walkForce === 'all') && walkK.has('run') ? runStyle() : len > 900 && walkK.has('sprint') && (hour >= 23 || hour < 4 || Math.random() < 0.15) ? 'sprint'
+        : len > 650 && walkK.has('run') && Math.random() < 0.6 ? runStyle()
         : len > 420 && walkK.has('jog') && Math.random() < 0.7 ? 'jog' : 'walk';
-      var gait = 'walk', gaitAt = 0, FALLBACK = { walk: 1, jog: 1.8, run: 2.6, sprint: 3.6 };
+      var stillUntil = 0, gait = 'walk', gaitAt = 0, FALLBACK = { walk: 1, jog: 1.8, run: 2.6, run2: 2.6, run3: 2.6, sprint: 3.6 };
       function setGait(g, now) {
         if (g === gait) return;
         gait = g; gaitAt = now; window.__kevinStage = 'tempo ' + g;
         walkK.hold(g);
-        if (g === 'sprint' && walkK.has('sprintStart')) walkK.once('sprintStart');   // přikrčí se a vystřelí
+        // přikrčí se a vystřelí – během přikrčení stojí na místě (nesmí klouzat)
+        if (g === 'sprint' && walkK.has('sprintStart')) stillUntil = now + walkK.once('sprintStart') * 0.8;
         speed = walkK.walkPxPerSec(g) || (walkK.walkPxPerSec() || 95) * FALLBACK[g];
       }
       var goOn = function () {
@@ -1266,7 +1269,7 @@
           }
           return setTimeout(goOn, walkK.once(Math.random() < 0.5 ? 'wave' : 'lookAround') || 2500);
         }
-        x += dir * speed * dt;
+        if (now >= stillUntil) x += dir * speed * dt;
         walker.style.transform = 'translateX(' + x + 'px)';
         if ((dir > 0 && x >= x1) || (dir < 0 && x <= x0)) {
           if (outToSide) return endWalk();

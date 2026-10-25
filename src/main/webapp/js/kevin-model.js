@@ -131,7 +131,7 @@ export function createKevin(canvas, opts = {}) {
     if (opts.moves) fetch(opts.moves).then(r => r.ok ? r.json() : []).then(list => {
       if (disposed) return;
       api.addClips(list.map(j => THREE.AnimationClip.parse(j)));
-      for (const n of ['jog', 'run', 'sprint']) if (actions[n]) speeds[n] = measureWalk(model, n);
+      for (const n of ['jog', 'run', 'run2', 'run3', 'sprint']) if (actions[n]) speeds[n] = measureWalk(model, n);
       if (opts.onMoves) opts.onMoves();
     }).catch(() => {});
     renderer.render(scene, cam);
