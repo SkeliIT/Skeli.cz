@@ -1314,3 +1314,12 @@ body.light .kevin-emote {
   .hero-premiere .hp-count { font-size: var(--fs-body); }
   .hero-premiere img { width: 84px; height: auto; }
 }
+
+/* Ukázka Kevinových kousků (kevin-ukazka.jsp): karty, po kterých chodí, sedá a ze kterých padá */
+.kevin-show { position: relative; min-height: 160vh; }
+.kevin-show-note { max-width: 640px; margin: 24px auto 0; text-align: center; color: var(--text-dim); font-size: var(--fs-small); }
+.kevin-show-step { text-align: center; color: var(--accent); font-size: var(--fs-h4); min-height: 1.5em; }
+.kevin-show-card { position: absolute; height: 18vh; }
+.kevin-show-a { left: 4%; width: 62%; top: 46vh; }
+.kevin-show-b { left: 48%; width: 34%; top: 78vh; }
+@media (max-width: 1024px) { .kevin-show-card { display: none; } }

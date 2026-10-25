@@ -1124,7 +1124,7 @@
       // tempo: na delší hraně se z chůze rozběhne (klus, běh; v noci nebo občas kočičí sprint) a před zastávkou
       // a koncem zase zpomalí do chůze; rychlost podle nohou daného pohybu, ať neklouzají
       var hour = new Date().getHours(), len = x1 - x0;
-      var cruise = walkForce === 'run' && walkK.has('run') ? 'run' : len > 900 && walkK.has('sprint') && (hour >= 23 || hour < 4 || Math.random() < 0.15) ? 'sprint'
+      var cruise = (walkForce === 'run' || walkForce === 'all') && walkK.has('run') ? 'run' : len > 900 && walkK.has('sprint') && (hour >= 23 || hour < 4 || Math.random() < 0.15) ? 'sprint'
         : len > 650 && walkK.has('run') && Math.random() < 0.6 ? 'run'
         : len > 420 && walkK.has('jog') && Math.random() < 0.7 ? 'jog' : 'walk';
       var gait = 'walk', gaitAt = 0, FALLBACK = { walk: 1, jog: 1.8, run: 2.6, sprint: 3.6 };
@@ -1257,7 +1257,7 @@
           if (box) return intoTheBox(box, goOn);
           walkK.turn(0);
           // občas si sedne na hranu karty s nohama dolů (jen když je pod hranou volný okraj karty, ne text)
-          if (s.el && walkK.has('sitEdge') && (walkForce === 'sit' || Math.random() < 0.3) && edgeIsPadding(s.el, x + w / 2, s.el.getBoundingClientRect().top)) return sitOnEdge(goOn);
+          if (s.el && walkK.has('sitEdge') && (walkForce === 'sit' || walkForce === 'all' || Math.random() < 0.3) && edgeIsPadding(s.el, x + w / 2, s.el.getBoundingClientRect().top)) return sitOnEdge(goOn);
           // mostly a dance (5–7 s), else a wave or a look round – then on his way
           var moves = WALK_DANCES.filter(function (d) { return walkK.has(d); });
           if (moves.length && Math.random() < 0.65) {
@@ -1270,7 +1270,7 @@
         walker.style.transform = 'translateX(' + x + 'px)';
         if ((dir > 0 && x >= x1) || (dir < 0 && x <= x0)) {
           if (outToSide) return endWalk();
-          var drop = s.el && walkK.has('fallLoop') && (walkForce === 'drop' || Math.random() < 0.6) ? dropPlan(s.el, dir, h) : null;
+          var drop = s.el && walkK.has('fallLoop') && (walkForce === 'drop' || walkForce === 'all' || Math.random() < 0.6) ? dropPlan(s.el, dir, h) : null;
           return drop ? hangAndDrop(drop) : jumpOff();
         }
         requestAnimationFrame(step);
@@ -1368,9 +1368,9 @@
     wake();
     greet();
     if (!adminPage) { scheduleTip(); scheduleWalk(); }
-    // ukázka kousku hned: adresa ?kevin=drop | sit | run | walk (na zkoušku, jinak chodí sám jednou za čas)
+    // ukázka kousku hned: adresa ?kevin=drop | sit | run | walk | all (všechno najednou; dokola na /kevin-ukazka.jsp) (na zkoušku, jinak chodí sám jednou za čas)
     var show = new URLSearchParams(location.search).get('kevin');
-    if (/^(drop|sit|run|walk)$/.test(show || '')) setTimeout(function () { window.dispatchEvent(new CustomEvent('kevin', { detail: { walk: show } })); }, 2500);
+    if (/^(drop|sit|run|walk|all)$/.test(show || '')) setTimeout(function () { window.dispatchEvent(new CustomEvent('kevin', { detail: { walk: show } })); }, 2500);
   }
 
   // Easter egg: click him over and over (each click within 2.5 s of the last) and at 5, 10 and 20 he
