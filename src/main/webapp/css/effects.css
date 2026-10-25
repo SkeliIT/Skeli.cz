@@ -297,6 +297,12 @@ body.light .tape-gold i { color: rgba(255, 255, 255, 0.7); }
 /* ---------- Skeli's photos ---------- */
 /* the background of every page: photos cross-fade over the usual one (js/effects.js adds the layers) */
 .bg-slides { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+/* Texty mají vlastní video pozadí (js/texty-bg.js): fotky schovat hned, jak je stránka v DOM (i po PJAX),
+   a do té doby, než se video ukáže, je tam barva pozadí – žádné probliknutí starého obrázku */
+body:has(main.texty-page) .bg-slides,
+body:has(main.texty-page)::before { visibility: hidden; }
+body:has(main.texty-page) { background-color: #050403; }
+body.light:has(main.texty-page) { background-color: #e9ecef; }
 .bg-slides > div {
   position: absolute;
   inset: 0;

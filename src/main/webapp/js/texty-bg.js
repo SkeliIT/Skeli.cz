@@ -17,12 +17,10 @@
 
   const css = document.createElement("style");
   css.textContent = `
-    .bg-slides { opacity: 0 !important; transition: opacity 1.5s ease; }   /* fotky ne */
-    /* obraz se z barvy pozadí pomalu vynoří, ať příchod není rána do očí */
-    .texty-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: #050403;
-      opacity: 0; transition: opacity 2.5s ease; }
+    /* fotky webu schovává už css/effects.css (body:has(main.texty-page)), tady jen vlastní vrstva – je tam
+       hned, bez prolínání: nejdřív snímek z videa (poster), video se k němu připojí, až hraje */
+    .texty-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: #050403; }
     body.light .texty-bg { background: #e9ecef; }
-    .texty-bg.on { opacity: 1; }
     .texty-bg video, .texty-bg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     /* závoj nahoře a dole, ať se dá číst hlavička i seznam */
     .texty-bg .shade { position: absolute; inset: 0;
@@ -51,7 +49,12 @@
   layer.appendChild(media);
   layer.insertAdjacentHTML("beforeend", '<div class="shade"></div>');
   document.body.appendChild(layer);
-  requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add("on")));
+  // při návratu na Texty video pokračuje tam, kde skončilo (ne zase od začátku)
+  if (!still) {
+    let at = 0;
+    try { at = +sessionStorage.getItem("textyBgAt") || 0; } catch (e) { /* bez úložiště od začátku */ }
+    if (at) media.addEventListener("loadedmetadata", () => { media.currentTime = at % (media.duration || 48); }, { once: true });
+  }
 
   // otočení telefonu nebo přepnutí tématu: jiné video (obě smyčky mají 48 s, pokračuje od stejného místa)
   let shown = file(still ? "poster" : "video");
@@ -74,14 +77,18 @@
   sync();
   layer.cleanup = () => {
     tall.removeEventListener("change", swap); document.removeEventListener("visibilitychange", sync); themeWatch.disconnect();
-    if (!still) { media.pause(); media.removeAttribute("src"); media.load(); }
+    if (!still) {
+      try { sessionStorage.setItem("textyBgAt", String(media.currentTime || 0)); } catch (e) { /* nevadí */ }
+      media.pause(); media.removeAttribute("src"); media.load();
+    }
   };
 
-  // při odchodu ze stránky Texty (PJAX) uklidit a vrátit fotky
-  const watch = setInterval(() => {
+  // při odchodu ze stránky Texty (PJAX) uklidit hned, jak zmizí obsah Textů – fotky webu se vrátí samy (CSS)
+  const gone = new MutationObserver(() => {
     if (document.querySelector("main.texty-page")) return;
-    clearInterval(watch);
+    gone.disconnect();
     layer.cleanup();
     layer.remove(); css.remove(); window.__textyBg = false;
-  }, 1000);
+  });
+  gone.observe(document.body, { childList: true, subtree: true });
 })();
