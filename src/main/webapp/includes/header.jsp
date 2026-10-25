@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.4.0";
+  String assetVersion = "6.4.1";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -172,12 +172,12 @@
             <a href="<%= ctx %>/index.jsp" class="brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
 
             <nav id="mainNav" class="main-nav">
-              <a href="<%= ctx %>/index.jsp"><%= t.getProperty("menu.home","Home") %></a>
-              <a href="<%= ctx %>/aktuality.jsp"><%= t.getProperty("menu.news") %></a>
-              <a href="<%= ctx %>/music.jsp"><%= t.getProperty("menu.music","Music") %></a>
-              <a href="<%= ctx %>/texty.jsp"><%= t.getProperty("menu.lyrics","Lyrics") %></a>
-              <a href="<%= ctx %>/karaoke-kino"><%= t.getProperty("menu.karaoke") %></a>
-              <a href="<%= ctx %>/about.jsp"><%= t.getProperty("menu.about","About") %></a>
+              <a href="<%= ctx %>/index.jsp"><i class="fa-solid fa-house nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.home","Home") %></a>
+              <a href="<%= ctx %>/aktuality.jsp"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.news") %></a>
+              <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.music","Music") %></a>
+              <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.lyrics","Lyrics") %></a>
+              <a href="<%= ctx %>/karaoke-kino"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.karaoke") %></a>
+              <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.about","About") %></a>
               <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
               <%-- phones and tablets: the display controls, language and account live in the menu --%>
               <div class="nav-settings">
