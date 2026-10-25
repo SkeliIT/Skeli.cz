@@ -712,7 +712,7 @@
 
   // "Do something": a shuffled deck of everything in L.surprise, none again until all of them have been
   // (the deck lives in the browser session, so a new page does not start it over)
-  var BIG_SURPRISES = ['beatbox', 'rhyme', 'dance', 'dance2', 'dance3', 'robot', 'silly', 'breakdance', 'flair', 'kick', 'dive', 'cheer', 'jump'];
+  var BIG_SURPRISES = ['beatbox', 'rhyme', 'dance', 'dance2', 'dance3', 'robot', 'silly', 'breakdance', 'flair', 'dive', 'cheer', 'jump'];
   function nextSurprise() {
     // only what this model can show (the ginger cat has no sunglasses and no moving tail)
     var all = Object.keys(L.surprise || {}).filter(function (id) { return !model().can || model().can(id); }), deck;

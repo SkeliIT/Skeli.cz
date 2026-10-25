@@ -189,7 +189,7 @@ class KevinIT extends UiTestSupport {
                         "const k = document.querySelector('.kevin'); if (!k || k.hidden) return document.querySelector('.kevin-paw.has-news') ? 'dot' : 'nothing';"
                         + "const boxes = [k.querySelector('.kevin-body'), k.querySelector('.kevin-bubble')].filter(e => e && !e.hidden).map(e => e.getBoundingClientRect());"
                         + "const sel = 'a, button, img, p, h1, h2, h3, li, pre, iframe, video, canvas, input, .card';"
-                        + "for (const el of document.querySelectorAll(sel)) { if (k.contains(el) || el.closest('.site-header, .kevin-paw')) continue;"
+                        + "for (const el of document.querySelectorAll(sel)) { if (k.contains(el) || el.closest('.site-header, .kevin-paw, [aria-hidden=\"true\"]')) continue;"   // pozadí stránky (video na Textech) není obsah
                         + "  const r = el.getBoundingClientRect(); if (!r.width || !r.height || getComputedStyle(el).visibility === 'hidden') continue;"
                         + "  for (const b of boxes) if (r.left < b.right - 30 && r.right > b.left + 30 && r.top < b.bottom - 10 && r.bottom > b.top + 10) return 'covers ' + el.tagName + '.' + el.className; }"
                         + "return 'peek';");

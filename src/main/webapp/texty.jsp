@@ -153,6 +153,8 @@
   });
 })();
 </script>
+<%-- pozadí: video – tmavý režim kámen s vypáleným textem, světlý zamlžené okno --%>
+<script src="/js/texty-bg.js?v=<%= assetVersion %>"></script>
 </main>
 
 <%@ include file="includes/footer.jsp" %>

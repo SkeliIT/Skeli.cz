@@ -1,5 +1,8 @@
 // MC Kevin – the ginger cat in his hoodie (kevin/kevin.glb): a model made from the user's pictures (Rodin),
-// a skeleton and 38 moves from Mixamo, joined and compressed (meshopt, WebP) into one file of about 5 MB.
+// a skeleton and 38 moves from Mixamo, joined and compressed (meshopt, WebP) into one file of about 7 MB.
+// Doplněno 2026-10-25 (nástroje v work/skeli-navrh/kevin-model/nastroje): vlastní kosti ocasu ocas0–ocas6
+// (ocas se vlní a houpe kódem, pohyby z Mixamo na něj nesahají), kost brady „celist“ a pusa jako nálepka
+// z 24 obrázků (kevin/pusy.webp + kevin/pusa.json) – mění tvar při řeči a výrazech, brada jde s ní dolů.
 // The same controller as the old gold statue (js/kevin3d.js, still used by the karaoke cinema), so js/kevin.js
 // drives either: setPose, setTalking, act, spin, look, setLight, setPaused, dispose; can(feature) says
 // which surprises this model can show; opts.onReady is called once the model is on screen.
@@ -76,6 +79,7 @@ export function createKevin(canvas, opts = {}) {
   let lookX = 0, lookY = 0, spinT = -1, special = null, specialT = 0, frozenUntil = 0, held = null, turnTo = 0;
   let mixer = null, actions = {}, playing = null, head = null, hips = null, hipsRest = null, clock = 0;
   let foot = null, walkSpeed = 0;   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
+  let legs = [], tail = [], jaw = null, jawRest = null, mouth = null;
 
   function wanted() {
     if (act) return act;
@@ -102,6 +106,9 @@ export function createKevin(canvas, opts = {}) {
       if (o.isBone && /mixamorig:?Head$/.test(o.name)) head = o;
       if (o.isBone && /mixamorig:?Hips$/.test(o.name)) hips = o;
       if (o.isBone && /mixamorig:?LeftFoot$/.test(o.name)) foot = o;
+      if (o.isBone && /mixamorig:?(Left|Right)Leg$/.test(o.name)) legs.push(o);
+      if (o.isBone && /^ocas[1-9]$/.test(o.name)) tail.push(o);
+      if (o.isBone && o.name === 'celist') jaw = o;
       if (!o.isMesh) return;
       o.frustumCulled = false;   // the moves take him out of his resting box
       const m = o.material;
@@ -114,6 +121,8 @@ export function createKevin(canvas, opts = {}) {
     model.position.set(-c.x * s, -box.min.y * s, -c.z * s);
     holder.add(model);
     if (hips) hipsRest = hips.position.clone();
+    tail.sort((a, b) => a.name.localeCompare(b.name));
+    if (jaw && head) { jawRest = jaw.quaternion.clone(); loadMouth(); }
     mixer = new THREE.AnimationMixer(model);
     for (const clip of g.animations) actions[clip.name] = mixer.clipAction(clip);
     walkSpeed = measureWalk(model);
@@ -151,6 +160,99 @@ export function createKevin(canvas, opts = {}) {
     return 1.7 * (Math.max(...z) - Math.min(...z)) / d;   // stance about 60 % of the cycle
   }
 
+  // ---------- pusa: nálepka z 24 tvarů (dvě vrstvy přes sebe = plynulé prolnutí), spodek jde s bradou ----------
+  // tvary v pořadí obrázku kevin/pusy.webp; hodnota = jak moc spadne brada (0–1)
+  const SHAPES = [0, 0, .1, .9, .8, .35, .6, .1, .25, .6, .15, .1, 0, .1, .2, .25, 1, 0, .55, .45, .1, .2, 0, .1];
+  const VOWELS = [3, 4, 5, 6, 7, 8, 9, 10, 11], CONS = [12, 13, 14, 0, 7];
+  // výraz podle pohybu (jméno klipu → tvar pusy; -1 = jako při řeči)
+  const FACE = { laugh: 2, cheer: 3, fistPump: 4, clap: 1, wave: 1, thumbsUp: 1, shrug: 23, nervous: 21, sing: -1, rap: -1, silly: 19 };
+  const JAW_MAX = 6 * Math.PI / 180;
+  function loadMouth() {
+    const q = (opts.src || '').split('?')[1], v = q ? '?' + q : '';
+    Promise.all([
+      fetch('/kevin/pusa.json' + v).then(r => r.ok ? r.json() : null),
+      new THREE.TextureLoader().loadAsync('/kevin/pusy.webp' + v)
+    ]).then(([d, tex]) => {
+      if (!d || disposed) return;
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(d.pos, 3));
+      geo.setAttribute('uv', new THREE.Float32BufferAttribute(d.uv, 2));
+      geo.setIndex(d.idx);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const layer = order => {
+        const t = tex.clone(); t.repeat.set(1, 1 / SHAPES.length); t.needsUpdate = true;
+        const m = new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, color: 0xe8e2dc,
+          polygonOffset: true, polygonOffsetFactor: -2 - order, polygonOffsetUnits: -2 - order });
+        const mesh = new THREE.Mesh(geo, m); mesh.renderOrder = 5 + order; mesh.frustumCulled = false;
+        head.add(mesh);                                  // body nálepky jsou v souřadnicích hlavy
+        return { t, m };
+      };
+      const pa = geo.attributes.position;
+      mouth = { A: layer(0), B: layer(1), pa, rest: pa.array.slice(), w: d.jaw, a: 0, b: 0, mix: 1, cur: 0, syll: 0, nextAt: 0, wordEnd: 0, pauseEnd: 0,
+        jawRestInv: new THREE.Matrix4().compose(jaw.position, jawRest, jaw.scale).invert() };
+    }).catch(() => {});
+  }
+  const tmpM = new THREE.Matrix4(), tmpV = new THREE.Vector3(), X_AXIS = new THREE.Vector3(1, 0, 0), jawTurn = new THREE.Quaternion();
+  function updateMouth(t, dt) {
+    const M = mouth;
+    let want = 0;
+    const face = FACE[act || (talking ? '' : POSES[pose])];
+    if (talking || face === -1) {
+      // řeč: střídání souhláska → samohláska po slabikách, mezi slovy krátce zavřená
+      if (t > M.wordEnd && t > M.pauseEnd) { M.pauseEnd = t + 0.12 + Math.random() * 0.3; M.wordEnd = M.pauseEnd + 0.4 + Math.random() * 0.9; }
+      if (t >= M.nextAt) { M.syll++; M.nextAt = t + 0.075 + Math.random() * 0.06; }
+      want = t < M.pauseEnd ? 0 : M.syll % 2 ? VOWELS[(M.syll * 7 + (M.syll >> 1)) % VOWELS.length] : CONS[(M.syll * 3) % CONS.length];
+    } else if (face > 0) want = face;
+    if (want !== M.b) { M.a = M.mix > .5 ? M.b : M.a; M.b = want; M.mix = 0; }
+    M.mix = Math.min(1, M.mix + dt * 16);
+    const k = M.mix * M.mix * (3 - 2 * M.mix), n = SHAPES.length;
+    M.A.t.offset.y = (n - 1 - M.a) / n; M.B.t.offset.y = (n - 1 - M.b) / n; M.B.m.opacity = k;
+    const goal = SHAPES[M.a] * (1 - k) + SHAPES[M.b] * k;
+    M.cur += (goal - M.cur) * Math.min(1, dt * (goal > M.cur ? 22 : 14));
+    // brada dolů; spodek nálepky se natočí stejně (v souřadnicích hlavy)
+    jaw.quaternion.copy(jawRest).multiply(jawTurn.setFromAxisAngle(X_AXIS, -JAW_MAX * M.cur));
+    jaw.updateMatrix();
+    tmpM.multiplyMatrices(jaw.matrix, M.jawRestInv);
+    const r = M.rest, pa = M.pa;
+    for (let i = 0; i < pa.count; i++) {
+      const w = M.w[i]; if (!w) continue;
+      tmpV.set(r[i * 3], r[i * 3 + 1], r[i * 3 + 2]).applyMatrix4(tmpM);
+      pa.setXYZ(i, r[i * 3] + (tmpV.x - r[i * 3]) * w, r[i * 3 + 1] + (tmpV.y - r[i * 3 + 1]) * w, r[i * 3 + 2] + (tmpV.z - r[i * 3 + 2]) * w);
+    }
+    pa.needsUpdate = true;
+  }
+
+  // ---------- ocas: vlní se od kořene ke špičce, při skoku a dopadu se setrvačností zhoupne ----------
+  const hipW = new THREE.Vector3();
+  let lastHipY = null, swing = 0, swingV = 0;
+  function updateTail(t, dt) {
+    hips.getWorldPosition(hipW);
+    const vy = lastHipY === null || dt <= 0 ? 0 : (hipW.y - lastHipY) / dt;
+    lastHipY = hipW.y;
+    swingV += (-vy * 0.35 - swing * 18 - swingV * 4.5) * dt;
+    swing = Math.max(-0.6, Math.min(0.6, swing + swingV * dt));
+    tail.forEach((b, i) => {
+      const k = (i + 1) / tail.length;
+      b.rotation.set((0.03 + 0.06 * k) * Math.sin(t * 1.1 - i * 0.45) + swing * (0.4 + k), (0.05 + 0.16 * k) * Math.sin(t * 1.7 - i * 0.6), 0);
+    });
+  }
+
+  // ---------- kolena: pohyby z Mixamo jsou pro lidské nohy – lýtko se nesmí přetočit kolem své osy (kůže by se zlomila) ----------
+  const twQ = new THREE.Quaternion(), twInv = new THREE.Quaternion(), swQ = new THREE.Quaternion(), TWIST_MAX = 12 * Math.PI / 180;
+  function fixKnees() {
+    for (const b of legs) {
+      const q = b.quaternion;
+      twQ.set(0, q.y, 0, q.w).normalize();
+      swQ.copy(q).multiply(twInv.copy(twQ).invert());
+      let a = 2 * Math.atan2(twQ.y, twQ.w);
+      if (a > Math.PI) a -= 2 * Math.PI;
+      if (a < -Math.PI) a += 2 * Math.PI;
+      a = Math.max(-TWIST_MAX, Math.min(TWIST_MAX, a));
+      twQ.set(0, Math.sin(a / 2), 0, Math.cos(a / 2));
+      q.copy(swQ).multiply(twQ);
+    }
+  }
+
   // ---------- drawing ----------
   let last = -1, drawn = false;
   function frame(now) {
@@ -171,8 +273,13 @@ export function createKevin(canvas, opts = {}) {
     // he stays on his spot: the moves may sway the hips but never carry him out of the window
     if (hips && hipsRest) { hips.position.x = hipsRest.x; hips.position.z = hipsRest.z; }
     // the head follows the mouse a little (on top of whatever the move does; the move resets it each frame)
+    if (!frozen) fixKnees();
+    if (tail.length && hips) updateTail(t, frozen ? 0 : dt);
+    if (mouth) updateMouth(t, dt);
     if (head && !frozen) {
-      head.rotation.y += lookX * 0.45;
+      // když mluví, kouká na diváka: s otevřenou pusou se hlava natáčí jen málo (pusa je obrázek zepředu)
+      const calm = mouth ? 1 - 0.75 * Math.min(1, mouth.cur * 2.5) : 1;
+      head.rotation.y += lookX * 0.45 * calm;
       head.rotation.x += lookY * 0.2;
     }
     // a full spin on demand, hiding and walking off for two surprises (sulking he shrugs, never turns his back)
