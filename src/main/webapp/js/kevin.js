@@ -1126,11 +1126,11 @@
       var hour = new Date().getHours(), len = x1 - x0;
       // pokaždé jiný rovný běh (Run Forward, sprint); „Running“ a „Running (1)“ se v pohybu stáčejí o 62° a 166°,
       // při rovné cestě by to vypadalo, že se točí
-      function runStyle() { var r = ['run3', 'sprint'].filter(function (n) { return walkK.has(n); }); return r[Math.floor(Math.random() * r.length)]; }
+      function runStyle() { var r = ['run3', 'runA', 'runM', 'sprint'].filter(function (n) { return walkK.has(n); }); return r[Math.floor(Math.random() * r.length)]; }
       var cruise = (walkForce === 'run' || walkForce === 'all') && walkK.has('run3') ? runStyle() : len > 900 && walkK.has('sprint') && (hour >= 23 || hour < 4 || Math.random() < 0.15) ? 'sprint'
         : len > 650 && walkK.has('run3') && Math.random() < 0.6 ? runStyle()
         : len > 420 && walkK.has('jog') && Math.random() < 0.7 ? 'jog' : 'walk';
-      var stillUntil = 0, gait = 'walk', gaitAt = 0, FALLBACK = { walk: 1, jog: 1.8, run: 2.6, run2: 2.6, run3: 2.6, sprint: 3.6 };
+      var stillUntil = 0, gait = 'walk', gaitAt = 0, FALLBACK = { walk: 1, jog: 1.8, run: 2.6, run2: 2.6, run3: 2.6, runA: 2.6, runM: 2.6, sprint: 3.6 };
       function setGait(g, now) {
         if (g === gait) return;
         gait = g; gaitAt = now; window.__kevinStage = 'tempo ' + g;
@@ -1139,14 +1139,41 @@
         if (g === 'sprint' && walkK.has('sprintStart')) stillUntil = now + walkK.once('sprintStart') * 0.8;
         speed = walkK.walkPxPerSec(g) || (walkK.walkPxPerSec() || 95) * FALLBACK[g];
       }
+      // přechod (rozejde se, zastaví): hraje pohyb jednou a okénko jede přesně o tolik, kolik v něm ujde
+      var trans = null;
+      function transition(name, after) {
+        var ms = walkK.clipMs(name);
+        if (!ms) return after();
+        walkK.hold(null); walkK.once(name);
+        gait = name; speed = walkK.travelPx(name) / (ms / 1000);
+        trans = { until: performance.now() + ms - 60, after: after };
+      }
       var goOn = function () {
         if (!walking) return;
         walkK.turn(dir * Math.PI / 2);
-        gait = ''; setGait('walk', performance.now());
+        gait = '';
+        if (walkK.has('walkStart')) transition('walkStart', function () { gait = ''; setGait('walk', performance.now()); });
+        else setGait('walk', performance.now());
         last = performance.now(); requestAnimationFrame(step);
       };
-      // he jumps up onto his ground at one end (or walks in from the side of the window)
-      if (!inFromSide) {
+      // občas vyleze zpoza karty: nad hranou nejdřív jen tlapky a hlava, zbytek těla je „za kartou“ (pod hranou
+      // se plátno ořízne), vyšplhá nahoru (Braced Hang To Crouch) a rozejde se
+      if (!inFromSide && s.el && walkK.has('climbUp') && (walkForce === 'climb' || walkForce === 'all' || Math.random() < 0.4)) {
+        window.__kevinStage = 'leze zpoza karty';
+        walkK.turn(0);
+        var feetC = WALK_FEET * h - c.offsetTop, hipsY0 = walkK.boneY('Hips') || feetC - h * 0.4;
+        var ledge = (feetC - hipsY0) * (0.98 / 0.68);      // hrana je v pohybu ~0,98 m nad zemí (boky ve stoje 0,68 m)
+        c.style.clipPath = 'inset(0 0 ' + (c.offsetHeight - (feetC - ledge)) + 'px 0)';
+        c.style.transform = 'translateY(' + ledge + 'px)';
+        walker.classList.add('airborne');
+        var climbMs = walkK.once('climbUp');
+        setTimeout(function () {
+          if (!walking) return;
+          c.style.clipPath = ''; c.style.transform = '';
+          walker.classList.remove('airborne');
+          goOn();
+        }, climbMs - 40);
+      } else if (!inFromSide) {
         walkK.turn(dir * Math.PI / 2);
         walkK.once('jump');
         walker.classList.add('airborne');
@@ -1156,24 +1183,28 @@
       } else { walker.classList.remove('airborne'); goOn(); }
       // sedne si na hranu: zadek přesně na hranu karty (poloha boků se změří na obrázku), nohy visí dolů
       function sitOnEdge(then) {
-        walkK.hold('sitEdge'); window.__kevinStage = 'sedí';
+        window.__kevinStage = 'sedí';
+        // boky ve stoje (teď) → kde budou vsedě (v pohybu Sit To Stand je sed ve 0,56 výšky boků ve stoje)
+        var feetC = WALK_FEET * h - c.offsetTop, hipsY0 = walkK.boneY('Hips');
+        if (hipsY0 == null) return then();
+        var seatC = feetC - (feetC - hipsY0) * 0.56;
+        var shift = ground - (parseFloat(walker.style.top) + c.offsetTop + seatC) + h * 0.02;
+        var downMs = walkK.has('sitUp') ? walkK.once('sitUp', true) : 0;   // pozpátku = dosedá
         walker.classList.add('airborne');                  // stín pod nohama pryč (sedí)
+        c.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(' + shift + 'px)' }], { duration: Math.max(350, downMs * 0.85), easing: 'ease-in-out', fill: 'forwards' });
         setTimeout(function () {
           if (!walking) return;
-          var hipsY = walkK.boneY('Hips');
-          if (hipsY == null) { walker.classList.remove('airborne'); return then(); }
-          var shift = ground - (parseFloat(walker.style.top) + hipsY + c.offsetTop) + h * 0.03;
-          c.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(' + shift + 'px)' }], { duration: 350, easing: 'ease-out', fill: 'forwards' });
+          walkK.hold('sitEdge');
           [[-0.6, 0.2, 1200], [0.7, 0.15, 2800], [0, 0.3, 4200]].forEach(function (l) { setTimeout(function () { if (walking) walkK.look(l[0], l[1]); }, l[2]); });
           setTimeout(function () {
             if (!walking) return;
             walkK.look(0, 0);
-            walkK.once('jump');
-            c.animate([{ transform: 'translateY(' + shift + 'px)' }, { transform: 'translateY(' + -h * 0.15 + 'px)', offset: 0.5 }, { transform: 'translateY(0)' }],
-              { duration: 800, easing: 'ease-in-out', fill: 'forwards' });
-            setTimeout(function () { walker.classList.remove('airborne'); then(); }, 800);
+            walkK.hold(null);
+            var upMs = walkK.has('sitUp') ? walkK.once('sitUp') : 800;   // vstane
+            c.animate([{ transform: 'translateY(' + shift + 'px)' }, { transform: 'translateY(0)' }], { duration: upMs * 0.85, easing: 'ease-in-out', fill: 'forwards' });
+            setTimeout(function () { walker.classList.remove('airborne'); then(); }, upMs);
           }, 5200 + Math.random() * 1500);
-        }, 420);
+        }, Math.max(420, downMs));
       }
       // na konci karty se zavěsí rukama na její roh (bokem ke kartě, tělo venku vedle ní), chvíli visí,
       // pustí se a padá na kartu pod sebou nebo na spodek okna; dopad podle výšky: nízko měkce, vysoko
@@ -1251,9 +1282,15 @@
         var dt = Math.min(0.1, (now - last) / 1000);
         last = now;
         var there = stops.length && (dir > 0 ? x + w / 2 >= stops[0] : x + w / 2 <= stops[0]);
+        // konec přechodu → další krok (chůze po rozejití, příchod na zastávku po zastavení)
+        if (trans && now >= trans.until) { var after = trans.after; trans = null; after(); }
         // kolik zbývá do zastávky nebo konce: daleko = cestovní tempo (po chvíli chůze), blízko = chůze
         var left = stops.length ? Math.abs(stops[0] - (x + w / 2)) : (dir > 0 ? x1 - x : x - x0);
-        if (cruise !== 'walk') setGait(left > (cruise === 'sprint' ? 320 : 200) && now - gaitAt > 700 ? cruise : 'walk', now);
+        // před zastávkou zastaví (Stop Walking) – začne tak daleko, kolik v něm ujde
+        if (!trans && stops.length && gait === 'walk' && walkK.has('walkStop') && left <= walkK.travelPx('walkStop') + 2) {
+          transition('walkStop', function () { x = stops[0] - w / 2; speed = 0; });
+        }
+        if (cruise !== 'walk' && !trans) setGait(left > (cruise === 'sprint' ? 260 : 150) && now - gaitAt > 300 ? cruise : 'walk', now);
         if (there) {
           stops.shift();
           walker.style.transform = 'translateX(' + x + 'px)';
@@ -1374,7 +1411,7 @@
     if (!adminPage) { scheduleTip(); scheduleWalk(); }
     // ukázka kousku hned: adresa ?kevin=drop | sit | run | walk | all (všechno najednou; dokola na /kevin-ukazka.jsp) (na zkoušku, jinak chodí sám jednou za čas)
     var show = new URLSearchParams(location.search).get('kevin');
-    if (/^(drop|sit|run|walk|all)$/.test(show || '')) setTimeout(function () { window.dispatchEvent(new CustomEvent('kevin', { detail: { walk: show } })); }, 2500);
+    if (/^(drop|sit|run|walk|climb|all)$/.test(show || '')) setTimeout(function () { window.dispatchEvent(new CustomEvent('kevin', { detail: { walk: show } })); }, 2500);
   }
 
   // Easter egg: click him over and over (each click within 2.5 s of the last) and at 5, 10 and 20 he

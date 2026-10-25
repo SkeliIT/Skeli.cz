@@ -78,7 +78,7 @@ export function createKevin(canvas, opts = {}) {
   let pose = 'idle', talking = false, talkClip = 'talk', act = null, actEnd = 0, paused = false, disposed = false;
   let lookX = 0, lookY = 0, spinT = -1, special = null, specialT = 0, frozenUntil = 0, held = null, turnTo = 0;
   let mixer = null, actions = {}, playing = null, head = null, hips = null, hipsRest = null, clock = 0;
-  let foot = null, walkSpeed = 0, speeds = {};   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
+  let foot = null, walkSpeed = 0, speeds = {}, travel = {}, hipsH = 1;   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
   let legs = [], tail = [], jaw = null, jawRest = null, mouth = null, forcedFace = null, forcedUntil = 0;
 
   function wanted() {
@@ -130,8 +130,11 @@ export function createKevin(canvas, opts = {}) {
     // další pohyby (běh, pády, sezení na hraně…) z kevin/pohyby.json – jen když o ně volající požádá (procházka)
     if (opts.moves) fetch(opts.moves).then(r => r.ok ? r.json() : []).then(list => {
       if (disposed) return;
+      for (const j of list) if (j.userData && j.userData.travel) travel[j.name] = j.userData.travel;
       api.addClips(list.map(j => THREE.AnimationClip.parse(j)));
-      for (const n of ['jog', 'run', 'run2', 'run3', 'sprint']) if (actions[n]) speeds[n] = measureWalk(model, n);
+      for (const n of ['jog', 'run', 'run2', 'run3', 'runA', 'runM', 'sprint']) if (actions[n]) speeds[n] = measureWalk(model, n);
+      // výška boků ve stoje (jednotky scény) – posun z pohybu se udává v násobcích výšky boků
+      if (hips) { model.updateMatrixWorld(true); hipsH = hips.getWorldPosition(new THREE.Vector3()).y; }
       if (opts.onMoves) opts.onMoves();
     }).catch(() => {});
     renderer.render(scene, cam);
@@ -350,9 +353,24 @@ export function createKevin(canvas, opts = {}) {
     can(feature) { return !CANNOT.has(feature); },
     // any of his clips by name (the cinema): hold(name) keeps it going until hold(null); once(name) plays it
     // through and returns its length in ms; turn(yaw) turns him (radians, 0 = facing us)
-    hold(name) { held = name && actions[name] ? name : null; crossfade(); },
-    once(name) {
+    hold(name) { held = name && actions[name] ? name : null; if (held) actions[held].timeScale = 1; crossfade(); },
+    // výřez z pohybu (vteřiny od–do) jako nový pohyb: z delšího se dá vzít jen užitečný kousek
+    cut(name, from, to, newName) {
+      if (!actions[name] || !mixer) return false;
+      const c = actions[name].getClip(), fps = 30;
+      const sub = THREE.AnimationUtils.subclip(c, newName, Math.round(from * fps), Math.round(to * fps), fps);
+      actions[newName] = mixer.clipAction(sub);
+      return true;
+    },
+    // o kolik css px pohyb posune tělo dopředu (pohyby, které nejsou „In Place“) – okénko jede stejně, nohy nekloužou
+    travelPx(name) {
+      const v = travel[name] || 0;
+      return v * hipsH * canvas.clientHeight / (2 * view.z * Math.tan(cam.fov * Math.PI / 360));
+    },
+    // reverse: pozpátku (např. „Sit To Stand“ pozpátku = sedá si)
+    once(name, reverse) {
       if (!actions[name]) return 0;
+      actions[name].timeScale = reverse ? -1 : 1;
       act = name;
       actEnd = clock + actions[name].getClip().duration;
       crossfade();
