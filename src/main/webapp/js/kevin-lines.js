@@ -2235,3 +2235,85 @@ window.KEVIN_LINES = {
     surprise: { rhyme: "Bấm vào nhịp, / Kevin theo kịp, / mở Spotify / và nghe đi nào." }
   }
 });
+
+// Kevin Pong (js/kevin-pong.js): pinkání s Kevinem – položka v menu a texty hry
+(function (KL) {
+  var P = {
+    cs: { menu: "Zahraj si se mnou", pong: {
+      title: "Kevin Pong", lead: "Pinkej s Kevinem. Kdo první dá 10 gólů, vyhrává.", you: "Ty", close: "Zavřít hru",
+      level: "Obtížnost", levels: ["Lehká", "Normální", "Kevin naštvaný"], levelHints: ["na rozehřátí", "fér souboj", "skoro nehratelné"],
+      play: "Hrát", help: "Pálku ovládáš prstem, myší nebo šipkami. Mezerník = pauza, Esc = konec.",
+      board: "Tabulka", empty: "Zatím ho tu nikdo neporazil. Buď první.", boardFail: "Tabulku se nepodařilo načíst.",
+      yourBest: "Tvoje nejlepší: {place}. místo, {time}", loginToRank: "Do tabulky se zapíšeš po přihlášení.", login: "Přihlásit",
+      localBest: "tvůj nejlepší čas tady: {time}", kevinGoals: "Kevin",
+      winTitle: "Porazil jsi Kevina!", loseTitle: "Kevin vyhrál", winTime: "Čas: {time}.", place: "V tabulce jsi na {place}. místě.",
+      loseLine: "Příště to vyjde. Možná.", again: "Hrát znovu", changeLevel: "Jiná obtížnost",
+      hello: ["Pinkáme? Varuju tě, mám rychlé tlapky.", "Hopík je můj. Ale půjčím ti ho."],
+      start: ["Jdeme na to!", "Tlapky připravené."],
+      scored: ["Gól! Tlapka nezklamala.", "To bylo moc snadné.", "Kočka 1, člověk 0. Tedy víc."],
+      conceded: ["To se nepočítá.", "Hopík mi uklouzl.", "Hm. Náhoda."],
+      won: ["No dobře. Vyhrál jsi. Tentokrát.", "Tohle Radkovi neříkej."],
+      lost: ["Kočičí reflexy, co nadělám.", "Zkus to znovu. Já počkám."] } },
+    en: { menu: "Play with me", pong: {
+      title: "Kevin Pong", lead: "Rally with Kevin. First to 10 goals wins.", you: "You", close: "Close the game",
+      level: "Difficulty", levels: ["Easy", "Normal", "Angry Kevin"], levelHints: ["warm-up", "fair fight", "nearly impossible"],
+      play: "Play", help: "Move your paddle with your finger, the mouse or the arrow keys. Space = pause, Esc = quit.",
+      board: "Leaderboard", empty: "Nobody has beaten him here yet. Be the first.", boardFail: "Couldn't load the leaderboard.",
+      yourBest: "Your best: place {place}, {time}", loginToRank: "Sign in to get on the leaderboard.", login: "Sign in",
+      localBest: "your best time here: {time}", kevinGoals: "Kevin",
+      winTitle: "You beat Kevin!", loseTitle: "Kevin won", winTime: "Time: {time}.", place: "You're number {place} on the leaderboard.",
+      loseLine: "Next time. Maybe.", again: "Play again", changeLevel: "Another difficulty",
+      hello: ["Rally? Fair warning, my paws are fast.", "The ball's mine. But I'll lend it to you."],
+      start: ["Let's go!", "Paws ready."],
+      scored: ["Goal! The paw delivers.", "That was too easy.", "Cat 1, human 0. Well, more."],
+      conceded: ["That doesn't count.", "The ball slipped.", "Hm. Luck."],
+      won: ["Fine. You won. This time.", "Don't tell Radek."],
+      lost: ["Cat reflexes, what can I say.", "Try again. I'll wait."] } },
+    de: { menu: "Spiel mit mir", pong: {
+      title: "Kevin Pong", lead: "Spiel mit Kevin. Wer zuerst 10 Tore schießt, gewinnt.", you: "Du", close: "Spiel schließen",
+      level: "Schwierigkeit", levels: ["Leicht", "Normal", "Wütender Kevin"], levelHints: ["zum Aufwärmen", "faires Duell", "fast unschlagbar"],
+      play: "Spielen", help: "Den Schläger steuerst du mit dem Finger, der Maus oder den Pfeiltasten. Leertaste = Pause, Esc = Ende.",
+      board: "Rangliste", empty: "Hier hat ihn noch keiner geschlagen. Sei der Erste.", boardFail: "Die Rangliste konnte nicht geladen werden.",
+      yourBest: "Dein Bestes: Platz {place}, {time}", loginToRank: "Melde dich an, um in die Rangliste zu kommen.", login: "Anmelden",
+      localBest: "deine beste Zeit hier: {time}", kevinGoals: "Kevin",
+      winTitle: "Du hast Kevin besiegt!", loseTitle: "Kevin hat gewonnen", winTime: "Zeit: {time}.", place: "Du bist auf Platz {place}.",
+      loseLine: "Nächstes Mal. Vielleicht.", again: "Nochmal", changeLevel: "Andere Schwierigkeit",
+      hello: ["Spielen wir? Vorsicht, meine Pfoten sind schnell.", "Der Ball gehört mir. Aber ich leih ihn dir."],
+      start: ["Los geht's!", "Pfoten bereit."],
+      scored: ["Tor! Die Pfote liefert.", "Das war zu leicht.", "Katze 1, Mensch 0. Eher mehr."],
+      conceded: ["Das zählt nicht.", "Der Ball ist mir weggerutscht.", "Hm. Zufall."],
+      won: ["Na gut. Du hast gewonnen. Diesmal.", "Sag's nicht Radek."],
+      lost: ["Katzenreflexe, was soll ich sagen.", "Versuch's nochmal. Ich warte."] } },
+    uk: { menu: "Зіграй зі мною", pong: {
+      title: "Kevin Pong", lead: "Грай з Кевіном. Хто перший заб'є 10 голів, той виграв.", you: "Ти", close: "Закрити гру",
+      level: "Складність", levels: ["Легка", "Звичайна", "Злий Кевін"], levelHints: ["для розминки", "чесний бій", "майже неможливо"],
+      play: "Грати", help: "Ракеткою керуй пальцем, мишею або стрілками. Пробіл = пауза, Esc = вихід.",
+      board: "Таблиця", empty: "Тут його ще ніхто не переміг. Будь першим.", boardFail: "Не вдалося завантажити таблицю.",
+      yourBest: "Твій найкращий: {place}. місце, {time}", loginToRank: "Увійди, щоб потрапити в таблицю.", login: "Увійти",
+      localBest: "твій найкращий час тут: {time}", kevinGoals: "Кевін",
+      winTitle: "Ти переміг Кевіна!", loseTitle: "Кевін виграв", winTime: "Час: {time}.", place: "У таблиці ти на {place}. місці.",
+      loseLine: "Наступного разу. Можливо.", again: "Ще раз", changeLevel: "Інша складність",
+      hello: ["Пограємо? Попереджаю, лапи в мене швидкі.", "М'яч мій. Але позичу."],
+      start: ["Поїхали!", "Лапи готові."],
+      scored: ["Гол! Лапа не підвела.", "Це було надто легко.", "Кіт 1, людина 0. Ну, більше."],
+      conceded: ["Це не рахується.", "М'яч вислизнув.", "Хм. Випадок."],
+      won: ["Гаразд. Ти виграв. Цього разу.", "Тільки Радеку не кажи."],
+      lost: ["Котячі рефлекси, що поробиш.", "Спробуй ще. Я почекаю."] } },
+    vi: { menu: "Chơi với tôi", pong: {
+      title: "Kevin Pong", lead: "Đánh bóng với Kevin. Ai ghi 10 bàn trước thì thắng.", you: "Bạn", close: "Đóng trò chơi",
+      level: "Độ khó", levels: ["Dễ", "Thường", "Kevin nổi giận"], levelHints: ["khởi động", "đấu sòng phẳng", "gần như không thể"],
+      play: "Chơi", help: "Điều khiển vợt bằng ngón tay, chuột hoặc phím mũi tên. Space = tạm dừng, Esc = thoát.",
+      board: "Bảng xếp hạng", empty: "Chưa ai thắng được nó ở đây. Hãy là người đầu tiên.", boardFail: "Không tải được bảng xếp hạng.",
+      yourBest: "Thành tích tốt nhất: hạng {place}, {time}", loginToRank: "Đăng nhập để có tên trên bảng xếp hạng.", login: "Đăng nhập",
+      localBest: "thời gian tốt nhất của bạn ở đây: {time}", kevinGoals: "Kevin",
+      winTitle: "Bạn đã thắng Kevin!", loseTitle: "Kevin thắng", winTime: "Thời gian: {time}.", place: "Bạn đứng hạng {place}.",
+      loseLine: "Lần sau nhé. Có thể.", again: "Chơi lại", changeLevel: "Độ khó khác",
+      hello: ["Chơi không? Báo trước, chân tôi nhanh lắm.", "Quả bóng là của tôi. Nhưng cho mượn."],
+      start: ["Bắt đầu!", "Chân sẵn sàng."],
+      scored: ["Vào! Chân mèo không làm thất vọng.", "Dễ quá.", "Mèo 1, người 0. Hơn thế nữa."],
+      conceded: ["Cái đó không tính.", "Bóng trượt mất.", "Hừm. May thôi."],
+      won: ["Thôi được. Bạn thắng. Lần này.", "Đừng kể với Radek."],
+      lost: ["Phản xạ mèo mà, biết sao được.", "Thử lại đi. Tôi đợi."] } }
+  };
+  for (var k in P) if (KL[k]) { KL[k].pong = P[k].pong; if (KL[k].menu) KL[k].menu.pong = P[k].menu; }
+})(window.KEVIN_LINES);

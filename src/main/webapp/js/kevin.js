@@ -538,20 +538,31 @@
     var items = adminPage
       ? [['status', 'fa-clipboard-check', L.admin.status], ['find', 'fa-magnifying-glass', L.menu.find], ['play', 'fa-play', L.menu.play]]
       : [['find', 'fa-magnifying-glass', L.menu.find], ['play', 'fa-play', L.menu.play],   // (Zarapuj is off for now: kevin-napady.md)
-         ['news', 'fa-bolt', L.menu.news], ['fun', 'fa-wand-magic-sparkles', L.menu.fun], ['report', 'fa-triangle-exclamation', L.menu.report]];
+         ['pong', 'fa-table-tennis-paddle-ball', L.menu.pong || 'Pong'], ['news', 'fa-bolt', L.menu.news], ['fun', 'fa-wand-magic-sparkles', L.menu.fun], ['report', 'fa-triangle-exclamation', L.menu.report]];
     items.forEach(function (it) {
       var b = el('button', 'kevin-chip');
       b.type = 'button';
       b.innerHTML = '<i class="fa-solid ' + it[1] + '" aria-hidden="true"></i> ';
       b.appendChild(document.createTextNode(it[2]));
       b.addEventListener('click', function () {
-        ({ status: adminStatus, find: find, play: play, rap: rap, news: function () { news(true); }, fun: surprise, report: report })[it[0]]();
+        ({ status: adminStatus, find: find, play: play, rap: rap, pong: pong, news: function () { news(true); }, fun: surprise, report: report })[it[0]]();
       });
       box.appendChild(b);
     });
     living = true;
     // the menu goes after a while when nobody touches it (pointing at it or typing keeps it), he stays
     show(L.menu.hint, { pose: 'point', extra: box, ms: 9000 });
+  }
+
+  // Kevin Pong: hra přes celou obrazovku (js/kevin-pong.js se načte až teď); Kevin v rohu se zatím schová
+  function pong() {
+    hideBubble('idle');
+    var go = function () { window.KevinPong.open({ version: version }); };
+    if (window.KevinPong) return go();
+    var sc = document.createElement('script');
+    sc.src = '/js/kevin-pong.js' + (version ? '?' + version : '');
+    sc.onload = go;
+    document.head.appendChild(sc);
   }
 
   // 1) find a song by its name or a line of its lyrics
@@ -1060,7 +1071,7 @@
     return { x: xc + window.scrollX, edge: b.top + window.scrollY, land: land + window.scrollY };
   }
   function canWalk() {
-    return !adminPage && !userHidden && !reduced && !saveData && wideMq.matches && !document.hidden
+    return !adminPage && !userHidden && !reduced && !saveData && wideMq.matches && !document.hidden && !(window.KevinPong && window.KevinPong.isOpen)
       && root.hidden && !busy && !isField(document.activeElement) && store.get('kevinLite') !== '1';
   }
   function scheduleWalk() {
@@ -1416,6 +1427,7 @@
     if (!adminPage) { scheduleTip(); scheduleWalk(); }
     // ukázka kousku hned: adresa ?kevin=drop | sit | run | walk | all (všechno najednou; dokola na /kevin-ukazka.jsp) (na zkoušku, jinak chodí sám jednou za čas)
     var show = new URLSearchParams(location.search).get('kevin');
+    if (show === 'pong') setTimeout(pong, 1200);   // ?kevin=pong = rovnou hra (odkaz z menu, testy)
     if (/^(drop|sit|run|walk|climb|all)$/.test(show || '')) setTimeout(function () { window.dispatchEvent(new CustomEvent('kevin', { detail: { walk: show } })); }, 2500);
   }
 

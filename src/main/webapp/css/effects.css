@@ -1323,3 +1323,107 @@ body.light .kevin-emote {
 .kevin-show-a { left: 4%; width: 62%; top: 46vh; }
 .kevin-show-b { left: 48%; width: 34%; top: 78vh; }
 @media (max-width: 1024px) { .kevin-show-card { display: none; } }
+
+/* ---------- Kevin Pong (js/kevin-pong.js): hra přes celou obrazovku, hřiště na výšku ---------- */
+html.kpong-open, html.kpong-open body { overflow: hidden; }
+.kpong {
+  position: fixed; inset: 0; z-index: 3000;
+  display: grid; place-items: center;
+  background: rgba(5, 4, 3, .82);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  animation: kpong-in .25s ease-out;
+}
+body.light .kpong { background: rgba(240, 238, 232, .86); }
+@keyframes kpong-in { from { opacity: 0; } }
+.kpong-box {
+  --kp-h: min(calc(100dvh - 24px), 900px);
+  width: min(calc(100vw - 16px), calc(var(--kp-h) * 2 / 3 + 0px));
+  display: flex; flex-direction: column; gap: 8px;
+}
+.kpong-top { display: flex; align-items: center; gap: 10px; }
+.kpong-score {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-family: var(--font-display); color: var(--text);
+}
+.kpong-score b { font-size: var(--fs-h2); color: var(--accent); min-width: 1.6ch; text-align: center; }
+.kpong-score i { font-style: normal; opacity: .5; }
+.kpong-who { font-size: var(--fs-small); color: var(--text-dim); text-transform: uppercase; letter-spacing: .1em; }
+.kpong-score b.bump { animation: kpong-bump .45s ease-out; }
+@keyframes kpong-bump { 40% { transform: scale(1.5); } }
+.kpong-close {
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--panel-border);
+  background: var(--panel); color: var(--text); font-size: 1.1rem;
+}
+.kpong-field {
+  position: relative; aspect-ratio: 2 / 3; width: 100%;
+  max-height: calc(var(--kp-h) - 60px);
+  border-radius: 20px; overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(230, 183, 48, .12), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .06));
+  border: 1px solid rgba(230, 183, 48, .35);
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 1px rgba(255, 255, 255, .04);
+  touch-action: none; user-select: none;
+}
+body.light .kpong-field { background: linear-gradient(180deg, rgba(255, 255, 255, .7), rgba(255, 255, 255, .45)); }
+.kpong-field.hit { animation: kpong-hit .18s ease-out; }
+@keyframes kpong-hit { 50% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 2px rgba(230, 183, 48, .6); } }
+.kpong-court { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* Kevin stojí za svou pálkou (pálka je u horního okraje, ve 19 % výšky hřiště) */
+.kpong-kevin {
+  position: absolute; left: 0; top: 0;
+  width: 30%; aspect-ratio: 160 / 180;
+  pointer-events: none; opacity: 0; transition: opacity .4s;
+}
+.kpong-kevin.on { opacity: 1; }
+.kpong-say {
+  position: absolute; left: 50%; top: 26%; transform: translateX(-50%);
+  max-width: 80%; margin: 0; padding: 8px 14px; border-radius: 14px;
+  background: var(--panel-strong); border: 1px solid var(--panel-border); color: var(--text);
+  font-family: var(--font-text); font-size: var(--fs-text); text-align: center; pointer-events: none;
+}
+.kpong-panel {
+  position: absolute; inset: 0; overflow-y: auto;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 34% 18px 18px;
+  background: linear-gradient(180deg, transparent 0, rgba(5, 4, 3, .72) 30%, rgba(5, 4, 3, .9));
+  text-align: center;
+}
+body.light .kpong-panel { background: linear-gradient(180deg, transparent 0, rgba(255, 255, 255, .8) 30%, rgba(255, 255, 255, .94)); }
+.kpong-panel[hidden] { display: none; }
+.kpong-title { margin: 0; font-size: var(--fs-h2); color: var(--accent); }
+.kpong-lead, .kpong-help, .kpong-note { margin: 0; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-text); }
+.kpong-help { font-size: var(--fs-small); }
+.kpong-final { margin: 0; font-family: var(--font-display); font-size: var(--fs-h1); color: var(--text); }
+.kpong-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
+.kpong-level {
+  display: flex; flex-direction: column; gap: 4px; padding: 10px 6px; border-radius: 14px;
+  border: 1px solid var(--panel-border); background: rgba(255, 255, 255, .04); color: var(--text);
+  font-size: var(--fs-card);
+}
+.kpong-level small { font-size: var(--fs-small); color: var(--text-dim); }
+.kpong-level.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.kpong-play { min-height: 46px; padding: 0 28px; }
+.kpong-back { background: transparent; border: 0; color: var(--text-dim); text-decoration: underline; font-size: var(--fs-small); }
+.kpong-board { width: 100%; margin-top: 4px; }
+.kpong-board h3 { margin: 0 0 6px; font-size: var(--fs-h4); color: var(--text); }
+.kpong-list { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.kpong-list li {
+  display: grid; grid-template-columns: 2.2em 24px 1fr auto auto; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: 10px; background: rgba(255, 255, 255, .04);
+  font-size: var(--fs-card); text-align: left;
+}
+.kpong-list li.me { outline: 1px solid var(--accent); background: var(--accent-soft); }
+.kpong-list img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+.kpong-place { color: var(--accent); }
+.kpong-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kpong-time { font-variant-numeric: tabular-nums; }
+.kpong-kgoals { color: var(--text-dim); font-size: var(--fs-small); }
+/* telefon na šířku: hřiště podle výšky, skóre vedle */
+@media (orientation: landscape) and (max-height: 500px) {
+  .kpong-box { --kp-h: calc(100dvh - 12px); width: auto; flex-direction: row; align-items: stretch; }
+  .kpong-top { flex-direction: column; justify-content: space-between; }
+  .kpong-score { flex-direction: column; flex: 0; }
+  .kpong-field { height: var(--kp-h); width: auto; max-height: none; }
+  .kpong-panel { padding-top: 18px; }
+}
