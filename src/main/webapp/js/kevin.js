@@ -1130,7 +1130,7 @@
       var cruise = (walkForce === 'run' || walkForce === 'all') && walkK.has('run3') ? runStyle() : len > 900 && walkK.has('sprint') && (hour >= 23 || hour < 4 || Math.random() < 0.15) ? 'sprint'
         : len > 650 && walkK.has('run3') && Math.random() < 0.6 ? runStyle()
         : len > 420 && walkK.has('jog') && Math.random() < 0.7 ? 'jog' : 'walk';
-      var stillUntil = 0, gait = 'walk', gaitAt = 0, FALLBACK = { walk: 1, jog: 1.8, run: 2.6, run2: 2.6, run3: 2.6, runA: 2.6, runM: 2.6, sprint: 3.6 };
+      var stillUntil = 0, braked = false, gait = 'walk', gaitAt = 0, FALLBACK = { walk: 1, jog: 1.8, run: 2.6, run2: 2.6, run3: 2.6, runA: 2.6, runM: 2.6, sprint: 3.6 };
       function setGait(g, now) {
         if (g === gait) return;
         gait = g; gaitAt = now; window.__kevinStage = 'tempo ' + g;
@@ -1151,7 +1151,7 @@
       var goOn = function () {
         if (!walking) return;
         walkK.turn(dir * Math.PI / 2);
-        gait = '';
+        gait = ''; braked = false;
         if (walkK.has('walkStart')) transition('walkStart', function () { gait = ''; setGait('walk', performance.now()); });
         else setGait('walk', performance.now());
         last = performance.now(); requestAnimationFrame(step);
@@ -1290,7 +1290,12 @@
         if (!trans && stops.length && gait === 'walk' && walkK.has('walkStop') && left <= walkK.travelPx('walkStop') + 2) {
           transition('walkStop', function () { x = stops[0] - w / 2; speed = 0; });
         }
-        if (cruise !== 'walk' && !trans) setGait(left > (cruise === 'sprint' ? 260 : 150) && now - gaitAt > 300 ? cruise : 'walk', now);
+        // rozběhne se jen s dostatkem místa před sebou; jakmile začne brzdit, do zastávky už znovu nevyrazí
+        // (dřív se běh a chůze střídaly po snímcích = škubání)
+        if (cruise !== 'walk' && !trans) {
+          if (gait === 'walk' && !braked && now - gaitAt > 400 && left > (cruise === 'sprint' ? 420 : 300)) setGait(cruise, now);
+          else if (gait === cruise && left < 150 && now - gaitAt > 500) { braked = true; setGait('walk', now); }
+        }
         if (there) {
           stops.shift();
           walker.style.transform = 'translateX(' + x + 'px)';

@@ -78,8 +78,9 @@ export function createKevin(canvas, opts = {}) {
   let pose = 'idle', talking = false, talkClip = 'talk', act = null, actEnd = 0, paused = false, disposed = false;
   let lookX = 0, lookY = 0, spinT = -1, special = null, specialT = 0, frozenUntil = 0, held = null, turnTo = 0;
   let mixer = null, actions = {}, playing = null, head = null, hips = null, hipsRest = null, clock = 0;
-  let foot = null, walkSpeed = 0, speeds = {}, travel = {}, hipsH = 1;   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
+  let foot = null, walkSpeed = 0, speeds = {}, travel = {}, hipsH = 1, fbxK = 0;   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
   let legs = [], tail = [], jaw = null, jawRest = null, mouth = null, forcedFace = null, forcedUntil = 0;
+  let feet = [], footRest = null, groundY = 0, groundK = 0;
 
   function wanted() {
     if (act) return act;
@@ -107,6 +108,7 @@ export function createKevin(canvas, opts = {}) {
       if (o.isBone && /mixamorig:?Hips$/.test(o.name)) hips = o;
       if (o.isBone && /mixamorig:?LeftFoot$/.test(o.name)) foot = o;
       if (o.isBone && /mixamorig:?(Left|Right)Leg$/.test(o.name)) legs.push(o);
+      if (o.isBone && /mixamorig:?(Left|Right)(Foot|ToeBase)$/.test(o.name)) feet.push(o);
       if (o.isBone && /^ocas[1-9]$/.test(o.name)) tail.push(o);
       if (o.isBone && o.name === 'celist') jaw = o;
       if (!o.isMesh) return;
@@ -126,6 +128,7 @@ export function createKevin(canvas, opts = {}) {
     mixer = new THREE.AnimationMixer(model);
     for (const clip of g.animations) actions[clip.name] = mixer.clipAction(clip);
     walkSpeed = measureWalk(model);
+    footRest = lowestFoot(model, 'idle');
     crossfade();
     // další pohyby (běh, pády, sezení na hraně…) z kevin/pohyby.json – jen když o ně volající požádá (procházka)
     if (opts.moves) fetch(opts.moves).then(r => r.ok ? r.json() : []).then(list => {
@@ -264,6 +267,35 @@ export function createKevin(canvas, opts = {}) {
     }
   }
 
+  // ---------- přichycení k zemi ----------
+  // Pohyby z Mixamo jsou pro delší nohy, Kevinovi chodidla v chůzi a běhu propadají pod podlahu nebo se vznášejí
+  // a dopady začínají ve vzduchu. Každý snímek: nejnižší kost chodidla (Foot/ToeBase) se srovná na výšku,
+  // jakou má v klidu – kromě pohybů, kde má být ve vzduchu nebo mu nohy visí (skok, pád, visení, šplh, sezení).
+  const AIR = new Set(['jump', 'fallLoop', 'fall', 'hang', 'hangJump', 'climbUp', 'climb', 'sitUp', 'sitEdge', 'sit', 'sitTalk', 'thumbsUp',
+    'swim', 'lie', 'lyingPose', 'flair', 'breakdance', 'dive', 'shimmy', 'typing', 'sitting']);
+  const fw = new THREE.Vector3();
+  function lowestFoot(model, name) {
+    if (!feet.length) return null;
+    if (name && actions[name]) { const a = actions[name]; a.reset().play(); mixer.setTime(0); }
+    model.updateMatrixWorld(true);
+    let m = Infinity;
+    for (const b of feet) m = Math.min(m, b.getWorldPosition(fw).y);
+    if (name && actions[name]) { actions[name].stop(); mixer.setTime(0); }
+    return m;
+  }
+  function groundLock(dt) {
+    if (opts.groundLock === false || footRest == null || !feet.length) return;
+    const clip = wanted();
+    const on = !AIR.has(clip) && !special && spinT < 0;
+    // plynulé zapnutí a vypnutí (0,2 s), ať při přechodu do skoku a z něj necukne
+    groundK = Math.max(0, Math.min(1, groundK + (on ? 1 : -1) * dt / 0.2));
+    holder.updateMatrixWorld(true);
+    let m = Infinity;
+    for (const b of feet) m = Math.min(m, b.getWorldPosition(fw).y);
+    groundY = (footRest - (m - holder.position.y)) * groundK;
+    holder.position.y += groundY;
+  }
+
   // ---------- drawing ----------
   let last = -1, drawn = false;
   function frame(now) {
@@ -313,6 +345,7 @@ export function createKevin(canvas, opts = {}) {
       if (special.name === 'leave') { holder.position.x = 3 * h; yaw += Math.PI / 2 * Math.min(1, h * 3); }
     }
     holder.rotation.y = spinT >= 0 || special ? yaw : holder.rotation.y + (yaw - holder.rotation.y) * 0.15;
+    groundLock(frozen ? 0 : dt);
     renderer.render(scene, cam);
   }
   requestAnimationFrame(frame);
@@ -384,12 +417,21 @@ export function createKevin(canvas, opts = {}) {
     // další pohyby (AnimationClip z Mixamo, např. FBXLoader): jen stopy kostí, které Kevin má; posun boků
     // z centimetrů FBX na měřítko modelu podle výšky boků v prvním snímku
     addClips(clips) {
+      const fbxScale = () => {
+        if (fbxK) return fbxK;
+        const it = actions.idle && actions.idle.getClip().tracks.find(t => /Hips\.position$/.test(t.name));
+        fbxK = (it ? it.values[1] : hipsRest ? hipsRest.y : 1) / 0.6826;
+        return fbxK;
+      };
       if (!mixer) return [];
       const names = new Set(); mixer.getRoot().traverse(o => { if (o.isBone) names.add(o.name); });
       return clips.map(c => {
         c.tracks = c.tracks.filter(tr => names.has(tr.name.split('.')[0]));
         const hp = c.tracks.find(tr => /Hips\.position$/.test(tr.name));
-        if (hp && hipsRest && hp.values[1] > 0) { const k = hipsRest.y / hp.values[1]; for (let i = 0; i < hp.values.length; i++) hp.values[i] *= k; }
+        // jedno měřítko pro všechny pohyby: FBX z Mixamo jsou v metrech, Kevin v klidu (Breathing Idle) má boky
+        // ve 0,68 m – to odpovídá výšce boků v jeho klidovém pohybu z modelu (dřív se každý pohyb srovnal podle
+        // svého prvního snímku, takže pohyby začínající v podřepu ho zvedaly a jiné propadaly pod hranu)
+        if (hp && hp.values[1] > 0) { for (let i = 0; i < hp.values.length; i++) hp.values[i] *= fbxScale(); }
         actions[c.name] = mixer.clipAction(c);
         return c.name;
       });
@@ -413,6 +455,15 @@ export function createKevin(canvas, opts = {}) {
       b.updateWorldMatrix(true, false);
       const v = b.getWorldPosition(new THREE.Vector3()).project(cam);
       return (1 - v.y) / 2 * canvas.clientHeight;
+    },
+    // kontrola (testy): pohyb `name` zastavený v čase t (vteřiny) – pak boneY ukáže, kde v tu chvíli kost je
+    poseAt(name, t) {
+      if (!actions[name] || !mixer) return false;
+      mixer.stopAllAction();
+      const a = actions[name]; a.reset().setEffectiveWeight(1).play(); a.time = t; mixer.update(0);
+      if (hips && hipsRest) { hips.position.x = hipsRest.x; hips.position.z = hipsRest.z; }
+      playing = null;
+      return true;
     },
     // délka klipu v ms (0 = nemá ho)
     clipMs(name) { return actions[name] ? actions[name].getClip().duration * 1000 : 0; },
