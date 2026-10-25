@@ -18,10 +18,13 @@
   const css = document.createElement("style");
   css.textContent = `
     /* fotky webu schovává už css/effects.css (body:has(main.texty-page)), tady jen vlastní vrstva – je tam
-       hned, bez prolínání: nejdřív snímek z videa (poster), video se k němu připojí, až hraje */
+       hned: nejdřív snímek z videa (obrázek), video se přes něj pomalu prolne, až opravdu hraje (snímek je
+       z jiného místa smyčky, takže bez prolnutí by obraz poskočil) */
     .texty-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: #050403; }
     body.light .texty-bg { background: #e9ecef; }
     .texty-bg video, .texty-bg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .texty-bg video { opacity: 0; transition: opacity 1.4s ease; }
+    .texty-bg video.on { opacity: 1; }
     /* závoj nahoře a dole, ať se dá číst hlavička i seznam */
     .texty-bg .shade { position: absolute; inset: 0;
       background: linear-gradient(180deg, rgba(5,4,3,.6) 0%, rgba(5,4,3,.2) 30%, rgba(5,4,3,.3) 65%, rgba(5,4,3,.8) 100%); }
@@ -34,19 +37,20 @@
   layer.className = "texty-bg";
   layer.setAttribute("aria-hidden", "true");
   let media;
+  const poster = document.createElement("img");
+  poster.alt = ""; poster.src = file("poster");
+  layer.appendChild(poster);
   if (still) {
-    media = document.createElement("img");
-    media.alt = "";
-    media.src = file("poster");
+    media = poster;
   } else {
     media = document.createElement("video");
     media.muted = true; media.loop = true; media.playsInline = true; media.autoplay = true;
     media.setAttribute("muted", ""); media.setAttribute("playsinline", "");   // iPhone hraje sám jen s atributy
     media.preload = "auto";
-    media.poster = file("poster");
     media.src = file("video");
+    media.addEventListener("playing", () => media.classList.add("on"));
+    layer.appendChild(media);
   }
-  layer.appendChild(media);
   layer.insertAdjacentHTML("beforeend", '<div class="shade"></div>');
   document.body.appendChild(layer);
   // při návratu na Texty video pokračuje tam, kde skončilo (ne zase od začátku)
@@ -64,7 +68,8 @@
     shown = next;
     if (still) { media.src = next; return; }
     const t = media.currentTime;
-    media.poster = file("poster");
+    poster.src = file("poster");
+    media.classList.remove("on");      // nové video se zase prolne přes svůj snímek
     media.src = next;
     media.currentTime = t;
     sync();
