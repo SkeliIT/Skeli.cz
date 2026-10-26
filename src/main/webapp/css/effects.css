@@ -1489,6 +1489,7 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
 @media (orientation: landscape) and (max-height: 500px) { .kpong .kpong-box { width: auto; } }
 .kpong-machine {
   position: relative; overflow: hidden; align-self: center; flex: none;
+  touch-action: none; user-select: none; -webkit-user-select: none;   /* prst vede pálku po celém stroji, stránka se nehýbe */
 }
 /* oříznutý stroj (telefon): okraje ořezu se rozplývají */
 .kpong-machine.cut {

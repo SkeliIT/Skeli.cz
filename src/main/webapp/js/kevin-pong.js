@@ -131,12 +131,14 @@
     // ---------- pozadí a jeho život ----------
     var bgEl = root.querySelector('.kpong-bg'), fx = root.querySelector('.kpong-bgfx'), fxc = fx.getContext('2d');
     var bgName = store.get('kevinPongBg'), still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (BGS.indexOf(bgName) < 0) bgName = 'tma';
+    // kdo si ještě nevybral, dostane při každé hře náhodný obrázek (volba v ⚙ se pak pamatuje)
+    var bgPicked = BGS.indexOf(bgName) >= 0;
+    if (!bgPicked) bgName = BGS[1 + Math.floor(Math.random() * (BGS.length - 1))];
     var parts = [], fxLast = 0, shoot0 = 0, fxW = 1, fxH = 1;
     // výřez obrázku na hřiště (hřiště je na výšku, obrázky na šířku): kde je v obrázku to nejhezčí
     var BG_POS = { mesto: '20%', zapad: '62%', les: '50%', vesmir: '28%', zare: '50%', ganja: '55%' };
     function setBg(name) {
-      bgName = name; store.set('kevinPongBg', name);
+      bgName = name;
       root.dataset.bg = name;
       bgEl.style.backgroundImage = name === 'tma' ? '' : 'url(/kevin/pong/pozadi-' + name + '.webp' + ver + ')';
       bgEl.style.backgroundPosition = (BG_POS[name] || '50%') + ' 50%';
@@ -817,6 +819,7 @@
     // ---------- ovládání ----------
     function toField(e) { var r = court.getBoundingClientRect(); return (e.clientX - r.left) / r.width * W; }
     // Prst, který přišel první, vede pálku (zachycený – vede ji, i když sjede z hřiště); další prst = odstřel.
+    // Prst funguje na celém stroji, i na spodním okénku s koly pod hřištěm – tam nezakrývá pálku ani hopík.
     // Myš vede pálku po celém okně hry (dřív jen nad hřištěm – když vyjela ven, pálka se zasekla), levé
     // tlačítko kdekoli mimo tlačítka a menu = odstřel.
     var mover = null;
@@ -826,7 +829,7 @@
         if (e.type === 'pointerdown') {
           if (mover !== null && mover !== e.pointerId) { shoot(); e.preventDefault(); return; }
           mover = e.pointerId;
-          try { field.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
+          try { machine.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
         } else if (e.pointerId !== mover) return;
       } else if (e.type === 'pointerdown') {
         if (e.button !== 0 || setCard || e.target.closest('button, a, .kpong-panel, .kpong-settings')) return;
@@ -839,10 +842,10 @@
     function touchOnly(e) { if (e.pointerType === 'touch') onPointer(e); }
     root.addEventListener('pointermove', mouseOnly);
     root.addEventListener('pointerdown', mouseOnly);
-    field.addEventListener('pointermove', touchOnly);
-    field.addEventListener('pointerdown', touchOnly);
-    field.addEventListener('pointerup', onPointerEnd);
-    field.addEventListener('pointercancel', onPointerEnd);
+    machine.addEventListener('pointermove', touchOnly);
+    machine.addEventListener('pointerdown', touchOnly);
+    machine.addEventListener('pointerup', onPointerEnd);
+    machine.addEventListener('pointercancel', onPointerEnd);
     root.querySelector('.kpong-shot').addEventListener('pointerdown', function (e) { e.preventDefault(); shoot(); });
     function onKey(e) {
       if (e.key === 'Escape') return setCard ? closeSettings() : close();
@@ -894,7 +897,7 @@
       setBtn.setAttribute('aria-expanded', 'true');
       setCard.querySelectorAll('.kp-bgopt').forEach(function (b, i) {
         b.addEventListener('click', function () {
-          setBg(b.dataset.bg);
+          setBg(b.dataset.bg); store.set('kevinPongBg', b.dataset.bg);
           setCard.querySelectorAll('.kp-bgopt').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           setCard.querySelector('.kp-bgname').textContent = (T.bgs || BGS)[i];
         });
