@@ -1464,24 +1464,34 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
 .kpong-field.shot-super { animation: kpong-shot-super .6s ease-out; }
 @keyframes kpong-shot { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 3px rgba(230, 183, 48, .9), inset 0 0 60px rgba(230, 183, 48, .25); } }
 @keyframes kpong-shot-super { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 4px rgba(255, 138, 30, .95), inset 0 0 90px rgba(255, 106, 0, .35); } }
-/* tlačítko odstřelu pod hřištěm – jen na dotykových displejích (myš kliká přímo, klávesnice mezerníkem) */
-.kpong-shot { display: none; }
+/* telefon: pod strojem ovládací lišta (prst na ní vede pálku – je 1–3 cm pod pálkou, nezakrývá hřiště)
+   a kulaté ⚡ Odstřel vpravo; myš a klávesnice lištu nepotřebují */
+.kpong-pad { display: none; }
 @media (pointer: coarse) {
-  .kpong-box { width: min(calc(100vw - 16px), calc((var(--kp-h) - 64px) * 2 / 3)); }
-  .kpong-field { max-height: calc(var(--kp-h) - 124px); }
-  .kpong-shot {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    min-height: 56px; border-radius: 18px; border: 1px solid var(--accent);
-    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #8a6400));
-    color: var(--accent-ink); font-family: var(--font-display); font-size: var(--fs-h4);
-    touch-action: none; user-select: none; -webkit-user-select: none;
+  .kpong-pad { display: flex; align-items: stretch; gap: 8px; height: 64px; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .kp-rail {
+    position: relative; flex: 1; border-radius: 18px;
+    background: linear-gradient(180deg, #1d1c22, #0e0d12); border: 1px solid rgba(230, 183, 48, .45);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, .7);
   }
-  .kpong-shot:active { transform: scale(.97); filter: brightness(1.15); }
+  .kp-rail::before { content: ""; position: absolute; left: 16px; right: 16px; top: 50%; height: 2px; background: rgba(230, 183, 48, .25); }
+  .kp-knob {
+    position: absolute; top: 50%; left: 50%; width: 46px; height: 12px; margin: -6px 0 0 -23px; border-radius: 6px;
+    background: linear-gradient(180deg, #f2f2f4, #9a9aa4); box-shadow: 0 0 10px rgba(255, 255, 255, .35);
+  }
+  .kpong-shot {
+    flex: none; width: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    border-radius: 50%; border: 1px solid var(--accent); padding: 0;
+    background: radial-gradient(circle at 35% 30%, #ffe58a, var(--accent) 55%, #8a6400);
+    color: var(--accent-ink); font-size: 1.2rem; touch-action: none;
+  }
+  .kpong-shot span { font-family: var(--font-display); font-size: 9px; letter-spacing: .02em; }
+  .kpong-shot:active { transform: scale(.94); filter: brightness(1.15); }
 }
 @media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
-  .kpong-box { width: auto; }
-  .kpong-field { max-height: none; }
-  .kpong-shot { min-height: 0; width: 72px; flex-direction: column; font-size: var(--fs-small); }
+  .kpong-pad { height: auto; width: 72px; flex-direction: column; justify-content: flex-end; }
+  .kp-rail { display: none; }
+  .kpong-shot { width: 64px; height: 64px; }
 }
 /* ---------- stroj: rám z obrázku, sklo hřiště, ozubená kola, Kevin na prostředním kole ----------
    všechno v pixelech obrázku rámu krát --u (nastavuje kevin-pong.js fit()); okraje stroje se rozplývají do tmy */
@@ -1732,3 +1742,12 @@ body.light .kevin-bubble:has(.kevin-extra:not([hidden])) { --glass: rgba(255, 25
   100% { box-shadow: 0 0 0 18px transparent; }
 }
 .kpong-board h3.kp-label { margin: 0 0 6px; font-size: var(--fs-small); color: var(--accent); }
+
+/* telefon: komiksové nápisy a Kevinovy bubliny menší (nesmí zakrývat hru) */
+@media (max-width: 600px) {
+  .kp-comic.burst { padding: 12px 18px; }
+  .kp-comic.burst span { font-size: 12px; }
+  .kp-comic.burst.super span { font-size: 14px; }
+  .kp-comic.say { padding: 6px 10px; border-width: 2px; border-radius: 14px; font-size: 13px; box-shadow: 3px 3px 0 rgba(0, 0, 0, .5); }
+  .kp-comic.say::after { width: 12px; height: 12px; margin-top: -6px; border-width: 0 0 2px 2px; }
+}

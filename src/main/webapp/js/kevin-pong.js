@@ -75,7 +75,8 @@
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
       '    </div>' +
       '  </div></div>' +
-      '  <button type="button" class="kpong-shot"><i class="fa-solid fa-bolt" aria-hidden="true"></i> ' + esc(T.shot || 'Odstřel') + '</button>' +
+      '  <div class="kpong-pad"><div class="kp-rail" aria-hidden="true"><i class="kp-knob"></i></div>' +
+      '    <button type="button" class="kpong-shot" aria-label="' + esc(T.shot || 'Odstřel') + '"><i class="fa-solid fa-bolt" aria-hidden="true"></i><span>' + esc(T.shot || 'Odstřel') + '</span></button></div>' +
       '</div>' +
       '<div class="kpong-panel"></div><p class="sr-only kpong-live" aria-live="polite"></p>';   // úvod a konec: karta uprostřed obrazovky před strojem
     document.body.appendChild(root);
@@ -86,6 +87,7 @@
     var kevCanvas = root.querySelector('.kpong-kevin');
     var machine = root.querySelector('.kpong-machine'), frame = root.querySelector('.kpong-frame');
     var shotBtn = root.querySelector('.kpong-shot'), topBar = root.querySelector('.kpong-top');
+    var padEl = root.querySelector('.kpong-pad'), knob = root.querySelector('.kp-knob');
     function winVars(w) { return '--wx:' + w[0] + ';--wy:' + w[1] + ';--ww:' + w[2] + ';--wh:' + w[3]; }
     function gear(g) {
       return '<img class="kpong-gear" src="/kevin/pong/kolo-' + g[0] + '.webp' + ver + '" alt="" style="--x:' + g[1] + ';--y:' + g[2] + ';--r:' + g[3] + '">';
@@ -95,9 +97,9 @@
     // ať je hřiště co největší. --u = kolik pixelů obrazovky je jeden pixel obrázku.
     function fit() {
       var landscape = innerWidth > innerHeight && innerHeight < 500;
-      var availW = innerWidth - 16 - (landscape ? topBar.offsetWidth + shotBtn.offsetWidth + 24 : 0);
+      var availW = innerWidth - 16 - (landscape ? topBar.offsetWidth + padEl.offsetWidth + 24 : 0);
       // skóre a křížek leží přes volné místo nad strojem (vedle Kevina), na výšku tedy nezabírají řádek
-      var availH = innerHeight - 16 - (landscape ? 0 : (shotBtn.offsetHeight ? shotBtn.offsetHeight + 8 : 0));
+      var availH = innerHeight - 16 - (landscape ? 0 : (padEl.offsetHeight ? padEl.offsetHeight + 8 : 0));
       var all = { x0: 0, x1: FRAME_W, y0: -110, y1: FRAME_H };    // nad rámem místo pro Kevina
       var cut = { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1218 };
       var uAll = Math.min(availW / FRAME_W, availH / FRAME_H), uCut = Math.min(availW / (cut.x1 - cut.x0), availH / (cut.y1 - cut.y0));
@@ -786,6 +788,7 @@
     // ---------- kreslení hřiště ----------
     function draw(now) {
       mechTick(now); fxTick(now);
+      if (knob) knob.style.left = (player.x / W * 100).toFixed(2) + '%';
       var light = false;   // hřiště je tmavé sklo stroje i ve světlém režimu
       cx.clearRect(0, 0, W, H);
       rail(KEVIN_Y, kevin.x); rail(PLAYER_Y, player.x);
@@ -863,7 +866,7 @@
           if (mover !== null && mover !== e.pointerId) { shoot(); e.preventDefault(); return; }
           mover = e.pointerId;
           kickOff();
-          try { machine.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
+          try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
         } else if (e.pointerId !== mover) return;
       } else if (e.type === 'pointerdown') {
         if (e.button !== 0 || setCard || e.target.closest('button, a, .kpong-panel, .kpong-settings')) return;
@@ -880,7 +883,12 @@
     machine.addEventListener('pointerdown', touchOnly);
     machine.addEventListener('pointerup', onPointerEnd);
     machine.addEventListener('pointercancel', onPointerEnd);
-    root.querySelector('.kpong-shot').addEventListener('pointerdown', function (e) { e.preventDefault(); shoot(); });
+    shotBtn.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); shoot(); });
+    // ovládací lišta pod strojem: prst na ní vede pálku (pálka i hopík zůstanou vidět)
+    padEl.addEventListener('pointerdown', touchOnly);
+    padEl.addEventListener('pointermove', touchOnly);
+    padEl.addEventListener('pointerup', onPointerEnd);
+    padEl.addEventListener('pointercancel', onPointerEnd);
     function onKey(e) {
       if (e.key === 'Escape') return setCard ? closeSettings() : close();
       if (setCard) return;                                         // v nastavení klávesy nehrají
