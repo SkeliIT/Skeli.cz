@@ -740,20 +740,37 @@
     })();
   }
 
+  // Novinky webu (kevin/novinky.json, nejnovější první): krátké lidské věty o tom, co jsme na webu změnili,
+  // v 5 jazycích, s odkazem; přibývají při nasazení. „Co je nového“ = nové klipy a příspěvky + změny webu od
+  // minulé návštěvy; když od minula nic, aspoň poslední novinka z dílny.
+  var siteNews = null;
+  function loadSiteNews() {
+    if (siteNews) return Promise.resolve(siteNews);
+    return getJson('/kevin/novinky.json' + (version ? '?' + version : '')).then(function (j) { siteNews = Array.isArray(j) ? j : []; return siteNews; });
+  }
+  function siteText(list) { return list.map(function (e) { return e[lang] || e.en || e.cs; }).join(' '); }
   function news(asked, onEmpty) {
-    var prev = session.get('kevinPrevVisit');
-    if (!prev) { if (asked) show(pick(L.news.first), { pose: 'point', href: '/music.jsp', linkText: L.news.link }); return; }
-    getJson('/api/kevin/news?since=' + encodeURIComponent(prev)).then(function (n) {
-      var parts = [];
+    var prev = +session.get('kevinPrevVisit') || 0;
+    Promise.all([prev ? getJson('/api/kevin/news?since=' + encodeURIComponent(prev)) : Promise.resolve(null), loadSiteNews()]).then(function (r) {
+      var n = r[0], site = r[1] || [], parts = [];
       if (n && n.clips && n.clips.length === 1) parts.push(say(L.news.clip, 1, n.clips[0].title));
       if (n && n.clips && n.clips.length > 1) parts.push(say(L.news.clips, n.clips.length, n.clips[0].title));
       if (n && n.posts) parts.push(say(L.news.posts, n.posts));
-      if (!parts.length) { if (asked) show(pick(L.news.none), { pose: 'sulk', after: 'idle' }); else if (onEmpty) onEmpty(); return; }
+      // změny webu od minulé návštěvy (datum je den nasazení – počítá se celý ten den), nejvýš dvě
+      var fresh = prev ? site.filter(function (e) { return Date.parse(e.d) + 86400000 > prev; }).slice(0, 2) : [];
+      if (!parts.length && !fresh.length) {
+        if (!asked) { if (onEmpty) onEmpty(); return; }
+        if (site.length) return show(pick(L.news.webLast) + ' ' + siteText(site.slice(0, 1)), { pose: 'point', href: site[0].href, linkText: L.news.link, ms: 14000 });
+        if (!prev) return show(pick(L.news.first), { pose: 'point', href: '/music.jsp', linkText: L.news.link });
+        return show(pick(L.news.none), { pose: 'sulk', after: 'idle' });
+      }
       if (!asked && acted) return;
-      var href = n.clips && n.clips.length ? n.clips[0].href : '/aktuality.jsp';
+      var href = n && n.clips && n.clips.length ? n.clips[0].href : fresh.length ? fresh[0].href : '/aktuality.jsp';
       lastAuto = Date.now();
-      var lead = pick(asked ? L.news.some : L.back.news);
-      show(lead + ' ' + L.news.lead + ' ' + parts.join(', ') + '.', { pose: 'point', href: href, linkText: L.news.link, ms: 16000 });
+      var text = pick(asked ? L.news.some : L.back.news)
+        + (parts.length ? ' ' + L.news.lead + ' ' + parts.join(', ') + '.' : '')
+        + (fresh.length ? ' ' + pick(L.news.web) + ' ' + siteText(fresh) : '');
+      show(text, { pose: 'point', href: href, linkText: L.news.link, ms: 16000 });
     });
   }
 
