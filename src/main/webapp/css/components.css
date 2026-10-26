@@ -403,6 +403,103 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav .nav-langs a { min-height: 40px; }
 }
 .nav-account { display: none; }
+.main-nav .nav-ico { display: none; }   /* ikonky jen v mobilním menu */
+
+/* Mobilní menu jako dlaždice: stránky ve dvou sloupcích s ikonkou, Podpoř přes celou šířku, nastavení
+   na jednom řádku (B, režim | jazyky jako přepínač), účet jako dvě tlačítka vedle sebe */
+@media (max-width: 1024px) {
+  .main-nav.open { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; align-content: start; }
+  .main-nav > a {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: 78px;
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--panel-border);
+    font-size: var(--fs-card);
+    line-height: 1.2;
+    opacity: 1;
+  }
+  body.light .main-nav > a { background: rgba(0, 0, 0, 0.03); }
+  .main-nav > a .nav-ico { display: block; font-size: 1.15rem; color: var(--accent); opacity: .9; }
+  .main-nav > a.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .main-nav > .nav-donate {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    padding: 12px 14px;
+  }
+  .main-nav > .nav-donate i { color: var(--red); }
+  .main-nav .nav-settings {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 12px 2px 4px;
+  }
+  .main-nav .nav-settings .icon-btn { flex: 0 0 auto; }
+  /* jazyky: jeden úhledný přepínač, každý jazyk stejně široký */
+  .main-nav .nav-langs {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--panel-border);
+  }
+  body.light .main-nav .nav-langs { background: rgba(0, 0, 0, 0.04); }
+  .main-nav .nav-langs a {
+    justify-content: center;
+    gap: 4px;
+    min-height: 36px;
+    padding: 0 2px;
+    font-size: var(--fs-small);
+  }
+  .main-nav .nav-langs a .flag { width: 14px; height: 9px; }
+  .main-nav .nav-langs a.active { background: var(--accent); color: var(--accent-ink); opacity: 1; }
+  .main-nav .nav-account {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 12px;
+  }
+  .main-nav .nav-account > a,
+  .main-nav .nav-account > .nav-notif,
+  .main-nav .nav-account .logout-form button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: var(--fs-card);
+  }
+  .main-nav .nav-account .logout-form { margin: 0; }
+  .main-nav .nav-account > .nav-register { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .main-nav .nav-account > .nav-register i { color: var(--accent-ink); }
+  .main-nav .nav-account .nav-user { display: none; }   /* jméno je v kartě účtu, tady by tlačítko natáhlo */
+}
+/* malý telefon: jazyky jen s vlajkou a zkratkou bez mezer navíc */
+@media (max-width: 360px) {
+  .main-nav .nav-langs a .flag { display: none; }
+}
 
 /* A phone on its side: a thin bar, and the open menu in two columns (pages | settings and account)
    so all of it fits the low screen without scrolling inside the sheet */
@@ -419,11 +516,15 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     left: auto;
     width: min(620px, calc(100vw - 24px));
   }
-  .main-nav > a { grid-column: 1; padding: 9px 14px; }
+  .main-nav > a { grid-column: 1; padding: 7px 14px; min-height: 0; flex-direction: row; align-items: center; }
+  .main-nav > .nav-donate { grid-column: 1; justify-content: flex-start; }
+  .main-nav .nav-account { grid-template-columns: 1fr 1fr; align-content: start; align-self: start; }
+  .main-nav .nav-settings { align-self: start; }
+  .main-nav .nav-account > a, .main-nav .nav-account > .nav-notif, .main-nav .nav-account .logout-form button { min-height: 40px; }
   .main-nav .nav-settings,
   .main-nav .nav-account { grid-column: 2; margin-top: 0; border-top: 0; }
-  .main-nav .nav-settings { grid-row: 1 / span 3; align-content: flex-start; padding-top: 4px; }
-  .main-nav .nav-account { grid-row: 4 / span 4; padding-top: 0; }
+  .main-nav .nav-settings { grid-row: 1; align-content: flex-start; padding-top: 4px; }
+  .main-nav .nav-account { grid-row: 2 / span 2; padding-top: 0; }
 }
 
 /* ---------- Buttons ---------- */
@@ -621,6 +722,7 @@ body.light .site-footer { background: linear-gradient(to bottom, rgba(255, 255, 
 .social-btn.yt:hover { color: var(--youtube); border-color: var(--youtube); }
 .social-btn.sp:hover { color: var(--spotify); border-color: var(--spotify); }
 .social-btn.am:hover { color: var(--apple-music); border-color: var(--apple-music); }
+.social-btn.rss:hover { color: var(--rss); border-color: var(--rss); }
 
 .footer-bottom {
   max-width: var(--container);

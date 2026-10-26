@@ -20,7 +20,7 @@ class KevinIT extends UiTestSupport {
     private void openWithKevin(String path, String beforeReload) {
         driver.get(BASE_URL + path);
         ((JavascriptExecutor) driver).executeScript(
-                "localStorage.setItem('cookieConsent','true'); localStorage.setItem('sp_min','1'); localStorage.setItem('kevinLite','1'); sessionStorage.clear();" + beforeReload);
+                "localStorage.setItem('cookieConsent','true'); localStorage.setItem('sp_min','1'); localStorage.setItem('kevinLite','1'); sessionStorage.clear(); sessionStorage.setItem('kevinBuilding','1');" + beforeReload);   // hláška o výstavbě webu by testům skočila do bubliny
         driver.navigate().refresh();
         new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".kevin-body")));
@@ -143,11 +143,16 @@ class KevinIT extends UiTestSupport {
         for (int i = 0; i < 8; i++) {
             // a beatbox keeps him busy for a few seconds: the first click then only stops it. Clicks 3 s apart:
             // five quick ones in a row would be his "stop clicking me" joke instead of the menu
-            new WebDriverWait(driver, Duration.ofSeconds(20), Duration.ofSeconds(3)).until(d -> {
-                if (d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() < 4) js.executeScript("document.querySelector('.kevin-body').click()");
-                return d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 4;
+            // hledat a kliknout naráz: bublinu může mezitím překreslit hláška ke stránce (tlačítko by bylo pryč)
+            By fun = By.cssSelector(".kevin-menu .kevin-chip[data-act=fun]");
+            new WebDriverWait(driver, Duration.ofSeconds(20), Duration.ofSeconds(3))
+                    .ignoring(org.openqa.selenium.StaleElementReferenceException.class).until(d -> {
+                if (d.findElements(fun).isEmpty()) js.executeScript("document.querySelector('.kevin-body').click()");
+                List<WebElement> f = d.findElements(fun);
+                if (f.isEmpty()) return false;
+                js.executeScript("arguments[0].click()", f.get(0));
+                return true;
             });
-            jsClick(driver.findElements(By.cssSelector(".kevin-menu .kevin-chip")).get(3));
             String id = (String) js.executeScript("return sessionStorage.getItem('kevinLastSurprise')");
             assertTrue(seen.add(id), "surprise '" + id + "' came twice in " + seen);
             String line = (String) js.executeScript("return window.KEVIN_LINES.cs.surprise[arguments[0]]", id);
@@ -189,7 +194,7 @@ class KevinIT extends UiTestSupport {
                         "const k = document.querySelector('.kevin'); if (!k || k.hidden) return document.querySelector('.kevin-paw.has-news') ? 'dot' : 'nothing';"
                         + "const boxes = [k.querySelector('.kevin-body'), k.querySelector('.kevin-bubble')].filter(e => e && !e.hidden).map(e => e.getBoundingClientRect());"
                         + "const sel = 'a, button, img, p, h1, h2, h3, li, pre, iframe, video, canvas, input, .card';"
-                        + "for (const el of document.querySelectorAll(sel)) { if (k.contains(el) || el.closest('.site-header, .kevin-paw')) continue;"
+                        + "for (const el of document.querySelectorAll(sel)) { if (k.contains(el) || el.closest('.site-header, .kevin-paw, [aria-hidden=\"true\"]')) continue;"   // pozadí stránky (video na Textech) není obsah
                         + "  const r = el.getBoundingClientRect(); if (!r.width || !r.height || getComputedStyle(el).visibility === 'hidden') continue;"
                         + "  for (const b of boxes) if (r.left < b.right - 30 && r.right > b.left + 30 && r.top < b.bottom - 10 && r.bottom > b.top + 10) return 'covers ' + el.tagName + '.' + el.className; }"
                         + "return 'peek';");
@@ -208,8 +213,8 @@ class KevinIT extends UiTestSupport {
         try {
             openWithKevin("/texty.jsp", "sessionStorage.setItem('kevinHello','1');");
             jsClick(waitFor(".kevin-paw"));
-            new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 5);
-            jsClick(driver.findElements(By.cssSelector(".kevin-menu .kevin-chip")).get(4));
+            new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 6);
+            jsClick(driver.findElement(By.cssSelector(".kevin-menu .kevin-chip[data-act=report]")));
             WebElement area = waitFor(".kevin-report textarea");
             area.sendKeys(note);
             jsClick(driver.findElement(By.cssSelector(".kevin-report .kevin-chip")));

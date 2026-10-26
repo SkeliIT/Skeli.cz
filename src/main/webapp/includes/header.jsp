@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.0.5";
+  String assetVersion = "6.10.5";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -81,6 +81,29 @@
         }
       }
     %>
+    <%
+      // RSS/Atom autodiscovery: nejdřív feed stránky (má-li ho), pak souhrnný
+      String feedKind = (String) request.getAttribute("feedKind");
+      if (feedKind == null) {
+        if ("music.song".equals(headType)) {
+          feedKind = "songs";
+        } else {
+          feedKind = java.util.Map.of(
+              "/texty.jsp", "songs",
+              "/music.jsp", "videos",
+              "/aktuality.jsp", "news").getOrDefault(String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()), "all");
+        }
+      }
+      java.util.List<String> feedKinds = "all".equals(feedKind) ? java.util.List.of("all") : java.util.List.of(feedKind, "all");
+      for (String fk : feedKinds) {
+        String feedTitle = com.github.skeliit.WebUtils.escapeHtml(t.getProperty("feed.title." + fk, "Skeli"));
+        String feedBase = siteBase + "/" + cur + "/feed/" + fk;
+    %>
+    <link rel="alternate" type="application/rss+xml" title="<%= feedTitle %> (RSS)" href="<%= com.github.skeliit.WebUtils.escapeHtml(feedBase) %>.rss" />
+    <link rel="alternate" type="application/atom+xml" title="<%= feedTitle %> (Atom)" href="<%= com.github.skeliit.WebUtils.escapeHtml(feedBase) %>.atom" />
+    <%
+      }
+    %>
     <meta property="og:site_name" content="Skeli" />
     <meta property="og:title" content="<%= com.github.skeliit.WebUtils.escapeHtml(headFullTitle) %>" />
     <meta property="og:description" content="<%= com.github.skeliit.WebUtils.escapeHtml(headDesc) %>" />
@@ -149,12 +172,12 @@
             <a href="<%= ctx %>/index.jsp" class="brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
 
             <nav id="mainNav" class="main-nav">
-              <a href="<%= ctx %>/index.jsp"><%= t.getProperty("menu.home","Home") %></a>
-              <a href="<%= ctx %>/aktuality.jsp"><%= t.getProperty("menu.news") %></a>
-              <a href="<%= ctx %>/music.jsp"><%= t.getProperty("menu.music","Music") %></a>
-              <a href="<%= ctx %>/texty.jsp"><%= t.getProperty("menu.lyrics","Lyrics") %></a>
-              <a href="<%= ctx %>/karaoke-kino"><%= t.getProperty("menu.karaoke") %></a>
-              <a href="<%= ctx %>/about.jsp"><%= t.getProperty("menu.about","About") %></a>
+              <a href="<%= ctx %>/index.jsp"><i class="fa-solid fa-house nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.home","Home") %></a>
+              <a href="<%= ctx %>/aktuality.jsp"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.news") %></a>
+              <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.music","Music") %></a>
+              <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.lyrics","Lyrics") %></a>
+              <a href="<%= ctx %>/karaoke-kino"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.karaoke") %></a>
+              <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.about","About") %></a>
               <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
               <%-- phones and tablets: the display controls, language and account live in the menu --%>
               <div class="nav-settings">

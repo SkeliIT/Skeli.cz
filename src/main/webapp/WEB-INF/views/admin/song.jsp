@@ -197,7 +197,7 @@
       <h3><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Premiéra</h3>
       <p class="text-dim">Na úvodu i u písně poběží odpočet, po premiéře se 3 dny ukazuje „Venku!“. Čas je pražský.</p>
       <c:if test="${not empty premiere}">
-        <p class="premiere-state">${premiere.out ? 'Vyšlo' : 'Naplánováno'}: <b>${premiere.when}</b> · ${premiere.kind == 'song' ? 'nová píseň' : 'nový klip'}</p>
+        <p class="premiere-state">${premiere.out ? 'Vyšlo' : 'Naplánováno'}: <b>${premiere.when}</b> · ${premiere.kind == 'song' ? 'nový song' : 'nový klip'}</p>
       </c:if>
       <form method="post" action="/admin/song" class="admin-form">
         <input type="hidden" name="csrf" value="${csrf}">
@@ -208,8 +208,8 @@
         </label>
         <label>Co vychází
           <select name="release_kind">
-            <option value="clip" ${empty premiere or premiere.kind == 'clip' ? 'selected' : ''}>Nový klip</option>
-            <option value="song" ${premiere.kind == 'song' ? 'selected' : ''}>Nová píseň</option>
+            <option value="clip" ${(empty premiere and not empty videos) or premiere.kind == 'clip' ? 'selected' : ''}>Nový klip</option>
+            <option value="song" ${(empty premiere and empty videos) or premiere.kind == 'song' ? 'selected' : ''}>Nový song (bez klipu, jen fotka)</option>
           </select>
         </label>
         <button type="submit">Uložit premiéru</button>

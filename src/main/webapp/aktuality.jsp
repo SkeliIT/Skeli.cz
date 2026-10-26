@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="includes/header.jsp" %>
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
+<%-- tělo úvodního pásu je jen pro EL (scriptless), proto se odkaz na feed připraví tady --%>
+<% pageContext.setAttribute("newsFeedHref", request.getContextPath() + "/" + cur + "/feed/news.rss"); %>
 <main class="news-page">
   <sk:pageHero kicker='<%= t.getProperty("hero.kicker.news") %>'
                title='<%= t.getProperty("menu.news") %>' lead='<%= t.getProperty("news.lead") %>'>
@@ -8,6 +10,10 @@
       <button type="button" class="chip active" data-source="">${t['lyrics.filter.all']}</button>
       <button type="button" class="chip" data-source="instagram"><i class="fab fa-instagram"></i> Instagram</button>
       <button type="button" class="chip" data-source="youtube"><i class="fab fa-youtube"></i> YouTube</button>
+    </div>
+    <%-- mimo #sourceChips: jeho obsluha kliknutí bere každý .chip uvnitř jako filtr zdroje --%>
+    <div class="filter-chips feed-subscribe">
+      <a class="chip" href="${newsFeedHref}" type="application/rss+xml"><i class="fas fa-rss" aria-hidden="true"></i> ${t['feed.subscribe']}</a>
     </div>
   </sk:pageHero>
   <section class="news-feed">

@@ -145,6 +145,36 @@
   // opts: pose, after (pose when the bubble goes), ms, extra (a node under the text: buttons,
   // a search field, results), href + linkText (a link under the text)
   var pending = null;   // what he wanted to say while in the paw (said when the paw is tapped)
+  // Klik na bublinu s tipem nebo hláškou ke stránce vede tam, o čem mluví: opts.go =
+  // '/cesta' (jiná stránka; když už na ní jsi, sjede k její hlavní části), '.selektor' (část této stránky
+  // – sjede k ní a rozbliká ji), 'btn:#id' (tlačítko – rozbliká ho), 'menu:play' (pustí něco), 'login'
+  // (přihlášení, přihlášenému Texty). Tipy L.tips jsou ve všech jazycích ve stejném pořadí → TIP_GO.
+  var TIP_GO = ['/texty.jsp', 'btn:#themeToggle', 'login', '/texty.jsp', 'menu:play', '/texty.jsp'];
+  var PAGE_GO = {
+    home: '.hero', music: '[data-clip-player]', lyrics: '.song-list', song: '[data-clip-player]', about: '.about-intro',
+    news: '.news-grid', register: '.auth-card', login: '.auth-card', donate: '.donate-card', error: '.error-page .btn-primary'
+  };
+  var PAGE_PATHS = { '/texty.jsp': 'lyrics', '/music.jsp': 'music', '/about.jsp': 'about', '/aktuality.jsp': 'news', '/donate.jsp': 'donate', '/login.jsp': 'login' };
+  var currentGo = null;
+  function highlight(el) {
+    if (!el) return;
+    el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+    el.classList.remove('kevin-target'); void el.offsetWidth; el.classList.add('kevin-target');
+    setTimeout(function () { el.classList.remove('kevin-target'); }, 2600);
+  }
+  function goTo(go) {
+    if (!go) return;
+    hideBubble('point');
+    if (go === 'menu:play') return play();
+    if (go === 'menu:news') return news(true);
+    if (go === 'login') go = document.querySelector('form.logout-form') ? '/texty.jsp' : '/login.jsp';
+    if (go.indexOf('btn:') === 0) return highlight(document.querySelector(go.slice(4)));
+    if (go.charAt(0) !== '/') return highlight(document.querySelector(go));
+    if (PAGE_PATHS[go] && PAGE_PATHS[go] === pageKey()) return highlight(document.querySelector(PAGE_GO[PAGE_PATHS[go]]));
+    var a = document.createElement('a');   // přes odkaz, ať ho chytí PJAX (Kevin zůstane, stránka se vymění)
+    a.href = go; a.hidden = true;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
   function show(msg, opts) {
     opts = opts || {};
     if (root.hidden) {
@@ -155,6 +185,8 @@
     clearTimeout(hideTimer);
     text.textContent = msg;
     remember(msg);
+    currentGo = opts.go || null;
+    bubble.classList.toggle('has-go', !!currentGo);
     link.hidden = !opts.href;
     if (opts.href) { link.href = opts.href; link.textContent = opts.linkText || ''; }
     extra.innerHTML = '';
@@ -190,6 +222,7 @@
     clearTimeout(hideTimer);
     hideTimer = setTimeout(function () { hideBubble(hideAfter); }, 6000);
   }
+  text.addEventListener('click', function () { if (currentGo) goTo(currentGo); });
   bubble.addEventListener('pointerenter', holdBubble);
   bubble.addEventListener('focusin', holdBubble);
   bubble.addEventListener('pointerleave', releaseBubble);
@@ -215,14 +248,14 @@
   // Something he says on his own. In the paw he peeks out from the side of the screen to say it, but
   // only where that edge is free (nothing of the page under him and his bubble); with no free edge the
   // paw gets a gold dot instead. Closed with the cross, he still gives a tip now and then, only that way.
-  function auto(msg, pose, peekChance, isTip) {
+  function auto(msg, pose, peekChance, isTip, go) {
     var now = Date.now();
     if (busy || autoCount >= 6 || now - lastAuto < 40000 || !bubble.hidden) return;
     if (root.hidden && userHidden && !isTip) return;
     if (root.hidden && !pocket()) return;
     autoCount++;
     lastAuto = now;
-    onOwn(msg, { pose: pose || 'point' }, isTip, peekChance);
+    onOwn(msg, { pose: pose || 'point', go: go }, isTip, peekChance);
   }
   function onOwn(msg, opts, isTip, peekChance) {
     if (!root.hidden) {   // he is out (the visitor called him): he just says it
@@ -243,7 +276,7 @@
   // a free edge: every probe point in the box he would take hits only the background of the page
   function isBackground(el) {
     if (!el || el === document.documentElement || el === document.body) return true;
-    if (el.closest('.kevin, .kevin-paw, .bg-slides')) return true;   // the background photos are background
+    if (el.closest('.kevin, .kevin-paw, .kevin-walker, .bg-slides, .texty-bg')) return true;   // the background photos are background
     return !el.closest('a, button, input, select, textarea, label, img, picture, video, iframe, canvas, svg, '
       + 'p, h1, h2, h3, h4, h5, li, pre, blockquote, figure, table, header, footer, nav, form, aside, article, section, '
       + '.card, .tape, .photo-band, .cookie-bar, [class*="spotify"], .sp-bar, .sp-minbar, #sp-min, .notif-panel');
@@ -302,7 +335,8 @@
       if (!document.hidden && !asleep) {
         var tip = Math.random() < 0.6;
         var own = window.innerWidth <= 767 && L.mobile ? L.idle.concat(L.mobile) : L.idle;   // on a phone also his size joke
-        auto(pick(tip ? (L.tips || L.idle) : own), 'point', 0.8, tip);
+        if (tip && L.tips) { var i = Math.floor(Math.random() * L.tips.length); auto(L.tips[i], 'point', 0.8, true, TIP_GO[i]); }
+        else auto(pick(own), 'point', 0.8, false);
       }
       scheduleTip();
     }, 75000 + Math.random() * 45000);
@@ -537,21 +571,36 @@
     var box = el('div', 'kevin-menu');
     var items = adminPage
       ? [['status', 'fa-clipboard-check', L.admin.status], ['find', 'fa-magnifying-glass', L.menu.find], ['play', 'fa-play', L.menu.play]]
-      : [['find', 'fa-magnifying-glass', L.menu.find], ['play', 'fa-play', L.menu.play],   // (Zarapuj is off for now: kevin-napady.md)
-         ['news', 'fa-bolt', L.menu.news], ['fun', 'fa-wand-magic-sparkles', L.menu.fun], ['report', 'fa-triangle-exclamation', L.menu.report]];
+      // pořadí = rozložení: mřížka 2×2 (hledat, pustit, novinky, něco udělej), pod ní hra přes celou šířku,
+      // dole nenápadně nahlášení problému (Zarapuj je zatím vypnuté: kevin-napady.md)
+      : [['find', 'fa-magnifying-glass', L.menu.find], ['play', 'fa-play', L.menu.play],
+         ['news', 'fa-bolt', L.menu.news], ['fun', 'fa-wand-magic-sparkles', L.menu.fun],
+         ['pong', 'fa-table-tennis-paddle-ball', L.menu.pong || 'Pong'], ['report', 'fa-triangle-exclamation', L.menu.report]];
     items.forEach(function (it) {
-      var b = el('button', 'kevin-chip');
+      var b = el('button', 'kevin-chip' + (it[0] === 'pong' ? ' is-game' : it[0] === 'report' ? ' is-quiet' : ''));
       b.type = 'button';
+      b.dataset.act = it[0];
       b.innerHTML = '<i class="fa-solid ' + it[1] + '" aria-hidden="true"></i> ';
       b.appendChild(document.createTextNode(it[2]));
       b.addEventListener('click', function () {
-        ({ status: adminStatus, find: find, play: play, rap: rap, news: function () { news(true); }, fun: surprise, report: report })[it[0]]();
+        ({ status: adminStatus, find: find, play: play, rap: rap, pong: pong, news: function () { news(true); }, fun: surprise, report: report })[it[0]]();
       });
       box.appendChild(b);
     });
     living = true;
     // the menu goes after a while when nobody touches it (pointing at it or typing keeps it), he stays
     show(L.menu.hint, { pose: 'point', extra: box, ms: 9000 });
+  }
+
+  // Kevin Pong: hra přes celou obrazovku (js/kevin-pong.js se načte až teď); Kevin v rohu se zatím schová
+  function pong() {
+    hideBubble('idle');
+    var go = function () { window.KevinPong.open({ version: version }); };
+    if (window.KevinPong) return go();
+    var sc = document.createElement('script');
+    sc.src = '/js/kevin-pong.js' + (version ? '?' + version : '');
+    sc.onload = go;
+    document.head.appendChild(sc);
   }
 
   // 1) find a song by its name or a line of its lyrics
@@ -674,6 +723,23 @@
 
   // 2) what's new since the last visit (the visit before this browser session)
   // asked = from his menu; otherwise he says it himself when the visitor is back after a while
+  // Web je ve výstavbě: dokud ho nevyhlásíme za hotový (UNDER_CONSTRUCTION = false), Kevin to řekne každému
+  // jednou za návštěvu – i tomu, kdo ho zavřel (jako tip); klik na bublinu = Co je nového. Když zrovna nejde
+  // mluvit (bublina, odstup mezi hláškami), zkusí to znovu za 5 s.
+  var UNDER_CONSTRUCTION = true;
+  function buildingNotice() {
+    if (!UNDER_CONSTRUCTION || !L.building || session.get('kevinBuilding')) return;
+    var tries = 0;
+    (function attempt() {
+      if (session.get('kevinBuilding') || ++tries > 12) return;
+      var before = autoCount;
+      if (bubble.hidden && !busy) lastAuto = 0;      // výjimka z odstupu 40 s mezi hláškami
+      auto(pick(L.building), 'point', 0.9, true, 'menu:news');
+      if (autoCount > before) session.set('kevinBuilding', '1');
+      else setTimeout(attempt, 5000);
+    })();
+  }
+
   function news(asked, onEmpty) {
     var prev = session.get('kevinPrevVisit');
     if (!prev) { if (asked) show(pick(L.news.first), { pose: 'point', href: '/music.jsp', linkText: L.news.link }); return; }
@@ -712,7 +778,7 @@
 
   // "Do something": a shuffled deck of everything in L.surprise, none again until all of them have been
   // (the deck lives in the browser session, so a new page does not start it over)
-  var BIG_SURPRISES = ['beatbox', 'rhyme', 'dance', 'dance2', 'dance3', 'robot', 'silly', 'breakdance', 'flair', 'kick', 'dive', 'cheer', 'jump'];
+  var BIG_SURPRISES = ['beatbox', 'rhyme', 'dance', 'dance2', 'dance3', 'robot', 'silly', 'breakdance', 'flair', 'dive', 'cheer', 'jump'];
   function nextSurprise() {
     // only what this model can show (the ginger cat has no sunglasses and no moving tail)
     var all = Object.keys(L.surprise || {}).filter(function (id) { return !model().can || model().can(id); }), deck;
@@ -897,7 +963,7 @@
     var clip = key === 'song' && document.querySelector('main [data-yt]');
     var own = clip && L.songs && L.songs[clip.getAttribute('data-yt')];
     if (own && Math.random() < 0.6) lines = own;
-    if (lines && Math.random() < (key === 'error' ? 1 : 0.4)) setTimeout(function () { auto(pick(lines)); }, 1500);
+    if (lines && Math.random() < (key === 'error' ? 1 : 0.4)) setTimeout(function () { auto(pick(lines), null, null, false, PAGE_GO[key]); }, 1500);
   }
 
   // What the page says the visitor has just done: [what, lines, pose]. Signing in and out shows as the
@@ -985,7 +1051,7 @@
   // stops to look round or wave, and walks out on the other. PC only (no room on a phone), never while the visitor
   // types, while Kevin is out talking, in the admin, when he was sent away with the cross, with reduced motion or
   // save-data. A click on him opens his menu.
-  var walker = null, walkK = null, walking = false;
+  var walker = null, walkK = null, walking = false, movesReady = false, walkLoading = false;
   // what he dances when he stops on his walk
   var WALK_DANCES = ['dance', 'dance2', 'dance3', 'robot', 'silly', 'breakdance', 'flair', 'cheer', 'fistPump'];
   // where his feet are in his picture (the walker's camera: view below), as a share of its height
@@ -1030,8 +1096,37 @@
     var low = freeRun(H, 0, W);
     return low ? { el: null, r: { top: H, left: low.left, right: low.right } } : null;
   }
+  // pod hranou karty je jen její volný okraj (ne text, obrázek ani tlačítko) – může si tam sednout s nohama dolů
+  function edgeIsPadding(card, x, top) {
+    // jeho vlastní okénko při měření nepočítat (stojí přímo nad tím místem)
+    if (walker) walker.style.pointerEvents = 'none';
+    try { return padding(card, x, top); } finally { if (walker) walker.style.pointerEvents = ''; }
+  }
+  function padding(card, x, top) {
+    return [8, 20, 34].every(function (dy) { var el = document.elementFromPoint(x - window.scrollX, top + dy); return el === card; })
+      && [-24, 24].every(function (dx) { var el = document.elementFromPoint(x - window.scrollX + dx, top + 20); return el === card; });
+  }
+  // kam spadne, když se zavěsí na konec karty: tam, kde visí (vedle karty, do výšky jeho postavy), musí být volno
+  // – visí tam pár vteřin a nikdy nezakryje obsah; pak padá a krátký pád přes jiné karty nevadí. Dopadne na
+  // nejbližší kartu pod sebou, jinak na spodek okna.
+  // { x: střed v souřadnicích stránky, edge: hrana karty (stránka), land: kam dopadne (stránka) } nebo null
+  function dropPlan(card, dir, h) {
+    var b = card.getBoundingClientRect(), H = window.innerHeight, W = window.innerWidth;
+    var xc = dir > 0 ? b.right + 18 : b.left - 18;
+    window.__kevinDrop = 'ok';   // proč nespadl (pro testy)
+    if (xc < 40 || xc > W - 40 || b.top < 60) return (window.__kevinDrop = 'okraj', null);
+    for (var y = b.top + 10; y < b.top + h * 0.9 && y < H; y += 14)
+      for (var k = 0; k <= 2; k++) if (!walkFree(document.elementFromPoint(xc - dir * 8 + dir * k * 16, y))) return (window.__kevinDrop = 'obsah u ' + Math.round(y), null);
+    var land = H;
+    for (var y2 = b.top + h * 0.9; y2 < H - 4; y2 += 10) {
+      var el = document.elementFromPoint(xc, y2), surf = el && el.closest(SURFACES);
+      if (surf && surf !== card && !surf.contains(card)) { land = surf.getBoundingClientRect().top; break; }
+    }
+    if (land - b.top < 120) return (window.__kevinDrop = 'nízko', null);   // moc nízko, to není pád
+    return { x: xc + window.scrollX, edge: b.top + window.scrollY, land: land + window.scrollY };
+  }
   function canWalk() {
-    return !adminPage && !userHidden && !reduced && !saveData && wideMq.matches && !document.hidden
+    return !adminPage && !userHidden && !reduced && !saveData && wideMq.matches && !document.hidden && !(window.KevinPong && window.KevinPong.isOpen)
       && root.hidden && !busy && !isField(document.activeElement) && store.get('kevinLite') !== '1';
   }
   function scheduleWalk() {
@@ -1052,6 +1147,7 @@
       document.body.appendChild(walker);
     }
     var go = function () {
+      if (walking) return;   // dvě procházky naráz by se praly o jednoho Kevina (přeskakoval by)
       walking = true;
       // the ground: the top edge of a card or panel low in the window (he walks on it and moves with the page), or
       // else the bottom edge of the window itself; the feet stand exactly on it (WALK_FEET = where they are in his picture)
@@ -1092,9 +1188,64 @@
       walker.dataset.speed = Math.round(speed);   // (for the tests)
       walker.style.transform = 'translateX(' + x + 'px)';
       walkK.setPaused(false);
-      var goOn = function () { if (!walking) return; walkK.turn(dir * Math.PI / 2); walkK.hold('walk'); last = performance.now(); requestAnimationFrame(step); };
-      // he jumps up onto his ground at one end (or walks in from the side of the window)
-      if (!inFromSide) {
+      // tempo: na delší hraně se z chůze rozběhne (klus, běh; v noci nebo občas kočičí sprint) a před zastávkou
+      // a koncem zase zpomalí do chůze; rychlost podle nohou daného pohybu, ať neklouzají
+      var hour = new Date().getHours(), len = x1 - x0;
+      // pokaždé jiný rovný běh (Run Forward, sprint); „Running“ a „Running (1)“ se v pohybu stáčejí o 62° a 166°,
+      // při rovné cestě by to vypadalo, že se točí
+      function runStyle() { var r = ['run3', 'runA', 'runM', 'sprint'].filter(function (n) { return walkK.has(n); }); return r[Math.floor(Math.random() * r.length)]; }
+      var cruise = (walkForce === 'run' || walkForce === 'all') && walkK.has('run3') ? runStyle() : len > 900 && walkK.has('sprint') && (hour >= 23 || hour < 4 || Math.random() < 0.15) ? 'sprint'
+        : len > 650 && walkK.has('run3') && Math.random() < 0.6 ? runStyle()
+        : len > 420 && walkK.has('jog') && Math.random() < 0.7 ? 'jog' : 'walk';
+      var stillUntil = 0, braked = false, gait = 'walk', gaitAt = 0, FALLBACK = { walk: 1, jog: 1.8, run: 2.6, run2: 2.6, run3: 2.6, runA: 2.6, runM: 2.6, sprint: 3.6 };
+      function setGait(g, now) {
+        if (g === gait) return;
+        gait = g; gaitAt = now; window.__kevinStage = 'tempo ' + g;
+        walkK.hold(g);
+        // přikrčí se a vystřelí – během přikrčení stojí na místě (nesmí klouzat)
+        if (g === 'sprint' && walkK.has('sprintStart')) stillUntil = now + walkK.once('sprintStart') * 0.8;
+        speed = walkK.walkPxPerSec(g) || (walkK.walkPxPerSec() || 95) * FALLBACK[g];
+      }
+      // přechod (rozejde se, zastaví): hraje pohyb jednou a okénko jede přesně o tolik, kolik v něm ujde
+      var trans = null;
+      function transition(name, after) {
+        var ms = walkK.clipMs(name);
+        if (!ms) return after();
+        walkK.hold(null); walkK.once(name);
+        gait = name; speed = walkK.travelPx(name) / (ms / 1000);
+        trans = { until: performance.now() + ms - 60, after: after };
+      }
+      var goOn = function () {
+        if (!walking) return;
+        var dy = walkK.yaw - dir * Math.PI / 2; dy = ((dy + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+        if (Math.abs(dy) > 0.3 && !goOn.turning) {
+          goOn.turning = true;
+          return turnTo(dir * Math.PI / 2, function (ms) { setTimeout(function () { goOn.turning = false; goOn(); }, ms); });
+        }
+        walkK.turn(dir * Math.PI / 2);
+        gait = ''; braked = false;
+        if (walkK.has('walkStart')) transition('walkStart', function () { gait = ''; setGait('walk', performance.now()); });
+        else setGait('walk', performance.now());
+        last = performance.now(); requestAnimationFrame(step);
+      };
+      // občas vyleze zpoza karty: nad hranou nejdřív jen tlapky a hlava, zbytek těla je „za kartou“ (pod hranou
+      // se plátno ořízne), vyšplhá nahoru (Braced Hang To Crouch) a rozejde se
+      if (!inFromSide && s.el && walkK.has('climbUp') && (walkForce === 'climb' || walkForce === 'all' || Math.random() < 0.4)) {
+        window.__kevinStage = 'leze zpoza karty';
+        walkK.turn(0);
+        var feetC = WALK_FEET * h - c.offsetTop, hipsY0 = walkK.boneY('Hips') || feetC - h * 0.4;
+        var ledge = (feetC - hipsY0) * (0.98 / 0.68);      // hrana je v pohybu ~0,98 m nad zemí (boky ve stoje 0,68 m)
+        c.style.clipPath = 'inset(0 0 ' + (c.offsetHeight - (feetC - ledge)) + 'px 0)';
+        c.style.transform = 'translateY(' + ledge + 'px)';
+        walker.classList.add('airborne');
+        var climbMs = walkK.once('climbUp');
+        setTimeout(function () {
+          if (!walking) return;
+          c.style.clipPath = ''; c.style.transform = '';
+          walker.classList.remove('airborne');
+          goOn();
+        }, climbMs - 40);
+      } else if (!inFromSide) {
         walkK.turn(dir * Math.PI / 2);
         walkK.once('jump');
         walker.classList.add('airborne');
@@ -1102,6 +1253,109 @@
           { duration: 900, easing: 'ease-out', fill: 'forwards' });
         setTimeout(function () { walker.classList.remove('airborne'); goOn(); }, 900);
       } else { walker.classList.remove('airborne'); goOn(); }
+      // sedne si na hranu: zadek přesně na hranu karty (poloha boků se změří na obrázku), nohy visí dolů
+      // otočka na místě opravdovým pohybem (Left/Right Turn z Mixamo), pak se natočení přenese do celého těla;
+      // bez vhodného pohybu se dotočí plynule. then(ms) = za kolik ms je otočený
+      function turnTo(target, then) {
+        var from = walkK.yaw, need = target - from;
+        need = ((need + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+        if (Math.abs(need) < 0.3) { walkK.turn(target); return then(150); }
+        var clip = null, best = 0.6;
+        ['turnL90', 'turnR90', 'turnR', 'turn180'].forEach(function (n) { if (walkK.has(n)) { var e = Math.abs(walkK.clipYaw(n) - need); if (e < best) { best = e; clip = n; } } });
+        if (!clip) { walkK.turn(target); return then(600); }
+        var turned = walkK.clipYaw(clip);
+        walkK.hold(null);
+        var ms = walkK.once(clip);
+        setTimeout(function () { if (!walking) return; walkK.turnNow(from + turned); walkK.turn(target); walkK.hold('idle', 0.15); }, ms - 30);
+        then(ms);
+      }
+      // sedne si na hranu karty čelem k tobě, nohy visí přes okraj: otočí se, pak plynulé prolnutí ze stoje do
+      // sedu (Male Sitting Pose) a okénko se zároveň sníží, aby seděl zadkem na hraně; vstává stejně pozpátku
+      function sitOnEdge(then) {
+        window.__kevinStage = 'sedí';
+        var feetC = WALK_FEET * h - c.offsetTop, hipsY0 = walkK.boneY('Hips');
+        if (hipsY0 == null || !walkK.has('sitEdge')) return then();
+        var seatC = feetC - (feetC - hipsY0) * 0.56;
+        var shift = ground - (parseFloat(walker.style.top) + c.offsetTop + seatC) + h * 0.02;
+        turnTo(0, function (ms) {
+          setTimeout(function () {
+            if (!walking) return;
+            walker.classList.add('airborne');              // stín pod nohama pryč (sedí)
+            walkK.hold('sitEdge', 0.6);
+            c.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(' + shift + 'px)' }], { duration: 600, easing: 'ease-in-out', fill: 'forwards' });
+            setTimeout(function () {
+              if (!walking) return;
+              walkK.hold('idle', 0.6);                     // vstane
+              c.animate([{ transform: 'translateY(' + shift + 'px)' }, { transform: 'translateY(0)' }], { duration: 600, easing: 'ease-in-out', fill: 'forwards' });
+              setTimeout(function () { walker.classList.remove('airborne'); then(); }, 620);
+            }, 4800 + Math.random() * 1500);
+          }, ms);
+        });
+      }
+      // na konci karty se zavěsí rukama na její roh (bokem ke kartě, tělo venku vedle ní), chvíli visí,
+      // pustí se a padá na kartu pod sebou nebo na spodek okna; dopad podle výšky: nízko měkce, vysoko
+      // spíš tvrdě nebo kotoul (náhodně), pak se nervózně rozhlédne, jestli to někdo viděl
+      function hangAndDrop(d) {
+        // na konci karty: stojí ještě NA kartě u okraje, otočí se zády k okraji (pohyb otočky), pak se jedním
+        // plynulým pohybem přehoupne přes hranu a chytí se jí (prolnutí do visu + posun okénka), jeden vis
+        var edgeX = d.x - dir * 18;                        // hrana karty (souřadnice stránky)
+        var standX = edgeX - dir * 22 - w / 2, hangX = d.x - w / 2;
+        walker.style.transform = 'translateX(' + standX + 'px)';
+        var hangYaw = -dir * Math.PI / 2;                  // ve visu čelem ke kartě
+        walkK.poseAt('hang', 0);
+        var handY = Math.min(walkK.boneY('LeftHand') || 0, walkK.boneY('RightHand') || 0) + c.offsetTop;
+        var hangTop = d.edge - handY + 2, standTop = parseFloat(walker.style.top);
+        walkK.hold('idle');
+        window.__kevinStage = 'otáčí se';
+        turnTo(hangYaw, function (ms) {
+          setTimeout(function () {
+            if (!walking) return;
+            window.__kevinStage = 'leze přes hranu';
+            walker.classList.add('airborne');
+            walkK.hold('hang', 0.45);
+            walker.animate([{ transform: 'translateX(' + standX + 'px)', top: standTop + 'px' }, { transform: 'translateX(' + hangX + 'px)', top: hangTop + 'px' }],
+              { duration: 450, easing: 'ease-in-out', fill: 'forwards' }).onfinish = function (e) {
+              walker.style.transform = 'translateX(' + hangX + 'px)'; walker.style.top = hangTop + 'px';
+              walker.getAnimations().forEach(function (a) { a.cancel(); });
+            };
+            setTimeout(function () {
+              if (!walking) return;
+              window.__kevinStage = 'visí';   // fáze pro testy
+          setTimeout(function () {
+            if (!walking) return;
+            walkK.look(-dir * 0.5, 0.6);                   // podívá se dolů
+            setTimeout(function () {
+              if (!walking) return;
+              walkK.look(0, 0);
+              walkK.hold('fallLoop'); window.__kevinStage = 'padá';
+              var feet = WALK_FEET * h, landTop = d.land - feet + 1, fall = Math.max(0, landTop - hangTop);
+              var ms = Math.max(320, Math.sqrt(2 * fall / 2600) * 1000);
+              walker.animate([{ top: hangTop + 'px' }, { top: landTop + 'px' }], { duration: ms, easing: 'cubic-bezier(.45,0,.9,.6)' }).onfinish = function () {
+                if (!walking) return;
+                walker.style.top = landTop + 'px';
+                walker.classList.remove('airborne');
+                var height = fall / h, r = Math.random();
+                var land = height < 1.2 ? (r < 0.6 ? 'landSoft' : 'land') : height < 2.6 ? (r < 0.35 ? 'landSoft' : r < 0.7 ? 'land' : 'landHard') : (r < 0.5 ? 'landHard' : 'roll');
+                if (!walkK.has(land)) land = 'land';
+                walkK.hold(null);
+                var landMs = walkK.once(land) || 1200; window.__kevinStage = 'dopad ' + land + ' ' + landMs;
+                setTimeout(function () {
+                  if (!walking) return;
+                  walkK.turn(0);
+                  var lookMs = walkK.once('nervous') || 2500; window.__kevinStage = 'rozhlíží se ' + lookMs;
+                  setTimeout(function () {
+                    if (!walking) return;
+                    window.__kevinStage = 'mizí';
+                    c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 600, fill: 'forwards' }).onfinish = endWalk;
+                  }, Math.min(lookMs, 3000));
+                }, Math.max(600, landMs - 250));
+              };
+            }, 900);
+          }, 900 + Math.random() * 900);
+            }, 460);
+          }, ms);
+        });
+      }
       // at the far end he jumps off the card and is gone
       function jumpOff() {
         walkK.once('jump');
@@ -1130,11 +1384,28 @@
         var dt = Math.min(0.1, (now - last) / 1000);
         last = now;
         var there = stops.length && (dir > 0 ? x + w / 2 >= stops[0] : x + w / 2 <= stops[0]);
+        // konec přechodu → další krok (chůze po rozejití, příchod na zastávku po zastavení)
+        if (trans && now >= trans.until) { var after = trans.after; trans = null; after(); }
+        // kolik zbývá do zastávky nebo konce: daleko = cestovní tempo (po chvíli chůze), blízko = chůze
+        var left = stops.length ? Math.abs(stops[0] - (x + w / 2)) : (dir > 0 ? x1 - x : x - x0);
+        // před zastávkou zastaví (Stop Walking) – začne tak daleko, kolik v něm ujde
+        if (!trans && stops.length && gait === 'walk' && walkK.has('walkStop') && left <= walkK.travelPx('walkStop') + 2) {
+          transition('walkStop', function () { stops[0] = x + w / 2; speed = 0; });   // zastávka je tam, kde zastavil (žádný skok zpátky)
+        }
+        // rozběhne se jen s dostatkem místa před sebou; jakmile začne brzdit, do zastávky už znovu nevyrazí
+        // (dřív se běh a chůze střídaly po snímcích = škubání)
+        if (cruise !== 'walk' && !trans) {
+          if (gait === 'walk' && !braked && now - gaitAt > 400 && left > (cruise === 'sprint' ? 420 : 300)) setGait(cruise, now);
+          else if (gait === cruise && left < 150 && now - gaitAt > 500) { braked = true; setGait('walk', now); }
+        }
         if (there) {
           stops.shift();
           walker.style.transform = 'translateX(' + x + 'px)';
           // the box: he jumps in, peeks out over its edge for a while, jumps out and goes on
           if (box) return intoTheBox(box, goOn);
+          // občas si sedne na hranu karty s nohama dolů (jen když je pod hranou volný okraj karty, ne text);
+          // otočku k tobě si udělá sám pohybem otočky
+          if (s.el && walkK.has('sitEdge') && (walkForce === 'sit' || walkForce === 'all' || Math.random() < 0.3) && edgeIsPadding(s.el, x + w / 2, s.el.getBoundingClientRect().top)) return sitOnEdge(goOn);
           walkK.turn(0);
           // mostly a dance (5–7 s), else a wave or a look round – then on his way
           var moves = WALK_DANCES.filter(function (d) { return walkK.has(d); });
@@ -1144,24 +1415,33 @@
           }
           return setTimeout(goOn, walkK.once(Math.random() < 0.5 ? 'wave' : 'lookAround') || 2500);
         }
-        x += dir * speed * dt;
+        if (now >= stillUntil) x += dir * speed * dt;
         walker.style.transform = 'translateX(' + x + 'px)';
-        if ((dir > 0 && x >= x1) || (dir < 0 && x <= x0)) return outToSide ? endWalk() : jumpOff();
+        if ((dir > 0 && x >= x1) || (dir < 0 && x <= x0)) {
+          if (outToSide) return endWalk();
+          var drop = s.el && walkK.has('fallLoop') && (walkForce === 'drop' || walkForce === 'all' || Math.random() < 0.6) ? dropPlan(s.el, dir, h) : null;
+          return drop ? hangAndDrop(drop) : jumpOff();
+        }
         requestAnimationFrame(step);
       }
     };
     if (walkK) return go();
+    if (walkLoading) return;   // model se už načítá – druhý by se vytvořil na stejném plátně a Kevin by přeskakoval
+    walkLoading = true;
     import('/js/kevin-model.js' + (version ? '?' + version : '')).then(function (m) {
       walkK = m.createKevin(walker.querySelector('canvas'), {
         light: document.body.classList.contains('light'),
         src: '/kevin/kevin.glb' + (version ? '?' + version : ''),
         view: { y: 1.0, z: 5.0, look: 1.0 },
         overscan: 1.8,   // the canvas reaches 40 % past his box (effects.css): a dance never gets cut off
+        moves: '/kevin/pohyby.json' + (version ? '?' + version : ''),   // běh, pády, sezení na hraně (načtou se po modelu)
         onReady: function () {
           new MutationObserver(function () { walkK.setLight(document.body.classList.contains('light')); })
             .observe(document.body, { attributes: true, attributeFilter: ['class'] });
-          go();
+          // počká na pohyby navíc (běh, pády…), nejdéle 4 s – pak jde i bez nich
+          setTimeout(function () { if (!movesReady) { movesReady = true; go(); } }, 4000);
         },
+        onMoves: function () { if (!movesReady) { movesReady = true; go(); } },
         onError: function () { walker.remove(); walker = null; }
       });
     }).catch(function () { /* no walk this time */ });
@@ -1169,7 +1449,7 @@
   // a cardboard box on his ground (a card's top edge in the page at `ground`, or null = the window's bottom edge),
   // its middle at x: the back (inside and back flaps) behind Kevin, the front panel in front of him, so in the box
   // only his head shows over its edge
-  var boxNext = false;
+  var boxNext = false, walkForce = null;
   function cardboardBox(x, ground) {
     var back = document.createElement('div'), front = document.createElement('div');
     back.className = 'kevin-box kevin-box-back';
@@ -1215,6 +1495,7 @@
   }
   function endWalk() {
     walking = false;
+    window.__kevinStage = 'konec';
     document.querySelectorAll('.kevin-box').forEach(function (el) { el.remove(); });
     if (walker) { walker.hidden = true; walker.querySelector('canvas').getAnimations().forEach(function (a) { a.cancel(); }); }
     if (walkK) { walkK.hold(null); walkK.setPaused(true); }
@@ -1232,12 +1513,17 @@
       root.removeEventListener('animationend', done);
       root.classList.remove('kevin-in');
     });
+    if (!adminPage) setTimeout(buildingNotice, 9000);
     if (userHidden) { place(false); introPaw(); if (!adminPage) scheduleTip(); return; }   // pacička se vylíhne i tomu, kdo Kevina zavřel
     if (pocket()) { place(false); introPaw(); }   // in the paw until he has something to say (greet below)
     else ensureModel();          // a page without the header bar: he stands there from the start
     wake();
     greet();
     if (!adminPage) { scheduleTip(); scheduleWalk(); }
+    // ukázka kousku hned: adresa ?kevin=drop | sit | run | walk | all (všechno najednou; dokola na /kevin-ukazka.jsp) (na zkoušku, jinak chodí sám jednou za čas)
+    var show = new URLSearchParams(location.search).get('kevin');
+    if (show === 'pong') setTimeout(pong, 1200);   // ?kevin=pong = rovnou hra (odkaz z menu, testy)
+    if (/^(drop|sit|run|walk|climb|all)$/.test(show || '')) setTimeout(function () { window.dispatchEvent(new CustomEvent('kevin', { detail: { walk: show } })); }, 2500);
   }
 
   // Easter egg: click him over and over (each click within 2.5 s of the last) and at 5, 10 and 20 he
@@ -1363,11 +1649,12 @@
       if (d.clip !== 'ok' || Math.random() < 0.5) react('clip', L.clip[d.clip], d.clip === 'ok' ? 'cool' : 'sulk');
     } else if (d.walk) {
       // a walk now (also used by the tests); {walk: 'box'} = with the cardboard box
-      if (!walking && wideMq.matches && !reduced) { boxNext = d.walk === 'box'; walk(); }
+      if (!walking && wideMq.matches && !reduced) { boxNext = d.walk === 'box'; walkForce = d.walk; walk(); }   // 'drop', 'sit', 'run' = vynutit (testy, ukázky)
     } else if (d.tip) {
       // another script wants a tip now (also used by the tests): he peeks out to say it
       lastAuto = 0;
-      auto(pick(L.tips || L.idle), 'point', 1, true);
+      var ti = Math.floor(Math.random() * L.tips.length);
+      auto(L.tips[ti], 'point', 1, true, TIP_GO[ti]);
     }
   });
   document.addEventListener('pjax:done', function () { autoCount = 0; greet(); });

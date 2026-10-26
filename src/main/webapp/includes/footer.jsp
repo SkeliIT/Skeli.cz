@@ -25,6 +25,7 @@
         <a class="social-btn yt" href="https://www.youtube.com/@Skeli" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
         <a class="social-btn sp" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
         <a class="social-btn am" href="https://music.apple.com/cz/artist/skeli/1820513581" target="_blank" rel="noopener" aria-label="Apple Music"><i class="fab fa-apple"></i></a>
+        <a class="social-btn rss" href="<%= request.getContextPath() %>/<%= cur %>/feed/all.rss" type="application/rss+xml" aria-label="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("feed.subscribe")) %>" title="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("feed.subscribe")) %>"><i class="fas fa-rss"></i></a>
       </div>
     </div>
   </div>

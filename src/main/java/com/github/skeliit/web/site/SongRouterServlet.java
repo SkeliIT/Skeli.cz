@@ -70,6 +70,14 @@ public class SongRouterServlet extends HttpServlet {
             return;
         }
 
+        // přepínač jazyka na stránce písně: /en/song/…?lang=de → /de/song/… (text písně v novém jazyce). Odkazy
+        // v hlavičce po PJAX navigaci zůstávají z první stránky a mají jen ?lang=, proto se to řeší tady.
+        String wanted = req.getParameter("lang");
+        if (wanted != null && I18n.isSupported(wanted) && !wanted.equals(lang)) {
+            resp.sendRedirect(req.getContextPath() + "/" + wanted + "/song" + pathInfo);
+            return;
+        }
+
         String key = URLDecoder.decode(pathInfo.substring(1), StandardCharsets.UTF_8).trim();
         if (key.length() > 36 && key.charAt(36) == '-' && UUID_RE.matcher(key.substring(0, 36)).matches()) {
             key = key.substring(0, 36);
