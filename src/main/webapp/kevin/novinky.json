@@ -1,0 +1,38 @@
+[
+  {
+    "d": "2026-10-26",
+    "href": "/?kevin=pong",
+    "cs": "Přibyla hra Kevin Pong – pinkej se mnou na stroji plném ozubených kol. Najdeš ji v mém menu.",
+    "en": "New game: Kevin Pong – rally with me on a machine full of gears. It's in my menu.",
+    "de": "Neues Spiel: Kevin Pong – spiel mit mir auf einer Maschine voller Zahnräder. Du findest es in meinem Menü.",
+    "uk": "Нова гра Kevin Pong – грай зі мною на машині, повній шестерень. Знайдеш її в моєму меню.",
+    "vi": "Trò chơi mới Kevin Pong – đánh bóng với tôi trên cỗ máy đầy bánh răng. Có trong menu của tôi."
+  },
+  {
+    "d": "2026-10-26",
+    "href": "/uzivatel.jsp#pong",
+    "cs": "Na stránce Můj účet teď sbíráš odznaky za výhry nade mnou. Osm kousků, žádná sleva.",
+    "en": "On My account you now collect badges for beating me. Eight of them, no discounts.",
+    "de": "Unter Mein Konto sammelst du jetzt Abzeichen für Siege gegen mich. Acht Stück, kein Rabatt.",
+    "uk": "На сторінці Мій акаунт тепер збираєш значки за перемоги наді мною. Вісім штук, без знижок.",
+    "vi": "Ở trang tài khoản, giờ bạn sưu tầm huy hiệu khi thắng tôi. Tám cái, không giảm giá."
+  },
+  {
+    "d": "2026-10-25",
+    "href": "/texty.jsp",
+    "cs": "Sekce Texty má nové živé pozadí – v tmavém režimu kámen, ve světlém zamlžené okno.",
+    "en": "The Lyrics section has a new living background – stone in dark mode, a misty window in light mode.",
+    "de": "Der Bereich Texte hat einen neuen lebendigen Hintergrund – Stein im dunklen Modus, ein beschlagenes Fenster im hellen.",
+    "uk": "Розділ Тексти має новий живий фон – у темному режимі камінь, у світлому запітніле вікно.",
+    "vi": "Mục Lời bài hát có nền sống động mới – đá ở chế độ tối, cửa sổ mờ sương ở chế độ sáng."
+  },
+  {
+    "d": "2026-10-22",
+    "href": "/texty.jsp",
+    "cs": "Texty písní si teď můžeš číst v originále i v překladu najednou – přepínač je nad textem.",
+    "en": "You can now read lyrics in the original and the translation at once – the switch is above the lyrics.",
+    "de": "Songtexte kannst du jetzt im Original und in der Übersetzung gleichzeitig lesen – der Schalter ist über dem Text.",
+    "uk": "Тексти пісень тепер можна читати в оригіналі й перекладі водночас – перемикач над текстом.",
+    "vi": "Giờ bạn có thể đọc lời bài hát bằng bản gốc và bản dịch cùng lúc – nút chuyển ở phía trên lời."
+  }
+]
