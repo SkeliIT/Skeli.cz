@@ -4,6 +4,8 @@
 // (rychlá reakce, předvídá odrazy, míří ti do protirohu – porazit ho je opravdu těžké).
 // Zbraň hráče = ODSTŘEL: klik / mezerník / tlačítko ⚡ (telefon, i druhý prst) – pálka poskočí a míček vystřelí
 // rychleji; čím přesněji načasované vůči dotyku míčku, tím víc (perfektní = zastavení času, 3× za sebou = SUPER).
+// Pokažený odstřel (špatně načasovaný / naprázdno) míček nezrychlí, ale přibrzdí – a Kevin ho potrestá: vrátí ho
+// šikmo do rohu, kde hráč není (klidně přes odraz od stěny).
 // Kevin dělá lidské chyby: míček „sleduje“ až od části hřiště, s každým odrazem od stěny a s rychlostí se víc splete.
 // Výhra přihlášeného hráče jde do tabulky pořadí (/api/pong: server měří čas od startu, pořadí = nejrychlejší
 // výhra). Nepřihlášenému se nejlepší čas uloží jen v prohlížeči. Texty: KEVIN_LINES[jazyk].pong (kevin-lines.js).
@@ -14,7 +16,7 @@
   // watch = jakou část hřiště (od sebe) Kevin sleduje, err = chyba odhadu (díl šířky), bounceErr = o kolik víc
   // se splete za každý odraz od stěny; chyba se losuje jednou za let míčku (ne pořád dokola – to by se zprůměrovalo)
   var LEVELS = {
-    1: { speed: 480, gain: 1.03, max: 1000, react: 0.3, err: 0.13, bounceErr: 0.7, watch: 0.5, aiSpeed: 300, aim: 0 },
+    1: { speed: 490, gain: 1.03, max: 1000, react: 0.26, err: 0.11, bounceErr: 0.6, watch: 0.6, aiSpeed: 340, aim: 0.1 },
     2: { speed: 580, gain: 1.04, max: 1250, react: 0.15, err: 0.065, bounceErr: 0.5, watch: 0.75, aiSpeed: 520, aim: 0.35 },
     3: { speed: 700, gain: 1.05, max: 1650, react: 0.045, err: 0.02, bounceErr: 0.3, watch: 1, aiSpeed: 1000, aim: 0.85 }
   };
@@ -80,7 +82,7 @@
     var you = 0, kev = 0, running = false, paused = false, started = 0, serveAt = 0, serving = 1;
     var player = { x: W / 2, target: W / 2, shotAt: -1e9, shotUsed: true, stunUntil: 0, lastHit: -1e9, boosted: false };
     var kevin = { x: W / 2, target: W / 2, nextThink: 0, moving: 0, miss: 0 };
-    var ball = { x: W / 2, y: H / 2, vx: 0, vy: 0, speed: 0, trail: [], fire: false };
+    var ball = { x: W / 2, y: H / 2, vx: 0, vy: 0, speed: 0, trail: [], fire: false, mishit: false };
     var combo = 0, hitStop = 0, flash = null;
     var keys = { left: false, right: false }, raf = 0, last = 0, signedIn = false, csrf = null;
 
@@ -90,7 +92,7 @@
       var a = (Math.random() * 0.6 - 0.3);
       ball.vx = Math.sin(a) * ball.speed;
       ball.vy = (towardPlayer ? 1 : -1) * Math.cos(a) * ball.speed;
-      ball.fire = false; player.boosted = false;
+      ball.fire = false; ball.mishit = false; player.boosted = false;
       if (!towardPlayer) aimError();
       serveAt = performance.now() + 900;               // chvilka na nádech
     }
@@ -128,7 +130,7 @@
     function boost(off, now) {
       player.shotUsed = true;
       var tier = SHOT.filter(function (s) { return off <= s[0]; })[0];
-      if (!tier) return;
+      if (!tier) return mishit(now);
       var mult = tier[1], kind = tier[2];
       if (kind === 'perfect') { combo++; if (combo >= 3) { kind = 'super'; mult = SHOT_SUPER; combo = 0; ball.fire = true; } }
       else combo = 0;
@@ -141,6 +143,28 @@
         if (navigator.vibrate) try { navigator.vibrate(kind === 'super' ? [30, 40, 60] : 35); } catch (e) { /* nevadí */ }
       }
       field.classList.remove('shot', 'shot-super'); void field.offsetWidth; field.classList.add(kind === 'super' ? 'shot-super' : 'shot');
+    }
+
+    // pokažený odstřel: míček nezrychlí (ani o běžné zrychlení odrazu), naopak trochu zpomalí – ne pod 90 % základní
+    // rychlosti; Kevin ho vidí jasně (žádná chyba odhadu) a vrátí ho šikmo (viz punish)
+    function mishit(now) {
+      combo = 0; player.boosted = true;
+      var k = Math.max(L.speed * 0.9, ball.speed / L.gain * 0.88) / ball.speed;
+      ball.speed *= k; ball.vx *= k; ball.vy *= k;
+      ball.mishit = true; kevin.miss = 0;
+      flash = { kind: 'miss', text: T.shots ? T.shots.miss : 'miss', at: now };
+    }
+
+    // Kevinův trest za pokažený odstřel: míří do rohu dál od hráče – rovně, nebo přes odraz od stěny, podle toho,
+    // co dá ostřejší úhel (max. ~63°); míček přitom o kousek zrychlí
+    function punish() {
+      var far = player.x < W / 2 ? W - BALL_R - 24 : BALL_R + 24, dy = PLAYER_Y - ball.y;
+      var direct = Math.atan2(far - ball.x, dy);
+      var wallX = far > W / 2 ? 2 * BALL_R - far : 2 * (W - BALL_R) - far;   // zrcadlo přes protější stěnu
+      var bank = Math.atan2(wallX - ball.x, dy);
+      var a = Math.abs(bank) <= 1.1 && Math.abs(bank) > Math.abs(direct) ? bank : clamp(direct, -1.1, 1.1);
+      var sp = Math.min(L.max, ball.speed * 1.12);
+      ball.speed = sp; ball.vx = Math.sin(a) * sp; ball.vy = Math.cos(a) * sp; ball.mishit = false;
     }
 
     function step(now) {
@@ -159,10 +183,10 @@
       // Kevin: přemýšlí jednou za „react“, cíl = kam přiletí míč (+ chyba); na těžké míří do protirohu
       if (now / 1000 >= kevin.nextThink) {
         kevin.nextThink = now / 1000 + L.react;
-        if (ball.vy < 0 && ball.y < KEVIN_Y + L.watch * (PLAYER_Y - KEVIN_Y)) {
+        if (ball.vy < 0 && (ball.mishit || ball.y < KEVIN_Y + L.watch * (PLAYER_Y - KEVIN_Y))) {
           var hit = predictX(KEVIN_Y + PAD_H);
           var aimSide = player.x < W / 2 ? 1 : -1;     // pošle míč na stranu, kde hráč není
-          kevin.target = hit - aimSide * L.aim * PAD_W * 0.42 + kevin.miss;
+          kevin.target = hit - aimSide * (ball.mishit ? 0.9 : L.aim) * PAD_W * 0.42 + kevin.miss;
         } else if (ball.vy < 0) {
           kevin.target = kevin.x + (W / 2 - kevin.x) * 0.2;   // míček letí k němu, ale ještě ho „nesleduje“
         } else {
@@ -184,13 +208,15 @@
         if (ball.vy > 0 && ball.y + BALL_R >= py - PAD_H / 2 && ball.y < py + PAD_H && Math.abs(ball.x - player.x) <= PAD_W / 2 + BALL_R) {
           bounce(player.x, -1, py);
           player.lastHit = now; player.boosted = false;
-          if (!player.shotUsed && now - player.shotAt <= SHOT_IDEAL + 160) boost(Math.abs(now - player.shotAt - SHOT_IDEAL), now);
+          if (!player.shotUsed) boost(Math.abs(now - player.shotAt - SHOT_IDEAL), now);
+          else if (now < player.stunUntil + 200) mishit(now);      // pálka se po odstřelu naprázdno ještě nevzpamatovala
           else { combo = 0; aimError(); }
         }
         // Kevinova pálka
         if (ball.vy < 0 && ball.y - BALL_R <= KEVIN_Y + PAD_H / 2 && ball.y > KEVIN_Y - PAD_H && Math.abs(ball.x - kevin.x) <= PAD_W / 2 + BALL_R) {
           bounce(kevin.x, 1);
           ball.fire = false;
+          if (ball.mishit) punish();
         }
         if (ball.y > H + BALL_R * 2) goal(false);
         else if (ball.y < KEVIN_Y - 70) goal(true);
@@ -346,7 +372,7 @@
         cx.globalAlpha = 1 - f * f;
         cx.textAlign = 'center';
         cx.font = Math.round((big ? 44 : 30) * (1 + 0.15 * (1 - f))) + 'px "Bruno Ace SC", system-ui, sans-serif';
-        cx.fillStyle = flash.kind === 'super' ? '#ff8a1e' : big ? '#e6b730' : light ? 'rgba(0,0,0,.6)' : 'rgba(255,255,255,.75)';
+        cx.fillStyle = flash.kind === 'super' ? '#ff8a1e' : flash.kind === 'miss' ? '#e0645a' : big ? '#e6b730' : light ? 'rgba(0,0,0,.6)' : 'rgba(255,255,255,.75)';
         cx.shadowColor = 'rgba(0,0,0,.5)'; cx.shadowBlur = 8;
         cx.fillText(flash.text, W / 2, H * 0.62 - f * 30);
         cx.restore();
