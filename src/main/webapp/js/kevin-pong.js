@@ -56,6 +56,7 @@
       '<div class="kpong-box">' +
       '  <div class="kpong-top">' +
       '    <div class="kpong-score" aria-live="polite"><span class="kpong-who">' + esc(T.you) + '</span><b class="kpong-you">0</b><i>:</i><b class="kpong-kev">0</b><span class="kpong-who">Kevin</span></div>' +
+      '    <button type="button" class="kpong-full" aria-label="' + esc(T.fullscreen || 'Fullscreen') + '"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>' +
       '    <button type="button" class="kpong-close" aria-label="' + esc(T.close) + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
       '  </div>' +
       '  <div class="kpong-machine"><div class="kpong-frame">' +
@@ -644,19 +645,31 @@
 
     // ---------- ovládání ----------
     function toField(e) { var r = court.getBoundingClientRect(); return (e.clientX - r.left) / r.width * W; }
-    // prst, který přišel první, vede pálku; další prst = odstřel. Myš: pohyb vede, levé tlačítko = odstřel.
+    // Prst, který přišel první, vede pálku (zachycený – vede ji, i když sjede z hřiště); další prst = odstřel.
+    // Myš vede pálku po celém okně hry (dřív jen nad hřištěm – když vyjela ven, pálka se zasekla), levé
+    // tlačítko kdekoli mimo tlačítka a menu = odstřel.
     var mover = null;
     function onPointer(e) {
       if (!running) return;
       if (e.pointerType === 'touch') {
-        if (e.type === 'pointerdown') { if (mover !== null && mover !== e.pointerId) { shoot(); e.preventDefault(); return; } mover = e.pointerId; }
-        else if (e.pointerId !== mover) return;
-      } else if (e.type === 'pointerdown' && e.button === 0) shoot();
+        if (e.type === 'pointerdown') {
+          if (mover !== null && mover !== e.pointerId) { shoot(); e.preventDefault(); return; }
+          mover = e.pointerId;
+          try { field.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
+        } else if (e.pointerId !== mover) return;
+      } else if (e.type === 'pointerdown') {
+        if (e.button !== 0 || e.target.closest('button, a, .kpong-panel')) return;
+        shoot();
+      }
       player.target = clamp(toField(e), PAD_W / 2, W - PAD_W / 2); e.preventDefault();
     }
     function onPointerEnd(e) { if (e.pointerId === mover) mover = null; }
-    field.addEventListener('pointermove', onPointer);
-    field.addEventListener('pointerdown', onPointer);
+    function mouseOnly(e) { if (e.pointerType !== 'touch') onPointer(e); }
+    function touchOnly(e) { if (e.pointerType === 'touch') onPointer(e); }
+    root.addEventListener('pointermove', mouseOnly);
+    root.addEventListener('pointerdown', mouseOnly);
+    field.addEventListener('pointermove', touchOnly);
+    field.addEventListener('pointerdown', touchOnly);
     field.addEventListener('pointerup', onPointerEnd);
     field.addEventListener('pointercancel', onPointerEnd);
     root.querySelector('.kpong-shot').addEventListener('pointerdown', function (e) { e.preventDefault(); shoot(); });
@@ -673,11 +686,29 @@
     document.addEventListener('visibilitychange', onHidden);
     root.querySelector('.kpong-close').addEventListener('click', close);
 
+    // celá obrazovka (iPhone ji pro stránky nemá – tam se tlačítko schová)
+    var fullBtn = root.querySelector('.kpong-full');
+    if (!(root.requestFullscreen || root.webkitRequestFullscreen)) fullBtn.hidden = true;
+    function isFull() { return (document.fullscreenElement || document.webkitFullscreenElement) === root; }
+    fullBtn.addEventListener('click', function () {
+      var p = isFull() ? (document.exitFullscreen || document.webkitExitFullscreen).call(document)
+        : (root.requestFullscreen || root.webkitRequestFullscreen).call(root);
+      if (p && p.catch) p.catch(function () { /* prohlížeč nepovolil */ });
+    });
+    function onFull() {
+      fullBtn.querySelector('i').className = 'fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand');
+      setTimeout(fit, 80);
+    }
+    document.addEventListener('fullscreenchange', onFull);
+    document.addEventListener('webkitfullscreenchange', onFull);
+
     function close() {
       cancelAnimationFrame(raf);
       document.removeEventListener('keydown', onKey); document.removeEventListener('keyup', onKey);
       document.removeEventListener('visibilitychange', onHidden);
       removeEventListener('resize', fit);
+      document.removeEventListener('fullscreenchange', onFull); document.removeEventListener('webkitfullscreenchange', onFull);
+      if (isFull()) { var ex = (document.exitFullscreen || document.webkitExitFullscreen).call(document); if (ex && ex.catch) ex.catch(function () {}); }
       Object.keys(comicTimers).forEach(function (k) { clearTimeout(comicTimers[k]); });
       if (K && K.dispose) K.dispose();
       root.remove();

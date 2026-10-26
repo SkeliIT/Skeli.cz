@@ -1653,6 +1653,14 @@ body.light .kpong > .kpong-panel { background: linear-gradient(180deg, rgba(26, 
   .kpong .kpong-score { display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .kpong .kpong-kev { margin-left: 0; }
 }
+/* celá obrazovka: kulaté tlačítko vlevo nahoře (vpravo je křížek); v celé obrazovce hra na černém */
+.kpong-full {
+  order: -1; flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--panel-border);
+  background: var(--panel); color: var(--text); font-size: 1rem;
+}
+.kpong-full[hidden] { display: none; }
+.kpong-full:hover, .kpong-full:focus-visible { border-color: var(--accent); color: var(--accent); }
+.kpong:fullscreen { background: #050403; }
 /* skóre písmem, kde nula nevypadá jako O */
 .kpong-score b { font-family: var(--font-text); font-weight: 600; }
 
