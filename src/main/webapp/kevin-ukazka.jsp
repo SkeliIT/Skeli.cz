@@ -13,7 +13,7 @@
 (function () {
   // co Kevin právě dělá (js/kevin.js nastavuje window.__kevinStage) → popisek; po konci procházky další kolo
   var step = document.getElementById('kevinShowStep');
-  var NAMES = { 'leze': 'Leze zpoza karty', 'visí': 'Visí na rohu karty…', 'padá': 'Padá!', 'sedí': 'Sedí na hraně', 'rozhlíží': 'Rozhlíží se, jestli to někdo viděl',
+  var NAMES = { 'otáčí': 'Otáčí se zády k okraji', 'leze přes': 'Leze přes hranu', 'leze': 'Leze zpoza karty', 'visí': 'Visí na rohu karty…', 'padá': 'Padá!', 'sedí': 'Sedí na hraně', 'rozhlíží': 'Rozhlíží se, jestli to někdo viděl',
     'tempo walk': 'Jde', 'tempo jog': 'Klusá', 'tempo run': 'Běží', 'tempo sprint': 'Sprintuje' };
   var last = '', lastRun = 0;
   var t = setInterval(function () {

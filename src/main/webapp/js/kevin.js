@@ -996,7 +996,7 @@
   // stops to look round or wave, and walks out on the other. PC only (no room on a phone), never while the visitor
   // types, while Kevin is out talking, in the admin, when he was sent away with the cross, with reduced motion or
   // save-data. A click on him opens his menu.
-  var walker = null, walkK = null, walking = false, movesReady = false;
+  var walker = null, walkK = null, walking = false, movesReady = false, walkLoading = false;
   // what he dances when he stops on his walk
   var WALK_DANCES = ['dance', 'dance2', 'dance3', 'robot', 'silly', 'breakdance', 'flair', 'cheer', 'fistPump'];
   // where his feet are in his picture (the walker's camera: view below), as a share of its height
@@ -1092,6 +1092,7 @@
       document.body.appendChild(walker);
     }
     var go = function () {
+      if (walking) return;   // dvě procházky naráz by se praly o jednoho Kevina (přeskakoval by)
       walking = true;
       // the ground: the top edge of a card or panel low in the window (he walks on it and moves with the page), or
       // else the bottom edge of the window itself; the feet stand exactly on it (WALK_FEET = where they are in his picture)
@@ -1221,17 +1222,37 @@
       // pustí se a padá na kartu pod sebou nebo na spodek okna; dopad podle výšky: nízko měkce, vysoko
       // spíš tvrdě nebo kotoul (náhodně), pak se nervózně rozhlédne, jestli to někdo viděl
       function hangAndDrop(d) {
-        var cx = d.x - w / 2;                              // střed jeho okénka nad místem pádu
+        // na konci karty: zastaví, otočí se zády k okraji a sleze přes hranu do visu (Drop To Freehang);
+        // bez toho pohybu se zavěsí rovnou (jako dřív)
+        var cx = d.x - w / 2 - dir * 16;                   // stojí na samém okraji, ruce pak chytí hranu
         walker.style.transform = 'translateX(' + cx + 'px)';
-        walkK.turn(-dir * Math.PI / 2);                   // čelem ke kartě
-        walkK.hold('hang');
-        walker.classList.add('airborne');
-        window.__kevinStage = 'visí';   // fáze pro testy
+        window.__kevinStage = 'otáčí se';
+        walkK.hold('idle');
+        var hangYaw = -dir * Math.PI / 2;                  // ve visu čelem ke kartě
+        // kde budou ruce ve visu → okénko se posune tak, aby se chytily hrany (začátek slézání pak stojí na kartě)
+        walkK.poseAt('hang', 0);
+        var handY = Math.min(walkK.boneY('LeftHand') || 0, walkK.boneY('RightHand') || 0) + c.offsetTop;
+        var hangTop = d.edge - handY + 2;
+        var hasDrop = walkK.has('dropHang');
+        var startYaw = hasDrop ? hangYaw - walkK.clipYaw('dropHang') : hangYaw;
+        walkK.hold('idle');
+        walkK.turn(startYaw);                              // nejdřív se otočí (plynule, ~0,6 s)
         setTimeout(function () {
           if (!walking) return;
-          var handY = Math.min(walkK.boneY('LeftHand') || 0, walkK.boneY('RightHand') || 0) + c.offsetTop;
-          var hangTop = d.edge - handY + 2;
-          walker.style.top = hangTop + 'px';
+          walker.classList.add('airborne');
+          window.__kevinStage = 'leze přes hranu';
+          var dropMs = 0;
+          if (hasDrop) {
+            walker.style.top = hangTop + 'px';             // stejný počátek jako ve visu: na začátku stojí na hraně
+            walkK.hold(null);
+            dropMs = walkK.once('dropHang');
+          }
+          setTimeout(function () {
+            if (!walking) return;
+            walkK.turn(hangYaw);
+            walkK.hold('hang');
+            window.__kevinStage = 'visí';   // fáze pro testy
+            walker.style.top = hangTop + 'px';
           setTimeout(function () {
             if (!walking) return;
             walkK.look(-dir * 0.5, 0.6);                   // podívá se dolů
@@ -1263,7 +1284,8 @@
               };
             }, 900);
           }, 900 + Math.random() * 900);
-        }, 420);
+          }, Math.max(0, dropMs - 80));
+        }, 650);
       }
       // at the far end he jumps off the card and is gone
       function jumpOff() {
@@ -1299,7 +1321,7 @@
         var left = stops.length ? Math.abs(stops[0] - (x + w / 2)) : (dir > 0 ? x1 - x : x - x0);
         // před zastávkou zastaví (Stop Walking) – začne tak daleko, kolik v něm ujde
         if (!trans && stops.length && gait === 'walk' && walkK.has('walkStop') && left <= walkK.travelPx('walkStop') + 2) {
-          transition('walkStop', function () { x = stops[0] - w / 2; speed = 0; });
+          transition('walkStop', function () { stops[0] = x + w / 2; speed = 0; });   // zastávka je tam, kde zastavil (žádný skok zpátky)
         }
         // rozběhne se jen s dostatkem místa před sebou; jakmile začne brzdit, do zastávky už znovu nevyrazí
         // (dřív se běh a chůze střídaly po snímcích = škubání)
@@ -1334,6 +1356,8 @@
       }
     };
     if (walkK) return go();
+    if (walkLoading) return;   // model se už načítá – druhý by se vytvořil na stejném plátně a Kevin by přeskakoval
+    walkLoading = true;
     import('/js/kevin-model.js' + (version ? '?' + version : '')).then(function (m) {
       walkK = m.createKevin(walker.querySelector('canvas'), {
         light: document.body.classList.contains('light'),

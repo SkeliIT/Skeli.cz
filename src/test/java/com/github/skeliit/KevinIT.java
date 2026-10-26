@@ -144,10 +144,10 @@ class KevinIT extends UiTestSupport {
             // a beatbox keeps him busy for a few seconds: the first click then only stops it. Clicks 3 s apart:
             // five quick ones in a row would be his "stop clicking me" joke instead of the menu
             new WebDriverWait(driver, Duration.ofSeconds(20), Duration.ofSeconds(3)).until(d -> {
-                if (d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() < 4) js.executeScript("document.querySelector('.kevin-body').click()");
-                return d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 4;
+                if (d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() < 5) js.executeScript("document.querySelector('.kevin-body').click()");
+                return d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 5;
             });
-            jsClick(driver.findElements(By.cssSelector(".kevin-menu .kevin-chip")).get(3));
+            jsClick(driver.findElements(By.cssSelector(".kevin-menu .kevin-chip")).get(4));   // pořadí v menu: najdi, pusť, zahraj si, novinky, něco udělej, nahlásit
             String id = (String) js.executeScript("return sessionStorage.getItem('kevinLastSurprise')");
             assertTrue(seen.add(id), "surprise '" + id + "' came twice in " + seen);
             String line = (String) js.executeScript("return window.KEVIN_LINES.cs.surprise[arguments[0]]", id);
@@ -208,8 +208,8 @@ class KevinIT extends UiTestSupport {
         try {
             openWithKevin("/texty.jsp", "sessionStorage.setItem('kevinHello','1');");
             jsClick(waitFor(".kevin-paw"));
-            new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 5);
-            jsClick(driver.findElements(By.cssSelector(".kevin-menu .kevin-chip")).get(4));
+            new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 6);
+            jsClick(driver.findElements(By.cssSelector(".kevin-menu .kevin-chip")).get(5));
             WebElement area = waitFor(".kevin-report textarea");
             area.sendKeys(note);
             jsClick(driver.findElement(By.cssSelector(".kevin-report .kevin-chip")));

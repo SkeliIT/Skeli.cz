@@ -108,6 +108,7 @@ export function createKevin(canvas, opts = {}) {
       if (o.isBone && /mixamorig:?Hips$/.test(o.name)) hips = o;
       if (o.isBone && /mixamorig:?LeftFoot$/.test(o.name)) foot = o;
       if (o.isBone && /mixamorig:?(Left|Right)Leg$/.test(o.name)) legs.push(o);
+      if (o.isBone && /mixamorig:?Neck$/.test(o.name)) neckBones.push(o);
       if (o.isBone && /mixamorig:?(Left|Right)(Foot|ToeBase)$/.test(o.name)) feet.push(o);
       if (o.isBone && /^ocas[1-9]$/.test(o.name)) tail.push(o);
       if (o.isBone && o.name === 'celist') jaw = o;
@@ -253,7 +254,26 @@ export function createKevin(canvas, opts = {}) {
 
   // ---------- kolena: pohyby z Mixamo jsou pro lidské nohy – lýtko se nesmí přetočit kolem své osy (kůže by se zlomila) ----------
   const twQ = new THREE.Quaternion(), twInv = new THREE.Quaternion(), swQ = new THREE.Quaternion(), TWIST_MAX = 12 * Math.PI / 180;
+  // hlava a krk: pohyby z Mixamo (mluví vsedě, rozhlíží se) otáčejí hlavou až o 90° a rychle zpátky – s natáčením
+  // za myší to vypadalo jako otočka dokola. Otočení kolem osy krku se omezí (hlava ±35°, krk ±18°).
+  const neckBones = [];
+  function limitTwist(b, max) {
+    const q = b.quaternion;
+    twQ.set(0, q.y, 0, q.w).normalize();
+    swQ.copy(q).multiply(twInv.copy(twQ).invert());
+    let a = 2 * Math.atan2(twQ.y, twQ.w);
+    if (a > Math.PI) a -= 2 * Math.PI;
+    if (a < -Math.PI) a += 2 * Math.PI;
+    a = Math.max(-max, Math.min(max, a));
+    twQ.set(0, Math.sin(a / 2), 0, Math.cos(a / 2));
+    q.copy(swQ).multiply(twQ);
+  }
+  function fixHead() {
+    if (head) limitTwist(head, 35 * Math.PI / 180);
+    for (const n of neckBones) limitTwist(n, 18 * Math.PI / 180);
+  }
   function fixKnees() {
+    fixHead();
     for (const b of legs) {
       const q = b.quaternion;
       twQ.set(0, q.y, 0, q.w).normalize();
@@ -271,7 +291,7 @@ export function createKevin(canvas, opts = {}) {
   // Pohyby z Mixamo jsou pro delší nohy, Kevinovi chodidla v chůzi a běhu propadají pod podlahu nebo se vznášejí
   // a dopady začínají ve vzduchu. Každý snímek: nejnižší kost chodidla (Foot/ToeBase) se srovná na výšku,
   // jakou má v klidu – kromě pohybů, kde má být ve vzduchu nebo mu nohy visí (skok, pád, visení, šplh, sezení).
-  const AIR = new Set(['jump', 'fallLoop', 'fall', 'hang', 'hangJump', 'climbUp', 'climb', 'sitUp', 'sitEdge', 'sit', 'sitTalk', 'thumbsUp',
+  const AIR = new Set(['dropHang', 'jump', 'fallLoop', 'fall', 'hang', 'hangJump', 'climbUp', 'climb', 'sitUp', 'sitEdge', 'sit', 'sitTalk', 'thumbsUp',
     'swim', 'lie', 'lyingPose', 'flair', 'breakdance', 'dive', 'shimmy', 'typing', 'sitting']);
   const fw = new THREE.Vector3();
   function lowestFoot(model, name) {
@@ -344,7 +364,13 @@ export function createKevin(canvas, opts = {}) {
       if (special.name === 'hide') holder.position.y = -2.6 * h;
       if (special.name === 'leave') { holder.position.x = 3 * h; yaw += Math.PI / 2 * Math.min(1, h * 3); }
     }
-    holder.rotation.y = spinT >= 0 || special ? yaw : holder.rotation.y + (yaw - holder.rotation.y) * 0.15;
+    if (spinT >= 0 || special) holder.rotation.y = yaw;
+    else {
+      // vždy kratší cestou (po otočce dokola zůstávalo +360° a Kevin se pak celý otočil zpátky)
+      let d = yaw - holder.rotation.y;
+      d = ((d + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+      holder.rotation.y = yaw - d + d * 0.15;
+    }
     groundLock(frozen ? 0 : dt);
     renderer.render(scene, cam);
   }
@@ -460,10 +486,27 @@ export function createKevin(canvas, opts = {}) {
     poseAt(name, t) {
       if (!actions[name] || !mixer) return false;
       mixer.stopAllAction();
-      const a = actions[name]; a.reset().setEffectiveWeight(1).play(); a.time = t; mixer.update(0);
+      const a = actions[name]; a.reset().setEffectiveWeight(1).play(); a.time = t; mixer.update(0); fixKnees();
       if (hips && hipsRest) { hips.position.x = hipsRest.x; hips.position.z = hipsRest.z; }
       playing = null;
       return true;
+    },
+    // kontrola (testy): natočení hlavy vůči bokům ve stupních (kolem svislé osy) – hlídá „otočení hlavy dokola“
+    headYaw() {
+      if (!head || !hips) return 0;
+      const hq = head.getWorldQuaternion(new THREE.Quaternion()), bq = hips.getWorldQuaternion(new THREE.Quaternion());
+      const f = new THREE.Vector3(0, 0, 1).applyQuaternion(bq.invert().multiply(hq));
+      return Math.round(Math.atan2(f.x, f.z) * 180 / Math.PI);
+    },
+    // o kolik se tělo v pohybu otočí od začátku do konce (radiány kolem svislé osy)
+    clipYaw(name) {
+      if (!actions[name] || !hips) return 0;
+      const yawOf = () => { const f = new THREE.Vector3(0, 0, 1).applyQuaternion(hips.getWorldQuaternion(new THREE.Quaternion())); return Math.atan2(f.x, f.z); };
+      api.poseAt(name, 0); const a = yawOf();
+      api.poseAt(name, actions[name].getClip().duration - 0.01); const b = yawOf();
+      api.poseAt('idle', 0);
+      let d = b - a; d = ((d + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+      return d;
     },
     // délka klipu v ms (0 = nemá ho)
     clipMs(name) { return actions[name] ? actions[name].getClip().duration * 1000 : 0; },
