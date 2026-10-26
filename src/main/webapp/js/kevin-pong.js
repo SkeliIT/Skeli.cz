@@ -11,8 +11,9 @@
 // točí opačně, rychlost podle poloměru), dole tři kola hráče točí jeho pálka. Pálky jezdí po kolejnici s pásem.
 // Komár: jednou za zápas (náhodně) přiletí komár, Kevin hru sám zapauzuje, sleduje ho, vrhne se po něm, omráčený
 // komár spadne přes hřiště a Kevin se tváří, že nic – hra pokračuje.
-// Hlášky a nápisy (PERFEKTNÍ ODSTŘEL…) nejsou na hřišti, jdou z „reproduktoru“ automatu: lišta nad strojem
-// s mřížkami reproduktorů po stranách a jantarovým textem.
+// Hlášky a nápisy jdou z reproduktorů na bocích stroje jako z komiksu: nápisy odstřelu (PERFEKTNÍ ODSTŘEL…)
+// vyletí z levého jako zubatá „výbuchová“ bublina, Kevinovy hlášky z pravého jako mluvicí bublina. Kde je
+// vedle stroje volno (PC), letí ven ze stroje, jinak přes kraj stroje dovnitř.
 // Kevin dělá lidské chyby: míček „sleduje“ až od části hřiště, s každým odrazem od stěny a s rychlostí se víc splete.
 // Výhra přihlášeného hráče jde do tabulky pořadí (/api/pong: server měří čas od startu, pořadí = nejrychlejší
 // výhra). Nepřihlášenému se nejlepší čas uloží jen v prohlížeči. Texty: KEVIN_LINES[jazyk].pong (kevin-lines.js).
@@ -55,9 +56,6 @@
       '<div class="kpong-box">' +
       '  <div class="kpong-top">' +
       '    <div class="kpong-score" aria-live="polite"><span class="kpong-who">' + esc(T.you) + '</span><b class="kpong-you">0</b><i>:</i><b class="kpong-kev">0</b><span class="kpong-who">Kevin</span></div>' +
-      '    <div class="kpong-speaker"><i class="kp-grill" aria-hidden="true"></i>' +
-      '      <div class="kp-screen"><p class="kp-msg" aria-live="polite"></p><p class="kp-flash" aria-hidden="true"></p></div>' +
-      '      <i class="kp-grill" aria-hidden="true"></i></div>' +
       '    <button type="button" class="kpong-close" aria-label="' + esc(T.close) + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
       '  </div>' +
       '  <div class="kpong-machine"><div class="kpong-frame">' +
@@ -65,6 +63,7 @@
       '    <canvas class="kpong-mech" data-win="bot" style="' + winVars(WIN_BOT) + '" aria-hidden="true"></canvas>' +
       '    <div class="kpong-gears" data-set="kevin">' + GEARS_KEVIN.map(gear).join('') + '</div>' +
       '    <i class="kpong-slot" aria-hidden="true"></i>' +
+      '    <i class="kpong-spk" data-side="l" aria-hidden="true"></i><i class="kpong-spk" data-side="r" aria-hidden="true"></i>' +
       '    <canvas class="kpong-kevin" aria-hidden="true"></canvas>' +
       '    <div class="kpong-field">' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
@@ -72,12 +71,12 @@
       '  </div></div>' +
       '  <button type="button" class="kpong-shot"><i class="fa-solid fa-bolt" aria-hidden="true"></i> ' + esc(T.shot || 'Odstřel') + '</button>' +
       '</div>' +
-      '<div class="kpong-panel"></div>';   // úvod a konec: karta uprostřed obrazovky před strojem
+      '<div class="kpong-panel"></div><p class="sr-only kpong-live" aria-live="polite"></p>';   // úvod a konec: karta uprostřed obrazovky před strojem
     document.body.appendChild(root);
     document.documentElement.classList.add('kpong-open');
     var court = root.querySelector('.kpong-court'), cx = court.getContext('2d');
     var field = root.querySelector('.kpong-field'), panel = root.querySelector('.kpong-panel');
-    var speaker = root.querySelector('.kpong-speaker'), sayEl = root.querySelector('.kp-msg'), flashEl = root.querySelector('.kp-flash'), youEl = root.querySelector('.kpong-you'), kevEl = root.querySelector('.kpong-kev');
+    var liveEl = root.querySelector('.kpong-live'), youEl = root.querySelector('.kpong-you'), kevEl = root.querySelector('.kpong-kev');
     var kevCanvas = root.querySelector('.kpong-kevin');
     var machine = root.querySelector('.kpong-machine'), frame = root.querySelector('.kpong-frame');
     var shotBtn = root.querySelector('.kpong-shot'), topBar = root.querySelector('.kpong-top');
@@ -91,9 +90,10 @@
     function fit() {
       var landscape = innerWidth > innerHeight && innerHeight < 500;
       var availW = innerWidth - 16 - (landscape ? topBar.offsetWidth + shotBtn.offsetWidth + 24 : 0);
-      var availH = innerHeight - 16 - (landscape ? 0 : topBar.offsetHeight + 8 + (shotBtn.offsetHeight ? shotBtn.offsetHeight + 8 : 0));
+      // skóre a křížek leží přes volné místo nad strojem (vedle Kevina), na výšku tedy nezabírají řádek
+      var availH = innerHeight - 16 - (landscape ? 0 : (shotBtn.offsetHeight ? shotBtn.offsetHeight + 8 : 0));
       var all = { x0: 0, x1: FRAME_W, y0: -110, y1: FRAME_H };    // nad rámem místo pro Kevina
-      var cut = { x0: GLASS.x - 44, x1: GLASS.x + GLASS.w + 44, y0: -110, y1: landscape ? 1070 : 1236 };
+      var cut = { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1218 };
       var uAll = Math.min(availW / FRAME_W, availH / FRAME_H), uCut = Math.min(availW / (cut.x1 - cut.x0), availH / (cut.y1 - cut.y0));
       var v = uCut > uAll * 1.12 ? cut : all, u = v === cut ? uCut : uAll;
       machine.style.width = Math.floor((v.x1 - v.x0) * u) + 'px';
@@ -121,17 +121,44 @@
       });
     }).catch(function () { /* hra jde i bez něj */ });
 
-    var sayTimer = 0, flashTimer = 0;
-    // nápis z reproduktoru (PERFEKTNÍ ODSTŘEL…): na 1,2 s přes Kevinovu hlášku, mřížky zabouchají
-    function showFlash(f) {
-      flashEl.textContent = f.text; flashEl.className = 'kp-flash on ' + f.kind;
-      speaker.classList.remove('boom'); void speaker.offsetWidth; speaker.classList.add('boom');
-      clearTimeout(flashTimer); flashTimer = setTimeout(function () { flashEl.className = 'kp-flash'; }, 1200);
+    // ---------- komiksové bubliny z reproduktorů ----------
+    // jedna bublina na reproduktor (nová nahradí starou); zubatý obrys výbuchu je pokaždé trochu jiný (ručně kreslený)
+    var comics = { l: null, r: null }, comicTimers = { l: 0, r: 0 };
+    function burstSvg() {
+      var pts = [], n = 18;
+      for (var i = 0; i < n * 2; i++) {
+        var a = i / (n * 2) * Math.PI * 2, k = i % 2 ? 0.74 + Math.random() * 0.08 : 0.96 + Math.random() * 0.08;
+        pts.push((100 + Math.cos(a) * 98 * k).toFixed(1) + ',' + (60 + Math.sin(a) * 58 * k).toFixed(1));
+      }
+      return '<svg class="kp-burst" viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden="true"><polygon points="' + pts.join(' ') + '"/></svg>';
     }
+    function comic(side, kind, text, ms) {
+      var spk = root.querySelector('.kpong-spk[data-side="' + side + '"]');
+      if (!spk || !text) return;
+      if (comics[side]) comics[side].remove();
+      var r = spk.getBoundingClientRect(), room = side === 'l' ? r.left : innerWidth - r.right;
+      var out = room > 230, el = document.createElement('div');
+      el.className = 'kp-comic ' + kind + ' ' + side + (out ? ' out' : ' in');
+      el.innerHTML = (kind !== 'say' ? burstSvg() : '') + '<span>' + esc(text) + '</span>';
+      el.style.top = Math.round(r.top + r.height / 2) + 'px';
+      // bublina leží vlevo od reproduktoru (levý ven, pravý dovnitř) nebo vpravo od něj (levý dovnitř, pravý ven)
+      if ((side === 'l') === out) el.style.right = Math.round(innerWidth - r.left + 4) + 'px';
+      else el.style.left = Math.round(r.right + 4) + 'px';
+      el.style.maxWidth = Math.round(out ? Math.min(room - 16, 300) : Math.min(260, machine.offsetWidth * 0.72)) + 'px';
+      root.appendChild(el);
+      comics[side] = el;
+      spk.classList.remove('boom'); void spk.offsetWidth; spk.classList.add(kind === 'say' ? 'talk' : 'boom');
+      liveEl.textContent = text;
+      clearTimeout(comicTimers[side]);
+      comicTimers[side] = setTimeout(function () {
+        el.classList.add('bye'); spk.classList.remove('talk');
+        setTimeout(function () { el.remove(); if (comics[side] === el) comics[side] = null; }, 260);
+      }, ms);
+    }
+    function showFlash(f) { comic('l', 'burst ' + f.kind, f.text, f.kind === 'super' ? 1700 : 1300); }
     function say(t, ms) {
       if (!t) return;
-      sayEl.textContent = t; speaker.classList.add('talk');
-      clearTimeout(sayTimer); sayTimer = setTimeout(function () { sayEl.textContent = ''; speaker.classList.remove('talk'); }, ms || 2600);
+      comic('r', 'say', t, ms || 2600);
       if (K) { K.setTalking(true); setTimeout(function () { if (K) K.setTalking(false); }, Math.min(2200, 600 + t.length * 45)); }
     }
 
@@ -651,6 +678,7 @@
       document.removeEventListener('keydown', onKey); document.removeEventListener('keyup', onKey);
       document.removeEventListener('visibilitychange', onHidden);
       removeEventListener('resize', fit);
+      Object.keys(comicTimers).forEach(function (k) { clearTimeout(comicTimers[k]); });
       if (K && K.dispose) K.dispose();
       root.remove();
       document.documentElement.classList.remove('kpong-open');

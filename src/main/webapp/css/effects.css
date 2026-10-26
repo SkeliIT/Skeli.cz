@@ -1585,47 +1585,73 @@ body.light .kpong > .kpong-panel { background: linear-gradient(180deg, rgba(26, 
 .kpong-mosq.left { scale: -1 1; }
 .kpong-mosq.hit { width: calc(62px * var(--u)); aspect-ratio: 297 / 170; background: url(/kevin/pong/komar-omraceny.webp) center / contain no-repeat; animation: none; }
 @keyframes kpong-buzz { from { background-position: 0 0; } to { background-position: 100% 0; } }
-/* reproduktor automatu: lišta pod skóre (na šířku v postranním sloupci), mřížky po stranách, jantarový text;
-   .talk = Kevin mluví (mřížky pulzují), .boom = nápis odstřelu (mřížky bouchnou) */
-.kpong-top { flex-wrap: wrap; }
-.kpong-speaker {
-  order: 3; flex: 1 1 100%;
-  display: flex; align-items: center; gap: 10px;
-  min-height: 52px; padding: 6px 10px; border-radius: 14px;
-  background: linear-gradient(180deg, #24232a, #141318);
-  border: 1px solid rgba(230, 183, 48, .55);
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, .7), 0 0 0 1px rgba(0, 0, 0, .6);
+/* reproduktory na bocích stroje (pulzují, když z nich jde bublina) */
+.kpong-spk {
+  position: absolute; z-index: 2; pointer-events: none;
+  top: calc(402px * var(--u)); width: calc(58px * var(--u)); aspect-ratio: 1; border-radius: 50%;
+  border: calc(4px * var(--u)) solid #b8860b;
+  background: radial-gradient(circle, #000 1.2px, transparent 1.5px) 0 0 / 5px 5px,
+    radial-gradient(circle at 50% 50%, #2b2a30 0 22%, #121116 23% 60%, #26252b 61%);
+  box-shadow: 0 0 0 calc(2px * var(--u)) #1a1917, 0 calc(4px * var(--u)) calc(8px * var(--u)) rgba(0, 0, 0, .7), inset 0 0 calc(10px * var(--u)) #000;
 }
-.kp-grill {
-  flex: none; width: 34px; height: 34px; border-radius: 50%;
-  border: 2px solid #b8860b;
-  background: radial-gradient(circle, #000 1.3px, transparent 1.6px) 0 0 / 5px 5px, radial-gradient(circle at 40% 35%, #3a3830, #0d0c10 70%);
-  box-shadow: inset 0 0 6px #000;
+.kpong-spk[data-side="l"] { left: calc(79px * var(--u)); }
+.kpong-spk[data-side="r"] { left: calc(631px * var(--u)); }
+.kpong-spk.talk { animation: kp-talk .2s ease-in-out infinite alternate; }
+.kpong-spk.boom { animation: kp-boom .4s ease-out; }
+@keyframes kp-talk { to { transform: scale(1.07); box-shadow: 0 0 0 2px #1a1917, 0 0 14px rgba(255, 176, 46, .5), inset 0 0 10px #000; } }
+@keyframes kp-boom { 30% { transform: scale(1.25); box-shadow: 0 0 0 2px #1a1917, 0 0 22px rgba(255, 176, 46, .9), inset 0 0 10px #000; } }
+/* komiksové bubliny: výbuch (nápisy odstřelu) a mluvicí bublina (Kevin) */
+.kp-comic {
+  position: fixed; z-index: 3010; pointer-events: none; translate: 0 -50%;
+  animation: kp-pop .38s cubic-bezier(.2, 1.6, .4, 1) both;
 }
-.kpong-speaker.talk .kp-grill { animation: kp-talk .22s ease-in-out infinite alternate; }
-.kpong-speaker.boom .kp-grill { animation: kp-boom .35s ease-out; }
-@keyframes kp-talk { to { transform: scale(1.08); box-shadow: inset 0 0 6px #000, 0 0 10px rgba(255, 176, 46, .45); } }
-@keyframes kp-boom { 30% { transform: scale(1.22); box-shadow: inset 0 0 6px #000, 0 0 18px rgba(255, 176, 46, .8); } }
-.kp-screen { position: relative; flex: 1; min-width: 0; min-height: 2.5em; display: grid; place-items: center; }
-.kp-msg, .kp-flash { grid-area: 1 / 1; margin: 0; text-align: center; }
-.kp-msg {
-  font-family: var(--font-text); font-size: var(--fs-text); line-height: 1.25; color: #ffc861;
-  text-shadow: 0 0 8px rgba(255, 170, 40, .55);
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+.kp-comic.l.out, .kp-comic.r.in { transform-origin: 100% 50%; }
+.kp-comic.r.out, .kp-comic.l.in { transform-origin: 0 50%; }
+.kp-comic.bye { animation: kp-bye .26s ease-in forwards; }
+@keyframes kp-pop { from { scale: .15; opacity: 0; } }
+@keyframes kp-bye { to { scale: .6; opacity: 0; } }
+.kp-comic.burst { padding: 22px 30px; rotate: -9deg; }
+.kp-comic.burst.r, .kp-comic.burst.in.l { rotate: 7deg; }
+.kp-burst { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(3px 4px 0 rgba(0, 0, 0, .55)); }
+.kp-burst polygon { fill: #ffd23f; stroke: #7a0d0d; stroke-width: 5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.kp-comic.burst span {
+  position: relative; display: block; text-align: center; white-space: nowrap;
+  font-family: var(--font-display); font-size: clamp(15px, 2.1vw, 22px); line-height: 1.05; letter-spacing: .02em;
+  color: #7a0d0d; text-shadow: 2px 2px 0 #fff6c9;
 }
-.kp-flash {
-  font-family: var(--font-display); font-size: var(--fs-h4); letter-spacing: .04em; line-height: 1.1;
-  opacity: 0; transform: scale(.7); transition: opacity .15s, transform .15s;
-  color: #ffd76a; text-shadow: 0 0 12px rgba(255, 190, 60, .8);
-  background: linear-gradient(180deg, #1c1b21, #121116); width: 100%; height: 100%; display: grid; place-items: center;
+.kp-comic.burst.super .kp-burst polygon { fill: #ff8a1e; stroke: #5a0606; }
+.kp-comic.burst.super span { color: #fff; text-shadow: 2px 2px 0 #5a0606, -1px -1px 0 #5a0606; font-size: clamp(17px, 2.5vw, 26px); }
+.kp-comic.burst.miss .kp-burst polygon { fill: #d9d2c4; stroke: #4a4a4a; }
+.kp-comic.burst.miss span { color: #6b1212; text-shadow: none; }
+.kp-comic.burst.good .kp-burst polygon, .kp-comic.burst.weak .kp-burst polygon { fill: #fff1b8; }
+.kp-comic.say {
+  padding: 9px 14px; border-radius: 18px; background: #fffdf6; border: 3px solid #141414;
+  box-shadow: 4px 5px 0 rgba(0, 0, 0, .5);
+  font-family: var(--font-text); font-weight: 600; font-size: var(--fs-text); line-height: 1.25; color: #141414;
 }
-.kp-flash.on { opacity: 1; transform: none; }
-.kp-flash.super { color: #ff8a1e; text-shadow: 0 0 14px rgba(255, 106, 0, .9); }
-.kp-flash.miss { color: #e0645a; text-shadow: 0 0 10px rgba(224, 100, 90, .6); }
-.kp-flash.weak, .kp-flash.good { color: #f2e6c4; }
+.kp-comic.say::after {
+  content: ""; position: absolute; top: 50%; width: 16px; height: 16px; margin-top: -8px;
+  background: #fffdf6; border: 3px solid #141414; border-width: 0 0 3px 3px;
+}
+.kp-comic.say.r.out::after, .kp-comic.say.l.in::after { left: -10px; rotate: 45deg; }
+.kp-comic.say.l.out::after, .kp-comic.say.r.in::after { right: -10px; rotate: -135deg; }
+/* skóre a křížek přes volné místo nad strojem: „TY 0“ vlevo od Kevina, „0 KEVIN ✕“ vpravo (stroj je o lištu větší) */
+.kpong .kpong-box { position: relative; }
+.kpong .kpong-top {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 4;
+  display: flex; align-items: center; gap: 6px; padding: 6px 8px; pointer-events: none;
+}
+.kpong .kpong-top > * { pointer-events: auto; }
+.kpong .kpong-score { display: contents; }
+.kpong .kpong-score i { display: none; }
+.kpong .kpong-score b { font-size: clamp(1.6rem, 7vw, 2.2rem); line-height: 1; text-shadow: 0 0 14px rgba(255, 210, 63, .45); }
+.kpong .kpong-who { font-size: var(--fs-small); }
+.kpong .kpong-kev { margin-left: auto; }
+.kpong .kpong-close { margin-left: 4px; }
 @media (orientation: landscape) and (max-height: 500px) {
-  .kpong-speaker { flex-direction: column; max-width: 150px; min-height: 0; }
-  .kp-grill { width: 22px; height: 22px; }
+  .kpong .kpong-top { position: static; flex-direction: column; justify-content: space-between; padding: 0; }
+  .kpong .kpong-score { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .kpong .kpong-kev { margin-left: 0; }
 }
 /* skóre písmem, kde nula nevypadá jako O */
 .kpong-score b { font-family: var(--font-text); font-weight: 600; }
