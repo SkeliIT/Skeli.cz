@@ -1665,6 +1665,10 @@ body.light .kpong > .kpong-panel { background: linear-gradient(180deg, rgba(26, 
   background: var(--panel); color: var(--text); font-size: 1.05rem;
 }
 .kpong-set:hover, .kpong-set:focus-visible, .kpong-set[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+/* ⚙ musí být vidět: zlatý kroužek jako u křížku a po otevření hry třikrát zabliká */
+.kpong-set { border: 2px solid var(--accent); color: var(--accent); animation: kp-set-hint 1.4s ease-in-out .8s 3; }
+@keyframes kp-set-hint { 50% { box-shadow: 0 0 0 7px rgba(255, 210, 63, .28), 0 0 18px rgba(255, 210, 63, .6); transform: scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .kpong-set { animation: none; } }
 /* karta nastavení: nahoře, menší – pod ní je vidět hrací plocha s vybraným pozadím */
 .kpong-settings {
   position: absolute; z-index: 6; left: 50%; top: 64px; transform: translateX(-50%);
