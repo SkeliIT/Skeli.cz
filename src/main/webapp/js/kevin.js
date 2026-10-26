@@ -537,11 +537,15 @@
     var box = el('div', 'kevin-menu');
     var items = adminPage
       ? [['status', 'fa-clipboard-check', L.admin.status], ['find', 'fa-magnifying-glass', L.menu.find], ['play', 'fa-play', L.menu.play]]
-      : [['find', 'fa-magnifying-glass', L.menu.find], ['play', 'fa-play', L.menu.play],   // (Zarapuj is off for now: kevin-napady.md)
-         ['pong', 'fa-table-tennis-paddle-ball', L.menu.pong || 'Pong'], ['news', 'fa-bolt', L.menu.news], ['fun', 'fa-wand-magic-sparkles', L.menu.fun], ['report', 'fa-triangle-exclamation', L.menu.report]];
+      // pořadí = rozložení: mřížka 2×2 (hledat, pustit, novinky, něco udělej), pod ní hra přes celou šířku,
+      // dole nenápadně nahlášení problému (Zarapuj je zatím vypnuté: kevin-napady.md)
+      : [['find', 'fa-magnifying-glass', L.menu.find], ['play', 'fa-play', L.menu.play],
+         ['news', 'fa-bolt', L.menu.news], ['fun', 'fa-wand-magic-sparkles', L.menu.fun],
+         ['pong', 'fa-table-tennis-paddle-ball', L.menu.pong || 'Pong'], ['report', 'fa-triangle-exclamation', L.menu.report]];
     items.forEach(function (it) {
-      var b = el('button', 'kevin-chip');
+      var b = el('button', 'kevin-chip' + (it[0] === 'pong' ? ' is-game' : it[0] === 'report' ? ' is-quiet' : ''));
       b.type = 'button';
+      b.dataset.act = it[0];
       b.innerHTML = '<i class="fa-solid ' + it[1] + '" aria-hidden="true"></i> ';
       b.appendChild(document.createTextNode(it[2]));
       b.addEventListener('click', function () {

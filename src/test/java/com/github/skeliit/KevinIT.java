@@ -147,7 +147,7 @@ class KevinIT extends UiTestSupport {
                 if (d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() < 5) js.executeScript("document.querySelector('.kevin-body').click()");
                 return d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 5;
             });
-            jsClick(driver.findElements(By.cssSelector(".kevin-menu .kevin-chip")).get(4));   // pořadí v menu: najdi, pusť, zahraj si, novinky, něco udělej, nahlásit
+            jsClick(driver.findElement(By.cssSelector(".kevin-menu .kevin-chip[data-act=fun]")));
             String id = (String) js.executeScript("return sessionStorage.getItem('kevinLastSurprise')");
             assertTrue(seen.add(id), "surprise '" + id + "' came twice in " + seen);
             String line = (String) js.executeScript("return window.KEVIN_LINES.cs.surprise[arguments[0]]", id);
@@ -209,7 +209,7 @@ class KevinIT extends UiTestSupport {
             openWithKevin("/texty.jsp", "sessionStorage.setItem('kevinHello','1');");
             jsClick(waitFor(".kevin-paw"));
             new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 6);
-            jsClick(driver.findElements(By.cssSelector(".kevin-menu .kevin-chip")).get(5));
+            jsClick(driver.findElement(By.cssSelector(".kevin-menu .kevin-chip[data-act=report]")));
             WebElement area = waitFor(".kevin-report textarea");
             area.sendKeys(note);
             jsClick(driver.findElement(By.cssSelector(".kevin-report .kevin-chip")));
