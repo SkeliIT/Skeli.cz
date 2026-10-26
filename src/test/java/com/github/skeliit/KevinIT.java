@@ -20,7 +20,7 @@ class KevinIT extends UiTestSupport {
     private void openWithKevin(String path, String beforeReload) {
         driver.get(BASE_URL + path);
         ((JavascriptExecutor) driver).executeScript(
-                "localStorage.setItem('cookieConsent','true'); localStorage.setItem('sp_min','1'); localStorage.setItem('kevinLite','1'); sessionStorage.clear();" + beforeReload);
+                "localStorage.setItem('cookieConsent','true'); localStorage.setItem('sp_min','1'); localStorage.setItem('kevinLite','1'); sessionStorage.clear(); sessionStorage.setItem('kevinBuilding','1');" + beforeReload);   // hláška o výstavbě webu by testům skočila do bubliny
         driver.navigate().refresh();
         new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".kevin-body")));

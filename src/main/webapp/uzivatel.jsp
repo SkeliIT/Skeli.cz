@@ -1,4 +1,4 @@
-<%@ page import="com.github.skeliit.dao.UserDao, com.github.skeliit.model.UserProfile, com.github.skeliit.model.UserComment, com.github.skeliit.model.AccountSummary, com.github.skeliit.WebUtils" %>
+<%@ page import="com.github.skeliit.dao.UserDao, com.github.skeliit.model.UserProfile, com.github.skeliit.model.UserComment, com.github.skeliit.model.AccountSummary, com.github.skeliit.WebUtils, com.github.skeliit.dao.PongDao, com.github.skeliit.model.PongProfile" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%-- "My account": profile and settings in one page. A card with your photo and numbers on top, a bar
@@ -20,6 +20,7 @@
     Integer age = null;
     AccountSummary me = null;
     java.util.List<UserComment> myComments = java.util.List.of();
+    PongProfile pong = new PongProfile();
     try {
       UserDao users = new UserDao();          // dao/UserDao
       UserProfile p = users.profile(uid);     // nothing saved yet = null
@@ -29,6 +30,7 @@
       }
       me = users.summary(uid);
       myComments = users.comments(uid);
+      pong = new PongDao().profile(uid);      // Kevin Pong: časy a odznaky (dao/PongDao)
     } catch (Exception ignore) {}
     String avatarUrl = WebUtils.safeUrl((String) session.getAttribute("avatar_url"), "/img/avatar-default.svg");
     String shownName = displayName != null && !displayName.isBlank() ? displayName : (me != null ? me.username : (String) session.getAttribute("username"));
@@ -83,6 +85,7 @@
   <nav class="acct-tabs" aria-label="<%= t.getProperty("menu.account") %>">
     <a href="#profil"><i class="fa-solid fa-user"></i> <%= t.getProperty("account.tab.profile") %></a>
     <a href="#komentare"><i class="fa-solid fa-comments"></i> <%= t.getProperty("account.tab.comments") %> <span class="acct-count"><%= myComments.size() %></span></a>
+    <a href="#pong"><i class="fa-solid fa-table-tennis-paddle-ball"></i> <%= t.getProperty("account.tab.pong") %> <span class="acct-count"><%= pong.earnedCount() %>/<%= pong.badges.size() %></span></a>
     <a href="#zabezpeceni"><i class="fa-solid fa-shield-halved"></i> <%= t.getProperty("account.tab.security") %></a>
     <a href="#soukromi"><i class="fa-solid fa-user-lock"></i> <%= t.getProperty("account.tab.privacy") %></a>
   </nav>
@@ -169,6 +172,38 @@
       </article>
     <% } %>
     </div>
+  </section>
+
+  <%-- Kevin Pong: nejlepší výhra a místo na každé obtížnosti, odznaky (počítá je server z uložených výher) --%>
+  <section class="acct-card" id="pong">
+    <header class="acct-card-head">
+      <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> <%= t.getProperty("account.tab.pong") %></h3>
+      <p><%= t.getProperty("pong.profile.lead") %></p>
+    </header>
+    <div class="pong-best">
+    <% for (int d = 1; d <= 3; d++) { %>
+      <div class="pong-best-item<%= pong.bestMs[d - 1] != null ? " on" : "" %>">
+        <span class="pong-best-level"><%= t.getProperty("pong.level." + d) %></span>
+        <% if (pong.bestMs[d - 1] != null) { %>
+          <b><%= PongProfile.time(pong.bestMs[d - 1]) %></b>
+          <% if (pong.place[d - 1] != null) { %><span class="acct-dim"><%= t.getProperty("pong.profile.place").replace("{0}", String.valueOf(pong.place[d - 1])) %></span><% } %>
+        <% } else { %>
+          <span class="acct-dim"><%= t.getProperty("pong.profile.notYet") %></span>
+        <% } %>
+      </div>
+    <% } %>
+    </div>
+    <ul class="pong-badges">
+    <% for (PongProfile.Badge b : pong.badges) { %>
+      <li class="<%= b.earned ? "on" : "" %>">
+        <span class="pong-badge-icon"><i class="fa-solid <%= b.earned ? b.icon : "fa-lock" %>" aria-hidden="true"></i></span>
+        <b><%= t.getProperty("pong.badge." + b.key) %></b>
+        <span><%= t.getProperty("pong.badge." + b.key + ".how") %></span>
+        <span class="sr-only"><%= t.getProperty(b.earned ? "pong.badge.earned" : "pong.badge.locked") %></span>
+      </li>
+    <% } %>
+    </ul>
+    <p class="pong-play-row"><a class="btn-primary" href="/?kevin=pong"><i class="fa-solid fa-play"></i> <%= t.getProperty("pong.profile.play") %></a></p>
   </section>
 
   <%-- Security: password and the devices you are signed in on --%>

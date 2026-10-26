@@ -2122,6 +2122,11 @@ window.KEVIN_LINES = {
       about: ["Proč tohle píše Radek, když jsem tady jednoznačně důležitější já, nevím.", "Jo jo, to je můj páníček. Doplňuje mi misku… ale panička ji sype plnější."],
       register: ["Jo, vím. Další účet. Ale aspoň ti nebudu posílat 48 e-mailů denně."]
     },
+    building: [
+      "Tady se pořád maká! Web je ve výstavbě, takže každej den tu můžeš najít něco novýho. Já jsem tu stálá expozice.",
+      "Pssst… web se pořád staví. Co tu dneska není, může tu bejt zítra. Kromě disciplíny. Ta tu nebude nikdy.",
+      "Upozornění: stavba v plném proudu. Každej den nějaká změna – tak se vracej, ať ti nic neuteče. Já jsem tu stavbyvedoucí. Hlavně přes spaní."
+    ],
     tips: ["Komentáře: napiš něco chytrýho. A kdyby někdo zlobil, admin má tlačítko Smazat."],
     auth: { welcome: ["Účet vytvořen. Tak teď už oficiálně patříš k nám."] },
     heart: { on: ["No konečně někdo s vkusem."], off: ["…"] },
@@ -2147,6 +2152,11 @@ window.KEVIN_LINES = {
       about: ["Why Radek writes this when I'm clearly the important one here, I don't know.", "Yep, that's my human. He fills my bowl… but his girlfriend fills it fuller."],
       register: ["Yes, I know. Another account. But at least I won't send you 48 e-mails a day."]
     },
+    building: [
+      "Work in progress! The site is still being built, so there could be something new every day. I'm the permanent exhibit.",
+      "Psst… the site is still under construction. What isn't here today might be here tomorrow. Except discipline. That's never coming.",
+      "Notice: construction in full swing. Something changes every day, so keep coming back. I'm the site manager. Mostly in charge of naps."
+    ],
     tips: ["Comments: write something clever. And if anyone misbehaves, the admin has a Delete button."],
     auth: { welcome: ["Account created. Now you're officially one of us."] },
     heart: { on: ["Finally someone with taste."], off: ["…"] },
@@ -2172,6 +2182,11 @@ window.KEVIN_LINES = {
       about: ["Warum Radek das schreibt, wo doch eindeutig ich hier der Wichtigere bin, weiß ich nicht.", "Jaja, das ist mein Herrchen. Er füllt mir den Napf… aber Frauchen füllt ihn voller."],
       register: ["Ja, ich weiß. Noch ein Konto. Aber wenigstens schick ich dir keine 48 E-Mails am Tag."]
     },
+    building: [
+      "Hier wird noch geschuftet! Die Seite ist im Aufbau – jeden Tag kann es etwas Neues geben. Ich bin die Dauerausstellung.",
+      "Pssst… die Seite wird noch gebaut. Was heute fehlt, kann morgen da sein. Außer Disziplin. Die kommt nie.",
+      "Hinweis: Baustelle in vollem Gange. Jeden Tag ändert sich was – schau also wieder vorbei. Ich bin hier der Bauleiter. Vor allem fürs Schlafen."
+    ],
     tips: ["Kommentare: Schreib was Kluges. Und falls sich jemand danebenbenimmt, hat der Admin einen Löschknopf."],
     auth: { welcome: ["Konto erstellt. Jetzt gehörst du offiziell zu uns."] },
     heart: { on: ["Endlich jemand mit Geschmack."], off: ["…"] },
@@ -2197,6 +2212,11 @@ window.KEVIN_LINES = {
       about: ["Чому це пише Радек, коли тут очевидно важливіший я, не знаю.", "Ага, це мій хазяїн. Насипає мені миску… але хазяйка насипає повнішу."],
       register: ["Так, знаю. Ще один акаунт. Зате я не надсилатиму тобі 48 листів на день."]
     },
+    building: [
+      "Тут досі кипить робота! Сайт ще будується, тож щодня тут може з'явитися щось нове. А я — постійна експозиція.",
+      "Пссс… сайт ще будується. Чого немає сьогодні, може з'явитися завтра. Крім дисципліни. Її не буде ніколи.",
+      "Увага: будівництво в розпалі. Щодня якісь зміни — тож повертайся. Я тут виконроб. Переважно по сну."
+    ],
     tips: ["Коментарі: напиши щось розумне. А якщо хтось бешкетуватиме, в адміна є кнопка Видалити."],
     auth: { welcome: ["Акаунт створено. Тепер ти офіційно з нами."] },
     heart: { on: ["Нарешті хтось зі смаком."], off: ["…"] },
@@ -2222,6 +2242,11 @@ window.KEVIN_LINES = {
       about: ["Sao Radek lại viết cái này trong khi rõ ràng tôi mới là người quan trọng, tôi không hiểu.", "Ừ, đó là chủ của tôi. Anh ấy đổ đầy bát cho tôi… nhưng bà chủ đổ đầy hơn."],
       register: ["Ừ, biết rồi. Thêm một tài khoản. Nhưng ít ra tôi không gửi bạn 48 email mỗi ngày."]
     },
+    building: [
+      "Ở đây vẫn đang làm việc hết công suất! Trang web vẫn đang xây dựng, nên mỗi ngày có thể có điều gì đó mới. Còn tôi là triển lãm cố định.",
+      "Suỵt… trang web vẫn đang xây. Hôm nay chưa có thì mai có thể có. Trừ kỷ luật. Cái đó thì không bao giờ.",
+      "Thông báo: công trường đang thi công. Ngày nào cũng có thay đổi, nên hãy quay lại nhé. Tôi là chỉ huy công trường. Chủ yếu là chỉ huy giấc ngủ."
+    ],
     tips: ["Bình luận: viết gì đó thông minh nhé. Ai quậy thì admin có nút Xóa."],
     auth: { welcome: ["Đã tạo tài khoản. Giờ bạn chính thức là người nhà rồi."] },
     heart: { on: ["Cuối cùng cũng có người có gu."], off: ["…"] },

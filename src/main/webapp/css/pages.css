@@ -1830,3 +1830,30 @@ body.light .k-poster:hover .k-ticket { background: #e6b730; color: #141414; }
 .lyric-premiere .hp-count i { margin-right: 6px; font-style: normal; font-size: var(--fs-small); color: var(--text-dim); }
 .lyric-premiere .lp-out, .lyric-premiere.is-out .hp-count { display: none; }
 .lyric-premiere.is-out .lp-out { display: inline; color: var(--accent); font-family: var(--font-body); }
+
+/* Můj účet → Kevin Pong: nejlepší časy (3 dlaždice) a odznaky (získané zlaté, ostatní šedé se zámkem) */
+.pong-best { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.pong-best-item {
+  display: grid; justify-items: center; gap: 4px; padding: 12px 6px; text-align: center;
+  border-radius: 14px; border: 1px solid var(--panel-border); background: var(--panel);
+}
+.pong-best-item.on { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+.pong-best-level { font-size: var(--fs-small); color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em; }
+.pong-best-item b { font-size: var(--fs-h3); color: var(--accent); font-family: var(--font-text); font-weight: 600; }
+.pong-best-item .acct-dim { font-family: var(--font-text); font-size: var(--fs-small); }
+.pong-badges { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.pong-badges li {
+  display: grid; justify-items: center; align-content: start; gap: 6px; padding: 14px 8px; text-align: center;
+  border-radius: 14px; border: 1px solid var(--panel-border); background: var(--panel); opacity: .62;
+}
+.pong-badges li.on { opacity: 1; border-color: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 0 18px -8px var(--accent); }
+.pong-badge-icon {
+  display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%;
+  background: color-mix(in srgb, var(--text) 10%, transparent); color: var(--text-dim); font-size: 1.35rem;
+}
+.pong-badges li.on .pong-badge-icon { background: radial-gradient(circle at 35% 30%, #ffe58a, #c99a12 60%, #8f6600); color: #1a1405; }
+.pong-badges b { font-size: var(--fs-card); }
+.pong-badges span:not(.pong-badge-icon) { font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); line-height: 1.3; }
+.pong-play-row { margin: 16px 0 0; text-align: center; }
+.pong-play-row .btn-primary { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 24px; border-radius: 999px; text-decoration: none; }
+@media (max-width: 480px) { .pong-best { grid-template-columns: 1fr; } }

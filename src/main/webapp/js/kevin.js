@@ -166,6 +166,7 @@
     if (!go) return;
     hideBubble('point');
     if (go === 'menu:play') return play();
+    if (go === 'menu:news') return news(true);
     if (go === 'login') go = document.querySelector('form.logout-form') ? '/texty.jsp' : '/login.jsp';
     if (go.indexOf('btn:') === 0) return highlight(document.querySelector(go.slice(4)));
     if (go.charAt(0) !== '/') return highlight(document.querySelector(go));
@@ -722,6 +723,23 @@
 
   // 2) what's new since the last visit (the visit before this browser session)
   // asked = from his menu; otherwise he says it himself when the visitor is back after a while
+  // Web je ve výstavbě: dokud ho nevyhlásíme za hotový (UNDER_CONSTRUCTION = false), Kevin to řekne každému
+  // jednou za návštěvu – i tomu, kdo ho zavřel (jako tip); klik na bublinu = Co je nového. Když zrovna nejde
+  // mluvit (bublina, odstup mezi hláškami), zkusí to znovu za 5 s.
+  var UNDER_CONSTRUCTION = true;
+  function buildingNotice() {
+    if (!UNDER_CONSTRUCTION || !L.building || session.get('kevinBuilding')) return;
+    var tries = 0;
+    (function attempt() {
+      if (session.get('kevinBuilding') || ++tries > 12) return;
+      var before = autoCount;
+      if (bubble.hidden && !busy) lastAuto = 0;      // výjimka z odstupu 40 s mezi hláškami
+      auto(pick(L.building), 'point', 0.9, true, 'menu:news');
+      if (autoCount > before) session.set('kevinBuilding', '1');
+      else setTimeout(attempt, 5000);
+    })();
+  }
+
   function news(asked, onEmpty) {
     var prev = session.get('kevinPrevVisit');
     if (!prev) { if (asked) show(pick(L.news.first), { pose: 'point', href: '/music.jsp', linkText: L.news.link }); return; }
@@ -1495,6 +1513,7 @@
       root.removeEventListener('animationend', done);
       root.classList.remove('kevin-in');
     });
+    if (!adminPage) setTimeout(buildingNotice, 9000);
     if (userHidden) { place(false); introPaw(); if (!adminPage) scheduleTip(); return; }   // pacička se vylíhne i tomu, kdo Kevina zavřel
     if (pocket()) { place(false); introPaw(); }   // in the paw until he has something to say (greet below)
     else ensureModel();          // a page without the header bar: he stands there from the start
