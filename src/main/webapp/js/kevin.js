@@ -167,6 +167,7 @@
     hideBubble('point');
     if (go === 'menu:play') return play();
     if (go === 'menu:news') return news(true);
+    if (go === 'menu:pong') return pong();
     if (go === 'login') go = document.querySelector('form.logout-form') ? '/texty.jsp' : '/login.jsp';
     if (go.indexOf('btn:') === 0) return highlight(document.querySelector(go.slice(4)));
     if (go.charAt(0) !== '/') return highlight(document.querySelector(go));
@@ -335,7 +336,10 @@
       if (!document.hidden && !asleep) {
         var tip = Math.random() < 0.6;
         var own = window.innerWidth <= 767 && L.mobile ? L.idle.concat(L.mobile) : L.idle;   // on a phone also his size joke
-        if (tip && L.tips) { var i = Math.floor(Math.random() * L.tips.length); auto(L.tips[i], 'point', 0.8, true, TIP_GO[i]); }
+        if (tip && L.pongInvite && !session.get('kevinInvite') && Math.random() < 0.25) {
+          session.set('kevinInvite', '1');
+          auto(pick(L.pongInvite), 'point', 0.8, true, 'menu:pong');
+        } else if (tip && L.tips) { var i = Math.floor(Math.random() * L.tips.length); auto(L.tips[i], 'point', 0.8, true, TIP_GO[i]); }
         else auto(pick(own), 'point', 0.8, false);
       }
       scheduleTip();
@@ -597,10 +601,10 @@
     hideBubble('idle');
     var go = function () { window.KevinPong.open({ version: version }); };
     if (window.KevinPong) return go();
-    var sc = document.createElement('script');
-    sc.src = '/js/kevin-pong.js' + (version ? '?' + version : '');
-    sc.onload = go;
-    document.head.appendChild(sc);
+    // nejdřív hlášky do hry (js/kevin-pong-lines.js), pak hra; když hlášky nejdou načíst, hraje se i tak
+    var v = version ? '?' + version : '';
+    var load = function (src, done) { var sc = document.createElement('script'); sc.src = src; sc.onload = done; sc.onerror = done; document.head.appendChild(sc); };
+    load('/js/kevin-pong-lines.js' + v, function () { load('/js/kevin-pong.js' + v, go); });
   }
 
   // 1) find a song by its name or a line of its lyrics
@@ -1667,6 +1671,9 @@
     } else if (d.walk) {
       // a walk now (also used by the tests); {walk: 'box'} = with the cardboard box
       if (!walking && wideMq.matches && !reduced) { boxNext = d.walk === 'box'; walkForce = d.walk; walk(); }   // 'drop', 'sit', 'run' = vynutit (testy, ukázky)
+    } else if (d.say) {
+      // hláška zvenku (hra: odchod uprostřed zápasu) – řekne ji, i když je v tlapce (zlatá tečka)
+      onOwn(d.say, { pose: 'point' }, true, 0.9);
     } else if (d.tip) {
       // another script wants a tip now (also used by the tests): he peeks out to say it
       lastAuto = 0;

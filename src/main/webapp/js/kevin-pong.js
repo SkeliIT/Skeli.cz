@@ -17,6 +17,9 @@
 // Pozadí hrací plochy (na skle hřiště, ztmavené, ať je vidět hopík a pálky): sklo stroje, nebo jeden ze 6 obrázků
 // (město, západ slunce, les, vesmír, polární záře, ganja údolí), výběr v menu hry (localStorage kevinPongBg);
 // obrázky žijí na plátně .kpong-bgfx (déšť, prach, světlušky, hvězdy s meteorem, sníh, pyl). Se „omezit pohyb“ jen obrázek.
+// Kevin komentuje hru hláškami z js/kevin-pong-lines.js (načte se se hrou) podle situace – série, mečbol, 9:9,
+// obrat, dlouhá výměna, rychlý hopík, odstřely, trest, nehybný hráč, odveta, rekord, vzácné hlášky; bez opakování
+// (balíček se zamíchá), s odstupem mezi hláškami, důležité chvíle přebijí. Chybí-li jazyk, mluví z kevin-lines.js.
 // Kevin dělá lidské chyby: míček „sleduje“ až od části hřiště, s každým odrazem od stěny a s rychlostí se víc splete.
 // Výhra přihlášeného hráče jde do tabulky pořadí (/api/pong: server měří čas od startu, pořadí = nejrychlejší
 // výhra). Nepřihlášenému se nejlepší čas uloží jen v prohlížeči. Texty: KEVIN_LINES[jazyk].pong (kevin-lines.js).
@@ -75,8 +78,7 @@
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
       '    </div>' +
       '  </div></div>' +
-      '  <div class="kpong-pad"><div class="kp-rail" aria-hidden="true"><i class="kp-knob"></i></div>' +
-      '    <button type="button" class="kpong-shot" aria-label="' + esc(T.shot || 'Odstřel') + '"><i class="fa-solid fa-bolt" aria-hidden="true"></i><span>' + esc(T.shot || 'Odstřel') + '</span></button></div>' +
+      '  <div class="kpong-pad"><button type="button" class="kpong-shot"><i class="fa-solid fa-bolt" aria-hidden="true"></i> ' + esc(T.shot || 'Odstřel') + '</button></div>' +
       '</div>' +
       '<div class="kpong-panel"></div><p class="sr-only kpong-live" aria-live="polite"></p>';   // úvod a konec: karta uprostřed obrazovky před strojem
     document.body.appendChild(root);
@@ -87,7 +89,7 @@
     var kevCanvas = root.querySelector('.kpong-kevin');
     var machine = root.querySelector('.kpong-machine'), frame = root.querySelector('.kpong-frame');
     var shotBtn = root.querySelector('.kpong-shot'), topBar = root.querySelector('.kpong-top');
-    var padEl = root.querySelector('.kpong-pad'), knob = root.querySelector('.kp-knob');
+    var padEl = root.querySelector('.kpong-pad');
     function winVars(w) { return '--wx:' + w[0] + ';--wy:' + w[1] + ';--ww:' + w[2] + ';--wh:' + w[3]; }
     function gear(g) {
       return '<img class="kpong-gear" src="/kevin/pong/kolo-' + g[0] + '.webp' + ver + '" alt="" style="--x:' + g[1] + ';--y:' + g[2] + ';--r:' + g[3] + '">';
@@ -101,7 +103,7 @@
       // skóre a křížek leží přes volné místo nad strojem (vedle Kevina), na výšku tedy nezabírají řádek
       var availH = innerHeight - 16 - (landscape ? 0 : (padEl.offsetHeight ? padEl.offsetHeight + 8 : 0));
       var all = { x0: 0, x1: FRAME_W, y0: -110, y1: FRAME_H };    // nad rámem místo pro Kevina
-      var cut = { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1218 };
+      var cut = { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1300 };
       var uAll = Math.min(availW / FRAME_W, availH / FRAME_H), uCut = Math.min(availW / (cut.x1 - cut.x0), availH / (cut.y1 - cut.y0));
       var v = uCut > uAll * 1.12 ? cut : all, u = v === cut ? uCut : uAll;
       machine.classList.toggle('cut', v === cut);
@@ -255,6 +257,30 @@
         setTimeout(function () { el.remove(); if (comics[side] === el) comics[side] = null; }, 260);
       }, ms);
     }
+    // ---------- Kevin komentátor ----------
+    var PL = (window.KEVIN_PONG_LINES || {})[lang] || {}, decks = {}, lastQuip = 0;
+    // hláška ke klíči: z banky bez opakování (zamíchaný balíček), jinak z náhradního seznamu
+    function line(key, fallback) {
+      var list = PL[key] && PL[key].length ? PL[key] : null;
+      if (!list) return fallback && fallback.length ? pick(fallback) : null;
+      var d = decks[key];
+      if (!d || !d.length) {
+        d = decks[key] = list.map(function (_, i) { return i; });
+        for (var i = d.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = d[i]; d[i] = d[j]; d[j] = x; }
+      }
+      return list[d.pop()];
+    }
+    // řekne hlášku, když zrovna nemluví (odstup 2,2 s); force = důležitá chvíle, přebije
+    function quip(key, chance, fallback, ms, force) {
+      var now = performance.now();
+      if (!force && now - lastQuip < 2200) return false;
+      if (chance < 1 && Math.random() > chance) return false;
+      var t = line(key, fallback);
+      if (!t) return false;
+      lastQuip = now;
+      say(t, ms || Math.min(4200, 1800 + t.length * 30));
+      return true;
+    }
     function showFlash(f) { comic('l', 'burst ' + f.kind, f.text, f.kind === 'super' ? 1700 : 1300); }
     function say(t, ms) {
       if (!t) return;
@@ -269,6 +295,8 @@
     var kevin = { x: W / 2, target: W / 2, nextThink: 0, moving: 0, miss: 0 };
     var ball = { x: W / 2, y: H / 2, vx: 0, vy: 0, speed: 0, trail: [], fire: false, mishit: false };
     var combo = 0, hitStop = 0, flash = null, awaitStart = false, pausedMs = 0;
+    var gamesPlayed = 0, streakP = 0, streakK = 0, maxDown = 0, comebackSaid = false, rally = 0, fastSaid = false;
+    var lastTarget = 0, lastMoveAt = 0, idleSaid = false;
     var coarse = window.matchMedia('(pointer: coarse)').matches;
     // komár: náhodná událost, přiletí zhruba v každém třetím zápase; ?komar=1 nebo #komar v adrese = vždy (na zkoušení)
     var MOSQUITO_CHANCE = /[?&]komar=1(&|$)/.test(location.search) || location.hash === '#komar' ? 1 : 0.35;
@@ -281,7 +309,7 @@
       var a = (Math.random() * 0.6 - 0.3);
       ball.vx = Math.sin(a) * ball.speed;
       ball.vy = (towardPlayer ? 1 : -1) * Math.cos(a) * ball.speed;
-      ball.fire = false; ball.mishit = false; player.boosted = false;
+      ball.fire = false; ball.mishit = false; ball.perfect = false; player.boosted = false; rally = 0; fastSaid = false;
       if (!towardPlayer) aimError();
       serveAt = awaitStart ? Infinity : performance.now() + 1200;   // chvilka na nádech; první podání čeká na hráče
     }
@@ -353,6 +381,10 @@
         if (navigator.vibrate) try { navigator.vibrate(kind === 'super' ? [30, 40, 60] : 35); } catch (e) { /* nevadí */ }
       }
       field.classList.remove('shot', 'shot-super'); void field.offsetWidth; field.classList.add(kind === 'super' ? 'shot-super' : 'shot');
+      ball.perfect = kind === 'perfect' || kind === 'super';
+      if (kind === 'super') quip('odstrel_super', 1, null, 0, true);
+      else if (kind === 'perfect') quip('odstrel_perfekt', 0.45);
+      else quip('odstrel_dobry', 0.25);
     }
 
     // pokažený odstřel: míček nezrychlí (ani o běžné zrychlení odrazu), naopak trochu zpomalí – ne pod 90 % základní
@@ -364,6 +396,7 @@
       ball.mishit = true; kevin.miss = 0;
       flash = { kind: 'miss', text: T.shots ? T.shots.miss : 'miss', at: now };
       showFlash(flash);
+      quip('odstrel_pokazeny', 0.35);
     }
 
     // Kevinův trest za pokažený odstřel: míří do rohu dál od hráče – rovně, nebo přes odraz od stěny, podle toho,
@@ -376,6 +409,7 @@
       var a = Math.abs(bank) <= 1.1 && Math.abs(bank) > Math.abs(direct) ? bank : clamp(direct, -1.1, 1.1);
       var sp = Math.min(L.max, ball.speed * 1.12);
       ball.speed = sp; ball.vx = Math.sin(a) * sp; ball.vy = Math.cos(a) * sp; ball.mishit = false;
+      quip('trest', 0.7, null, 0, true);
     }
 
     // ---------- komár: scénka ----------
@@ -435,11 +469,11 @@
         phase = how; paused = true; m.behind = false;
         if (K) { K.hold(null, 0.2); K.setSpeed(1); }
         if (how === 'hear') {
-          say(pick(M.hear), 1800);
+          say(line('komar_slysi', M.hear), 1800);
           if (K) { K.look(m.x < kx ? -1 : 1, -0.6); K.turn(m.x < kx ? -Math.PI / 2 : Math.PI / 2); }
-          setTimeout(function () { say(pick(M.pause), 1800); chase(0); }, 1300);
+          setTimeout(function () { say(line('komar_prilet', M.pause), 1800); chase(0); }, 1300);
         } else {
-          say(pick(M.pause), 1800);
+          say(line('komar_prilet', M.pause), 1800);
           setTimeout(function () { chase(0); }, 500);
         }
       }
@@ -471,10 +505,11 @@
           if (K) { K.turn(0); K.look(0, -1); }
           setTimeout(function () {
             var hit = n >= 2;
+            if (PL.komar_lov) say(line('komar_lov'), 900);
             move(kx, EDGE_Y, 640, 95, K && K.has('hangJump') ? 'hangJump' : null, function () {
               if (K && K.has('landSoft')) K.once('landSoft');
               if (hit) return caught();
-              say(pick(M.jump), 1200);
+              say(line('komar_vedle', M.jump), 1400);
               setTimeout(function () { chase(n + 1); }, 450);
             });
             setTimeout(function () {                                         // ve výskoku: uhne, nebo trefa
@@ -494,14 +529,14 @@
       }
       function caught() {
         if (K) { K.hold(null, 0.2); K.turn(0); K.look(0, 0); K.expression(2, 1600); }
-        say(pick(M.after), 2400);
+        say(line('komar_po', M.after), 2400);
         setTimeout(function () {
           move(KF.x, EDGE_Y, Math.max(250, Math.abs(KF.x - kx) / 260 * 1000), 0, K && K.has('run3') ? 'run3' : 'walk', function () {
             move(KF.x, KF.y, 420, 50, null, function () {                    // výskok zpátky na kolo
               if (K) { K.hold(null, 0.2); K.turn(0); }
               kevCanvas.style.transform = '';
               el.remove(); mosq.active = false; lastMove = null;
-              askToResume(pick(M.ask));
+              askToResume(line('pokracovat', M.ask));
             });
           });
         }, 1200);
@@ -515,6 +550,10 @@
       if (!running || paused) { draw(now); return; }
       // zastavení času po perfektním odstřelu: všechno stojí, jen se kreslí
       if (now < hitStop) { draw(now); return; }
+      // hráč se 10 s nehne (ne při čekání na start) a vzácná hláška zhruba jednou za minutu ticha
+      if (Math.abs(player.target - lastTarget) > 1) { lastTarget = player.target; lastMoveAt = now; idleSaid = false; }
+      if (!awaitStart && !idleSaid && now - lastMoveAt > 10000) { idleSaid = true; quip('nehybe_se', 1); }
+      if (!awaitStart && now - lastQuip > 9000 && Math.random() < dt / 60) quip('vzacne', 1);
       // komár: přiletí jednou za zápas, nejdřív po 6 s hry a jen když míček letí k hráči (Kevin má volno)
       if (!mosq.done && now - started > 6000 && now >= serveAt) mosquito();
       // odstřel naprázdno: pálka chvíli „ve vzduchu“ – pomalejší a kombo je pryč
@@ -551,7 +590,7 @@
         var py = PLAYER_Y - liftAt(now);
         if (ball.vy > 0 && ball.y + BALL_R >= py - PAD_H / 2 && ball.y < py + PAD_H && Math.abs(ball.x - player.x) <= PAD_W / 2 + BALL_R) {
           bounce(player.x, -1, py);
-          player.lastHit = now; player.boosted = false;
+          player.lastHit = now; player.boosted = false; rallyTick();
           if (!player.shotUsed) boost(Math.abs(now - player.shotAt - SHOT_IDEAL), now);
           else if (now < player.stunUntil + 200) mishit(now);      // pálka se po odstřelu naprázdno ještě nevzpamatovala
           else { combo = 0; aimError(); }
@@ -560,7 +599,9 @@
         if (ball.vy < 0 && ball.y - BALL_R <= KEVIN_Y + PAD_H / 2 && ball.y > KEVIN_Y - PAD_H && Math.abs(ball.x - kevin.x) <= PAD_W / 2 + BALL_R) {
           bounce(kevin.x, 1);
           ball.fire = false;
+          if (ball.perfect) { ball.perfect = false; quip('odstrel_chycen', 0.6); }
           if (ball.mishit) punish();
+          rallyTick();
         }
         if (ball.y > H + BALL_R * 2) goal(false);
         else if (ball.y < KEVIN_Y - 70) goal(true);
@@ -586,7 +627,20 @@
         if (byPlayer) { K.once(Math.random() < 0.5 && K.has('stomp') ? 'stomp' : 'no'); K.expression(23, 1600); }
         else { K.once(K.has('fistPump') && Math.random() < 0.5 ? 'fistPump' : 'cheer'); K.expression(2, 1600); }
       }
-      if (Math.random() < 0.6) say(pick(byPlayer ? T.conceded : T.scored), 2000);
+      // komentář ke gólu: nejdřív výjimečné chvíle, pak obyčejný gól (ne pokaždé)
+      if (byPlayer) { streakP++; streakK = 0; } else { streakK++; streakP = 0; }
+      maxDown = Math.max(maxDown, kev - you);
+      var diff = kev - you;
+      if (you === 9 && kev === 9) quip('9_9', 1, null, 0, true);
+      else if (kev === 9 && !byPlayer) quip('mecbol_kevin', 1, null, 0, true);
+      else if (you === 9 && byPlayer) quip('mecbol_hrac', 1, null, 0, true);
+      else if (byPlayer && maxDown >= 3 && you >= kev && !comebackSaid) { comebackSaid = true; quip('obrat', 1, null, 0, true); }
+      else if (streakK === 3) quip('serie_kevin', 1, null, 0, true);
+      else if (streakP === 3) quip('serie_hrac', 1, null, 0, true);
+      else if (diff === 3 && !byPlayer) quip('vede_kevin', 0.9);
+      else if (diff === -3 && byPlayer) quip('vede_hrac', 0.9);
+      else if (you === kev) quip('remiza', 0.6);
+      else quip(byPlayer ? 'gol_hrac' : 'gol_kevin', 0.55, byPlayer ? T.conceded : T.scored);
       resetBall(!byPlayer);
     }
 
@@ -698,15 +752,26 @@
       if (Math.abs(sp - lastSpeed) > 0.08) { lastSpeed = sp; K.setSpeed(sp); }
     }
 
+    // dlouhá výměna (10 odrazů bez gólu) a rychlý hopík – jednou za výměnu
+    function rallyTick() {
+      rally++;
+      if (rally === 10) quip('dlouha_vymena', 1);
+      else if (!fastSaid && ball.speed > L.max * 0.92) { fastSaid = true; quip('rychly_hopik', 0.5); }
+    }
     function finish(playerWon) {
       running = false;
       var ms = Math.round(performance.now() - started - pausedMs);
       if (K) { K.hold(null); if (playerWon) { K.once(K.has('defeat') ? 'defeat' : 'shrug'); K.expression(23, 3000); } else { K.hold(K.has('dance2') ? 'dance2' : 'cheer'); K.expression(2, 3000); } }
-      say(pick(playerWon ? T.won : T.lost), 4200);
+      var endKey = playerWon ? (level === 3 && !store.get('kevinPongBeat3') ? 'vyhra_hrac_3' : kev === 9 ? 'vyhra_hrac_tesne' : 'vyhra_hrac')
+        : (you === 0 ? 'vyhra_kevin_10_0' : 'vyhra_kevin');
+      if (playerWon && level === 3) store.set('kevinPongBeat3', '1');
+      quip(endKey, 1, playerWon ? T.won : T.lost, 4200, true);
       var bestKey = 'kevinPongBest' + level, best = +(store.get(bestKey) || 0);
       if (playerWon && (!best || ms < best)) store.set(bestKey, String(ms));
+      var newBest = playerWon && best && ms < best;               // nepřihlášený: rekord v prohlížeči
       var send = playerWon && signedIn ? post('/api/pong/win', { d: level, ms: ms, kevin: kev }) : Promise.resolve(null);
       send.then(function (res) {
+        if (newBest || (res && res.ok && res.best === ms)) setTimeout(function () { quip('rekord', 1, null, 3600, true); }, 4400);
         endScreen(playerWon, ms, res && res.ok ? res : null);
       }).catch(function () { endScreen(playerWon, ms, null); });
     }
@@ -782,13 +847,14 @@
       started = performance.now(); mosq.done = false;
       running = true; awaitStart = 'start';            // první hopík vyletí, až hráč ťukne / klikne / zmáčkne mezerník
       resetBall(Math.random() < 0.5);
-      say(pick(T.start), 1800);
+      streakP = streakK = maxDown = 0; comebackSaid = false; lastMoveAt = performance.now(); idleSaid = false;
+      quip(gamesPlayed > 0 ? 'odveta' : level === 3 ? 'start_3' : 'start', 1, T.start, 2800, true);
+      gamesPlayed++;
     }
 
     // ---------- kreslení hřiště ----------
     function draw(now) {
       mechTick(now); fxTick(now);
-      if (knob) knob.style.left = (player.x / W * 100).toFixed(2) + '%';
       var light = false;   // hřiště je tmavé sklo stroje i ve světlém režimu
       cx.clearRect(0, 0, W, H);
       rail(KEVIN_Y, kevin.x); rail(PLAYER_Y, player.x);
@@ -884,18 +950,14 @@
     machine.addEventListener('pointerup', onPointerEnd);
     machine.addEventListener('pointercancel', onPointerEnd);
     shotBtn.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); shoot(); });
-    // ovládací lišta pod strojem: prst na ní vede pálku (pálka i hopík zůstanou vidět)
-    padEl.addEventListener('pointerdown', touchOnly);
-    padEl.addEventListener('pointermove', touchOnly);
-    padEl.addEventListener('pointerup', onPointerEnd);
-    padEl.addEventListener('pointercancel', onPointerEnd);
+
     function onKey(e) {
       if (e.key === 'Escape') return setCard ? closeSettings() : close();
       if (setCard) return;                                         // v nastavení klávesy nehrají
       if (e.key === 'ArrowLeft' || e.key === 'a') { keys.left = e.type === 'keydown'; e.preventDefault(); }
       if (e.key === 'ArrowRight' || e.key === 'd') { keys.right = e.type === 'keydown'; e.preventDefault(); }
       if ((e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') && e.type === 'keydown' && running) { if (!e.repeat) shoot(); e.preventDefault(); }
-      if (e.key === 'p' && e.type === 'keydown' && running && !mosq.active && !setCard) { paused = !paused; e.preventDefault(); }
+      if (e.key === 'p' && e.type === 'keydown' && running && !mosq.active && !setCard) { paused = !paused; if (paused) quip('pauza', 1, null, 0, true); e.preventDefault(); }
     }
     document.addEventListener('keydown', onKey);
     document.addEventListener('keyup', onKey);
@@ -965,6 +1027,10 @@
     document.addEventListener('webkitfullscreenchange', onFull);
 
     function close() {
+      if (running && !awaitStart) {
+        var bye = line('odchod');
+        if (bye) setTimeout(function () { window.dispatchEvent(new CustomEvent('kevin', { detail: { say: bye } })); }, 600);
+      }
       cancelAnimationFrame(raf);
       document.removeEventListener('keydown', onKey); document.removeEventListener('keyup', onKey);
       document.removeEventListener('visibilitychange', onHidden);
