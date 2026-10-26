@@ -14,6 +14,9 @@
 // Hlášky a nápisy jdou z reproduktorů na bocích stroje jako z komiksu: nápisy odstřelu (PERFEKTNÍ ODSTŘEL…)
 // vyletí z levého jako zubatá „výbuchová“ bublina, Kevinovy hlášky z pravého jako mluvicí bublina. Kde je
 // vedle stroje volno (PC), letí ven ze stroje, jinak přes kraj stroje dovnitř.
+// Pozadí hry: tma nebo jeden ze 6 obrázků (město, západ slunce, les, vesmír, polární záře, ganja údolí), výběr
+// v menu hry (localStorage kevinPongBg); každé pozadí je živé – plátno .kpong-bgfx (déšť, prach, světlušky,
+// hvězdy s meteorem, sníh, pyl, ve tmě zlaté jiskry). Se „omezit pohyb“ jen obrázek.
 // Kevin dělá lidské chyby: míček „sleduje“ až od části hřiště, s každým odrazem od stěny a s rychlostí se víc splete.
 // Výhra přihlášeného hráče jde do tabulky pořadí (/api/pong: server měří čas od startu, pořadí = nejrychlejší
 // výhra). Nepřihlášenému se nejlepší čas uloží jen v prohlížeči. Texty: KEVIN_LINES[jazyk].pong (kevin-lines.js).
@@ -27,6 +30,7 @@
   var TOP_SLOT = 124, GEARS_KEVIN = [[1, 290.5, 122, 46], [2, 384, 118, 58], [3, 477.5, 122, 46]];
   // okénka s živou mechanikou [x, y, šířka, výška] – nahoře ji pohání Kevinův běh, dole hráčova pálka
   var WIN_TOP = [128, 191, 513, 79], WIN_BOT = [123, 1073, 523, 136];
+  var BGS = ['tma', 'mesto', 'zapad', 'les', 'vesmir', 'zare', 'ganja'];
   // watch = jakou část hřiště (od sebe) Kevin sleduje, err = chyba odhadu (díl šířky), bounceErr = o kolik víc
   // se splete za každý odraz od stěny; chyba se losuje jednou za let míčku (ne pořád dokola – to by se zprůměrovalo)
   var LEVELS = {
@@ -53,6 +57,7 @@
     root.setAttribute('aria-modal', 'true');
     root.setAttribute('aria-label', T.title);
     root.innerHTML =
+      '<div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       '<div class="kpong-box">' +
       '  <div class="kpong-top">' +
       '    <div class="kpong-score" aria-live="polite"><span class="kpong-who">' + esc(T.you) + '</span><b class="kpong-you">0</b><i>:</i><b class="kpong-kev">0</b><span class="kpong-who">Kevin</span></div>' +
@@ -97,6 +102,7 @@
       var cut = { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1218 };
       var uAll = Math.min(availW / FRAME_W, availH / FRAME_H), uCut = Math.min(availW / (cut.x1 - cut.x0), availH / (cut.y1 - cut.y0));
       var v = uCut > uAll * 1.12 ? cut : all, u = v === cut ? uCut : uAll;
+      machine.classList.toggle('cut', v === cut);
       machine.style.width = Math.floor((v.x1 - v.x0) * u) + 'px';
       machine.style.height = Math.floor((v.y1 - v.y0) * u) + 'px';
       frame.style.setProperty('--u', u);
@@ -121,6 +127,91 @@
         onReady: function () { kevCanvas.classList.add('on'); K.turn(0); }
       });
     }).catch(function () { /* hra jde i bez něj */ });
+
+    // ---------- pozadí a jeho život ----------
+    var bgEl = root.querySelector('.kpong-bg'), fx = root.querySelector('.kpong-bgfx'), fxc = fx.getContext('2d');
+    var bgName = store.get('kevinPongBg'), still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (BGS.indexOf(bgName) < 0) bgName = 'tma';
+    var parts = [], fxLast = 0, shoot0 = 0;
+    function setBg(name) {
+      bgName = name; store.set('kevinPongBg', name);
+      root.dataset.bg = name;
+      bgEl.style.backgroundImage = name === 'tma' ? '' : 'url(/kevin/pong/pozadi-' + name + '.webp' + ver + ')';
+      seedFx();
+    }
+    function fxSize() {
+      var dpr = Math.min(1.5, window.devicePixelRatio || 1);
+      fx.width = Math.round(innerWidth * dpr); fx.height = Math.round(innerHeight * dpr);
+      fxc.setTransform(dpr, 0, 0, dpr, 0, 0);
+      seedFx();
+    }
+    function rnd(a, b) { return a + Math.random() * (b - a); }
+    // částice podle pozadí: x, y, velikost, rychlost, fáze
+    function seedFx() {
+      var w = innerWidth, h = innerHeight, n = { tma: 26, mesto: 140, zapad: 46, les: 34, vesmir: 90, zare: 110, ganja: 60 }[bgName] || 0;
+      parts = [];
+      for (var i = 0; i < n; i++) parts.push({ x: rnd(0, w), y: rnd(0, h), s: rnd(0.6, 1.4), v: rnd(0.6, 1.4), p: rnd(0, 6.28) });
+    }
+    function fxTick(now) {
+      if (still) return;
+      var dt = fxLast ? Math.min(0.05, (now - fxLast) / 1000) : 0, w = innerWidth, h = innerHeight, t = now / 1000;
+      fxLast = now;
+      fxc.clearRect(0, 0, w, h);
+      parts.forEach(function (q) {
+        switch (bgName) {
+          case 'mesto':   // déšť šikmo
+            q.y += 820 * q.v * dt; q.x -= 140 * q.v * dt;
+            if (q.y > h) { q.y = -20; q.x = rnd(0, w + 120); }
+            fxc.strokeStyle = 'rgba(190,200,255,' + (0.18 * q.s) + ')'; fxc.lineWidth = q.s;
+            fxc.beginPath(); fxc.moveTo(q.x, q.y); fxc.lineTo(q.x + 3.4 * q.s, q.y - 20 * q.s); fxc.stroke();
+            break;
+          case 'zare':    // sníh s houpáním
+            q.y += 38 * q.v * dt; q.x += Math.sin(t * 0.9 + q.p) * 18 * dt;
+            if (q.y > h) { q.y = -6; q.x = rnd(0, w); }
+            dot(q.x, q.y, 1.6 * q.s, 'rgba(255,255,255,' + (0.55 * q.s) + ')');
+            break;
+          case 'les':     // světlušky: bloudí a pulzují
+            q.x += Math.sin(t * 0.5 * q.v + q.p) * 22 * dt; q.y += Math.cos(t * 0.4 * q.v + q.p * 2) * 18 * dt;
+            glow(q.x, q.y, 9 * q.s, 'rgba(210,255,120,', 0.25 + 0.55 * Math.max(0, Math.sin(t * 1.6 * q.v + q.p)));
+            break;
+          case 'vesmir':  // blikající hvězdy
+            dot(q.x, q.y, 1.1 * q.s, 'rgba(255,255,255,' + (0.25 + 0.6 * Math.abs(Math.sin(t * 1.3 * q.v + q.p))) + ')');
+            break;
+          case 'zapad':   // teplý prach stoupá
+          case 'tma':     // zlaté jiskry
+            q.y -= 16 * q.v * dt; q.x += Math.sin(t * 0.6 + q.p) * 8 * dt;
+            if (q.y < -10) { q.y = h + 10; q.x = rnd(0, w); }
+            glow(q.x, q.y, 4 * q.s, bgName === 'tma' ? 'rgba(255,200,80,' : 'rgba(255,190,120,', 0.35 + 0.35 * Math.sin(t * 2 * q.v + q.p));
+            break;
+          case 'ganja':   // pyl se vznáší do stran
+            q.x += (14 + 10 * Math.sin(t * 0.7 + q.p)) * q.v * dt; q.y += Math.sin(t * 1.1 + q.p) * 10 * dt;
+            if (q.x > w + 10) { q.x = -10; q.y = rnd(0, h); }
+            glow(q.x, q.y, 3.5 * q.s, 'rgba(255,245,170,', 0.45);
+            break;
+        }
+      });
+      // vesmír: občas meteor
+      if (bgName === 'vesmir') {
+        if (!shoot0 || now - shoot0 > 7000) shoot0 = now + rnd(0, 3000);
+        var k = (now - shoot0) / 900;
+        if (k > 0 && k < 1) {
+          var x0 = w * 0.85, y0 = h * 0.08, x1 = x0 - w * 0.45 * k, y1 = y0 + h * 0.3 * k;
+          var g = fxc.createLinearGradient(x1, y1, x1 + 120, y1 - 80);
+          g.addColorStop(0, 'rgba(255,255,255,' + (1 - k) + ')'); g.addColorStop(1, 'rgba(255,255,255,0)');
+          fxc.strokeStyle = g; fxc.lineWidth = 2; fxc.beginPath(); fxc.moveTo(x1, y1); fxc.lineTo(x1 + 120, y1 - 80); fxc.stroke();
+        }
+      }
+    }
+    function dot(x, y, r, c) { fxc.fillStyle = c; fxc.beginPath(); fxc.arc(x, y, r, 0, 7); fxc.fill(); }
+    function glow(x, y, r, c, a) {
+      if (a <= 0) return;
+      var g = fxc.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, c + a + ')'); g.addColorStop(1, c + '0)');
+      fxc.fillStyle = g; fxc.beginPath(); fxc.arc(x, y, r, 0, 7); fxc.fill();
+    }
+
+    fxSize(); addEventListener('resize', fxSize);
+    setBg(bgName);
 
     // ---------- komiksové bubliny z reproduktorů ----------
     // jedna bublina na reproduktor (nová nahradí starou); zubatý obrys výbuchu je pokaždé trochu jiný (ručně kreslený)
@@ -530,6 +621,11 @@
         }).join('') + '</div></section>' +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.play) + '</button>' +
         '<section class="kp-sec"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + '</section>' +
+        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.bgTitle || '') + '</h3><div class="kp-bgs" role="radiogroup" aria-label="' + esc(T.bgTitle || '') + '">' +
+        BGS.map(function (b, i) {
+          return '<button type="button" role="radio" class="kp-bgopt" data-bg="' + b + '" aria-checked="' + (b === bgName) + '" title="' + esc((T.bgs || BGS)[i]) + '" aria-label="' + esc((T.bgs || BGS)[i]) + '"' +
+            (b === 'tma' ? '' : ' style="background-image:url(/kevin/pong/pozadi-' + b + '-mini.webp' + ver + ')"') + '></button>';
+        }).join('') + '</div></section>' +
         '<section class="kp-sec kpong-board"></section>';
       panel.querySelectorAll('.kpong-level').forEach(function (b) {
         b.addEventListener('click', function () {
@@ -539,6 +635,12 @@
         });
       });
       panel.querySelector('.kpong-play').addEventListener('click', begin);
+      panel.querySelectorAll('.kp-bgopt').forEach(function (b) {
+        b.addEventListener('click', function () {
+          setBg(b.dataset.bg);
+          panel.querySelectorAll('.kp-bgopt').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
+        });
+      });
       board(level);
       say(pick(T.hello), 3000);
     }
@@ -592,7 +694,7 @@
 
     // ---------- kreslení hřiště ----------
     function draw(now) {
-      mechTick(now);
+      mechTick(now); fxTick(now);
       var light = false;   // hřiště je tmavé sklo stroje i ve světlém režimu
       cx.clearRect(0, 0, W, H);
       rail(KEVIN_Y, kevin.x); rail(PLAYER_Y, player.x);
@@ -706,7 +808,7 @@
       cancelAnimationFrame(raf);
       document.removeEventListener('keydown', onKey); document.removeEventListener('keyup', onKey);
       document.removeEventListener('visibilitychange', onHidden);
-      removeEventListener('resize', fit);
+      removeEventListener('resize', fit); removeEventListener('resize', fxSize);
       document.removeEventListener('fullscreenchange', onFull); document.removeEventListener('webkitfullscreenchange', onFull);
       if (isFull()) { var ex = (document.exitFullscreen || document.webkitExitFullscreen).call(document); if (ex && ex.catch) ex.catch(function () {}); }
       Object.keys(comicTimers).forEach(function (k) { clearTimeout(comicTimers[k]); });

@@ -1489,6 +1489,9 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
 @media (orientation: landscape) and (max-height: 500px) { .kpong .kpong-box { width: auto; } }
 .kpong-machine {
   position: relative; overflow: hidden; align-self: center; flex: none;
+}
+/* oříznutý stroj (telefon): okraje ořezu se rozplývají */
+.kpong-machine.cut {
   -webkit-mask: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(#000 93%, transparent);
   -webkit-mask-composite: source-in;
   mask: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(#000 93%, transparent);
@@ -1661,6 +1664,23 @@ body.light .kpong > .kpong-panel { background: linear-gradient(180deg, rgba(26, 
 .kpong-full[hidden] { display: none; }
 .kpong-full:hover, .kpong-full:focus-visible { border-color: var(--accent); color: var(--accent); }
 .kpong:fullscreen { background: #050403; }
+/* pozadí hry: obrázek přes celé okno, okraje ztmavené (stroj vynikne), nad ním plátno s životem scény */
+.kpong-bg, .kpong-bgfx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.kpong-bg { background: center / cover no-repeat; transition: background-image .4s; }
+.kpong-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(0, 0, 0, .1) 30%, rgba(0, 0, 0, .55) 100%); }
+.kpong[data-bg="tma"] .kpong-bg::after { display: none; }
+.kpong > .kpong-box { position: relative; z-index: 1; }
+.kpong > .kpong-panel { z-index: 5; }
+/* výběr pozadí v menu: kulaté náhledy, vybraný se zlatým kroužkem */
+.kp-bgs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.kp-bgopt {
+  width: 44px; height: 44px; border-radius: 50%; padding: 0; cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, .18); background: #050403 center / cover no-repeat;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .4);
+}
+.kp-bgopt[data-bg="tma"] { background: radial-gradient(circle, rgba(230, 183, 48, .45), #050403 70%); }
+.kp-bgopt[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .3); }
+.kp-bgopt:hover, .kp-bgopt:focus-visible { border-color: var(--accent); }
 /* skóre písmem, kde nula nevypadá jako O */
 .kpong-score b { font-family: var(--font-text); font-weight: 600; }
 
