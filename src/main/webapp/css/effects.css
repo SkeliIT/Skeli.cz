@@ -1459,6 +1459,30 @@ body.light .kpong-panel { background: linear-gradient(180deg, transparent 0, rgb
 }
 /* během hry nic přes hřiště: Spotify, Kevin v rohu i chodící Kevin pryč */
 html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.kpong-open .kevin-walker { display: none !important; }
+/* odstřel: záblesk rámu hřiště (perfektní zlatý, super oranžový) */
+.kpong-field.shot { animation: kpong-shot .35s ease-out; }
+.kpong-field.shot-super { animation: kpong-shot-super .6s ease-out; }
+@keyframes kpong-shot { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 3px rgba(230, 183, 48, .9), inset 0 0 60px rgba(230, 183, 48, .25); } }
+@keyframes kpong-shot-super { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 4px rgba(255, 138, 30, .95), inset 0 0 90px rgba(255, 106, 0, .35); } }
+/* tlačítko odstřelu pod hřištěm – jen na dotykových displejích (myš kliká přímo, klávesnice mezerníkem) */
+.kpong-shot { display: none; }
+@media (pointer: coarse) {
+  .kpong-box { width: min(calc(100vw - 16px), calc((var(--kp-h) - 64px) * 2 / 3)); }
+  .kpong-field { max-height: calc(var(--kp-h) - 124px); }
+  .kpong-shot {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    min-height: 56px; border-radius: 18px; border: 1px solid var(--accent);
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #8a6400));
+    color: var(--accent-ink); font-family: var(--font-display); font-size: var(--fs-h4);
+    touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  .kpong-shot:active { transform: scale(.97); filter: brightness(1.15); }
+}
+@media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
+  .kpong-box { width: auto; }
+  .kpong-field { max-height: none; }
+  .kpong-shot { min-height: 0; width: 72px; flex-direction: column; font-size: var(--fs-small); }
+}
 /* skóre písmem, kde nula nevypadá jako O */
 .kpong-score b { font-family: var(--font-text); font-weight: 600; }
 
