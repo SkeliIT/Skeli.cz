@@ -265,7 +265,8 @@
     var kevin = { x: W / 2, target: W / 2, nextThink: 0, moving: 0, miss: 0 };
     var ball = { x: W / 2, y: H / 2, vx: 0, vy: 0, speed: 0, trail: [], fire: false, mishit: false };
     var combo = 0, hitStop = 0, flash = null;
-    var MOSQUITO_CHANCE = 1;   // ZKOUŠKA: komár přiletí v každém zápase; potom z toho bude náhodná událost (např. 0.3)
+    // komár: náhodná událost, přiletí zhruba v každém třetím zápase; ?komar=1 v adrese = vždy (na zkoušení)
+    var MOSQUITO_CHANCE = /[?&]komar=1(&|$)/.test(location.search) ? 1 : 0.35;
     var mosq = { done: false, active: false };
     var keys = { left: false, right: false }, raf = 0, last = 0, signedIn = false, csrf = null;
 
