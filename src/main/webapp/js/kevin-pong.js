@@ -22,8 +22,10 @@
   var PLAYER_Y = H - 46, KEVIN_Y = 60;               // pálky (logické souřadnice hřiště)
   // rám: rozměr obrázku, sklo hřiště v něm a kola [obrázek, x, y, poloměr] (vše v pixelech obrázku)
   var FRAME_W = 768, FRAME_H = 1376, GLASS = { x: 138, y: 316, w: 492, h: 741 };
-  var GEARS_KEVIN = [[1, 305.5, 232, 42], [2, 384, 212, 48], [3, 462.5, 232, 42]];
-  var GEARS_YOU = [[3, 283, 1141, 56], [2, 384, 1141, 56], [1, 485, 1141, 56]];
+  // Kevinova kola koukají shora ze stroje: spodek je uvnitř (ořízne ho štěrbina v horní hraně rámu, y = TOP_SLOT)
+  var TOP_SLOT = 124, GEARS_KEVIN = [[1, 290.5, 122, 46], [2, 384, 118, 58], [3, 477.5, 122, 46]];
+  // okénka s živou mechanikou [x, y, šířka, výška] – nahoře ji pohání Kevinův běh, dole hráčova pálka
+  var WIN_TOP = [128, 191, 513, 79], WIN_BOT = [123, 1073, 523, 136];
   // watch = jakou část hřiště (od sebe) Kevin sleduje, err = chyba odhadu (díl šířky), bounceErr = o kolik víc
   // se splete za každý odraz od stěny; chyba se losuje jednou za let míčku (ne pořád dokola – to by se zprůměrovalo)
   var LEVELS = {
@@ -59,8 +61,10 @@
       '    <button type="button" class="kpong-close" aria-label="' + esc(T.close) + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
       '  </div>' +
       '  <div class="kpong-machine"><div class="kpong-frame">' +
+      '    <canvas class="kpong-mech" data-win="top" style="' + winVars(WIN_TOP) + '" aria-hidden="true"></canvas>' +
+      '    <canvas class="kpong-mech" data-win="bot" style="' + winVars(WIN_BOT) + '" aria-hidden="true"></canvas>' +
       '    <div class="kpong-gears" data-set="kevin">' + GEARS_KEVIN.map(gear).join('') + '</div>' +
-      '    <div class="kpong-gears" data-set="you">' + GEARS_YOU.map(gear).join('') + '</div>' +
+      '    <i class="kpong-slot" aria-hidden="true"></i>' +
       '    <canvas class="kpong-kevin" aria-hidden="true"></canvas>' +
       '    <div class="kpong-field">' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
@@ -77,6 +81,7 @@
     var kevCanvas = root.querySelector('.kpong-kevin');
     var machine = root.querySelector('.kpong-machine'), frame = root.querySelector('.kpong-frame');
     var shotBtn = root.querySelector('.kpong-shot'), topBar = root.querySelector('.kpong-top');
+    function winVars(w) { return '--wx:' + w[0] + ';--wy:' + w[1] + ';--ww:' + w[2] + ';--wh:' + w[3]; }
     function gear(g) {
       return '<img class="kpong-gear" src="/kevin/pong/kolo-' + g[0] + '.webp' + ver + '" alt="" style="--x:' + g[1] + ';--y:' + g[2] + ';--r:' + g[3] + '">';
     }
@@ -87,8 +92,8 @@
       var landscape = innerWidth > innerHeight && innerHeight < 500;
       var availW = innerWidth - 16 - (landscape ? topBar.offsetWidth + shotBtn.offsetWidth + 24 : 0);
       var availH = innerHeight - 16 - (landscape ? 0 : topBar.offsetHeight + 8 + (shotBtn.offsetHeight ? shotBtn.offsetHeight + 8 : 0));
-      var all = { x0: 0, x1: FRAME_W, y0: 0, y1: FRAME_H };
-      var cut = { x0: GLASS.x - 44, x1: GLASS.x + GLASS.w + 44, y0: 0, y1: landscape ? 1070 : 1236 };
+      var all = { x0: 0, x1: FRAME_W, y0: -110, y1: FRAME_H };    // nad rámem místo pro Kevina
+      var cut = { x0: GLASS.x - 44, x1: GLASS.x + GLASS.w + 44, y0: -110, y1: landscape ? 1070 : 1236 };
       var uAll = Math.min(availW / FRAME_W, availH / FRAME_H), uCut = Math.min(availW / (cut.x1 - cut.x0), availH / (cut.y1 - cut.y0));
       var v = uCut > uAll * 1.12 ? cut : all, u = v === cut ? uCut : uAll;
       machine.style.width = Math.floor((v.x1 - v.x0) * u) + 'px';
@@ -96,7 +101,13 @@
       frame.style.setProperty('--u', u);
       frame.style.left = -v.x0 * u + 'px';
       frame.style.top = -v.y0 * u + 'px';
+      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      mechEls.forEach(function (c) {
+        var w = c.dataset.win === 'top' ? WIN_TOP : WIN_BOT;
+        c.width = Math.round(w[2] * u * dpr); c.height = Math.round(w[3] * u * dpr);
+      });
     }
+    var mechEls = [].slice.call(root.querySelectorAll('.kpong-mech'));
     fit();
     addEventListener('resize', fit);
 
@@ -359,11 +370,84 @@
     // Nahoře Kevin běží po vrcholu prostředního kola – běží doprava, vrch kola ujíždí doleva (kolo proti směru
     // hodinek), krajní kola se točí opačně. Dole prostřední kolo hráče jede jako kolo vozíku, krajní opačně.
     // Krajní kola mají posunutý začátek o půl zubu, ať zuby zapadají do mezer.
-    var gearSets = ['kevin', 'you'].map(function (set) {
+    var gearSets = ['kevin'].map(function (set) {
       return [].slice.call(root.querySelectorAll('[data-set="' + set + '"] .kpong-gear')).map(function (el, i) {
         return { el: el, r: +el.style.getPropertyValue('--r'), a: i === 1 ? 0 : 7, sign: (i === 1 ? 1 : -1) * (set === 'kevin' ? -1 : 1) };
       });
     });
+
+    // ---------- živá mechanika v okénkách (kreslí se na plátno, v pixelech obrázku rámu) ----------
+    // vpředu řetěz kol (sousední zapadají: vzdálenost středů = 0,9 × součet poloměrů, točí se opačně a o půl
+    // zubu posunutá), vzadu větší kola ztmavená do hloubky, vpravo píst s klikou, přes to sklo. Rychlost =
+    // obvodová rychlost v px/s: nahoře podle Kevinova běhu, dole podle hráčovy pálky, v klidu stroj pomalu tiká.
+    var gearImg = [1, 2, 3].map(function (i) { var im = new Image(); im.src = '/kevin/pong/kolo-' + i + '.webp' + ver; return im; });
+    function chain(win, sizes, yA, yB, x0, xEnd) {
+      var out = [], prev = null;
+      for (var i = 0; ; i++) {
+        var r = sizes[i % sizes.length], y = i % 2 ? yB : yA, x = x0;
+        if (prev) { var d = (prev.r + r) * 0.9, dy = y - prev.y; x = prev.x + Math.sqrt(Math.max(0, d * d - dy * dy)); }
+        if (x > xEnd) break;
+        prev = { img: i % 3, x: x, y: y, r: r, sign: i % 2 ? -1 : 1, a: (i % 2) * Math.PI / 26 };
+        out.push(prev);
+      }
+      return out;
+    }
+    var MECH = {
+      top: { win: WIN_TOP, front: chain(WIN_TOP, [30, 40, 24, 40], 224, 238, 150, 540),
+        back: [{ img: 1, x: 210, y: 268, r: 62, sign: -1, a: 0 }, { img: 0, x: 395, y: 274, r: 72, sign: 1, a: 0 }, { img: 2, x: 590, y: 266, r: 60, sign: -1, a: 0 }],
+        v: 0, dir: 1 },
+      bot: { win: WIN_BOT, front: chain(WIN_BOT, [42, 56, 32, 56], 1130, 1150, 160, 545),
+        back: [{ img: 2, x: 190, y: 1102, r: 80, sign: 1, a: 0 }, { img: 0, x: 420, y: 1096, r: 92, sign: -1, a: 0 }, { img: 1, x: 640, y: 1108, r: 80, sign: 1, a: 0 }],
+        v: 0, dir: 1 }
+    };
+    var mechWant = { top: 0, bot: 0 }, mechLast = 0;
+    function mechTick(now) {
+      var dt = mechLast ? Math.min(0.05, (now - mechLast) / 1000) : 0;
+      mechLast = now;
+      mechEls.forEach(function (c) {
+        var m = MECH[c.dataset.win], want = running && !paused ? mechWant[c.dataset.win] : 0;
+        if (Math.abs(want) > 1) m.dir = want > 0 ? 1 : -1;
+        var target = Math.abs(want) + 9;                     // 9 px/s = klidné tikání
+        m.v += (target - m.v) * Math.min(1, dt * 5);
+        var step = m.v * dt * m.dir;
+        m.front.forEach(function (g) { g.a += g.sign * step / g.r; });
+        m.back.forEach(function (g) { g.a += g.sign * step * 0.45 / g.r; });
+        drawMech(m, c);
+      });
+    }
+    function drawMech(m, c) {
+      var g2 = c.getContext('2d'), w = m.win, s = c.width / w[2];
+      g2.setTransform(s, 0, 0, s, -w[0] * s, -w[1] * s);
+      var bg = g2.createLinearGradient(0, w[1], 0, w[1] + w[3]);
+      bg.addColorStop(0, '#060508'); bg.addColorStop(1, '#141218');
+      g2.fillStyle = bg; g2.fillRect(w[0], w[1], w[2], w[3]);
+      function draw1(g) {
+        var im = gearImg[g.img];
+        if (!im.naturalWidth) return;
+        g2.save(); g2.translate(g.x, g.y); g2.rotate(g.a); g2.drawImage(im, -g.r, -g.r, 2 * g.r, 2 * g.r); g2.restore();
+      }
+      m.back.forEach(draw1);
+      g2.fillStyle = 'rgba(5, 4, 7, .62)';                     // zadní vrstva ztmavená = hloubka
+      g2.fillRect(w[0], w[1], w[2], w[3]);
+      // píst: klika na posledním kole řetězu, ojnice k pístu ve válci vpravo
+      var k = m.front[m.front.length - 1], ang = k.a * k.sign, pin = [k.x + Math.cos(ang) * k.r * 0.5, k.y + Math.sin(ang) * k.r * 0.5];
+      var L = k.r * 1.9, cyl = k.y, px = pin[0] + Math.sqrt(Math.max(0, L * L - (cyl - pin[1]) * (cyl - pin[1])));
+      var cylX = k.x + k.r * 0.5 + L + 6;
+      g2.fillStyle = '#0f0e12'; g2.strokeStyle = 'rgba(230,183,48,.55)'; g2.lineWidth = 2;
+      g2.beginPath(); g2.rect(cylX - 34, cyl - 9, 46, 18); g2.fill(); g2.stroke();
+      m.front.forEach(draw1);
+      var rod = g2.createLinearGradient(pin[0], pin[1] - 3, pin[0], pin[1] + 3);
+      rod.addColorStop(0, '#f3d27a'); rod.addColorStop(1, '#8f6600');
+      g2.strokeStyle = rod; g2.lineWidth = 5; g2.lineCap = 'round';
+      g2.beginPath(); g2.moveTo(pin[0], pin[1]); g2.lineTo(px, cyl); g2.stroke();
+      g2.fillStyle = '#c99a12'; g2.beginPath(); g2.arc(pin[0], pin[1], 4, 0, 7); g2.fill();
+      g2.fillStyle = '#e6b730'; g2.fillRect(px - 2, cyl - 7, 14, 14);
+      // sklo: odlesk nahoře a stín u okrajů
+      var gl = g2.createLinearGradient(0, w[1], 0, w[1] + w[3]);
+      gl.addColorStop(0, 'rgba(255,255,255,.10)'); gl.addColorStop(0.35, 'rgba(255,255,255,0)'); gl.addColorStop(1, 'rgba(0,0,0,.35)');
+      g2.fillStyle = gl; g2.fillRect(w[0], w[1], w[2], w[3]);
+      g2.strokeStyle = 'rgba(0,0,0,.7)'; g2.lineWidth = 6; g2.strokeRect(w[0], w[1], w[2], w[3]);
+    }
     var prevKX = W / 2, prevPX = W / 2, lastMove = 0, lastSpeed = 1;
     function spin(list, dx) {
       if (!dx) return;
@@ -377,7 +461,9 @@
     function animateKevin(dt) {
       var dxK = kevin.x - prevKX, dxP = player.x - prevPX;
       prevKX = kevin.x; prevPX = player.x;
-      spin(gearSets[0], dxK); spin(gearSets[1], dxP);
+      spin(gearSets[0], dxK);
+      mechWant.top = dxK / (dt || 0.016) * GLASS.w / W;
+      mechWant.bot = dxP / (dt || 0.016) * GLASS.w / W;
       if (!K) return;
       if (kevin.moving !== lastMove) {
         lastMove = kevin.moving;
@@ -478,6 +564,7 @@
 
     // ---------- kreslení hřiště ----------
     function draw(now) {
+      mechTick(now);
       var light = false;   // hřiště je tmavé sklo stroje i ve světlém režimu
       cx.clearRect(0, 0, W, H);
       rail(KEVIN_Y, kevin.x); rail(PLAYER_Y, player.x);
