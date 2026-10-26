@@ -1483,6 +1483,54 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
   .kpong-field { max-height: none; }
   .kpong-shot { min-height: 0; width: 72px; flex-direction: column; font-size: var(--fs-small); }
 }
+/* ---------- stroj: rám z obrázku, sklo hřiště, ozubená kola, Kevin na prostředním kole ----------
+   všechno v pixelech obrázku rámu krát --u (nastavuje kevin-pong.js fit()); okraje stroje se rozplývají do tmy */
+.kpong .kpong-box { width: auto; align-items: stretch; }
+.kpong-machine {
+  position: relative; overflow: hidden; align-self: center; flex: none;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(#000 93%, transparent);
+  -webkit-mask-composite: source-in;
+  mask: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent), linear-gradient(#000 93%, transparent);
+  mask-composite: intersect;
+}
+.kpong-frame {
+  --u: .6;
+  position: absolute; left: 0; top: 0;
+  width: calc(768px * var(--u)); height: calc(1376px * var(--u));
+  background: url(/kevin/pong/ram.webp) 0 0 / 100% 100% no-repeat;
+}
+.kpong-gear {
+  position: absolute;
+  left: calc((var(--x) - var(--r)) * var(--u) * 1px); top: calc((var(--y) - var(--r)) * var(--u) * 1px);
+  width: calc(var(--r) * var(--u) * 2px); height: auto;
+  filter: drop-shadow(0 calc(var(--u) * 4px) calc(var(--u) * 5px) rgba(0, 0, 0, .7));
+  pointer-events: none; user-select: none; will-change: transform;
+}
+.kpong-machine .kpong-kevin {
+  left: calc(294px * var(--u)); top: calc(2px * var(--u)); width: calc(180px * var(--u));
+  transform: none; z-index: 2;
+}
+.kpong-machine .kpong-field {
+  position: absolute; left: calc(138px * var(--u)); top: calc(316px * var(--u));
+  width: calc(492px * var(--u)); height: calc(741px * var(--u));
+  aspect-ratio: auto; max-height: none; border: 0; border-radius: calc(14px * var(--u));
+  background: none; box-shadow: none;
+}
+body.light .kpong-machine .kpong-field { background: none; }
+.kpong-machine .kpong-say { top: 6%; }
+.kpong-machine .kpong-panel { padding-top: 10%; }
+/* komár: malý (Kevin je pořád větší), 3 snímky křídel dokola tam a zpět; při trefě omráčený */
+.kpong-mosq {
+  position: absolute; z-index: 3; pointer-events: none;
+  left: calc(var(--mx, -50) * var(--u) * 1px); top: calc(var(--my, 80) * var(--u) * 1px);
+  width: calc(40px * var(--u)); aspect-ratio: 110 / 150;
+  transform: translate(-50%, -50%);
+  background: url(/kevin/pong/komar.webp) 0 0 / 300% 100% no-repeat;
+  animation: kpong-buzz .09s steps(3, jump-none) infinite alternate;
+}
+.kpong-mosq.left { scale: -1 1; }
+.kpong-mosq.hit { width: calc(62px * var(--u)); aspect-ratio: 297 / 170; background: url(/kevin/pong/komar-omraceny.webp) center / contain no-repeat; animation: none; }
+@keyframes kpong-buzz { from { background-position: 0 0; } to { background-position: 100% 0; } }
 /* skóre písmem, kde nula nevypadá jako O */
 .kpong-score b { font-family: var(--font-text); font-weight: 600; }
 
