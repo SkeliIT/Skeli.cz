@@ -1590,9 +1590,9 @@ body.light .kpong > .kpong-panel { background: linear-gradient(180deg, rgba(26, 
 .kpong-mosq.behind { z-index: 1; width: calc(30px * var(--u)); filter: brightness(.55); }
 .kpong-mosq.hit { width: calc(62px * var(--u)); aspect-ratio: 297 / 170; background: url(/kevin/pong/komar-omraceny.webp) center / contain no-repeat; animation: none; }
 @keyframes kpong-buzz { from { background-position: 0 0; } to { background-position: 100% 0; } }
-/* reproduktory na bocích stroje (pulzují, když z nich jde bublina) */
+/* místa na bocích stroje, odkud vyletují bubliny (reproduktory se tam nehodily – jsou neviditelné, drží jen polohu) */
 .kpong-spk {
-  position: absolute; z-index: 2; pointer-events: none;
+  position: absolute; z-index: 2; pointer-events: none; visibility: hidden;
   top: calc(402px * var(--u)); width: calc(58px * var(--u)); aspect-ratio: 1; border-radius: 50%;
   border: calc(4px * var(--u)) solid #b8860b;
   background: radial-gradient(circle, #000 1.2px, transparent 1.5px) 0 0 / 5px 5px,
@@ -1658,13 +1658,30 @@ body.light .kpong > .kpong-panel { background: linear-gradient(180deg, rgba(26, 
   .kpong .kpong-score { display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .kpong .kpong-kev { margin-left: 0; }
 }
-/* celá obrazovka: kulaté tlačítko vlevo nahoře (vpravo je křížek); v celé obrazovce hra na černém */
-.kpong-full {
+/* ⚙ nastavení: kulaté tlačítko vlevo nahoře (vpravo je křížek) */
+.kpong-set {
   order: -1; flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--panel-border);
-  background: var(--panel); color: var(--text); font-size: 1rem;
+  background: var(--panel); color: var(--text); font-size: 1.05rem;
 }
-.kpong-full[hidden] { display: none; }
-.kpong-full:hover, .kpong-full:focus-visible { border-color: var(--accent); color: var(--accent); }
+.kpong-set:hover, .kpong-set:focus-visible, .kpong-set[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+/* karta nastavení: nahoře, menší – pod ní je vidět hrací plocha s vybraným pozadím */
+.kpong-settings {
+  position: absolute; z-index: 6; left: 50%; top: 64px; transform: translateX(-50%);
+  width: min(360px, calc(100vw - 24px)); max-height: calc(100dvh - 80px); overflow-y: auto;
+  display: flex; flex-direction: column; gap: 12px; padding: 16px 16px 14px;
+  border-radius: 20px; border: 1px solid rgba(230, 183, 48, .45);
+  background: linear-gradient(180deg, rgba(26, 24, 22, .95), rgba(12, 11, 10, .96));
+  box-shadow: 0 24px 60px -18px rgba(0, 0, 0, .9), 0 0 36px -12px rgba(230, 183, 48, .35);
+  animation: kp-pop .3s cubic-bezier(.2, 1.4, .4, 1) both; transform-origin: 50% 0;
+}
+.kpong-settings .kpong-title { margin: 0; text-align: center; font-size: var(--fs-h3); }
+.kp-bgname { margin: 0; text-align: center; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
+.kp-fullbtn {
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: 12px;
+  border: 1px solid var(--panel-border); background: rgba(255, 255, 255, .05); color: var(--text); font: inherit; font-size: var(--fs-card);
+}
+.kp-fullbtn:hover, .kp-fullbtn:focus-visible { border-color: var(--accent); color: var(--accent); }
+.kpong-settings .kpong-play { align-self: center; min-width: 60%; }
 .kpong:fullscreen { background: #050403; }
 /* pozadí hrací plochy: obrázek na skle hřiště, ztmavený (hopík a pálky musí být vidět), přes něj odlesk skla;
    nad ním plátno s životem scény a nahoře hřiště (.kpong-court); „tma“ = jen sklo stroje */

@@ -2240,7 +2240,7 @@ window.KEVIN_LINES = {
 (function (KL) {
   var P = {
     cs: { menu: "Zahraj si se mnou", pong: {
-      title: "Kevin Pong", lead: "Pinkej s Kevinem. Kdo první dá 10 gólů, vyhrává.", you: "Ty", close: "Zavřít hru", fullscreen: "Celá obrazovka",
+      title: "Kevin Pong", lead: "Pinkej s Kevinem. Kdo první dá 10 gólů, vyhrává.", you: "Ty", close: "Zavřít hru", fullscreen: "Celá obrazovka", settings: "Nastavení", resume: "Pokračovat", done: "Hotovo",
       level: "Obtížnost", levels: ["Lehká", "Normální", "Kevin naštvaný"], levelHints: ["na rozehřátí", "fér souboj", "skoro nehratelné"],
       play: "Hrát", help: "Pálku ovládáš prstem, myší nebo šipkami. ODSTŘEL = klik, mezerník, tlačítko ⚡ nebo druhý prst – klikni, když je míček u pálky, a vystřelí rychleji. P = pauza, Esc = konec.",
       mosquito: { hear: ["Co to bzučí?", "Slyším tě…", "Bzzz? Za mnou?"], jump: ["Vedle!", "Stůj!", "Počkej, ty…"], pause: ["⏸ Moment. Komár.", "⏸ Pauza. Mám práci.", "⏸ Stop! Vetřelec."], after: ["Nic jsi neviděl. Hraj.", "Kde jsme to byli?", "Lovec se nikdy nenudí.", "To byla jen rozcvička. Pokračujem."] },
@@ -2260,7 +2260,7 @@ window.KEVIN_LINES = {
       won: ["No dobře. Vyhrál jsi. Tentokrát.", "Tohle Radkovi neříkej."],
       lost: ["Kočičí reflexy, co nadělám.", "Zkus to znovu. Já počkám."] } },
     en: { menu: "Play with me", pong: {
-      title: "Kevin Pong", lead: "Rally with Kevin. First to 10 goals wins.", you: "You", close: "Close the game", fullscreen: "Full screen",
+      title: "Kevin Pong", lead: "Rally with Kevin. First to 10 goals wins.", you: "You", close: "Close the game", fullscreen: "Full screen", settings: "Settings", resume: "Resume", done: "Done",
       level: "Difficulty", levels: ["Easy", "Normal", "Angry Kevin"], levelHints: ["warm-up", "fair fight", "nearly impossible"],
       play: "Play", help: "Move your paddle with your finger, the mouse or the arrow keys. POWER SHOT = click, Space, the ⚡ button or a second finger – hit it just as the ball reaches your paddle and it flies faster. P = pause, Esc = quit.",
       mosquito: { hear: ["What's that buzzing?", "I can hear you…", "Bzzz? Behind me?"], jump: ["Missed!", "Hold still!", "Come here, you…"], pause: ["⏸ Hold on. Mosquito.", "⏸ Pause. I'm busy.", "⏸ Stop! Intruder."], after: ["You saw nothing. Play.", "Where were we?", "A hunter never gets bored.", "Just a warm-up. Go on."] },
@@ -2280,7 +2280,7 @@ window.KEVIN_LINES = {
       won: ["Fine. You won. This time.", "Don't tell Radek."],
       lost: ["Cat reflexes, what can I say.", "Try again. I'll wait."] } },
     de: { menu: "Spiel mit mir", pong: {
-      title: "Kevin Pong", lead: "Spiel mit Kevin. Wer zuerst 10 Tore schießt, gewinnt.", you: "Du", close: "Spiel schließen", fullscreen: "Vollbild",
+      title: "Kevin Pong", lead: "Spiel mit Kevin. Wer zuerst 10 Tore schießt, gewinnt.", you: "Du", close: "Spiel schließen", fullscreen: "Vollbild", settings: "Einstellungen", resume: "Weiter", done: "Fertig",
       level: "Schwierigkeit", levels: ["Leicht", "Normal", "Wütender Kevin"], levelHints: ["zum Aufwärmen", "faires Duell", "fast unschlagbar"],
       play: "Spielen", help: "Den Schläger steuerst du mit dem Finger, der Maus oder den Pfeiltasten. SCHMETTERSCHUSS = Klick, Leertaste, die ⚡-Taste oder ein zweiter Finger – genau dann, wenn der Ball am Schläger ist, fliegt er schneller. P = Pause, Esc = Ende.",
       mosquito: { hear: ["Was summt da?", "Ich hör dich…", "Bzzz? Hinter mir?"], jump: ["Daneben!", "Halt still!", "Komm her, du…"], pause: ["⏸ Moment. Mücke.", "⏸ Pause. Ich hab zu tun.", "⏸ Stopp! Eindringling."], after: ["Du hast nichts gesehen. Spiel.", "Wo waren wir?", "Ein Jäger langweilt sich nie.", "Nur zum Aufwärmen. Weiter."] },
@@ -2300,7 +2300,7 @@ window.KEVIN_LINES = {
       won: ["Na gut. Du hast gewonnen. Diesmal.", "Sag's nicht Radek."],
       lost: ["Katzenreflexe, was soll ich sagen.", "Versuch's nochmal. Ich warte."] } },
     uk: { menu: "Зіграй зі мною", pong: {
-      title: "Kevin Pong", lead: "Грай з Кевіном. Хто перший заб'є 10 голів, той виграв.", you: "Ти", close: "Закрити гру", fullscreen: "На весь екран",
+      title: "Kevin Pong", lead: "Грай з Кевіном. Хто перший заб'є 10 голів, той виграв.", you: "Ти", close: "Закрити гру", fullscreen: "На весь екран", settings: "Налаштування", resume: "Продовжити", done: "Готово",
       level: "Складність", levels: ["Легка", "Звичайна", "Злий Кевін"], levelHints: ["для розминки", "чесний бій", "майже неможливо"],
       play: "Грати", help: "Ракеткою керуй пальцем, мишею або стрілками. ПОСТРІЛ = клік, пробіл, кнопка ⚡ або другий палець – натисни, коли м’ячик біля ракетки, і він полетить швидше. P = пауза, Esc = вихід.",
       mosquito: { hear: ["Що це дзижчить?", "Я тебе чую…", "Дззз? За мною?"], jump: ["Мимо!", "Стій!", "Іди сюди, ти…"], pause: ["⏸ Хвилинку. Комар.", "⏸ Пауза. Я зайнятий.", "⏸ Стоп! Загарбник."], after: ["Ти нічого не бачив. Грай.", "На чому ми зупинилися?", "Мисливцю ніколи не нудно.", "Це була розминка. Далі."] },
@@ -2320,7 +2320,7 @@ window.KEVIN_LINES = {
       won: ["Гаразд. Ти виграв. Цього разу.", "Тільки Радеку не кажи."],
       lost: ["Котячі рефлекси, що поробиш.", "Спробуй ще. Я почекаю."] } },
     vi: { menu: "Chơi với tôi", pong: {
-      title: "Kevin Pong", lead: "Đánh bóng với Kevin. Ai ghi 10 bàn trước thì thắng.", you: "Bạn", close: "Đóng trò chơi", fullscreen: "Toàn màn hình",
+      title: "Kevin Pong", lead: "Đánh bóng với Kevin. Ai ghi 10 bàn trước thì thắng.", you: "Bạn", close: "Đóng trò chơi", fullscreen: "Toàn màn hình", settings: "Cài đặt", resume: "Tiếp tục", done: "Xong",
       level: "Độ khó", levels: ["Dễ", "Thường", "Kevin nổi giận"], levelHints: ["khởi động", "đấu sòng phẳng", "gần như không thể"],
       play: "Chơi", help: "Điều khiển vợt bằng ngón tay, chuột hoặc phím mũi tên. CÚ BẮN = nhấp chuột, Space, nút ⚡ hoặc ngón tay thứ hai – bấm đúng lúc bóng chạm vợt, bóng sẽ bay nhanh hơn. P = tạm dừng, Esc = thoát.",
       mosquito: { hear: ["Cái gì kêu vo ve thế?", "Tôi nghe thấy rồi…", "Vo ve? Sau lưng tôi à?"], jump: ["Trượt!", "Đứng yên!", "Lại đây nào…"], pause: ["⏸ Khoan. Có muỗi.", "⏸ Tạm dừng. Tôi bận.", "⏸ Dừng! Kẻ xâm nhập."], after: ["Bạn không thấy gì cả. Chơi tiếp.", "Chúng ta đang ở đâu nhỉ?", "Thợ săn không bao giờ chán.", "Chỉ là khởi động. Tiếp nào."] },

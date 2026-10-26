@@ -60,7 +60,7 @@
       '<div class="kpong-box">' +
       '  <div class="kpong-top">' +
       '    <div class="kpong-score" aria-live="polite"><span class="kpong-who">' + esc(T.you) + '</span><b class="kpong-you">0</b><i>:</i><b class="kpong-kev">0</b><span class="kpong-who">Kevin</span></div>' +
-      '    <button type="button" class="kpong-full" aria-label="' + esc(T.fullscreen || 'Fullscreen') + '"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>' +
+      '    <button type="button" class="kpong-set" aria-label="' + esc(T.settings || 'Settings') + '" aria-haspopup="dialog"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>' +
       '    <button type="button" class="kpong-close" aria-label="' + esc(T.close) + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
       '  </div>' +
       '  <div class="kpong-machine"><div class="kpong-frame">' +
@@ -699,11 +699,6 @@
         }).join('') + '</div></section>' +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.play) + '</button>' +
         '<section class="kp-sec"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + '</section>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.bgTitle || '') + '</h3><div class="kp-bgs" role="radiogroup" aria-label="' + esc(T.bgTitle || '') + '">' +
-        BGS.map(function (b, i) {
-          return '<button type="button" role="radio" class="kp-bgopt" data-bg="' + b + '" aria-checked="' + (b === bgName) + '" title="' + esc((T.bgs || BGS)[i]) + '" aria-label="' + esc((T.bgs || BGS)[i]) + '"' +
-            (b === 'tma' ? '' : ' style="background-image:url(/kevin/pong/pozadi-' + b + '-mini.webp' + ver + ')"') + '></button>';
-        }).join('') + '</div></section>' +
         '<section class="kp-sec kpong-board"></section>';
       panel.querySelectorAll('.kpong-level').forEach(function (b) {
         b.addEventListener('click', function () {
@@ -713,12 +708,6 @@
         });
       });
       panel.querySelector('.kpong-play').addEventListener('click', begin);
-      panel.querySelectorAll('.kp-bgopt').forEach(function (b) {
-        b.addEventListener('click', function () {
-          setBg(b.dataset.bg);
-          panel.querySelectorAll('.kp-bgopt').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
-        });
-      });
       board(level);
       say(pick(T.hello), 3000);
     }
@@ -839,7 +828,7 @@
           try { field.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
         } else if (e.pointerId !== mover) return;
       } else if (e.type === 'pointerdown') {
-        if (e.button !== 0 || e.target.closest('button, a, .kpong-panel')) return;
+        if (e.button !== 0 || setCard || e.target.closest('button, a, .kpong-panel, .kpong-settings')) return;
         shoot();
       }
       player.target = clamp(toField(e), PAD_W / 2, W - PAD_W / 2); e.preventDefault();
@@ -855,11 +844,12 @@
     field.addEventListener('pointercancel', onPointerEnd);
     root.querySelector('.kpong-shot').addEventListener('pointerdown', function (e) { e.preventDefault(); shoot(); });
     function onKey(e) {
-      if (e.key === 'Escape') return close();
+      if (e.key === 'Escape') return setCard ? closeSettings() : close();
+      if (setCard) return;                                         // v nastavení klávesy nehrají
       if (e.key === 'ArrowLeft' || e.key === 'a') { keys.left = e.type === 'keydown'; e.preventDefault(); }
       if (e.key === 'ArrowRight' || e.key === 'd') { keys.right = e.type === 'keydown'; e.preventDefault(); }
       if ((e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') && e.type === 'keydown' && running) { if (!e.repeat) shoot(); e.preventDefault(); }
-      if (e.key === 'p' && e.type === 'keydown' && running && !mosq.active) { paused = !paused; e.preventDefault(); }
+      if (e.key === 'p' && e.type === 'keydown' && running && !mosq.active && !setCard) { paused = !paused; e.preventDefault(); }
     }
     document.addEventListener('keydown', onKey);
     document.addEventListener('keyup', onKey);
@@ -867,19 +857,60 @@
     document.addEventListener('visibilitychange', onHidden);
     root.querySelector('.kpong-close').addEventListener('click', close);
 
-    // celá obrazovka (iPhone ji pro stránky nemá – tam se tlačítko schová)
-    var fullBtn = root.querySelector('.kpong-full');
-    if (!(root.requestFullscreen || root.webkitRequestFullscreen)) fullBtn.hidden = true;
+    // ---------- nastavení ve hře (⚙): pozadí hrací plochy (mění se hned, je vidět pod kartou) a celá obrazovka;
+    // během hry se při otevření zapauzuje, po zavření se po krátké chvilce rozjede ----------
+    var canFull = !!(root.requestFullscreen || root.webkitRequestFullscreen);   // iPhone ji pro stránky nemá
     function isFull() { return (document.fullscreenElement || document.webkitFullscreenElement) === root; }
-    fullBtn.addEventListener('click', function () {
+    function toggleFull() {
       var p = isFull() ? (document.exitFullscreen || document.webkitExitFullscreen).call(document)
         : (root.requestFullscreen || root.webkitRequestFullscreen).call(root);
       if (p && p.catch) p.catch(function () { /* prohlížeč nepovolil */ });
-    });
+    }
     function onFull() {
-      fullBtn.querySelector('i').className = 'fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand');
+      var i = setCard && setCard.querySelector('.kp-fullbtn i');
+      if (i) i.className = 'fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand');
       setTimeout(fit, 80);
     }
+    var setBtn = root.querySelector('.kpong-set'), setCard = null, setPausedGame = false;
+    function openSettings() {
+      if (setCard) return closeSettings();
+      if (mosq.active) return;                                     // během scénky s komárem ne
+      setPausedGame = running && !paused;
+      if (setPausedGame) paused = true;
+      setCard = document.createElement('div');
+      setCard.className = 'kpong-settings';
+      setCard.setAttribute('role', 'dialog');
+      setCard.setAttribute('aria-label', T.settings || 'Settings');
+      setCard.innerHTML = '<h2 class="kpong-title">' + esc(T.settings || '') + '</h2>' +
+        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.bgTitle || '') + '</h3><div class="kp-bgs" role="radiogroup" aria-label="' + esc(T.bgTitle || '') + '">' +
+        BGS.map(function (b, i) {
+          return '<button type="button" role="radio" class="kp-bgopt" data-bg="' + b + '" aria-checked="' + (b === bgName) + '" title="' + esc((T.bgs || BGS)[i]) + '" aria-label="' + esc((T.bgs || BGS)[i]) + '"' +
+            (b === 'tma' ? '' : ' style="background-image:url(/kevin/pong/pozadi-' + b + '-mini.webp' + ver + ')"') + '></button>';
+        }).join('') + '</div><p class="kp-bgname">' + esc((T.bgs || BGS)[BGS.indexOf(bgName)]) + '</p></section>' +
+        (canFull ? '<button type="button" class="kp-fullbtn"><i class="fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand') + '" aria-hidden="true"></i> ' + esc(T.fullscreen || '') + '</button>' : '') +
+        '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>';
+      root.appendChild(setCard);
+      setBtn.setAttribute('aria-expanded', 'true');
+      setCard.querySelectorAll('.kp-bgopt').forEach(function (b, i) {
+        b.addEventListener('click', function () {
+          setBg(b.dataset.bg);
+          setCard.querySelectorAll('.kp-bgopt').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
+          setCard.querySelector('.kp-bgname').textContent = (T.bgs || BGS)[i];
+        });
+      });
+      var fb = setCard.querySelector('.kp-fullbtn');
+      if (fb) fb.addEventListener('click', toggleFull);
+      setCard.querySelector('.kp-resume').addEventListener('click', closeSettings);
+      setCard.querySelector('.kp-resume').focus();
+    }
+    function closeSettings() {
+      if (!setCard) return;
+      setCard.remove(); setCard = null;
+      setBtn.setAttribute('aria-expanded', 'false');
+      if (setPausedGame && running) { paused = false; hitStop = performance.now() + 600; }
+      setPausedGame = false;
+    }
+    setBtn.addEventListener('click', openSettings);
     document.addEventListener('fullscreenchange', onFull);
     document.addEventListener('webkitfullscreenchange', onFull);
 
