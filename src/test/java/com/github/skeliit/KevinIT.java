@@ -143,11 +143,16 @@ class KevinIT extends UiTestSupport {
         for (int i = 0; i < 8; i++) {
             // a beatbox keeps him busy for a few seconds: the first click then only stops it. Clicks 3 s apart:
             // five quick ones in a row would be his "stop clicking me" joke instead of the menu
-            new WebDriverWait(driver, Duration.ofSeconds(20), Duration.ofSeconds(3)).until(d -> {
-                if (d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() < 5) js.executeScript("document.querySelector('.kevin-body').click()");
-                return d.findElements(By.cssSelector(".kevin-menu .kevin-chip")).size() >= 5;
+            // hledat a kliknout naráz: bublinu může mezitím překreslit hláška ke stránce (tlačítko by bylo pryč)
+            By fun = By.cssSelector(".kevin-menu .kevin-chip[data-act=fun]");
+            new WebDriverWait(driver, Duration.ofSeconds(20), Duration.ofSeconds(3))
+                    .ignoring(org.openqa.selenium.StaleElementReferenceException.class).until(d -> {
+                if (d.findElements(fun).isEmpty()) js.executeScript("document.querySelector('.kevin-body').click()");
+                List<WebElement> f = d.findElements(fun);
+                if (f.isEmpty()) return false;
+                js.executeScript("arguments[0].click()", f.get(0));
+                return true;
             });
-            jsClick(driver.findElement(By.cssSelector(".kevin-menu .kevin-chip[data-act=fun]")));
             String id = (String) js.executeScript("return sessionStorage.getItem('kevinLastSurprise')");
             assertTrue(seen.add(id), "surprise '" + id + "' came twice in " + seen);
             String line = (String) js.executeScript("return window.KEVIN_LINES.cs.surprise[arguments[0]]", id);

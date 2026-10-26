@@ -145,6 +145,35 @@
   // opts: pose, after (pose when the bubble goes), ms, extra (a node under the text: buttons,
   // a search field, results), href + linkText (a link under the text)
   var pending = null;   // what he wanted to say while in the paw (said when the paw is tapped)
+  // Klik na bublinu s tipem nebo hláškou ke stránce vede tam, o čem mluví: opts.go =
+  // '/cesta' (jiná stránka; když už na ní jsi, sjede k její hlavní části), '.selektor' (část této stránky
+  // – sjede k ní a rozbliká ji), 'btn:#id' (tlačítko – rozbliká ho), 'menu:play' (pustí něco), 'login'
+  // (přihlášení, přihlášenému Texty). Tipy L.tips jsou ve všech jazycích ve stejném pořadí → TIP_GO.
+  var TIP_GO = ['/texty.jsp', 'btn:#themeToggle', 'login', '/texty.jsp', 'menu:play', '/texty.jsp'];
+  var PAGE_GO = {
+    home: '.hero', music: '[data-clip-player]', lyrics: '.song-list', song: '[data-clip-player]', about: '.about-intro',
+    news: '.news-grid', register: '.auth-card', login: '.auth-card', donate: '.donate-card', error: '.error-page .btn-primary'
+  };
+  var PAGE_PATHS = { '/texty.jsp': 'lyrics', '/music.jsp': 'music', '/about.jsp': 'about', '/aktuality.jsp': 'news', '/donate.jsp': 'donate', '/login.jsp': 'login' };
+  var currentGo = null;
+  function highlight(el) {
+    if (!el) return;
+    el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+    el.classList.remove('kevin-target'); void el.offsetWidth; el.classList.add('kevin-target');
+    setTimeout(function () { el.classList.remove('kevin-target'); }, 2600);
+  }
+  function goTo(go) {
+    if (!go) return;
+    hideBubble('point');
+    if (go === 'menu:play') return play();
+    if (go === 'login') go = document.querySelector('form.logout-form') ? '/texty.jsp' : '/login.jsp';
+    if (go.indexOf('btn:') === 0) return highlight(document.querySelector(go.slice(4)));
+    if (go.charAt(0) !== '/') return highlight(document.querySelector(go));
+    if (PAGE_PATHS[go] && PAGE_PATHS[go] === pageKey()) return highlight(document.querySelector(PAGE_GO[PAGE_PATHS[go]]));
+    var a = document.createElement('a');   // přes odkaz, ať ho chytí PJAX (Kevin zůstane, stránka se vymění)
+    a.href = go; a.hidden = true;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
   function show(msg, opts) {
     opts = opts || {};
     if (root.hidden) {
@@ -155,6 +184,8 @@
     clearTimeout(hideTimer);
     text.textContent = msg;
     remember(msg);
+    currentGo = opts.go || null;
+    bubble.classList.toggle('has-go', !!currentGo);
     link.hidden = !opts.href;
     if (opts.href) { link.href = opts.href; link.textContent = opts.linkText || ''; }
     extra.innerHTML = '';
@@ -190,6 +221,7 @@
     clearTimeout(hideTimer);
     hideTimer = setTimeout(function () { hideBubble(hideAfter); }, 6000);
   }
+  text.addEventListener('click', function () { if (currentGo) goTo(currentGo); });
   bubble.addEventListener('pointerenter', holdBubble);
   bubble.addEventListener('focusin', holdBubble);
   bubble.addEventListener('pointerleave', releaseBubble);
@@ -215,14 +247,14 @@
   // Something he says on his own. In the paw he peeks out from the side of the screen to say it, but
   // only where that edge is free (nothing of the page under him and his bubble); with no free edge the
   // paw gets a gold dot instead. Closed with the cross, he still gives a tip now and then, only that way.
-  function auto(msg, pose, peekChance, isTip) {
+  function auto(msg, pose, peekChance, isTip, go) {
     var now = Date.now();
     if (busy || autoCount >= 6 || now - lastAuto < 40000 || !bubble.hidden) return;
     if (root.hidden && userHidden && !isTip) return;
     if (root.hidden && !pocket()) return;
     autoCount++;
     lastAuto = now;
-    onOwn(msg, { pose: pose || 'point' }, isTip, peekChance);
+    onOwn(msg, { pose: pose || 'point', go: go }, isTip, peekChance);
   }
   function onOwn(msg, opts, isTip, peekChance) {
     if (!root.hidden) {   // he is out (the visitor called him): he just says it
@@ -302,7 +334,8 @@
       if (!document.hidden && !asleep) {
         var tip = Math.random() < 0.6;
         var own = window.innerWidth <= 767 && L.mobile ? L.idle.concat(L.mobile) : L.idle;   // on a phone also his size joke
-        auto(pick(tip ? (L.tips || L.idle) : own), 'point', 0.8, tip);
+        if (tip && L.tips) { var i = Math.floor(Math.random() * L.tips.length); auto(L.tips[i], 'point', 0.8, true, TIP_GO[i]); }
+        else auto(pick(own), 'point', 0.8, false);
       }
       scheduleTip();
     }, 75000 + Math.random() * 45000);
@@ -912,7 +945,7 @@
     var clip = key === 'song' && document.querySelector('main [data-yt]');
     var own = clip && L.songs && L.songs[clip.getAttribute('data-yt')];
     if (own && Math.random() < 0.6) lines = own;
-    if (lines && Math.random() < (key === 'error' ? 1 : 0.4)) setTimeout(function () { auto(pick(lines)); }, 1500);
+    if (lines && Math.random() < (key === 'error' ? 1 : 0.4)) setTimeout(function () { auto(pick(lines), null, null, false, PAGE_GO[key]); }, 1500);
   }
 
   // What the page says the visitor has just done: [what, lines, pose]. Signing in and out shows as the
@@ -1601,7 +1634,8 @@
     } else if (d.tip) {
       // another script wants a tip now (also used by the tests): he peeks out to say it
       lastAuto = 0;
-      auto(pick(L.tips || L.idle), 'point', 1, true);
+      var ti = Math.floor(Math.random() * L.tips.length);
+      auto(L.tips[ti], 'point', 1, true, TIP_GO[ti]);
     }
   });
   document.addEventListener('pjax:done', function () { autoCount = 0; greet(); });

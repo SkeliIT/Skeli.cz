@@ -11,6 +11,8 @@
 // točí opačně, rychlost podle poloměru), dole tři kola hráče točí jeho pálka. Pálky jezdí po kolejnici s pásem.
 // Komár: jednou za zápas (náhodně) přiletí komár, Kevin hru sám zapauzuje, sleduje ho, vrhne se po něm, omráčený
 // komár spadne přes hřiště a Kevin se tváří, že nic – hra pokračuje.
+// Hlášky a nápisy (PERFEKTNÍ ODSTŘEL…) nejsou na hřišti, jdou z „reproduktoru“ automatu: lišta nad strojem
+// s mřížkami reproduktorů po stranách a jantarovým textem.
 // Kevin dělá lidské chyby: míček „sleduje“ až od části hřiště, s každým odrazem od stěny a s rychlostí se víc splete.
 // Výhra přihlášeného hráče jde do tabulky pořadí (/api/pong: server měří čas od startu, pořadí = nejrychlejší
 // výhra). Nepřihlášenému se nejlepší čas uloží jen v prohlížeči. Texty: KEVIN_LINES[jazyk].pong (kevin-lines.js).
@@ -51,6 +53,9 @@
       '<div class="kpong-box">' +
       '  <div class="kpong-top">' +
       '    <div class="kpong-score" aria-live="polite"><span class="kpong-who">' + esc(T.you) + '</span><b class="kpong-you">0</b><i>:</i><b class="kpong-kev">0</b><span class="kpong-who">Kevin</span></div>' +
+      '    <div class="kpong-speaker"><i class="kp-grill" aria-hidden="true"></i>' +
+      '      <div class="kp-screen"><p class="kp-msg" aria-live="polite"></p><p class="kp-flash" aria-hidden="true"></p></div>' +
+      '      <i class="kp-grill" aria-hidden="true"></i></div>' +
       '    <button type="button" class="kpong-close" aria-label="' + esc(T.close) + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
       '  </div>' +
       '  <div class="kpong-machine"><div class="kpong-frame">' +
@@ -59,7 +64,6 @@
       '    <canvas class="kpong-kevin" aria-hidden="true"></canvas>' +
       '    <div class="kpong-field">' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
-      '      <p class="kpong-say" hidden></p>' +
       '      <div class="kpong-panel"></div>' +
       '    </div>' +
       '  </div></div>' +
@@ -69,7 +73,7 @@
     document.documentElement.classList.add('kpong-open');
     var court = root.querySelector('.kpong-court'), cx = court.getContext('2d');
     var field = root.querySelector('.kpong-field'), panel = root.querySelector('.kpong-panel');
-    var sayEl = root.querySelector('.kpong-say'), youEl = root.querySelector('.kpong-you'), kevEl = root.querySelector('.kpong-kev');
+    var speaker = root.querySelector('.kpong-speaker'), sayEl = root.querySelector('.kp-msg'), flashEl = root.querySelector('.kp-flash'), youEl = root.querySelector('.kpong-you'), kevEl = root.querySelector('.kpong-kev');
     var kevCanvas = root.querySelector('.kpong-kevin');
     var machine = root.querySelector('.kpong-machine'), frame = root.querySelector('.kpong-frame');
     var shotBtn = root.querySelector('.kpong-shot'), topBar = root.querySelector('.kpong-top');
@@ -106,11 +110,17 @@
       });
     }).catch(function () { /* hra jde i bez něj */ });
 
-    var sayTimer = 0;
+    var sayTimer = 0, flashTimer = 0;
+    // nápis z reproduktoru (PERFEKTNÍ ODSTŘEL…): na 1,2 s přes Kevinovu hlášku, mřížky zabouchají
+    function showFlash(f) {
+      flashEl.textContent = f.text; flashEl.className = 'kp-flash on ' + f.kind;
+      speaker.classList.remove('boom'); void speaker.offsetWidth; speaker.classList.add('boom');
+      clearTimeout(flashTimer); flashTimer = setTimeout(function () { flashEl.className = 'kp-flash'; }, 1200);
+    }
     function say(t, ms) {
       if (!t) return;
-      sayEl.textContent = t; sayEl.hidden = false;
-      clearTimeout(sayTimer); sayTimer = setTimeout(function () { sayEl.hidden = true; }, ms || 2600);
+      sayEl.textContent = t; speaker.classList.add('talk');
+      clearTimeout(sayTimer); sayTimer = setTimeout(function () { sayEl.textContent = ''; speaker.classList.remove('talk'); }, ms || 2600);
       if (K) { K.setTalking(true); setTimeout(function () { if (K) K.setTalking(false); }, Math.min(2200, 600 + t.length * 45)); }
     }
 
@@ -177,6 +187,7 @@
       ball.speed *= mult; ball.vx *= mult; ball.vy *= mult;
       aimError();
       flash = { kind: kind, text: T.shots ? T.shots[kind] : kind, at: now };
+      showFlash(flash);
       if (kind === 'perfect' || kind === 'super') {
         hitStop = now + (kind === 'super' ? 160 : 100);
         if (navigator.vibrate) try { navigator.vibrate(kind === 'super' ? [30, 40, 60] : 35); } catch (e) { /* nevadí */ }
@@ -192,6 +203,7 @@
       ball.speed *= k; ball.vx *= k; ball.vy *= k;
       ball.mishit = true; kevin.miss = 0;
       flash = { kind: 'miss', text: T.shots ? T.shots.miss : 'miss', at: now };
+      showFlash(flash);
     }
 
     // Kevinův trest za pokažený odstřel: míří do rohu dál od hráče – rovně, nebo přes odraz od stěny, podle toho,
@@ -482,18 +494,6 @@
           cx.beginPath(); cx.arc(p[0], p[1], BALL_R * (ball.fire ? 0.9 + i / 12 : 0.5 + i / 20), 0, 7); cx.fill();
         });
         cx.globalAlpha = 1;
-      }
-      // nápis odstřelu (PERFEKTNÍ ODSTŘEL / SUPER ODSTŘEL…): vyskočí a za 0,9 s zmizí
-      if (flash && now - flash.at < 900) {
-        var f = (now - flash.at) / 900, big = flash.kind === 'super' || flash.kind === 'perfect';
-        cx.save();
-        cx.globalAlpha = 1 - f * f;
-        cx.textAlign = 'center';
-        cx.font = Math.round((big ? 44 : 30) * (1 + 0.15 * (1 - f))) + 'px "Bruno Ace SC", system-ui, sans-serif';
-        cx.fillStyle = flash.kind === 'super' ? '#ff8a1e' : flash.kind === 'miss' ? '#e0645a' : big ? '#e6b730' : light ? 'rgba(0,0,0,.6)' : 'rgba(255,255,255,.75)';
-        cx.shadowColor = 'rgba(0,0,0,.5)'; cx.shadowBlur = 8;
-        cx.fillText(flash.text, W / 2, H * 0.62 - f * 30);
-        cx.restore();
       }
       if (running) {
         var g = cx.createRadialGradient(ball.x - 4, ball.y - 5, 2, ball.x, ball.y, BALL_R);
