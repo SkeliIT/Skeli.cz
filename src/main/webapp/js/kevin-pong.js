@@ -64,11 +64,11 @@
       '    <canvas class="kpong-kevin" aria-hidden="true"></canvas>' +
       '    <div class="kpong-field">' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
-      '      <div class="kpong-panel"></div>' +
       '    </div>' +
       '  </div></div>' +
       '  <button type="button" class="kpong-shot"><i class="fa-solid fa-bolt" aria-hidden="true"></i> ' + esc(T.shot || 'Odstřel') + '</button>' +
-      '</div>';
+      '</div>' +
+      '<div class="kpong-panel"></div>';   // úvod a konec: karta uprostřed obrazovky před strojem
     document.body.appendChild(root);
     document.documentElement.classList.add('kpong-open');
     var court = root.querySelector('.kpong-court'), cx = court.getContext('2d');
@@ -404,13 +404,19 @@
     // ---------- obrazovky (start, konec) a tabulka ----------
     function startScreen() {
       panel.hidden = false;
-      panel.innerHTML = '<h2 class="kpong-title">' + esc(T.title) + '</h2><p class="kpong-lead">' + esc(T.lead) + '</p>' +
+      // bloky: nadpis · obtížnost · Hrát · ovládání (3 dlaždice + rada k odstřelu) · tabulka
+      var icons = ['fa-arrows-left-right', 'fa-bolt', 'fa-pause'];
+      var controls = T.controls ? '<ul class="kp-controls">' + T.controls.map(function (c, i) {
+          return '<li><i class="fa-solid ' + icons[i] + '" aria-hidden="true"></i><b>' + esc(c[0]) + '</b><span>' + esc(c[1]) + '</span></li>';
+        }).join('') + '</ul><p class="kp-hint">' + esc(T.shotHint) + '</p>' : '<p class="kpong-help">' + esc(T.help) + '</p>';
+      panel.innerHTML = '<header class="kp-head"><h2 class="kpong-title">' + esc(T.title) + '</h2><p class="kpong-lead">' + esc(T.lead) + '</p></header>' +
+        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.level) + '</h3>' +
         '<div class="kpong-levels" role="group" aria-label="' + esc(T.level) + '">' + [1, 2, 3].map(function (d) {
           return '<button type="button" class="kpong-level' + (d === level ? ' on' : '') + '" data-d="' + d + '"><b>' + esc(T.levels[d - 1]) + '</b><small>' + esc(T.levelHints[d - 1]) + '</small></button>';
-        }).join('') + '</div>' +
+        }).join('') + '</div></section>' +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.play) + '</button>' +
-        '<p class="kpong-help">' + esc(T.help) + '</p>' +
-        '<div class="kpong-board"></div>';
+        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + '</section>' +
+        '<section class="kp-sec kpong-board"></section>';
       panel.querySelectorAll('.kpong-level').forEach(function (b) {
         b.addEventListener('click', function () {
           level = +b.dataset.d; L = LEVELS[level]; store.set('kevinPongLevel', String(level));
@@ -426,7 +432,7 @@
     function board(d) {
       var box = panel.querySelector('.kpong-board');
       if (!box) return;
-      box.innerHTML = '<h3>' + esc(T.board) + ' · ' + esc(T.levels[d - 1]) + '</h3><p class="kpong-note">…</p>';
+      box.innerHTML = '<h3 class="kp-label">' + esc(T.board) + ' · ' + esc(T.levels[d - 1]) + '</h3><p class="kpong-note">…</p>';
       fetch('/api/pong/top?d=' + d, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
         signedIn = !!j.signedIn; csrf = j.csrf || null;
         var rows = (j.top || []).map(function (r) {
@@ -438,7 +444,7 @@
         var local = +(store.get('kevinPongBest' + d) || 0);
         var guest = !signedIn ? '<p class="kpong-note">' + esc(T.loginToRank) + ' <a href="/login.jsp?next=' + encodeURIComponent(location.pathname + location.search) + '">' + esc(T.login) + '</a>' +
           (local ? ' · ' + esc(T.localBest.replace('{time}', time(local))) : '') + '</p>' : '';
-        box.innerHTML = '<h3>' + esc(T.board) + ' · ' + esc(T.levels[d - 1]) + '</h3>' +
+        box.innerHTML = '<h3 class="kp-label">' + esc(T.board) + ' · ' + esc(T.levels[d - 1]) + '</h3>' +
           (rows ? '<ol class="kpong-list">' + rows + '</ol>' : '<p class="kpong-note">' + esc(T.empty) + '</p>') + mine + guest;
       }).catch(function () { box.innerHTML = '<p class="kpong-note">' + esc(T.boardFail) + '</p>'; });
     }
@@ -451,7 +457,7 @@
         '<p class="kpong-final">' + you + ' : ' + kev + '</p><p class="kpong-lead">' + esc(line) + '</p>' +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> ' + esc(T.again) + '</button>' +
         '<button type="button" class="kpong-back">' + esc(T.changeLevel) + '</button>' +
-        '<div class="kpong-board"></div>';
+        '<section class="kp-sec kpong-board"></section>';
       panel.querySelector('.kpong-play').addEventListener('click', begin);
       panel.querySelector('.kpong-back').addEventListener('click', startScreen);
       board(level);
@@ -473,8 +479,8 @@
     // ---------- kreslení hřiště ----------
     function draw(now) {
       var light = false;   // hřiště je tmavé sklo stroje i ve světlém režimu
-      rail(KEVIN_Y, kevin.x); rail(PLAYER_Y, player.x);
       cx.clearRect(0, 0, W, H);
+      rail(KEVIN_Y, kevin.x); rail(PLAYER_Y, player.x);
       // čáry: střed, branky
       cx.strokeStyle = light ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.1)';
       cx.lineWidth = 3; cx.setLineDash([14, 14]);
