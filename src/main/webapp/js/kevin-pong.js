@@ -266,9 +266,10 @@
     var player = { x: W / 2, target: W / 2, shotAt: -1e9, shotUsed: true, stunUntil: 0, lastHit: -1e9, boosted: false };
     var kevin = { x: W / 2, target: W / 2, nextThink: 0, moving: 0, miss: 0 };
     var ball = { x: W / 2, y: H / 2, vx: 0, vy: 0, speed: 0, trail: [], fire: false, mishit: false };
-    var combo = 0, hitStop = 0, flash = null;
-    // komár: náhodná událost, přiletí zhruba v každém třetím zápase; ?komar=1 v adrese = vždy (na zkoušení)
-    var MOSQUITO_CHANCE = /[?&]komar=1(&|$)/.test(location.search) ? 1 : 0.35;
+    var combo = 0, hitStop = 0, flash = null, awaitStart = false, pausedMs = 0;
+    var coarse = window.matchMedia('(pointer: coarse)').matches;
+    // komár: náhodná událost, přiletí zhruba v každém třetím zápase; ?komar=1 nebo #komar v adrese = vždy (na zkoušení)
+    var MOSQUITO_CHANCE = /[?&]komar=1(&|$)/.test(location.search) || location.hash === '#komar' ? 1 : 0.35;
     var mosq = { done: false, active: false };
     var keys = { left: false, right: false }, raf = 0, last = 0, signedIn = false, csrf = null;
 
@@ -280,7 +281,7 @@
       ball.vy = (towardPlayer ? 1 : -1) * Math.cos(a) * ball.speed;
       ball.fire = false; ball.mishit = false; player.boosted = false;
       if (!towardPlayer) aimError();
-      serveAt = performance.now() + 900;               // chvilka na nádech
+      serveAt = awaitStart ? Infinity : performance.now() + 1200;   // chvilka na nádech; první podání čeká na hráče
     }
 
     // kde míč protne čáru y (se odrazy od stran) – Kevin podle toho běží
@@ -305,7 +306,27 @@
       return LIFT * (t < SHOT_IDEAL ? t / SHOT_IDEAL : t < 140 ? 1 : 1 - (t - 140) / 120);
     }
 
+    // hráč je připravený: odpočet 3–2–1, pak první podání (čas hry i na serveru běží až od teď), nebo hopík
+    // poletí dál, kde se zastavil (po komárovi, nastavení, návratu do okna)
+    function kickOff() {
+      if (!awaitStart || !running) return false;
+      var first = awaitStart === 'start';
+      awaitStart = false;
+      serveAt = performance.now() + 1500;
+      if (first) {
+        started = performance.now(); pausedMs = 0;
+        if (signedIn) post('/api/pong/start', { d: level }).catch(function () { /* hraje se i tak */ });
+      }
+      return true;
+    }
+    // pauza skončila: hra počká, až hráč ťukne („Ťukni a jedem!“), pak odpočet
+    function askToResume(line) {
+      if (!running) return;
+      paused = false; awaitStart = 'resume'; serveAt = Infinity;
+      if (line) say(line, 2600);
+    }
     function shoot() {
+      if (kickOff()) return;
       var now = performance.now();
       if (!running || paused || now - player.shotAt < 380) return;
       player.shotAt = now; player.shotUsed = false;
@@ -478,7 +499,7 @@
               if (K) { K.hold(null, 0.2); K.turn(0); }
               kevCanvas.style.transform = '';
               el.remove(); mosq.active = false; lastMove = null;
-              if (running) { paused = false; hitStop = performance.now() + 700; }
+              askToResume(pick(M.ask));
             });
           });
         }, 1200);
@@ -487,7 +508,8 @@
 
     function step(now) {
       raf = requestAnimationFrame(step);
-      var dt = Math.min(0.034, (now - last) / 1000); last = now;
+      var real = last ? now - last : 0, dt = Math.min(0.034, real / 1000); last = now;
+      if (running && (paused || awaitStart)) pausedMs += real;   // pauzy, komár, nastavení, čekání na ťuknutí
       if (!running || paused) { draw(now); return; }
       // zastavení času po perfektním odstřelu: všechno stojí, jen se kreslí
       if (now < hitStop) { draw(now); return; }
@@ -676,7 +698,7 @@
 
     function finish(playerWon) {
       running = false;
-      var ms = Math.round(performance.now() - started);
+      var ms = Math.round(performance.now() - started - pausedMs);
       if (K) { K.hold(null); if (playerWon) { K.once(K.has('defeat') ? 'defeat' : 'shrug'); K.expression(23, 3000); } else { K.hold(K.has('dance2') ? 'dance2' : 'cheer'); K.expression(2, 3000); } }
       say(pick(playerWon ? T.won : T.lost), 4200);
       var bestKey = 'kevinPongBest' + level, best = +(store.get(bestKey) || 0);
@@ -756,9 +778,8 @@
       if (K) { K.hold(null); K.look(0, 0); }
       L = LEVELS[level];
       started = performance.now(); mosq.done = false;
-      running = true;
+      running = true; awaitStart = 'start';            // první hopík vyletí, až hráč ťukne / klikne / zmáčkne mezerník
       resetBall(Math.random() < 0.5);
-      if (signedIn) post('/api/pong/start', { d: level }).catch(function () { /* hraje se i tak */ });
       say(pick(T.start), 1800);
     }
 
@@ -793,10 +814,22 @@
         g.addColorStop(0, '#fff3b0'); g.addColorStop(0.45, '#e6b730'); g.addColorStop(1, '#6b4a00');
         cx.fillStyle = g; cx.beginPath(); cx.arc(ball.x, ball.y, BALL_R, 0, 7); cx.fill();
         cx.lineWidth = 2.5; cx.strokeStyle = 'rgba(25, 14, 0, .8)'; cx.stroke();   // tmavý obrys: hopík je vidět i na barevném pozadí
-        if (now < serveAt) {   // odpočet podání
-          cx.fillStyle = light ? 'rgba(0,0,0,.5)' : 'rgba(255,255,255,.55)';
+        if (awaitStart) {      // čeká na hráče: výzva pulzuje, písmo se zmenší, aby se vešla
+          var rt = coarse ? T.readyTouch || '' : T.readyMouse || '', fs = 32;
+          cx.save(); cx.textAlign = 'center';
+          cx.font = fs + 'px "Bruno Ace SC", system-ui, sans-serif';
+          while (cx.measureText(rt).width > W - 60 && fs > 14) { fs -= 2; cx.font = fs + 'px "Bruno Ace SC", system-ui, sans-serif'; }
+          var tw = cx.measureText(rt).width + 44, th = fs + 26;
+          cx.fillStyle = 'rgba(8, 7, 6, .72)';
+          roundRect(W / 2 - tw / 2, H / 2 + 100 - fs * 0.85 - 13, tw, th, th / 2);
+          cx.globalAlpha = 0.7 + 0.3 * Math.sin(now / 260);
+          cx.fillStyle = '#ffd23f'; cx.shadowColor = 'rgba(0,0,0,.85)'; cx.shadowBlur = 8;
+          cx.fillText(rt, W / 2, H / 2 + 100);
+          cx.restore();
+        } else if (now < serveAt) {   // odpočet podání 3–2–1
+          cx.fillStyle = light ? 'rgba(0,0,0,.5)' : 'rgba(255,255,255,.7)';
           cx.font = '700 64px system-ui, sans-serif'; cx.textAlign = 'center';
-          cx.fillText(String(Math.ceil((serveAt - now) / 300)), W / 2, H / 2 + 90);
+          cx.fillText(String(Math.ceil((serveAt - now) / 500)), W / 2, H / 2 + 100);
         }
       }
     }
@@ -829,6 +862,7 @@
         if (e.type === 'pointerdown') {
           if (mover !== null && mover !== e.pointerId) { shoot(); e.preventDefault(); return; }
           mover = e.pointerId;
+          kickOff();
           try { machine.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
         } else if (e.pointerId !== mover) return;
       } else if (e.type === 'pointerdown') {
@@ -857,7 +891,11 @@
     }
     document.addEventListener('keydown', onKey);
     document.addEventListener('keyup', onKey);
-    function onHidden() { if (document.hidden && running) paused = true; }
+    // odchod z okna = pauza; po návratu se hra zeptá (na telefonu není klávesa P)
+    function onHidden() {
+      if (document.hidden && running) paused = true;
+      else if (!document.hidden && running && paused && !mosq.active && !setCard) askToResume();
+    }
     document.addEventListener('visibilitychange', onHidden);
     root.querySelector('.kpong-close').addEventListener('click', close);
 
@@ -911,7 +949,7 @@
       if (!setCard) return;
       setCard.remove(); setCard = null;
       setBtn.setAttribute('aria-expanded', 'false');
-      if (setPausedGame && running) { paused = false; hitStop = performance.now() + 600; }
+      if (setPausedGame) askToResume();
       setPausedGame = false;
     }
     setBtn.addEventListener('click', openSettings);
