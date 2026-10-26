@@ -78,7 +78,7 @@ export function createKevin(canvas, opts = {}) {
   let pose = 'idle', talking = false, talkClip = 'talk', act = null, actEnd = 0, paused = false, disposed = false;
   let lookX = 0, lookY = 0, spinT = -1, special = null, specialT = 0, frozenUntil = 0, held = null, turnTo = 0;
   let mixer = null, actions = {}, playing = null, head = null, hips = null, hipsRest = null, clock = 0;
-  let foot = null, walkSpeed = 0, speeds = {}, travel = {}, hipsH = 1, fbxK = 0;   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
+  let foot = null, walkSpeed = 0, speeds = {}, travel = {}, hipsH = 1, fbxK = 0, anchor = {};   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
   let legs = [], tail = [], jaw = null, jawRest = null, mouth = null, forcedFace = null, forcedUntil = 0;
   let feet = [], footRest = null, groundY = 0, groundK = 0;
 
@@ -88,12 +88,14 @@ export function createKevin(canvas, opts = {}) {
     if (talking && (pose === 'idle' || pose === 'point' || pose === 'cool')) return talkClip;
     return POSES[pose] || 'idle';
   }
+  let nextFade = 0.3;   // délka prolnutí do dalšího pohybu (hold(name, fade) ji změní jednou)
   function crossfade() {
     if (!mixer) return;
     const name = wanted(), next = actions[name] || actions.idle;
     if (!next || next === playing) return;
-    next.reset().setEffectiveWeight(1).fadeIn(0.3).play();
-    if (playing) playing.fadeOut(0.3);
+    const f = nextFade; nextFade = 0.3;
+    next.reset().setEffectiveWeight(1).fadeIn(f).play();
+    if (playing) playing.fadeOut(f);
     playing = next;
   }
 
@@ -306,7 +308,7 @@ export function createKevin(canvas, opts = {}) {
   function groundLock(dt) {
     if (opts.groundLock === false || footRest == null || !feet.length) return;
     const clip = wanted();
-    const on = !AIR.has(clip) && !special && spinT < 0;
+    const on = !AIR.has(String(clip).split('@')[0]) && !special && spinT < 0;
     // plynulé zapnutí a vypnutí (0,2 s), ať při přechodu do skoku a z něj necukne
     groundK = Math.max(0, Math.min(1, groundK + (on ? 1 : -1) * dt / 0.2));
     holder.updateMatrixWorld(true);
@@ -334,7 +336,13 @@ export function createKevin(canvas, opts = {}) {
     const frozen = t < frozenUntil;
     if (!frozen) mixer.update(dt);
     // he stays on his spot: the moves may sway the hips but never carry him out of the window
-    if (hips && hipsRest) { hips.position.x = hipsRest.x; hips.position.z = hipsRest.z; }
+    if (hips && hipsRest) {
+      // boky drží na místě; pohyby s ukotvením ke konci (sednutí a vstávání) se posunou tak, aby konec
+      // (stoj) byl přesně na místě – jinak nohy při sedání ujížděly dopředu
+      const an = anchor[wanted()];
+      hips.position.x = hipsRest.x + (an ? hips.position.x - an.x : 0);
+      hips.position.z = hipsRest.z + (an ? hips.position.z - an.z : 0);
+    }
     // the head follows the mouse a little (on top of whatever the move does; the move resets it each frame)
     if (!frozen) fixKnees();
     if (tail.length && hips) updateTail(t, frozen ? 0 : dt);
@@ -412,15 +420,33 @@ export function createKevin(canvas, opts = {}) {
     can(feature) { return !CANNOT.has(feature); },
     // any of his clips by name (the cinema): hold(name) keeps it going until hold(null); once(name) plays it
     // through and returns its length in ms; turn(yaw) turns him (radians, 0 = facing us)
-    hold(name) { held = name && actions[name] ? name : null; if (held) actions[held].timeScale = 1; crossfade(); },
+    hold(name, fade) { held = name && actions[name] ? name : null; if (held) actions[held].timeScale = 1; if (fade) nextFade = fade; crossfade(); },
     // výřez z pohybu (vteřiny od–do) jako nový pohyb: z delšího se dá vzít jen užitečný kousek
     cut(name, from, to, newName) {
       if (!actions[name] || !mixer) return false;
       const c = actions[name].getClip(), fps = 30;
-      const sub = THREE.AnimationUtils.subclip(c, newName, Math.round(from * fps), Math.round(to * fps), fps);
+      const sub = THREE.AnimationUtils.subclip(c, newName, Math.round(from * fps), Math.max(Math.round(from * fps) + 1, Math.round(to * fps)), fps);
       actions[newName] = mixer.clipAction(sub);
+      if (anchor[name]) anchor[newName] = anchor[name];
       return true;
     },
+    // ukotvit pohyb ke konci: boky se posunou tak, aby jeho poslední snímek byl na místě (sednutí / vstávání)
+    anchorEnd(name) {
+      const a = actions[name]; if (!a) return;
+      const tr = a.getClip().tracks.find(t => /Hips\.position$/.test(t.name)); if (!tr) return;
+      const v = tr.values, k = v.length / 3;
+      anchor[name] = { x: v[(k - 1) * 3], z: v[(k - 1) * 3 + 2] };
+    },
+    // zůstat v jednom okamžiku pohybu (např. poslední snímek slézání = vis, první snímek vstávání = sed)
+    holdAt(name, t) {
+      const a = actions[name]; if (!a) return;
+      const key = name + '@' + t.toFixed(2);
+      if (!actions[key]) api.cut(name, Math.max(0, t), t + 1 / 30, key);
+      api.hold(key);
+    },
+    // otočit hned (bez dotáčení) – po pohybu, který tělo sám otočil (otočka na místě)
+    turnNow(yaw) { turnTo = yaw || 0; holder.rotation.y = turnTo; },
+    get yaw() { return turnTo; },
     // o kolik css px pohyb posune tělo dopředu (pohyby, které nejsou „In Place“) – okénko jede stejně, nohy nekloužou
     travelPx(name) {
       const v = travel[name] || 0;
