@@ -14,9 +14,9 @@
 // Hlášky a nápisy jdou z reproduktorů na bocích stroje jako z komiksu: nápisy odstřelu (PERFEKTNÍ ODSTŘEL…)
 // vyletí z levého jako zubatá „výbuchová“ bublina, Kevinovy hlášky z pravého jako mluvicí bublina. Kde je
 // vedle stroje volno (PC), letí ven ze stroje, jinak přes kraj stroje dovnitř.
-// Pozadí hry: tma nebo jeden ze 6 obrázků (město, západ slunce, les, vesmír, polární záře, ganja údolí), výběr
-// v menu hry (localStorage kevinPongBg); každé pozadí je živé – plátno .kpong-bgfx (déšť, prach, světlušky,
-// hvězdy s meteorem, sníh, pyl, ve tmě zlaté jiskry). Se „omezit pohyb“ jen obrázek.
+// Pozadí hrací plochy (na skle hřiště, ztmavené, ať je vidět hopík a pálky): sklo stroje, nebo jeden ze 6 obrázků
+// (město, západ slunce, les, vesmír, polární záře, ganja údolí), výběr v menu hry (localStorage kevinPongBg);
+// obrázky žijí na plátně .kpong-bgfx (déšť, prach, světlušky, hvězdy s meteorem, sníh, pyl). Se „omezit pohyb“ jen obrázek.
 // Kevin dělá lidské chyby: míček „sleduje“ až od části hřiště, s každým odrazem od stěny a s rychlostí se víc splete.
 // Výhra přihlášeného hráče jde do tabulky pořadí (/api/pong: server měří čas od startu, pořadí = nejrychlejší
 // výhra). Nepřihlášenému se nejlepší čas uloží jen v prohlížeči. Texty: KEVIN_LINES[jazyk].pong (kevin-lines.js).
@@ -57,7 +57,6 @@
     root.setAttribute('aria-modal', 'true');
     root.setAttribute('aria-label', T.title);
     root.innerHTML =
-      '<div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       '<div class="kpong-box">' +
       '  <div class="kpong-top">' +
       '    <div class="kpong-score" aria-live="polite"><span class="kpong-who">' + esc(T.you) + '</span><b class="kpong-you">0</b><i>:</i><b class="kpong-kev">0</b><span class="kpong-who">Kevin</span></div>' +
@@ -72,6 +71,7 @@
       '    <i class="kpong-spk" data-side="l" aria-hidden="true"></i><i class="kpong-spk" data-side="r" aria-hidden="true"></i>' +
       '    <canvas class="kpong-kevin" aria-hidden="true"></canvas>' +
       '    <div class="kpong-field">' +
+      '      <div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
       '    </div>' +
       '  </div></div>' +
@@ -132,29 +132,33 @@
     var bgEl = root.querySelector('.kpong-bg'), fx = root.querySelector('.kpong-bgfx'), fxc = fx.getContext('2d');
     var bgName = store.get('kevinPongBg'), still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (BGS.indexOf(bgName) < 0) bgName = 'tma';
-    var parts = [], fxLast = 0, shoot0 = 0;
+    var parts = [], fxLast = 0, shoot0 = 0, fxW = 1, fxH = 1;
+    // výřez obrázku na hřiště (hřiště je na výšku, obrázky na šířku): kde je v obrázku to nejhezčí
+    var BG_POS = { mesto: '20%', zapad: '62%', les: '50%', vesmir: '28%', zare: '50%', ganja: '55%' };
     function setBg(name) {
       bgName = name; store.set('kevinPongBg', name);
       root.dataset.bg = name;
       bgEl.style.backgroundImage = name === 'tma' ? '' : 'url(/kevin/pong/pozadi-' + name + '.webp' + ver + ')';
+      bgEl.style.backgroundPosition = (BG_POS[name] || '50%') + ' 50%';
       seedFx();
     }
     function fxSize() {
       var dpr = Math.min(1.5, window.devicePixelRatio || 1);
-      fx.width = Math.round(innerWidth * dpr); fx.height = Math.round(innerHeight * dpr);
+      fxW = Math.max(1, field.clientWidth); fxH = Math.max(1, field.clientHeight);
+      fx.width = Math.round(fxW * dpr); fx.height = Math.round(fxH * dpr);
       fxc.setTransform(dpr, 0, 0, dpr, 0, 0);
       seedFx();
     }
     function rnd(a, b) { return a + Math.random() * (b - a); }
     // částice podle pozadí: x, y, velikost, rychlost, fáze
     function seedFx() {
-      var w = innerWidth, h = innerHeight, n = { tma: 26, mesto: 140, zapad: 46, les: 34, vesmir: 90, zare: 110, ganja: 60 }[bgName] || 0;
+      var w = fxW, h = fxH, n = { mesto: 90, zapad: 30, les: 22, vesmir: 60, zare: 70, ganja: 36 }[bgName] || 0;
       parts = [];
       for (var i = 0; i < n; i++) parts.push({ x: rnd(0, w), y: rnd(0, h), s: rnd(0.6, 1.4), v: rnd(0.6, 1.4), p: rnd(0, 6.28) });
     }
     function fxTick(now) {
       if (still) return;
-      var dt = fxLast ? Math.min(0.05, (now - fxLast) / 1000) : 0, w = innerWidth, h = innerHeight, t = now / 1000;
+      var dt = fxLast ? Math.min(0.05, (now - fxLast) / 1000) : 0, w = fxW, h = fxH, t = now / 1000;
       fxLast = now;
       fxc.clearRect(0, 0, w, h);
       parts.forEach(function (q) {
@@ -210,7 +214,7 @@
       fxc.fillStyle = g; fxc.beginPath(); fxc.arc(x, y, r, 0, 7); fxc.fill();
     }
 
-    fxSize(); addEventListener('resize', fxSize);
+    fxSize(); addEventListener('resize', function () { setTimeout(fxSize, 0); });
     setBg(bgName);
 
     // ---------- komiksové bubliny z reproduktorů ----------
@@ -348,59 +352,133 @@
       ball.speed = sp; ball.vx = Math.sin(a) * sp; ball.vy = Math.cos(a) * sp; ball.mishit = false;
     }
 
-    // ---------- komár ----------
-    // Dráha v pixelech obrázku rámu: přiletí z kraje, kličkuje kolem Kevinovy hlavy (Kevin se za ním otáčí),
-    // pak Kevin vyskočí, komár omráčený spadne dolů přes hřiště a hra se po chvilce rozjede.
+    // ---------- komár: scénka ----------
+    // 1) přiletí a 2–3 s krouží nad strojem, hra běží; občas vletí Kevinovi za záda (menší, tmavší, za ním).
+    // 2) Kevin ho uvidí, jen když mu letí před očima (čelem k nám = vidí vše vpředu, bokem jen na tu stranu,
+    //    kam kouká); za zády ho jen uslyší („Co to bzučí?“) a otočí se. Pak pauza.
+    // 3) Kevin seskočí z kola na horní hranu stroje a honí ho: dvakrát vyskočí vedle (komár uhne), napotřetí
+    //    ho trefí, omráčený komár spadne. 4) Kevin doběhne zpátky, vyskočí na kolo, hláška, hra jede dál.
+    // Vše v pixelech obrázku rámu; Kevinova chodidla stojí na kole v (384, 60), horní hrana stroje je y = 112.
+    var KF = { x: 384, y: 60 }, EDGE_Y = 112, RUN = [170, 598];
+    function placeKevin(x, y) {
+      var u = parseFloat(frame.style.getPropertyValue('--u')) || 0.5;
+      kevCanvas.style.transform = 'translate(' + ((x - KF.x) * u).toFixed(1) + 'px, ' + ((y - KF.y) * u).toFixed(1) + 'px)';
+    }
     function mosquito() {
       mosq.done = true;
       if (Math.random() >= MOSQUITO_CHANCE) return;
-      mosq.active = true; paused = true;
+      mosq.active = true;
       var M = T.mosquito || {};
-      say(pick(M.pause), 2400);
       var el = document.createElement('div');
       el.className = 'kpong-mosq';
       frame.appendChild(el);
-      var side = Math.random() < 0.5 ? 1 : -1, pts = [[side > 0 ? -30 : FRAME_W + 30, 70 + Math.random() * 60]];
-      for (var i = 0; i < 5; i++) pts.push([384 + (i % 2 ? 1 : -1) * side * (40 + Math.random() * 80), 40 + Math.random() * 100]);
-      var end = pts[pts.length - 1], t0 = performance.now(), dur = 3400, lastX = pts[0][0];
-      function at(t) {   // hladká dráha přes body (Catmull-Rom)
-        var n = pts.length - 1, f = Math.min(n - 1e-6, t * n), i = Math.floor(f), q = f - i;
-        var p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(n, i + 2)];
-        function c(k) { return 0.5 * (2 * p1[k] + (p2[k] - p0[k]) * q + (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * q * q + (3 * p1[k] - p0[k] - 3 * p2[k] + p3[k]) * q * q * q); }
-        return [c(0), c(1)];
+      var side = Math.random() < 0.5 ? 1 : -1;
+      var m = { x: side > 0 ? -30 : FRAME_W + 30, y: rnd(-40, 40), tx: 384, ty: 0, behind: false, speed: 1 };
+      var t0 = performance.now(), phase = 'fly', seenFor = 0, lastT = t0, kx = KF.x, ky = KF.y, raf2 = 0;
+      function newTarget(far) {
+        var cx = far ? (m.x < 384 ? rnd(480, 640) : rnd(130, 290)) : kx + rnd(-170, 170);
+        m.tx = clamp(cx, 110, 660); m.ty = rnd(-80, 70);
       }
-      (function fly() {
+      newTarget(false);
+      function tick() {
         if (!root.isConnected) return;
-        var now = performance.now(), t = (now - t0) / dur;
-        if (t >= 1) return pounce();
-        var p = at(t);
-        el.style.setProperty('--mx', p[0].toFixed(1));
-        el.style.setProperty('--my', (p[1] + Math.sin(now / 70) * 3).toFixed(1));   // komáří pohupování
-        if (Math.abs(p[0] - lastX) > 0.5) el.classList.toggle('left', p[0] < lastX);  // obrázek kouká doprava
-        lastX = p[0];
-        if (K && t > 0.25) K.turn(p[0] > 404 ? Math.PI / 2 : p[0] < 364 ? -Math.PI / 2 : 0);
-        requestAnimationFrame(fly);
-      })();
-      function pounce() {
-        var u = parseFloat(frame.style.getPropertyValue('--u')) || 0.5;
-        var dx = (end[0] - 384) * u * 0.85, dy = (Math.min(end[1], 120) - 150) * u;
-        if (K && K.has('jumpDown')) K.once('jumpDown');
-        var jump = kevCanvas.animate([{ transform: 'translate(0, 0)' }, { transform: 'translate(' + dx + 'px, ' + dy + 'px)', offset: 0.45 }, { transform: 'translate(0, 0)' }],
-          { duration: 950, easing: 'ease-in-out' });
-        setTimeout(function () {   // trefa: omráčený komár padá přes hřiště
-          el.classList.add('hit');
-          el.animate([{ transform: 'translate(-50%, -50%) rotate(0deg)' }, { transform: 'translate(-50%, calc(-50% + ' + Math.round(900 * u) + 'px)) rotate(200deg)', opacity: 0 }],
-            { duration: 1300, easing: 'cubic-bezier(.5, 0, .9, .6)', fill: 'forwards' });
-          if (navigator.vibrate) try { navigator.vibrate(25); } catch (e) { /* nevadí */ }
-        }, 430);
-        jump.onfinish = function () {
-          if (K) { K.turn(0); K.expression(2, 1400); }
-          say(pick(M.after), 2600);
-          setTimeout(function () {
-            el.remove(); mosq.active = false;
-            if (running) { paused = false; hitStop = performance.now() + 700; }
-          }, 1500);
+        var now = performance.now(), dt = Math.min(0.05, (now - lastT) / 1000), el0 = now - t0;
+        lastT = now;
+        // komár: míří k cíli, kličkuje; u cíle si vybere nový; občas zalétne za Kevina
+        var dx = m.tx - m.x, dy = m.ty - m.y, d = Math.hypot(dx, dy);
+        if (d < 14) { newTarget(false); if (phase === 'fly') m.behind = Math.random() < 0.45; }
+        var v = 190 * m.speed;
+        m.x += dx / (d || 1) * v * dt + Math.sin(now / 90) * 0.9;
+        m.y += dy / (d || 1) * v * dt + Math.cos(now / 70) * 0.9;
+        el.style.setProperty('--mx', m.x.toFixed(1));
+        el.style.setProperty('--my', m.y.toFixed(1));
+        el.classList.toggle('left', dx < 0);
+        el.classList.toggle('behind', m.behind && phase === 'fly');
+        if (phase === 'fly') {
+          // vidí ho? (yaw 0 = čelem k nám, + doprava, − doleva)
+          var yaw = K ? K.yaw : 0, inFront = !m.behind && (Math.abs(yaw) < 0.6 || (yaw > 0 ? m.x > kx - 20 : m.x < kx + 20));
+          seenFor = inFront ? seenFor + dt : 0;
+          if (el0 > 2000 && seenFor > 0.3) startChase('see');
+          else if (el0 > 3200) startChase('hear');
+        }
+        raf2 = requestAnimationFrame(tick);
+      }
+      raf2 = requestAnimationFrame(tick);
+
+      function startChase(how) {
+        phase = how; paused = true; m.behind = false;
+        if (K) { K.hold(null, 0.2); K.setSpeed(1); }
+        if (how === 'hear') {
+          say(pick(M.hear), 1800);
+          if (K) { K.look(m.x < kx ? -1 : 1, -0.6); K.turn(m.x < kx ? -Math.PI / 2 : Math.PI / 2); }
+          setTimeout(function () { say(pick(M.pause), 1800); chase(0); }, 1300);
+        } else {
+          say(pick(M.pause), 1800);
+          setTimeout(function () { chase(0); }, 500);
+        }
+      }
+      // přesun Kevina: běh po hraně (x), skok obloukem (výška), vše jako jedna animace v čase
+      function move(toX, toY, ms, arc, clip, then) {
+        var fx = kx, fy = ky, s0 = performance.now();
+        if (K && clip) K.hold(clip, 0.15);
+        if (K && toX !== fx) K.turn(toX > fx ? Math.PI / 2 : -Math.PI / 2);
+        (function step2() {
+          if (!root.isConnected) return;
+          var k = Math.min(1, (performance.now() - s0) / ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+          kx = fx + (toX - fx) * (arc ? k : e);
+          ky = fy + (toY - fy) * (arc ? k : e) - (arc ? Math.sin(Math.PI * k) * arc : 0);
+          placeKevin(kx, ky);
+          if (k < 1) requestAnimationFrame(step2); else then && then();
+        })();
+      }
+      // pokus n: doběhne pod komára, vyskočí; dva pokusy vedle (komár uhne), třetí trefa
+      function chase(n) {
+        var target = clamp(m.x, RUN[0], RUN[1]);
+        var first = n === 0, runTo = function () {
+          var dist = Math.abs(target - kx), ms = Math.max(250, dist / 300 * 1000);
+          move(target, EDGE_Y, ms, 0, K && K.has('sprint') ? 'sprint' : 'run3', jump);
         };
+        if (first) move(kx + (target > kx ? 40 : -40), EDGE_Y, 420, 40, K && K.has('jumpDown') ? 'jumpDown' : null, runTo);   // seskok z kola
+        else runTo();
+        function jump() {
+          m.speed = 0.5; m.tx = kx; m.ty = EDGE_Y - 150;                     // komár se zastaví nad ním
+          if (K) { K.turn(0); K.look(0, -1); }
+          setTimeout(function () {
+            var hit = n >= 2;
+            move(kx, EDGE_Y, 640, 95, K && K.has('hangJump') ? 'hangJump' : null, function () {
+              if (K && K.has('landSoft')) K.once('landSoft');
+              if (hit) return caught();
+              say(pick(M.jump), 1200);
+              setTimeout(function () { chase(n + 1); }, 450);
+            });
+            setTimeout(function () {                                         // ve výskoku: uhne, nebo trefa
+              if (hit) { stun(); return; }
+              m.speed = 2.2; newTarget(true);
+            }, 300);
+          }, 250);
+        }
+      }
+      function stun() {
+        cancelAnimationFrame(raf2);
+        var u = parseFloat(frame.style.getPropertyValue('--u')) || 0.5;
+        el.classList.remove('behind'); el.classList.add('hit');
+        el.animate([{ transform: 'translate(-50%, -50%) rotate(0deg)' }, { transform: 'translate(-50%, calc(-50% + ' + Math.round(900 * u) + 'px)) rotate(200deg)', opacity: 0 }],
+          { duration: 1300, easing: 'cubic-bezier(.5, 0, .9, .6)', fill: 'forwards' });
+        if (navigator.vibrate) try { navigator.vibrate(25); } catch (e) { /* nevadí */ }
+      }
+      function caught() {
+        if (K) { K.hold(null, 0.2); K.turn(0); K.look(0, 0); K.expression(2, 1600); }
+        say(pick(M.after), 2400);
+        setTimeout(function () {
+          move(KF.x, EDGE_Y, Math.max(250, Math.abs(KF.x - kx) / 260 * 1000), 0, K && K.has('run3') ? 'run3' : 'walk', function () {
+            move(KF.x, KF.y, 420, 50, null, function () {                    // výskok zpátky na kolo
+              if (K) { K.hold(null, 0.2); K.turn(0); }
+              kevCanvas.style.transform = '';
+              el.remove(); mosq.active = false; lastMove = null;
+              if (running) { paused = false; hitStop = performance.now() + 700; }
+            });
+          });
+        }, 1200);
       }
     }
 
@@ -411,7 +489,7 @@
       // zastavení času po perfektním odstřelu: všechno stojí, jen se kreslí
       if (now < hitStop) { draw(now); return; }
       // komár: přiletí jednou za zápas, nejdřív po 6 s hry a jen když míček letí k hráči (Kevin má volno)
-      if (!mosq.done && now - started > 6000 && now >= serveAt && ball.vy > 0) mosquito();
+      if (!mosq.done && now - started > 6000 && now >= serveAt) mosquito();
       // odstřel naprázdno: pálka chvíli „ve vzduchu“ – pomalejší a kombo je pryč
       if (!player.shotUsed && now - player.shotAt > 260) { player.shotUsed = true; player.stunUntil = now + 300; combo = 0; }
       // hráč: prst / myš (přímo) nebo šipky
@@ -722,6 +800,7 @@
         var g = cx.createRadialGradient(ball.x - 4, ball.y - 5, 2, ball.x, ball.y, BALL_R);
         g.addColorStop(0, '#fff3b0'); g.addColorStop(0.45, '#e6b730'); g.addColorStop(1, '#6b4a00');
         cx.fillStyle = g; cx.beginPath(); cx.arc(ball.x, ball.y, BALL_R, 0, 7); cx.fill();
+        cx.lineWidth = 2.5; cx.strokeStyle = 'rgba(25, 14, 0, .8)'; cx.stroke();   // tmavý obrys: hopík je vidět i na barevném pozadí
         if (now < serveAt) {   // odpočet podání
           cx.fillStyle = light ? 'rgba(0,0,0,.5)' : 'rgba(255,255,255,.55)';
           cx.font = '700 64px system-ui, sans-serif'; cx.textAlign = 'center';

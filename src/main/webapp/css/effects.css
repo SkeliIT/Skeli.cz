@@ -1586,6 +1586,8 @@ body.light .kpong > .kpong-panel { background: linear-gradient(180deg, rgba(26, 
   animation: kpong-buzz .09s steps(3, jump-none) infinite alternate;
 }
 .kpong-mosq.left { scale: -1 1; }
+/* za Kevinovými zády: menší, tmavší a za ním (Kevin má z-index 2) */
+.kpong-mosq.behind { z-index: 1; width: calc(30px * var(--u)); filter: brightness(.55); }
 .kpong-mosq.hit { width: calc(62px * var(--u)); aspect-ratio: 297 / 170; background: url(/kevin/pong/komar-omraceny.webp) center / contain no-repeat; animation: none; }
 @keyframes kpong-buzz { from { background-position: 0 0; } to { background-position: 100% 0; } }
 /* reproduktory na bocích stroje (pulzují, když z nich jde bublina) */
@@ -1664,10 +1666,15 @@ body.light .kpong > .kpong-panel { background: linear-gradient(180deg, rgba(26, 
 .kpong-full[hidden] { display: none; }
 .kpong-full:hover, .kpong-full:focus-visible { border-color: var(--accent); color: var(--accent); }
 .kpong:fullscreen { background: #050403; }
-/* pozadí hry: obrázek přes celé okno, okraje ztmavené (stroj vynikne), nad ním plátno s životem scény */
+/* pozadí hrací plochy: obrázek na skle hřiště, ztmavený (hopík a pálky musí být vidět), přes něj odlesk skla;
+   nad ním plátno s životem scény a nahoře hřiště (.kpong-court); „tma“ = jen sklo stroje */
 .kpong-bg, .kpong-bgfx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.kpong-bg { background: center / cover no-repeat; transition: background-image .4s; }
-.kpong-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(0, 0, 0, .1) 30%, rgba(0, 0, 0, .55) 100%); }
+.kpong-bg { background: center / cover no-repeat; }
+.kpong-bg::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, .09), transparent 38%),
+    linear-gradient(180deg, rgba(0, 0, 0, .5), rgba(0, 0, 0, .34) 45%, rgba(0, 0, 0, .52));
+}
 .kpong[data-bg="tma"] .kpong-bg::after { display: none; }
 .kpong > .kpong-box { position: relative; z-index: 1; }
 .kpong > .kpong-panel { z-index: 5; }
