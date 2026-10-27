@@ -2612,51 +2612,81 @@
       setCard.className = 'kpong-settings';
       setCard.setAttribute('role', 'dialog');
       setCard.setAttribute('aria-label', T.settings || 'Settings');
-      setCard.innerHTML = '<h2 class="kpong-title">' + esc(T.settings || '') + '</h2>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.bgTitle || '') + '</h3><div class="kp-bgs" role="radiogroup" aria-label="' + esc(T.bgTitle || '') + '">' +
-        BGS.map(function (b, i) {
-          var ok = hasBadge(BG_BADGE[b]), nm = (T.bgs || BGS)[i];
-          return '<button type="button" role="radio" class="kp-bgopt" data-bg="' + b + '" aria-checked="' + (b === bgName) + '"' + (ok ? '' : ' aria-disabled="true"') +
-            ' title="' + esc(nm + (ok ? '' : ' – ' + lockText(BG_BADGE[b]))) + '" aria-label="' + esc(nm) + '"' +
-            (b === 'tma' ? '' : ' style="background-image:url(/kevin/pong/pozadi-' + b + '-mini.webp' + ver + ')"') + '>' +
-            (ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>') + '</button>';
-        }).join('') + '</div><p class="kp-bgname">' + esc((T.bgs || BGS)[BGS.indexOf(bgName)]) + '</p></section>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.skinTitle || '') + '</h3><div class="kp-bgs" role="radiogroup" aria-label="' + esc(T.skinTitle || '') + '">' +
-        SKINS.map(function (s, i) {
-          var ok = s.ok(), name = (T.skins || [])[i] || '';
+      // nastavení ve třech záložkách: Vzhled (náhled + řady pálek, míčků a pozadí na posouvání), Zvuk, Ovládání
+      function lockI(ok) { return ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>'; }
+      function count(list, okFn) { return '<small class="kp-count">' + list.filter(okFn).length + '/' + list.length + '</small>'; }
+      var secSkin = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.skinTitle || '') + count(SKINS, function (x) { return x.ok(); }) + '</h3>' +
+        '<div class="kp-bgs kp-strip" role="radiogroup" aria-label="' + esc(T.skinTitle || '') + '">' +
+        SKINS.map(function (x, i) {
+          var ok = x.ok(), name = (T.skins || [])[i] || '';
           return '<button type="button" role="radio" class="kp-skin" data-skin="' + i + '" aria-checked="' + (i === skin) + '"' + (ok ? '' : ' aria-disabled="true"') +
-            ' title="' + esc(name + (ok ? '' : ' – ' + lockText(s.b))) + '" aria-label="' + esc(name) + '" style="--c1:' + s.pad[0] + ';--c2:' + s.pad[1] + ';--rim:' + s.rim + '"' +
-            (s.img ? ' data-img="1"><canvas width="132" height="66" aria-hidden="true"></canvas>' : '>') +
-            (ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>') + '</button>';
-        }).join('') + '</div><p class="kp-bgname kp-skinname">' + esc((T.skins || [])[skin] || '') + '</p></section>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.ballTitle || '') + '</h3><div class="kp-bgs" role="radiogroup" aria-label="' + esc(T.ballTitle || '') + '">' +
+            ' title="' + esc(name + (ok ? '' : ' – ' + lockText(x.b))) + '" aria-label="' + esc(name) + '" style="--c1:' + x.pad[0] + ';--c2:' + x.pad[1] + ';--rim:' + x.rim + '"' +
+            (x.img ? ' data-img="1"><canvas width="132" height="66" aria-hidden="true"></canvas>' : '>') + lockI(ok) + '</button>';
+        }).join('') + '</div><p class="kp-bgname kp-skinname">' + esc((T.skins || [])[skin] || '') + '</p></section>';
+      var secBall = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.ballTitle || '') + count(BALLS, function (x) { return hasBadge(x.b); }) + '</h3>' +
+        '<div class="kp-bgs kp-strip" role="radiogroup" aria-label="' + esc(T.ballTitle || '') + '">' +
         BALLS.map(function (bl, i) {
           var ok = hasBadge(bl.b), name = (T.balls || [])[i] || bl.id;
           return '<button type="button" role="radio" class="kp-ball" data-ball="' + i + '" aria-checked="' + (i === ballType) + '"' + (ok ? '' : ' aria-disabled="true"') +
-            ' title="' + esc(name + (ok ? '' : ' – ' + lockText(bl.b))) + '" aria-label="' + esc(name) + '"><canvas width="88" height="88" aria-hidden="true"></canvas>' +
-            (ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>') + '</button>';
-        }).join('') + '</div><p class="kp-bgname kp-ballname">' + esc((T.balls || [])[ballType] || '') + '</p></section>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.soundTitle || '') + '</h3><div class="kp-row">' +
+            ' title="' + esc(name + (ok ? '' : ' – ' + lockText(bl.b))) + '" aria-label="' + esc(name) + '"><canvas width="88" height="88" aria-hidden="true"></canvas>' + lockI(ok) + '</button>';
+        }).join('') + '</div><p class="kp-bgname kp-ballname">' + esc((T.balls || [])[ballType] || '') + '</p></section>';
+      var secBg = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.bgTitle || '') + count(BGS, function (x) { return hasBadge(BG_BADGE[x]); }) + '</h3>' +
+        '<div class="kp-bgs kp-strip" role="radiogroup" aria-label="' + esc(T.bgTitle || '') + '">' +
+        BGS.map(function (bg, i) {
+          var ok = hasBadge(BG_BADGE[bg]), nm = (T.bgs || BGS)[i];
+          return '<button type="button" role="radio" class="kp-bgopt" data-bg="' + bg + '" aria-checked="' + (bg === bgName) + '"' + (ok ? '' : ' aria-disabled="true"') +
+            ' title="' + esc(nm + (ok ? '' : ' – ' + lockText(BG_BADGE[bg]))) + '" aria-label="' + esc(nm) + '"' +
+            (bg === 'tma' ? '' : ' style="background-image:url(/kevin/pong/pozadi-' + bg + '-mini.webp' + ver + ')"') + '>' + lockI(ok) + '</button>';
+        }).join('') + '</div><p class="kp-bgname kp-bgname-bg">' + esc((T.bgs || BGS)[BGS.indexOf(bgName)]) + '</p></section>';
+      var secSound = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.soundTitle || '') + '</h3><div class="kp-row">' +
         '<button type="button" class="kp-fullbtn kp-snd" aria-pressed="' + (vol > 0) + '"></button>' +
-        '<input type="range" class="kp-vol" min="0.1" max="1" step="0.1" value="' + (vol || +(store.get('kevinPongVolLast') || 0.6)) + '" aria-label="' + esc(T.volume || '') + '"></div></section>' +
-        (coarse ? '' : '<section class="kp-sec"><h3 class="kp-label">' + esc(T.keysTitle || '') + '</h3><div class="kp-row kp-keyrow">' +
-          '<i class="fa-solid fa-gauge-simple-high" aria-hidden="true"></i>' +
-          '<input type="range" class="kp-keys" min="0.5" max="2" step="0.1" value="' + keySpeed + '" aria-label="' + esc(T.keysTitle || '') + '">' +
-          '<output class="kp-keysval">' + Math.round(keySpeed * 100) + ' %</output></div><p class="kp-bgname">' + esc(T.keysHint || '') + '</p></section>') +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.talkTitle || '') + '</h3><div class="kp-talk" role="radiogroup" aria-label="' + esc(T.talkTitle || '') + '">' +
-        TALK_KEYS.map(function (k, i) { return '<button type="button" role="radio" data-talk="' + k + '" aria-checked="' + (k === talk) + '">' + esc((T.talk || TALK_KEYS)[i]) + '</button>'; }).join('') + '</div></section>' +
-        '<div class="kp-checks">' +
+        '<input type="range" class="kp-vol" min="0.1" max="1" step="0.1" value="' + (vol || +(store.get('kevinPongVolLast') || 0.6)) + '" aria-label="' + esc(T.volume || '') + '"></div></section>';
+      var secTalk = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.talkTitle || '') + '</h3><div class="kp-talk" role="radiogroup" aria-label="' + esc(T.talkTitle || '') + '">' +
+        TALK_KEYS.map(function (k, i) { return '<button type="button" role="radio" data-talk="' + k + '" aria-checked="' + (k === talk) + '">' + esc((T.talk || TALK_KEYS)[i]) + '</button>'; }).join('') + '</div></section>';
+      var secKeys = coarse ? '' : '<section class="kp-sec"><h3 class="kp-label">' + esc(T.keysTitle || '') + '</h3><div class="kp-row kp-keyrow">' +
+        '<i class="fa-solid fa-gauge-simple-high" aria-hidden="true"></i>' +
+        '<input type="range" class="kp-keys" min="0.5" max="2" step="0.1" value="' + keySpeed + '" aria-label="' + esc(T.keysTitle || '') + '">' +
+        '<output class="kp-keysval">' + Math.round(keySpeed * 100) + ' %</output></div><p class="kp-bgname">' + esc(T.keysHint || '') + '</p></section>';
+      var secChecks = '<div class="kp-checks">' +
         (navigator.vibrate ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="vib" aria-pressed="' + vibOn + '"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> ' + esc(T.vibrate || '') + '</button>' : '') +
         (coarse ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="lefty" aria-pressed="' + lefty + '"><i class="fa-solid fa-hand" aria-hidden="true"></i> ' + esc(T.lefty || '') + '</button>' : '') +
         '<button type="button" class="kp-fullbtn kp-opt" data-opt="atmo" aria-pressed="' + atmoOn + '"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ' + esc(T.atmo || '') + '</button>' +
-        '</div>' +
         (canFull ? '<button type="button" class="kp-fullbtn kp-full"><i class="fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand') + '" aria-hidden="true"></i> ' + esc(T.fullscreen || '') + '</button>' : '') +
+        '</div>';
+      var TABS = [['look', 'fa-palette', T.tabLook], ['sound', 'fa-volume-high', T.tabSound], ['controls', 'fa-sliders', T.tabControls]];
+      var tab = TABS.some(function (x) { return x[0] === store.get('kevinPongSetTab'); }) ? store.get('kevinPongSetTab') : 'look';
+      setCard.innerHTML = '<h2 class="kpong-title">' + esc(T.settings || '') + '</h2>' +
+        '<div class="kp-tabs" role="tablist">' + TABS.map(function (x) {
+          return '<button type="button" role="tab" id="kp-tab-' + x[0] + '" aria-controls="kp-pane-' + x[0] + '" data-tab="' + x[0] + '" aria-selected="' + (x[0] === tab) + '">' +
+            '<i class="fa-solid ' + x[1] + '" aria-hidden="true"></i><span>' + esc(x[2] || x[0]) + '</span></button>';
+        }).join('') + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-look" aria-labelledby="kp-tab-look" data-pane="look"' + (tab === 'look' ? '' : ' hidden') + '>' +
+        '<canvas class="kp-preview" width="600" height="200" aria-hidden="true"></canvas>' + secSkin + secBall + secBg + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-sound" aria-labelledby="kp-tab-sound" data-pane="sound"' + (tab === 'sound' ? '' : ' hidden') + '>' + secSound + secTalk + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secKeys + secChecks + '</div>' +
         '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>';
       root.appendChild(setCard);
       setBtn.setAttribute('aria-expanded', 'true');
+      setCard.querySelectorAll('.kp-tabs [data-tab]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var t = b.dataset.tab;
+          store.set('kevinPongSetTab', t);
+          setCard.querySelectorAll('.kp-tabs [data-tab]').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+          setCard.querySelectorAll('.kp-pane').forEach(function (p) { p.hidden = p.dataset.pane !== t; });
+          centerPicked();
+        });
+      });
+      // vybraná položka v každé řadě na střed (ať je hned vidět, co mám)
+      function centerPicked() {
+        setCard.querySelectorAll('.kp-strip').forEach(function (st) {
+          var on = st.querySelector('[aria-checked="true"]');
+          if (on && st.offsetParent) st.scrollLeft = on.offsetLeft - st.clientWidth / 2 + on.offsetWidth / 2;
+        });
+      }
+      centerPicked();
       setCard.querySelectorAll('.kp-bgopt').forEach(function (b, i) {
         b.addEventListener('click', function () {
-          if (!hasBadge(BG_BADGE[b.dataset.bg])) { setCard.querySelector('.kp-bgname').textContent = (T.bgs || BGS)[i] + ' – ' + lockText(BG_BADGE[b.dataset.bg]); return; }
+          if (!hasBadge(BG_BADGE[b.dataset.bg])) { setCard.querySelector('.kp-bgname-bg').textContent = (T.bgs || BGS)[i] + ' – ' + lockText(BG_BADGE[b.dataset.bg]); return; }
           setBg(b.dataset.bg); store.set('kevinPongBg', b.dataset.bg);
           setCard.querySelectorAll('.kp-bgopt').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           setCard.querySelector('.kp-bgname').textContent = (T.bgs || BGS)[i];
@@ -2689,11 +2719,13 @@
       }
       previews();
       onSprites.push(previews);
+      drawPreview();
+      onSprites.push(drawPreview);
       setCard.querySelectorAll('.kp-skin').forEach(function (b) {
         b.addEventListener('click', function () {
           var i = +b.dataset.skin, name = (T.skins || [])[i] || '', nameEl = setCard.querySelector('.kp-skinname');
           if (!SKINS[i].ok()) { nameEl.textContent = name + ' – ' + lockText(SKINS[i].b); return; }
-          skin = i; store.set('kevinPongPad', SKINS[i].id);
+          skin = i; store.set('kevinPongPad', SKINS[i].id); drawPreview();
           setCard.querySelectorAll('.kp-skin').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           nameEl.textContent = name;
         });
@@ -2708,7 +2740,7 @@
         b.addEventListener('click', function () {
           var name = (T.balls || [])[i] || '', nameEl = setCard.querySelector('.kp-ballname');
           if (!hasBadge(BALLS[i].b)) { nameEl.textContent = name + ' – ' + lockText(BALLS[i].b); return; }
-          ballType = i; store.set('kevinPongBallId', BALLS[i].id);
+          ballType = i; store.set('kevinPongBallId', BALLS[i].id); drawPreview();
           setCard.querySelectorAll('.kp-ball').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           nameEl.textContent = name;
         });
@@ -2747,6 +2779,21 @@
       });
       setCard.querySelector('.kp-resume').addEventListener('click', closeSettings);
       setCard.querySelector('.kp-resume').focus();
+    }
+    // velký náhled v nastavení: vybraná pálka a nad ní vybraný míček
+    function drawPreview() {
+      var c = setCard && setCard.querySelector('.kp-preview');
+      if (!c) return;
+      var keep = cx, sp = padSprite(skin);
+      cx = c.getContext('2d'); cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, c.width, c.height);
+      var k = c.width / (PAD_W * 2.4), vw = c.width / k, vh = c.height / k;
+      cx.scale(k, k);
+      if (sp) drawSpritePad(sp, vw / 2, vh * 0.5, PAD_W, null, true, skin);
+      else pad(vw / 2, vh * 0.5 + PAD_H / 2, SKINS[skin].pad[0], SKINS[skin].pad[1]);
+      var bx = vw / 2, by = vh * 0.24;
+      if (ballType > 0) drawBall(BALLS[ballType].id, bx, by, 0.4, 0);
+      else if (hopik.naturalWidth) cx.drawImage(hopik, bx - BALL_R, by - BALL_R, BALL_R * 2, BALL_R * 2);
+      cx = keep;
     }
     function closeSettings() {
       if (!setCard) return;

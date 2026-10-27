@@ -1755,6 +1755,33 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 }
 .kp-fullbtn:hover, .kp-fullbtn:focus-visible { border-color: var(--accent); color: var(--accent); }
 .kpong-settings .kpong-play { align-self: center; min-width: 60%; }
+/* nastavení: záložky Vzhled / Zvuk / Ovládání */
+.kp-tabs {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 14px;
+  background: rgba(255, 255, 255, .05); border: 1px solid var(--panel-border);
+}
+.kp-tabs button {
+  min-height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--text-dim); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px; font: inherit; font-size: var(--fs-small);
+}
+.kp-tabs button:hover, .kp-tabs button:focus-visible { color: var(--text); }
+.kp-tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1px rgba(230, 183, 48, .5); }
+.kp-pane { display: grid; gap: 14px; }
+.kp-pane[hidden] { display: none; }
+/* velký náhled vybrané pálky a míčku */
+.kp-preview {
+  width: 100%; height: auto; aspect-ratio: 3 / 1; border-radius: 14px; border: 1px solid rgba(230, 183, 48, .25);
+  background: radial-gradient(ellipse at 50% 62%, rgba(230, 183, 48, .16), rgba(0, 0, 0, .35) 72%);
+}
+/* pálky, míčky a pozadí v jedné řadě na posouvání (do stran), okraje se rozplývají */
+.kp-bgs.kp-strip {
+  flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity; padding: 4px 14px 8px; scrollbar-width: thin;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+}
+.kp-bgs.kp-strip > * { flex: none; scroll-snap-align: center; }
+.kp-count { margin-left: 6px; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); letter-spacing: 0; }
 /* ⚙: vzhled pálky a hopíku – kolečko = pálka (přechod) s hopíkem uprostřed; zamčené průsvitné se zámkem */
 .kp-skin {
   position: relative; width: 44px; height: 44px; padding: 0; border-radius: 50%; cursor: pointer; color: #fff;
