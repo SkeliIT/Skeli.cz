@@ -2,6 +2,7 @@ package com.github.skeliit.dao;
 
 import com.github.skeliit.Db;
 import com.github.skeliit.WebUtils;
+import com.github.skeliit.model.PongBadges;
 import com.github.skeliit.model.CommentItem;
 
 import java.sql.Connection;
@@ -60,7 +61,7 @@ public class CommentDao {
     /** All comments on a lyric or clip: top-level ones sorted, each with its replies oldest first. */
     public List<CommentItem> threads(Kind k, String target, Viewer viewer, Sort sort) throws SQLException {
         String sql = "SELECT c.id, c.parent_id, c.user_id, c.content, c.created_at, c.updated_at, c.pinned_at, c.hearted_at, "
-                + "u.username, u.avatar_url, u.role, u.is_artist, "
+                + "u.username, u.avatar_url, u.role, u.is_artist, u.pong_title, "
                 + "COALESCE(SUM(v.vote = 1), 0) AS up, COALESCE(SUM(v.vote = -1), 0) AS down, "
                 + "COALESCE(MAX(CASE WHEN v.user_id = ? THEN v.vote END), 0) AS my "
                 + "FROM " + k.table + " c LEFT JOIN users u ON u.id = c.user_id "
@@ -88,6 +89,12 @@ public class CommentDao {
         it.user = gone ? null : rs.getString("username");
         it.avatar = gone ? "" : WebUtils.safeUrl(rs.getString("avatar_url"), "");
         it.artist = !gone && rs.getBoolean("is_artist");
+        String title = gone ? null : rs.getString("pong_title");
+        if (PongBadges.exists(title)) {
+            it.titleKey = title;
+            it.titleIcon = PongBadges.icon(title);
+            it.titleTier = PongBadges.tier(title);
+        }
         it.content = rs.getString("content");
         it.created = millis(rs.getTimestamp("created_at"));
         Timestamp edited = rs.getTimestamp("updated_at");

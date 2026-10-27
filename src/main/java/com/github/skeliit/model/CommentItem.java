@@ -17,6 +17,10 @@ public class CommentItem {
     public String user;               // null when the account was deleted
     public String avatar;             // "" = no photo
     public boolean artist;            // Skeli himself: a badge next to the name
+    public String titleKey;           // titul z CatSmash (klíč odznaku) nebo null
+    public String titleIcon;          // ikona titulu
+    public String titleName;          // název titulu v jazyce stránky (doplní CommentsApiServlet)
+    public String titleTier;          // bronze / silver / gold u stupňů, jinak null
     public String content;
     public long created;              // epoch ms; the browser writes "2 days ago" in its language
     public Long edited;               // epoch ms of the last edit, null = never edited

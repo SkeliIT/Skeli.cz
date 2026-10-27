@@ -8,6 +8,8 @@ public class PongRank {
     public final int durationMs;
     public final int kevinGoals;
     public final boolean me;
+    /** Titul u jména (klíč odznaku z PongBadges) nebo null. */
+    public String title;
 
     public PongRank(int place, String username, String avatarUrl, int durationMs, int kevinGoals, boolean me) {
         this.place = place;

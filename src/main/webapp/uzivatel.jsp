@@ -193,16 +193,51 @@
       </div>
     <% } %>
     </div>
-    <ul class="pong-badges">
-    <% for (PongProfile.Badge b : pong.badges) { %>
-      <li class="<%= b.earned ? "on" : "" %>">
-        <span class="pong-badge-icon"><i class="fa-solid <%= b.earned ? b.icon : "fa-lock" %>" aria-hidden="true"></i></span>
-        <b><%= t.getProperty("pong.badge." + b.key) %></b>
-        <span><%= t.getProperty("pong.badge." + b.key + ".how") %></span>
-        <span class="sr-only"><%= t.getProperty(b.earned ? "pong.badge.earned" : "pong.badge.locked") %></span>
-      </li>
-    <% } %>
-    </ul>
+    <%-- titul u jména: jeden získaný odznak (ukazuje se v komentářích a v tabulce pořadí) --%>
+    <form class="pong-title-form" method="post" action="/api/pong/title">
+      <input type="hidden" name="csrf" value="${csrf}">
+      <input type="hidden" name="back" value="account">
+      <label for="pongTitle"><b><%= t.getProperty("pong.title.title") %></b> <span class="acct-dim"><%= t.getProperty("pong.title.lead") %></span></label>
+      <% if ("1".equals(request.getParameter("pongTitle"))) { %><p class="pong-title-msg ok" role="status"><%= t.getProperty("pong.title.saved") %></p><% } %>
+      <% if ("0".equals(request.getParameter("pongTitle"))) { %><p class="pong-title-msg" role="alert"><%= t.getProperty("pong.title.failed") %></p><% } %>
+      <% if (pong.earnedCount() == 0) { %>
+        <p class="acct-dim"><%= t.getProperty("pong.title.empty") %></p>
+      <% } else { %>
+      <div class="pong-title-row">
+        <select id="pongTitle" name="t">
+          <option value=""><%= t.getProperty("pong.title.none") %></option>
+          <% for (PongProfile.Badge b : pong.badges) { if (!b.earned) continue; %>
+          <option value="<%= b.key %>"<%= b.key.equals(pong.title) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("pong.badge." + b.key)) %></option>
+          <% } %>
+        </select>
+        <button type="submit" class="btn-primary"><%= t.getProperty("pong.title.save") %></button>
+      </div>
+      <% } %>
+    </form>
+    <%-- odznaky v rolovacím okně: získané nahoře, u každého jak ho získat a odměna ve hře --%>
+    <div class="pong-badge-box">
+      <div class="pong-badge-head">
+        <b><%= t.getProperty("pong.badges.title") %></b>
+        <span><%= pong.earnedCount() %> / <%= pong.badges.size() %></span>
+        <span class="pong-badge-bar" style="--p:<%= pong.badges.isEmpty() ? 0 : pong.earnedCount() * 100 / pong.badges.size() %>%" aria-hidden="true"></span>
+      </div>
+      <ul class="pong-badges" tabindex="0" aria-label="<%= t.getProperty("pong.badges.title") %>">
+      <% for (int pass = 0; pass < 2; pass++) for (PongProfile.Badge b : pong.badges) {
+           if (b.earned != (pass == 0)) continue;
+           String tier = com.github.skeliit.model.PongBadges.tier(b.key);
+           String reward = t.getProperty("pong.badge." + b.key + ".reward"); %>
+        <li class="<%= b.earned ? "on" : "" %><%= tier != null ? " tier-" + tier : "" %>">
+          <span class="pong-badge-icon"><i class="fa-solid <%= b.earned ? b.icon : "fa-lock" %>" aria-hidden="true"></i></span>
+          <span class="pong-badge-text">
+            <b><%= t.getProperty("pong.badge." + b.key) %></b>
+            <span><%= t.getProperty("pong.badge." + b.key + ".how") %></span>
+            <% if (reward != null) { %><span class="pong-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i> <%= t.getProperty("pong.reward.label") %>: <%= reward %></span><% } %>
+          </span>
+          <span class="sr-only"><%= t.getProperty(b.earned ? "pong.badge.earned" : "pong.badge.locked") %></span>
+        </li>
+      <% } %>
+      </ul>
+    </div>
     <p class="pong-play-row"><a class="btn-primary" href="/?kevin=pong"><i class="fa-solid fa-play"></i> <%= t.getProperty("pong.profile.play") %></a></p>
   </section>
 

@@ -1,6 +1,7 @@
 package com.github.skeliit.web.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.skeliit.I18n;
 import com.github.skeliit.Db;
 import com.github.skeliit.WebUtils;
 import com.github.skeliit.dao.CommentDao;
@@ -59,7 +60,11 @@ public class CommentsApiServlet extends HttpServlet {
             Viewer viewer = viewer(s);
             List<CommentItem> items = dao.threads(kind, target, viewer, sort);
             int total = 0;
-            for (CommentItem it : items) total += 1 + it.replies.size();
+            for (CommentItem it : items) {
+                total += 1 + it.replies.size();
+                nameTitle(req, it);
+                for (CommentItem r : it.replies) nameTitle(req, r);
+            }
             Map<String, Object> me = new LinkedHashMap<>();
             me.put("authed", viewer.userId() != null);
             me.put("canPost", viewer.userId() != null && EmailVerification.isVerified(s));
@@ -221,5 +226,10 @@ public class CommentsApiServlet extends HttpServlet {
         resp.setStatus(status);
         resp.setContentType("application/json; charset=UTF-8");
         JSON.writeValue(resp.getWriter(), body);
+    }
+
+    /** Titul z CatSmash u jména: název odznaku v jazyce stránky. */
+    private static void nameTitle(HttpServletRequest req, CommentItem it) {
+        if (it.titleKey != null) it.titleName = I18n.getText(req, "pong.badge." + it.titleKey, it.titleKey);
     }
 }

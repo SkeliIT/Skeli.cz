@@ -761,13 +761,14 @@ window.KEVIN_PONG_LINES = {
    "Až budeš chtít, ťukni. Já si zatím olíznu tlapku.",
    "Do toho, nebo si jdu lehnout na klávesnici."
   ],
-  "ponozka": [
-   "Ups, ponožka. Úplně náhodou.",
-   "To není podvod, to je dekorace.",
-   "Kdo tam hodil ponožku? …Já ne.",
-   "Pravidla? Ty jsem si nepřečetl.",
-   "Překážka na hřišti. Říkám tomu strategie.",
-   "Tahle ponožka je moje tajná zbraň. Voní vítězstvím."
+  "klubko": [
+   "Klubíčko! Mňau… teda, překážka.",
+   "Hraju si s klubíčkem. Ty si hraj s tím, co zbude.",
+   "To není podvod, to je kočičí hračka.",
+   "Klubíčko na provázku. Já tahám, ty se trápíš.",
+   "Houpe se to, co? Jako tvoje sebevědomí.",
+   "Pozor, klubíčko visí. Já jsem v klidu, já mám provázek.",
+   "Až to dohraju, namotám si ho zpátky. Já jsem pořádnej kocour."
   ],
   "sroubek": [
    "Hej, to je můj šroubek!",

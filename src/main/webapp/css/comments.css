@@ -115,6 +115,14 @@ body.light .cmt-cancel, body.light .cmt-send {
 /* Skeli himself: his name in a pill, like a channel owner on YouTube */
 .cmt-name.is-artist { padding: 1px 10px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); }
 .cmt-name.is-artist .fa-circle-check { font-size: 0.85em; }
+/* titul z CatSmash u jména: malá zlatá kapsle s ikonou odznaku (medaile v barvě stupně) */
+.cmt-title {
+  display: inline-flex; align-items: center; gap: 4px; max-width: 16em; padding: 1px 8px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent);
+  font-family: var(--font-text); font-size: var(--fs-small); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle;
+}
+.cmt-title.tier-bronze i { color: #c98a4e; }
+.cmt-title.tier-silver i { color: #c9d0d8; }
 .cmt-time, .cmt-edited { font-size: var(--fs-small); color: var(--text-dim); }
 .cmt-text {
   margin: 4px 0 2px; color: var(--text); font-family: var(--font-text); font-weight: 300;
