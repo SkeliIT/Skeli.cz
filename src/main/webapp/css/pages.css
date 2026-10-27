@@ -1863,6 +1863,7 @@ body.light .k-poster:hover .k-ticket { background: #e6b730; color: #141414; }
   grid-column: 1 / -1; height: 6px; border-radius: 3px; background-color: color-mix(in srgb, var(--text) 12%, transparent);
   background-image: linear-gradient(90deg, #c99a12, #ffe58a); background-size: var(--p) 100%; background-repeat: no-repeat;
 }
+.pong-badge-rule { margin: 0 0 8px; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
 .pong-badges {
   list-style: none; margin: 0; padding: 8px; display: grid; gap: 6px;
   max-height: min(380px, 55vh); overflow-y: auto; overscroll-behavior: contain;

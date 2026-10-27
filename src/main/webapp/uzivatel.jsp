@@ -54,7 +54,7 @@
 
   <%-- who you are: photo (click = choose a new one), name, since when, numbers --%>
   <section class="acct-card acct-hero">
-    <label class="acct-photo" for="avatar-input" title="<%= t.getProperty("account.changePhoto") %>">
+    <label class="acct-photo<%= pong.frame != null ? " av-frame f-" + pong.frame : "" %>" for="avatar-input" title="<%= t.getProperty("account.changePhoto") %>">
       <img class="acct-avatar" src="<%= WebUtils.escapeHtml(avatarUrl) %>" alt="">
       <span class="acct-photo-edit" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
       <span class="sr-only"><%= t.getProperty("account.changePhoto") %></span>
@@ -214,6 +214,28 @@
       </div>
       <% } %>
     </form>
+    <%-- rámeček kolem fotky: jen z odznaků PongBadges.FRAMES (ukazuje se v komentářích, v tabulce a tady na profilu) --%>
+    <form class="pong-title-form pong-frame-form" method="post" action="/api/pong/frame">
+      <input type="hidden" name="csrf" value="${csrf}">
+      <input type="hidden" name="back" value="account">
+      <label for="pongFrame"><b><%= t.getProperty("pong.frame.title") %></b> <span class="acct-dim"><%= t.getProperty("pong.frame.lead") %></span></label>
+      <% if ("1".equals(request.getParameter("pongFrame"))) { %><p class="pong-title-msg ok" role="status"><%= t.getProperty("pong.frame.saved") %></p><% } %>
+      <% if ("0".equals(request.getParameter("pongFrame"))) { %><p class="pong-title-msg" role="alert"><%= t.getProperty("pong.title.failed") %></p><% } %>
+      <% boolean anyFrame = false; for (PongProfile.Badge b : pong.badges) if (b.earned && com.github.skeliit.model.PongBadges.isFrame(b.key)) anyFrame = true; %>
+      <% if (!anyFrame) { %>
+        <p class="acct-dim"><%= t.getProperty("pong.frame.empty") %></p>
+      <% } else { %>
+      <div class="pong-title-row">
+        <select id="pongFrame" name="f">
+          <option value=""><%= t.getProperty("pong.frame.none") %></option>
+          <% for (PongProfile.Badge b : pong.badges) { if (!b.earned || !com.github.skeliit.model.PongBadges.isFrame(b.key)) continue; %>
+          <option value="<%= b.key %>"<%= b.key.equals(pong.frame) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("pong.frame." + b.key)) %></option>
+          <% } %>
+        </select>
+        <button type="submit" class="btn-primary"><%= t.getProperty("pong.title.save") %></button>
+      </div>
+      <% } %>
+    </form>
     <%-- odznaky v rolovacím okně: získané nahoře, u každého jak ho získat a odměna ve hře --%>
     <div class="pong-badge-box">
       <div class="pong-badge-head">
@@ -221,6 +243,7 @@
         <span><%= pong.earnedCount() %> / <%= pong.badges.size() %></span>
         <span class="pong-badge-bar" style="--p:<%= pong.badges.isEmpty() ? 0 : pong.earnedCount() * 100 / pong.badges.size() %>%" aria-hidden="true"></span>
       </div>
+      <p class="pong-badge-rule"><%= t.getProperty("pong.badges.rule") %></p>
       <ul class="pong-badges" tabindex="0" aria-label="<%= t.getProperty("pong.badges.title") %>">
       <% for (int pass = 0; pass < 2; pass++) for (PongProfile.Badge b : pong.badges) {
            if (b.earned != (pass == 0)) continue;

@@ -141,16 +141,17 @@
     var BADGE_ICON = { first: 'fa-trophy', easy: 'fa-mug-hot', normal: 'fa-scale-balanced', angry: 'fa-cat', clean: 'fa-shield-halved',
       close: 'fa-heart-pulse', fast: 'fa-bolt', streak: 'fa-medal', wins50: 'fa-medal', wins100: 'fa-medal', sniper: 'fa-crosshairs',
       super: 'fa-explosion', tinker: 'fa-screwdriver-wrench', yarn: 'fa-mitten', overheat: 'fa-fire', comeback: 'fa-arrow-trend-up',
-      marathon: 'fa-person-running', night: 'fa-moon', loyal: 'fa-calendar-check', wardrobe: 'fa-shirt' };
-    var CLAIMABLE = ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal'];
-    var LOOKS = ['easy', 'clean', 'overheat', 'angry', 'comeback', 'yarn', 'night', 'super', 'loyal', 'wins50', 'sniper', 'tinker', 'close'];
+      marathon: 'fa-person-running', night: 'fa-moon', loyal: 'fa-calendar-check',
+      hwins5: 'fa-crown', hfast: 'fa-meteor', hclean: 'fa-skull', hsniper: 'fa-bullseye', hcomeback: 'fa-fire-flame-curved',   // jen za nejtěžší
+      wardrobe: 'fa-shirt' };
+    var CLAIMABLE = ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'hsniper', 'hcomeback'];
+    var LOOKS = ['first', 'easy', 'tinker', 'normal', 'loyal', 'streak', 'night', 'sniper', 'overheat', 'close', 'marathon', 'comeback', 'clean', 'super', 'angry', 'wins100'];
     var badges = {};
     try { (JSON.parse(store.get('kevinPongBadges') || '[]') || []).forEach(function (k) { if (BADGE_ICON[k]) badges[k] = true; }); } catch (e) { /* nic */ }
-    // hráči z doby před odznaky: výhry podle rekordů v prohlížeči
-    if (store.get('kevinPongBest1')) badges.easy = true;
+    // hráči z doby před odznaky: výhry podle rekordů v prohlížeči (Lehká se nepočítá)
     if (store.get('kevinPongBest2')) badges.normal = true;
     if (store.get('kevinPongBest3') || store.get('kevinPongBeat3')) badges.angry = true;
-    if (badges.easy || badges.normal || badges.angry) badges.first = true;
+    if (badges.normal || badges.angry) badges.first = true;
     // zkoušky jen na test.skeli.cz a na vlastním počítači (na www nefungují):
     // #vse = na tuhle návštěvu odemkne všechny pálky, míčky a pozadí (nic se neuloží, bez #vse je vše zase zamčené),
     // #klubko = Kevin hodí klubíčko hned na začátku zápasu (na jakékoli obtížnosti)
@@ -559,6 +560,213 @@
           break;
       }
     }
+    // ---------- atmosféra pálky: jemná vrstva přes vybrané pozadí, jen na krajích hřiště a na čarách ----------
+    // (míček a pálky jsou nad ní; vypínač v ⚙ „Atmosféra pálky“, localStorage kevinPongAtmo)
+    var atmoOn = store.get('kevinPongAtmo') !== '0', apfx = [], atmoT = 0, atmoNext = 0, atmoCache = {};
+    // tvary, které se pro pálku vymyslí jednou (úponky, tagy, dráhy spoje, hvězdičky…)
+    function atmoShapes(id) {
+      if (atmoCache[id]) return atmoCache[id];
+      var o = {}, i, j;
+      if (id === 'led') {                               // námraza: krystaly z rohů
+        o.cracks = [];
+        [[0, 0], [W, 0], [0, H], [W, H]].forEach(function (c) {
+          for (i = 0; i < 7; i++) {
+            var a = Math.atan2(H / 2 - c[1], W / 2 - c[0]) + rnd(-0.9, 0.9), len = rnd(40, 120), pts = [[c[0], c[1]]];
+            for (j = 1; j <= 4; j++) pts.push([c[0] + Math.cos(a + rnd(-0.25, 0.25)) * len * j / 4, c[1] + Math.sin(a + rnd(-0.25, 0.25)) * len * j / 4]);
+            o.cracks.push(pts);
+          }
+        });
+      } else if (id === 'vetev') {                      // úponky s lístky v horních rozích
+        o.vines = [[0, 1], [W, -1]].map(function (c) {
+          var pts = [], leaves = [];
+          for (i = 0; i <= 10; i++) { var t = i / 10; pts.push([c[0] + c[1] * (t * 120 + Math.sin(t * 5) * 14), 6 + t * 150 + Math.cos(t * 4) * 10]); }
+          for (i = 2; i < 10; i += 2) leaves.push({ i: i, side: i % 4 ? 1 : -1, size: rnd(5, 8) });
+          return { pts: pts, leaves: leaves, dir: c[1] };
+        });
+      } else if (id === 'graffiti') {                   // vybledlé tagy a cákance po stranách skla
+        o.splats = [];
+        for (i = 0; i < 9; i++) o.splats.push({ x: i % 2 ? rnd(W - 50, W - 8) : rnd(8, 50), y: rnd(120, H - 160), r: rnd(6, 16), c: ['#ff4fd8', '#ffd23f', '#3fb6ff', '#7cff6b'][i % 4], drip: rnd(10, 40), seed: rnd(0, 9) });
+      } else if (id === 'mince') {                      // zlaté hvězdičky v rozích
+        o.stars = [];
+        for (i = 0; i < 16; i++) { var cx0 = i % 2 ? W : 0, cy0 = i % 4 < 2 ? 0 : H; o.stars.push({ x: Math.abs(cx0 - rnd(6, 90)), y: Math.abs(cy0 - rnd(6, 110)), ph: rnd(0, 6), size: rnd(1.5, 3) }); }
+      } else if (id === 'cip') {                        // dráhy plošného spoje podél levého a pravého okraje
+        o.traces = [];
+        for (i = 0; i < 8; i++) {
+          var left = i % 2 === 0, x = left ? 6 : W - 6, y = rnd(100, H - 100), pts = [[x, y]];
+          for (j = 0; j < 3; j++) { x += (left ? 1 : -1) * rnd(14, 40); pts.push([x, y]); y += rnd(-50, 50); pts.push([x, y]); }
+          o.traces.push({ pts: pts, ph: rnd(0, 1) });
+        }
+      } else if (id === 'kola') {                       // ozubená kola v rozích
+        o.gears = [[0, 0, 46, 1], [W, 0, 38, -1], [0, H, 40, -1], [W, H, 50, 1], [W, H * 0.5, 26, 1]];
+      }
+      atmoCache[id] = o;
+      return o;
+    }
+    function gearPath(x, y, r, teeth, rot) {
+      cx.beginPath();
+      for (var i = 0; i <= teeth * 2; i++) { var a = rot + i / (teeth * 2) * Math.PI * 2, rr = i % 2 ? r : r * 0.82; cx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+      cx.closePath();
+    }
+    // vrstva pod vším: vrací true, když nakreslila vlastní prostřední čáru
+    function drawAtmo(now) {
+      var id = curPad();
+      if (!atmoOn || !id) return false;
+      var mid = (KEVIN_Y + PLAYER_Y) / 2, o = atmoShapes(id), i, g, t = now / 1000, ownMid = false;
+      cx.save();
+      switch (id) {
+        case 'led':
+          [[0, 0], [W, 0], [0, H], [W, H]].forEach(function (c) {
+            g = cx.createRadialGradient(c[0], c[1], 0, c[0], c[1], 150);
+            g.addColorStop(0, 'rgba(220, 245, 255, .22)'); g.addColorStop(1, 'rgba(220, 245, 255, 0)');
+            cx.fillStyle = g; cx.fillRect(c[0] ? W - 150 : 0, c[1] ? H - 150 : 0, 150, 150);
+          });
+          cx.strokeStyle = 'rgba(230, 248, 255, .32)'; cx.lineWidth = 1;
+          o.cracks.forEach(function (pts) { cx.beginPath(); pts.forEach(function (p, k) { cx[k ? 'lineTo' : 'moveTo'](p[0], p[1]); }); cx.stroke(); });
+          cx.strokeStyle = 'rgba(190, 235, 255, .35)'; cx.lineWidth = 2;
+          cx.beginPath(); cx.moveTo(0, mid); cx.lineTo(W, mid); cx.stroke(); ownMid = true;
+          break;
+        case 'lava':
+          g = cx.createLinearGradient(0, H, 0, H * 0.72);
+          g.addColorStop(0, 'rgba(255, 90, 10, .26)'); g.addColorStop(1, 'rgba(255, 90, 10, 0)');
+          cx.fillStyle = g; cx.fillRect(0, H * 0.72, W, H * 0.28);
+          cx.strokeStyle = 'rgba(255, 170, 90, .1)'; cx.lineWidth = 2;   // tetelení vzduchu
+          for (i = 0; i < 5; i++) {
+            cx.beginPath();
+            for (var y = H; y > H * 0.78; y -= 6) cx.lineTo(W * (0.1 + i * 0.2) + Math.sin(y / 18 + t * 3 + i) * 6, y);
+            cx.stroke();
+          }
+          cx.strokeStyle = 'rgba(255, 120, 30, ' + (0.28 + 0.08 * Math.sin(t * 2)) + ')'; cx.lineWidth = 2;
+          cx.beginPath(); cx.moveTo(0, mid); cx.lineTo(W, mid); cx.stroke(); ownMid = true;
+          break;
+        case 'vetev':
+          o.vines.forEach(function (v) {
+            var sway = Math.sin(t * 0.9 + v.dir) * 3;
+            cx.strokeStyle = 'rgba(110, 160, 70, .55)'; cx.lineWidth = 2.6; cx.beginPath();
+            v.pts.forEach(function (p, k) { cx[k ? 'lineTo' : 'moveTo'](p[0] + sway * k / 10, p[1]); }); cx.stroke();
+            v.leaves.forEach(function (l) {
+              var p = v.pts[l.i];
+              cx.save(); cx.translate(p[0] + sway * l.i / 10, p[1]); cx.rotate(l.side * 0.8 + Math.sin(t * 1.3 + l.i) * 0.15);
+              cx.fillStyle = 'rgba(110, 180, 70, .55)'; cx.beginPath(); cx.ellipse(l.size * 0.9, 0, l.size, l.size * 0.45, 0, 0, 7); cx.fill();
+              cx.restore();
+            });
+          });
+          cx.strokeStyle = 'rgba(120, 190, 80, .22)'; cx.lineWidth = 3; cx.setLineDash([14, 14]);
+          cx.beginPath(); cx.moveTo(0, mid); cx.lineTo(W, mid); cx.stroke(); cx.setLineDash([]); ownMid = true;
+          break;
+        case 'neon':
+          var fl = Math.random() < 0.012 ? 0.3 : 1;      // občas zabliká
+          cx.shadowBlur = 12;
+          cx.shadowColor = '#7df9ff'; cx.strokeStyle = 'rgba(125, 249, 255, ' + 0.3 * fl + ')'; cx.lineWidth = 2; cx.strokeRect(5, 5, W - 10, H - 10);
+          cx.shadowColor = '#c76bff'; cx.strokeStyle = 'rgba(199, 107, 255, ' + 0.45 * fl + ')'; cx.lineWidth = 2.5;
+          cx.beginPath(); cx.moveTo(14, mid); cx.lineTo(W - 14, mid); cx.stroke(); ownMid = true;
+          break;
+        case 'retez':                                   // zlato: teplé světlo od horní a dolní hrany, prostřední čára jako řetízek
+          [[0, 1], [H, -1]].forEach(function (e) {
+            g = cx.createLinearGradient(0, e[0], 0, e[0] + e[1] * 120);
+            g.addColorStop(0, 'rgba(255, 200, 70, .16)'); g.addColorStop(1, 'rgba(255, 200, 70, 0)');
+            cx.fillStyle = g; cx.fillRect(0, e[1] > 0 ? 0 : H - 120, W, 120);
+          });
+          cx.strokeStyle = 'rgba(255, 210, 63, .38)'; cx.lineWidth = 1.6;
+          for (var lx = 8; lx < W; lx += 16) { cx.beginPath(); cx.ellipse(lx, mid, 6, 3.2, 0, 0, 7); cx.stroke(); }   // články
+          ownMid = true;
+          break;
+        case 'graffiti':
+          o.splats.forEach(function (p) {
+            cx.globalAlpha = 0.2; cx.fillStyle = p.c;
+            cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill();
+            for (var k = 0; k < 5; k++) { var a = p.seed + k * 1.3; cx.beginPath(); cx.arc(p.x + Math.cos(a) * p.r * 1.3, p.y + Math.sin(a) * p.r * 1.3, p.r * 0.25, 0, 7); cx.fill(); }
+            cx.fillRect(p.x - 1.5, p.y, 3, p.drip);
+          });
+          cx.globalAlpha = 1;
+          break;
+        case 'plys':
+          g = cx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.65);
+          g.addColorStop(0, 'rgba(255, 180, 205, 0)'); g.addColorStop(1, 'rgba(255, 180, 205, .2)');
+          cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+          break;
+        case 'ekvalizer':                               // prostřední čára = zvuková vlna podle dění ve hře
+          var lv = eqLv.reduce(function (a, b) { return a + b; }, 0) / eqLv.length;
+          cx.strokeStyle = 'rgba(230, 183, 48, .4)'; cx.lineWidth = 2; cx.beginPath();
+          for (var x = 0; x <= W; x += 6) cx.lineTo(x, mid + Math.sin(x / 22 + t * 6) * Math.sin(x / 70 - t * 2) * (4 + lv * 18));
+          cx.stroke(); ownMid = true;
+          break;
+        case 'jadeit':
+          g = cx.createLinearGradient(0, H, 0, H * 0.7);
+          g.addColorStop(0, 'rgba(110, 210, 150, .2)'); g.addColorStop(1, 'rgba(110, 210, 150, 0)');
+          cx.fillStyle = g; cx.fillRect(0, H * 0.7, W, H * 0.3);
+          for (i = 0; i < 4; i++) {                      // pomalu plující obláčky oparu
+            var mx = (W * (i * 0.3 + 0.1) + t * 12 * (i % 2 ? 1 : -1)) % (W + 120) - 60;
+            g = cx.createRadialGradient(mx, H * 0.86, 0, mx, H * 0.86, 70);
+            g.addColorStop(0, 'rgba(160, 235, 190, .1)'); g.addColorStop(1, 'rgba(160, 235, 190, 0)');
+            cx.fillStyle = g; cx.fillRect(mx - 70, H * 0.86 - 70, 140, 140);
+          }
+          break;
+        case 'perly':
+          g = cx.createLinearGradient(0, 0, W, 0);
+          for (i = 0; i <= 6; i++) g.addColorStop(i / 6, 'hsla(' + ((i * 60 + t * 40) % 360) + ', 80%, 85%, .35)');
+          cx.strokeStyle = g; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(0, mid); cx.lineTo(W, mid); cx.stroke(); ownMid = true;
+          g = cx.createLinearGradient(0, 0, 40, 0); g.addColorStop(0, 'rgba(255, 235, 250, .14)'); g.addColorStop(1, 'rgba(255, 235, 250, 0)');
+          cx.fillStyle = g; cx.fillRect(0, 0, 40, H);
+          g = cx.createLinearGradient(W, 0, W - 40, 0); g.addColorStop(0, 'rgba(225, 240, 255, .14)'); g.addColorStop(1, 'rgba(225, 240, 255, 0)');
+          cx.fillStyle = g; cx.fillRect(W - 40, 0, 40, H);
+          break;
+        case 'mince':
+          o.stars.forEach(function (p) {
+            var a = Math.max(0, Math.sin(t * 2 + p.ph)) * 0.6;
+            if (a < 0.05) return;
+            cx.globalAlpha = a; cx.strokeStyle = '#ffe27a'; cx.lineWidth = 1;
+            cx.beginPath(); cx.moveTo(p.x - p.size * 2, p.y); cx.lineTo(p.x + p.size * 2, p.y); cx.moveTo(p.x, p.y - p.size * 2); cx.lineTo(p.x, p.y + p.size * 2); cx.stroke();
+          });
+          cx.globalAlpha = 1;
+          break;
+        case 'cip':
+          o.traces.forEach(function (tr) {
+            cx.strokeStyle = 'rgba(89, 240, 160, .2)'; cx.lineWidth = 1.5; cx.beginPath();
+            tr.pts.forEach(function (p, k) { cx[k ? 'lineTo' : 'moveTo'](p[0], p[1]); }); cx.stroke();
+            var e = tr.pts[tr.pts.length - 1]; cx.fillStyle = 'rgba(89, 240, 160, .35)'; cx.fillRect(e[0] - 2, e[1] - 2, 4, 4);
+            // puls běží po dráze
+            var ph = (t * 0.35 + tr.ph) % 1, seg = Math.floor(ph * (tr.pts.length - 1)), u = ph * (tr.pts.length - 1) - seg, A = tr.pts[seg], B = tr.pts[seg + 1];
+            cx.fillStyle = 'rgba(160, 255, 200, .7)'; cx.beginPath(); cx.arc(A[0] + (B[0] - A[0]) * u, A[1] + (B[1] - A[1]) * u, 2, 0, 7); cx.fill();
+          });
+          cx.strokeStyle = 'rgba(89, 240, 160, .28)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(0, mid); cx.lineTo(W, mid); cx.stroke();
+          cx.fillStyle = 'rgba(89, 240, 160, .4)'; for (var cxs = 30; cxs < W; cxs += 60) cx.fillRect(cxs - 2, mid - 2, 4, 4);
+          ownMid = true;
+          break;
+        case 'kola':
+          o.gears.forEach(function (gg, k) {
+            gearPath(gg[0], gg[1], gg[2], Math.round(gg[2] / 4), t * 0.35 * gg[3] * 40 / gg[2]);
+            cx.fillStyle = 'rgba(120, 72, 36, .34)'; cx.fill();
+            cx.strokeStyle = 'rgba(208, 138, 74, .4)'; cx.lineWidth = 1.4; cx.stroke();
+            cx.fillStyle = 'rgba(40, 24, 12, .3)'; cx.beginPath(); cx.arc(gg[0], gg[1], gg[2] * 0.25, 0, 7); cx.fill();
+          });
+          break;
+      }
+      cx.restore();
+      atmoParticles(now, id);
+      return ownMid;
+    }
+    // občasné drobnosti ve vzduchu (vločka, uhlík, lístek, obláček páry) – málo a pomalu
+    function atmoParticles(now, id) {
+      var dt = atmoT ? Math.min(0.05, (now - atmoT) / 1000) : 0;
+      atmoT = now;
+      if (paused || now < hitStop) dt = 0;
+      if (now > atmoNext && dt > 0) {
+        atmoNext = now + rnd(700, 1600);
+        var p = null;
+        if (id === 'led') p = { t: 'flake', x: rnd(20, W - 20), y: -6, vx: rnd(-10, 10), vy: rnd(25, 45), size: rnd(1.5, 2.6), rot: 0, vr: rnd(-1, 1), c: '#e6f7ff', life: 14 };
+        if (id === 'lava') p = { t: 'spark', x: rnd(20, W - 20), y: H + 4, vx: rnd(-8, 8), vy: rnd(-55, -30), size: rnd(1, 1.8), c: '#ffb35c', life: 5 };
+        if (id === 'vetev' && Math.random() < 0.6) p = { t: 'leaf', x: rnd(20, W - 20), y: -6, vx: rnd(-10, 10), vy: rnd(20, 35), size: rnd(3, 4.5), rot: rnd(0, 6), vr: rnd(-2, 2), c: '#6fbf4a', life: 18 };
+        if (id === 'kola' && Math.random() < 0.4) p = { t: 'puff', x: Math.random() < 0.5 ? 20 : W - 20, y: Math.random() < 0.5 ? 30 : H - 30, vx: rnd(-6, 6), vy: rnd(-14, -6), size: rnd(8, 12), c: '#ece6de', life: 3, a: 0.12 };
+        if (id === 'plys' && Math.random() < 0.5) p = { t: 'fluff', x: rnd(20, W - 20), y: -6, vx: rnd(-8, 8), vy: rnd(12, 22), size: rnd(1.5, 2.5), c: '#ffffff', life: 16, a: 0.5 };
+        if (p) { p.age = 0; p.a = p.a || 0.45; apfx.push(p); }
+      }
+      apfx = apfx.filter(function (p) {
+        p.age += dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.vr) p.rot += p.vr * dt;
+        if (p.t === 'leaf' || p.t === 'flake' || p.t === 'fluff') p.x += Math.sin(p.age * 1.7 + p.size) * 12 * dt;
+        return p.age < p.life && p.y > -20 && p.y < H + 20;
+      });
+      if (apfx.length) drawPfx(apfx);
+    }
     // perfektní odstřel „na steroidech“: velký efekt v duchu pálky (krátký, kolem pálky, míček zůstává vidět)
     function padEpic(id, g, now, big) {
       var cxp = g.x, top = g.top, i, a;
@@ -697,8 +905,8 @@
           addP({ t: 'flake', x: ball.x + rnd(-6, 6), y: ball.y + rnd(-6, 6), vx: rnd(-15, 15), vy: rnd(-15, 15), g: 0, drag: 1, life: 0.6, size: rnd(1.2, 2), rot: rnd(0, 6), vr: 2, c: '#e6f7ff' });
       }
     }
-    function drawPfx() {
-      pfx.forEach(function (p) {
+    function drawPfx(list) {
+      (list || pfx).forEach(function (p) {
         var k = p.age / p.life, a = (p.a || 0.85) * (k < 0.15 ? k / 0.15 : 1 - Math.max(0, (k - 0.5) / 0.5));
         if (a <= 0) return;
         cx.save(); cx.globalAlpha = a; cx.translate(p.x, p.y); if (p.rot) cx.rotate(p.rot);
@@ -1249,19 +1457,19 @@
     var SKINS = [
       { id: 'klasik', pad: ['#f2f2f4', '#9a9aa4'], rim: '#ffd23f', glow: 'rgba(255, 200, 60, .9)', trail: '#e6b730' },
       // obrázkové pálky (img = klíč v kevin/pong/palky.json z tools/catsmash-sprites.py); pad = barvy pro záložní kreslení
-      { b: 'easy', img: 'vetev', pad: ['#c79a62', '#5a3a1c'], rim: '#8fd16a', glow: 'rgba(120, 200, 90, .9)', trail: '#9ccf6a' },
-      { b: 'clean', img: 'led', pad: ['#eef8ff', '#8fc6e8'], rim: '#cdeeff', glow: 'rgba(170, 225, 255, .95)', trail: '#bfe6ff' },
-      { b: 'overheat', img: 'lava', pad: ['#5a5550', '#1c1a18'], rim: '#ff8a2a', glow: 'rgba(255, 110, 20, .95)', trail: '#ff6a1a' },
-      { b: 'angry', img: 'retez', pad: ['#ffe27a', '#a67c00'], rim: '#ffd23f', glow: 'rgba(255, 210, 63, 1)', trail: '#e6b730' },
-      { b: 'comeback', img: 'graffiti', pad: ['#3a3a40', '#111114'], rim: '#ff5fd2', glow: 'rgba(120, 220, 255, .9)', trail: '#ffcf3a' },
-      { b: 'yarn', img: 'plys', pad: ['#ffffff', '#cfcfd6'], rim: '#ffc2cf', glow: 'rgba(255, 190, 205, .9)', trail: '#ffd6df' },
-      { b: 'night', img: 'neon', pad: ['#2a2a35', '#08080c'], rim: '#7df9ff', glow: 'rgba(200, 110, 255, .95)', trail: '#b46bff' },
-      { b: 'super', img: 'ekvalizer', pad: ['#2a2a2a', '#050505'], rim: '#e6b730', glow: 'rgba(230, 183, 48, .9)', trail: '#e6b730' },
+      { b: 'first', img: 'vetev', pad: ['#c79a62', '#5a3a1c'], rim: '#8fd16a', glow: 'rgba(120, 200, 90, .9)', trail: '#9ccf6a' },
+      { b: 'tinker', img: 'plys', pad: ['#ffffff', '#cfcfd6'], rim: '#ffc2cf', glow: 'rgba(255, 190, 205, .9)', trail: '#ffd6df' },
+      { b: 'normal', img: 'graffiti', pad: ['#3a3a40', '#111114'], rim: '#ff5fd2', glow: 'rgba(120, 220, 255, .9)', trail: '#ffcf3a' },
       { b: 'loyal', img: 'jadeit', pad: ['#8fd6a8', '#2f7a4c'], rim: '#7fd6a0', glow: 'rgba(110, 210, 150, .9)', trail: '#6fcf97' },
-      { b: 'wardrobe', img: 'perly', pad: ['#ffffff', '#d9cfe0'], rim: '#fff4fb', glow: 'rgba(255, 240, 250, .95)', trail: '#f3e6ff' },
-      { b: 'wins50', img: 'mince', pad: ['#ffd76a', '#8a6400'], rim: '#ffd23f', glow: 'rgba(255, 200, 60, .95)', trail: '#d9a441' },
+      { b: 'streak', img: 'mince', pad: ['#ffd76a', '#8a6400'], rim: '#ffd23f', glow: 'rgba(255, 200, 60, .95)', trail: '#d9a441' },
+      { b: 'night', img: 'led', pad: ['#eef8ff', '#8fc6e8'], rim: '#cdeeff', glow: 'rgba(170, 225, 255, .95)', trail: '#bfe6ff' },
       { b: 'sniper', img: 'cip', pad: ['#3a3330', '#0e0b0a'], rim: '#e6b730', glow: 'rgba(90, 255, 160, .8)', trail: '#59f0a0' },
-      { b: 'tinker', img: 'kola', pad: ['#e0a36a', '#7a4320'], rim: '#e0a36a', glow: 'rgba(224, 150, 90, .9)', trail: '#c9844a' }
+      { b: 'close', img: 'perly', pad: ['#ffffff', '#d9cfe0'], rim: '#fff4fb', glow: 'rgba(255, 240, 250, .95)', trail: '#f3e6ff' },
+      { b: 'marathon', img: 'ekvalizer', pad: ['#2a2a2a', '#050505'], rim: '#e6b730', glow: 'rgba(230, 183, 48, .9)', trail: '#e6b730' },
+      { b: 'comeback', img: 'lava', pad: ['#5a5550', '#1c1a18'], rim: '#ff8a2a', glow: 'rgba(255, 110, 20, .95)', trail: '#ff6a1a' },
+      { b: 'clean', img: 'retez', pad: ['#ffe27a', '#a67c00'], rim: '#ffd23f', glow: 'rgba(255, 210, 63, 1)', trail: '#e6b730' },
+      { b: 'angry', img: 'neon', pad: ['#2a2a35', '#08080c'], rim: '#7df9ff', glow: 'rgba(200, 110, 255, .95)', trail: '#b46bff' },
+      { b: 'wins100', img: 'kola', pad: ['#e0a36a', '#7a4320'], rim: '#e0a36a', glow: 'rgba(224, 150, 90, .9)', trail: '#c9844a' }
     ];
     SKINS.forEach(function (s) { s.id = s.id || s.img; s.ok = function () { return hasBadge(s.b); }; });
     // (staré číselné kevinPongSkin / kevinPongBall patřily ke zrušeným barevným pálkám a míčkům → začne se od základu)
@@ -1269,11 +1477,11 @@
     if (!SKINS[skin] || !SKINS[skin].ok()) skin = 0;
     // míčky: hopík pro všechny, ostatní odemkne odznak; kreslí je drawBall
     var BALLS = [{ id: 'hopik' },
-      // obrázkové míčky (kevin/pong/micky.json): ke každé obrázkové pálce jeden do páru + mramor
-      { id: 'kastan', b: 'easy' }, { id: 'ledovka', b: 'clean' }, { id: 'lavak', b: 'overheat' }, { id: 'tlapka', b: 'angry' },
-      { id: 'sprej', b: 'comeback' }, { id: 'plysak', b: 'yarn' }, { id: 'vir', b: 'night' }, { id: 'repro', b: 'super' },
-      { id: 'jadeitak', b: 'loyal' }, { id: 'perla', b: 'wardrobe' }, { id: 'procesor', b: 'sniper' }, { id: 'hodinky', b: 'tinker' },
-      { id: 'mramor', b: 'close' }];
+      // obrázkové míčky (kevin/pong/micky.json): od nejobyčejnějšího po nejhezčí
+      { id: 'mramor', b: 'easy' }, { id: 'kastan', b: 'tinker' }, { id: 'plysak', b: 'normal' }, { id: 'jadeitak', b: 'loyal' },
+      { id: 'ledovka', b: 'night' }, { id: 'procesor', b: 'sniper' }, { id: 'sprej', b: 'overheat' }, { id: 'perla', b: 'close' },
+      { id: 'repro', b: 'marathon' }, { id: 'lavak', b: 'comeback' }, { id: 'tlapka', b: 'super' }, { id: 'vir', b: 'angry' },
+      { id: 'hodinky', b: 'wins100' }];
     var ballType = Math.max(0, BALLS.map(function (b) { return b.id; }).indexOf(store.get('kevinPongBallId')));
     if (!BALLS[ballType] || !hasBadge(BALLS[ballType].b)) ballType = 0;
     function vibe(p) { if (vibOn && navigator.vibrate) try { navigator.vibrate(p); } catch (e) { /* nevadí */ } }
@@ -1725,7 +1933,7 @@
       if (k === 'calm') { var f = Math.min(1, Math.max(0.7, L.speed / ball.speed)); ball.speed *= f; ball.vx *= f; ball.vy *= f; }
       comic('l', 'burst good', (T.power || {})[k] || k, 1500);
       sfx.shot(0); vibe(30);
-      store.set('kevinPongScrews', String(+(store.get('kevinPongScrews') || 0) + 1));
+      if (level >= 2) store.set('kevinPongScrews', String(+(store.get('kevinPongScrews') || 0) + 1));
       quip('sroubek', 0.7);
     }
     // Kevin hodí klubíčko vlny, ale konec nitky drží na své pálce: klubíčko vyletí, nitka se napne a klubíčko
@@ -2007,12 +2215,23 @@
       }).catch(function () { endScreen(playerWon, ms, null, fresh); });
     }
     // odznaky po zápase: co se stalo v zápase + počítadla v prohlížeči; vrací nové (ukáže je konec zápasu)
+    // odznaky jen na Normální a nejtěžší (na Lehké se nesbírají ani výhry, šroubky a dny); h* = jen za nejtěžší
     function earnBadges(won, ms) {
       var e = [];
+      if (level < 2) return e;
       if (won) {
         var wins = +(store.get('kevinPongWins') || 0) + 1;
         store.set('kevinPongWins', String(wins));
-        e.push('first', ['easy', 'normal', 'angry'][level - 1]);
+        e.push('first', level === 2 ? 'normal' : 'angry');
+        if (wins >= 3) e.push('easy');
+        if (level === 3) {
+          var hard = +(store.get('kevinPongHardWins') || 0) + 1;
+          store.set('kevinPongHardWins', String(hard));
+          if (hard >= 5) e.push('hwins5');
+          if (ms < 120000) e.push('hfast');
+          if (kev <= 3) e.push('hclean');
+          if (maxDown >= 5) e.push('hcomeback');
+        }
         if (kev === 0) e.push('clean');
         if (kev === 9) e.push('close');
         if (ms < 75000) e.push('fast');
@@ -2024,6 +2243,7 @@
         if (new Date().getHours() < 4) e.push('night');
       }
       if (mt.perfect >= 3) e.push('sniper');
+      if (mt.perfect >= 5 && level === 3) e.push('hsniper');
       if (mt.superHit) e.push('super');
       if (+(store.get('kevinPongScrews') || 0) >= 10) e.push('tinker');
       if (mt.overheats >= 3) e.push('overheat');
@@ -2054,8 +2274,10 @@
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.play) + '</button>' +
         '<p class="kp-rec" hidden></p>' +
         '<p class="kp-links"><button type="button" class="kp-link" data-go="how">' + esc(T.how || T.controlsTitle || '') + '</button><span aria-hidden="true">·</span>' +
+        '<button type="button" class="kp-link" data-go="badges">' + esc(T.badgesTitle || '') + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p></div>' +
         '<div class="kp-view kp-how"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + backBtn() + '</div>' +
+        '<div class="kp-view kp-badges">' + badgeOverview() + backBtn() + '</div>' +
         '<div class="kp-view kp-top"><section class="kpong-board"></section>' + backBtn() + '</div>';
       panel.querySelectorAll('.kpong-level').forEach(function (b) {
         b.addEventListener('click', function () {
@@ -2071,6 +2293,35 @@
       say(pick(T.hello), 3000);
     }
 
+    // přehled odznaků v menu hry: skupiny, u každého ikona, titul a ikonky odměn; ťuknutím se ukáže, jak ho získat
+    // odznaky, které navíc odemknou rámeček kolem fotky (stejné jako PongBadges.FRAMES na serveru)
+    var FRAMES = ['angry', 'wins100', 'wardrobe', 'hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback'];
+    var BADGE_GROUPS = [['first', 'easy', 'normal', 'angry', 'clean', 'close', 'fast', 'streak', 'wins50', 'wins100'],
+      ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'wardrobe'],
+      ['hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback']];
+    function badgeOverview() {
+      var all = Object.keys(BADGE_ICON), got = all.filter(function (k) { return badges[k]; }).length;
+      var html = '<h3 class="kp-label">' + esc(T.badgesTitle || '') + ' <small class="kp-count">' + got + '/' + all.length + '</small></h3>' +
+        '<div class="kp-bdg-bar" style="--p:' + Math.round(got / all.length * 100) + '%"><span></span></div>' +
+        '<p class="kp-bdg-rule">' + esc(T.badgesRule || '') + '</p><div class="kp-bdg-list">';
+      BADGE_GROUPS.forEach(function (grp, gi) {
+        html += '<p class="kp-bdg-group' + (gi === 2 ? ' hard' : '') + '">' + esc((T.badgeGroups || [])[gi] || '') + '</p>';
+        grp.forEach(function (k) {
+          var on = !!badges[k], tier = { streak: ' bronze', wins50: ' silver', wins100: ' gold' }[k] || '';
+          var gifts = (SKINS.some(function (x) { return x.b === k; }) ? '<i class="fa-solid fa-table-tennis-paddle-ball"></i>' : '') +
+            (BALLS.some(function (x) { return x.b === k; }) ? '<i class="fa-solid fa-circle"></i>' : '') +
+            (Object.keys(BG_BADGE).some(function (b) { return BG_BADGE[b] === k; }) ? '<i class="fa-regular fa-image"></i>' : '') +
+            (FRAMES.indexOf(k) >= 0 ? '<i class="fa-regular fa-circle-user"></i>' : '');
+          var rw = (T.rewards || {})[k];
+          html += '<details class="kp-bdg' + (on ? ' on' : '') + (gi === 2 ? ' hard' : '') + '"><summary>' +
+            '<span class="kp-bdg-icon' + tier + '"><i class="fa-solid ' + (on ? BADGE_ICON[k] : 'fa-lock') + '" aria-hidden="true"></i></span>' +
+            '<b>' + esc((T.badgeNames || {})[k] || k) + '</b><span class="kp-bdg-gifts" aria-hidden="true">' + gifts + '</span></summary>' +
+            '<p>' + esc((T.badgeHow || {})[k] || '') + '</p>' +
+            '<p class="kp-bdg-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i> ' + esc(rw || T.badgeNoReward || '') + '</p></details>';
+        });
+      });
+      return html + '</div>';
+    }
     function backBtn() { return '<button type="button" class="kp-link kp-backto" data-go="main"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> ' + esc(T.back || '') + '</button>'; }
     // odkazy v menu přepínají pohled: hlavní · jak se hraje · tabulka
     panel.addEventListener('click', function (e) {
@@ -2090,7 +2341,7 @@
         signedIn = !!j.signedIn; csrf = j.csrf || null;
         var rows = (j.top || []).map(function (r) {
           return '<li class="' + (r.me ? 'me' : '') + '"><span class="kpong-place">' + r.place + '.</span>' +
-            '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' +
+            (r.frame ? '<span class="av-frame f-' + esc(r.frame) + '">' : '') + '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' + (r.frame ? '</span>' : '') +
             '<span class="kpong-name">' + esc(r.name) + (r.title ? ' <i class="fa-solid ' + esc(r.title.icon) + ' kpong-rtitle" title="' + esc(r.title.name) + '" aria-label="' + esc(r.title.name) + '"></i>' : '') + '</span><span class="kpong-time">' + time(r.ms) + '</span><span class="kpong-kgoals">' + r.kevin + ' ' + esc(T.kevinGoals) + '</span></li>';
         }).join('');
         var mine = j.me ? '<p class="kpong-note">' + esc(T.yourBest.replace('{place}', j.me.place).replace('{time}', time(j.me.ms))) + '</p>' : '';
@@ -2126,6 +2377,8 @@
       panel.querySelector('.kpong-play').addEventListener('click', begin);
       panel.querySelector('.kpong-back').addEventListener('click', startScreen);
       board(level);
+      if (fresh && fresh.length && (T.badgeLines || {})[fresh[0]]) setTimeout(function () { say(T.badgeLines[fresh[0]], 5200); }, 900);
+      else if (won && level === 1 && T.noBadges) setTimeout(function () { say(T.noBadges, 4200); }, 900);
     }
 
     function begin() {
@@ -2139,7 +2392,7 @@
       yarn = null; yarnUsed = false; mood = 'calm';
       mt = { perfect: 0, superHit: false, overheats: 0, maxRally: 0, yarn: false };
       var today = new Date().toISOString().slice(0, 10);              // Věrný parťák: počet různých dní se hrou
-      if (store.get('kevinPongDay') !== today) { store.set('kevinPongDay', today); store.set('kevinPongDays', String(+(store.get('kevinPongDays') || 0) + 1)); }
+      if (level >= 2 && store.get('kevinPongDay') !== today) { store.set('kevinPongDay', today); store.set('kevinPongDays', String(+(store.get('kevinPongDays') || 0) + 1)); }
       heat = 0; hotUntil = 0; isHot = false; root.classList.remove('hot'); frame.style.setProperty('--heat', 0); heatShown = 0;
       running = true; awaitStart = 'start';            // první hopík vyletí, až hráč ťukne / klikne / zmáčkne mezerník
       resetBall(Math.random() < 0.5);
@@ -2168,12 +2421,15 @@
       mechTick(now); fxTick(now);
       var light = false;   // hřiště je tmavé sklo stroje i ve světlém režimu
       cx.clearRect(0, 0, W, H);
+      var ownMid = drawAtmo(now);                       // atmosféra pálky (pod vším)
       rail(KEVIN_Y, kevin.x); rail(PLAYER_Y, player.x);
-      // čáry: střed, branky
-      cx.strokeStyle = light ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.1)';
-      cx.lineWidth = 3; cx.setLineDash([14, 14]);
-      cx.beginPath(); cx.moveTo(0, (KEVIN_Y + PLAYER_Y) / 2); cx.lineTo(W, (KEVIN_Y + PLAYER_Y) / 2); cx.stroke();
-      cx.setLineDash([]);
+      // čáry: střed (pokud ho nenakreslila atmosféra), branky
+      if (!ownMid) {
+        cx.strokeStyle = light ? 'rgba(0,0,0,.12)' : 'rgba(255,255,255,.1)';
+        cx.lineWidth = 3; cx.setLineDash([14, 14]);
+        cx.beginPath(); cx.moveTo(0, (KEVIN_Y + PLAYER_Y) / 2); cx.lineTo(W, (KEVIN_Y + PLAYER_Y) / 2); cx.stroke();
+        cx.setLineDash([]);
+      }
       // pálky (zlatá Kevinova, hráčova v barvě textu)
       var warn = kevin.shot && ball.vy < 0 && Math.sin(now / 70) > 0;
       var ksp = kevinSprite();
@@ -2402,50 +2658,81 @@
       setCard.className = 'kpong-settings';
       setCard.setAttribute('role', 'dialog');
       setCard.setAttribute('aria-label', T.settings || 'Settings');
-      setCard.innerHTML = '<h2 class="kpong-title">' + esc(T.settings || '') + '</h2>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.bgTitle || '') + '</h3><div class="kp-bgs" role="radiogroup" aria-label="' + esc(T.bgTitle || '') + '">' +
-        BGS.map(function (b, i) {
-          var ok = hasBadge(BG_BADGE[b]), nm = (T.bgs || BGS)[i];
-          return '<button type="button" role="radio" class="kp-bgopt" data-bg="' + b + '" aria-checked="' + (b === bgName) + '"' + (ok ? '' : ' aria-disabled="true"') +
-            ' title="' + esc(nm + (ok ? '' : ' – ' + lockText(BG_BADGE[b]))) + '" aria-label="' + esc(nm) + '"' +
-            (b === 'tma' ? '' : ' style="background-image:url(/kevin/pong/pozadi-' + b + '-mini.webp' + ver + ')"') + '>' +
-            (ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>') + '</button>';
-        }).join('') + '</div><p class="kp-bgname">' + esc((T.bgs || BGS)[BGS.indexOf(bgName)]) + '</p></section>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.skinTitle || '') + '</h3><div class="kp-bgs" role="radiogroup" aria-label="' + esc(T.skinTitle || '') + '">' +
-        SKINS.map(function (s, i) {
-          var ok = s.ok(), name = (T.skins || [])[i] || '';
+      // nastavení ve třech záložkách: Vzhled (náhled + řady pálek, míčků a pozadí na posouvání), Zvuk, Ovládání
+      function lockI(ok) { return ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>'; }
+      function count(list, okFn) { return '<small class="kp-count">' + list.filter(okFn).length + '/' + list.length + '</small>'; }
+      var secSkin = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.skinTitle || '') + count(SKINS, function (x) { return x.ok(); }) + '</h3>' +
+        '<div class="kp-bgs kp-strip" role="radiogroup" aria-label="' + esc(T.skinTitle || '') + '">' +
+        SKINS.map(function (x, i) {
+          var ok = x.ok(), name = (T.skins || [])[i] || '';
           return '<button type="button" role="radio" class="kp-skin" data-skin="' + i + '" aria-checked="' + (i === skin) + '"' + (ok ? '' : ' aria-disabled="true"') +
-            ' title="' + esc(name + (ok ? '' : ' – ' + lockText(s.b))) + '" aria-label="' + esc(name) + '" style="--c1:' + s.pad[0] + ';--c2:' + s.pad[1] + ';--rim:' + s.rim + '"' +
-            (s.img ? ' data-img="1"><canvas width="132" height="66" aria-hidden="true"></canvas>' : '>') +
-            (ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>') + '</button>';
-        }).join('') + '</div><p class="kp-bgname kp-skinname">' + esc((T.skins || [])[skin] || '') + '</p></section>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.ballTitle || '') + '</h3><div class="kp-bgs" role="radiogroup" aria-label="' + esc(T.ballTitle || '') + '">' +
+            ' title="' + esc(name + (ok ? '' : ' – ' + lockText(x.b))) + '" aria-label="' + esc(name) + '" style="--c1:' + x.pad[0] + ';--c2:' + x.pad[1] + ';--rim:' + x.rim + '"' +
+            (x.img ? ' data-img="1"><canvas width="132" height="66" aria-hidden="true"></canvas>' : '>') + lockI(ok) + '</button>';
+        }).join('') + '</div><p class="kp-bgname kp-skinname">' + esc((T.skins || [])[skin] || '') + '</p></section>';
+      var secBall = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.ballTitle || '') + count(BALLS, function (x) { return hasBadge(x.b); }) + '</h3>' +
+        '<div class="kp-bgs kp-strip" role="radiogroup" aria-label="' + esc(T.ballTitle || '') + '">' +
         BALLS.map(function (bl, i) {
           var ok = hasBadge(bl.b), name = (T.balls || [])[i] || bl.id;
           return '<button type="button" role="radio" class="kp-ball" data-ball="' + i + '" aria-checked="' + (i === ballType) + '"' + (ok ? '' : ' aria-disabled="true"') +
-            ' title="' + esc(name + (ok ? '' : ' – ' + lockText(bl.b))) + '" aria-label="' + esc(name) + '"><canvas width="88" height="88" aria-hidden="true"></canvas>' +
-            (ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>') + '</button>';
-        }).join('') + '</div><p class="kp-bgname kp-ballname">' + esc((T.balls || [])[ballType] || '') + '</p></section>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.soundTitle || '') + '</h3><div class="kp-row">' +
+            ' title="' + esc(name + (ok ? '' : ' – ' + lockText(bl.b))) + '" aria-label="' + esc(name) + '"><canvas width="88" height="88" aria-hidden="true"></canvas>' + lockI(ok) + '</button>';
+        }).join('') + '</div><p class="kp-bgname kp-ballname">' + esc((T.balls || [])[ballType] || '') + '</p></section>';
+      var secBg = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.bgTitle || '') + count(BGS, function (x) { return hasBadge(BG_BADGE[x]); }) + '</h3>' +
+        '<div class="kp-bgs kp-strip" role="radiogroup" aria-label="' + esc(T.bgTitle || '') + '">' +
+        BGS.map(function (bg, i) {
+          var ok = hasBadge(BG_BADGE[bg]), nm = (T.bgs || BGS)[i];
+          return '<button type="button" role="radio" class="kp-bgopt" data-bg="' + bg + '" aria-checked="' + (bg === bgName) + '"' + (ok ? '' : ' aria-disabled="true"') +
+            ' title="' + esc(nm + (ok ? '' : ' – ' + lockText(BG_BADGE[bg]))) + '" aria-label="' + esc(nm) + '"' +
+            (bg === 'tma' ? '' : ' style="background-image:url(/kevin/pong/pozadi-' + bg + '-mini.webp' + ver + ')"') + '>' + lockI(ok) + '</button>';
+        }).join('') + '</div><p class="kp-bgname kp-bgname-bg">' + esc((T.bgs || BGS)[BGS.indexOf(bgName)]) + '</p></section>';
+      var secSound = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.soundTitle || '') + '</h3><div class="kp-row">' +
         '<button type="button" class="kp-fullbtn kp-snd" aria-pressed="' + (vol > 0) + '"></button>' +
-        '<input type="range" class="kp-vol" min="0.1" max="1" step="0.1" value="' + (vol || +(store.get('kevinPongVolLast') || 0.6)) + '" aria-label="' + esc(T.volume || '') + '"></div></section>' +
-        (coarse ? '' : '<section class="kp-sec"><h3 class="kp-label">' + esc(T.keysTitle || '') + '</h3><div class="kp-row kp-keyrow">' +
-          '<i class="fa-solid fa-gauge-simple-high" aria-hidden="true"></i>' +
-          '<input type="range" class="kp-keys" min="0.5" max="2" step="0.1" value="' + keySpeed + '" aria-label="' + esc(T.keysTitle || '') + '">' +
-          '<output class="kp-keysval">' + Math.round(keySpeed * 100) + ' %</output></div><p class="kp-bgname">' + esc(T.keysHint || '') + '</p></section>') +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.talkTitle || '') + '</h3><div class="kp-talk" role="radiogroup" aria-label="' + esc(T.talkTitle || '') + '">' +
-        TALK_KEYS.map(function (k, i) { return '<button type="button" role="radio" data-talk="' + k + '" aria-checked="' + (k === talk) + '">' + esc((T.talk || TALK_KEYS)[i]) + '</button>'; }).join('') + '</div></section>' +
-        '<div class="kp-checks">' +
+        '<input type="range" class="kp-vol" min="0.1" max="1" step="0.1" value="' + (vol || +(store.get('kevinPongVolLast') || 0.6)) + '" aria-label="' + esc(T.volume || '') + '"></div></section>';
+      var secTalk = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.talkTitle || '') + '</h3><div class="kp-talk" role="radiogroup" aria-label="' + esc(T.talkTitle || '') + '">' +
+        TALK_KEYS.map(function (k, i) { return '<button type="button" role="radio" data-talk="' + k + '" aria-checked="' + (k === talk) + '">' + esc((T.talk || TALK_KEYS)[i]) + '</button>'; }).join('') + '</div></section>';
+      var secKeys = coarse ? '' : '<section class="kp-sec"><h3 class="kp-label">' + esc(T.keysTitle || '') + '</h3><div class="kp-row kp-keyrow">' +
+        '<i class="fa-solid fa-gauge-simple-high" aria-hidden="true"></i>' +
+        '<input type="range" class="kp-keys" min="0.5" max="2" step="0.1" value="' + keySpeed + '" aria-label="' + esc(T.keysTitle || '') + '">' +
+        '<output class="kp-keysval">' + Math.round(keySpeed * 100) + ' %</output></div><p class="kp-bgname">' + esc(T.keysHint || '') + '</p></section>';
+      var secChecks = '<div class="kp-checks">' +
         (navigator.vibrate ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="vib" aria-pressed="' + vibOn + '"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> ' + esc(T.vibrate || '') + '</button>' : '') +
         (coarse ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="lefty" aria-pressed="' + lefty + '"><i class="fa-solid fa-hand" aria-hidden="true"></i> ' + esc(T.lefty || '') + '</button>' : '') +
-        '</div>' +
+        '<button type="button" class="kp-fullbtn kp-opt" data-opt="atmo" aria-pressed="' + atmoOn + '"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ' + esc(T.atmo || '') + '</button>' +
         (canFull ? '<button type="button" class="kp-fullbtn kp-full"><i class="fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand') + '" aria-hidden="true"></i> ' + esc(T.fullscreen || '') + '</button>' : '') +
+        '</div>';
+      var TABS = [['look', 'fa-palette', T.tabLook], ['sound', 'fa-volume-high', T.tabSound], ['controls', 'fa-sliders', T.tabControls]];
+      var tab = TABS.some(function (x) { return x[0] === store.get('kevinPongSetTab'); }) ? store.get('kevinPongSetTab') : 'look';
+      setCard.innerHTML = '<h2 class="kpong-title">' + esc(T.settings || '') + '</h2>' +
+        '<div class="kp-tabs" role="tablist">' + TABS.map(function (x) {
+          return '<button type="button" role="tab" id="kp-tab-' + x[0] + '" aria-controls="kp-pane-' + x[0] + '" data-tab="' + x[0] + '" aria-selected="' + (x[0] === tab) + '">' +
+            '<i class="fa-solid ' + x[1] + '" aria-hidden="true"></i><span>' + esc(x[2] || x[0]) + '</span></button>';
+        }).join('') + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-look" aria-labelledby="kp-tab-look" data-pane="look"' + (tab === 'look' ? '' : ' hidden') + '>' +
+        '<canvas class="kp-preview" width="600" height="200" aria-hidden="true"></canvas>' + secSkin + secBall + secBg + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-sound" aria-labelledby="kp-tab-sound" data-pane="sound"' + (tab === 'sound' ? '' : ' hidden') + '>' + secSound + secTalk + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secKeys + secChecks + '</div>' +
         '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>';
       root.appendChild(setCard);
       setBtn.setAttribute('aria-expanded', 'true');
+      setCard.querySelectorAll('.kp-tabs [data-tab]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var t = b.dataset.tab;
+          store.set('kevinPongSetTab', t);
+          setCard.querySelectorAll('.kp-tabs [data-tab]').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+          setCard.querySelectorAll('.kp-pane').forEach(function (p) { p.hidden = p.dataset.pane !== t; });
+          centerPicked();
+        });
+      });
+      // vybraná položka v každé řadě na střed (ať je hned vidět, co mám)
+      function centerPicked() {
+        setCard.querySelectorAll('.kp-strip').forEach(function (st) {
+          var on = st.querySelector('[aria-checked="true"]');
+          if (on && st.offsetParent) st.scrollLeft = on.offsetLeft - st.clientWidth / 2 + on.offsetWidth / 2;
+        });
+      }
+      centerPicked();
       setCard.querySelectorAll('.kp-bgopt').forEach(function (b, i) {
         b.addEventListener('click', function () {
-          if (!hasBadge(BG_BADGE[b.dataset.bg])) { setCard.querySelector('.kp-bgname').textContent = (T.bgs || BGS)[i] + ' – ' + lockText(BG_BADGE[b.dataset.bg]); return; }
+          if (!hasBadge(BG_BADGE[b.dataset.bg])) { setCard.querySelector('.kp-bgname-bg').textContent = (T.bgs || BGS)[i] + ' – ' + lockText(BG_BADGE[b.dataset.bg]); return; }
           setBg(b.dataset.bg); store.set('kevinPongBg', b.dataset.bg);
           setCard.querySelectorAll('.kp-bgopt').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           setCard.querySelector('.kp-bgname').textContent = (T.bgs || BGS)[i];
@@ -2478,11 +2765,13 @@
       }
       previews();
       onSprites.push(previews);
+      drawPreview();
+      onSprites.push(drawPreview);
       setCard.querySelectorAll('.kp-skin').forEach(function (b) {
         b.addEventListener('click', function () {
           var i = +b.dataset.skin, name = (T.skins || [])[i] || '', nameEl = setCard.querySelector('.kp-skinname');
           if (!SKINS[i].ok()) { nameEl.textContent = name + ' – ' + lockText(SKINS[i].b); return; }
-          skin = i; store.set('kevinPongPad', SKINS[i].id);
+          skin = i; store.set('kevinPongPad', SKINS[i].id); drawPreview();
           setCard.querySelectorAll('.kp-skin').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           nameEl.textContent = name;
         });
@@ -2497,7 +2786,7 @@
         b.addEventListener('click', function () {
           var name = (T.balls || [])[i] || '', nameEl = setCard.querySelector('.kp-ballname');
           if (!hasBadge(BALLS[i].b)) { nameEl.textContent = name + ' – ' + lockText(BALLS[i].b); return; }
-          ballType = i; store.set('kevinPongBallId', BALLS[i].id);
+          ballType = i; store.set('kevinPongBallId', BALLS[i].id); drawPreview();
           setCard.querySelectorAll('.kp-ball').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           nameEl.textContent = name;
         });
@@ -2530,11 +2819,27 @@
           var on = b.getAttribute('aria-pressed') !== 'true';
           b.setAttribute('aria-pressed', String(on));
           if (b.dataset.opt === 'vib') { vibOn = on; store.set('kevinPongVib', on ? '1' : '0'); if (on) vibe(30); }
+          else if (b.dataset.opt === 'atmo') { atmoOn = on; store.set('kevinPongAtmo', on ? '1' : '0'); apfx = []; }
           else { lefty = on; store.set('kevinPongLefty', on ? '1' : '0'); root.classList.toggle('lefty', on); setTimeout(fit, 50); }
         });
       });
       setCard.querySelector('.kp-resume').addEventListener('click', closeSettings);
       setCard.querySelector('.kp-resume').focus();
+    }
+    // velký náhled v nastavení: vybraná pálka a nad ní vybraný míček
+    function drawPreview() {
+      var c = setCard && setCard.querySelector('.kp-preview');
+      if (!c) return;
+      var keep = cx, sp = padSprite(skin);
+      cx = c.getContext('2d'); cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, c.width, c.height);
+      var k = c.width / (PAD_W * 2.4), vw = c.width / k, vh = c.height / k;
+      cx.scale(k, k);
+      if (sp) drawSpritePad(sp, vw / 2, vh * 0.5, PAD_W, null, true, skin);
+      else pad(vw / 2, vh * 0.5 + PAD_H / 2, SKINS[skin].pad[0], SKINS[skin].pad[1]);
+      var bx = vw / 2, by = vh * 0.24;
+      if (ballType > 0) drawBall(BALLS[ballType].id, bx, by, 0.4, 0);
+      else if (hopik.naturalWidth) cx.drawImage(hopik, bx - BALL_R, by - BALL_R, BALL_R * 2, BALL_R * 2);
+      cx = keep;
     }
     function closeSettings() {
       if (!setCard) return;

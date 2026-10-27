@@ -15,6 +15,8 @@ public class PongProfile {
     public int wins;
     /** Titul u jména (klíč získaného odznaku) nebo null. */
     public String title;
+    /** Vybraný rámeček kolem fotky (klíč odznaku) nebo null. */
+    public String frame;
     public final List<Badge> badges = new ArrayList<>();
 
     /** Jeden odznak: klíč textů pong.badge.{key} a pong.badge.{key}.how, ikona Font Awesome, získaný? */

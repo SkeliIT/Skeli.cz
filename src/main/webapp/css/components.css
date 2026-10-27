@@ -1004,3 +1004,67 @@ body.light .card-gold {
   border-color: rgba(163, 123, 0, 0.32);
   box-shadow: var(--shadow), 0 0 32px -18px rgba(200, 150, 20, 0.45);
 }
+
+/* ---------- rámečky kolem fotky z CatSmash (users.pong_frame) – komentáře, tabulka ve hře, profil ----------
+   obal .av-frame má velikost fotky; prstenec je ::before (přechod oříznutý maskou na kruh), ozdoby ::after;
+   velikost ozdob v em = font-size obalu je velikost fotky */
+.av-frame { position: relative; display: inline-flex; flex-shrink: 0; border-radius: 50%; line-height: 0; font-size: var(--cmt-av, 40px); --fw: .09em; }
+.av-frame::before, .av-frame::after { content: ""; position: absolute; pointer-events: none; border-radius: 50%; }
+.av-frame::before {
+  inset: calc(var(--fw) * -1.2); padding: var(--fw);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--fw)), #000 calc(100% - var(--fw) + 1px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--fw)), #000 calc(100% - var(--fw) + 1px));
+}
+.acct-photo.av-frame { font-size: 116px; }
+.acct-photo.av-frame .acct-avatar { border-color: transparent; }
+@media (max-width: 600px) { .acct-photo.av-frame { font-size: 84px; } }
+.kpong-board .av-frame { font-size: 24px; --fw: .12em; }
+@keyframes av-spin { to { transform: rotate(1turn); } }
+@keyframes av-pulse { 50% { box-shadow: 0 0 .35em .05em var(--av-glow); } }
+@keyframes av-flicker { 0%, 100% { opacity: 1; } 46% { opacity: 1; } 48% { opacity: .35; } 50% { opacity: 1; } 53% { opacity: .5; } 55% { opacity: 1; } }
+@keyframes av-rise { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-.35em); opacity: 0; } }
+/* Krotitel Kevina: ohnivý prstenec, pomalu se točí */
+.av-frame.f-angry { --av-glow: rgba(255, 90, 0, .55); box-shadow: 0 0 .22em var(--av-glow); }
+.av-frame.f-angry::before { background: conic-gradient(#ff3d00, #ffb02e, #ff6a00, #c41e00, #ffd36b, #ff3d00); animation: av-spin 5s linear infinite; }
+/* Legenda SKELO: dvojitý zlatý prstenec s odleskem */
+.av-frame.f-wins100 { --av-glow: rgba(255, 210, 63, .5); box-shadow: 0 0 .18em var(--av-glow); }
+.av-frame.f-wins100::before { background: conic-gradient(#8f6600, #ffe27a, #c99a12, #fff8d0, #b8860b, #8f6600); animation: av-spin 9s linear infinite; }
+.av-frame.f-wins100::after { inset: calc(var(--fw) * -2.4); border: 1px solid rgba(255, 226, 122, .75); }
+/* Šatní král: fialový samet se zlatými cvočky */
+.av-frame.f-wardrobe::before { --fw: .11em; background: conic-gradient(#3b0d5c, #7b2fa8, #4a1270, #9a4fc9, #3b0d5c); }
+.av-frame.f-wardrobe::after {
+  inset: calc(var(--fw) * -1.2);
+  background: repeating-conic-gradient(#ffd23f 0 4deg, transparent 4deg 30deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - .07em), #000 calc(100% - .065em), #000 calc(100% - .025em), transparent calc(100% - .02em));
+  mask: radial-gradient(farthest-side, transparent calc(100% - .07em), #000 calc(100% - .065em), #000 calc(100% - .025em), transparent calc(100% - .02em));
+}
+/* Pán stroje: zlatý prstenec s korunkou nahoře */
+.av-frame.f-hwins5 { --av-glow: rgba(255, 210, 63, .6); box-shadow: 0 0 .2em var(--av-glow); }
+.av-frame.f-hwins5::before { background: conic-gradient(#b8860b, #ffe27a, #c99a12, #fff1a8, #b8860b); }
+.av-frame.f-hwins5::after {
+  content: "\f521"; font: var(--fa-font-solid); font-size: .36em; inset: auto; top: -.62em; left: 50%; border-radius: 0;
+  transform: translateX(-50%) rotate(-10deg); color: #ffd23f; text-shadow: 0 .04em .12em rgba(0, 0, 0, .7), 0 0 .3em rgba(255, 210, 63, .7);
+}
+/* Blesk z klubka: elektrický modrý prstenec, občas probleskne */
+.av-frame.f-hfast { --av-glow: rgba(125, 249, 255, .6); box-shadow: 0 0 .22em var(--av-glow); }
+.av-frame.f-hfast::before { background: conic-gradient(#7df9ff, #2a62d0, #e9feff, #2a62d0, #7df9ff); animation: av-spin 3s linear infinite, av-flicker 4s steps(1) infinite; }
+/* Kevinova noční můra: černý prstenec s pulzující rudou září */
+.av-frame.f-hclean { --av-glow: rgba(220, 20, 30, .75); animation: av-pulse 2.4s ease-in-out infinite; box-shadow: 0 0 .1em rgba(220, 20, 30, .4); }
+.av-frame.f-hclean::before { background: conic-gradient(#0a0a0a, #3a0006, #0a0a0a, #8a0010, #0a0a0a); }
+/* Ostré oko: zelený prstenec se značkami zaměřovače */
+.av-frame.f-hsniper::before { background: #2fd27a; }
+.av-frame.f-hsniper::after {
+  inset: calc(var(--fw) * -3.4);
+  background: conic-gradient(from -4deg, #59f0a0 0 8deg, transparent 8deg 90deg, #59f0a0 90deg 98deg, transparent 98deg 180deg, #59f0a0 180deg 188deg, transparent 188deg 270deg, #59f0a0 270deg 278deg, transparent 278deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - .09em), #000 calc(100% - .085em));
+  mask: radial-gradient(farthest-side, transparent calc(100% - .09em), #000 calc(100% - .085em));
+}
+/* Fénix ze stroje: plamenný prstenec, nahoru stoupají jiskry */
+.av-frame.f-hcomeback { --av-glow: rgba(255, 140, 20, .65); animation: av-pulse 1.8s ease-in-out infinite; }
+.av-frame.f-hcomeback::before { background: conic-gradient(#ffd36b, #ff6a00, #ff2d00, #ffb02e, #ff6a00, #ffd36b); animation: av-spin 2.6s linear infinite reverse; }
+.av-frame.f-hcomeback::after {
+  inset: -.2em -.05em auto; height: .5em; border-radius: 0;
+  background: radial-gradient(circle at 20% 80%, #ffd36b .03em, transparent .045em), radial-gradient(circle at 50% 60%, #ffb02e .035em, transparent .05em), radial-gradient(circle at 80% 85%, #ff6a00 .03em, transparent .045em);
+  animation: av-rise 1.6s ease-out infinite;
+}
+.cmt-reply .av-frame { font-size: 30px; }

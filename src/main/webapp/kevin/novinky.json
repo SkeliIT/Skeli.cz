@@ -1,6 +1,24 @@
 [
   {
     "d": "2026-10-27",
+    "href": "/uzivatel.jsp#pong",
+    "cs": "Za nejtěžší odznaky v CatSmashi teď dostaneš rámeček kolem fotky – uvidí ho všichni u tvých komentářů.",
+    "en": "The hardest CatSmash badges now give you a frame around your photo – everyone sees it next to your comments.",
+    "de": "Die schwersten CatSmash-Abzeichen geben dir jetzt einen Rahmen um dein Foto – alle sehen ihn bei deinen Kommentaren.",
+    "uk": "За найважчі значки в CatSmash тепер отримаєш рамку довкола фото – її побачать усі біля твоїх коментарів.",
+    "vi": "Các huy hiệu khó nhất trong CatSmash giờ tặng bạn khung quanh ảnh – mọi người đều thấy bên cạnh bình luận của bạn."
+  },
+  {
+    "d": "2026-10-27",
+    "href": "/uzivatel.jsp#pong",
+    "cs": "Odznaky v CatSmashi mají nové vtipné tituly a pět nových jde získat jen na nejtěžší obtížnost. Na Lehkou se odznaky nesbírají.",
+    "en": "CatSmash badges have new funny titles, and five new ones can only be earned on the hardest difficulty. Easy gives no badges.",
+    "de": "Die CatSmash-Abzeichen haben neue lustige Titel, und fünf neue gibt es nur auf der schwersten Stufe. Auf Leicht gibt es keine Abzeichen.",
+    "uk": "Значки в CatSmash мають нові смішні титули, а п’ять нових можна здобути лише на найважчому рівні. На Легкому значків немає.",
+    "vi": "Huy hiệu trong CatSmash có danh hiệu mới vui nhộn, và năm huy hiệu mới chỉ nhận được ở mức khó nhất. Mức Dễ không có huy hiệu."
+  },
+  {
+    "d": "2026-10-27",
     "href": "/?kevin=pong",
     "cs": "V CatSmashi je třináct nových pálek a míčků – větvička, led, láva, plyš, perly… Přívěsky se houpou a každá pálka má při perfektním odstřelu svůj efekt. A já mám konečně vlastní pálku.",
     "en": "CatSmash has thirteen new paddles and balls – twig, ice, lava, plush, pearls… The charms swing and every paddle has its own effect on a perfect shot. And I finally have my own paddle.",
@@ -25,50 +43,5 @@
     "de": "Mein Spiel heißt jetzt CatSmash und hat ein neues Menü direkt auf dem Glas der Maschine. Die Einstellungen sind in der Ecke des Displays.",
     "uk": "Моя гра тепер називається CatSmash і має нове меню просто на склі машини. Налаштування – в куті екрана.",
     "vi": "Trò chơi của tôi giờ tên là CatSmash và có menu mới ngay trên mặt kính cỗ máy. Cài đặt nằm ở góc màn hình."
-  },
-  {
-    "d": "2026-10-26",
-    "href": "/?kevin=pong",
-    "cs": "V CatSmashi teď komentuju každý zápas – přes šest set hlášek, takže se jen tak neopakuju. A občas přiletí komár.",
-    "en": "In CatSmash I now commentate every match – over six hundred lines, so I rarely repeat myself. And sometimes a mosquito shows up.",
-    "de": "In CatSmash kommentiere ich jetzt jedes Spiel – über sechshundert Sprüche, ich wiederhole mich also selten. Und manchmal kommt eine Mücke vorbei.",
-    "uk": "У CatSmash я тепер коментую кожен матч – понад шістсот реплік, тож майже не повторююсь. А іноді прилітає комар.",
-    "vi": "Trong CatSmash giờ tôi bình luận mọi trận – hơn sáu trăm câu, nên hiếm khi lặp lại. Và thỉnh thoảng có muỗi bay tới."
-  },
-  {
-    "d": "2026-10-26",
-    "href": "/?kevin=pong",
-    "cs": "Přibyla hra CatSmash – pinkej se mnou na stroji plném ozubených kol. Najdeš ji v mém menu.",
-    "en": "New game: CatSmash – rally with me on a machine full of gears. It's in my menu.",
-    "de": "Neues Spiel: CatSmash – spiel mit mir auf einer Maschine voller Zahnräder. Du findest es in meinem Menü.",
-    "uk": "Нова гра CatSmash – грай зі мною на машині, повній шестерень. Знайдеш її в моєму меню.",
-    "vi": "Trò chơi mới CatSmash – đánh bóng với tôi trên cỗ máy đầy bánh răng. Có trong menu của tôi."
-  },
-  {
-    "d": "2026-10-26",
-    "href": "/uzivatel.jsp#pong",
-    "cs": "Na stránce Můj účet teď sbíráš odznaky za výhry nade mnou. Osm kousků, žádná sleva.",
-    "en": "On My account you now collect badges for beating me. Eight of them, no discounts.",
-    "de": "Unter Mein Konto sammelst du jetzt Abzeichen für Siege gegen mich. Acht Stück, kein Rabatt.",
-    "uk": "На сторінці Мій акаунт тепер збираєш значки за перемоги наді мною. Вісім штук, без знижок.",
-    "vi": "Ở trang tài khoản, giờ bạn sưu tầm huy hiệu khi thắng tôi. Tám cái, không giảm giá."
-  },
-  {
-    "d": "2026-10-25",
-    "href": "/texty.jsp",
-    "cs": "Sekce Texty má nové živé pozadí – v tmavém režimu kámen, ve světlém zamlžené okno.",
-    "en": "The Lyrics section has a new living background – stone in dark mode, a misty window in light mode.",
-    "de": "Der Bereich Texte hat einen neuen lebendigen Hintergrund – Stein im dunklen Modus, ein beschlagenes Fenster im hellen.",
-    "uk": "Розділ Тексти має новий живий фон – у темному режимі камінь, у світлому запітніле вікно.",
-    "vi": "Mục Lời bài hát có nền sống động mới – đá ở chế độ tối, cửa sổ mờ sương ở chế độ sáng."
-  },
-  {
-    "d": "2026-10-22",
-    "href": "/texty.jsp",
-    "cs": "Texty písní si teď můžeš číst v originále i v překladu najednou – přepínač je nad textem.",
-    "en": "You can now read lyrics in the original and the translation at once – the switch is above the lyrics.",
-    "de": "Songtexte kannst du jetzt im Original und in der Übersetzung gleichzeitig lesen – der Schalter ist über dem Text.",
-    "uk": "Тексти пісень тепер можна читати в оригіналі й перекладі водночас – перемикач над текстом.",
-    "vi": "Giờ bạn có thể đọc lời bài hát bằng bản gốc và bản dịch cùng lúc – nút chuyển ở phía trên lời."
   }
 ]
