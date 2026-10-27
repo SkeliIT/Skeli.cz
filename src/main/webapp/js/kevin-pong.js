@@ -321,8 +321,8 @@
     var gamesPlayed = 0, streakP = 0, streakK = 0, maxDown = 0, comebackSaid = false, rally = 0, fastSaid = false;
     var lastTarget = 0, lastMoveAt = 0, idleSaid = false;
     var coarse = window.matchMedia('(pointer: coarse)').matches;
-    // komár: náhodná událost, přiletí zhruba v každém třetím zápase; ?komar=1 nebo #komar v adrese = vždy (na zkoušení)
-    var MOSQUITO_CHANCE = /[?&]komar=1(&|$)/.test(location.search) || location.hash === '#komar' ? 1 : 0.35;
+    // komár: během zápasu rušil (uživatel 2026-10-27) → sám už nepřiletí; ?komar=1 nebo #komar v adrese = zkouška scénky
+    var MOSQUITO_CHANCE = /[?&]komar=1(&|$)/.test(location.search) || location.hash === '#komar' ? 1 : 0;
     var mosq = { done: false, active: false };
     var keys = { left: false, right: false }, raf = 0, last = 0, signedIn = false, csrf = null;
 
