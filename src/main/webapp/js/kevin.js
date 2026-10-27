@@ -1643,14 +1643,22 @@
   paw.addEventListener('click', function () {
     if (!pawUsed) { pawUsed = true; store.set('kevinPawUsed', '1'); clearInterval(nudgeTimer); paw.classList.remove('paw-nudge'); }
     if (walking) endWalk();   // only one Kevin at a time
-    if (!root.hidden) { endRap(); hideBubble('idle'); place(false); return; }   // a second tap: back in
+    // Kevin je venku (třeba zrovna něco říká): ťuknutí na tlapku otevře jeho menu – dřív ho jen zavřelo, což
+    // mátlo (lidi si mysleli, že tlapka nic nedělá). Zpátky do tlapky až druhé ťuknutí při otevřeném menu.
+    if (!root.hidden) {
+      if (!bubble.hidden && extra.querySelector('.kevin-menu')) { hideBubble('idle'); place(false); return; }
+      endRap();
+      menu();
+      return;
+    }
     var said = pending;
     pending = null;
     paw.classList.remove('has-news');
     setHidden(false);
     living = true;   // pulled out by the visitor: after what he says he stays a while and lives
     popOut();
-    if (said) show(said[0], said[1]); else if (pocket()) menu(); else show(pick(L.wake), { pose: 'point' });
+    // čekající zpráva (tečka na tlapce) má přednost, jinak rovnou menu – tlapka = „co pro tebe můžu udělat“
+    if (said) show(said[0], said[1]); else menu();
   });
 
   // he looks at the mouse
