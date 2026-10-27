@@ -1621,6 +1621,24 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-hint { margin: 0; text-align: center; font-family: var(--font-text); font-size: var(--fs-small); color: #ffc861; }
 .kpong-panel .kpong-board { margin: 0; padding: 10px; border-radius: 14px; background: rgba(0, 0, 0, .32); border: 1px solid rgba(230, 183, 48, .22); }
 .kpong-panel .kpong-board .kpong-note { font-size: var(--fs-small); }
+/* přehřátí: kola žhnou podle --heat (0–1), přehřátá kouří a Kevin zpomalí */
+.kpong-gears[data-set="kevin"] .kpong-gear {
+  filter: drop-shadow(0 calc(var(--u) * 4px) calc(var(--u) * 5px) rgba(0, 0, 0, .7))
+    drop-shadow(0 0 calc(var(--heat, 0) * var(--u) * 14px) rgba(255, 80, 10, calc(var(--heat, 0) * .9)))
+    sepia(calc(var(--heat, 0) * .5)) saturate(calc(1 + var(--heat, 0) * 1.5));
+}
+.kpong-smoke {
+  position: absolute; z-index: 3; pointer-events: none; opacity: 0; transition: opacity .8s;
+  left: calc(250px * var(--u)); top: calc(50px * var(--u)); width: calc(270px * var(--u)); height: calc(80px * var(--u));
+}
+.kpong.hot .kpong-smoke { opacity: 1; }
+.kpong-smoke i {
+  position: absolute; bottom: 0; left: calc(var(--k) * 15%); width: calc(80px * var(--u)); aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle, rgba(235, 232, 228, .85), rgba(160, 155, 150, .45) 45%, transparent 70%);
+  animation: kp-smoke 1.8s ease-out infinite; animation-delay: calc(var(--k) * -.31s);
+}
+@keyframes kp-smoke { from { transform: translateY(0) scale(.4); opacity: .9; } to { transform: translateY(calc(-130px * var(--u))) scale(1.8); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .kpong-smoke i { animation-duration: 4s; } }
 /* komár: malý (Kevin je pořád větší), 3 snímky křídel dokola tam a zpět; při trefě omráčený */
 .kpong-mosq {
   position: absolute; z-index: 3; pointer-events: none;

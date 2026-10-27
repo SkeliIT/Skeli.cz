@@ -742,6 +742,24 @@ window.KEVIN_PONG_LINES = {
    "Víš, co je nejlepší na tajemství? Že ho nemusím nikomu vysvětlovat.",
    "Jednou jsem se honil za ocasem tak dlouho, až jsem zapomněl proč.",
    "Mám pocit, že mě někdo sleduje. Aha, to jsem já v odrazu."
+  ],
+  "odstrel_kevin": [
+   "Tohle byla tlapka s turbem.",
+   "Odstřel po kočičím. Bez varování. Teda… blikal jsem.",
+   "Mňau-raketa odpálena.",
+   "Tohle jsem trénoval na mouchách.",
+   "Chyť to, jestli máš devět životů.",
+   "Moje tlapka, moje pravidla.",
+   "Kevin Express. Zastávky nemá.",
+   "Říkal jsem ti, že nebliká jen tak pro parádu."
+  ],
+  "cekani": [
+   "Ťukni, ať můžu začít vyhrávat.",
+   "Já stojím, kola stojí, hopík stojí. Kdo nestojí? Nikdo.",
+   "Čekám. Kočky umí čekat. Ale nerady.",
+   "Hopík je připravenej. Já jsem připravenej. Kdo chybí?",
+   "Až budeš chtít, ťukni. Já si zatím olíznu tlapku.",
+   "Do toho, nebo si jdu lehnout na klávesnici."
   ]
  }
 };
