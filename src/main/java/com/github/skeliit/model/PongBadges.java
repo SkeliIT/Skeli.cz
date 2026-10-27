@@ -44,7 +44,8 @@ public final class PongBadges {
 
     /** Odznaky, které odemykají vzhled pálky nebo míček; má-li hráč všechny, dostane Šatník. */
     public static final Set<String> LOOKS = Set.of(
-            "easy", "clean", "overheat", "angry", "comeback", "yarn", "night", "super", "loyal", "wins50", "sniper", "tinker", "close");
+            "first", "easy", "tinker", "normal", "loyal", "streak", "night", "sniper", "overheat", "close", "marathon", "comeback",
+            "clean", "super", "angry", "wins100");
 
     /** Stupeň odznaku (barva medaile) nebo null. */
     public static String tier(String key) {
