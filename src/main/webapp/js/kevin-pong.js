@@ -1,4 +1,4 @@
-// Kevin Pong – pinkání s Kevinem do 10 gólů (otevírá se z Kevinova menu: „Zahraj si se mnou“).
+// CatSmash – pinkání s Kevinem do 10 gólů (otevírá se z Kevinova menu: „Zahraj si se mnou“).
 // Hřiště na výšku: Kevin nahoře (jeho 3D model z js/kevin-model.js drží zlatou pálku), hráč dole. Ovládání
 // prstem / myší (pálka jde za ním) nebo šipkami. Tři obtížnosti: 1 lehká, 2 normální, 3 Kevin naštvaný
 // (rychlá reakce, předvídá odrazy, míří ti do protirohu – porazit ho je opravdu těžké).
@@ -64,7 +64,6 @@
       '<div class="kpong-box">' +
       '  <div class="kpong-top">' +
       '    <div class="kpong-score" aria-live="polite"><span class="kpong-who">' + esc(T.you) + '</span><b class="kpong-you">0</b><i>:</i><b class="kpong-kev">0</b><span class="kpong-who">Kevin</span></div>' +
-      '    <button type="button" class="kpong-set" aria-label="' + esc(T.settings || 'Settings') + '" aria-haspopup="dialog"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>' +
       '    <button type="button" class="kpong-close" aria-label="' + esc(T.close) + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
       '  </div>' +
       '  <div class="kpong-machine"><div class="kpong-frame">' +
@@ -77,11 +76,13 @@
       '    <div class="kpong-field">' +
       '      <div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
+      '      <div class="kpong-panel"></div>' +
+      '      <button type="button" class="kpong-set" aria-label="' + esc(T.settings || 'Settings') + '" aria-haspopup="dialog"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>' +
       '    </div>' +
       '  </div></div>' +
       '  <div class="kpong-pad"><button type="button" class="kpong-shot"><i class="fa-solid fa-bolt" aria-hidden="true"></i> ' + esc(T.shot || 'Odstřel') + '</button></div>' +
       '</div>' +
-      '<div class="kpong-panel"></div><p class="sr-only kpong-live" aria-live="polite"></p>';   // úvod a konec: karta uprostřed obrazovky před strojem
+      '<p class="sr-only kpong-live" aria-live="polite"></p>';   // úvod a konec (.kpong-panel) leží přímo na skle hřiště
     document.body.appendChild(root);
     document.documentElement.classList.add('kpong-open');
     var court = root.querySelector('.kpong-court'), cx = court.getContext('2d');
@@ -796,18 +797,26 @@
       var controls = T.controls ? '<ul class="kp-controls">' + T.controls.map(function (c, i) {
           return '<li><i class="fa-solid ' + icons[i] + '" aria-hidden="true"></i><b>' + esc(c[0]) + '</b><span>' + esc(c[1]) + '</span></li>';
         }).join('') + '</ul><p class="kp-hint">' + esc(T.shotHint) + '</p>' : '<p class="kpong-help">' + esc(T.help) + '</p>';
-      panel.innerHTML = '<header class="kp-head"><h2 class="kpong-title">' + esc(T.title) + '</h2><p class="kpong-lead">' + esc(T.lead) + '</p></header>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.level) + '</h3>' +
-        '<div class="kpong-levels" role="group" aria-label="' + esc(T.level) + '">' + [1, 2, 3].map(function (d) {
-          return '<button type="button" class="kpong-level' + (d === level ? ' on' : '') + '" data-d="' + d + '"><b>' + esc(T.levels[d - 1]) + '</b><small>' + esc(T.levelHints[d - 1]) + '</small></button>';
-        }).join('') + '</div></section>' +
+      var short = T.levelsShort || T.levels;
+      panel.dataset.view = 'main';
+      panel.innerHTML = '<div class="kp-view kp-main"><h2 class="kpong-title">' + esc(T.title) + '</h2><p class="kpong-lead">' + esc(T.lead) + '</p>' +
+        '<div class="kp-seg" role="radiogroup" aria-label="' + esc(T.level) + '" style="--i:' + (level - 1) + '"><span class="kp-thumb" aria-hidden="true"></span>' +
+        [1, 2, 3].map(function (d) {
+          return '<button type="button" role="radio" class="kpong-level" data-d="' + d + '" aria-checked="' + (d === level) + '" title="' + esc(T.levels[d - 1]) + '">' + esc(short[d - 1]) + '</button>';
+        }).join('') + '</div>' +
+        '<p class="kp-desc">' + esc(T.levelHints[level - 1]) + '</p>' +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.play) + '</button>' +
-        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + '</section>' +
-        '<section class="kp-sec kpong-board"></section>';
+        '<p class="kp-rec" hidden></p>' +
+        '<p class="kp-links"><button type="button" class="kp-link" data-go="how">' + esc(T.how || T.controlsTitle || '') + '</button><span aria-hidden="true">·</span>' +
+        '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p></div>' +
+        '<div class="kp-view kp-how"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + backBtn() + '</div>' +
+        '<div class="kp-view kp-top"><section class="kpong-board"></section>' + backBtn() + '</div>';
       panel.querySelectorAll('.kpong-level').forEach(function (b) {
         b.addEventListener('click', function () {
           level = +b.dataset.d; L = LEVELS[level]; store.set('kevinPongLevel', String(level));
-          panel.querySelectorAll('.kpong-level').forEach(function (x) { x.classList.toggle('on', x === b); });
+          panel.querySelectorAll('.kpong-level').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
+          panel.querySelector('.kp-seg').style.setProperty('--i', level - 1);
+          panel.querySelector('.kp-desc').textContent = T.levelHints[level - 1];
           board(level);
         });
       });
@@ -815,6 +824,17 @@
       board(level);
       say(pick(T.hello), 3000);
     }
+
+    function backBtn() { return '<button type="button" class="kp-link kp-backto" data-go="main"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> ' + esc(T.back || '') + '</button>'; }
+    // odkazy v menu přepínají pohled: hlavní · jak se hraje · tabulka
+    panel.addEventListener('click', function (e) {
+      var g = e.target.closest('[data-go]');
+      if (!g) return;
+      panel.dataset.view = g.dataset.go;
+      panel.scrollTop = 0;
+      var first = panel.querySelector('.kp-' + g.dataset.go + ' button');
+      if (first) first.focus();
+    });
 
     function board(d) {
       var box = panel.querySelector('.kpong-board');
@@ -833,6 +853,11 @@
           (local ? ' · ' + esc(T.localBest.replace('{time}', time(local))) : '') + '</p>' : '';
         box.innerHTML = '<h3 class="kp-label">' + esc(T.board) + ' · ' + esc(T.levels[d - 1]) + '</h3>' +
           (rows ? '<ol class="kpong-list">' + rows + '</ol>' : '<p class="kpong-note">' + esc(T.empty) + '</p>') + mine + guest;
+        var rec = panel.querySelector('.kp-rec'), recMs = j.me ? j.me.ms : local;
+        if (rec) {
+          rec.hidden = !recMs;
+          if (recMs) rec.innerHTML = '<i class="fa-solid fa-trophy" aria-hidden="true"></i> ' + esc(T.best || '') + ' <b>' + time(recMs) + '</b>';
+        }
       }).catch(function () { box.innerHTML = '<p class="kpong-note">' + esc(T.boardFail) + '</p>'; });
     }
 
@@ -840,11 +865,13 @@
       panel.hidden = false;
       var line = won ? T.winTime.replace('{time}', time(ms)) : T.loseLine;
       if (won && res) line += ' ' + T.place.replace('{place}', res.place);
-      panel.innerHTML = '<h2 class="kpong-title">' + esc(won ? T.winTitle : T.loseTitle) + '</h2>' +
+      panel.dataset.view = 'main';
+      panel.innerHTML = '<div class="kp-view kp-main"><h2 class="kpong-title">' + esc(won ? T.winTitle : T.loseTitle) + '</h2>' +
         '<p class="kpong-final">' + you + ' : ' + kev + '</p><p class="kpong-lead">' + esc(line) + '</p>' +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> ' + esc(T.again) + '</button>' +
-        '<button type="button" class="kpong-back">' + esc(T.changeLevel) + '</button>' +
-        '<section class="kp-sec kpong-board"></section>';
+        '<p class="kp-links"><button type="button" class="kp-link kpong-back">' + esc(T.changeLevel) + '</button><span aria-hidden="true">·</span>' +
+        '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p></div>' +
+        '<div class="kp-view kp-top"><section class="kpong-board"></section>' + backBtn() + '</div>';
       panel.querySelector('.kpong-play').addEventListener('click', begin);
       panel.querySelector('.kpong-back').addEventListener('click', startScreen);
       board(level);
@@ -938,7 +965,7 @@
     // tlačítko kdekoli mimo tlačítka a menu = odstřel.
     var mover = null;
     function onPointer(e) {
-      if (!running) return;
+      if (!running || (e.type === 'pointerdown' && e.target.closest('.kpong-set'))) return;
       if (e.pointerType === 'touch') {
         if (e.type === 'pointerdown') {
           if (mover !== null && mover !== e.pointerId) { shoot(); e.preventDefault(); return; }

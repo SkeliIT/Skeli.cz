@@ -596,7 +596,7 @@
     show(L.menu.hint, { pose: 'point', extra: box, ms: 9000 });
   }
 
-  // Kevin Pong: hra přes celou obrazovku (js/kevin-pong.js se načte až teď); Kevin v rohu se zatím schová
+  // CatSmash: hra přes celou obrazovku (js/kevin-pong.js se načte až teď); Kevin v rohu se zatím schová
   function pong() {
     hideBubble('idle');
     var go = function () { window.KevinPong.open({ version: version }); };

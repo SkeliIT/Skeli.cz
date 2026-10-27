@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Kevin Pong (pong_results, V98): wins of signed-in players; the leaderboard = each player's fastest win. */
+/** CatSmash (pong_results, V98): wins of signed-in players; the leaderboard = each player's fastest win. */
 public class PongDao {
 
     public void addWin(int userId, int difficulty, int durationMs, int kevinGoals) throws SQLException {
@@ -66,7 +66,7 @@ public class PongDao {
     }
 
     /**
-     * Kevin Pong na profilu: nejlepší časy, místa v tabulce a odznaky – vše ze serverem uložených výher.
+     * CatSmash na profilu: nejlepší časy, místa v tabulce a odznaky – vše ze serverem uložených výher.
      * Odznaky: první výhra, výhra na každé obtížnosti, 10:0, 10:9, výhra pod 75 s, 10 výher.
      */
     public PongProfile profile(int userId) throws SQLException {

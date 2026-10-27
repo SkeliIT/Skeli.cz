@@ -1,4 +1,4 @@
-// Hlášky do hry Kevin Pong: z textových souborů (klíč na řádku, pod ním „- hláška“) udělá
+// Hlášky do hry CatSmash: z textových souborů (klíč na řádku, pod ním „- hláška“) udělá
 // src/main/webapp/js/kevin-pong-lines.js (window.KEVIN_PONG_LINES = { cs: { start: [...], ... }, en: {...} }).
 // Hra ho načte až při otevření (zbytek webu nezpomaluje).
 //   node tools/kevin-pong-lines.js cs=../kevin-hlasky-pong.md [en=../kevin-hlasky-pong-en.md ...]
@@ -34,6 +34,6 @@ for (const arg of process.argv.slice(2)) {
 }
 const target = path.join(__dirname, '..', 'src', 'main', 'webapp', 'js', 'kevin-pong-lines.js');
 fs.writeFileSync(target,
-  '// Hlášky Kevina do hry Kevin Pong – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.\n' +
+  '// Hlášky Kevina do hry CatSmash – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.\n' +
   'window.KEVIN_PONG_LINES = ' + JSON.stringify(out, null, 1) + ';\n');
 console.log('hotovo', target);

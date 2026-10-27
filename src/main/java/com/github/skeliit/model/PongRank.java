@@ -1,6 +1,6 @@
 package com.github.skeliit.model;
 
-/** One line of the Kevin Pong leaderboard: a player's best (fastest) win on a difficulty. */
+/** One line of the CatSmash leaderboard: a player's best (fastest) win on a difficulty. */
 public class PongRank {
     public final int place;
     public final String username;

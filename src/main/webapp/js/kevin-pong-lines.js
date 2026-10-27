@@ -1,4 +1,4 @@
-// Hlášky Kevina do hry Kevin Pong – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.
+// Hlášky Kevina do hry CatSmash – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.
 window.KEVIN_PONG_LINES = {
  "cs": {
   "start": [
@@ -694,7 +694,7 @@ window.KEVIN_PONG_LINES = {
    "Máš chvilku? Hopík se nudí a já už jsem snědl imaginární svačinu.",
    "Kdyby ses chtěl protáhnout, moje pálka je pořád v provozu.",
    "Občas si tu pinkám s hopíkem. Občas hopík pinká se mnou.",
-   "Kevin Pong čeká. Já taky, ale vsedě by mi to šlo líp.",
+   "CatSmash čeká. Já taky, ale vsedě by mi to šlo líp.",
    "Máš rád výzvy? Já mám rád krabice. Každej máme něco.",
    "Jen tak mimochodem, dneska mám formu. Včera taky. Asi.",
    "Kdyby ses chtěl na chvilku zabavit, hopík už je připravenej.",

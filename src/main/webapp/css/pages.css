@@ -1831,7 +1831,7 @@ body.light .k-poster:hover .k-ticket { background: #e6b730; color: #141414; }
 .lyric-premiere .lp-out, .lyric-premiere.is-out .hp-count { display: none; }
 .lyric-premiere.is-out .lp-out { display: inline; color: var(--accent); font-family: var(--font-body); }
 
-/* Můj účet → Kevin Pong: nejlepší časy (3 dlaždice) a odznaky (získané zlaté, ostatní šedé se zámkem) */
+/* Můj účet → CatSmash: nejlepší časy (3 dlaždice) a odznaky (získané zlaté, ostatní šedé se zámkem) */
 .pong-best { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
 .pong-best-item {
   display: grid; justify-items: center; gap: 4px; padding: 12px 6px; text-align: center;

@@ -30,7 +30,7 @@
       }
       me = users.summary(uid);
       myComments = users.comments(uid);
-      pong = new PongDao().profile(uid);      // Kevin Pong: časy a odznaky (dao/PongDao)
+      pong = new PongDao().profile(uid);      // CatSmash: časy a odznaky (dao/PongDao)
     } catch (Exception ignore) {}
     String avatarUrl = WebUtils.safeUrl((String) session.getAttribute("avatar_url"), "/img/avatar-default.svg");
     String shownName = displayName != null && !displayName.isBlank() ? displayName : (me != null ? me.username : (String) session.getAttribute("username"));
@@ -174,7 +174,7 @@
     </div>
   </section>
 
-  <%-- Kevin Pong: nejlepší výhra a místo na každé obtížnosti, odznaky (počítá je server z uložených výher) --%>
+  <%-- CatSmash: nejlepší výhra a místo na každé obtížnosti, odznaky (počítá je server z uložených výher) --%>
   <section class="acct-card" id="pong">
     <header class="acct-card-head">
       <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> <%= t.getProperty("account.tab.pong") %></h3>
