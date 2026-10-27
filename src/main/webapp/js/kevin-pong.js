@@ -134,7 +134,7 @@
       K = m.createKevin(kevCanvas, {
         src: '/kevin/kevin.glb' + ver, moves: '/kevin/pohyby.json' + ver,
         light: document.body.classList.contains('light'), overscan: 1.25, alwaysRender: true,
-        onReady: function () { kevCanvas.classList.add('on'); K.turn(0); kevinReady(); }
+        onReady: function () { kevCanvas.classList.add('on'); K.turn(0); if (kevinSharpness()) K.setMaxPixelRatio(kevinSharpness()); kevinReady(); }
       });
     }).catch(function () { kevinReady(); /* hra jde i bez něj */ });
 
@@ -495,7 +495,7 @@
     var eqLv = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], eqT = 0;
     // sloupce ekvalizéru v obrázku pálky (souřadnice těla pálky): první sloupec, rozestup, šířka, spodek, nejvyšší výška
     var EQ = { x0: 75, step: 31.2, w: 25, bottom: 107, max: 42, bg: [68, 58, 322, 51] };
-    function addP(o) { if (pfx.length < (lowFx ? 70 : 180)) { o.age = 0; pfx.push(o); } }
+    function addP(o) { if (pfx.length < (lowFx >= 3 ? 30 : lowFx ? 70 : 180)) { o.age = 0; pfx.push(o); } }
     function curPad() { return SKINS[skin] && SKINS[skin].img; }
     // výbuch u hráčovy pálky – čím lepší odpal, tím větší efekt: 1 = obyčejný odraz (menší), 1.5 = dobrý odstřel,
     // 2 = perfektní odstřel (velký efekt navíc), 3 = SUPER (ještě větší); pokažený odstřel efekt nemá
@@ -504,7 +504,7 @@
       if (!id || !g) return;
       var n = level >= 3 ? 1.5 : level >= 2 ? 1.2 : level >= 1.5 ? 1 : 0.6, cxp = g.x, top = g.top, i;
       function spread() { return cxp + rnd(-g.w * 0.45, g.w * 0.45); }
-      if (level >= 2) padEpic(id, g, now, level === 3 ? 1.45 : 1);
+      if (level >= 2 && lowFx < 3) padEpic(id, g, now, level === 3 ? 1.45 : 1);
       switch (id) {
         case 'vetev':
           for (i = 0; i < 7 * n; i++) addP({ t: 'leaf', x: spread(), y: top + 4, vx: rnd(-120, 120), vy: rnd(-260, -120), g: 160, drag: 1.4, life: 1.5, size: rnd(3.5, 5), rot: rnd(0, 6), vr: rnd(-8, 8), c: Math.random() < 0.3 ? '#9fd65a' : '#5aa83a' });
@@ -1204,7 +1204,7 @@
     }
     function drawFlight(now) {
       var f = flight;
-      if (!f || f.pts.length < 2) return;
+      if (!f || f.pts.length < 2 || lowFx >= 3) return;   // Detaily: Nízké = bez stopy letu (kometa zůstane)
       var pts = f.pts, n = pts.length, span = Math.max(1, PLAYER_Y - KEVIN_Y);
       // body čáry posunuté podle tvaru (vlna, cik-cak, šroubovice, copánek, schody); off = posun kolmo ke směru letu
       function shaped(st, sign) {
@@ -2821,6 +2821,10 @@
         '<i class="fa-solid fa-gauge-simple-high" aria-hidden="true"></i>' +
         '<input type="range" class="kp-keys" min="0.5" max="2" step="0.1" value="' + keySpeed + '" aria-label="' + esc(T.keysTitle || '') + '">' +
         '<output class="kp-keysval">' + Math.round(keySpeed * 100) + ' %</output></div><p class="kp-bgname">' + esc(T.keysHint || '') + '</p></section>';
+      // Detaily: pro slabší telefony (ruční volba vypne automatické ubírání)
+      var secDetail = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.detailTitle || '') + '</h3><div class="kp-talk" role="radiogroup" aria-label="' + esc(T.detailTitle || '') + '">' +
+        DETAIL_KEYS.map(function (k, i) { return '<button type="button" role="radio" data-detail="' + k + '" aria-checked="' + (k === detail) + '">' + esc((T.detail || DETAIL_KEYS)[i]) + '</button>'; }).join('') +
+        '</div><p class="kp-bgname">' + esc(T.detailHint || '') + '</p></section>';
       var secChecks = '<div class="kp-checks">' +
         (navigator.vibrate ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="vib" aria-pressed="' + vibOn + '"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> ' + esc(T.vibrate || '') + '</button>' : '') +
 
@@ -2838,7 +2842,7 @@
         '<div class="kp-pane" role="tabpanel" id="kp-pane-look" aria-labelledby="kp-tab-look" data-pane="look"' + (tab === 'look' ? '' : ' hidden') + '>' +
         '<canvas class="kp-preview" width="600" height="200" aria-hidden="true"></canvas>' + secSkin + secBall + secBg + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-sound" aria-labelledby="kp-tab-sound" data-pane="sound"' + (tab === 'sound' ? '' : ' hidden') + '>' + secSound + secTalk + '</div>' +
-        '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secLayout + secKeys + secChecks + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secDetail + secLayout + secKeys + secChecks + '</div>' +
         '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>';
       root.appendChild(setCard);
       setBtn.setAttribute('aria-expanded', 'true');
@@ -2943,6 +2947,13 @@
           setCard.querySelectorAll('[data-talk]').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
         });
       });
+      setCard.querySelectorAll('[data-detail]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          detail = b.dataset.detail; store.set('kevinPongDetail', detail);
+          setCard.querySelectorAll('[data-detail]').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
+          applyDetail();
+        });
+      });
       setCard.querySelectorAll('.kp-opt').forEach(function (b) {
         b.addEventListener('click', function () {
           var on = b.getAttribute('aria-pressed') !== 'true';
@@ -3011,16 +3022,35 @@
       return fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRF-Token': csrf || '' }, body: body }).then(function (r) { return r.json(); });
     }
     // ---------- plynulost: když počítač nestíhá (dlouhé snímky), hra sama ubere ozdoby ----------
-    // lowFx 1 = bez stínů a záře na hřišti, bez života v pozadí, méně částic; 2 = navíc bez atmosféry pálky
+    // lowFx 1 = bez stínů a záře na hřišti, bez života v pozadí, méně částic; 2 = navíc bez atmosféry pálky;
+    // 3 (jen ručně „Nízké“) = navíc bez stopy letu a velkých efektů odstřelu, Kevin méně ostrý
     var lowFx = 0, frameAvg = 16.7, lowFxAt = 0;
+    // volba v ⚙ Ovládání → Detaily (localStorage kevinPongDetail): auto = hra ubírá sama, jinak pevně
+    var DETAIL_KEYS = ['auto', 'high', 'mid', 'low'], DETAIL_FX = { auto: 0, high: 0, mid: 1, low: 3 };
+    var detail = DETAIL_KEYS.indexOf(store.get('kevinPongDetail')) >= 0 ? store.get('kevinPongDetail') : 'auto';
+    function noShadows(off) {                            // stíny jsou na slabé grafice nejdražší: na hřišti je vypnout
+      try {
+        var hc = court.getContext('2d');                 // hřiště (cx se na chvíli půjčuje náhledům v ⚙)
+        if (off) Object.defineProperty(hc, 'shadowBlur', { configurable: true, get: function () { return 0; }, set: function () {} });
+        else delete hc.shadowBlur;                       // zpátky na běžné stíny plátna
+      } catch (e) { /* nevadí */ }
+    }
+    function kevinSharpness() { return detail === 'low' ? 1 : detail === 'mid' ? 1.25 : 0; }   // 0 = výchozí
+    function applyDetail() {
+      lowFx = DETAIL_FX[detail];
+      noShadows(lowFx >= 1);
+      if (fx) fxc.clearRect(0, 0, fx.width, fx.height);
+      if (lowFx >= 2) apfx = [];
+      if (K && K.setMaxPixelRatio) K.setMaxPixelRatio(kevinSharpness());
+      frameAvg = 16.7; lowFxAt = performance.now();
+    }
+    if (detail !== 'auto') applyDetail();
     function watchSmooth(ms, now) {
+      if (detail !== 'auto') return;
       frameAvg = frameAvg * 0.95 + ms * 0.05;
       if (frameAvg > 25 && lowFx < 2 && now - lowFxAt > 3000 && now - started > 4000) {
         lowFx++; lowFxAt = now; frameAvg = 18;
-        if (lowFx === 1) {                               // stíny jsou na slabé grafice nejdražší: na hřišti je vypnout
-          try { Object.defineProperty(cx, 'shadowBlur', { configurable: true, get: function () { return 0; }, set: function () {} }); } catch (e) { /* nevadí */ }
-          if (fx) fxc.clearRect(0, 0, fx.width, fx.height);
-        }
+        if (lowFx === 1) { noShadows(true); if (fx) fxc.clearRect(0, 0, fx.width, fx.height); }
       }
     }
     // ---------- načtení předem: stroj, kola, pálky, míčky, pozadí a Kevin – až pak menu (ať se nezačne hrát škubavě) ----------

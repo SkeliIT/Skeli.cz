@@ -536,6 +536,11 @@ export function createKevin(canvas, opts = {}) {
     },
     // délka klipu v ms (0 = nemá ho)
     clipMs(name) { return actions[name] ? actions[name].getClip().duration * 1000 : 0; },
+    // ostrost obrazu (slabý telefon: méně pixelů = plynulejší hra); 0 = výchozí
+    setMaxPixelRatio(r) {
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, r || 1.75));
+      resize();
+    },
     dispose() {
       disposed = true;
       ro.disconnect();
