@@ -79,8 +79,9 @@ public class PongDao {
      */
     public PongProfile profile(int userId) throws SQLException {
         PongProfile p = new PongProfile();
-        boolean clean = false, close = false;
-        int fastest = Integer.MAX_VALUE;
+        // odznaky jen z výher na Normální a nejtěžší (na Lehké se nesbírají); celkový počet výher zůstává pro profil
+        boolean clean = false, close = false, hardClean = false;
+        int fastest = Integer.MAX_VALUE, hardFastest = Integer.MAX_VALUE, winsCounted = 0, winsHard = 0;
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "SELECT difficulty, COUNT(*), MIN(duration_ms), MIN(kevin_goals), MAX(kevin_goals) "
                         + "FROM pong_results WHERE user_id = ? GROUP BY difficulty")) {
@@ -91,9 +92,12 @@ public class PongDao {
                     if (d < 1 || d > 3) continue;
                     p.wins += rs.getInt(2);
                     p.bestMs[d - 1] = rs.getInt(3);
+                    if (d < 2) continue;
+                    winsCounted += rs.getInt(2);
                     fastest = Math.min(fastest, rs.getInt(3));
                     if (rs.getInt(4) == 0) clean = true;
                     if (rs.getInt(5) == 9) close = true;
+                    if (d == 3) { winsHard = rs.getInt(2); hardFastest = rs.getInt(3); hardClean = rs.getInt(4) <= 3; }
                 }
             }
         }
@@ -104,18 +108,24 @@ public class PongDao {
             PongRank r = mine(d, userId);
             if (r != null) p.place[d - 1] = r.place;
         }
-        p.badge("first", "fa-trophy", p.wins > 0);
-        p.badge("easy", "fa-mug-hot", p.bestMs[0] != null);
+        p.badge("first", "fa-trophy", winsCounted > 0);
+        p.badge("easy", "fa-mug-hot", winsCounted >= 3);
         p.badge("normal", "fa-scale-balanced", p.bestMs[1] != null);
         p.badge("angry", "fa-cat", p.bestMs[2] != null);
         p.badge("clean", "fa-shield-halved", clean);
         p.badge("close", "fa-heart-pulse", close);
         p.badge("fast", "fa-bolt", fastest < 75_000);
-        p.badge("streak", "fa-medal", p.wins >= 10);
-        p.badge("wins50", "fa-medal", p.wins >= 50);
-        p.badge("wins100", "fa-medal", p.wins >= 100);
+        p.badge("streak", "fa-medal", winsCounted >= 10);
+        p.badge("wins50", "fa-medal", winsCounted >= 50);
+        p.badge("wins100", "fa-medal", winsCounted >= 100);
         for (String k : PongBadges.ICONS.keySet()) {
-            if (PongBadges.CLAIMABLE.contains(k)) p.badge(k, PongBadges.icon(k), claimed.contains(k));
+            if (PongBadges.CLAIMABLE.contains(k) && !k.startsWith("h")) p.badge(k, PongBadges.icon(k), claimed.contains(k));
+        }
+        p.badge("hwins5", PongBadges.icon("hwins5"), winsHard >= 5);
+        p.badge("hfast", PongBadges.icon("hfast"), hardFastest < 120_000);
+        p.badge("hclean", PongBadges.icon("hclean"), winsHard > 0 && hardClean);
+        for (String k : PongBadges.ICONS.keySet()) {
+            if (PongBadges.CLAIMABLE.contains(k) && k.startsWith("h")) p.badge(k, PongBadges.icon(k), claimed.contains(k));
         }
         boolean all = true;
         for (String k : PongBadges.LOOKS) all &= p.has(k);

@@ -35,12 +35,18 @@ public final class PongBadges {
         ICONS.put("marathon", "fa-person-running");
         ICONS.put("night", "fa-moon");
         ICONS.put("loyal", "fa-calendar-check");
+        // jen za nejtěžší obtížnost (Kevin naštvaný)
+        ICONS.put("hwins5", "fa-crown");
+        ICONS.put("hfast", "fa-meteor");
+        ICONS.put("hclean", "fa-skull");
+        ICONS.put("hsniper", "fa-bullseye");
+        ICONS.put("hcomeback", "fa-fire-flame-curved");
         ICONS.put("wardrobe", "fa-shirt");
     }
 
     /** Odznaky, které hlásí prohlížeč (stalo se to uvnitř zápasu, server to nevidí). */
     public static final Set<String> CLAIMABLE = Set.of(
-            "sniper", "super", "tinker", "yarn", "overheat", "comeback", "marathon", "night", "loyal");
+            "sniper", "super", "tinker", "yarn", "overheat", "comeback", "marathon", "night", "loyal", "hsniper", "hcomeback");
 
     /** Odznaky, které odemykají vzhled pálky nebo míček; má-li hráč všechny, dostane Šatník. */
     public static final Set<String> LOOKS = Set.of(

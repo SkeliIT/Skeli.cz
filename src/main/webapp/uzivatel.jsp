@@ -221,6 +221,7 @@
         <span><%= pong.earnedCount() %> / <%= pong.badges.size() %></span>
         <span class="pong-badge-bar" style="--p:<%= pong.badges.isEmpty() ? 0 : pong.earnedCount() * 100 / pong.badges.size() %>%" aria-hidden="true"></span>
       </div>
+      <p class="pong-badge-rule"><%= t.getProperty("pong.badges.rule") %></p>
       <ul class="pong-badges" tabindex="0" aria-label="<%= t.getProperty("pong.badges.title") %>">
       <% for (int pass = 0; pass < 2; pass++) for (PongProfile.Badge b : pong.badges) {
            if (b.earned != (pass == 0)) continue;

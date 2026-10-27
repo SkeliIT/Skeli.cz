@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-10-27",
+    "href": "/uzivatel.jsp#pong",
+    "cs": "Odznaky v CatSmashi mají nové vtipné tituly a pět nových jde získat jen na nejtěžší obtížnost. Na Lehkou se odznaky nesbírají.",
+    "en": "CatSmash badges have new funny titles, and five new ones can only be earned on the hardest difficulty. Easy gives no badges.",
+    "de": "Die CatSmash-Abzeichen haben neue lustige Titel, und fünf neue gibt es nur auf der schwersten Stufe. Auf Leicht gibt es keine Abzeichen.",
+    "uk": "Значки в CatSmash мають нові смішні титули, а п’ять нових можна здобути лише на найважчому рівні. На Легкому значків немає.",
+    "vi": "Huy hiệu trong CatSmash có danh hiệu mới vui nhộn, và năm huy hiệu mới chỉ nhận được ở mức khó nhất. Mức Dễ không có huy hiệu."
+  },
+  {
+    "d": "2026-10-27",
     "href": "/?kevin=pong",
     "cs": "V CatSmashi je třináct nových pálek a míčků – větvička, led, láva, plyš, perly… Přívěsky se houpou a každá pálka má při perfektním odstřelu svůj efekt. A já mám konečně vlastní pálku.",
     "en": "CatSmash has thirteen new paddles and balls – twig, ice, lava, plush, pearls… The charms swing and every paddle has its own effect on a perfect shot. And I finally have my own paddle.",
@@ -34,14 +43,5 @@
     "de": "In CatSmash kommentiere ich jetzt jedes Spiel – über sechshundert Sprüche, ich wiederhole mich also selten.",
     "uk": "У CatSmash я тепер коментую кожен матч – понад шістсот реплік, тож майже не повторююсь.",
     "vi": "Trong CatSmash giờ tôi bình luận mọi trận – hơn sáu trăm câu, nên hiếm khi lặp lại."
-  },
-  {
-    "d": "2026-10-26",
-    "href": "/?kevin=pong",
-    "cs": "Přibyla hra CatSmash – pinkej se mnou na stroji plném ozubených kol. Najdeš ji v mém menu.",
-    "en": "New game: CatSmash – rally with me on a machine full of gears. It's in my menu.",
-    "de": "Neues Spiel: CatSmash – spiel mit mir auf einer Maschine voller Zahnräder. Du findest es in meinem Menü.",
-    "uk": "Нова гра CatSmash – грай зі мною на машині, повній шестерень. Знайдеш її в моєму меню.",
-    "vi": "Trò chơi mới CatSmash – đánh bóng với tôi trên cỗ máy đầy bánh răng. Có trong menu của tôi."
   }
 ]

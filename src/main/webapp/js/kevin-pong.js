@@ -141,16 +141,17 @@
     var BADGE_ICON = { first: 'fa-trophy', easy: 'fa-mug-hot', normal: 'fa-scale-balanced', angry: 'fa-cat', clean: 'fa-shield-halved',
       close: 'fa-heart-pulse', fast: 'fa-bolt', streak: 'fa-medal', wins50: 'fa-medal', wins100: 'fa-medal', sniper: 'fa-crosshairs',
       super: 'fa-explosion', tinker: 'fa-screwdriver-wrench', yarn: 'fa-mitten', overheat: 'fa-fire', comeback: 'fa-arrow-trend-up',
-      marathon: 'fa-person-running', night: 'fa-moon', loyal: 'fa-calendar-check', wardrobe: 'fa-shirt' };
-    var CLAIMABLE = ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal'];
+      marathon: 'fa-person-running', night: 'fa-moon', loyal: 'fa-calendar-check',
+      hwins5: 'fa-crown', hfast: 'fa-meteor', hclean: 'fa-skull', hsniper: 'fa-bullseye', hcomeback: 'fa-fire-flame-curved',   // jen za nejtěžší
+      wardrobe: 'fa-shirt' };
+    var CLAIMABLE = ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'hsniper', 'hcomeback'];
     var LOOKS = ['first', 'easy', 'tinker', 'normal', 'loyal', 'streak', 'night', 'sniper', 'overheat', 'close', 'marathon', 'comeback', 'clean', 'super', 'angry', 'wins100'];
     var badges = {};
     try { (JSON.parse(store.get('kevinPongBadges') || '[]') || []).forEach(function (k) { if (BADGE_ICON[k]) badges[k] = true; }); } catch (e) { /* nic */ }
-    // hráči z doby před odznaky: výhry podle rekordů v prohlížeči
-    if (store.get('kevinPongBest1')) badges.easy = true;
+    // hráči z doby před odznaky: výhry podle rekordů v prohlížeči (Lehká se nepočítá)
     if (store.get('kevinPongBest2')) badges.normal = true;
     if (store.get('kevinPongBest3') || store.get('kevinPongBeat3')) badges.angry = true;
-    if (badges.easy || badges.normal || badges.angry) badges.first = true;
+    if (badges.normal || badges.angry) badges.first = true;
     // zkoušky jen na test.skeli.cz a na vlastním počítači (na www nefungují):
     // #vse = na tuhle návštěvu odemkne všechny pálky, míčky a pozadí (nic se neuloží, bez #vse je vše zase zamčené),
     // #klubko = Kevin hodí klubíčko hned na začátku zápasu (na jakékoli obtížnosti)
@@ -1932,7 +1933,7 @@
       if (k === 'calm') { var f = Math.min(1, Math.max(0.7, L.speed / ball.speed)); ball.speed *= f; ball.vx *= f; ball.vy *= f; }
       comic('l', 'burst good', (T.power || {})[k] || k, 1500);
       sfx.shot(0); vibe(30);
-      store.set('kevinPongScrews', String(+(store.get('kevinPongScrews') || 0) + 1));
+      if (level >= 2) store.set('kevinPongScrews', String(+(store.get('kevinPongScrews') || 0) + 1));
       quip('sroubek', 0.7);
     }
     // Kevin hodí klubíčko vlny, ale konec nitky drží na své pálce: klubíčko vyletí, nitka se napne a klubíčko
@@ -2214,12 +2215,23 @@
       }).catch(function () { endScreen(playerWon, ms, null, fresh); });
     }
     // odznaky po zápase: co se stalo v zápase + počítadla v prohlížeči; vrací nové (ukáže je konec zápasu)
+    // odznaky jen na Normální a nejtěžší (na Lehké se nesbírají ani výhry, šroubky a dny); h* = jen za nejtěžší
     function earnBadges(won, ms) {
       var e = [];
+      if (level < 2) return e;
       if (won) {
         var wins = +(store.get('kevinPongWins') || 0) + 1;
         store.set('kevinPongWins', String(wins));
-        e.push('first', ['easy', 'normal', 'angry'][level - 1]);
+        e.push('first', level === 2 ? 'normal' : 'angry');
+        if (wins >= 3) e.push('easy');
+        if (level === 3) {
+          var hard = +(store.get('kevinPongHardWins') || 0) + 1;
+          store.set('kevinPongHardWins', String(hard));
+          if (hard >= 5) e.push('hwins5');
+          if (ms < 120000) e.push('hfast');
+          if (kev <= 3) e.push('hclean');
+          if (maxDown >= 5) e.push('hcomeback');
+        }
         if (kev === 0) e.push('clean');
         if (kev === 9) e.push('close');
         if (ms < 75000) e.push('fast');
@@ -2231,6 +2243,7 @@
         if (new Date().getHours() < 4) e.push('night');
       }
       if (mt.perfect >= 3) e.push('sniper');
+      if (mt.perfect >= 5 && level === 3) e.push('hsniper');
       if (mt.superHit) e.push('super');
       if (+(store.get('kevinPongScrews') || 0) >= 10) e.push('tinker');
       if (mt.overheats >= 3) e.push('overheat');
@@ -2333,6 +2346,8 @@
       panel.querySelector('.kpong-play').addEventListener('click', begin);
       panel.querySelector('.kpong-back').addEventListener('click', startScreen);
       board(level);
+      if (fresh && fresh.length && (T.badgeLines || {})[fresh[0]]) setTimeout(function () { say(T.badgeLines[fresh[0]], 5200); }, 900);
+      else if (won && level === 1 && T.noBadges) setTimeout(function () { say(T.noBadges, 4200); }, 900);
     }
 
     function begin() {
@@ -2346,7 +2361,7 @@
       yarn = null; yarnUsed = false; mood = 'calm';
       mt = { perfect: 0, superHit: false, overheats: 0, maxRally: 0, yarn: false };
       var today = new Date().toISOString().slice(0, 10);              // Věrný parťák: počet různých dní se hrou
-      if (store.get('kevinPongDay') !== today) { store.set('kevinPongDay', today); store.set('kevinPongDays', String(+(store.get('kevinPongDays') || 0) + 1)); }
+      if (level >= 2 && store.get('kevinPongDay') !== today) { store.set('kevinPongDay', today); store.set('kevinPongDays', String(+(store.get('kevinPongDays') || 0) + 1)); }
       heat = 0; hotUntil = 0; isHot = false; root.classList.remove('hot'); frame.style.setProperty('--heat', 0); heatShown = 0;
       running = true; awaitStart = 'start';            // první hopík vyletí, až hráč ťukne / klikne / zmáčkne mezerník
       resetBall(Math.random() < 0.5);
