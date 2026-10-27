@@ -929,19 +929,62 @@
       });
       cx.restore();
     }
-    // barva stopy míčku podle míčku (po odstřelu barva / neon přebije); i = index v ocasu stopy
-    var BALL_TRAIL = { kastan: '#a8743e', ledovka: '#cfeeff', lavak: '#ff7a1e', tlapka: '#ffd23f', plysak: '#ffc2cf', repro: '#e6b730',
-      jadeitak: '#6fcf97', procesor: '#59f0a0', hodinky: '#d08a4a', mramor: '#e8e8ee' };
-    function trailColor(i, now) {
-      if (ballFx.kind === 'paint' && now < ballFx.until) return ['#ff4fd8', '#ffd23f', '#3fb6ff', '#7cff6b'][(i + (now / 90 | 0)) % 4];
-      if (ballFx.kind === 'neon' && now < ballFx.until) return i % 2 ? '#7df9ff' : '#c76bff';
-      if (ballFx.kind === 'frost' && now < ballFx.until) return '#d8f3ff';
-      if (ballFx.kind === 'burn' && now < ballFx.until) return i % 2 ? '#ff6a00' : '#ffb02e';
-      var id = BALLS[ballType] && BALLS[ballType].id;
-      if (id === 'sprej') return ['#ff4fd8', '#ffd23f', '#3fb6ff'][i % 3];
-      if (id === 'vir') return i % 2 ? '#7df9ff' : '#c76bff';
-      if (id === 'perla') return 'hsl(' + ((now / 8 + i * 25) % 360) + ', 80%, 88%)';
-      return BALL_TRAIL[id] || SKINS[skin].trail;
+    // ohon komety za míčkem: zužující se zářící pruh (záře kolem v barvě pálky, jádro v barvě míčku), pár třpytek uvnitř
+    function cometColors(now) {
+      var multi = ['#ff4fd8', '#ffd23f', '#3fb6ff', '#7cff6b'];
+      if (ball.fire) return { core: ['#fff1a8', '#ffb02e', '#ff4a00'], halo: '#ff6a00', flick: true };
+      var fxOn = now < ballFx.until;
+      if (fxOn && ballFx.kind === 'burn') return { core: ['#ffe08a', '#ff8a1a'], halo: '#ff4a00', flick: true };
+      if (fxOn && ballFx.kind === 'frost') return { core: ['#ffffff', '#c6f1ff'], halo: '#7fd3ff' };
+      if (fxOn && ballFx.kind === 'paint') return { core: multi, halo: '#ff4fd8' };
+      if (fxOn && ballFx.kind === 'neon') return { core: ['#e8feff', '#7df9ff'], halo: '#c76bff' };
+      var bid = BALLS[ballType] && BALLS[ballType].id, bs = BALL_FLIGHT[bid], ps = flight && flight.st;
+      function col(line, i) {
+        if (line === 'multi') return multi[i % 4];
+        if (line === 'iri') return 'hsl(' + ((now / 6 + i * 70) % 360) + ', 85%, 85%)';
+        return line[i ? 1 : 0];
+      }
+      var core = bs ? (bs.line === 'multi' ? multi : [col(bs.line, 0), col(bs.line, 1)]) : [SKINS[skin].rim, SKINS[skin].trail];
+      if (player.boosted && ball.vy < 0) core = ['#fffbe0', core[0]];
+      var halo = ps ? col(ps.line, 0) : bs ? col(bs.line, 1) : SKINS[skin].glow;
+      return { core: core, halo: halo };
+    }
+    function drawComet(now) {
+      var tr = ball.trail.concat([[ball.x, ball.y]]), n = tr.length;
+      if (n < 3) return;
+      var c = cometColors(now), tail = tr[0], head = tr[n - 1];
+      // obrys ohonu: body vlevo a vpravo od dráhy, šířka roste od konce k míčku
+      function outline(scale) {
+        var L = [], R = [];
+        for (var i = 0; i < n; i++) {
+          var a = tr[Math.max(0, i - 1)], b = tr[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1;
+          var w = BALL_R * scale * Math.pow(i / (n - 1), 0.85) * (c.flick ? 0.85 + 0.3 * Math.sin(now / 45 + i) : 1);
+          L.push([tr[i][0] - dy / d * w, tr[i][1] + dx / d * w]); R.push([tr[i][0] + dy / d * w, tr[i][1] - dx / d * w]);
+        }
+        cx.beginPath(); cx.moveTo(L[0][0], L[0][1]);
+        for (var j = 1; j < n; j++) cx.lineTo(L[j][0], L[j][1]);
+        for (var k = n - 1; k >= 0; k--) cx.lineTo(R[k][0], R[k][1]);
+        cx.closePath();
+      }
+      function grad(colors, alpha) {
+        var g = cx.createLinearGradient(tail[0], tail[1], head[0], head[1]);
+        g.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        colors.forEach(function (cc, i) { g.addColorStop(0.35 + 0.65 * (i + 1) / colors.length, cc); });
+        return g;
+      }
+      cx.save();
+      cx.globalCompositeOperation = 'lighter';
+      cx.globalAlpha = 0.32; cx.fillStyle = grad([c.halo, c.halo]); outline(1.6); cx.fill();      // záře
+      cx.globalAlpha = 0.7; cx.fillStyle = grad(c.core); outline(0.85); cx.fill();                // jádro
+      cx.globalAlpha = 0.55; cx.fillStyle = grad(['rgba(255, 255, 255, .2)', '#ffffff']); outline(0.28); cx.fill();   // světlá žilka uprostřed
+      // třpytky v ohonu (každý snímek jinde, ať ohon žije)
+      cx.fillStyle = '#ffffff';
+      for (var t = 0; t < 4; t++) {
+        var u = 0.25 + Math.random() * 0.7, idx = Math.floor(u * (n - 1)), p = tr[idx];
+        cx.globalAlpha = 0.5 * u;
+        cx.beginPath(); cx.arc(p[0] + rnd(-3, 3) * u, p[1] + rnd(-3, 3) * u, 0.6 + u, 0, 7); cx.fill();
+      }
+      cx.restore();
     }
     // obrázková pálka: horní hrana těla = plocha odrazu (top). Koncovky se nenatahují, střed ano (velká pálka).
     function drawSpritePad(sp, x, top, w, glow, still, skinIdx, rig, matIn) {
@@ -1506,7 +1549,7 @@
       // míč
       if (now >= serveAt) {
         ball.x += ball.vx * dt; ball.y += ball.vy * dt;
-        ball.trail.push([ball.x, ball.y]); if (ball.trail.length > 10) ball.trail.shift();
+        ball.trail.push([ball.x, ball.y]); if (ball.trail.length > 16) ball.trail.shift();
         ball.spin = (ball.spin || 0) + (ball.vx * 0.5 + ball.vy * 0.15) * dt / BALL_R;   // hopík se kutálí
         if (ball.vy < 0 && !kevin.planned && ball.y < (KEVIN_Y + PLAYER_Y) / 2) { kevin.planned = true; kevin.shot = !ball.mishit && Math.random() < L.kshot; }
         if (yarnHit && yarn) {
@@ -2047,14 +2090,7 @@
         drawYarn(yarn.x, yarn.y, yarn.r * (0.55 + 0.45 * yarn.reel), yarn.a);
       }
       // míč: zlatý hopík se stopou
-      if (running && now >= serveAt) {
-        ball.trail.forEach(function (p, i) {
-          cx.globalAlpha = (i + 1) / ball.trail.length * 0.25;
-          cx.fillStyle = ball.fire ? (i % 2 ? '#ff6a00' : '#ffb02e') : player.boosted && ball.vy < 0 && !(now < ballFx.until) ? '#fff3b0' : trailColor(i, now);
-          cx.beginPath(); cx.arc(p[0], p[1], BALL_R * (ball.fire ? 0.9 + i / 12 : 0.5 + i / 20), 0, 7); cx.fill();
-        });
-        cx.globalAlpha = 1;
-      }
+      if (running && now >= serveAt) drawComet(now);
       if (running) {
         if (ball.fire) { cx.shadowColor = 'rgba(255, 120, 20, .95)'; cx.shadowBlur = 22; }
         if (ballType > 0) {
@@ -2203,7 +2239,7 @@
       // L = míček vyletí z hráčovy pálky nahoru (zkouška stopy letu)
       if (TRY_HOST && e.type === 'keydown' && (e.key === 'l' || e.key === 'L') && running && !awaitStart) {
         ball.x = player.x; ball.y = PLAYER_Y - PAD_H / 2 - BALL_R - 1; ball.vx = rnd(-160, 160); ball.vy = -Math.sqrt(Math.max(1, ball.speed * ball.speed - ball.vx * ball.vx));
-        serveAt = 0; startFlight(performance.now()); return;
+        serveAt = 0; ball.trail = []; startFlight(performance.now()); return;
       }
       if (e.key === 'ArrowLeft' || e.key === 'a') { keys.left = e.type === 'keydown'; e.preventDefault(); }
       if (e.key === 'ArrowRight' || e.key === 'd') { keys.right = e.type === 'keydown'; e.preventDefault(); }
