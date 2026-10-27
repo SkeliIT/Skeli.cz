@@ -1755,6 +1755,23 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 }
 .kp-fullbtn:hover, .kp-fullbtn:focus-visible { border-color: var(--accent); color: var(--accent); }
 .kpong-settings .kpong-play { align-self: center; min-width: 60%; }
+/* ⚙: zvuk (tlačítko + hlasitost), Kevinova upovídanost (4 volby), přepínače vibrace a odstřel vlevo */
+.kp-row { display: flex; align-items: center; gap: 10px; }
+.kp-row .kp-snd { flex: none; min-width: 7.5em; padding: 0 12px; }
+.kp-vol { flex: 1; min-width: 0; accent-color: var(--accent); height: 40px; }
+.kp-vol:disabled { opacity: .35; }
+.kp-talk { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.kp-talk button {
+  min-height: 40px; padding: 0 4px; border-radius: 12px; border: 1px solid var(--panel-border); background: rgba(255, 255, 255, .05);
+  color: var(--text); font-family: var(--font-text); font-size: var(--fs-card);
+}
+.kp-talk button[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.kp-checks { display: flex; flex-wrap: wrap; gap: 8px; }
+.kp-checks:empty { display: none; }
+.kp-checks .kp-fullbtn { flex: 1 1 40%; padding: 0 10px; }
+.kp-fullbtn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+/* pro leváky: na telefonu na šířku je tlačítko odstřelu vlevo */
+@media (orientation: landscape) and (max-height: 500px) { .kpong.lefty .kpong-pad { order: -1; } }
 .kpong:fullscreen { background: #050403; }
 /* pozadí hrací plochy: obrázek na skle hřiště, ztmavený (hopík a pálky musí být vidět), přes něj odlesk skla;
    nad ním plátno s životem scény a nahoře hřiště (.kpong-court); „tma“ = jen sklo stroje */

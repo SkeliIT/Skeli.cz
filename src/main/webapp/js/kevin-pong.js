@@ -285,8 +285,10 @@
     }
     // řekne hlášku, když zrovna nemluví (odstup 2,2 s); force = důležitá chvíle, přebije
     function quip(key, chance, fallback, ms, force) {
-      var now = performance.now();
-      if (!force && (now - lastQuip < 6000 || comics.r)) return false;
+      var now = performance.now(), tk = TALK[talk];
+      if (!tk[0]) return false;
+      if (!force && (now - lastQuip < tk[1] || comics.r)) return false;
+      chance = Math.min(1, chance * tk[0]);
       if (chance < 1 && Math.random() > chance) return false;
       var t = line(key, fallback);
       if (!t) return false;
@@ -319,6 +321,67 @@
     var MOSQUITO_CHANCE = /[?&]komar=1(&|$)/.test(location.search) || location.hash === '#komar' ? 1 : 0.35;
     var mosq = { done: false, active: false };
     var keys = { left: false, right: false }, raf = 0, last = 0, signedIn = false, csrf = null;
+
+    // ---------- nastavení hráče (⚙, pamatuje si je prohlížeč) ----------
+    // upovídanost: [násobek šance na hlášku, odstup mezi běžnými hláškami v ms]; mlčí = žádné komentáře
+    // (scénka s komárem a otázky „pokračujem?“ mluví dál)
+    var TALK = { more: [1.6, 3500], normal: [1, 6000], less: [0.4, 11000], mute: [0, 1e9] }, TALK_KEYS = ['more', 'normal', 'less', 'mute'];
+    var talk = TALK[store.get('kevinPongTalk')] ? store.get('kevinPongTalk') : 'normal';
+    var vibOn = store.get('kevinPongVib') !== '0', lefty = store.get('kevinPongLefty') === '1';
+    root.classList.toggle('lefty', lefty);
+    function vibe(p) { if (vibOn && navigator.vibrate) try { navigator.vibrate(p); } catch (e) { /* nevadí */ } }
+
+    // ---------- zvuky stroje (Web Audio, nic se nestahuje; hrají jen po zapnutí v ⚙) ----------
+    var vol = +(store.get('kevinPongVol') || 0), ac = null, master = null, noiseBuf = null;
+    function audio() {
+      if (!vol) return null;
+      if (!ac) {
+        var C = window.AudioContext || window.webkitAudioContext;
+        if (!C) return null;
+        ac = new C(); master = ac.createGain(); master.connect(ac.destination);
+        noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+        var d = noiseBuf.getChannelData(0);
+        for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      }
+      if (ac.state === 'suspended') ac.resume();
+      master.gain.value = vol * 0.6;
+      return ac;
+    }
+    function tone(f, dur, type, gain, f2) {
+      var a = audio();
+      if (!a) return;
+      var t = a.currentTime, o = a.createOscillator(), g = a.createGain();
+      o.type = type || 'sine'; o.frequency.setValueAtTime(f, t);
+      if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+      g.gain.setValueAtTime(gain || 0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.02);
+    }
+    function noise(dur, freq, gain, q) {
+      var a = audio();
+      if (!a) return;
+      var t = a.currentTime, s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+      s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q || 1;
+      g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.02);
+    }
+    var sfx = {
+      pad: function (kevinSide) { tone(kevinSide ? 330 : 440, 0.09, 'triangle', 0.35, kevinSide ? 260 : 360); noise(0.04, 1800, 0.12); },   // bonk
+      wall: function () { tone(880, 0.04, 'sine', 0.08); },
+      shot: function (big) { noise(big ? 0.35 : 0.22, 1200, 0.35, 0.7); tone(300, big ? 0.35 : 0.22, 'sawtooth', 0.12, big ? 1400 : 900); },   // svist
+      miss: function () { tone(220, 0.25, 'square', 0.1, 110); },
+      goal: function (mine) { tone(mine ? 523 : 392, 0.14, 'triangle', 0.25); setTimeout(function () { tone(mine ? 784 : 262, 0.22, 'triangle', 0.25); }, 130); },
+      click: function () { noise(0.015, 3200, 0.05, 6); },     // cvaknutí zubu
+      hiss: function () { noise(1.6, 5000, 0.18, 0.4); }       // syčení přehřátých kol
+    };
+    // bzučení komára: pila se chvěním, dokud ho Kevin netrefí
+    function buzzStart() {
+      var a = audio();
+      if (!a) return null;
+      var o = a.createOscillator(), l = a.createOscillator(), lg = a.createGain(), g = a.createGain();
+      o.type = 'sawtooth'; o.frequency.value = 620; l.frequency.value = 7; lg.gain.value = 40; g.gain.value = 0.04;
+      l.connect(lg); lg.connect(o.frequency); o.connect(g); g.connect(master); o.start(); l.start();
+      return { stop: function () { try { g.gain.setTargetAtTime(0, a.currentTime, 0.05); o.stop(a.currentTime + 0.3); l.stop(a.currentTime + 0.3); } catch (e) { /* už stojí */ } } };
+    }
 
     function resetBall(towardPlayer) {
       ball.x = W / 2; ball.y = H / 2; ball.trail = [];
@@ -394,9 +457,10 @@
       aimError();
       flash = { kind: kind, text: T.shots ? T.shots[kind] : kind, at: now };
       showFlash(flash);
+      sfx.shot(kind === 'super' || kind === 'perfect');
       if (kind === 'perfect' || kind === 'super') {
         hitStop = now + (kind === 'super' ? 160 : 100);
-        if (navigator.vibrate) try { navigator.vibrate(kind === 'super' ? [30, 40, 60] : 35); } catch (e) { /* nevadí */ }
+        vibe(kind === 'super' ? [30, 40, 60] : 35);
       }
       field.classList.remove('shot', 'shot-super'); void field.offsetWidth; field.classList.add(kind === 'super' ? 'shot-super' : 'shot');
       ball.perfect = kind === 'perfect' || kind === 'super';
@@ -414,6 +478,7 @@
       ball.mishit = true; kevin.miss = 0;
       flash = { kind: 'miss', text: T.shots ? T.shots.miss : 'miss', at: now };
       showFlash(flash);
+      sfx.miss();
       quip('odstrel_pokazeny', 0.25);
     }
 
@@ -450,6 +515,7 @@
       var el = document.createElement('div');
       el.className = 'kpong-mosq';
       frame.appendChild(el);
+      var buzz = buzzStart();
       var side = Math.random() < 0.5 ? 1 : -1;
       var m = { x: side > 0 ? -30 : FRAME_W + 30, y: rnd(-40, 40), tx: 384, ty: 0, behind: false, speed: 1 };
       var t0 = performance.now(), phase = 'fly', seenFor = 0, lastT = t0, kx = KF.x, ky = KF.y, raf2 = 0;
@@ -539,11 +605,12 @@
       }
       function stun() {
         cancelAnimationFrame(raf2);
+        if (buzz) buzz.stop();
         var u = parseFloat(frame.style.getPropertyValue('--u')) || 0.5;
         el.classList.remove('behind'); el.classList.add('hit');
         el.animate([{ transform: 'translate(-50%, -50%) rotate(0deg)' }, { transform: 'translate(-50%, calc(-50% + ' + Math.round(900 * u) + 'px)) rotate(200deg)', opacity: 0 }],
           { duration: 1300, easing: 'cubic-bezier(.5, 0, .9, .6)', fill: 'forwards' });
-        if (navigator.vibrate) try { navigator.vibrate(25); } catch (e) { /* nevadí */ }
+        vibe(25);
       }
       function caught() {
         if (K) { K.hold(null, 0.2); K.turn(0); K.look(0, 0); K.expression(2, 1600); }
@@ -606,13 +673,13 @@
         ball.trail.push([ball.x, ball.y]); if (ball.trail.length > 10) ball.trail.shift();
         ball.spin = (ball.spin || 0) + (ball.vx * 0.5 + ball.vy * 0.15) * dt / BALL_R;   // hopík se kutálí
         if (ball.vy < 0 && !kevin.planned && ball.y < (KEVIN_Y + PLAYER_Y) / 2) { kevin.planned = true; kevin.shot = !ball.mishit && Math.random() < L.kshot; }
-        if (ball.x < BALL_R) { ball.x = BALL_R; ball.vx = Math.abs(ball.vx); }
-        if (ball.x > W - BALL_R) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx); }
+        if (ball.x < BALL_R) { ball.x = BALL_R; ball.vx = Math.abs(ball.vx); sfx.wall(); }
+        if (ball.x > W - BALL_R) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx); sfx.wall(); }
         // pálka hráče (při odstřelu zvednutá)
         var py = PLAYER_Y - liftAt(now);
         if (ball.vy > 0 && ball.y + BALL_R >= py - PAD_H / 2 && ball.y < py + PAD_H && Math.abs(ball.x - player.x) <= PAD_W / 2 + BALL_R) {
           bounce(player.x, -1, py);
-          ball.fire = false;
+          ball.fire = false; sfx.pad(false);
           player.lastHit = now; player.boosted = false; rallyTick();
           if (!player.shotUsed) boost(Math.abs(now - player.shotAt - SHOT_IDEAL), now);
           else if (now < player.stunUntil + 200) mishit(now);      // pálka se po odstřelu naprázdno ještě nevzpamatovala
@@ -620,7 +687,7 @@
         }
         // Kevinova pálka
         if (ball.vy < 0 && ball.y - BALL_R <= KEVIN_Y + PAD_H / 2 && ball.y > KEVIN_Y - PAD_H && Math.abs(ball.x - kevin.x) <= PAD_W / 2 + BALL_R) {
-          bounce(kevin.x, 1);
+          bounce(kevin.x, 1); sfx.pad(true);
           ball.fire = false;
           if (ball.perfect) { ball.perfect = false; quip('odstrel_chycen', 0.4); }
           if (ball.mishit) punish();
@@ -638,7 +705,7 @@
     function kevinShot(now) {
       var sp = Math.min(L.max * 1.12, ball.speed * 1.4), k = sp / ball.speed;
       ball.speed = sp; ball.vx *= k; ball.vy *= k; ball.fire = true;
-      hitStop = now + 90;
+      hitStop = now + 90; sfx.shot(true);
       field.classList.remove('shot', 'shot-super'); void field.offsetWidth; field.classList.add('shot');
       if (K) { K.once(K.has('fistPump') ? 'fistPump' : 'cheer'); K.expression(2, 1200); }
       quip('odstrel_kevin', 0.6);
@@ -648,7 +715,7 @@
       heat = clamp(heat + ranPx / W * 0.4 - dt * 0.06, 0, 1);
       if (heat >= 1 && !isHot) {
         hotUntil = now + 4500; heat = 0.4;
-        quip('kola_prehrata', 1, null, 0, true);
+        quip('kola_prehrata', 1, null, 0, true); sfx.hiss();
         if (K) K.expression(23, 1500);
       }
       if (isHot !== now < hotUntil) { isHot = !isHot; root.classList.toggle('hot', isHot); }
@@ -667,7 +734,7 @@
 
     function goal(byPlayer) {
       if (byPlayer) { you++; youEl.textContent = you; } else { kev++; kevEl.textContent = kev; }
-      bump(byPlayer ? youEl : kevEl);
+      bump(byPlayer ? youEl : kevEl); sfx.goal(byPlayer);
       if (you >= WIN || kev >= WIN) return finish(you >= WIN);
       if (K) {
         if (byPlayer) { K.once(Math.random() < 0.5 && K.has('stomp') ? 'stomp' : 'no'); K.expression(23, 1600); }
@@ -734,6 +801,7 @@
         var target = Math.abs(want) + 9;                     // 9 px/s = klidné tikání
         m.v += (target - m.v) * Math.min(1, dt * 5);
         var step = m.v * dt * m.dir;
+        if (Math.abs(want) > 20) { m.acc = (m.acc || 0) + Math.abs(step); if (m.acc > 28) { m.acc = 0; sfx.click(); } }
         m.front.forEach(function (g) { g.a += g.sign * step / g.r; });
         m.back.forEach(function (g) { g.a += g.sign * step * 0.45 / g.r; });
         drawMech(m, c);
@@ -1088,6 +1156,15 @@
           return '<button type="button" role="radio" class="kp-bgopt" data-bg="' + b + '" aria-checked="' + (b === bgName) + '" title="' + esc((T.bgs || BGS)[i]) + '" aria-label="' + esc((T.bgs || BGS)[i]) + '"' +
             (b === 'tma' ? '' : ' style="background-image:url(/kevin/pong/pozadi-' + b + '-mini.webp' + ver + ')"') + '></button>';
         }).join('') + '</div><p class="kp-bgname">' + esc((T.bgs || BGS)[BGS.indexOf(bgName)]) + '</p></section>' +
+        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.soundTitle || '') + '</h3><div class="kp-row">' +
+        '<button type="button" class="kp-fullbtn kp-snd" aria-pressed="' + (vol > 0) + '"></button>' +
+        '<input type="range" class="kp-vol" min="0.1" max="1" step="0.1" value="' + (vol || +(store.get('kevinPongVolLast') || 0.6)) + '" aria-label="' + esc(T.volume || '') + '"></div></section>' +
+        '<section class="kp-sec"><h3 class="kp-label">' + esc(T.talkTitle || '') + '</h3><div class="kp-talk" role="radiogroup" aria-label="' + esc(T.talkTitle || '') + '">' +
+        TALK_KEYS.map(function (k, i) { return '<button type="button" role="radio" data-talk="' + k + '" aria-checked="' + (k === talk) + '">' + esc((T.talk || TALK_KEYS)[i]) + '</button>'; }).join('') + '</div></section>' +
+        '<div class="kp-checks">' +
+        (navigator.vibrate ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="vib" aria-pressed="' + vibOn + '"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> ' + esc(T.vibrate || '') + '</button>' : '') +
+        (coarse ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="lefty" aria-pressed="' + lefty + '"><i class="fa-solid fa-hand" aria-hidden="true"></i> ' + esc(T.lefty || '') + '</button>' : '') +
+        '</div>' +
         (canFull ? '<button type="button" class="kp-fullbtn"><i class="fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand') + '" aria-hidden="true"></i> ' + esc(T.fullscreen || '') + '</button>' : '') +
         '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>';
       root.appendChild(setCard);
@@ -1101,6 +1178,32 @@
       });
       var fb = setCard.querySelector('.kp-fullbtn');
       if (fb) fb.addEventListener('click', toggleFull);
+      var snd = setCard.querySelector('.kp-snd'), volEl = setCard.querySelector('.kp-vol');
+      function showSnd() {
+        snd.setAttribute('aria-pressed', String(vol > 0)); volEl.disabled = !vol;
+        snd.innerHTML = '<i class="fa-solid ' + (vol ? 'fa-volume-high' : 'fa-volume-xmark') + '" aria-hidden="true"></i> ' + esc(vol ? T.on || '' : T.off || '');
+      }
+      showSnd();
+      snd.addEventListener('click', function () {
+        vol = vol ? 0 : +volEl.value; store.set('kevinPongVol', String(vol)); showSnd();
+        if (vol) sfx.pad(false);                                   // ukázka, jak hlasité to je
+      });
+      volEl.addEventListener('input', function () { vol = +volEl.value; store.set('kevinPongVol', String(vol)); store.set('kevinPongVolLast', String(vol)); });
+      volEl.addEventListener('change', function () { sfx.pad(false); });
+      setCard.querySelectorAll('[data-talk]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          talk = b.dataset.talk; store.set('kevinPongTalk', talk);
+          setCard.querySelectorAll('[data-talk]').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
+        });
+      });
+      setCard.querySelectorAll('.kp-opt').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var on = b.getAttribute('aria-pressed') !== 'true';
+          b.setAttribute('aria-pressed', String(on));
+          if (b.dataset.opt === 'vib') { vibOn = on; store.set('kevinPongVib', on ? '1' : '0'); if (on) vibe(30); }
+          else { lefty = on; store.set('kevinPongLefty', on ? '1' : '0'); root.classList.toggle('lefty', on); setTimeout(fit, 50); }
+        });
+      });
       setCard.querySelector('.kp-resume').addEventListener('click', closeSettings);
       setCard.querySelector('.kp-resume').focus();
     }
@@ -1116,6 +1219,7 @@
     document.addEventListener('webkitfullscreenchange', onFull);
 
     function close() {
+      if (ac) try { ac.close(); } catch (e) { /* nevadí */ }
       if (running && !awaitStart) {
         var bye = line('odchod');
         if (bye) setTimeout(function () { window.dispatchEvent(new CustomEvent('kevin', { detail: { say: bye } })); }, 600);
