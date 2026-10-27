@@ -373,6 +373,7 @@
     //  sway  = měkké nebo tekuté, ohýbá se (čím níž, tím víc): plyš, láva, barva;
     //  beads = tuhé korálky na šňůrce: korálky se jen posouvají, ohýbá se šňůrka;
     //  string = tuhý kus na provázku (klíček): provázek se kývá, klíček visí na jeho konci;
+    //  leg = chlupatá nožička (dokreslená) a na ní tuhá tlapka – nožička se houpe, tlapka se neohýbá;
     //  rigid = nehýbe se vůbec (led, neon, ekvalizér, ozubená kola).
     // damp = tlumení (kov se houpe dlouho, láva skoro hned stojí), stiff = pružnost (větvička se vrací sama),
     // push = jak moc ho rozhoupe pohyb pálky (těžká láva málo, lehký plyš hodně)
@@ -381,7 +382,7 @@
       lava: { mode: 'sway', damp: 7, stiff: 6, push: 0.3, drip: 'lava', every: [900, 2600] },
       retez: { mode: 'swing', damp: 1.1, stiff: 0, push: 1 },
       graffiti: { mode: 'sway', damp: 6, stiff: 10, push: 0.3, drip: 'paint', every: [1800, 4200] },
-      plys: { mode: 'sway', damp: 3, stiff: 8, push: 0.8 },
+      plys: { mode: 'leg', damp: 2.6, stiff: 18, push: 0.75, leg: 16 },
       jadeit: { mode: 'swing', damp: 1.6, stiff: 0, push: 1 },
       perly: { mode: 'beads', damp: 2.2, stiff: 0, push: 0.7 },
       mince: { mode: 'swing', damp: 1.2, stiff: 0, push: 1 },
@@ -401,6 +402,7 @@
       var m = partMode(mat, p);
       if (m === 'string') return (p.cord + Math.hypot(p.img[2], p.img[3]) * p.scale * 0.5) * s;
       if (m === 'swing') return Math.max(8, (p.y - p.py + p.img[3]) * s * 0.6);
+      if (m === 'leg') return (mat.leg + p.img[3] * 0.5) * s;
       return Math.max(8, (p.y + p.img[3]) * s * 0.85);
     }
     function hangTick(now) {
@@ -765,6 +767,18 @@
           cx.restore();
           return;
         }
+        if (m === 'leg') {                               // chlupatá nožička od pálky, na konci tlapka (otáčí se s nožičkou)
+          var lw = im[2] * 0.42 * s, ll = mat.leg * s, ly = y0 + 1 * s;
+          cx.save(); cx.translate(px, ly); cx.rotate(-st.a);
+          var lg = cx.createLinearGradient(-lw / 2, 0, lw / 2, 0);
+          lg.addColorStop(0, '#c9c9cf'); lg.addColorStop(0.35, '#f7f7f8'); lg.addColorStop(0.7, '#ececef'); lg.addColorStop(1, '#bdbdc4');
+          cx.fillStyle = lg; roundRect(-lw / 2, -2 * s, lw, ll + 10 * s, lw / 2);
+          cx.fillStyle = 'rgba(255, 255, 255, .55)';                 // chloupky po okrajích
+          for (var f = 0; f < 6; f++) { var fy = (f + 0.5) / 6 * ll; cx.beginPath(); cx.arc(f % 2 ? lw / 2 : -lw / 2, fy, 1.1 * s * 4, 0, 7); cx.fill(); }
+          cx.drawImage(palImg, im[0], im[1], im[2], im[3], (p.x - p.px) * s, ll, im[2] * s, im[3] * s);
+          cx.restore();
+          return;
+        }
         if (m === 'swing') {
           cx.save(); cx.translate(px, py); cx.rotate(-st.a);
           cx.drawImage(palImg, im[0], im[1], im[2], im[3], (p.x - p.px) * s, (p.y - p.py) * s, im[2] * s, im[3] * s);
@@ -781,6 +795,38 @@
         if (p.tip) tips[i] = [left0 + (p.tip[0] - p.x) * s + dxAt(p.tip[1]), y0 + p.tip[1] * s, p.tip.slice(2)];
       });
       if (mat.drip && !still && !rig) { dripTick(mat, tips, performance.now()); drawDrips(mat.drip); }
+      if (sp.gears && sp.full) {
+        // ozubená kola Strojovny: kruh vyříznutý z obrázku se otočí; otáčí se, jak pálka jede (obvod ujede to co pálka),
+        // a pomalu i v klidu
+        var fu = sp.full, tnow = still ? 0 : performance.now();
+        sp.gears.forEach(function (g) {
+          var gx = left + g[0] * s * kx, gy = top + g[1] * s, r = g[2], ang = g[3] * (x / (r * s) + tnow / 1500 * 18 / r);
+          cx.save(); cx.beginPath(); cx.arc(gx, gy, r * s, 0, 7); cx.clip();
+          cx.translate(gx, gy); cx.rotate(ang);
+          cx.drawImage(palImg, fu[0] + g[0] - r - 1, fu[1] + g[1] - r - 1, 2 * r + 2, 2 * r + 2, -(r + 1) * s, -(r + 1) * s, (2 * r + 2) * s, (2 * r + 2) * s);
+          cx.restore();
+        });
+      }
+      if (PAL && sp === PAL.neon && !still) neonExtra(left, top, s, w, sp);
+    }
+    // Neonová trubice navíc: záře na hřiště pod pálkou, občas zabliká (jako opravdový neon) a trubicí běží světelný puls
+    var neonFlickUntil = 0, neonNext = 0;
+    function neonExtra(left, top, s, w, sp) {
+      var now = performance.now(), tubeY = top + (sp.split + 15) * s;
+      if (now > neonNext) { neonNext = now + rnd(2500, 6000); neonFlickUntil = now + rnd(90, 220); }
+      var flick = now < neonFlickUntil ? (Math.sin(now / 9) > 0 ? 0.25 : 0.8) : 1;
+      cx.save(); cx.globalCompositeOperation = 'lighter';
+      var hg = cx.createRadialGradient(left + w / 2, tubeY, 4, left + w / 2, tubeY, w * 0.62);
+      hg.addColorStop(0, 'rgba(125, 249, 255, ' + 0.2 * flick + ')'); hg.addColorStop(0.5, 'rgba(200, 110, 255, ' + 0.09 * flick + ')'); hg.addColorStop(1, 'rgba(200, 110, 255, 0)');
+      cx.fillStyle = hg; cx.beginPath(); cx.ellipse(left + w / 2, tubeY, w * 0.62, 24, 0, 0, 7); cx.fill();
+      var ph = (now % 2200) / 1400;                      // puls běží 1,4 s, pak chvíli pauza
+      if (ph < 1) {
+        var pxp = left + w * (0.08 + 0.84 * ph), pg = cx.createRadialGradient(pxp, tubeY, 0, pxp, tubeY, 9);
+        pg.addColorStop(0, 'rgba(255, 255, 255, ' + 0.9 * flick + ')'); pg.addColorStop(0.4, 'rgba(160, 250, 255, ' + 0.5 * flick + ')'); pg.addColorStop(1, 'rgba(200, 110, 255, 0)');
+        cx.fillStyle = pg; cx.beginPath(); cx.arc(pxp, tubeY, 9, 0, 7); cx.fill();
+      }
+      if (flick < 1) { cx.globalCompositeOperation = 'source-over'; cx.fillStyle = 'rgba(0, 0, 0, ' + (1 - flick) * 0.35 + ')'; cx.fillRect(left + 10 * s, tubeY - 6, w - 20 * s, 12); }
+      cx.restore();
     }
     var ball = { x: W / 2, y: H / 2, vx: 0, vy: 0, speed: 0, trail: [], fire: false, mishit: false };
     var combo = 0, hitStop = 0, flash = null, awaitStart = false, pausedMs = 0;

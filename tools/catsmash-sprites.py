@@ -30,6 +30,9 @@ PADDLES = [
     (1, 2, 0, 'mince', 'swing'), (1, 2, 1, 'cip', 'swing'),
     (1, 3, 1, 'kola', 'rigid'),
 ]
+# ozubená kola ve Strojovně, která se ve hře točí: střed x, y a poloměr (souřadnice celé pálky), směr točení.
+# Kreslí se v pořadí odzadu dopředu; hra vyřízne kruh z celého obrázku pálky (full) a otočí ho.
+GEARS = {'kola': [[230, 36, 27, -1], [232, 70, 11, 1], [275, 109, 20, -1], [218, 108, 10, 1], [360, 62, 16, -1], [178, 75, 33, 1]]}
 # další obrázky s jedinou pálkou: (index obrázku, výřez x0, y0, x1, y1, id, pohyb); Kevinova pálka (3. obrázek)
 SINGLE = [(2, (20, 70, 1250, 530), 'kevin', 'swing')]
 BALLS = [
@@ -281,6 +284,9 @@ def main():
         elif below.shape[0] > 2 and (below[..., 3] > 40).any():
             part, (ox, oy) = trim(below, 0)                    # pevná ozdoba: jeden kus, nehýbe se
             entry['parts'].append({'img': atlas.add(part), 'x': int(ox), 'y': int(oy), 'px': 0.0, 'py': 0.0})
+        if name in GEARS:
+            entry['full'] = atlas.add(rgba)
+            entry['gears'] = GEARS[name]
         entry['w'], entry['h'], entry['split'] = int(rgba.shape[1]), int(rgba.shape[0]), int(split)
         meta[name] = entry
         if preview:
