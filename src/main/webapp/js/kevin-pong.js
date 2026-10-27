@@ -39,7 +39,8 @@
   var LEVELS = {
     1: { speed: 490, gain: 1.03, max: 1000, react: 0.26, err: 0.11, bounceErr: 0.6, watch: 0.6, aiSpeed: 340, aim: 0.1 },
     2: { speed: 580, gain: 1.04, max: 1250, react: 0.15, err: 0.065, bounceErr: 0.5, watch: 0.75, aiSpeed: 520, aim: 0.35 },
-    3: { speed: 700, gain: 1.05, max: 1650, react: 0.045, err: 0.02, bounceErr: 0.3, watch: 1, aiSpeed: 1000, aim: 0.85 }
+    // trojka: pořád těžká, ale porazitelná (dřív chyba 0,02 a běh 1000 = skoro neomylný, hráč dal 1 gól z 10 her)
+    3: { speed: 680, gain: 1.045, max: 1500, react: 0.08, err: 0.048, bounceErr: 0.45, watch: 0.95, aiSpeed: 800, aim: 0.7 }
   };
   // odstřel: pálka je nejvýš SHOT_IDEAL ms po kliknutí; odchylka dotyku míčku od té chvíle (ms) → zrychlení
   var SHOT = [[35, 1.6, 'perfect'], [90, 1.3, 'good'], [160, 1.12, 'weak']], SHOT_IDEAL = 40, SHOT_SUPER = 1.85, LIFT = 22;
