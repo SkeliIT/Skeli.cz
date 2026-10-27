@@ -40,6 +40,9 @@
     if ("true".equals(request.getParameter("saved"))) okKey = "settings.saved";
     if ("true".equals(request.getParameter("password_changed"))) okKey = "settings.passwordChanged";
     if (request.getParameter("signedOut") != null) okKey = "settings.signedOutOthers";
+    // změna uživatelského jména (UsernameServlet): jen pevné kódy
+    String nameRes = request.getParameter("name");
+    if ("ok".equals(nameRes)) okKey = "account.username.ok";
     String settingsError = request.getParameter("error"), errKey = null;
     if ("empty".equals(settingsError)) errKey = "settings.error.empty";
     else if ("mismatch".equals(settingsError)) errKey = "settings.error.mismatch";
@@ -50,6 +53,7 @@
     else if ("wrong_old".equals(settingsError)) errKey = "settings.error.wrongOld";
     else if (settingsError != null) errKey = "settings.error.generic";
     if ("required".equals(request.getParameter("confirm"))) errKey = "settings.deleteRequired";
+    if ("taken".equals(nameRes) || "invalid".equals(nameRes) || "reserved".equals(nameRes) || "limit".equals(nameRes)) errKey = "account.username." + nameRes;
   %>
 
   <%-- who you are: photo (click = choose a new one), name, since when, numbers --%>
@@ -98,6 +102,18 @@
     </header>
     <div class="acct-block">
       <%@ include file="/includes/avatar-editor.jspf" %>
+    </div>
+    <%-- uživatelské jméno (vidí ho ostatní u komentářů); jde změnit i u účtu přes Google --%>
+    <div class="settings-form acct-block">
+      <form method="post" action="/profile/username" class="acct-form-grid acct-username">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <label><%= t.getProperty("account.username") %>
+          <input name="username" required minlength="3" maxlength="50" autocomplete="username"
+                 value="<%= WebUtils.escapeHtml(me != null ? me.username : (String) session.getAttribute("username")) %>">
+        </label>
+        <p class="acct-dim"><%= t.getProperty("account.username.hint") %></p>
+        <button type="submit" class="btn-primary"><%= t.getProperty("account.username.save") %></button>
+      </form>
     </div>
     <div class="settings-form acct-block">
       <form method="post" action="/profile/update" enctype="application/x-www-form-urlencoded" class="acct-form-grid">

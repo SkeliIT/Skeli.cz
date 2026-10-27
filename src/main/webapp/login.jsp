@@ -32,10 +32,19 @@
         <label><%= t.getProperty("auth.label.password","Heslo") %><br>
           <input type="password" name="password" required autocomplete="current-password"></label>
         <label class="checkbox-label">
-          <input type="checkbox" name="remember" value="1"> <%= t.getProperty("auth.label.remember","Zapamatovat na tomto zařízení") %>
+          <input type="checkbox" name="remember" value="1" checked> <%= t.getProperty("auth.label.remember","Zapamatovat na tomto zařízení") %>
         </label>
         <button type="submit"><%= t.getProperty("auth.submit.login","Přihlásit") %></button>
       </form>
+      <script>
+        // tlačítko Google se řídí zaškrtávátkem Zapamatovat (je předem zaškrtnuté)
+        (function () {
+          var box = document.querySelector('input[name="remember"]'), g = document.querySelector('.oauth-btn');
+          if (!box || !g) return;
+          function sync() { g.href = g.href.replace(/([?&])remember=1&?/, '$1').replace(/[?&]$/, '') + (box.checked ? (g.href.indexOf('?') < 0 ? '?' : '&') + 'remember=1' : ''); }
+          box.addEventListener('change', sync); sync();
+        })();
+      </script>
       <p class="auth-footer">
         <a href="/forgot.jsp">
           <%= t.getProperty("login.forgot","Forgot your password?") %>

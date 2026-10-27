@@ -292,6 +292,14 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .auth-link { width: 36px; padding: 0; justify-content: center; }
   .user-name { display: none; }
 }
+/* Registrovat / Přihlásit: jedno tlačítko, nápis je vidět vždycky (dřív jen malé ikonky) */
+.auth-link.auth-cta { width: auto; padding: 0 16px; }
+.auth-link.auth-cta span { display: inline; }
+/* úzký počítač (menu musí zůstat pod logem): jen zlatá ikonka, nápis je v title / v mobilním menu */
+@media (max-width: 1320px) {
+  .auth-link.auth-cta { width: 36px; padding: 0; justify-content: center; }
+  .auth-link.auth-cta span { display: none; }
+}
 
 /* the menu folds behind the Menu button up to a landscape tablet; German does not fit sooner */
 @media (max-width: 1024px) {
@@ -435,6 +443,23 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     padding: 12px 14px;
   }
   .main-nav > .nav-donate i { color: var(--red); }
+  /* karaoke: zlatavá dlaždice, okrajem pomalu přejede odlesk, štítek „pro členy“ vpravo nahoře */
+  .main-nav > a.nav-karaoke {
+    position: relative; overflow: hidden;
+    border-color: rgba(230, 183, 48, .55);
+    background: linear-gradient(135deg, rgba(230, 183, 48, .16), rgba(230, 183, 48, .03) 60%);
+  }
+  .main-nav > a.nav-karaoke::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 236, 170, .22) 50%, transparent 65%) -100% 0 / 220% 100% no-repeat;
+    animation: nav-shine 5s ease-in-out infinite;
+  }
+  .main-nav > a.nav-karaoke .nav-badge {
+    position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 999px; font-size: var(--fs-small); line-height: 1.6;
+    background: var(--accent); color: var(--accent-ink);
+  }
+  .main-nav > a.nav-karaoke .nav-badge i { font-size: .65em; }
   .main-nav .nav-settings {
     grid-column: 1 / -1;
     display: flex;
@@ -1068,3 +1093,10 @@ body.light .card-gold {
   animation: av-rise 1.6s ease-out infinite;
 }
 .cmt-reply .av-frame { font-size: 30px; }
+@keyframes nav-shine { 0%, 55% { background-position: -100% 0; } 85%, 100% { background-position: 200% 0; } }
+/* karaoke v liště na počítači: jen malá zlatá hvězdička (štítek s textem by menu nevešel) */
+@media (min-width: 1025px) {
+  .main-nav a.nav-karaoke { position: relative; }
+  .main-nav a.nav-karaoke .nav-badge { position: absolute; top: 2px; right: 0; font-size: .55rem; color: var(--accent); line-height: 1; }
+  .main-nav a.nav-karaoke .nav-badge span { display: none; }
+}
