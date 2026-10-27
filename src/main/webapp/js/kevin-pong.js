@@ -1090,6 +1090,20 @@
       gamesPlayed++;
     }
 
+    // barvy pálky během vylepšení: velká pálka zelená, pomalý Kevin modrá, klidný hopík fialová
+    var POWER_COL = {
+      big: ['#c6ffd0', '#18a04e', 'rgba(90, 255, 140, .9)'],
+      slow: ['#cfe6ff', '#2a62d0', 'rgba(110, 170, 255, .9)'],
+      calm: ['#eadcff', '#7a46d0', 'rgba(190, 140, 255, .9)']
+    };
+    // svítí barva vylepšení? Posledních 3 s bliká: z 2 bliknutí za sekundu až na 10 (fáze = integrál rostoucí frekvence)
+    function powerLit(left) {
+      if (left > 3000) return true;
+      if (left <= 0) return false;
+      var t = (3000 - left) / 1000, phase = 2 * t + 4 / 3 * t * t;
+      return Math.floor(phase * 2) % 2 === 0;
+    }
+
     // ---------- kreslení hřiště ----------
     function draw(now) {
       mechTick(now); fxTick(now);
@@ -1108,8 +1122,10 @@
       cx.shadowBlur = 0;
       var lift = liftAt(now);
       if (lift > 0) { cx.shadowColor = 'rgba(230,183,48,.9)'; cx.shadowBlur = 24 * lift / LIFT; }
-      if (power.kind === 'big') { cx.shadowColor = 'rgba(120, 220, 255, .9)'; cx.shadowBlur = 16; }
-      pad(player.x, PLAYER_Y - lift, SKINS[skin].pad[0], SKINS[skin].pad[1], player.w);
+      // vylepšení obarví pálku (každé jinak); poslední 3 s bliká zpátky do normální barvy, čím blíž konec, tím rychleji
+      var pc = power.kind && powerLit(power.until - now) ? POWER_COL[power.kind] : null;
+      if (pc) { cx.shadowColor = pc[2]; cx.shadowBlur = 18; }
+      pad(player.x, PLAYER_Y - lift, pc ? pc[0] : SKINS[skin].pad[0], pc ? pc[1] : SKINS[skin].pad[1], player.w);
       cx.shadowBlur = 0;
       if (screw) drawScrew(screw);
       if (sock) {
@@ -1269,7 +1285,7 @@
       if (p && p.catch) p.catch(function () { /* prohlížeč nepovolil */ });
     }
     function onFull() {
-      var i = setCard && setCard.querySelector('.kp-fullbtn i');
+      var i = setCard && setCard.querySelector('.kp-full i');
       if (i) i.className = 'fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand');
       setTimeout(fit, 80);
     }
@@ -1305,7 +1321,7 @@
         (navigator.vibrate ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="vib" aria-pressed="' + vibOn + '"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> ' + esc(T.vibrate || '') + '</button>' : '') +
         (coarse ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="lefty" aria-pressed="' + lefty + '"><i class="fa-solid fa-hand" aria-hidden="true"></i> ' + esc(T.lefty || '') + '</button>' : '') +
         '</div>' +
-        (canFull ? '<button type="button" class="kp-fullbtn"><i class="fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand') + '" aria-hidden="true"></i> ' + esc(T.fullscreen || '') + '</button>' : '') +
+        (canFull ? '<button type="button" class="kp-fullbtn kp-full"><i class="fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand') + '" aria-hidden="true"></i> ' + esc(T.fullscreen || '') + '</button>' : '') +
         '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>';
       root.appendChild(setCard);
       setBtn.setAttribute('aria-expanded', 'true');
@@ -1316,7 +1332,7 @@
           setCard.querySelector('.kp-bgname').textContent = (T.bgs || BGS)[i];
         });
       });
-      var fb = setCard.querySelector('.kp-fullbtn');
+      var fb = setCard.querySelector('.kp-full');
       if (fb) fb.addEventListener('click', toggleFull);
       setCard.querySelectorAll('.kp-skin').forEach(function (b) {
         b.addEventListener('click', function () {
