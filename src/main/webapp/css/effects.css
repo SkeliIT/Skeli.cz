@@ -1609,8 +1609,12 @@ body.light .kpong > .kpong-panel { background: linear-gradient(180deg, rgba(26, 
   position: fixed; z-index: 3010; pointer-events: none; translate: 0 -50%;
   animation: kp-pop .38s cubic-bezier(.2, 1.6, .4, 1) both;
 }
-.kp-comic.l.out, .kp-comic.r.in { transform-origin: 100% 50%; }
-.kp-comic.r.out, .kp-comic.l.in { transform-origin: 0 50%; }
+.kp-comic.l.out { transform-origin: 100% 50%; }
+.kp-comic.r.out { transform-origin: 0 50%; }
+/* telefon: bubliny v okénkách stroje (nahoře Kevinova, dole nápis odstřelu), ne přes hřiště */
+.kp-comic.top, .kp-comic.bottom { translate: -50% -50%; transform-origin: 50% 50%; text-align: center; }
+.kp-comic.say.top::after { left: 50%; top: -9px; margin: 0 0 0 -7px; rotate: 135deg; }
+.kp-comic.burst.bottom { rotate: -4deg; }
 .kp-comic.bye { animation: kp-bye .26s ease-in forwards; }
 @keyframes kp-pop { from { scale: .15; opacity: 0; } }
 @keyframes kp-bye { to { scale: .6; opacity: 0; } }
@@ -1637,8 +1641,8 @@ body.light .kpong > .kpong-panel { background: linear-gradient(180deg, rgba(26, 
   content: ""; position: absolute; top: 50%; width: 16px; height: 16px; margin-top: -8px;
   background: #fffdf6; border: 3px solid #141414; border-width: 0 0 3px 3px;
 }
-.kp-comic.say.r.out::after, .kp-comic.say.l.in::after { left: -10px; rotate: 45deg; }
-.kp-comic.say.l.out::after, .kp-comic.say.r.in::after { right: -10px; rotate: -135deg; }
+.kp-comic.say.r.out::after { left: -10px; rotate: 45deg; }
+.kp-comic.say.l.out::after { right: -10px; rotate: -135deg; }
 /* skóre a křížek přes volné místo nad strojem: „TY 0“ vlevo od Kevina, „0 KEVIN ✕“ vpravo (stroj je o lištu větší) */
 .kpong .kpong-box { position: relative; }
 .kpong .kpong-top {
