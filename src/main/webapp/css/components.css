@@ -295,8 +295,9 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
 /* Registrovat / Přihlásit: jedno tlačítko, nápis je vidět vždycky (dřív jen malé ikonky) */
 .auth-link.auth-cta { width: auto; padding: 0 16px; }
 .auth-link.auth-cta span { display: inline; }
-/* úzký počítač (menu musí zůstat pod logem): jen zlatá ikonka, nápis je v title / v mobilním menu */
-@media (max-width: 1320px) {
+/* úzký počítač (menu musí zůstat pod logem): jen zlatá ikonka, nápis je v title / v mobilním menu
+   (vedle je i kulatá ikonka druhé možnosti, proto už od 1400 px) */
+@media (max-width: 1400px) {
   .auth-link.auth-cta { width: 36px; padding: 0; justify-content: center; }
   .auth-link.auth-cta span { display: none; }
 }

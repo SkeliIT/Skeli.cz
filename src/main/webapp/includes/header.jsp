@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.29.0";
+  String assetVersion = "6.29.1";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -228,14 +228,24 @@
                 </ul>
               </div>
               <% if (currentUser == null) { %>
-                <%-- jedno jasné tlačítko s nápisem: kdo se tu ještě nepřihlásil, vidí Registrovat; kdo už ano (poznámka
-                     v prohlížeči z dřívějška), vidí rovnou Přihlásit --%>
+                <%-- jasné tlačítko s nápisem: kdo se tu ještě nepřihlásil, vidí Registrovat; kdo už ano (poznámka
+                     v prohlížeči z dřívějška), vidí rovnou Přihlásit. Vedle je vždycky kulatá ikonka té druhé možnosti
+                     (dřív chyběla – kdo měl účet, ale nový prohlížeč, neměl se kde přihlásit). --%>
+                <a href="<%= ctx %>/login.jsp" class="auth-link auth-alt" data-auth-alt title="<%= t.getProperty("btn.login") %>"
+                   aria-label="<%= t.getProperty("btn.login") %>"
+                   data-register-href="<%= ctx %>/register.jsp" data-register-text="<%= t.getProperty("btn.register") %>">
+                  <i class="fa-solid fa-right-to-bracket"></i>
+                </a>
                 <a href="<%= ctx %>/register.jsp" class="auth-link auth-primary auth-cta" data-auth-cta title="<%= t.getProperty("btn.register") %>"
                    data-login-href="<%= ctx %>/login.jsp" data-login-text="<%= t.getProperty("btn.login") %>">
                   <i class="fa-solid fa-user-plus"></i>
                   <span><%= t.getProperty("btn.register") %></span>
                 </a>
-                <script>try { if (localStorage.getItem('knownUser') === '1') { var ac = document.querySelector('[data-auth-cta]'); ac.href = ac.dataset.loginHref; ac.querySelector('i').className = 'fa-solid fa-right-to-bracket'; ac.querySelector('span').textContent = ac.title = ac.dataset.loginText; } } catch (e) { /* bez úložiště zůstane Registrovat */ }</script>
+                <script>try { if (localStorage.getItem('knownUser') === '1') {
+                  var ac = document.querySelector('[data-auth-cta]'), aa = document.querySelector('[data-auth-alt]');
+                  ac.href = ac.dataset.loginHref; ac.querySelector('i').className = 'fa-solid fa-right-to-bracket'; ac.querySelector('span').textContent = ac.title = ac.dataset.loginText;
+                  aa.href = aa.dataset.registerHref; aa.querySelector('i').className = 'fa-solid fa-user-plus'; aa.title = aa.dataset.registerText; aa.setAttribute('aria-label', aa.dataset.registerText);
+                } } catch (e) { /* bez úložiště zůstane Registrovat + ikonka Přihlásit */ }</script>
               <% } else { %>
                 <script>try { localStorage.setItem('knownUser', '1'); } catch (e) { /* nevadí */ }</script>
                 <%-- the bell: replies to your comments, hearts from Skeli (js/notifications.js) --%>
