@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * MC Kevin's to-do list for the admin (only behind AdminFilter, /admin/*):
+ * Kevin's to-do list for the admin (only behind AdminFilter, /admin/*):
  * {@code {"reports": 2, "clipsWithoutSong": 4, "newestClipWithoutSong": "title or null", "songsWithoutLyrics": 5}}.
  */
 @WebServlet(name = "AdminKevinServlet", urlPatterns = {"/admin/kevin"})

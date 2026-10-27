@@ -87,7 +87,7 @@
       return r.ok && (!confirm || confirm.value === p);
     }
 
-    // MC Kevin (js/kevin.js) comments when the visitor leaves a field – only when the verdict changes
+    // Kevin (js/kevin.js) comments when the visitor leaves a field – only when the verdict changes
     var told = '';
     function tellKevin(verdict) {
       if (!verdict || verdict === told) return;

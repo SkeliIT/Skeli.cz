@@ -981,7 +981,7 @@ const avg = new THREE.Color(), tmp = new THREE.Color(), tmp2 = new THREE.Color()
 function credits() {
   return '<span class="ct">' + D.title + '</span><span class="cv">' + D.artist + ' · ' + D.year + '</span>' +
     '<span class="cl">Rap a text</span><span class="cv">' + D.artist + '</span><span class="cl">Karaoke</span><span class="cv">SKELO SQUAD</span>' +
-    '<span class="cl">V křesle</span><span class="cv">MC Kevin</span><span class="cl">A hlavně</span><span class="cv">ty – díky, že sis zazpíval/a</span><span class="cs"></span>';
+    '<span class="cl">V křesle</span><span class="cv">Kevin</span><span class="cl">A hlavně</span><span class="cv">ty – díky, že sis zazpíval/a</span><span class="cs"></span>';
 }
 target(Math.max(20, simT), cur);
 fit();

@@ -1,4 +1,4 @@
-// MC Kevin – the rapping gold cat of SKELO SQUAD in the bottom left corner (css/effects.css).
+// Kevin – the rapping gold cat of SKELO SQUAD in the bottom left corner (css/effects.css).
 // The 3D model (js/kevin3d.js, Three.js) loads only after the page; with reduced motion,
 // save-data or without WebGL a still image stands in. He greets, comments on the page,
 // raps two lines of Skeli's lyrics (/api/kevin/bars) with a beat when clicked (sound only

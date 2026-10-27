@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 /**
- * MC Kevin's "Nahlásit problém" (issue #28): a visitor tells him something is wrong on the page (a missing video,
+ * Kevin's "Nahlásit problém" (issue #28): a visitor tells him something is wrong on the page (a missing video,
  * a wrong line…) and the admin finds it under Hodnocení webu → Nahlášené problémy.
  * GET  /api/report  → {"csrf": "…"} (the token for the POST; asked only when someone opens the form, so the other
  *                     visitors get no session for it)

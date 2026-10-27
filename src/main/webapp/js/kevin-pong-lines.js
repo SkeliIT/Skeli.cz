@@ -1,4 +1,4 @@
-// Hlášky MC Kevina do hry Kevin Pong – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.
+// Hlášky Kevina do hry Kevin Pong – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.
 window.KEVIN_PONG_LINES = {
  "cs": {
   "start": [

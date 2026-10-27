@@ -1,4 +1,4 @@
-// What MC Kevin says (js/kevin.js). Kevin is Skeli's cat: a bit fed up, sure of himself, curious, now and
+// What Kevin says (js/kevin.js). Kevin is Skeli's cat: a bit fed up, sure of himself, curious, now and
 // then lazy, convinced the site runs mainly thanks to him. He likes Skeli (Radek) but would never say so.
 // No swear words, never "boss", the visitor's gender never assumed. Raps (/api/kevin/bars) stay in Czech.
 // A language missing here falls back to English. {t} = a title, {n} = a number, {name} = a user name;
@@ -7,7 +7,7 @@
 window.KEVIN_LINES = {
   cs: {
     ui: {
-      call: "MC Kevin – klikni na mě", hide: "Schovat MC Kevina", show: "Zavolat MC Kevina",
+      call: "Kevin – klikni na mě", hide: "Schovat Kevina", show: "Zavolat Kevina",
       sound: "Zvuk po kliknutí", fullLyrics: "Celý text →"
     },
     greet: {
@@ -430,7 +430,7 @@ window.KEVIN_LINES = {
   },
   en: {
     ui: {
-      call: "MC Kevin – click me", hide: "Hide MC Kevin", show: "Call MC Kevin",
+      call: "Kevin – click me", hide: "Hide Kevin", show: "Call Kevin",
       sound: "Sound on click", fullLyrics: "Full lyrics →"
     },
     greet: {
@@ -845,7 +845,7 @@ window.KEVIN_LINES = {
   },
   de: {
     ui: {
-      call: "MC Kevin – klick mich an", hide: "MC Kevin verstecken", show: "MC Kevin rufen",
+      call: "Kevin – klick mich an", hide: "Kevin verstecken", show: "Kevin rufen",
       sound: "Ton beim Klicken", fullLyrics: "Ganzer Text →"
     },
     greet: {
@@ -1260,7 +1260,7 @@ window.KEVIN_LINES = {
   },
   uk: {
     ui: {
-      call: "MC Кевін – натисни на мене", hide: "Сховати MC Кевіна", show: "Покликати MC Кевіна",
+      call: "Кевін – натисни на мене", hide: "Сховати Кевіна", show: "Покликати Кевіна",
       sound: "Звук після натискання", fullLyrics: "Увесь текст →"
     },
     greet: {
@@ -1675,7 +1675,7 @@ window.KEVIN_LINES = {
   },
   vi: {
     ui: {
-      call: "MC Kevin – bấm vào tôi", hide: "Ẩn MC Kevin", show: "Gọi MC Kevin",
+      call: "Kevin – bấm vào tôi", hide: "Ẩn Kevin", show: "Gọi Kevin",
       sound: "Âm thanh khi bấm", fullLyrics: "Toàn bộ lời →"
     },
     greet: {

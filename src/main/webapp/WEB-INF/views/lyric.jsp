@@ -241,7 +241,7 @@
       <c:if test="${not empty lyric.youtubeId}"><script src="/js/clip-fx.js?v=<%= assetVersion %>"></script><script src="/js/yt-clock.js?v=<%= assetVersion %>"></script><script src="/js/karaoke.js?v=<%= assetVersion %>"></script></c:if>
 
       <%-- v textu chybí kus (admin → píseň → „Hledáme pomoc s textem“): návštěvník, který tomu rozumí, ho napíše;
-           čeká to v adminu, na web nic nejde samo. MC Kevin na kartu jednou upozorní. --%>
+           čeká to v adminu, na web nic nejde samo. Kevin na kartu jednou upozorní. --%>
       <c:if test="${not empty helpSong}">
         <section class="lyric-help content-box card-gold" id="lyric-help" data-song="${helpSong}" data-lang="<c:out value='${helpLang}'/>">
           <h2><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> <%= t.getProperty("help.title") %></h2>

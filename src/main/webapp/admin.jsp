@@ -82,7 +82,7 @@
   </section>
 
 
-  <%-- what is waiting for the admin (the same list MC Kevin reads out) --%>
+  <%-- what is waiting for the admin (the same list Kevin reads out) --%>
   <section class="admin-card admin-todo" id="todo">
     <h3><i class="fa-solid fa-list-check" aria-hidden="true"></i> Co čeká</h3>
     <% if (nReports + nClipsAlone + nNoText + nSiteReports + nLyricHelp == 0) { %>

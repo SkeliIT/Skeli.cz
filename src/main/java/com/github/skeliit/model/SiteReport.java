@@ -2,7 +2,7 @@ package com.github.skeliit.model;
 
 import java.sql.Timestamp;
 
-/** A problem a visitor reported to MC Kevin: the message, the page it came from and, if signed in, who sent it. */
+/** A problem a visitor reported to Kevin: the message, the page it came from and, if signed in, who sent it. */
 public class SiteReport {
     public final int id;
     public final String page;
