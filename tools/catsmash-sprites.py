@@ -2,7 +2,7 @@
 # Pálku rozdělí na tělo (horní hrana = plocha, od které se míček odráží) a na to, co pod ní visí (přívěsky),
 # aby se přívěsky ve hře mohly houpat. Výstup: kevin/pong/palky.webp + palky.json a micky.webp + micky.json.
 #
-# Spuštění: python tools/catsmash-sprites.py <obrázek1.jpg> <obrázek2.jpg> [--nahled složka]
+# Spuštění: python tools/catsmash-sprites.py <obrázek1.jpg> <obrázek2.jpg> <kevinova-pálka.jpg> [--nahled složka]
 import json
 import os
 import sys
@@ -30,6 +30,8 @@ PADDLES = [
     (1, 2, 0, 'mince', 'swing'), (1, 2, 1, 'cip', 'swing'),
     (1, 3, 1, 'kola', 'rigid'),
 ]
+# další obrázky s jedinou pálkou: (index obrázku, výřez x0, y0, x1, y1, id, pohyb); Kevinova pálka (3. obrázek)
+SINGLE = [(2, (20, 70, 1250, 530), 'kevin', 'swing')]
 BALLS = [
     (0, 0, 0, 'kastan'), (0, 0, 1, 'ledovka'), (0, 0, 2, 'lavak'), (0, 0, 3, 'tlapka'),
     (0, 1, 0, 'sprej'), (0, 1, 1, 'plysak'), (0, 1, 2, 'vir'), (0, 1, 3, 'repro'),
@@ -154,15 +156,20 @@ class Atlas:
 
 
 def main():
-    srcs = [np.array(Image.open(p).convert('RGB')) for p in sys.argv[1:3]]
+    srcs = [np.array(Image.open(p).convert('RGB')) for p in sys.argv[1:4] if not p.startswith('--')]
     preview = sys.argv[sys.argv.index('--nahled') + 1] if '--nahled' in sys.argv else None
     if preview:
         os.makedirs(preview, exist_ok=True)
 
     atlas, meta = Atlas(1024), {}
-    for img_i, r, c, name, mode in PADDLES:
-        (y0, y1), (x0, x1) = PAD_ROWS[r], PAD_COLS[c]
-        rgba, _ = trim(key(srcs[img_i][y0:y1, x0:x1], name not in KEEP_PINK))
+    jobs = [(img_i, PAD_ROWS[r], PAD_COLS[c], name, mode) for img_i, r, c, name, mode in PADDLES]
+    jobs += [(img_i, (b[1], b[3]), (b[0], b[2]), name, mode) for img_i, b, name, mode in SINGLE if img_i < len(srcs)]
+    for img_i, (y0, y1), (x0, x1), name, mode in jobs:
+        cell = srcs[img_i][y0:y1, x0:x1]
+        if cell.shape[1] > 560:                         # velký samostatný obrázek → stejná velikost jako ostatní pálky
+            k = 500 / cell.shape[1]
+            cell = np.array(Image.fromarray(cell).resize((500, int(cell.shape[0] * k)), Image.LANCZOS))
+        rgba, _ = trim(key(cell, name not in KEEP_PINK))
         top, split = split_paddle(rgba)
         rgba = rgba[top:]
         split -= top
