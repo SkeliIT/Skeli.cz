@@ -1483,22 +1483,48 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
 .kpong-field.shot-super { animation: kpong-shot-super .6s ease-out; }
 @keyframes kpong-shot { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 3px rgba(230, 183, 48, .9), inset 0 0 60px rgba(230, 183, 48, .25); } }
 @keyframes kpong-shot-super { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 4px rgba(255, 138, 30, .95), inset 0 0 90px rgba(255, 106, 0, .35); } }
-/* telefon: pod automatem široké tlačítko ⚡ Odstřel (jen se ťuká – přejíždění u spodního okraje by iPhone bral
-   jako přepnutí karty); pálku vede prst kdekoli na automatu až po jeho spodní hranu */
+/* telefon a tablet: ⚡ Odstřel je kulaté tlačítko, které plave nad strojem (místo nezabírá, stroj je větší);
+   podržením se dá přesunout, kam hráči sedí (--sx/--sy v % okna, js/kevin-pong.js); pálku vede prst kdekoli
+   na automatu až po spodní hranu */
 .kpong-pad { display: none; }
 @media (pointer: coarse) {
-  .kpong-pad { display: flex; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .kpong-pad { display: block; position: fixed; inset: 0; z-index: 8; pointer-events: none; touch-action: none; user-select: none; -webkit-user-select: none; }
   .kpong-shot {
-    flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
-    min-height: 52px; border-radius: 18px; border: 1px solid var(--accent);
-    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #8a6400));
-    color: var(--accent-ink); font-family: var(--font-display); font-size: var(--fs-h4); touch-action: none;
+    position: absolute; left: calc(var(--sx, 12) * 1vw); top: calc(var(--sy, 58) * 1dvh); transform: translate(-50%, -50%);
+    pointer-events: auto; width: 72px; height: 72px; padding: 0; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+    border: 2px solid #fff1a8;
+    background: radial-gradient(circle at 35% 30%, #fff1a8, var(--accent) 45%, #8a6400);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .55), 0 0 0 4px rgba(230, 183, 48, .25);
+    color: var(--accent-ink); font-family: var(--font-display); font-size: .62rem; touch-action: none; opacity: .92;
   }
-  .kpong-shot:active { transform: scale(.97); filter: brightness(1.15); }
-}
-@media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
-  .kpong-pad { width: 72px; flex-direction: column; justify-content: flex-end; }
-  .kpong-shot { flex: none; min-height: 64px; width: 72px; flex-direction: column; gap: 2px; font-size: var(--fs-small); }
+  .kpong-shot i { font-size: 1.4rem; }
+  .kpong-shot:active { transform: translate(-50%, -50%) scale(.94); filter: brightness(1.15); }
+  /* plocha pro pálku (volitelná): nenápadný obrys při hře, v úpravách výrazný s rohem na změnu velikosti */
+  .kpong-zone {
+    position: absolute; left: calc(var(--zx) * 1vw); top: calc(var(--zy) * 1dvh); width: calc(var(--zw) * 1vw); height: calc(var(--zh) * 1dvh);
+    pointer-events: auto; touch-action: none; border-radius: 18px; border: 1px dashed rgba(230, 183, 48, .35);
+    display: flex; align-items: center; justify-content: center; gap: 8px; color: rgba(230, 183, 48, .4); font-size: var(--fs-small);
+  }
+  .kpong-zone[hidden] { display: none; }
+  .kpong-zone .kp-zone-name, .kpong-zone .kp-zone-grip { display: none; }
+  .kpong.kp-layout .kpong-pad { visibility: visible !important; background: rgba(0, 0, 0, .45); pointer-events: auto; }
+  .kpong.kp-layout .kpong-zone { border: 2px dashed var(--accent); background: rgba(230, 183, 48, .14); color: var(--accent); }
+  .kpong.kp-layout .kpong-zone .kp-zone-name { display: inline; }
+  .kpong.kp-layout .kpong-zone .kp-zone-grip {
+    display: block; position: absolute; right: -10px; bottom: -10px; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 2px 6px rgba(0, 0, 0, .6);
+  }
+  .kpong.kp-layout .kpong-shot { outline: 2px dashed #fff; outline-offset: 4px; }
+  /* lišta režimu úprav: nápověda, Výchozí rozložení, Hotovo */
+  .kp-layout-bar { display: none; }
+  .kpong.kp-layout .kp-layout-bar {
+    display: grid; gap: 10px; position: absolute; left: 12px; right: 12px; top: 12px; padding: 14px; border-radius: 16px; pointer-events: auto;
+    background: rgba(12, 11, 10, .94); border: 1px solid rgba(230, 183, 48, .45); text-align: center;
+  }
+  .kp-layout-bar p { margin: 0; font-family: var(--font-text); font-size: var(--fs-card); color: var(--text); }
+  .kp-layout-bar .kp-row { justify-content: center; flex-wrap: wrap; }
+  .kp-layout-bar .kp-fullbtn, .kp-layout-bar .btn-primary { min-height: 44px; padding: 0 14px; }
 }
 /* ---------- stroj: rám z obrázku, sklo hřiště, ozubená kola, Kevin na prostředním kole ----------
    všechno v pixelech obrázku rámu krát --u (nastavuje kevin-pong.js fit()); okraje stroje se rozplývají do tmy */
@@ -1771,10 +1797,10 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   .kpong .kpong-score { display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .kpong .kpong-kev { margin-left: 0; }
 }
-/* ⚙ nastavení: mosazný knoflík zasazený v pravé liště rámu stroje vedle horního okraje skla (mimo hřiště –
-   dřív byl v rohu skla a na mobilu zasahoval do Kevinovy poloviny); 40 px, ať se na něj dá ťuknout */
+/* ⚙ nastavení: mosazný knoflík místo šroubku v pravém horním rohu rámu stroje (mimo hřiště a daleko od Kevina;
+   vidět i na mobilu, kde se kraje rámu ořezávají); 40 px, ať se na něj dá ťuknout */
 .kpong-set {
-  position: absolute; left: calc(679px * var(--u) - 20px); top: calc(336px * var(--u)); z-index: 6;
+  position: absolute; left: calc(652px * var(--u) - 20px); top: calc(140px * var(--u) - 20px); z-index: 6;
   width: 40px; height: 40px; padding: 0; border-radius: 50%;
   outline: calc(3px * var(--u)) solid rgba(26, 25, 23, .9); outline-offset: 0;
   border: 0; color: #3a2606; font-size: 1.1rem; cursor: pointer;
@@ -1860,7 +1886,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-checks .kp-fullbtn { flex: 1 1 40%; padding: 0 10px; }
 .kp-fullbtn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 /* pro leváky: na telefonu na šířku je tlačítko odstřelu vlevo */
-@media (orientation: landscape) and (max-height: 500px) { .kpong.lefty .kpong-pad { order: -1; } }
+
 .kpong:fullscreen { background: #050403; }
 /* pozadí hrací plochy: obrázek na skle hřiště, ztmavený (hopík a pálky musí být vidět), přes něj odlesk skla;
    nad ním plátno s životem scény a nahoře hřiště (.kpong-court); „tma“ = jen sklo stroje */
@@ -1955,3 +1981,16 @@ body.light .kevin-bubble:has(.kevin-extra:not([hidden])) { --glass: rgba(255, 25
 /* načítání hry: proužek na skle stroje */
 .kp-load { width: min(240px, 70%); height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .12); overflow: hidden; }
 .kp-load span { display: block; height: 100%; width: 4%; background: linear-gradient(90deg, #b8860b, var(--accent)); transition: width .25s ease; }
+/* vzácnost (podle odznaku, který věc odemyká): šedá běžné, zelená neobvyklé, modrá vzácné, fialová epické, oranžovozlatá
+   legendární – barevný okraj a jemná záře u pálek, míčků a pozadí v nastavení, proužek vlevo v přehledu odznaků */
+[data-rar="c"] { --rar: #9aa0a8; }
+[data-rar="u"] { --rar: #4fd17a; }
+[data-rar="r"] { --rar: #4ea3ff; }
+[data-rar="e"] { --rar: #b06bff; }
+[data-rar="l"] { --rar: #ff9a2e; }
+.kp-skin[data-rar], .kp-ball[data-rar], .kp-bgopt[data-rar] { border-color: var(--rar); box-shadow: 0 0 10px -2px var(--rar); }
+.kp-skin[data-rar][aria-checked="true"], .kp-ball[data-rar][aria-checked="true"], .kp-bgopt[data-rar][aria-checked="true"] {
+  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .3), 0 0 12px -2px var(--rar);
+}
+.kp-skin[data-rar="l"], .kp-ball[data-rar="l"], .kp-bgopt[data-rar="l"] { box-shadow: 0 0 14px 0 var(--rar); }
+.kp-bdg[data-rar] { box-shadow: inset 3px 0 0 var(--rar); }
