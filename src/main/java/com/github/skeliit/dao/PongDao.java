@@ -34,7 +34,7 @@ public class PongDao {
     public List<PongRank> top(int difficulty, int limit, Integer meId) throws SQLException {
         List<PongRank> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT u.id, u.username, u.avatar_url, b.best, u.pong_title, "
+                "SELECT u.id, u.username, u.avatar_url, b.best, u.pong_title, u.pong_frame, "
                         + " (SELECT r2.kevin_goals FROM pong_results r2 WHERE r2.user_id = b.user_id AND r2.difficulty = ? AND r2.duration_ms = b.best ORDER BY r2.id LIMIT 1) "
                         + "FROM (SELECT user_id, MIN(duration_ms) AS best, MIN(created_at) AS first_at FROM pong_results WHERE difficulty = ? GROUP BY user_id) b "
                         + "JOIN users u ON u.id = b.user_id ORDER BY b.best, b.first_at LIMIT ?")) {
@@ -45,8 +45,9 @@ public class PongDao {
                 int place = 0;
                 while (rs.next()) {
                     place++;
-                    PongRank r = new PongRank(place, rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(6), meId != null && meId == rs.getInt(1));
+                    PongRank r = new PongRank(place, rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(7), meId != null && meId == rs.getInt(1));
                     r.title = PongBadges.exists(rs.getString(5)) ? rs.getString(5) : null;
+                    r.frame = PongBadges.isFrame(rs.getString(6)) ? rs.getString(6) : null;
                     out.add(r);
                 }
             }
@@ -131,6 +132,8 @@ public class PongDao {
         for (String k : PongBadges.LOOKS) all &= p.has(k);
         p.badge("wardrobe", PongBadges.icon("wardrobe"), all);
         if (p.title != null && !p.has(p.title)) p.title = null;
+        p.frame = frame(userId);
+        if (p.frame != null && !p.has(p.frame)) p.frame = null;
         return p;
     }
 
@@ -174,6 +177,24 @@ public class PongDao {
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() && PongBadges.exists(rs.getString(1)) ? rs.getString(1) : null;
             }
+        }
+    }
+
+    public String frame(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT pong_frame FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && PongBadges.isFrame(rs.getString(1)) ? rs.getString(1) : null;
+            }
+        }
+    }
+
+    /** Nastaví rámeček kolem fotky; null = bez rámečku. Volající ověří, že odznak hráč má. */
+    public void setFrame(int userId, String key) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET pong_frame = ? WHERE id = ?")) {
+            ps.setString(1, key);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
         }
     }
 

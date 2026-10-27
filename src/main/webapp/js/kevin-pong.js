@@ -2294,6 +2294,8 @@
     }
 
     // přehled odznaků v menu hry: skupiny, u každého ikona, titul a ikonky odměn; ťuknutím se ukáže, jak ho získat
+    // odznaky, které navíc odemknou rámeček kolem fotky (stejné jako PongBadges.FRAMES na serveru)
+    var FRAMES = ['angry', 'wins100', 'wardrobe', 'hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback'];
     var BADGE_GROUPS = [['first', 'easy', 'normal', 'angry', 'clean', 'close', 'fast', 'streak', 'wins50', 'wins100'],
       ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'wardrobe'],
       ['hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback']];
@@ -2308,7 +2310,8 @@
           var on = !!badges[k], tier = { streak: ' bronze', wins50: ' silver', wins100: ' gold' }[k] || '';
           var gifts = (SKINS.some(function (x) { return x.b === k; }) ? '<i class="fa-solid fa-table-tennis-paddle-ball"></i>' : '') +
             (BALLS.some(function (x) { return x.b === k; }) ? '<i class="fa-solid fa-circle"></i>' : '') +
-            (Object.keys(BG_BADGE).some(function (b) { return BG_BADGE[b] === k; }) ? '<i class="fa-regular fa-image"></i>' : '');
+            (Object.keys(BG_BADGE).some(function (b) { return BG_BADGE[b] === k; }) ? '<i class="fa-regular fa-image"></i>' : '') +
+            (FRAMES.indexOf(k) >= 0 ? '<i class="fa-regular fa-circle-user"></i>' : '');
           var rw = (T.rewards || {})[k];
           html += '<details class="kp-bdg' + (on ? ' on' : '') + (gi === 2 ? ' hard' : '') + '"><summary>' +
             '<span class="kp-bdg-icon' + tier + '"><i class="fa-solid ' + (on ? BADGE_ICON[k] : 'fa-lock') + '" aria-hidden="true"></i></span>' +
@@ -2338,7 +2341,7 @@
         signedIn = !!j.signedIn; csrf = j.csrf || null;
         var rows = (j.top || []).map(function (r) {
           return '<li class="' + (r.me ? 'me' : '') + '"><span class="kpong-place">' + r.place + '.</span>' +
-            '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' +
+            (r.frame ? '<span class="av-frame f-' + esc(r.frame) + '">' : '') + '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' + (r.frame ? '</span>' : '') +
             '<span class="kpong-name">' + esc(r.name) + (r.title ? ' <i class="fa-solid ' + esc(r.title.icon) + ' kpong-rtitle" title="' + esc(r.title.name) + '" aria-label="' + esc(r.title.name) + '"></i>' : '') + '</span><span class="kpong-time">' + time(r.ms) + '</span><span class="kpong-kgoals">' + r.kevin + ' ' + esc(T.kevinGoals) + '</span></li>';
         }).join('');
         var mine = j.me ? '<p class="kpong-note">' + esc(T.yourBest.replace('{place}', j.me.place).replace('{time}', time(j.me.ms))) + '</p>' : '';

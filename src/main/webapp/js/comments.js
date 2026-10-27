@@ -57,9 +57,11 @@
       clearTimeout(noteTimer);
       noteTimer = setTimeout(function () { note.hidden = true; }, 6000);
     }
-    function avatar(src, cls) {
-      return src ? '<img class="cmt-avatar' + (cls || '') + '" src="' + esc(src) + '" alt="" loading="lazy">'
+    function avatar(src, cls, frame) {
+      var img = src ? '<img class="cmt-avatar' + (cls || '') + '" src="' + esc(src) + '" alt="" loading="lazy">'
         : '<span class="cmt-avatar cmt-avatar-empty' + (cls || '') + '" aria-hidden="true"><i class="fa-solid fa-user"></i></span>';
+      // rámeček z CatSmash (odznak za nejtěžší kousky) kolem fotky
+      return frame ? '<span class="av-frame f-' + esc(frame) + '">' + img + '</span>' : img;
     }
     function post(params) {
       var body = new URLSearchParams(params);
@@ -126,7 +128,7 @@
       var me = data.me;
       return '<article class="cmt' + (isReply ? ' cmt-reply' : '') + (c.pinned ? ' is-pinned' : '') + '" id="comment-' + c.id
         + '" data-id="' + c.id + '" data-root="' + (c.parentId || c.id) + '">'
-        + avatar(c.avatar)
+        + avatar(c.avatar, '', c.user != null ? c.frame : null)
         + '<div class="cmt-body">'
         + (c.pinned ? '<div class="cmt-pinned"><i class="fa-solid fa-thumbtack"></i> ' + esc(T['cmt.pinned']) + '</div>' : '')
         + '<div class="cmt-head">' + name

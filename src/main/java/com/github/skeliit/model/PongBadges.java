@@ -53,6 +53,12 @@ public final class PongBadges {
             "first", "easy", "tinker", "normal", "loyal", "streak", "night", "sniper", "overheat", "close", "marathon", "comeback",
             "clean", "super", "angry", "wins100");
 
+    /** Odznaky, které navíc odemknou rámeček kolem fotky (users.pong_frame): 3 nejtěžší běžné + 5 za nejtěžší obtížnost. */
+    public static final java.util.List<String> FRAMES = java.util.List.of(
+            "angry", "wins100", "wardrobe", "hwins5", "hfast", "hclean", "hsniper", "hcomeback");
+
+    public static boolean isFrame(String key) { return key != null && FRAMES.contains(key); }
+
     /** Stupeň odznaku (barva medaile) nebo null. */
     public static String tier(String key) {
         return switch (key) {

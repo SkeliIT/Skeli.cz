@@ -2,6 +2,15 @@
   {
     "d": "2026-10-27",
     "href": "/uzivatel.jsp#pong",
+    "cs": "Za nejtěžší odznaky v CatSmashi teď dostaneš rámeček kolem fotky – uvidí ho všichni u tvých komentářů.",
+    "en": "The hardest CatSmash badges now give you a frame around your photo – everyone sees it next to your comments.",
+    "de": "Die schwersten CatSmash-Abzeichen geben dir jetzt einen Rahmen um dein Foto – alle sehen ihn bei deinen Kommentaren.",
+    "uk": "За найважчі значки в CatSmash тепер отримаєш рамку довкола фото – її побачать усі біля твоїх коментарів.",
+    "vi": "Các huy hiệu khó nhất trong CatSmash giờ tặng bạn khung quanh ảnh – mọi người đều thấy bên cạnh bình luận của bạn."
+  },
+  {
+    "d": "2026-10-27",
+    "href": "/uzivatel.jsp#pong",
     "cs": "Odznaky v CatSmashi mají nové vtipné tituly a pět nových jde získat jen na nejtěžší obtížnost. Na Lehkou se odznaky nesbírají.",
     "en": "CatSmash badges have new funny titles, and five new ones can only be earned on the hardest difficulty. Easy gives no badges.",
     "de": "Die CatSmash-Abzeichen haben neue lustige Titel, und fünf neue gibt es nur auf der schwersten Stufe. Auf Leicht gibt es keine Abzeichen.",
@@ -34,14 +43,5 @@
     "de": "Mein Spiel heißt jetzt CatSmash und hat ein neues Menü direkt auf dem Glas der Maschine. Die Einstellungen sind in der Ecke des Displays.",
     "uk": "Моя гра тепер називається CatSmash і має нове меню просто на склі машини. Налаштування – в куті екрана.",
     "vi": "Trò chơi của tôi giờ tên là CatSmash và có menu mới ngay trên mặt kính cỗ máy. Cài đặt nằm ở góc màn hình."
-  },
-  {
-    "d": "2026-10-26",
-    "href": "/?kevin=pong",
-    "cs": "V CatSmashi teď komentuju každý zápas – přes šest set hlášek, takže se jen tak neopakuju.",
-    "en": "In CatSmash I now commentate every match – over six hundred lines, so I rarely repeat myself.",
-    "de": "In CatSmash kommentiere ich jetzt jedes Spiel – über sechshundert Sprüche, ich wiederhole mich also selten.",
-    "uk": "У CatSmash я тепер коментую кожен матч – понад шістсот реплік, тож майже не повторююсь.",
-    "vi": "Trong CatSmash giờ tôi bình luận mọi trận – hơn sáu trăm câu, nên hiếm khi lặp lại."
   }
 ]

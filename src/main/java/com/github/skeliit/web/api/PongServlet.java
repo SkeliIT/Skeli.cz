@@ -30,6 +30,7 @@ import java.util.Set;
  * GET  /api/pong/me             → {"signedIn":…, "csrf":"…", "badges":["first",…], "title":"…"|null} (odznaky z účtu)
  * POST /api/pong/badges keys=a,b → odznaky ze zápasu, které viděl prohlížeč (jen PongBadges.CLAIMABLE)
  * POST /api/pong/title  t=klíč  → titul u jména (jen získaný odznak, prázdné = bez titulu); s back= přesměruje
+ * POST /api/pong/frame  f=klíč  → rámeček kolem fotky (jen získaný odznak z PongBadges.FRAMES, prázdné = bez); s back= přesměruje
  */
 @WebServlet(name = "PongServlet", urlPatterns = {"/api/pong/*"})
 public class PongServlet extends HttpServlet {
@@ -70,7 +71,8 @@ public class PongServlet extends HttpServlet {
                 b.append("{\"place\":").append(r.place).append(",\"name\":\"").append(WebUtils.escapeJs(r.username))
                         .append("\",\"avatar\":").append(r.avatarUrl == null ? "null" : "\"" + WebUtils.escapeJs(r.avatarUrl) + "\"")
                         .append(",\"ms\":").append(r.durationMs).append(",\"kevin\":").append(r.kevinGoals).append(",\"me\":").append(r.me)
-                        .append(",\"title\":").append(titleJson(req, r.title)).append('}');
+                        .append(",\"title\":").append(titleJson(req, r.title))
+                        .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"").append('}');
             }
             b.append("],\"me\":");
             b.append(mine == null ? "null" : "{\"place\":" + mine.place + ",\"ms\":" + mine.durationMs + "}");
@@ -99,6 +101,24 @@ public class PongServlet extends HttpServlet {
             } catch (SQLException e) {
                 throw new ServletException(e);
             }
+            return;
+        }
+        if ("/frame".equals(req.getPathInfo())) {
+            String f = req.getParameter("f");
+            if (f != null && f.isBlank()) f = null;
+            boolean ok;
+            try {
+                ok = f == null || PongBadges.isFrame(f) && pong.earned(me).contains(f);
+                if (ok) pong.setFrame(me, f);
+            } catch (SQLException e) {
+                throw new ServletException(e);
+            }
+            if ("account".equals(req.getParameter("back"))) {
+                resp.sendRedirect("/uzivatel.jsp?" + (ok ? "pongFrame=1" : "pongFrame=0") + "#pong");
+                return;
+            }
+            if (!ok) resp.setStatus(400);
+            json(resp, "{\"ok\":" + ok + "}");
             return;
         }
         if ("/title".equals(req.getPathInfo())) {
