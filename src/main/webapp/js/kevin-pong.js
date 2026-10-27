@@ -673,7 +673,8 @@
       // šroubek: občas vypadne z horního okénka stroje a pomalu padá k hráči
       if (!awaitStart && !screw && now > nextScrewAt) screw = { x: rnd(60, W - 60), y: KEVIN_Y + 40, a: 0 };
       if (screw) {
-        screw.y += 150 * dt; screw.a += 4 * dt;
+        // padá rychle a trochu kličkuje do stran – vylepšení se musí vybojovat
+        screw.y += 430 * dt; screw.a += 9 * dt; screw.x = clamp(screw.x + Math.sin(screw.a * 0.7) * 160 * dt, 30, W - 30);
         if (Math.abs(screw.y - PLAYER_Y) < PAD_H + 10 && Math.abs(screw.x - player.x) < player.w / 2 + 12) { powerUp(now); screw = null; nextScrewAt = now + rnd(18000, 30000); }
         else if (screw.y > H + 20) { screw = null; nextScrewAt = now + rnd(15000, 25000); }
       }
