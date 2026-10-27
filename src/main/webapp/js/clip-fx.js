@@ -190,7 +190,7 @@
     if (!document.body.contains(stage)) return;            // the page was left (PJAX)
     requestAnimationFrame(draw);
     var dt = Math.min(0.05, (now - last) / 1000); last = now;
-    if (!visible || document.hidden) return;
+    if (!visible || document.hidden || document.documentElement.classList.contains('kpong-open')) return;   // pod hrou nekreslí
     if (!playing) { idleWait += dt; if (idleWait < .05) return; dt = idleWait; idleWait = 0; } else idleWait = 0;
     listen();
     // fade the whole effect out while off or while the clip floats as the small player

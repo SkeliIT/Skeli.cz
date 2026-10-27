@@ -296,7 +296,14 @@ body.light .tape-gold i { color: rgba(255, 255, 255, 0.7); }
 
 /* ---------- Skeli's photos ---------- */
 /* the background of every page: photos cross-fade over the usual one (js/effects.js adds the layers) */
-.bg-slides { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.bg-slides {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  /* dýchá celý obal najednou (jedna vrstva na grafické kartě); dřív dýchala každá fotka zvlášť i ty neviditelné
+     a na slabších počítačích to škubalo */
+  animation: bg-breathe 30s ease-in-out infinite alternate;
+  animation-delay: var(--breathe-at, 0s);
+  will-change: transform; backface-visibility: hidden;
+}
 /* Texty mají vlastní video pozadí (js/texty-bg.js): fotky schovat hned, jak je stránka v DOM (i po PJAX),
    a do té doby, než se video ukáže, je tam barva pozadí – žádné probliknutí starého obrázku */
 body:has(main.texty-page) .bg-slides,
@@ -309,8 +316,6 @@ body.light:has(main.texty-page) { background-color: #e9ecef; }
   opacity: 0;
   background: var(--bg-overlay), var(--slide) var(--pos, center) / cover no-repeat;
   transition: opacity 2.6s ease;
-  animation: bg-breathe 30s ease-in-out infinite alternate;
-  animation-delay: var(--breathe-at, 0s);
 }
 .bg-slides > div.on { opacity: 1; }
 /* a new page starts on the photo the last one showed, without fading in again */
@@ -1369,6 +1374,8 @@ body.light .kevin-emote {
 
 /* ---------- CatSmash (js/kevin-pong.js): hra přes celou obrazovku, hřiště na výšku ---------- */
 html.kpong-open, html.kpong-open body { overflow: hidden; }
+/* pod otevřenou hrou se pozadí webu nehýbe (šetří grafickou kartu, hra pak neškube) */
+html.kpong-open body::before, html.kpong-open .bg-slides { animation-play-state: paused; }
 .kpong {
   position: fixed; inset: 0; z-index: 3000;
   display: grid; place-items: center;
@@ -1764,9 +1771,12 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   .kpong .kpong-score { display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .kpong .kpong-kev { margin-left: 0; }
 }
-/* ⚙ nastavení: mosazný knoflík v pravém horním rohu skla hřiště (nad menu i nad hrou) */
+/* ⚙ nastavení: mosazný knoflík zasazený v pravé liště rámu stroje vedle horního okraje skla (mimo hřiště –
+   dřív byl v rohu skla a na mobilu zasahoval do Kevinovy poloviny); 40 px, ať se na něj dá ťuknout */
 .kpong-set {
-  position: absolute; top: 6px; right: 6px; z-index: 5; width: 40px; height: 40px; padding: 0; border-radius: 50%;
+  position: absolute; left: calc(679px * var(--u) - 20px); top: calc(336px * var(--u)); z-index: 6;
+  width: 40px; height: 40px; padding: 0; border-radius: 50%;
+  outline: calc(3px * var(--u)) solid rgba(26, 25, 23, .9); outline-offset: 0;
   border: 0; color: #3a2606; font-size: 1.1rem; cursor: pointer;
   background: radial-gradient(circle at 35% 30%, #f6dc8c, #c99a35 55%, #7a5512);
   box-shadow: 0 2px 6px rgba(0, 0, 0, .8), inset 0 -2px 3px rgba(0, 0, 0, .4);
@@ -1942,3 +1952,6 @@ body.light .kevin-bubble:has(.kevin-extra:not([hidden])) { --glass: rgba(255, 25
 .kp-keyrow { align-items: center; }
 .kp-keyrow .kp-keys { flex: 1; accent-color: var(--accent); }
 .kp-keyrow output { min-width: 3.6em; text-align: right; font-family: var(--font-text); font-size: var(--fs-small); color: var(--accent); }
+/* načítání hry: proužek na skle stroje */
+.kp-load { width: min(240px, 70%); height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+.kp-load span { display: block; height: 100%; width: 4%; background: linear-gradient(90deg, #b8860b, var(--accent)); transition: width .25s ease; }

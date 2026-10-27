@@ -90,7 +90,8 @@ public class GoogleSignInServlet extends HttpServlet {
         String want = baseHost(), host = requestHost(req);
         if (want != null && host != null && !want.equalsIgnoreCase(host) && req.getParameter("hop") == null) {
             String next = LoginServlet.safeNext(req.getParameter("next"));
-            resp.sendRedirect(WebUtils.baseUrl() + "/auth/google?hop=1" + (next != null ? "&next=" + enc(next) : ""));
+            resp.sendRedirect(WebUtils.baseUrl() + "/auth/google?hop=1" + (next != null ? "&next=" + enc(next) : "")
+                    + ("1".equals(req.getParameter("remember")) ? "&remember=1" : ""));
             return;
         }
         HttpSession s = req.getSession(true);
@@ -99,6 +100,8 @@ public class GoogleSignInServlet extends HttpServlet {
         s.setAttribute("googleVerifier", verifier);
         String next = LoginServlet.safeNext(req.getParameter("next"));
         if (next != null) s.setAttribute("googleNext", next); else s.removeAttribute("googleNext");
+        // „Zapamatovat na tomto zařízení“ z přihlašovací stránky platí i pro Google (dřív se ignorovalo a odhlašovalo to)
+        if ("1".equals(req.getParameter("remember"))) s.setAttribute("googleRemember", Boolean.TRUE); else s.removeAttribute("googleRemember");
         String url = "https://accounts.google.com/o/oauth2/v2/auth"
                 + "?client_id=" + enc(Config.get("GOOGLE_CLIENT_ID"))
                 + "&redirect_uri=" + enc(redirectUri())
@@ -151,7 +154,9 @@ public class GoogleSignInServlet extends HttpServlet {
             if (a == null) { a = create(c, sub, verified ? email : null, name, picture); fresh = true; }
             if ("DELETED".equals(a.role)) { fail(req, resp); return; }
             // signed in, or on to the code from the app when the account has two-factor sign-in
-            LoginServlet.finish(req, resp, a.id, a.username, a.role, a.avatar, a.verified, false,
+            HttpSession gs = req.getSession(false);
+            boolean remember = gs != null && Boolean.TRUE.equals(gs.getAttribute("googleRemember"));
+            LoginServlet.finish(req, resp, a.id, a.username, a.role, a.avatar, a.verified, remember,
                     next != null ? next : fresh ? "/index.jsp?welcome=1" : "/index.jsp");
         } catch (SQLException e) {
             throw new ServletException(e);

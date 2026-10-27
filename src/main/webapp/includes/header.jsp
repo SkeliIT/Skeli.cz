@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.27.0";
+  String assetVersion = "6.28.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -176,7 +176,8 @@
               <a href="<%= ctx %>/aktuality.jsp"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.news") %></a>
               <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.music","Music") %></a>
               <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.lyrics","Lyrics") %></a>
-              <a href="<%= ctx %>/karaoke-kino"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.karaoke") %></a>
+              <%-- karaoke je jen pro přihlášené: v menu jemně odlišené, nepřihlášený vidí štítek „pro členy“ (láká k registraci) --%>
+              <a href="<%= ctx %>/karaoke-kino" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><i class="fa-solid fa-star" aria-hidden="true"></i><span><%= t.getProperty("menu.membersOnly") %></span></span><% } %></a>
               <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.about","About") %></a>
               <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
               <%-- phones and tablets: the display controls, language and account live in the menu --%>
@@ -227,15 +228,16 @@
                 </ul>
               </div>
               <% if (currentUser == null) { %>
-                <a href="<%= ctx %>/login.jsp" class="auth-link" title="<%= t.getProperty("btn.login") %>">
-                  <i class="fa-solid fa-right-to-bracket"></i>
-                  <span><%= t.getProperty("btn.login") %></span>
-                </a>
-                <a href="<%= ctx %>/register.jsp" class="auth-link auth-primary" title="<%= t.getProperty("btn.register") %>">
+                <%-- jedno jasné tlačítko s nápisem: kdo se tu ještě nepřihlásil, vidí Registrovat; kdo už ano (poznámka
+                     v prohlížeči z dřívějška), vidí rovnou Přihlásit --%>
+                <a href="<%= ctx %>/register.jsp" class="auth-link auth-primary auth-cta" data-auth-cta title="<%= t.getProperty("btn.register") %>"
+                   data-login-href="<%= ctx %>/login.jsp" data-login-text="<%= t.getProperty("btn.login") %>">
                   <i class="fa-solid fa-user-plus"></i>
                   <span><%= t.getProperty("btn.register") %></span>
                 </a>
+                <script>try { if (localStorage.getItem('knownUser') === '1') { var ac = document.querySelector('[data-auth-cta]'); ac.href = ac.dataset.loginHref; ac.querySelector('i').className = 'fa-solid fa-right-to-bracket'; ac.querySelector('span').textContent = ac.title = ac.dataset.loginText; } } catch (e) { /* bez úložiště zůstane Registrovat */ }</script>
               <% } else { %>
+                <script>try { localStorage.setItem('knownUser', '1'); } catch (e) { /* nevadí */ }</script>
                 <%-- the bell: replies to your comments, hearts from Skeli (js/notifications.js) --%>
                 <button type="button" class="icon-btn notif-btn" data-notif-open aria-haspopup="dialog" aria-controls="notifPanel"
                         title="<%= t.getProperty("notif.title") %>" aria-label="<%= t.getProperty("notif.title") %>">

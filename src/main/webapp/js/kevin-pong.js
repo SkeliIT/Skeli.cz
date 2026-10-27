@@ -73,12 +73,12 @@
       '    <i class="kpong-slot" aria-hidden="true"></i>' +
       '    <div class="kpong-smoke" aria-hidden="true">' + [0, 1, 2, 3, 4, 5].map(function (k) { return '<i style="--k:' + k + '"></i>'; }).join('') + '</div>' +
       '    <i class="kpong-spk" data-side="l" aria-hidden="true"></i><i class="kpong-spk" data-side="r" aria-hidden="true"></i>' +
+      '    <button type="button" class="kpong-set" aria-label="' + esc(T.settings || 'Settings') + '" aria-haspopup="dialog"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>' +
       '    <canvas class="kpong-kevin" aria-hidden="true"></canvas>' +
       '    <div class="kpong-field">' +
       '      <div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
       '      <div class="kpong-panel"></div>' +
-      '      <button type="button" class="kpong-set" aria-label="' + esc(T.settings || 'Settings') + '" aria-haspopup="dialog"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>' +
       '    </div>' +
       '  </div></div>' +
       '  <div class="kpong-pad"><button type="button" class="kpong-shot"><i class="fa-solid fa-bolt" aria-hidden="true"></i> ' + esc(T.shot || 'Odstřel') + '</button></div>' +
@@ -126,14 +126,15 @@
     addEventListener('resize', fit);
 
     // ---------- Kevin (3D) ----------
-    var K = null;
+    var K = null, kevinReady;
+    var kevinLoaded = new Promise(function (res) { kevinReady = res; });
     import('/js/kevin-model.js' + ver).then(function (m) {
       K = m.createKevin(kevCanvas, {
         src: '/kevin/kevin.glb' + ver, moves: '/kevin/pohyby.json' + ver,
         light: document.body.classList.contains('light'), overscan: 1.25, alwaysRender: true,
-        onReady: function () { kevCanvas.classList.add('on'); K.turn(0); }
+        onReady: function () { kevCanvas.classList.add('on'); K.turn(0); kevinReady(); }
       });
-    }).catch(function () { /* hra jde i bez něj */ });
+    }).catch(function () { kevinReady(); /* hra jde i bez něj */ });
 
     // ---------- odznaky: pamatuje si je prohlížeč, přihlášenému je sloučí s účtem (/api/pong/me) ----------
     // Část se počítá z výher (první výhra, 10:0…), část se stane uvnitř zápasu (odstřely, šroubky…) – ty se
@@ -210,6 +211,7 @@
       for (var i = 0; i < n; i++) parts.push({ x: rnd(0, w), y: rnd(0, h), s: rnd(0.6, 1.4), v: rnd(0.6, 1.4), p: rnd(0, 6.28) });
     }
     function fxTick(now) {
+      if (lowFx >= 1) return;                            // šetření: pozadí hřiště stojí
       if (still) return;
       var dt = fxLast ? Math.min(0.05, (now - fxLast) / 1000) : 0, w = fxW, h = fxH, t = now / 1000;
       fxLast = now;
@@ -491,7 +493,7 @@
     var eqLv = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], eqT = 0;
     // sloupce ekvalizéru v obrázku pálky (souřadnice těla pálky): první sloupec, rozestup, šířka, spodek, nejvyšší výška
     var EQ = { x0: 75, step: 31.2, w: 25, bottom: 107, max: 42, bg: [68, 58, 322, 51] };
-    function addP(o) { if (pfx.length < 180) { o.age = 0; pfx.push(o); } }
+    function addP(o) { if (pfx.length < (lowFx ? 70 : 180)) { o.age = 0; pfx.push(o); } }
     function curPad() { return SKINS[skin] && SKINS[skin].img; }
     // výbuch u hráčovy pálky – čím lepší odpal, tím větší efekt: 1 = obyčejný odraz (menší), 1.5 = dobrý odstřel,
     // 2 = perfektní odstřel (velký efekt navíc), 3 = SUPER (ještě větší); pokažený odstřel efekt nemá
@@ -610,7 +612,7 @@
     // vrstva pod vším: vrací true, když nakreslila vlastní prostřední čáru
     function drawAtmo(now) {
       var id = curPad();
-      if (!atmoOn || !id) return false;
+      if (!atmoOn || !id || lowFx >= 2) return false;
       var mid = (KEVIN_Y + PLAYER_Y) / 2, o = atmoShapes(id), i, g, t = now / 1000, ownMid = false;
       cx.save();
       switch (id) {
@@ -1819,6 +1821,7 @@
     function step(now) {
       raf = requestAnimationFrame(step);
       var real = last ? now - last : 0, dt = Math.min(0.034, real / 1000); last = now;
+      if (running && !paused && !awaitStart && real > 0 && real < 250) watchSmooth(real, now);
       if (running && (paused || awaitStart)) {
         pausedMs += real;
         if (hotUntil > now) hotUntil += real;
@@ -2877,6 +2880,36 @@
       var body = new URLSearchParams(); Object.keys(data).forEach(function (k) { body.set(k, data[k]); });
       return fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRF-Token': csrf || '' }, body: body }).then(function (r) { return r.json(); });
     }
+    // ---------- plynulost: když počítač nestíhá (dlouhé snímky), hra sama ubere ozdoby ----------
+    // lowFx 1 = bez stínů a záře na hřišti, bez života v pozadí, méně částic; 2 = navíc bez atmosféry pálky
+    var lowFx = 0, frameAvg = 16.7, lowFxAt = 0;
+    function watchSmooth(ms, now) {
+      frameAvg = frameAvg * 0.95 + ms * 0.05;
+      if (frameAvg > 25 && lowFx < 2 && now - lowFxAt > 3000 && now - started > 4000) {
+        lowFx++; lowFxAt = now; frameAvg = 18;
+        if (lowFx === 1) {                               // stíny jsou na slabé grafice nejdražší: na hřišti je vypnout
+          try { Object.defineProperty(cx, 'shadowBlur', { configurable: true, get: function () { return 0; }, set: function () {} }); } catch (e) { /* nevadí */ }
+          if (fx) fxc.clearRect(0, 0, fx.width, fx.height);
+        }
+      }
+    }
+    // ---------- načtení předem: stroj, kola, pálky, míčky, pozadí a Kevin – až pak menu (ať se nezačne hrát škubavě) ----------
+    function preload() {
+      var urls = [].slice.call(root.querySelectorAll('img')).map(function (i) { return i.currentSrc || i.src; })
+        .concat(['/kevin/pong/hopik.webp' + ver, '/kevin/pong/palky.webp' + ver, '/kevin/pong/micky.webp' + ver]);
+      var bgm = (getComputedStyle(bgEl).backgroundImage || '').match(/url\("?([^")]+)"?\)/);
+      if (bgm) urls.push(bgm[1]);
+      urls = urls.filter(function (u, i) { return u && urls.indexOf(u) === i; });
+      var done = 0, total = urls.length + 1, bar = panel.querySelector('.kp-load span');
+      function tick() { done++; if (bar) bar.style.width = Math.round(done / total * 100) + '%'; }
+      var imgs = urls.map(function (u) {
+        var im = new Image(); im.src = u;
+        return (im.decode ? im.decode() : new Promise(function (r) { im.onload = r; })).catch(function () {}).then(tick);
+      });
+      var kev = Promise.race([kevinLoaded, new Promise(function (r) { setTimeout(r, 6000); })]).then(tick);
+      return Promise.race([Promise.all(imgs.concat([kev])), new Promise(function (r) { setTimeout(r, 12000); })])
+        .then(function () { return new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); }); });
+    }
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) / 1.5; }
     function time(ms) { var s = ms / 1000, m = Math.floor(s / 60); return m + ':' + (s - m * 60).toFixed(1).padStart(4, '0'); }
@@ -2887,7 +2920,11 @@
     last = performance.now();
     raf = requestAnimationFrame(step);
     syncBadges();
-    startScreen();
+    // nejdřív načíst všechno (ukazatel na skle stroje), pak menu
+    panel.hidden = false; panel.dataset.view = 'main';
+    panel.innerHTML = '<div class="kp-view kp-main kp-loading"><h2 class="kpong-title">' + esc(T.title) + '</h2><div class="kp-load"><span></span></div>' +
+      '<p class="kp-bdg-rule">' + esc(T.loading || '') + '</p></div>';
+    preload().then(function () { if (window.KevinPong.isOpen && panel.querySelector('.kp-loading')) startScreen(); });
     root.querySelector('.kpong-close').focus();
   }
 
