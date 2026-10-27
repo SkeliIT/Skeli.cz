@@ -984,7 +984,9 @@
     var clip = key === 'song' && document.querySelector('main [data-yt]');
     var own = clip && L.songs && L.songs[clip.getAttribute('data-yt')];
     if (own && Math.random() < 0.6) lines = own;
-    if (lines && Math.random() < (key === 'error' ? 1 : 0.4)) setTimeout(function () { auto(pick(lines), null, null, false, PAGE_GO[key]); }, 1500);
+    // odkaz jen tam, kde hláška k něčemu vede (podpora → možnosti podpory, chyba → tlačítko zpět); obecné poznámky ke stránce nejsou odkazy
+    var linked = key === 'donate' || key === 'error' ? PAGE_GO[key] : null;
+    if (lines && Math.random() < (key === 'error' ? 1 : 0.4)) setTimeout(function () { auto(pick(lines), null, null, false, linked); }, 1500);
   }
 
   // What the page says the visitor has just done: [what, lines, pose]. Signing in and out shows as the

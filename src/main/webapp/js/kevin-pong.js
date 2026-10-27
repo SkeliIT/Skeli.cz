@@ -240,13 +240,23 @@
       if (comics[side]) comics[side].remove();
       var r = spk.getBoundingClientRect(), room = side === 'l' ? r.left : innerWidth - r.right;
       var out = room > 230, el = document.createElement('div');
-      el.className = 'kp-comic ' + kind + ' ' + side + (out ? ' out' : ' in');
       el.innerHTML = (kind !== 'say' ? burstSvg() : '') + '<span>' + esc(text) + '</span>';
-      el.style.top = Math.round(r.top + r.height / 2) + 'px';
-      // bublina leží vlevo od reproduktoru (levý ven, pravý dovnitř) nebo vpravo od něj (levý dovnitř, pravý ven)
-      if ((side === 'l') === out) el.style.right = Math.round(innerWidth - r.left + 4) + 'px';
-      else el.style.left = Math.round(r.right + 4) + 'px';
-      el.style.maxWidth = Math.round(out ? Math.min(room - 16, 300) : Math.min(260, machine.offsetWidth * 0.72)) + 'px';
+      if (out) {
+        // vedle stroje je volno (PC): bublina vyletí ven – vlevo od levého, vpravo od pravého reproduktoru
+        el.className = 'kp-comic ' + kind + ' ' + side + ' out';
+        el.style.top = Math.round(r.top + r.height / 2) + 'px';
+        if (side === 'l') el.style.right = Math.round(innerWidth - r.left + 4) + 'px';
+        else el.style.left = Math.round(r.right + 4) + 'px';
+        el.style.maxWidth = Math.round(Math.min(room - 16, 300)) + 'px';
+      } else {
+        // telefon: nic přes hřiště – Kevinova bublina v horním okénku pod ním (špička k němu), nápis odstřelu
+        // v dolním okénku u pálky hráče
+        var win = root.querySelector('.kpong-mech[data-win="' + (kind === 'say' ? 'top' : 'bot') + '"]').getBoundingClientRect();
+        el.className = 'kp-comic ' + kind + (kind === 'say' ? ' top' : ' bottom');
+        el.style.left = Math.round(win.left + win.width / 2) + 'px';
+        el.style.top = Math.round(win.top + win.height / 2) + 'px';
+        el.style.maxWidth = Math.round(win.width + 16) + 'px';
+      }
       root.appendChild(el);
       comics[side] = el;
       spk.classList.remove('boom'); void spk.offsetWidth; spk.classList.add(kind === 'say' ? 'talk' : 'boom');
@@ -273,18 +283,19 @@
     // řekne hlášku, když zrovna nemluví (odstup 2,2 s); force = důležitá chvíle, přebije
     function quip(key, chance, fallback, ms, force) {
       var now = performance.now();
-      if (!force && now - lastQuip < 2200) return false;
+      if (!force && (now - lastQuip < 6000 || comics.r)) return false;
       if (chance < 1 && Math.random() > chance) return false;
       var t = line(key, fallback);
       if (!t) return false;
       lastQuip = now;
-      say(t, ms || Math.min(4200, 1800 + t.length * 30));
+      say(t, ms);
       return true;
     }
     function showFlash(f) { comic('l', 'burst ' + f.kind, f.text, f.kind === 'super' ? 1700 : 1300); }
     function say(t, ms) {
       if (!t) return;
-      comic('r', 'say', t, ms || 2600);
+      // čas na přečtení: ~60 ms na znak, nejméně 2,6 s, nejvýš 7 s (dřív mizely dřív, než se daly přečíst)
+      comic('r', 'say', t, Math.max(ms || 0, Math.min(7000, Math.max(2600, 1200 + t.length * 60))));
       if (K) { K.setTalking(true); setTimeout(function () { if (K) K.setTalking(false); }, Math.min(2200, 600 + t.length * 45)); }
     }
 
@@ -383,8 +394,8 @@
       field.classList.remove('shot', 'shot-super'); void field.offsetWidth; field.classList.add(kind === 'super' ? 'shot-super' : 'shot');
       ball.perfect = kind === 'perfect' || kind === 'super';
       if (kind === 'super') quip('odstrel_super', 1, null, 0, true);
-      else if (kind === 'perfect') quip('odstrel_perfekt', 0.45);
-      else quip('odstrel_dobry', 0.25);
+      else if (kind === 'perfect') quip('odstrel_perfekt', 0.3);
+      else quip('odstrel_dobry', 0.1);
     }
 
     // pokažený odstřel: míček nezrychlí (ani o běžné zrychlení odrazu), naopak trochu zpomalí – ne pod 90 % základní
@@ -396,7 +407,7 @@
       ball.mishit = true; kevin.miss = 0;
       flash = { kind: 'miss', text: T.shots ? T.shots.miss : 'miss', at: now };
       showFlash(flash);
-      quip('odstrel_pokazeny', 0.35);
+      quip('odstrel_pokazeny', 0.25);
     }
 
     // Kevinův trest za pokažený odstřel: míří do rohu dál od hráče – rovně, nebo přes odraz od stěny, podle toho,
@@ -409,7 +420,7 @@
       var a = Math.abs(bank) <= 1.1 && Math.abs(bank) > Math.abs(direct) ? bank : clamp(direct, -1.1, 1.1);
       var sp = Math.min(L.max, ball.speed * 1.12);
       ball.speed = sp; ball.vx = Math.sin(a) * sp; ball.vy = Math.cos(a) * sp; ball.mishit = false;
-      quip('trest', 0.7, null, 0, true);
+      quip('trest', 0.5);
     }
 
     // ---------- komár: scénka ----------
@@ -553,7 +564,7 @@
       // hráč se 10 s nehne (ne při čekání na start) a vzácná hláška zhruba jednou za minutu ticha
       if (Math.abs(player.target - lastTarget) > 1) { lastTarget = player.target; lastMoveAt = now; idleSaid = false; }
       if (!awaitStart && !idleSaid && now - lastMoveAt > 10000) { idleSaid = true; quip('nehybe_se', 1); }
-      if (!awaitStart && now - lastQuip > 9000 && Math.random() < dt / 60) quip('vzacne', 1);
+      if (!awaitStart && now - lastQuip > 15000 && Math.random() < dt / 90) quip('vzacne', 1);
       // komár: přiletí jednou za zápas, nejdřív po 6 s hry a jen když míček letí k hráči (Kevin má volno)
       if (!mosq.done && now - started > 6000 && now >= serveAt) mosquito();
       // odstřel naprázdno: pálka chvíli „ve vzduchu“ – pomalejší a kombo je pryč
@@ -599,7 +610,7 @@
         if (ball.vy < 0 && ball.y - BALL_R <= KEVIN_Y + PAD_H / 2 && ball.y > KEVIN_Y - PAD_H && Math.abs(ball.x - kevin.x) <= PAD_W / 2 + BALL_R) {
           bounce(kevin.x, 1);
           ball.fire = false;
-          if (ball.perfect) { ball.perfect = false; quip('odstrel_chycen', 0.6); }
+          if (ball.perfect) { ball.perfect = false; quip('odstrel_chycen', 0.4); }
           if (ball.mishit) punish();
           rallyTick();
         }
@@ -640,7 +651,7 @@
       else if (diff === 3 && !byPlayer) quip('vede_kevin', 0.9);
       else if (diff === -3 && byPlayer) quip('vede_hrac', 0.9);
       else if (you === kev) quip('remiza', 0.6);
-      else quip(byPlayer ? 'gol_hrac' : 'gol_kevin', 0.55, byPlayer ? T.conceded : T.scored);
+      else quip(byPlayer ? 'gol_hrac' : 'gol_kevin', 0.35, byPlayer ? T.conceded : T.scored);
       resetBall(!byPlayer);
     }
 
@@ -756,7 +767,7 @@
     function rallyTick() {
       rally++;
       if (rally === 10) quip('dlouha_vymena', 1);
-      else if (!fastSaid && ball.speed > L.max * 0.92) { fastSaid = true; quip('rychly_hopik', 0.5); }
+      else if (!fastSaid && ball.speed > L.max * 0.92) { fastSaid = true; quip('rychly_hopik', 0.35); }
     }
     function finish(playerWon) {
       running = false;
