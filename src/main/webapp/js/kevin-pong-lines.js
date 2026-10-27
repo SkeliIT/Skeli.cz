@@ -760,6 +760,22 @@ window.KEVIN_PONG_LINES = {
    "Hopík je připravenej. Já jsem připravenej. Kdo chybí?",
    "Až budeš chtít, ťukni. Já si zatím olíznu tlapku.",
    "Do toho, nebo si jdu lehnout na klávesnici."
+  ],
+  "ponozka": [
+   "Ups, ponožka. Úplně náhodou.",
+   "To není podvod, to je dekorace.",
+   "Kdo tam hodil ponožku? …Já ne.",
+   "Pravidla? Ty jsem si nepřečetl.",
+   "Překážka na hřišti. Říkám tomu strategie.",
+   "Tahle ponožka je moje tajná zbraň. Voní vítězstvím."
+  ],
+  "sroubek": [
+   "Hej, to je můj šroubek!",
+   "Ty mi rozebíráš stroj?!",
+   "Šroubek patří do stroje, ne do tvý kapsy.",
+   "To není podvod… teda je, ale tvůj.",
+   "Kdo ho vyšrouboval? Přiznej se.",
+   "Stroj se rozpadá a ty sbíráš suvenýry."
   ]
  }
 };
