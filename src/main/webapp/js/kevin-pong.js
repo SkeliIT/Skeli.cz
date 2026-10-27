@@ -671,10 +671,10 @@
       player.target = clamp(player.target, player.w / 2, W - player.w / 2);
       player.x += (player.target - player.x) * Math.min(1, dt * (now < player.stunUntil ? 7 : 30));
       // šroubek: občas vypadne z horního okénka stroje a pomalu padá k hráči
-      if (!awaitStart && !screw && now > nextScrewAt) screw = { x: rnd(60, W - 60), y: KEVIN_Y + 40, a: 0 };
+      if (!awaitStart && !screw && now > nextScrewAt) screw = { x: rnd(60, W - 60), y: KEVIN_Y + 40, a: rnd(0, 6), nut: Math.random() < 0.5 };
       if (screw) {
-        // padá rychle a trochu kličkuje do stran – vylepšení se musí vybojovat
-        screw.y += 430 * dt; screw.a += 9 * dt; screw.x = clamp(screw.x + Math.sin(screw.a * 0.7) * 160 * dt, 30, W - 30);
+        // padá rychle a rovně (jen se při pádu převrací) – vylepšení se musí vybojovat
+        screw.y += 430 * dt; screw.a += (screw.nut ? 6 : 4) * dt;
         if (Math.abs(screw.y - PLAYER_Y) < PAD_H + 10 && Math.abs(screw.x - player.x) < player.w / 2 + 12) { powerUp(now); screw = null; nextScrewAt = now + rnd(18000, 30000); }
         else if (screw.y > H + 20) { screw = null; nextScrewAt = now + rnd(15000, 25000); }
       }
@@ -1157,14 +1157,31 @@
       cx.fillStyle = g;
       roundRect(x - w / 2, y - PAD_H / 2, w, PAD_H, PAD_H / 2);
     }
-    // šroubek: zlatá šestihranná hlava s drážkou, točí se a září
+    // díl ze stroje, který padá: šroubek (z boku – hlava s drážkou, dřík se závitem, špička) nebo matička
+    // (šestihran s dírou); mosazný, při pádu se převrací a jemně září, ať je vidět na každém pozadí
     function drawScrew(s) {
       cx.save(); cx.translate(s.x, s.y); cx.rotate(s.a);
-      cx.shadowColor = 'rgba(255, 210, 63, .85)'; cx.shadowBlur = 14; cx.fillStyle = '#e6b730';
-      cx.beginPath();
-      for (var i = 0; i < 6; i++) { var an = i * Math.PI / 3; if (i) cx.lineTo(Math.cos(an) * 14, Math.sin(an) * 14); else cx.moveTo(14, 0); }
-      cx.closePath(); cx.fill(); cx.shadowBlur = 0;
-      cx.strokeStyle = '#6b4a00'; cx.lineWidth = 3.5; cx.beginPath(); cx.moveTo(-8, 0); cx.lineTo(8, 0); cx.stroke();
+      cx.shadowColor = 'rgba(255, 210, 63, .8)'; cx.shadowBlur = 12;
+      var brass = cx.createLinearGradient(-14, 0, 14, 0);
+      brass.addColorStop(0, '#8f6600'); brass.addColorStop(0.45, '#ffe08a'); brass.addColorStop(1, '#a37b00');
+      cx.fillStyle = brass; cx.strokeStyle = '#4a3300'; cx.lineWidth = 1.5;
+      if (s.nut) {
+        cx.beginPath();
+        for (var i = 0; i < 6; i++) { var an = i * Math.PI / 3 + Math.PI / 6; cx[i ? 'lineTo' : 'moveTo'](Math.cos(an) * 15, Math.sin(an) * 15); }
+        cx.closePath(); cx.moveTo(6.5, 0); cx.arc(0, 0, 6.5, 0, Math.PI * 2, true);       // díra (opačný směr = vyřízne se)
+        cx.fill(); cx.shadowBlur = 0; cx.stroke();
+        cx.strokeStyle = 'rgba(74, 51, 0, .55)'; cx.beginPath(); cx.arc(0, 0, 10.5, 0, Math.PI * 2); cx.stroke();   // sražená hrana
+      } else {
+        cx.beginPath();                                                    // dřík se špičkou
+        cx.moveTo(-5, -10); cx.lineTo(5, -10); cx.lineTo(5, 14); cx.lineTo(0, 21); cx.lineTo(-5, 14); cx.closePath();
+        cx.fill(); cx.shadowBlur = 0; cx.stroke();
+        cx.strokeStyle = 'rgba(74, 51, 0, .8)'; cx.lineWidth = 1.6;          // závit
+        for (var y = -7; y < 15; y += 3.6) { cx.beginPath(); cx.moveTo(-5, y + 1.6); cx.lineTo(5, y - 1.2); cx.stroke(); }
+        cx.fillStyle = brass; cx.strokeStyle = '#4a3300'; cx.lineWidth = 1.5;   // hlava s drážkou
+        cx.beginPath(); cx.moveTo(-12, -10); cx.lineTo(12, -10); cx.quadraticCurveTo(12, -19, 0, -19); cx.quadraticCurveTo(-12, -19, -12, -10); cx.closePath();
+        cx.fill(); cx.stroke();
+        cx.strokeStyle = '#4a3300'; cx.lineWidth = 2.5; cx.beginPath(); cx.moveTo(0, -18); cx.lineTo(0, -11); cx.stroke();
+      }
       cx.restore();
     }
     function roundRect(x, y, w, h, r) { cx.beginPath(); cx.moveTo(x + r, y); cx.arcTo(x + w, y, x + w, y + h, r); cx.arcTo(x + w, y + h, x, y + h, r); cx.arcTo(x, y + h, x, y, r); cx.arcTo(x, y, x + w, y, r); cx.fill(); }
