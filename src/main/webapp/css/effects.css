@@ -1755,6 +1755,16 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 }
 .kp-fullbtn:hover, .kp-fullbtn:focus-visible { border-color: var(--accent); color: var(--accent); }
 .kpong-settings .kpong-play { align-self: center; min-width: 60%; }
+/* ⚙: vzhled pálky a hopíku – kolečko = pálka (přechod) s hopíkem uprostřed; zamčené průsvitné se zámkem */
+.kp-skin {
+  position: relative; width: 44px; height: 44px; padding: 0; border-radius: 50%; cursor: pointer; color: #fff;
+  border: 2px solid rgba(255, 255, 255, .18);
+  background: radial-gradient(circle, #111 0 26%, var(--rim) 27% 33%, transparent 34%), linear-gradient(var(--c1), var(--c2));
+}
+.kp-skin[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .3); }
+.kp-skin[aria-disabled="true"] { opacity: .4; }
+.kp-skin i { position: absolute; inset: 0; display: grid; place-items: center; font-size: .85rem; text-shadow: 0 1px 3px #000; }
+.kp-unlock { margin: 0; font-family: var(--font-text); font-size: var(--fs-card); color: var(--accent); }
 /* ⚙: zvuk (tlačítko + hlasitost), Kevinova upovídanost (4 volby), přepínače vibrace a odstřel vlevo */
 .kp-row { display: flex; align-items: center; gap: 10px; }
 .kp-row .kp-snd { flex: none; min-width: 7.5em; padding: 0 12px; }
