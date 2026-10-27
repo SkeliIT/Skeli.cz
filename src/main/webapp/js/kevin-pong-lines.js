@@ -1,4 +1,4 @@
-// Hlášky Kevina do hry Kevin Pong – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.
+// Hlášky Kevina do hry CatSmash – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.
 window.KEVIN_PONG_LINES = {
  "cs": {
   "start": [
@@ -694,7 +694,7 @@ window.KEVIN_PONG_LINES = {
    "Máš chvilku? Hopík se nudí a já už jsem snědl imaginární svačinu.",
    "Kdyby ses chtěl protáhnout, moje pálka je pořád v provozu.",
    "Občas si tu pinkám s hopíkem. Občas hopík pinká se mnou.",
-   "Kevin Pong čeká. Já taky, ale vsedě by mi to šlo líp.",
+   "CatSmash čeká. Já taky, ale vsedě by mi to šlo líp.",
    "Máš rád výzvy? Já mám rád krabice. Každej máme něco.",
    "Jen tak mimochodem, dneska mám formu. Včera taky. Asi.",
    "Kdyby ses chtěl na chvilku zabavit, hopík už je připravenej.",
@@ -742,6 +742,40 @@ window.KEVIN_PONG_LINES = {
    "Víš, co je nejlepší na tajemství? Že ho nemusím nikomu vysvětlovat.",
    "Jednou jsem se honil za ocasem tak dlouho, až jsem zapomněl proč.",
    "Mám pocit, že mě někdo sleduje. Aha, to jsem já v odrazu."
+  ],
+  "odstrel_kevin": [
+   "Tohle byla tlapka s turbem.",
+   "Odstřel po kočičím. Bez varování. Teda… blikal jsem.",
+   "Mňau-raketa odpálena.",
+   "Tohle jsem trénoval na mouchách.",
+   "Chyť to, jestli máš devět životů.",
+   "Moje tlapka, moje pravidla.",
+   "Kevin Express. Zastávky nemá.",
+   "Říkal jsem ti, že nebliká jen tak pro parádu."
+  ],
+  "cekani": [
+   "Ťukni, ať můžu začít vyhrávat.",
+   "Já stojím, kola stojí, hopík stojí. Kdo nestojí? Nikdo.",
+   "Čekám. Kočky umí čekat. Ale nerady.",
+   "Hopík je připravenej. Já jsem připravenej. Kdo chybí?",
+   "Až budeš chtít, ťukni. Já si zatím olíznu tlapku.",
+   "Do toho, nebo si jdu lehnout na klávesnici."
+  ],
+  "ponozka": [
+   "Ups, ponožka. Úplně náhodou.",
+   "To není podvod, to je dekorace.",
+   "Kdo tam hodil ponožku? …Já ne.",
+   "Pravidla? Ty jsem si nepřečetl.",
+   "Překážka na hřišti. Říkám tomu strategie.",
+   "Tahle ponožka je moje tajná zbraň. Voní vítězstvím."
+  ],
+  "sroubek": [
+   "Hej, to je můj šroubek!",
+   "Ty mi rozebíráš stroj?!",
+   "Šroubek patří do stroje, ne do tvý kapsy.",
+   "To není podvod… teda je, ale tvůj.",
+   "Kdo ho vyšrouboval? Přiznej se.",
+   "Stroj se rozpadá a ty sbíráš suvenýry."
   ]
  }
 };

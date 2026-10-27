@@ -17,7 +17,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Kevin Pong (js/kevin-pong.js): pinkání s Kevinem do 10 gólů, tabulka pořadí pro registrované.
+ * CatSmash (js/kevin-pong.js): pinkání s Kevinem do 10 gólů, tabulka pořadí pro registrované.
  * GET  /api/pong/top?d=1|2|3 → {"signedIn":…, "csrf":"…", "top":[{place,name,avatar,ms,kevin,me}], "me":{place,ms}|null}
  * POST /api/pong/start d      → začátek hry (čas startu si pamatuje server v session)
  * POST /api/pong/win  d, ms, kevin → výhra přihlášeného hráče; ms = délka hry podle prohlížeče, server ji přijme

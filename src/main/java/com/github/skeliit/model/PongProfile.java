@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Kevin Pong na stránce Můj účet: nejlepší výhra a místo v tabulce na každé obtížnosti a odznaky.
+ * CatSmash na stránce Můj účet: nejlepší výhra a místo v tabulce na každé obtížnosti a odznaky.
  * Odznaky se počítají ze serverem uložených výher (pong_results), takže nejdou podvrhnout.
  */
 public class PongProfile {
