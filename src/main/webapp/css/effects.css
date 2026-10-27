@@ -1764,6 +1764,9 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-skin[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .3); }
 .kp-skin[aria-disabled="true"] { opacity: .4; }
 .kp-skin i { position: absolute; inset: 0; display: grid; place-items: center; font-size: .85rem; text-shadow: 0 1px 3px #000; }
+/* obrázková pálka: obdélníková dlaždice s náhledem (přívěsky jsou vidět) */
+.kp-skin[data-img] { width: 88px; border-radius: 12px; background: radial-gradient(circle at 50% 30%, #2a241a, #050403 80%); overflow: hidden; }
+.kp-skin[data-img] canvas { width: 100%; height: 100%; display: block; }
 .kp-unlock { margin: 0; font-family: var(--font-text); font-size: var(--fs-card); color: var(--accent); }
 /* ⚙: zvuk (tlačítko + hlasitost), Kevinova upovídanost (4 volby), přepínače vibrace a odstřel vlevo */
 .kp-row { display: flex; align-items: center; gap: 10px; }

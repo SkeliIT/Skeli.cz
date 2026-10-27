@@ -765,9 +765,10 @@ window.KEVIN_PONG_LINES = {
    "Klubíčko! Mňau… teda, překážka.",
    "Hraju si s klubíčkem. Ty si hraj s tím, co zbude.",
    "To není podvod, to je kočičí hračka.",
-   "Nitka všude, chaos všude. Přesně jak to mám rád.",
-   "Kdo to bude motat zpátky? Já ne.",
-   "Pozor, klubíčko se kutálí. Já jsem v klidu."
+   "Klubíčko na provázku. Já tahám, ty se trápíš.",
+   "Houpe se to, co? Jako tvoje sebevědomí.",
+   "Pozor, klubíčko visí. Já jsem v klidu, já mám provázek.",
+   "Až to dohraju, namotám si ho zpátky. Já jsem pořádnej kocour."
   ],
   "sroubek": [
    "Hej, to je můj šroubek!",

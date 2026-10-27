@@ -143,7 +143,8 @@
       super: 'fa-explosion', tinker: 'fa-screwdriver-wrench', yarn: 'fa-mitten', overheat: 'fa-fire', comeback: 'fa-arrow-trend-up',
       marathon: 'fa-person-running', night: 'fa-moon', loyal: 'fa-calendar-check', wardrobe: 'fa-shirt' };
     var CLAIMABLE = ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal'];
-    var LOOKS = ['first', 'normal', 'angry', 'sniper', 'tinker', 'marathon', 'night', 'easy', 'yarn', 'streak', 'wins50', 'wins100'];
+    var LOOKS = ['first', 'normal', 'angry', 'sniper', 'tinker', 'marathon', 'night', 'easy', 'yarn', 'streak', 'wins50', 'wins100',
+      'clean', 'overheat', 'comeback', 'super', 'loyal', 'close'];
     var badges = {};
     try { (JSON.parse(store.get('kevinPongBadges') || '[]') || []).forEach(function (k) { if (BADGE_ICON[k]) badges[k] = true; }); } catch (e) { /* nic */ }
     // hráči z doby před odznaky: výhry podle rekordů v prohlížeči
@@ -153,7 +154,7 @@
     if (badges.easy || badges.normal || badges.angry) badges.first = true;
     // zkoušky jen na test.skeli.cz a na vlastním počítači (na www nefungují):
     // #vse = na tuhle návštěvu odemkne všechny pálky, míčky a pozadí (nic se neuloží, bez #vse je vše zase zamčené),
-    // #klubko = Kevin hodí klubíčko hned po tvém prvním gólu (na jakékoli obtížnosti)
+    // #klubko = Kevin hodí klubíčko hned na začátku zápasu (na jakékoli obtížnosti)
     var TRY_HOST = /^(test\.|localhost$|127\.)/.test(location.hostname);
     var PREVIEW_ALL = TRY_HOST && /\bvse\b/.test(location.hash), FORCE_YARN = TRY_HOST && /\bklubko\b/.test(location.hash);
     function hasBadge(k) { return !k || PREVIEW_ALL || !!badges[k]; }
@@ -359,6 +360,84 @@
     // přehřátí kol: heat 0–1 roste s Kevinovým během, v klidu klesá; při 1 kola kouří a Kevin do hotUntil zpomalí
     var heat = 0, heatShown = -1, hotUntil = 0, isHot = false;
     var hopik = new Image(); hopik.src = '/kevin/pong/hopik.webp' + ver;
+    // obrázkové pálky a míčky: jeden list obrázků + popis dílů (vyrábí tools/catsmash-sprites.py)
+    var palImg = new Image(), micImg = new Image(), PAL = null, MIC = null, onSprites = [];
+    palImg.src = '/kevin/pong/palky.webp' + ver; micImg.src = '/kevin/pong/micky.webp' + ver;
+    function spritesReady() { onSprites.forEach(function (f) { f(); }); }
+    function loadJson(url, set) { fetch(url + ver).then(function (r) { return r.json(); }).then(function (j) { set(j); spritesReady(); }).catch(function () { /* bez obrázků zůstanou barevné */ }); }
+    loadJson('/kevin/pong/palky.json', function (j) { PAL = j; });
+    loadJson('/kevin/pong/micky.json', function (j) { MIC = j; });
+    palImg.onload = micImg.onload = spritesReady;
+    hopik.addEventListener('load', spritesReady);
+    // přívěsky pod pálkou: každý je tlumené kyvadlo, rozhoupe ho zrychlení pálky a ťuk míčku
+    var hang = [], hangSkin = -1, padMove = { last: null, v: 0, t: 0 }, HANG_G = 2200;
+    function padSprite(i) { var s = SKINS[i]; return s && s.img && PAL && PAL[s.img] && palImg.complete && palImg.naturalWidth ? PAL[s.img] : null; }
+    function hangTick(now) {
+      var sp = padSprite(skin);
+      if (hangSkin !== skin) { hang = []; hangSkin = skin; }
+      var dt = padMove.t ? Math.min(0.05, (now - padMove.t) / 1000) : 0;
+      padMove.t = now;
+      if (!sp || sp.mode === 'rigid' || dt <= 0 || now < hitStop) return;
+      var v = padMove.last == null ? 0 : (player.x - padMove.last) / dt;
+      var acc = clamp((v - padMove.v) / dt, -30000, 30000);
+      padMove.last = player.x; padMove.v = v;
+      var s = PAD_W / sp.w, damp = sp.mode === 'swing' ? 1.6 : 2.6;
+      sp.parts.forEach(function (p, i) {
+        if (p.fixed) return;
+        var st = hang[i] || (hang[i] = { a: 0, w: 0 });
+        // délka kyvadla: tuhý přívěsek se točí kolem čepu (těžiště ~ 60 % délky), měkký se ohýbá celý
+        var L = Math.max(8, (p.y - p.py + p.img[3]) * s * (sp.mode === 'swing' ? 0.6 : 0.85));
+        for (var k = 0; k < 3; k++) {
+          var h = dt / 3;
+          st.w += (-(HANG_G / L) * Math.sin(st.a) - (acc / L) * Math.cos(st.a) - damp * st.w) * h;
+          st.a = clamp(st.a + st.w * h, -1.1, 1.1);
+        }
+      });
+    }
+    function hangKick(strength) {
+      hang.forEach(function (st) { if (st) st.w += (Math.random() - 0.5) * strength; });
+    }
+    var HANG_REST = { a: 0, w: 0 };
+    // obrázková pálka: horní hrana těla = plocha odrazu (top). Koncovky se nenatahují, střed ano (velká pálka).
+    // Přívěsky: tuhé (swing) se otáčí kolem čepu, měkké (sway) se ohýbají – každý řádek se posune tím víc, čím je níž.
+    function drawSpritePad(sp, x, top, w, glow, still) {
+      var s = PAD_W / sp.w, kx = w / (sp.w * s), left = x - w / 2, b = sp.body;
+      var cap = Math.min(sp.split * 0.6, b[2] / 3), capD = cap * s, bh = b[3] * s;
+      if (glow) { cx.shadowColor = glow; cx.shadowBlur = 18; }
+      cx.drawImage(palImg, b[0], b[1], cap, b[3], left, top, capD, bh);
+      cx.drawImage(palImg, b[0] + cap, b[1], b[2] - 2 * cap, b[3], left + capD - 0.3, top, w - 2 * capD + 0.6, bh);
+      cx.drawImage(palImg, b[0] + b[2] - cap, b[1], cap, b[3], left + w - capD, top, capD, bh);
+      cx.shadowBlur = 0;
+      var y0 = top + sp.split * s;
+      sp.parts.forEach(function (p, i) {
+        var im = p.img, st = still ? HANG_REST : hang[i] || HANG_REST;
+        if (p.fixed || sp.mode === 'rigid') {
+          cx.drawImage(palImg, im[0], im[1], im[2], im[3], left + p.x * s * kx, y0 + p.y * s, im[2] * s * kx, im[3] * s);
+          return;
+        }
+        var px = left + p.px * s * kx, py = y0 + p.py * s;
+        if (sp.mode === 'swing') {
+          cx.save(); cx.translate(px, py); cx.rotate(-st.a);
+          cx.drawImage(palImg, im[0], im[1], im[2], im[3], (p.x - p.px) * s, (p.y - p.py) * s, im[2] * s, im[3] * s);
+          cx.restore();
+          return;
+        }
+        var bottom = p.y + im[3], reach = Math.sin(st.a) * bottom * s;
+        function dxAt(yb) { return reach * Math.pow(Math.max(0, yb) / bottom, 1.4); }
+        if (p.cord) {                                   // šňůrka (perly): hladká křivka přes středy, ohýbá se s nimi
+          cx.strokeStyle = 'rgba(236, 226, 236, .85)'; cx.lineWidth = 1; cx.beginPath();
+          var pts = p.cord.map(function (q) { return [left + q[0] * s * kx + dxAt(q[1]), y0 + q[1] * s]; });
+          cx.moveTo(pts[0][0], pts[0][1]);
+          for (var c = 1; c < pts.length - 1; c++) cx.quadraticCurveTo(pts[c][0], pts[c][1], (pts[c][0] + pts[c + 1][0]) / 2, (pts[c][1] + pts[c + 1][1]) / 2);
+          cx.lineTo(pts[pts.length - 1][0], pts[pts.length - 1][1]); cx.stroke();
+        }
+        var left0 = left + p.x * s * kx;
+        for (var r = 0; r < im[3]; r += 3) {
+          var hh = Math.min(3, im[3] - r);
+          cx.drawImage(palImg, im[0], im[1] + r, im[2], hh, left0 + dxAt(p.y + r + hh / 2), y0 + (p.y + r) * s, im[2] * s, hh * s + 0.4);
+        }
+      });
+    }
     var ball = { x: W / 2, y: H / 2, vx: 0, vy: 0, speed: 0, trail: [], fire: false, mishit: false };
     var combo = 0, hitStop = 0, flash = null, awaitStart = false, pausedMs = 0;
     // co se v zápase stalo (pro odznaky): perfektní odstřely, SUPER, přehřátí kol, nejdelší výměna, klubíčko
@@ -389,14 +468,33 @@
       { b: 'sniper', pad: ['#eef0ff', '#5b3df5'], rim: '#a98bff', glow: 'rgba(150, 120, 255, .95)', trail: '#8f7bff' },
       { b: 'tinker', pad: ['#ffe2a8', '#8a5a1a'], rim: '#d9a441', glow: 'rgba(217, 164, 65, .9)', trail: '#c8923a' },
       { b: 'marathon', pad: ['#ff6fb5', '#2fd3ff'], rim: '#ffffff', glow: 'rgba(255, 120, 220, .9)', trail: '#ff7ad9' },
-      { b: 'night', pad: ['#6b7bff', '#140c3e'], rim: '#c9d4ff', glow: 'rgba(140, 160, 255, .9)', trail: '#8fa0ff' }
+      { b: 'night', pad: ['#6b7bff', '#140c3e'], rim: '#c9d4ff', glow: 'rgba(140, 160, 255, .9)', trail: '#8fa0ff' },
+      // obrázkové pálky (img = klíč v kevin/pong/palky.json z tools/catsmash-sprites.py); pad = barvy pro záložní kreslení
+      { b: 'easy', img: 'vetev', pad: ['#c79a62', '#5a3a1c'], rim: '#8fd16a', glow: 'rgba(120, 200, 90, .9)', trail: '#9ccf6a' },
+      { b: 'clean', img: 'led', pad: ['#eef8ff', '#8fc6e8'], rim: '#cdeeff', glow: 'rgba(170, 225, 255, .95)', trail: '#bfe6ff' },
+      { b: 'overheat', img: 'lava', pad: ['#5a5550', '#1c1a18'], rim: '#ff8a2a', glow: 'rgba(255, 110, 20, .95)', trail: '#ff6a1a' },
+      { b: 'angry', img: 'retez', pad: ['#ffe27a', '#a67c00'], rim: '#ffd23f', glow: 'rgba(255, 210, 63, 1)', trail: '#e6b730' },
+      { b: 'comeback', img: 'graffiti', pad: ['#3a3a40', '#111114'], rim: '#ff5fd2', glow: 'rgba(120, 220, 255, .9)', trail: '#ffcf3a' },
+      { b: 'yarn', img: 'plys', pad: ['#ffffff', '#cfcfd6'], rim: '#ffc2cf', glow: 'rgba(255, 190, 205, .9)', trail: '#ffd6df' },
+      { b: 'night', img: 'neon', pad: ['#2a2a35', '#08080c'], rim: '#7df9ff', glow: 'rgba(200, 110, 255, .95)', trail: '#b46bff' },
+      { b: 'super', img: 'ekvalizer', pad: ['#2a2a2a', '#050505'], rim: '#e6b730', glow: 'rgba(230, 183, 48, .9)', trail: '#e6b730' },
+      { b: 'loyal', img: 'jadeit', pad: ['#8fd6a8', '#2f7a4c'], rim: '#7fd6a0', glow: 'rgba(110, 210, 150, .9)', trail: '#6fcf97' },
+      { b: 'wardrobe', img: 'perly', pad: ['#ffffff', '#d9cfe0'], rim: '#fff4fb', glow: 'rgba(255, 240, 250, .95)', trail: '#f3e6ff' },
+      { b: 'wins50', img: 'mince', pad: ['#ffd76a', '#8a6400'], rim: '#ffd23f', glow: 'rgba(255, 200, 60, .95)', trail: '#d9a441' },
+      { b: 'sniper', img: 'cip', pad: ['#3a3330', '#0e0b0a'], rim: '#e6b730', glow: 'rgba(90, 255, 160, .8)', trail: '#59f0a0' },
+      { b: 'tinker', img: 'kola', pad: ['#e0a36a', '#7a4320'], rim: '#e0a36a', glow: 'rgba(224, 150, 90, .9)', trail: '#c9844a' }
     ];
     SKINS.forEach(function (s) { s.ok = function () { return hasBadge(s.b); }; });
     var skin = +(store.get('kevinPongSkin') || 0);
     if (!SKINS[skin] || !SKINS[skin].ok()) skin = 0;
     // míčky: hopík pro všechny, ostatní odemkne odznak; kreslí je drawBall
     var BALLS = [{ id: 'hopik' }, { id: 'tenis', b: 'easy' }, { id: 'klubko', b: 'yarn' }, { id: 'vinyl', b: 'streak' },
-      { id: 'disko', b: 'wins50' }, { id: 'zlata', b: 'wins100' }];
+      { id: 'disko', b: 'wins50' }, { id: 'zlata', b: 'wins100' },
+      // obrázkové míčky (kevin/pong/micky.json): ke každé obrázkové pálce jeden do páru + mramor
+      { id: 'kastan', b: 'easy' }, { id: 'ledovka', b: 'clean' }, { id: 'lavak', b: 'overheat' }, { id: 'tlapka', b: 'angry' },
+      { id: 'sprej', b: 'comeback' }, { id: 'plysak', b: 'yarn' }, { id: 'vir', b: 'night' }, { id: 'repro', b: 'super' },
+      { id: 'jadeitak', b: 'loyal' }, { id: 'perla', b: 'wardrobe' }, { id: 'procesor', b: 'sniper' }, { id: 'hodinky', b: 'tinker' },
+      { id: 'mramor', b: 'close' }];
     var ballType = +(store.get('kevinPongBall') || 0);
     if (!BALLS[ballType] || !hasBadge(BALLS[ballType].b)) ballType = 0;
     function vibe(p) { if (vibOn && navigator.vibrate) try { navigator.vibrate(p); } catch (e) { /* nevadí */ } }
@@ -729,7 +827,7 @@
         pausedMs += real;
         if (hotUntil > now) hotUntil += real;
         if (power.kind) power.until += real;
-        if (yarn) { yarn.until += real; yarn.land += real; yarn.at += real; }
+        if (yarn) { yarn.until += real; yarn.land += real; yarn.at += real; }   // (nitka se mezitím jen nehýbe)
         nextScrewAt += real;
       }   // pauzy, komár, nastavení, čekání na ťuknutí
       if (!running || paused) { draw(now); return; }
@@ -779,30 +877,34 @@
       kevin.moving = Math.abs(dx) > 4 ? Math.sign(dx) : 0;
       kevin.x += ran;
       heatTick(Math.abs(ran), dt, now);
+      // klubíčko na nitce se houpe pořád (i mezi body, než se podává)
+      var yarnHit = yarn && yarnTick(now, dt);
+      if (yarn && now > yarn.until) yarn = null;
       // míč
       if (now >= serveAt) {
         ball.x += ball.vx * dt; ball.y += ball.vy * dt;
         ball.trail.push([ball.x, ball.y]); if (ball.trail.length > 10) ball.trail.shift();
         ball.spin = (ball.spin || 0) + (ball.vx * 0.5 + ball.vy * 0.15) * dt / BALL_R;   // hopík se kutálí
         if (ball.vy < 0 && !kevin.planned && ball.y < (KEVIN_Y + PLAYER_Y) / 2) { kevin.planned = true; kevin.shot = !ball.mishit && Math.random() < L.kshot; }
-        if (yarn && yarnTick(now, dt)) {
+        if (yarnHit && yarn) {
           var sx = ball.x - yarn.x, sy = ball.y - yarn.y, sd = Math.hypot(sx, sy), SR = BALL_R + yarn.r;
           if (sd < SR && sd > 0) {
             var nx = sx / sd, ny = sy / sd, dot = ball.vx * nx + ball.vy * ny;
             if (dot < 0) {
               ball.vx -= 2 * dot * nx; ball.vy -= 2 * dot * ny; ball.x = yarn.x + nx * SR; ball.y = yarn.y + ny * SR;
               if (Math.abs(ball.vy) < ball.speed * 0.4) { ball.vy = (ball.vy < 0 ? -1 : 1) * ball.speed * 0.4; ball.vx = (ball.vx < 0 ? -1 : 1) * Math.sqrt(ball.speed * ball.speed - ball.vy * ball.vy); }
+              yarnPush(-nx, -ny, ball.speed);
               sfx.wall(); aimError(); kevin.planned = false;
             }
           }
         }
-        if (yarn && now > yarn.until) yarn = null;
         if (ball.x < BALL_R) { ball.x = BALL_R; ball.vx = Math.abs(ball.vx); sfx.wall(); }
         if (ball.x > W - BALL_R) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx); sfx.wall(); }
         // pálka hráče (při odstřelu zvednutá)
         var py = PLAYER_Y - liftAt(now);
         if (ball.vy > 0 && ball.y + BALL_R >= py - PAD_H / 2 && ball.y < py + PAD_H && Math.abs(ball.x - player.x) <= player.w / 2 + BALL_R) {
           bounce(player.x, -1, py, player.w);
+          hangKick(4 + ball.speed / 300);                // ťuk rozhoupe přívěsky
           ball.fire = false; sfx.pad(false);
           player.lastHit = now; player.boosted = false; rallyTick();
           if (!player.shotUsed) boost(Math.abs(now - player.shotAt - SHOT_IDEAL), now);
@@ -836,41 +938,90 @@
       store.set('kevinPongScrews', String(+(store.get('kevinPongScrews') || 0) + 1));
       quip('sroubek', 0.7);
     }
-    // Kevin hodí na hřiště klubíčko vlny: napřáhne se (pohyb throwIt), klubíčko vyletí obloukem shora, dopadne,
-    // poskočí a 9 s se kutálí sem a tam; odvíjí se (zmenšuje) a za sebou nechává nitku. Hopík se od něj odráží.
+    // Kevin hodí klubíčko vlny, ale konec nitky drží na své pálce: klubíčko vyletí, nitka se napne a klubíčko
+    // visí a houpe se pod jeho pálkou (s ní se i pohybuje). Nitka je provaz z 18 článků (verlet: články se smí
+    // přiblížit, ale ne vzdálit víc než na délku článku = prověšená nitka). Hopík se od klubíčka odráží a rozhoupe ho.
+    // Po 9 s si ho Kevin namotá zpátky.
+    var YARN_N = 18;
     function throwYarn() {
       if (!running) return;
       if (K && K.has('throwIt')) K.once('throwIt');
       if (K) K.expression(2, 1500);
       setTimeout(function () {
         if (!running) return;
-        var t = performance.now();
-        yarn = { x: kevin.x, y: KEVIN_Y - 60, fx: kevin.x, fy: KEVIN_Y - 60, tx: rnd(120, W - 120), ty: rnd(H * 0.38, H * 0.54),
-          at: t, land: t + 650, until: t + 650 + 9000, vx: (Math.random() < 0.5 ? -1 : 1) * rnd(60, 95), r: 24, a: 0, path: [] };
+        var t = performance.now(), off = rnd(-0.32, 0.32) * PAD_W, ax = kevin.x + off, ay = KEVIN_Y + PAD_H / 2;
+        var nodes = [];
+        for (var i = 0; i <= YARN_N; i++) nodes.push({ x: ax, y: ay, px: ax, py: ay });
+        var end = nodes[YARN_N], dir = Math.random() < 0.5 ? -1 : 1;
+        end.px = end.x - dir * rnd(5, 8); end.py = end.y - 9;          // vyletí šikmo dolů (rychlost = rozdíl poloh)
+        yarn = { off: off, nodes: nodes, len: rnd(250, 330), reel: 1, at: t, land: t + 350, until: t + 9000,
+          r: 22, a: 0, x: ax, y: ay, twist: 0 };
         mt.yarn = true;
         quip('klubko', 1, null, 0, true);
       }, 520);
     }
     function yarnTick(now, dt) {
-      if (now < yarn.land) {                         // let obloukem: výška nad dopadem jako parabola
-        var p = (now - yarn.at) / (yarn.land - yarn.at);
-        yarn.x = yarn.fx + (yarn.tx - yarn.fx) * p;
-        yarn.y = yarn.fy + (yarn.ty - yarn.fy) * p - Math.sin(p * Math.PI) * 120;
-        yarn.a += 10 * dt;
-        return false;                                  // ve vzduchu se hopík neodráží
+      var n = yarn.nodes, end = n[YARN_N];
+      // na konci se namotá zpátky (délka nitky se zkracuje k nule)
+      yarn.reel = now > yarn.until - 900 ? Math.max(0, (yarn.until - now) / 900) : 1;
+      var seg = yarn.len * yarn.reel / YARN_N, steps = 3, h = dt / steps;
+      for (var k = 0; k < steps; k++) {
+        n[0].x = kevin.x + yarn.off; n[0].y = KEVIN_Y + PAD_H / 2;      // uvázaná na Kevinově pálce
+        for (var i = 1; i <= YARN_N; i++) {
+          var q = n[i], vx = (q.x - q.px) * 0.996, vy = (q.y - q.py) * 0.996;
+          q.px = q.x; q.py = q.y;
+          q.x += vx; q.y += vy + 1500 * h * h;                          // tíže
+        }
+        for (var it = 0; it < 10; it++) {
+          for (var j = 0; j < YARN_N; j++) {
+            var A = n[j], Bn = n[j + 1], dx = Bn.x - A.x, dy = Bn.y - A.y, d = Math.hypot(dx, dy);
+            if (d <= seg || d === 0) continue;                           // prověšená nitka se netlačí
+            var diff = (d - seg) / d, wa = j === 0 ? 0 : j + 1 === YARN_N ? 0.85 : 0.5, wb = 1 - wa;
+            A.x += dx * diff * wa; A.y += dy * diff * wa;
+            Bn.x -= dx * diff * wb; Bn.y -= dy * diff * wb;
+          }
+          n[0].x = kevin.x + yarn.off; n[0].y = KEVIN_Y + PAD_H / 2;
+        }
+        if (end.x < yarn.r) { end.x = yarn.r; end.px = end.x + Math.abs(end.x - end.px) * 0.6; }
+        if (end.x > W - yarn.r) { end.x = W - yarn.r; end.px = end.x - Math.abs(end.x - end.px) * 0.6; }
       }
-      var life = (now - yarn.land) / (yarn.until - yarn.land);
-      yarn.r = 24 - 9 * life;                          // odvíjí se
-      var hop = now - yarn.land < 350 ? Math.abs(Math.sin((now - yarn.land) / 350 * Math.PI)) * 18 : 0;   // poskočí po dopadu
-      yarn.x += yarn.vx * dt;
-      if (yarn.x < 60 || yarn.x > W - 60) { yarn.vx = -yarn.vx; yarn.x = clamp(yarn.x, 60, W - 60); }
-      yarn.y = yarn.ty - hop;
-      yarn.a += yarn.vx * dt / yarn.r;
-      var lp = yarn.path[yarn.path.length - 1];
-      if (!lp || Math.abs(lp[0] - yarn.x) > 6) { yarn.path.push([yarn.x, yarn.ty + yarn.r * 0.8]); if (yarn.path.length > 160) yarn.path.shift(); }
-      return true;
+      yarn.twist += (end.x - end.px) * 0.6;
+      yarn.a += (end.x - end.px) / yarn.r;
+      yarn.x = end.x; yarn.y = end.y; yarn.dt = dt;
+      return now >= yarn.land && yarn.reel > 0.3;                        // hopík se odráží, jen když klubíčko visí
     }
-
+    // ťuk hopíku: klubíčko dostane rychlost ve směru od hopíku (n = jednotkový vektor od hopíku ke klubíčku)
+    function yarnPush(nx, ny, speed) {
+      var end = yarn.nodes[YARN_N], f = speed * 0.35 * (yarn.dt || 0.016);
+      end.px -= nx * f; end.py -= ny * f;
+    }
+    // nitka: hladká křivka přes články, tmavý okraj, barva vlny a světlé točené vlákno (posouvá se, jak se klubíčko točí)
+    function drawYarnThread() {
+      var n = yarn.nodes, end = n[YARN_N];
+      var ang = Math.atan2(n[YARN_N - 1].y - end.y, n[YARN_N - 1].x - end.x);
+      var tipX = end.x + Math.cos(ang) * yarn.r * 0.85, tipY = end.y + Math.sin(ang) * yarn.r * 0.85;   // nitka vychází z klubíčka
+      function path() {
+        cx.beginPath(); cx.moveTo(n[0].x, n[0].y);
+        for (var i = 1; i < YARN_N - 1; i++) cx.quadraticCurveTo(n[i].x, n[i].y, (n[i].x + n[i + 1].x) / 2, (n[i].y + n[i + 1].y) / 2);
+        cx.quadraticCurveTo(n[YARN_N - 1].x, n[YARN_N - 1].y, tipX, tipY);
+      }
+      cx.lineCap = 'round'; cx.lineJoin = 'round';
+      path(); cx.strokeStyle = 'rgba(60, 8, 26, .6)'; cx.lineWidth = 5.6; cx.stroke();
+      path(); cx.strokeStyle = '#d4456a'; cx.lineWidth = 3.8; cx.stroke();
+      cx.setLineDash([3, 4.5]); cx.lineDashOffset = -yarn.twist;
+      path(); cx.strokeStyle = 'rgba(255, 200, 214, .9)'; cx.lineWidth = 1.7; cx.stroke();
+      cx.lineDashOffset = -yarn.twist + 3.7;
+      path(); cx.strokeStyle = 'rgba(120, 20, 50, .6)'; cx.lineWidth = 1.2; cx.stroke();
+      cx.setLineDash([]); cx.lineDashOffset = 0;
+      // chloupky vlny: pár krátkých odstávajících vláken podél nitky
+      cx.strokeStyle = 'rgba(255, 190, 205, .55)'; cx.lineWidth = 1;
+      for (var j = 2; j < YARN_N - 1; j += 3) {
+        var q = n[j], r2 = n[j + 1], dx = r2.x - q.x, dy = r2.y - q.y, d = Math.hypot(dx, dy) || 1, side = j % 2 ? 1 : -1;
+        cx.beginPath(); cx.moveTo(q.x, q.y); cx.lineTo(q.x - dy / d * 3 * side + dx / d * 2, q.y + dx / d * 3 * side + dy / d * 2); cx.stroke();
+      }
+      // uzlík na pálce
+      cx.fillStyle = '#b8325a'; cx.beginPath(); cx.arc(n[0].x, n[0].y + 1, 3.6, 0, 7); cx.fill();
+    }
     function kevinShot(now) {
       var sp = Math.min(L.max * 1.12, ball.speed * 1.4), k = sp / ball.speed;
       ball.speed = sp; ball.vx *= k; ball.vy *= k; ball.fire = true;
@@ -1204,6 +1355,7 @@
       resetBall(Math.random() < 0.5);
       streakP = streakK = maxDown = 0; comebackSaid = false; lastMoveAt = performance.now(); idleSaid = false;
       quip(gamesPlayed > 0 ? 'odveta' : level === 3 ? 'start_3' : 'start', 1, T.start, 2800, true);
+      if (FORCE_YARN) { yarnUsed = true; setTimeout(throwYarn, 1800); }   // zkouška #klubko: hned na začátku
       gamesPlayed++;
     }
 
@@ -1241,22 +1393,20 @@
       if (lift > 0) { cx.shadowColor = 'rgba(230,183,48,.9)'; cx.shadowBlur = 24 * lift / LIFT; }
       // vylepšení obarví pálku (každé jinak); poslední 3 s bliká zpátky do normální barvy, čím blíž konec, tím rychleji
       var pc = power.kind && powerLit(power.until - now) ? POWER_COL[power.kind] : null;
-      if (pc) { cx.shadowColor = pc[2]; cx.shadowBlur = 18; }
-      pad(player.x, PLAYER_Y - lift, pc ? pc[0] : SKINS[skin].pad[0], pc ? pc[1] : SKINS[skin].pad[1], player.w);
+      var sp = padSprite(skin);
+      hangTick(now);
+      if (sp) {
+        // obrázková pálka: vylepšení ji neobarví, ale rozzáří její barvou (a záře bliká stejně jako barva)
+        drawSpritePad(sp, player.x, PLAYER_Y - lift - PAD_H / 2, player.w, pc ? pc[2] : lift > 0 ? 'rgba(230,183,48,.9)' : null);
+      } else {
+        if (pc) { cx.shadowColor = pc[2]; cx.shadowBlur = 18; }
+        pad(player.x, PLAYER_Y - lift, pc ? pc[0] : SKINS[skin].pad[0], pc ? pc[1] : SKINS[skin].pad[1], player.w);
+      }
       cx.shadowBlur = 0;
       if (screw) drawScrew(screw);
       if (yarn) {
-        cx.save(); cx.globalAlpha = Math.min(1, (yarn.until - now) / 600);
-        if (yarn.path.length > 1) {                    // odvinutá nitka (vlní se)
-          cx.strokeStyle = 'rgba(232, 90, 122, .7)'; cx.lineWidth = 2; cx.beginPath();
-          yarn.path.forEach(function (p, i) { cx[i ? 'lineTo' : 'moveTo'](p[0], p[1] + Math.sin(i * 0.9 + now / 500) * 3); });
-          cx.lineTo(yarn.x, yarn.y + yarn.r * 0.8); cx.stroke();
-        }
-        if (now >= yarn.land) {                        // stín pod klubíčkem
-          cx.fillStyle = 'rgba(0, 0, 0, .35)'; cx.beginPath(); cx.ellipse(yarn.x, yarn.ty + yarn.r, yarn.r * 0.9, 5, 0, 0, 7); cx.fill();
-        }
-        drawYarn(yarn.x, yarn.y, yarn.r, yarn.a);
-        cx.restore();
+        drawYarnThread();
+        drawYarn(yarn.x, yarn.y, yarn.r * (0.55 + 0.45 * yarn.reel), yarn.a);
       }
       // míč: zlatý hopík se stopou
       if (running && now >= serveAt) {
@@ -1333,6 +1483,14 @@
     function drawBall(id, x, y, a, now) {
       var r = BALL_R;
       if (id === 'klubko') return drawYarn(x, y, r, a);
+      var spr = MIC && MIC[id];
+      if (spr) {                                         // obrázkový míček (dokonalý kruh, točí se s hopíkem)
+        if (!micImg.complete || !micImg.naturalWidth) return;
+        cx.save(); cx.translate(x, y); cx.rotate(a);
+        cx.drawImage(micImg, spr[0], spr[1], spr[2], spr[3], -r, -r, r * 2, r * 2);
+        cx.restore();
+        return;
+      }
       cx.save(); cx.translate(x, y); cx.rotate(a);
       if (id === 'tenis') {
         var g = cx.createRadialGradient(-4, -5, 1, 0, 0, r);
@@ -1489,7 +1647,8 @@
         SKINS.map(function (s, i) {
           var ok = s.ok(), name = (T.skins || [])[i] || '';
           return '<button type="button" role="radio" class="kp-skin" data-skin="' + i + '" aria-checked="' + (i === skin) + '"' + (ok ? '' : ' aria-disabled="true"') +
-            ' title="' + esc(name + (ok ? '' : ' – ' + lockText(s.b))) + '" aria-label="' + esc(name) + '" style="--c1:' + s.pad[0] + ';--c2:' + s.pad[1] + ';--rim:' + s.rim + '">' +
+            ' title="' + esc(name + (ok ? '' : ' – ' + lockText(s.b))) + '" aria-label="' + esc(name) + '" style="--c1:' + s.pad[0] + ';--c2:' + s.pad[1] + ';--rim:' + s.rim + '"' +
+            (s.img ? ' data-img="1"><canvas width="132" height="66" aria-hidden="true"></canvas>' : '>') +
             (ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>') + '</button>';
         }).join('') + '</div><p class="kp-bgname kp-skinname">' + esc((T.skins || [])[skin] || '') + '</p></section>' +
         '<section class="kp-sec"><h3 class="kp-label">' + esc(T.ballTitle || '') + '</h3><div class="kp-bgs" role="radiogroup" aria-label="' + esc(T.ballTitle || '') + '">' +
@@ -1526,6 +1685,31 @@
       });
       var fb = setCard.querySelector('.kp-full');
       if (fb) fb.addEventListener('click', toggleFull);
+      // náhledy obrázkových pálek a míčků (nakreslí se znovu, až se obrázky načtou)
+      function previews() {
+        if (!setCard) return;
+        setCard.querySelectorAll('.kp-skin[data-img] canvas').forEach(function (c) {
+          var sp = padSprite(+c.parentNode.dataset.skin), keep = cx;
+          if (!sp) return;
+          cx = c.getContext('2d'); cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, c.width, c.height);
+          var k = c.width / (PAD_W * 1.08); cx.scale(k, k);
+          drawSpritePad(sp, PAD_W * 0.54, (c.height / k - (sp.h * PAD_W / sp.w)) / 2, PAD_W, null, true);
+          cx = keep;
+        });
+        setCard.querySelectorAll('.kp-ball canvas').forEach(function (c) {
+          var i = +c.parentNode.dataset.ball, keep = cx;
+          if (i === 0 && hopik.naturalWidth) {          // hopík: fotka
+            cx = c.getContext('2d'); cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, 88, 88);
+            cx.drawImage(hopik, 88 * 0.3 / 2.6, 88 * 0.3 / 2.6, 88 * 2 / 2.6, 88 * 2 / 2.6); cx = keep; return;
+          }
+          if (!MIC || !MIC[BALLS[i].id]) return;
+          cx = c.getContext('2d'); cx.setTransform(88 / (BALL_R * 2.6), 0, 0, 88 / (BALL_R * 2.6), 0, 0); cx.clearRect(0, 0, BALL_R * 2.6, BALL_R * 2.6);
+          drawBall(BALLS[i].id, BALL_R * 1.3, BALL_R * 1.3, 0.4, 0);
+          cx = keep;
+        });
+      }
+      previews();
+      onSprites.push(previews);
       setCard.querySelectorAll('.kp-skin').forEach(function (b) {
         b.addEventListener('click', function () {
           var i = +b.dataset.skin, name = (T.skins || [])[i] || '', nameEl = setCard.querySelector('.kp-skinname');
@@ -1538,7 +1722,7 @@
       // míčky: náhled nakreslený stejnou funkcí jako ve hře
       setCard.querySelectorAll('.kp-ball').forEach(function (b) {
         var i = +b.dataset.ball, c = b.querySelector('canvas'), keep = cx;
-        cx = c.getContext('2d'); cx.scale(88 / (BALL_R * 2.6), 88 / (BALL_R * 2.6));
+        cx = c.getContext('2d'); cx.setTransform(88 / (BALL_R * 2.6), 0, 0, 88 / (BALL_R * 2.6), 0, 0); cx.clearRect(0, 0, BALL_R * 2.6, BALL_R * 2.6);
         if (i === 0 && hopik.naturalWidth) cx.drawImage(hopik, BALL_R * 0.3, BALL_R * 0.3, BALL_R * 2, BALL_R * 2);
         else if (i > 0) drawBall(BALLS[i].id, BALL_R * 1.3, BALL_R * 1.3, 0.4, 0);
         cx = keep;
