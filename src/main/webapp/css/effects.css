@@ -848,6 +848,12 @@ body.light .lyric-page .lyric-title {
 /* ---------- Kevin's menu, search and TV (js/kevin.js) ---------- */
 .kevin-extra { margin-top: 10px; }
 .kevin-extra[hidden] { display: none; }
+/* „Další novinka ›“ v Kevinově bublině */
+.kevin-next {
+  min-height: 40px; padding: 0 14px; border-radius: 999px; cursor: pointer; font: inherit; font-size: var(--fs-small);
+  border: 1px solid rgba(230, 183, 48, .6); background: rgba(230, 183, 48, .12); color: var(--accent);
+}
+.kevin-next:hover, .kevin-next:focus-visible { background: rgba(230, 183, 48, .24); }
 /* menu: mřížka 2×2 stejně velkých dlaždic, hra přes celou šířku, nahlášení problému jako tichý odkaz dole */
 .kevin-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .kevin-menu .kevin-chip {

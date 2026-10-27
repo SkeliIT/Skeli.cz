@@ -2117,7 +2117,7 @@ window.KEVIN_LINES = {
       about: ["Proč tohle píše Radek, když jsem tady jednoznačně důležitější já, nevím.", "Jo jo, to je můj páníček. Doplňuje mi misku… ale panička ji sype plnější."],
       register: ["Jo, vím. Další účet. Ale aspoň ti nebudu posílat 48 e-mailů denně."]
     },
-    news: { web: ["A na webu je nově:", "Z dílny na webu:", "Čerstvě smontováno:"], webLast: ["Od minula nic novýho, ale tohle jsme na webu udělali naposledy:", "Nic čerstvýho, jen poslední novinka z dílny:"] },
+    news: { next: "Další novinka ›", web: ["A na webu je nově:", "Z dílny na webu:", "Čerstvě smontováno:"], webLast: ["Od minula nic novýho, ale tohle jsme na webu udělali naposledy:", "Nic čerstvýho, jen poslední novinka z dílny:"] },
     pongInvite: ["Máš chvilku? Hopík se nudí a já už jsem snědl imaginární svačinu.", "Kdyby ses chtěl protáhnout, moje pálka je pořád v provozu.", "Občas si tu pinkám s hopíkem. Občas hopík pinká se mnou.", "CatSmash čeká. Já taky, ale vsedě by mi to šlo líp.", "Máš rád výzvy? Já mám rád krabice. Každej máme něco.", "Jen tak mimochodem, dneska mám formu. Včera taky. Asi.", "Kdyby ses chtěl na chvilku zabavit, hopík už je připravenej.", "Slyšíš to cvakání? To je moje nenápadná pozvánka ke hře.", "Tady se dá pěkně potrénovat postřeh. Nebo moje ego.", "Nechci tě rušit, ale hřiště je dneska nějak prázdný.", "Hopík se ptal, jestli si s ním někdo nezapinká.", "Jestli máš chuť na malou výzvu, víš, kde mě najdeš.", "Někdy stačí pár odrazů a den je hned zajímavější.", "Já bych si zahrál. Ale samozřejmě jen pokud se ti chce.", "Mimochodem, mám tu hru, kde můžeš zkusit porazit kocoura.", "Žádnej spěch. Hopík nikam neuteče. Většinou.", "Pár minut hry? To je skoro tak snadný jako najít krabici.", "Jestli máš rychlý prsty, mohli bychom si něco dokázat.", "Hřiště je otevřený. Já jsem otevřený hlavně konzervám.", "Tak já tu budu. Kdyby tě náhodou přepadla chuť na pingpong."],
     building: [
       "Tady se pořád maká! Web je ve výstavbě, takže každej den tu můžeš najít něco novýho. Já jsem tu stálá expozice.",
@@ -2149,7 +2149,7 @@ window.KEVIN_LINES = {
       about: ["Why Radek writes this when I'm clearly the important one here, I don't know.", "Yep, that's my human. He fills my bowl… but his girlfriend fills it fuller."],
       register: ["Yes, I know. Another account. But at least I won't send you 48 e-mails a day."]
     },
-    news: { web: ["And new on the site:", "From the workshop:", "Freshly built:"], webLast: ["Nothing new since last time, but this is our latest change:", "Nothing fresh, just the latest from the workshop:"] },
+    news: { next: "Next ›", web: ["And new on the site:", "From the workshop:", "Freshly built:"], webLast: ["Nothing new since last time, but this is our latest change:", "Nothing fresh, just the latest from the workshop:"] },
     building: [
       "Work in progress! The site is still being built, so there could be something new every day. I'm the permanent exhibit.",
       "Psst… the site is still under construction. What isn't here today might be here tomorrow. Except discipline. That's never coming.",
@@ -2180,7 +2180,7 @@ window.KEVIN_LINES = {
       about: ["Warum Radek das schreibt, wo doch eindeutig ich hier der Wichtigere bin, weiß ich nicht.", "Jaja, das ist mein Herrchen. Er füllt mir den Napf… aber Frauchen füllt ihn voller."],
       register: ["Ja, ich weiß. Noch ein Konto. Aber wenigstens schick ich dir keine 48 E-Mails am Tag."]
     },
-    news: { web: ["Und neu auf der Seite:", "Aus der Werkstatt:", "Frisch gebaut:"], webLast: ["Seit dem letzten Mal nichts Neues, aber das haben wir zuletzt gemacht:", "Nichts Frisches, nur das Neueste aus der Werkstatt:"] },
+    news: { next: "Weiter ›", web: ["Und neu auf der Seite:", "Aus der Werkstatt:", "Frisch gebaut:"], webLast: ["Seit dem letzten Mal nichts Neues, aber das haben wir zuletzt gemacht:", "Nichts Frisches, nur das Neueste aus der Werkstatt:"] },
     building: [
       "Hier wird noch geschuftet! Die Seite ist im Aufbau – jeden Tag kann es etwas Neues geben. Ich bin die Dauerausstellung.",
       "Pssst… die Seite wird noch gebaut. Was heute fehlt, kann morgen da sein. Außer Disziplin. Die kommt nie.",
@@ -2211,7 +2211,7 @@ window.KEVIN_LINES = {
       about: ["Чому це пише Радек, коли тут очевидно важливіший я, не знаю.", "Ага, це мій хазяїн. Насипає мені миску… але хазяйка насипає повнішу."],
       register: ["Так, знаю. Ще один акаунт. Зате я не надсилатиму тобі 48 листів на день."]
     },
-    news: { web: ["А на сайті нове:", "З майстерні:", "Щойно зібрано:"], webLast: ["Відтоді нічого нового, але ось наша остання зміна:", "Нічого свіжого, лише остання новина з майстерні:"] },
+    news: { next: "Далі ›", web: ["А на сайті нове:", "З майстерні:", "Щойно зібрано:"], webLast: ["Відтоді нічого нового, але ось наша остання зміна:", "Нічого свіжого, лише остання новина з майстерні:"] },
     building: [
       "Тут досі кипить робота! Сайт ще будується, тож щодня тут може з'явитися щось нове. А я — постійна експозиція.",
       "Пссс… сайт ще будується. Чого немає сьогодні, може з'явитися завтра. Крім дисципліни. Її не буде ніколи.",
@@ -2242,7 +2242,7 @@ window.KEVIN_LINES = {
       about: ["Sao Radek lại viết cái này trong khi rõ ràng tôi mới là người quan trọng, tôi không hiểu.", "Ừ, đó là chủ của tôi. Anh ấy đổ đầy bát cho tôi… nhưng bà chủ đổ đầy hơn."],
       register: ["Ừ, biết rồi. Thêm một tài khoản. Nhưng ít ra tôi không gửi bạn 48 email mỗi ngày."]
     },
-    news: { web: ["Và mới trên trang web:", "Từ xưởng:", "Vừa lắp xong:"], webLast: ["Từ lần trước chưa có gì mới, nhưng đây là thay đổi gần nhất:", "Chưa có gì mới, chỉ có tin mới nhất từ xưởng:"] },
+    news: { next: "Tiếp ›", web: ["Và mới trên trang web:", "Từ xưởng:", "Vừa lắp xong:"], webLast: ["Từ lần trước chưa có gì mới, nhưng đây là thay đổi gần nhất:", "Chưa có gì mới, chỉ có tin mới nhất từ xưởng:"] },
     building: [
       "Ở đây vẫn đang làm việc hết công suất! Trang web vẫn đang xây dựng, nên mỗi ngày có thể có điều gì đó mới. Còn tôi là triển lãm cố định.",
       "Suỵt… trang web vẫn đang xây. Hôm nay chưa có thì mai có thể có. Trừ kỷ luật. Cái đó thì không bao giờ.",

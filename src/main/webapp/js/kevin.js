@@ -139,7 +139,7 @@
   }
 
   // ---------- speech ----------
-  var hideTimer = 0, busy = false, autoCount = 0, lastAuto = 0, hideAfter = 'idle', hideMs = 0;
+  var hideTimer = 0, busy = false, autoCount = 0, lastAuto = 0, hideAfter = 'idle', hideMs = 0, hideAt = 0;
   // out of the paw because the visitor called him: once the bubble is gone he stays and lives his cat life (LIFE)
   var living = false, lifeTimer = 0;
   // opts: pose, after (pose when the bubble goes), ms, extra (a node under the text: buttons,
@@ -199,7 +199,9 @@
     if (opts.pose) model().setPose(opts.pose);
     hideAfter = opts.after || 'idle';
     // long enough to read in peace (the user found the old timing too quick)
-    hideMs = opts.ms || (opts.extra ? 20000 : Math.min(16000, 4500 + msg.length * 85));
+    // opts.read = delší čtení (novinky): čas podle délky textu bez stropu, i pro pomalejší čtenáře
+    hideMs = opts.ms || (opts.read ? Math.max(9000, 5000 + msg.length * 110) : opts.extra ? 20000 : Math.min(16000, 4500 + msg.length * 85));
+    hideAt = Date.now() + hideMs;
     setTimeout(function () { model().setTalking(false); }, Math.min(hideMs, 1200 + msg.length * 40));
     hideTimer = setTimeout(function () { hideBubble(hideAfter); }, hideMs);
   }
@@ -221,7 +223,8 @@
     // not while he raps (the mouse leaving the bubble after the click on "Rap" closed it after three words)
     if (busy || bubble.hidden || bubble.contains(document.activeElement)) return;
     clearTimeout(hideTimer);
-    hideTimer = setTimeout(function () { hideBubble(hideAfter); }, 6000);
+    // po odjetí myši zůstane aspoň tolik, kolik ještě zbývalo (nejméně 6 s)
+    hideTimer = setTimeout(function () { hideBubble(hideAfter); }, Math.max(6000, hideAt - Date.now()));
   }
   text.addEventListener('click', function () { if (currentGo) goTo(currentGo); });
   bubble.addEventListener('pointerenter', holdBubble);
@@ -764,18 +767,29 @@
       var fresh = prev ? site.filter(function (e) { return Date.parse(e.d) + 86400000 > prev; }).slice(0, 2) : [];
       if (!parts.length && !fresh.length) {
         if (!asked) { if (onEmpty) onEmpty(); return; }
-        if (site.length) return show(pick(L.news.webLast) + ' ' + siteText(site.slice(0, 1)), { pose: 'point', href: site[0].href, linkText: L.news.link, ms: 14000 });
+        if (site.length) return show(pick(L.news.webLast) + ' ' + siteText(site.slice(0, 1)), { pose: 'point', href: site[0].href, linkText: L.news.link, read: true });
         if (!prev) return show(pick(L.news.first), { pose: 'point', href: '/music.jsp', linkText: L.news.link });
         return show(pick(L.news.none), { pose: 'sulk', after: 'idle' });
       }
       if (!asked && acted) return;
       var href = n && n.clips && n.clips.length ? n.clips[0].href : fresh.length ? fresh[0].href : '/aktuality.jsp';
       lastAuto = Date.now();
-      var text = pick(asked ? L.news.some : L.back.news)
-        + (parts.length ? ' ' + L.news.lead + ' ' + parts.join(', ') + '.' : '')
-        + (fresh.length ? ' ' + pick(L.news.web) + ' ' + siteText(fresh) : '');
-      show(text, { pose: 'point', href: href, linkText: L.news.link, ms: 16000 });
+      var head = pick(asked ? L.news.some : L.back.news) + (parts.length ? ' ' + L.news.lead + ' ' + parts.join(', ') + '.' : '');
+      // každá novinka webu zvlášť (tlačítko „Další“), ať se dá v klidu přečíst
+      var pages = fresh.length ? [head + ' ' + pick(L.news.web) + ' ' + siteText(fresh.slice(0, 1))].concat(fresh.slice(1).map(function (e) { return siteText([e]); })) : [head];
+      var hrefs = fresh.length ? fresh.map(function (e, i) { return i === 0 ? href : e.href; }) : [href];
+      newsPages(pages, hrefs, 0);
     });
+  }
+  function newsPages(pages, hrefs, i) {
+    var next = null;
+    if (i < pages.length - 1) {
+      next = document.createElement('button');
+      next.type = 'button'; next.className = 'kevin-next';
+      next.textContent = (L.news.next || '›') + ' (' + (i + 2) + '/' + pages.length + ')';
+      next.addEventListener('click', function () { newsPages(pages, hrefs, i + 1); });
+    }
+    show(pages[i], { pose: 'point', href: hrefs[i], linkText: L.news.link, read: true, extra: next });
   }
 
   // 7) admin pages: the site's to-dos
