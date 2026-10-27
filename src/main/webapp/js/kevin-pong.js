@@ -1,4 +1,4 @@
-// Kevin Pong – pinkání s MC Kevinem do 10 gólů (otevírá se z Kevinova menu: „Zahraj si se mnou“).
+// Kevin Pong – pinkání s Kevinem do 10 gólů (otevírá se z Kevinova menu: „Zahraj si se mnou“).
 // Hřiště na výšku: Kevin nahoře (jeho 3D model z js/kevin-model.js drží zlatou pálku), hráč dole. Ovládání
 // prstem / myší (pálka jde za ním) nebo šipkami. Tři obtížnosti: 1 lehká, 2 normální, 3 Kevin naštvaný
 // (rychlá reakce, předvídá odrazy, míří ti do protirohu – porazit ho je opravdu těžké).

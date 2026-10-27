@@ -3,7 +3,7 @@
 //   analytics  – Matomo on the operator's server: loaded ONLY after consent (no request before)
 //   media      – YouTube / Spotify players (they see the IP address)
 // Stored in localStorage 'consent' = {"v":1,"analytics":bool,"media":bool,"at":"…"}.
-// 'cookieConsent' ('true'/'false' = media) stays for the older code (players, Spotify bar, MC Kevin).
+// 'cookieConsent' ('true'/'false' = media) stays for the older code (players, Spotify bar, Kevin).
 // The choice can be changed any time: footer link "Cookie settings" (a[data-cookie-settings]).
 (function () {
   const KEY = 'consent', LEGACY = 'cookieConsent';

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * What MC Kevin (js/kevin.js) tells visitors:
+ * What Kevin (js/kevin.js) tells visitors:
  * <ul>
  *   <li>{@code /api/kevin/news?since=<epoch ms>} – clips and posts published since the visitor's last visit:
  *       {@code {"clips": [{"title", "href"}], "posts": 3}}</li>

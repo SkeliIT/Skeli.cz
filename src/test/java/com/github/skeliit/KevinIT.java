@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** MC Kevin's menu: find a song, play a clip, what's new since the last visit, the admin's to-do list. */
+/** Kevin's menu: find a song, play a clip, what's new since the last visit, the admin's to-do list. */
 class KevinIT extends UiTestSupport {
 
     /** Opens a page with the cookie bar already answered (Kevin waits for it) and waits for him. */

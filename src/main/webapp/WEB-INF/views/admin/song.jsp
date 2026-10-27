@@ -318,7 +318,7 @@
       </c:forEach>
     </section>
 
-    <!-- „Hledáme pomoc s textem“: karta pod textem žádá návštěvníky o chybějící kus (MC Kevin na ni upozorní) -->
+    <!-- „Hledáme pomoc s textem“: karta pod textem žádá návštěvníky o chybějící kus (Kevin na ni upozorní) -->
     <section class="admin-card admin-card-wide" id="lyric-help">
       <h3>Hledáme pomoc s textem</h3>
       <p class="text-dim">Když v textu chybí kus (třeba cizí jazyk hostů), zapni to: pod textem písně se objeví karta, kam

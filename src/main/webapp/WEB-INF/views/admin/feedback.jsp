@@ -6,7 +6,7 @@
   <%@ include file="/includes/admin-nav.jspf" %>
   <h2 class="admin-page-title">Co říkáš na web?</h2>
   <p class="text-dim">Hodnocení webu od přihlášených návštěvníků. Vzkazy vidíš jen ty. Když se ti nějaký líbí, dej <b>Zobrazit jako referenci</b> a objeví se na hlavní stránce v pruhu „Co o webu říkáte“ (nejvýš 6 nejnovějších). Když člověk vzkaz změní, z referencí zmizí, ať ho zase vidíš.</p>
-  <%-- problems visitors reported to MC Kevin (Nahlásit problém): sorted out = deleted --%>
+  <%-- problems visitors reported to Kevin (Nahlásit problém): sorted out = deleted --%>
   <section class="admin-card fb-reports" id="reports">
     <h3><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Nahlášené problémy</h3>
     <c:choose>

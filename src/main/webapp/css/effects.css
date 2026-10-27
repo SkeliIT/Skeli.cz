@@ -397,7 +397,7 @@ body.light .photo-band::before {
 .lightbox .lb-prev { left: 18px; top: 50%; margin-top: -24px; }
 .lightbox .lb-next { right: 18px; top: 50%; margin-top: -24px; }
 
-/* ---------- MC Kevin, the rapping gold cat (js/kevin.js, js/kevin3d.js) ---------- */
+/* ---------- Kevin, the rapping gold cat (js/kevin.js, js/kevin3d.js) ---------- */
 .kevin {
   position: fixed;
   left: 10px;
@@ -845,7 +845,7 @@ body.light .lyric-page .lyric-title {
 }
 .music-page .section.youtube .section-title { justify-content: flex-start; font-size: var(--fs-h3); letter-spacing: 0.08em; }
 
-/* ---------- MC Kevin's menu, search and TV (js/kevin.js) ---------- */
+/* ---------- Kevin's menu, search and TV (js/kevin.js) ---------- */
 .kevin-extra { margin-top: 10px; }
 .kevin-extra[hidden] { display: none; }
 /* menu: mřížka 2×2 stejně velkých dlaždic, hra přes celou šířku, nahlášení problému jako tichý odkaz dole */

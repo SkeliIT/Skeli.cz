@@ -1,4 +1,4 @@
-// MC Kevin in 3D (Three.js, self-hosted in js/vendor/three). The look was approved by the user
+// Kevin in 3D (Three.js, self-hosted in js/vendor/three). The look was approved by the user
 // on the prototype (skeli-navrh/kevin-3d.html) – keep it. Loaded lazily by js/kevin.js.
 //   const k = createKevin(canvas, { light: false });
 //   k.setPose('idle'|'rap'|'beatbox'|'cool'|'point'|'sleep'|'sulk'); k.spin(); k.look(x, y);

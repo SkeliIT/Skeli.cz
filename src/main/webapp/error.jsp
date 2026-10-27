@@ -22,7 +22,7 @@
     }
 %>
 <main class="error-page">
-  <%-- the big gold error number on the night street (MC Kevin adds a line about it) --%>
+  <%-- the big gold error number on the night street (Kevin adds a line about it) --%>
   <sk:pageHero kicker='<%= t.getProperty("error.heading") %>'
                title='<%= String.valueOf(code != null ? code : 404) %>'
                lead='<%= errLead %>'>

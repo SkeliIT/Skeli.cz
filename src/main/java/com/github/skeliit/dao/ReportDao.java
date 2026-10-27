@@ -11,7 +11,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Problems visitors report to MC Kevin (site_reports, V85); the admin deletes one once it is sorted out. */
+/** Problems visitors report to Kevin (site_reports, V85); the admin deletes one once it is sorted out. */
 public class ReportDao {
 
     public void add(String page, String message, Integer userId) throws SQLException {

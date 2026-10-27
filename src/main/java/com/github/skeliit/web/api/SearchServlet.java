@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Songs whose name or lyrics contain the query (the search on the Lyrics page and MC Kevin):
+ * Songs whose name or lyrics contain the query (the search on the Lyrics page and Kevin):
  * {@code [{"id": 3, "name": "...", "href": "/{lang}/song/<uuid>", "line": "the matching line or null"}]}.
  * The database compares without case and accents (utf8mb4_general_ci), so "telo" finds "tělo".
  */

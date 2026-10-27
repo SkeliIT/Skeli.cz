@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Two lines from one of Skeli's lyrics for MC Kevin to rap (js/kevin.js):
+ * Two lines from one of Skeli's lyrics for Kevin to rap (js/kevin.js):
  * {@code {"lines": [..], "song": "...", "href": "/{lang}/song/<uuid>"}}, or 204 when there are none.
  */
 @WebServlet(name = "KevinBarsServlet", urlPatterns = {"/api/kevin/bars"})

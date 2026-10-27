@@ -34,6 +34,6 @@ for (const arg of process.argv.slice(2)) {
 }
 const target = path.join(__dirname, '..', 'src', 'main', 'webapp', 'js', 'kevin-pong-lines.js');
 fs.writeFileSync(target,
-  '// Hlášky MC Kevina do hry Kevin Pong – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.\n' +
+  '// Hlášky Kevina do hry Kevin Pong – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.\n' +
   'window.KEVIN_PONG_LINES = ' + JSON.stringify(out, null, 1) + ';\n');
 console.log('hotovo', target);
