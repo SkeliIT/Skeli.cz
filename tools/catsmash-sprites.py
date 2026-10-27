@@ -23,7 +23,7 @@ BALL_COLS = [(0, 270), (270, 512), (512, 755), (755, 1024)]
 # sway = celý spodek se jemně vlní (lístky, tlapky, kapky), rigid = nehýbe se (rampouchy, neon, ekvalizér, kola)
 PADDLES = [
     (0, 0, 0, 'vetev', 'sway'), (0, 0, 1, 'led', 'rigid'),
-    (0, 1, 0, 'lava', 'sway'), (0, 1, 1, 'retez', 'sway'),
+    (0, 1, 0, 'lava', 'sway'), (0, 1, 1, 'retez', 'swing'),
     (0, 2, 0, 'graffiti', 'sway'), (0, 2, 1, 'plys', 'sway'),
     (0, 3, 0, 'neon', 'rigid'), (0, 3, 1, 'ekvalizer', 'rigid'),
     (1, 0, 0, 'jadeit', 'swing'), (1, 0, 1, 'perly', 'sway'),
@@ -38,7 +38,7 @@ BALLS = [
 
 BG = np.array([255, 0, 255], dtype=np.float32)
 # předměty, které mají vlastní růžovou/fialovou (u nich se purpurový nádech potlačí jen na okraji)
-KEEP_PINK = {'neon', 'graffiti', 'sprej', 'vir'}
+KEEP_PINK = {'neon', 'graffiti', 'sprej', 'vir', 'mince'}
 
 
 def key(cell, everywhere=True):
@@ -186,29 +186,90 @@ def main():
                     g['x1'] = max(g['x1'], cx1); g['y0'] = min(g['y0'], cy0); g['y1'] = max(g['y1'], cy1); g['m'] |= m
                 else:
                     groups.append({'x0': cx0, 'x1': cx1, 'y0': cy0, 'y1': cy1, 'm': m.copy()})
-            if name == 'perly' and groups:                     # perly visí na jedné šňůrce = jeden kus
-                one = groups[0]
-                for g in groups[1:]:
-                    one['x1'] = max(one['x1'], g['x1']); one['y0'] = min(one['y0'], g['y0']); one['y1'] = max(one['y1'], g['y1']); one['m'] |= g['m']
-                groups = [one]
+            if name == 'perly':
+                # perly = tuhé korálky (každý zvlášť), šňůrku dokreslí hra přes jejich středy; hloubka smyčky pro kyvadlo
+                pts = []
+                for g in groups:
+                    for (py0, py1, px0, px1, pm, psz) in components(g['m']):
+                        if psz > 15 and py1 - py0 > 3:
+                            ys, xs = np.nonzero(pm)
+                            pts.append([float(xs.mean()), float(ys.mean())])
+                pts.sort()
+                w = rgba.shape[1]
+                entry['cord'] = [[w * 0.15, 0.0]] + pts + [[w * 0.85, 0.0]]
+                entry['loopDepth'] = max(p[1] for p in pts)
+            if name == 'retez':
+                # kovový řetízek visí pevně, houpe se jen tlapka: rozdělit v nejužším místě pod řetízkem
+                g = max(groups, key=lambda g: g['m'].sum())
+                widths = g['m'].sum(axis=1)
+                peak = int(np.argmax(widths))
+                cut = next(r for r in range(peak, len(widths)) if 0 < widths[r] < 25)
+                chain = {k: v for k, v in g.items()}
+                chain['m'] = g['m'].copy(); chain['m'][cut:] = False; chain['fixed'] = True
+                paw = {k: v for k, v in g.items()}
+                paw['m'] = g['m'].copy(); paw['m'][:cut] = False
+                for part in (chain, paw):
+                    ys = np.nonzero(part['m'].any(axis=1))[0]
+                    part['y0'], part['y1'] = int(ys.min()), int(ys.max()) + 1
+                    xs = np.nonzero(part['m'].any(axis=0))[0]
+                    part['x1'] = int(xs.max()) + 1
+                groups = [x for x in groups if x is not g] + [chain, paw]
+            if name == 'mince':
+                # klíček bez provázku: provázek je fialovorůžový (modrá nad zelenou), klíček mosazný; nechat největší mosazný kus
+                g = max(groups, key=lambda g: g['m'].sum())
+                m = g['m']
+                col = below[..., :3].astype(int)
+                brass = m & (col[..., 2] < col[..., 1] + 12)
+                comps = components(brass)
+                km = max(comps, key=lambda c: c[5])[4]
+                grow = km.copy()
+                for _ in range(2):
+                    e = grow.copy(); e[1:] |= grow[:-1]; e[:-1] |= grow[1:]; e[:, 1:] |= grow[:, :-1]; e[:, :-1] |= grow[:, 1:]; grow = e
+                km = m & grow & ~(m & (col[..., 2] > col[..., 1] + 25))
+                ys, xs = np.nonzero(km)
+                # osa klíčku (hlavní směr bodů); očko = konec blíž k pálce (menší y)
+                c = np.array([xs.mean(), ys.mean()])
+                v = np.linalg.svd(np.stack([xs - c[0], ys - c[1]], 1), full_matrices=False)[2][0]
+                proj = (xs - c[0]) * v[0] + (ys - c[1]) * v[1]
+                e1, e2 = c + v * proj.min(), c + v * proj.max()
+                ring, tip = (e1, e2) if e1[1] < e2[1] else (e2, e1)
+                g2 = {'m': km, 'x0': int(xs.min()), 'x1': int(xs.max()) + 1, 'y0': int(ys.min()), 'y1': int(ys.max()) + 1,
+                      'key': {'ring': ring, 'tip': tip}}
+                groups = [x for x in groups if x is not g] + [g2]
             for g in groups:
                 g['x0'] = int(np.nonzero(g['m'].any(axis=0))[0].min())
                 part = below[g['y0']:g['y1'], g['x0']:g['x1']].copy()
                 part[..., 3] = np.where(g['m'][g['y0']:g['y1'], g['x0']:g['x1']], part[..., 3], 0)
+                if 'key' in g:
+                    # klíček přebarvit podle jasu na mosaz (po vyříznutí z purpurového pozadí byl narůžovělý)
+                    lum = part[..., :3].astype(np.float32) @ np.array([0.3, 0.55, 0.15], dtype=np.float32) / 255
+                    lum = np.clip((lum - 0.1) / 0.75, 0, 1)[..., None]
+                    dark, mid, hi = np.array([58, 36, 4]), np.array([201, 150, 40]), np.array([255, 236, 170])
+                    gold = np.where(lum < 0.6, dark + (mid - dark) * (lum / 0.6), mid + (hi - mid) * ((lum - 0.6) / 0.4))
+                    part[..., :3] = np.clip(gold, 0, 255).astype(np.uint8)
                 top_xs = np.nonzero(g['m'][g['y0']])[0]
                 pe = {'img': atlas.add(part), 'x': int(g['x0']), 'y': int(g['y0']), 'px': float(top_xs.mean()), 'py': float(g['y0'])}
-                if g['y1'] - g['y0'] <= 8 and g['y0'] <= LIP + 1:
-                    pe['fixed'] = True                         # drobný zbytek spodku těla (chlupy, hrany mincí) – nehýbe se
-                if name == 'perly':
-                    # šňůrka perel se při vyřezávání ztratila (byla skoro purpurová) – hra ji dokreslí přes středy perel
-                    pts = []
-                    for (py0, py1, px0, px1, pm, psz) in components(g['m']):
-                        if psz > 15:
-                            ys, xs = np.nonzero(pm)
-                            pts.append([float(xs.mean()), float(ys.mean())])
-                    pts.sort()
-                    w = rgba.shape[1]
-                    pe['cord'] = [[w * 0.15, 0.0]] + pts + [[w * 0.85, 0.0]]
+                if g['y1'] - g['y0'] <= 8 and g['y0'] <= LIP + 1 or g.get('fixed'):
+                    pe['fixed'] = True
+                if name in ('lava', 'graffiti') and not pe.get('fixed'):
+                    # špička kapky (odtud hra nechá odkapávat) a její barva
+                    pm = g['m'][g['y0']:g['y1'], g['x0']:g['x1']] & (part[..., 3] > 150)
+                    rows = np.nonzero(pm.any(axis=1))[0]
+                    if len(rows):
+                        yb = int(rows.max())
+                        xs = np.nonzero(pm[max(0, yb - 2):yb + 1].any(axis=0))[0]
+                        sel = pm.copy(); sel[:max(0, yb - 8)] = False
+                        col = part[..., :3][sel].mean(axis=0)
+                        pe['tip'] = [float(g['x0'] + xs.mean()), float(g['y0'] + yb), int(col[0]), int(col[1]), int(col[2])]
+                if 'key' in g:
+                    # zavěšený na provázku: očko (v souřadnicích výřezu), natočení, aby visel svisle, délka provázku
+                    ring, tip = g['key']['ring'], g['key']['tip']
+                    pe['mode'] = 'string'
+                    pe['ring'] = [float(ring[0] - g['x0']), float(ring[1] - g['y0'])]
+                    pe['rot'] = float(np.arctan2(tip[0] - ring[0], tip[1] - ring[1]))
+                    pe['scale'] = 0.72
+                    pe['cord'] = 20.0
+                    pe['px'] = float(ring[0])                         # drobný zbytek spodku těla (chlupy, hrany mincí) – nehýbe se
                 entry['parts'].append(pe)
         elif below.shape[0] > 2 and (below[..., 3] > 40).any():
             part, (ox, oy) = trim(below, 0)                    # pevná ozdoba: jeden kus, nehýbe se
