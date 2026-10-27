@@ -31,7 +31,8 @@ are easy to get wrong.
 - Comments under lyrics and under clips are one system: `dao/CommentDao` (the `Kind` picks the table),
   `/api/comments`, drawn by `js/comments.js` from `includes/comments.jspf`. Change both kinds together.
 - Kevin's "what's new" also reads `kevin/novinky.json` (newest first: date, href, one short friendly sentence in
-  cs/en/de/uk/vi). When a visible feature ships, add an entry there – plain words, no technical terms.
+  cs/en/de/uk/vi). When a visible feature ships, add an entry there – plain words, no technical terms. Keep only
+  the 5 newest entries (Kevin shows them under an arrow); delete the oldest when adding a new one.
 - RSS/Atom feeds (`/{lang}/feed/*`, `web/site/FeedServlet` + `dao/FeedDao`): entry ids are `tag:skeli.cz,2025:…`
   URIs and must never change (readers would show everything as new). PJAX navigation swaps only `<main>`,
   so the feed `<link rel="alternate">` in `<head>` stays from the first page until a full reload.

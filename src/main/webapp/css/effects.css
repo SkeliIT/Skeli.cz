@@ -848,12 +848,19 @@ body.light .lyric-page .lyric-title {
 /* ---------- Kevin's menu, search and TV (js/kevin.js) ---------- */
 .kevin-extra { margin-top: 10px; }
 .kevin-extra[hidden] { display: none; }
-/* „Další novinka ›“ v Kevinově bublině */
-.kevin-next {
-  min-height: 40px; padding: 0 14px; border-radius: 999px; cursor: pointer; font: inherit; font-size: var(--fs-small);
-  border: 1px solid rgba(230, 183, 48, .6); background: rgba(230, 183, 48, .12); color: var(--accent);
+/* posledních 5 novinek pod šipkou v Kevinově bublině */
+.kevin-history summary {
+  display: flex; align-items: center; gap: 6px; min-height: 40px; cursor: pointer; list-style: none;
+  font-size: var(--fs-small); color: var(--accent);
 }
-.kevin-next:hover, .kevin-next:focus-visible { background: rgba(230, 183, 48, .24); }
+.kevin-history summary::-webkit-details-marker { display: none; }
+.kevin-history summary::before { content: "▸"; transition: transform .2s; }
+.kevin-history[open] summary::before { transform: rotate(90deg); }
+.kevin-history ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; max-height: 240px; overflow-y: auto; }
+.kevin-history li { display: grid; grid-template-columns: auto 1fr; gap: 8px; font-family: var(--font-text); font-size: var(--fs-card); line-height: 1.35; }
+.kevin-history time { color: var(--text-dim); font-size: var(--fs-small); white-space: nowrap; padding-top: 2px; }
+.kevin-history a { color: inherit; text-decoration: none; }
+.kevin-history a:hover, .kevin-history a:focus-visible { color: var(--accent); }
 /* menu: mřížka 2×2 stejně velkých dlaždic, hra přes celou šířku, nahlášení problému jako tichý odkaz dole */
 .kevin-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .kevin-menu .kevin-chip {

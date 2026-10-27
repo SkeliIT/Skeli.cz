@@ -29,11 +29,11 @@
   {
     "d": "2026-10-26",
     "href": "/?kevin=pong",
-    "cs": "V CatSmashi teď komentuju každý zápas – přes šest set hlášek, takže se jen tak neopakuju. A občas přiletí komár.",
-    "en": "In CatSmash I now commentate every match – over six hundred lines, so I rarely repeat myself. And sometimes a mosquito shows up.",
-    "de": "In CatSmash kommentiere ich jetzt jedes Spiel – über sechshundert Sprüche, ich wiederhole mich also selten. Und manchmal kommt eine Mücke vorbei.",
-    "uk": "У CatSmash я тепер коментую кожен матч – понад шістсот реплік, тож майже не повторююсь. А іноді прилітає комар.",
-    "vi": "Trong CatSmash giờ tôi bình luận mọi trận – hơn sáu trăm câu, nên hiếm khi lặp lại. Và thỉnh thoảng có muỗi bay tới."
+    "cs": "V CatSmashi teď komentuju každý zápas – přes šest set hlášek, takže se jen tak neopakuju.",
+    "en": "In CatSmash I now commentate every match – over six hundred lines, so I rarely repeat myself.",
+    "de": "In CatSmash kommentiere ich jetzt jedes Spiel – über sechshundert Sprüche, ich wiederhole mich also selten.",
+    "uk": "У CatSmash я тепер коментую кожен матч – понад шістсот реплік, тож майже не повторююсь.",
+    "vi": "Trong CatSmash giờ tôi bình luận mọi trận – hơn sáu trăm câu, nên hiếm khi lặp lại."
   },
   {
     "d": "2026-10-26",
@@ -43,32 +43,5 @@
     "de": "Neues Spiel: CatSmash – spiel mit mir auf einer Maschine voller Zahnräder. Du findest es in meinem Menü.",
     "uk": "Нова гра CatSmash – грай зі мною на машині, повній шестерень. Знайдеш її в моєму меню.",
     "vi": "Trò chơi mới CatSmash – đánh bóng với tôi trên cỗ máy đầy bánh răng. Có trong menu của tôi."
-  },
-  {
-    "d": "2026-10-26",
-    "href": "/uzivatel.jsp#pong",
-    "cs": "Na stránce Můj účet teď sbíráš odznaky za výhry nade mnou. Osm kousků, žádná sleva.",
-    "en": "On My account you now collect badges for beating me. Eight of them, no discounts.",
-    "de": "Unter Mein Konto sammelst du jetzt Abzeichen für Siege gegen mich. Acht Stück, kein Rabatt.",
-    "uk": "На сторінці Мій акаунт тепер збираєш значки за перемоги наді мною. Вісім штук, без знижок.",
-    "vi": "Ở trang tài khoản, giờ bạn sưu tầm huy hiệu khi thắng tôi. Tám cái, không giảm giá."
-  },
-  {
-    "d": "2026-10-25",
-    "href": "/texty.jsp",
-    "cs": "Sekce Texty má nové živé pozadí – v tmavém režimu kámen, ve světlém zamlžené okno.",
-    "en": "The Lyrics section has a new living background – stone in dark mode, a misty window in light mode.",
-    "de": "Der Bereich Texte hat einen neuen lebendigen Hintergrund – Stein im dunklen Modus, ein beschlagenes Fenster im hellen.",
-    "uk": "Розділ Тексти має новий живий фон – у темному режимі камінь, у світлому запітніле вікно.",
-    "vi": "Mục Lời bài hát có nền sống động mới – đá ở chế độ tối, cửa sổ mờ sương ở chế độ sáng."
-  },
-  {
-    "d": "2026-10-22",
-    "href": "/texty.jsp",
-    "cs": "Texty písní si teď můžeš číst v originále i v překladu najednou – přepínač je nad textem.",
-    "en": "You can now read lyrics in the original and the translation at once – the switch is above the lyrics.",
-    "de": "Songtexte kannst du jetzt im Original und in der Übersetzung gleichzeitig lesen – der Schalter ist über dem Text.",
-    "uk": "Тексти пісень тепер можна читати в оригіналі й перекладі водночас – перемикач над текстом.",
-    "vi": "Giờ bạn có thể đọc lời bài hát bằng bản gốc và bản dịch cùng lúc – nút chuyển ở phía trên lời."
   }
 ]

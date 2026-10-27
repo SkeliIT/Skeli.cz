@@ -767,29 +767,42 @@
       var fresh = prev ? site.filter(function (e) { return Date.parse(e.d) + 86400000 > prev; }).slice(0, 2) : [];
       if (!parts.length && !fresh.length) {
         if (!asked) { if (onEmpty) onEmpty(); return; }
-        if (site.length) return show(pick(L.news.webLast) + ' ' + siteText(site.slice(0, 1)), { pose: 'point', href: site[0].href, linkText: L.news.link, read: true });
+        if (site.length) return show(pick(L.news.webLast) + ' ' + siteText(site.slice(0, 1)), { pose: 'point', href: site[0].href, linkText: L.news.link, read: true, extra: newsHistory(site) });
         if (!prev) return show(pick(L.news.first), { pose: 'point', href: '/music.jsp', linkText: L.news.link });
         return show(pick(L.news.none), { pose: 'sulk', after: 'idle' });
       }
       if (!asked && acted) return;
       var href = n && n.clips && n.clips.length ? n.clips[0].href : fresh.length ? fresh[0].href : '/aktuality.jsp';
       lastAuto = Date.now();
-      var head = pick(asked ? L.news.some : L.back.news) + (parts.length ? ' ' + L.news.lead + ' ' + parts.join(', ') + '.' : '');
-      // každá novinka webu zvlášť (tlačítko „Další“), ať se dá v klidu přečíst
-      var pages = fresh.length ? [head + ' ' + pick(L.news.web) + ' ' + siteText(fresh.slice(0, 1))].concat(fresh.slice(1).map(function (e) { return siteText([e]); })) : [head];
-      var hrefs = fresh.length ? fresh.map(function (e, i) { return i === 0 ? href : e.href; }) : [href];
-      newsPages(pages, hrefs, 0);
+      // Kevin řekne jen to nejnovější; posledních 5 novinek webu je pod šipkou v bublině
+      var text = pick(asked ? L.news.some : L.back.news)
+        + (parts.length ? ' ' + L.news.lead + ' ' + parts.join(', ') + '.' : '')
+        + (fresh.length ? ' ' + pick(L.news.web) + ' ' + siteText(fresh.slice(0, 1)) : '');
+      show(text, { pose: 'point', href: href, linkText: L.news.link, read: true, extra: newsHistory(site) });
     });
   }
-  function newsPages(pages, hrefs, i) {
-    var next = null;
-    if (i < pages.length - 1) {
-      next = document.createElement('button');
-      next.type = 'button'; next.className = 'kevin-next';
-      next.textContent = (L.news.next || '›') + ' (' + (i + 2) + '/' + pages.length + ')';
-      next.addEventListener('click', function () { newsPages(pages, hrefs, i + 1); });
-    }
-    show(pages[i], { pose: 'point', href: hrefs[i], linkText: L.news.link, read: true, extra: next });
+  // rozbalovací seznam posledních novinek webu (datum, věta, odkaz)
+  function newsHistory(site) {
+    if (!site || site.length < 2) return null;
+    var box = document.createElement('details');
+    box.className = 'kevin-history';
+    var sum = document.createElement('summary');
+    sum.textContent = L.news.history || '…';
+    box.appendChild(sum);
+    var ol = document.createElement('ol');
+    site.slice(0, 5).forEach(function (e) {
+      var li = document.createElement('li'), t = document.createElement('time'), d = new Date(e.d + 'T12:00:00');
+      t.dateTime = e.d;
+      t.textContent = isNaN(d) ? e.d : d.toLocaleDateString(lang, { day: 'numeric', month: 'numeric' });
+      li.appendChild(t);
+      var a = document.createElement(e.href ? 'a' : 'span');
+      if (e.href) a.href = e.href;
+      a.textContent = e[lang] || e.en || e.cs;
+      li.appendChild(a);
+      ol.appendChild(li);
+    });
+    box.appendChild(ol);
+    return box;
   }
 
   // 7) admin pages: the site's to-dos
@@ -1234,6 +1247,7 @@
       var cruise = (walkForce === 'run' || walkForce === 'all') && walkK.has('run3') ? runStyle() : len > 900 && walkK.has('sprint') && (hour >= 23 || hour < 4 || Math.random() < 0.15) ? 'sprint'
         : len > 650 && walkK.has('run3') && Math.random() < 0.6 ? runStyle()
         : len > 420 && walkK.has('jog') && Math.random() < 0.7 ? 'jog' : 'walk';
+      window.__kevinCruise = cruise + ' (délka ' + Math.round(len) + ') ' + ['walk', 'jog', 'run3', 'runA', 'runM', 'sprint'].map(function (n) { return n + ':' + (walkK.has(n) ? Math.round(walkK.walkPxPerSec(n)) : '-'); }).join(' ');   // pro testy
       var stillUntil = 0, braked = false, gait = 'walk', gaitAt = 0, FALLBACK = { walk: 1, jog: 1.8, run: 2.6, run2: 2.6, run3: 2.6, runA: 2.6, runM: 2.6, sprint: 3.6 };
       function setGait(g, now) {
         if (g === gait) return;
@@ -1241,7 +1255,11 @@
         walkK.hold(g);
         // přikrčí se a vystřelí – během přikrčení stojí na místě (nesmí klouzat)
         if (g === 'sprint' && walkK.has('sprintStart')) stillUntil = now + walkK.once('sprintStart') * 0.8;
-        speed = walkK.walkPxPerSec(g) || (walkK.walkPxPerSec() || 95) * FALLBACK[g];
+        // rychlost podle nohou v pohybu; u běhů měření z dotyku chodidla vychází moc nízko (klus 28, běh ~50 při chůzi 53
+        // = běžel stejně rychle jako šel), takže když je měření pod 75 % očekávané rychlosti, bere se poměr k chůzi
+        var base = walkK.walkPxPerSec() || 95, meas = walkK.walkPxPerSec(g);
+        speed = meas >= base * FALLBACK[g] * 0.75 ? meas : base * FALLBACK[g];
+        window.__kevinSpeed = g + ' ' + Math.round(speed) + ' (chůze ' + Math.round(base) + ')';   // pro testy
       }
       // přechod (rozejde se, zastaví): hraje pohyb jednou a okénko jede přesně o tolik, kolik v něm ujde
       var trans = null;
