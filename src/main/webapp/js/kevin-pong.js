@@ -151,7 +151,12 @@
     if (store.get('kevinPongBest2')) badges.normal = true;
     if (store.get('kevinPongBest3') || store.get('kevinPongBeat3')) badges.angry = true;
     if (badges.easy || badges.normal || badges.angry) badges.first = true;
-    function hasBadge(k) { return !k || !!badges[k]; }
+    // zkoušky jen na test.skeli.cz a na vlastním počítači (na www nefungují):
+    // #vse = na tuhle návštěvu odemkne všechny pálky, míčky a pozadí (nic se neuloží, bez #vse je vše zase zamčené),
+    // #klubko = Kevin hodí klubíčko hned po tvém prvním gólu (na jakékoli obtížnosti)
+    var TRY_HOST = /^(test\.|localhost$|127\.)/.test(location.hostname);
+    var PREVIEW_ALL = TRY_HOST && /\bvse\b/.test(location.hash), FORCE_YARN = TRY_HOST && /\bklubko\b/.test(location.hash);
+    function hasBadge(k) { return !k || PREVIEW_ALL || !!badges[k]; }
     // přidá odznaky, vrátí ty opravdu nové (v pořadí BADGE_ICON)
     function addBadges(list) {
       var fresh = [];
@@ -903,7 +908,7 @@
       var was = mood;
       mood = kev - you >= 3 ? 'lazy' : you - kev >= 3 ? 'try' : 'calm';
       if (mood === 'lazy' && was !== 'lazy' && K && K.has('yawn')) setTimeout(function () { if (K && running) K.once('yawn'); }, 1700);
-      if (byPlayer && level === 3 && !yarnUsed && you - kev >= 2 && you < WIN) { yarnUsed = true; setTimeout(throwYarn, 1400); }
+      if (byPlayer && !yarnUsed && you < WIN && (FORCE_YARN || level === 3 && you - kev >= 2)) { yarnUsed = true; setTimeout(throwYarn, 1400); }
       if (you >= WIN || kev >= WIN) return finish(you >= WIN);
       if (K) {
         if (byPlayer) { K.once(Math.random() < 0.5 && K.has('stomp') ? 'stomp' : 'no'); K.expression(23, 1600); }
