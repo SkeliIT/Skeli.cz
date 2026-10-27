@@ -2274,8 +2274,10 @@
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.play) + '</button>' +
         '<p class="kp-rec" hidden></p>' +
         '<p class="kp-links"><button type="button" class="kp-link" data-go="how">' + esc(T.how || T.controlsTitle || '') + '</button><span aria-hidden="true">·</span>' +
+        '<button type="button" class="kp-link" data-go="badges">' + esc(T.badgesTitle || '') + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p></div>' +
         '<div class="kp-view kp-how"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + backBtn() + '</div>' +
+        '<div class="kp-view kp-badges">' + badgeOverview() + backBtn() + '</div>' +
         '<div class="kp-view kp-top"><section class="kpong-board"></section>' + backBtn() + '</div>';
       panel.querySelectorAll('.kpong-level').forEach(function (b) {
         b.addEventListener('click', function () {
@@ -2291,6 +2293,32 @@
       say(pick(T.hello), 3000);
     }
 
+    // přehled odznaků v menu hry: skupiny, u každého ikona, titul a ikonky odměn; ťuknutím se ukáže, jak ho získat
+    var BADGE_GROUPS = [['first', 'easy', 'normal', 'angry', 'clean', 'close', 'fast', 'streak', 'wins50', 'wins100'],
+      ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'wardrobe'],
+      ['hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback']];
+    function badgeOverview() {
+      var all = Object.keys(BADGE_ICON), got = all.filter(function (k) { return badges[k]; }).length;
+      var html = '<h3 class="kp-label">' + esc(T.badgesTitle || '') + ' <small class="kp-count">' + got + '/' + all.length + '</small></h3>' +
+        '<div class="kp-bdg-bar" style="--p:' + Math.round(got / all.length * 100) + '%"><span></span></div>' +
+        '<p class="kp-bdg-rule">' + esc(T.badgesRule || '') + '</p><div class="kp-bdg-list">';
+      BADGE_GROUPS.forEach(function (grp, gi) {
+        html += '<p class="kp-bdg-group' + (gi === 2 ? ' hard' : '') + '">' + esc((T.badgeGroups || [])[gi] || '') + '</p>';
+        grp.forEach(function (k) {
+          var on = !!badges[k], tier = { streak: ' bronze', wins50: ' silver', wins100: ' gold' }[k] || '';
+          var gifts = (SKINS.some(function (x) { return x.b === k; }) ? '<i class="fa-solid fa-table-tennis-paddle-ball"></i>' : '') +
+            (BALLS.some(function (x) { return x.b === k; }) ? '<i class="fa-solid fa-circle"></i>' : '') +
+            (Object.keys(BG_BADGE).some(function (b) { return BG_BADGE[b] === k; }) ? '<i class="fa-regular fa-image"></i>' : '');
+          var rw = (T.rewards || {})[k];
+          html += '<details class="kp-bdg' + (on ? ' on' : '') + (gi === 2 ? ' hard' : '') + '"><summary>' +
+            '<span class="kp-bdg-icon' + tier + '"><i class="fa-solid ' + (on ? BADGE_ICON[k] : 'fa-lock') + '" aria-hidden="true"></i></span>' +
+            '<b>' + esc((T.badgeNames || {})[k] || k) + '</b><span class="kp-bdg-gifts" aria-hidden="true">' + gifts + '</span></summary>' +
+            '<p>' + esc((T.badgeHow || {})[k] || '') + '</p>' +
+            '<p class="kp-bdg-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i> ' + esc(rw || T.badgeNoReward || '') + '</p></details>';
+        });
+      });
+      return html + '</div>';
+    }
     function backBtn() { return '<button type="button" class="kp-link kp-backto" data-go="main"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> ' + esc(T.back || '') + '</button>'; }
     // odkazy v menu přepínají pohled: hlavní · jak se hraje · tabulka
     panel.addEventListener('click', function (e) {

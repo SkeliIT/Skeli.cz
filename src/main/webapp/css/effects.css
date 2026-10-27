@@ -1570,7 +1570,33 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   display: none; min-height: 100%; flex-direction: column; align-items: center; justify-content: center;
   gap: 8px; padding: 16px 8% 10px; text-align: center;
 }
-.kpong-panel[data-view="main"] .kp-main, .kpong-panel[data-view="how"] .kp-how, .kpong-panel[data-view="top"] .kp-top { display: flex; }
+.kpong-panel[data-view="main"] .kp-main, .kpong-panel[data-view="how"] .kp-how, .kpong-panel[data-view="top"] .kp-top,
+.kpong-panel[data-view="badges"] .kp-badges { display: flex; }
+/* přehled odznaků v menu hry: řádek = ikona, titul, ikonky odměn; po ťuknutí jak získat a co dostaneš */
+.kpong-panel .kp-badges { height: 100%; min-height: 0; justify-content: flex-start; align-items: stretch; gap: 6px; padding: 12px 6% 8px; }
+.kp-badges .kp-label, .kp-badges .kp-backto { align-self: center; }
+.kp-badges > .kp-label, .kp-badges > .kp-bdg-bar { margin-right: 46px; }   /* vpravo nahoře je knoflík ⚙ */
+.kp-bdg-bar { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+.kp-bdg-bar span { display: block; height: 100%; width: var(--p); background: linear-gradient(90deg, #b8860b, var(--accent)); }
+.kp-bdg-rule { margin: 0; text-align: center; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
+.kp-bdg-list { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; text-align: left; }
+.kp-bdg-group { margin: 8px 0 2px; font-size: var(--fs-small); color: var(--accent); letter-spacing: .06em; }
+.kp-bdg-group.hard { color: #ff8a3c; }
+.kp-bdg { flex: none; border-radius: 10px; background: rgba(255, 255, 255, .04); }
+.kp-bdg summary { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 8px; cursor: pointer; list-style: none; }
+.kp-bdg summary::-webkit-details-marker { display: none; }
+.kp-bdg summary b { flex: 1; min-width: 0; font-weight: 400; font-size: var(--fs-small); color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kp-bdg.on summary b { color: var(--text); }
+.kp-bdg-icon { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: .8rem;
+  background: rgba(255, 255, 255, .06); color: rgba(255, 255, 255, .35); }
+.kp-bdg.on .kp-bdg-icon { background: radial-gradient(circle at 35% 30%, #fff1a8, #e6b730 55%, #8f6600); color: #3a2600; }
+.kp-bdg.on .kp-bdg-icon.bronze { background: radial-gradient(circle at 35% 30%, #ffd6b0, #c47a3c 55%, #6b3a12); }
+.kp-bdg.on .kp-bdg-icon.silver { background: radial-gradient(circle at 35% 30%, #ffffff, #b9bec7 55%, #5e636c); }
+.kp-bdg.hard.on .kp-bdg-icon { background: radial-gradient(circle at 35% 30%, #ffe08a, #ff6a00 55%, #8a1c00); color: #2a0a00; }
+.kp-bdg-gifts { display: flex; gap: 6px; font-size: .72rem; color: var(--text-dim); }
+.kp-bdg.on .kp-bdg-gifts { color: var(--accent); }
+.kp-bdg p { margin: 0; padding: 0 10px 6px 46px; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
+.kp-bdg p.kp-bdg-reward { color: var(--accent); }
 .kpong-panel .kp-main .kpong-title {
   font-size: clamp(1.4rem, 11cqi, 2.8rem); line-height: 1.1; text-wrap: balance; margin-top: 18px;
   background: linear-gradient(#fff2b8, #ffc83d 50%, #c98a12); -webkit-background-clip: text; background-clip: text; color: transparent;
