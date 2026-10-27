@@ -602,12 +602,26 @@
   // CatSmash: hra přes celou obrazovku (js/kevin-pong.js se načte až teď); Kevin v rohu se zatím schová
   function pong() {
     hideBubble('idle');
-    var go = function () { window.KevinPong.open({ version: version }); };
+    var go = function () {
+      var css = document.querySelector('link[data-catsmash]');
+      if (!css || css.sheet) return window.KevinPong.open({ version: version });
+      var once = function () { css.removeEventListener('load', once); css.removeEventListener('error', once); window.KevinPong.open({ version: version }); };
+      css.addEventListener('load', once); css.addEventListener('error', once);
+    };
     if (window.KevinPong) return go();
-    // nejdřív hlášky do hry (js/kevin-pong-lines.js), pak hra; když hlášky nejdou načíst, hraje se i tak
+    // nejdřív texty hry v jazyce stránky (js/lines/catsmash-<jazyk>.js) a Kevinovy hlášky do zápasu
+    // (js/kevin-pong-lines.js), pak hra; když něco nejde načíst, hraje se i tak
     var v = version ? '?' + version : '';
     var load = function (src, done) { var sc = document.createElement('script'); sc.src = src; sc.onload = done; sc.onerror = done; document.head.appendChild(sc); };
-    load('/js/kevin-pong-lines.js' + v, function () { load('/js/kevin-pong.js' + v, go); });
+    // styly hry (css/catsmash.css) – na ostatních stránkách se nestahují; hra začne až s nimi, ať neproblikne bez vzhledu
+    if (!document.querySelector('link[data-catsmash]')) {
+      var css = document.createElement('link');
+      css.rel = 'stylesheet'; css.href = '/css/catsmash.css' + v; css.setAttribute('data-catsmash', '');
+      document.head.appendChild(css);
+    }
+    load('/js/lines/catsmash-' + lang + '.js' + v, function () {
+      load('/js/kevin-pong-lines.js' + v, function () { load('/js/kevin-pong.js' + v, go); });
+    });
   }
 
   // 1) find a song by its name or a line of its lyrics

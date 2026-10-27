@@ -156,7 +156,11 @@ class KevinIT extends UiTestSupport {
             String id = (String) js.executeScript("return sessionStorage.getItem('kevinLastSurprise')");
             assertTrue(seen.add(id), "surprise '" + id + "' came twice in " + seen);
             String line = (String) js.executeScript("return window.KEVIN_LINES.cs.surprise[arguments[0]]", id);
-            new WebDriverWait(driver, Duration.ofSeconds(5)).until(d -> line.equals(d.findElement(By.cssSelector(".kevin-text")).getText()));
+            // textContent, ne getText(): krátká hláška (4,2 s) může na pomalém testovacím Chromu zmizet dřív,
+            // než se sem test dostane – text v bublině ale zůstane do další hlášky
+            new WebDriverWait(driver, Duration.ofSeconds(5))
+                    .withMessage(() -> "pohyb '" + id + "': čekal jsem „" + line + "“, Kevin říká „" + js.executeScript("return document.querySelector('.kevin-text').textContent") + "“")
+                    .until(d -> line.equals(js.executeScript("return document.querySelector('.kevin-text').textContent")));
         }
     }
     @Test
