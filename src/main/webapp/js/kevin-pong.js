@@ -382,7 +382,7 @@
       lava: { mode: 'sway', damp: 7, stiff: 6, push: 0.3, drip: 'lava', every: [900, 2600] },
       retez: { mode: 'swing', damp: 1.1, stiff: 0, push: 1 },
       graffiti: { mode: 'sway', damp: 6, stiff: 10, push: 0.3, drip: 'paint', every: [1800, 4200] },
-      plys: { mode: 'leg', damp: 2.6, stiff: 18, push: 0.75, leg: 16 },
+      plys: { mode: 'leg', damp: 2.4, stiff: 16, push: 0.8, leg: 28 },
       jadeit: { mode: 'swing', damp: 1.6, stiff: 0, push: 1 },
       perly: { mode: 'beads', damp: 2.2, stiff: 0, push: 0.7 },
       mince: { mode: 'swing', damp: 1.2, stiff: 0, push: 1 },
@@ -402,7 +402,7 @@
       var m = partMode(mat, p);
       if (m === 'string') return (p.cord + Math.hypot(p.img[2], p.img[3]) * p.scale * 0.5) * s;
       if (m === 'swing') return Math.max(8, (p.y - p.py + p.img[3]) * s * 0.6);
-      if (m === 'leg') return (mat.leg + p.img[3] * 0.5) * s;
+      if (m === 'leg') return (mat.leg + p.img[3] * 0.5) * s * 0.8;
       return Math.max(8, (p.y + p.img[3]) * s * 0.85);
     }
     function hangTick(now) {
@@ -422,12 +422,13 @@
       sp.parts.forEach(function (p, i) {
         if (partMode(mat, p) === 'fixed') return;
         if (mat.mode === 'beads') i = 0;                // korálky na jedné šňůrce = jedno kyvadlo
-        var st = rig.hang[i] || (rig.hang[i] = { a: 0, w: 0, L: pendLen(mat, p, s), done: 0 });
+        var st = rig.hang[i] || (rig.hang[i] = { a: 0, w: 0, k: i % 2 ? rnd(1.06, 1.18) : rnd(0.84, 0.95), done: 0 });
+        if (!st.L) st.L = pendLen(mat, p, s) * st.k;
         if (st.done === now) return;
         st.done = now;
         for (var k = 0; k < 3; k++) {
           var h = dt / 3;
-          st.w += (-(HANG_G / st.L) * Math.sin(st.a) - mat.stiff * st.a - (acc / st.L) * Math.cos(st.a) - mat.damp * st.w) * h;
+          st.w += (-(HANG_G / st.L) * Math.sin(st.a) - mat.stiff * st.k * st.a - (acc / st.L) * Math.cos(st.a) - mat.damp * (2 - st.k) * st.w) * h;
           st.a = clamp(st.a + st.w * h, -1.1, 1.1);
         }
       });
@@ -933,15 +934,26 @@
           cx.restore();
           return;
         }
-        if (m === 'leg') {                               // chlupatá nožička od pálky, na konci tlapka (otáčí se s nožičkou)
-          var lw = im[2] * 0.42 * s, ll = mat.leg * s, ly = y0 + 1 * s;
-          cx.save(); cx.translate(px, ly); cx.rotate(-st.a);
-          var lg = cx.createLinearGradient(-lw / 2, 0, lw / 2, 0);
-          lg.addColorStop(0, '#c9c9cf'); lg.addColorStop(0.35, '#f7f7f8'); lg.addColorStop(0.7, '#ececef'); lg.addColorStop(1, '#bdbdc4');
-          cx.fillStyle = lg; roundRect(-lw / 2, -2 * s, lw, ll + 10 * s, lw / 2);
-          cx.fillStyle = 'rgba(255, 255, 255, .55)';                 // chloupky po okrajích
-          for (var f = 0; f < 6; f++) { var fy = (f + 0.5) / 6 * ll; cx.beginPath(); cx.arc(f % 2 ? lw / 2 : -lw / 2, fy, 1.1 * s * 4, 0, 7); cx.fill(); }
-          cx.drawImage(palImg, im[0], im[1], im[2], im[3], (p.x - p.px) * s, ll, im[2] * s, im[3] * s);
+        if (m === 'leg') {
+          // chlupatá nožička: u pálky skoro tuhá, níž se ohýbá (úhel roste s druhou mocninou hloubky), na konci tuhá tlapka
+          var ll = mat.leg * s * (st.k || 1), lw = im[2] * 0.4 * s, N = 8, pts = [[px, y0 - 2 * s]], ang = 0;
+          for (var j = 1; j <= N; j++) {
+            ang = st.a * 1.25 * Math.pow(j / N, 1.8);
+            var q = pts[j - 1];
+            pts.push([q[0] + Math.sin(ang) * ll / N, q[1] + Math.cos(ang) * ll / N]);
+          }
+          cx.save(); cx.lineCap = 'round'; cx.lineJoin = 'round';
+          [[lw, '#bcbcc3'], [lw * 0.78, '#ececef'], [lw * 0.42, '#fbfbfc']].forEach(function (pass, pi) {
+            cx.strokeStyle = pass[1]; cx.lineWidth = pass[0];
+            cx.beginPath(); cx.moveTo(pts[0][0] - (pi === 2 ? lw * 0.12 : 0), pts[0][1]);
+            for (var j2 = 1; j2 <= N; j2++) cx.lineTo(pts[j2][0] - (pi === 2 ? lw * 0.12 : 0), pts[j2][1]);
+            cx.stroke();
+          });
+          cx.fillStyle = 'rgba(255, 255, 255, .5)';     // chloupky po stranách
+          for (var j3 = 1; j3 < N; j3 += 2) { cx.beginPath(); cx.arc(pts[j3][0] + (j3 % 4 === 1 ? 1 : -1) * lw * 0.5, pts[j3][1], lw * 0.16, 0, 7); cx.fill(); }
+          var e = pts[N];
+          cx.translate(e[0], e[1] - 3 * s); cx.rotate(-ang);
+          cx.drawImage(palImg, im[0], im[1], im[2], im[3], (p.x - p.px) * s, 0, im[2] * s, im[3] * s);
           cx.restore();
           return;
         }
