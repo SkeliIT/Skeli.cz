@@ -1804,6 +1804,40 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-bgopt[data-bg="tma"] { background: radial-gradient(circle, rgba(230, 183, 48, .45), #050403 70%); }
 .kp-bgopt[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .3); }
 .kp-bgopt:hover, .kp-bgopt:focus-visible { border-color: var(--accent); }
+/* zamčené pozadí a míček (odemkne je odznak): ztmavené se zámkem, klik ukáže, který odznak */
+.kp-bgopt, .kp-ball { position: relative; color: #fff; }
+.kp-bgopt[aria-disabled="true"], .kp-ball[aria-disabled="true"] { filter: grayscale(.85) brightness(.55); }
+.kp-bgopt i, .kp-ball i { position: absolute; inset: 0; display: grid; place-items: center; font-size: .85rem; text-shadow: 0 1px 3px #000; }
+.kp-ball {
+  width: 44px; height: 44px; border-radius: 50%; padding: 0; cursor: pointer; overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, .18); background: radial-gradient(circle, #2a241a, #050403 75%);
+}
+.kp-ball canvas { width: 100%; height: 100%; display: block; }
+.kp-ball[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .3); }
+.kp-ball:hover, .kp-ball:focus-visible { border-color: var(--accent); }
+/* konec zápasu: nové odznaky s odměnou */
+.kp-newbadges { width: 100%; display: grid; gap: 6px; justify-items: center; }
+.kp-newbadges .kp-label { margin: 0; color: var(--accent); }
+.kp-newbadges ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; width: min(100%, 320px); max-height: 9.5em; overflow-y: auto; }
+.kp-newbadges li {
+  display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; padding: 6px 10px; text-align: left;
+  border-radius: 12px; border: 1px solid rgba(255, 210, 63, .45); background: rgba(255, 210, 63, .08);
+  animation: kp-badge-in .5s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.kp-newbadges li:nth-child(2) { animation-delay: .15s; }
+.kp-newbadges li:nth-child(3) { animation-delay: .3s; }
+.kp-newbadges li > span:last-child { display: grid; gap: 1px; }
+.kp-newbadges b { font-size: var(--fs-card); color: #fff; }
+.kp-newbadges small { font-family: var(--font-text); font-size: var(--fs-small); color: var(--accent); }
+.kp-nb-icon {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; color: #1a1405;
+  background: radial-gradient(circle at 35% 30%, #ffe58a, #c99a12 60%, #8f6600);
+}
+.kp-nb-icon.bronze { background: radial-gradient(circle at 35% 30%, #f3c39a, #b06a2c 60%, #6b3a12); }
+.kp-nb-icon.silver { background: radial-gradient(circle at 35% 30%, #fff, #b9c0c8 60%, #6c7480); }
+@keyframes kp-badge-in { from { opacity: 0; transform: scale(.6); } }
+@media (prefers-reduced-motion: reduce) { .kp-newbadges li { animation: none; } }
+.kpong-rtitle { color: var(--accent); font-size: .85em; }
 /* skóre písmem, kde nula nevypadá jako O */
 .kpong-score b { font-family: var(--font-text); font-weight: 600; }
 
@@ -1835,3 +1869,7 @@ body.light .kevin-bubble:has(.kevin-extra:not([hidden])) { --glass: rgba(255, 25
   .kp-comic.say { padding: 6px 10px; border-width: 2px; border-radius: 14px; font-size: 13px; box-shadow: 3px 3px 0 rgba(0, 0, 0, .5); }
   .kp-comic.say::after { width: 12px; height: 12px; margin-top: -6px; border-width: 0 0 2px 2px; }
 }
+/* ⚙: citlivost klávesnice (jen na počítači) */
+.kp-keyrow { align-items: center; }
+.kp-keyrow .kp-keys { flex: 1; accent-color: var(--accent); }
+.kp-keyrow output { min-width: 3.6em; text-align: right; font-family: var(--font-text); font-size: var(--fs-small); color: var(--accent); }

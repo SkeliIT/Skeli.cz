@@ -13,6 +13,8 @@ public class PongProfile {
     /** Místo v tabulce na obtížnosti 1–3; null = není v tabulce. */
     public final Integer[] place = new Integer[3];
     public int wins;
+    /** Titul u jména (klíč získaného odznaku) nebo null. */
+    public String title;
     public final List<Badge> badges = new ArrayList<>();
 
     /** Jeden odznak: klíč textů pong.badge.{key} a pong.badge.{key}.how, ikona Font Awesome, získaný? */
@@ -30,6 +32,11 @@ public class PongProfile {
 
     public void badge(String key, String icon, boolean earned) {
         badges.add(new Badge(key, icon, earned));
+    }
+
+    public boolean has(String key) {
+        for (Badge b : badges) if (b.earned && b.key.equals(key)) return true;
+        return false;
     }
 
     public int earnedCount() {

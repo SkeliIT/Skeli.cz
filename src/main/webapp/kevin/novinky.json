@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-10-27",
+    "href": "/uzivatel.jsp#pong",
+    "cs": "V CatSmashi je dvacet odznaků. Za většinu dostaneš novou pálku, míček nebo pozadí a jeden si můžeš nosit jako titul u jména.",
+    "en": "CatSmash now has twenty badges. Most give you a new paddle, ball or background, and you can wear one as a title next to your name.",
+    "de": "CatSmash hat jetzt zwanzig Abzeichen. Für die meisten gibt es einen neuen Schläger, Ball oder Hintergrund, und eins kannst du als Titel neben deinem Namen tragen.",
+    "uk": "У CatSmash тепер двадцять значків. За більшість отримаєш нову ракетку, м’ячик або фон, а один можна носити як титул біля імені.",
+    "vi": "CatSmash giờ có hai mươi huy hiệu. Phần lớn cho bạn vợt, bóng hoặc nền mới, và bạn có thể đeo một cái làm danh hiệu cạnh tên."
+  },
+  {
+    "d": "2026-10-27",
     "href": "/?kevin=pong",
     "cs": "Moje hra se teď jmenuje CatSmash a má nové menu přímo na skle stroje. Nastavení najdeš v rohu displeje.",
     "en": "My game is now called CatSmash and has a new menu right on the machine's glass. Settings are in the corner of the screen.",
