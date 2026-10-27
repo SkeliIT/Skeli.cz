@@ -577,12 +577,18 @@
       pfxT = now;
       if (paused || now < hitStop) return;
       flightTick(now, dt);
+      var born = [];                                    // částice vzniklé při procházení (pára z tání) přidat až potom
       pfx = pfx.filter(function (p) {
         p.age += dt;
         var d = Math.exp(-(p.drag || 0) * dt);
         p.vx *= d; p.vy = p.vy * d + (p.g || 0) * dt;
         p.x += p.vx * dt; p.y += p.vy * dt;
         if (p.vr) p.rot += p.vr * dt;
+        if (p.melt && p.age > p.melt) {                // vločka roztála: z ní kapka vody, která spadne (a obláček páry)
+          p.t = 'drop'; p.c = '#8fd8ff'; p.size = rnd(1.1, 1.6); p.g = 700; p.drag = 0; p.vy = Math.max(p.vy, 15); p.vr = 0; p.rot = 0;
+          p.age = 0; p.life = 0.75; p.melt = 0;
+          if (Math.random() < 0.35) born.push({ t: 'puff', x: p.x, y: p.y, vx: rnd(-8, 8), vy: rnd(-25, -10), g: 0, drag: 1, life: 0.7, size: rnd(2, 3.5), c: '#eef6fa', a: 0.18 });
+        }
         if (p.orbit) {                                  // tornádo: obíhá kolem středu, který stoupá, a kruh se zvětšuje
           var o = p.orbit;
           o.ang += o.va * dt; o.rad += o.grow * dt; o.cx += o.vx * dt; o.cy += o.vy * dt;
@@ -590,6 +596,7 @@
         } else if (p.t === 'leaf') p.x += Math.sin(p.age * 7 + p.size) * 30 * dt;   // list se při pádu kolébá
         return p.age < p.life && p.y < H + 20;
       });
+      born.forEach(addP);
       var t = (now - eqT) / 1000;
       if (t > 0.08) {                                   // ekvalizér: pokles + klidové „hraní“
         eqT = now;
@@ -771,15 +778,47 @@
         { line: ['#ece6de', '#9a8f80'], w: 1.8, kind: 'wave', emit: 'steam', rate: 7 }]
     };
     var flight = null, flightLast = {}, FLIGHT_LIFE = 0.75;
+    // vlastní stopa každého míčku (barva a částice); s obrázkovou pálkou se obě čáry proplétají jako copánek
+    var BALL_FLIGHT = {
+      kastan: { line: ['#d39a5a', '#6b3e14'], emit: 'nutChip', rate: 8 },
+      ledovka: { line: ['#d8f5ff', '#7fd3ff'], emit: 'flake', rate: 10 },
+      lavak: { line: ['#ffb02e', '#ff4a00'], emit: 'ember', rate: 14 },
+      tlapka: { line: ['#ffe27a', '#b8860b'], emit: 'goldSpark', rate: 12 },
+      sprej: { line: 'multi', emit: 'paintDot', rate: 10 },
+      plysak: { line: ['#ffd6df', '#ff8fb0'], emit: 'fluff', rate: 9 },
+      vir: { line: ['#7df9ff', '#c76bff'], emit: 'zap', rate: 9, glow: true },
+      repro: { line: ['#ffd23f', '#8f6600'], emit: 'note', rate: 4 },
+      jadeitak: { line: ['#9fe6bb', '#2f7a4c'], emit: 'jadeSpark', rate: 10 },
+      perla: { line: 'iri', emit: 'shimmer', rate: 10 },
+      procesor: { line: ['#59f0a0', '#0e6b3c'], emit: 'bit', rate: 6 },
+      hodinky: { line: ['#e0a36a', '#7a4320'], emit: 'gearlet', rate: 3 },
+      mramor: { line: ['#f4f4f7', '#9a9aa4'], emit: 'dust', rate: 10 }
+    };
+    // pálka + míček, které spolu reagují: kde se jejich stopy potkají, vzniká navíc tohle
+    var REACT = { 'led|lavak': 'steam', 'vetev|lavak': 'smoke', 'lava|ledovka': 'steam', 'lava|kastan': 'smoke',
+      'neon|ledovka': 'zap', 'graffiti|perla': 'shimmer', 'mince|tlapka': 'coin', 'kola|hodinky': 'copperSpark' };
+    var BALL_KINDS = ['smooth', 'wave', 'dots', 'zigzag'];
     function startFlight(now) {
-      var id = curPad(), vs = FLIGHT[id];
-      if (!vs) { flight = null; return; }
-      var v = Math.floor(Math.random() * vs.length);
-      if (v === flightLast[id]) v = (v + 1 + Math.floor(Math.random() * (vs.length - 1))) % vs.length;
-      flightLast[id] = v;
+      var id = curPad(), vs = FLIGHT[id], bid = BALLS[ballType] && BALLS[ballType].id, bs = BALL_FLIGHT[bid];
+      if (!vs && !bs) { flight = null; return; }
+      var st = null;
+      if (vs) {
+        var v = Math.floor(Math.random() * vs.length);
+        if (v === flightLast[id]) v = (v + 1 + Math.floor(Math.random() * (vs.length - 1))) % vs.length;
+        flightLast[id] = v; st = vs[v];
+      }
+      var bst = null;
+      if (bs) {                                          // míček: tvar čáry se každým letem střídá (jiný než minule)
+        var bk = Math.floor(Math.random() * BALL_KINDS.length);
+        if (bk === flightLast['ball']) bk = (bk + 1) % BALL_KINDS.length;
+        flightLast['ball'] = bk;
+        bst = { line: bs.line, w: st ? 1.4 : 2.2, kind: st ? 'braid' : BALL_KINDS[bk], emit: bs.emit, rate: bs.rate, glow: bs.glow };
+      }
       // „povaha“ tohoto letu: síla vlnění, rychlost točení, hustota částic, směr kroucení
-      flight = { st: vs[v], pts: [], amp: rnd(0.7, 1.35), freq: rnd(0.75, 1.3), dens: rnd(0.75, 1.3), spin: Math.random() < 0.5 ? -1 : 1,
-        power: 1, acc: 0, ended: false, seed: Math.random() * 100 };
+      // led + oheň: vločky chvíli letí a pak roztají v kapky vody, které spadnou
+      var melt = id === 'led' && bid === 'lavak' || id === 'lava' && bid === 'ledovka';
+      flight = { st: st, bst: bst, react: REACT[id + '|' + bid], melt: melt, pts: [], amp: rnd(0.7, 1.35), freq: rnd(0.75, 1.3), dens: rnd(0.75, 1.3),
+        spin: Math.random() < 0.5 ? -1 : 1, power: 1, acc: 0, ended: false, seed: Math.random() * 100 };
     }
     var EMIT = {
       flake: function (x, y) { addP({ t: 'flake', x: x + rnd(-4, 4), y: y + rnd(-4, 4), vx: rnd(-25, 25), vy: rnd(-10, 25), g: 0, drag: 1.2, life: 0.8, size: rnd(1.2, 2.2), rot: rnd(0, 6), vr: rnd(-3, 3), c: '#e6f7ff' }); },
@@ -808,7 +847,9 @@
       bit: function (x, y) { addP({ t: 'bit', x: x + rnd(-7, 7), y: y + rnd(-4, 4), vx: 0, vy: rnd(-10, 0), g: 0, life: 0.7, size: 6, txt: Math.random() < 0.5 ? '0' : '1', c: '#59f0a0', a: 0.7 }); },
       gearlet: function (x, y) { addP({ t: 'gear', x: x, y: y, vx: rnd(-40, 40), vy: rnd(-20, 40), g: 200, life: 0.9, size: rnd(2.6, 3.6), rot: 0, vr: rnd(-12, 12), c: '#d08a4a' }); },
       copperSpark: function (x, y) { addP({ t: 'spark', x: x, y: y, vx: rnd(-70, 70), vy: rnd(-40, 60), g: 400, life: 0.4, size: rnd(0.9, 1.4), c: '#ffb35c' }); },
-      steam: function (x, y) { addP({ t: 'puff', x: x, y: y, vx: rnd(-10, 10), vy: rnd(-15, 5), g: -10, drag: 1, life: 1, size: rnd(3, 5), c: '#ece6de', a: 0.2 }); }
+      steam: function (x, y) { addP({ t: 'puff', x: x, y: y, vx: rnd(-10, 10), vy: rnd(-15, 5), g: -10, drag: 1, life: 1, size: rnd(3, 5), c: '#ece6de', a: 0.2 }); },
+      nutChip: function (x, y) { addP({ t: 'spark', x: x + rnd(-3, 3), y: y + rnd(-3, 3), vx: rnd(-30, 30), vy: rnd(-10, 40), g: 200, life: 0.6, size: rnd(1, 1.6), c: Math.random() < 0.5 ? '#a8743e' : '#6fbf4a' }); },
+      dust: function (x, y) { addP({ t: 'spark', x: x + rnd(-4, 4), y: y + rnd(-4, 4), vx: rnd(-15, 15), vy: rnd(-15, 15), g: 0, life: 0.6, size: rnd(0.8, 1.3), c: Math.random() < 0.5 ? '#ffffff' : '#9a9aa4' }); }
     };
     function flightTick(now, dt) {
       var f = flight;
@@ -819,8 +860,17 @@
         f.pts.push({ x: ball.x, y: ball.y, t: now });
         if (f.pts.length > 90) f.pts.shift();
         var n = f.pts.length, a = f.pts[Math.max(0, n - 3)], dx = ball.x - a.x, dy = ball.y - a.y, d = Math.hypot(dx, dy) || 1;
-        f.carry = (f.carry || 0) + f.st.rate * f.dens * f.power * dt;
-        while (f.carry >= 1) { f.carry--; EMIT[f.st.emit](ball.x, ball.y, f, -dy / d, dx / d); }
+        // částice pálky i míčku (když jsou obě, každá trochu řidší), plus reakce, kde se potkají
+        [['cp', f.st, f.bst ? 0.65 : 1], ['cb', f.bst, f.st ? 0.6 : 1], ['cr', f.react ? { emit: f.react, rate: 7 } : null, 1]].forEach(function (e) {
+          var st = e[1];
+          if (!st) return;
+          f[e[0]] = (f[e[0]] || 0) + st.rate * f.dens * f.power * e[2] * dt;
+          while (f[e[0]] >= 1) {
+            f[e[0]]--; EMIT[st.emit](ball.x, ball.y, f, -dy / d, dx / d);
+            var last = pfx[pfx.length - 1];
+            if (f.melt && last && last.t === 'flake' && last.age === 0) last.melt = rnd(0.12, 0.35);
+          }
+        });
       }
       f.pts = f.pts.filter(function (p) { return now - p.t < FLIGHT_LIFE * 1000; });
       if (f.ended && !f.pts.length) flight = null;
@@ -828,9 +878,9 @@
     function drawFlight(now) {
       var f = flight;
       if (!f || f.pts.length < 2) return;
-      var st = f.st, pts = f.pts, n = pts.length, span = Math.max(1, PLAYER_Y - KEVIN_Y);
-      // body čáry posunuté podle tvaru (vlna, cik-cak, šroubovice, schody); off = posun kolmo ke směru letu
-      function shaped(sign) {
+      var pts = f.pts, n = pts.length, span = Math.max(1, PLAYER_Y - KEVIN_Y);
+      // body čáry posunuté podle tvaru (vlna, cik-cak, šroubovice, copánek, schody); off = posun kolmo ke směru letu
+      function shaped(st, sign) {
         var out = [];
         for (var i = 0; i < n; i++) {
           var p = pts[i], q = pts[Math.min(n - 1, i + 1)], o = pts[Math.max(0, i - 1)], dx = q.x - o.x, dy = q.y - o.y, d = Math.hypot(dx, dy) || 1;
@@ -838,6 +888,8 @@
           if (st.kind === 'wave') off = Math.sin(ph) * 3.5 * f.amp;
           else if (st.kind === 'zigzag') off = (i % 4 < 2 ? 1 : -1) * 2.6 * f.amp;
           else if (st.kind === 'helix') off = Math.sin(ph * 1.4) * 4 * f.amp * sign;
+          else if (st.kind === 'braid') off = Math.sin(ph * 1.4 + Math.PI) * 4.5 * f.amp;            // míček kolem stopy pálky
+          if (f.bst && st === f.st && st.kind === 'smooth') off = Math.sin(ph * 1.4) * 3 * f.amp;      // s míčkem se i hladká čára proplétá
           var x = p.x + nx * off, y = p.y + ny * off;
           if (st.kind === 'step') { x = Math.round(x / 9) * 9; y = Math.round(y / 9) * 9; }
           out.push([x, y, p.t, p.y]);
@@ -848,14 +900,14 @@
         var age = (now - q[2]) / (FLIGHT_LIFE * 1000), far = clamp((PLAYER_Y - q[3]) / span, 0, 1);
         return Math.max(0, (1 - age) * (1 - 0.55 * far)) * (0.55 + 0.25 * (f.power - 1));
       }
-      function colorAt(i, core) {
+      function colorAt(st, i, core) {
         if (st.line === 'multi') return ['#ff4fd8', '#ffd23f', '#3fb6ff', '#7cff6b'][((i / 5) | 0) % 4];
         if (st.line === 'iri') return 'hsl(' + ((i * 9 + now / 6) % 360) + ', 85%, ' + (core ? 88 : 70) + '%)';
         return st.line[core ? 0 : 1];
       }
-      function stroke(line) {
+      function stroke(st, line) {
         if (st.kind === 'dots') {
-          for (var i = 0; i < line.length; i += 3) { cx.globalAlpha = alphaAt(line[i]); cx.fillStyle = colorAt(i, true); cx.beginPath(); cx.arc(line[i][0], line[i][1], st.w * 0.8, 0, 7); cx.fill(); }
+          for (var i = 0; i < line.length; i += 3) { cx.globalAlpha = alphaAt(line[i]); cx.fillStyle = colorAt(st, i, true); cx.beginPath(); cx.arc(line[i][0], line[i][1], st.w * 0.8, 0, 7); cx.fill(); }
           return;
         }
         for (var pass = 0; pass < 2; pass++) {          // záře pod čarou, pak jádro
@@ -863,15 +915,18 @@
           for (var j = 1; j < line.length; j++) {
             var al = alphaAt(line[j]) * (pass ? 1 : 0.28);
             if (al <= 0.01) continue;
-            cx.globalAlpha = al; cx.strokeStyle = colorAt(j, pass === 1);
+            cx.globalAlpha = al; cx.strokeStyle = colorAt(st, j, pass === 1);
             cx.beginPath(); cx.moveTo(line[j - 1][0], line[j - 1][1]); cx.lineTo(line[j][0], line[j][1]); cx.stroke();
           }
         }
       }
       cx.save(); cx.lineCap = 'round'; cx.lineJoin = 'round';
-      if (st.glow) cx.globalCompositeOperation = 'lighter';
-      stroke(shaped(1));
-      if (st.kind === 'helix') stroke(shaped(-1));
+      [f.st, f.bst].forEach(function (st) {
+        if (!st) return;
+        cx.globalCompositeOperation = st.glow || (f.st && f.bst) ? 'lighter' : 'source-over';   // dvě stopy se v křížení smíchají
+        stroke(st, shaped(st, 1));
+        if (st.kind === 'helix') stroke(st, shaped(st, -1));
+      });
       cx.restore();
     }
     // barva stopy míčku podle míčku (po odstřelu barva / neon přebije); i = index v ocasu stopy
