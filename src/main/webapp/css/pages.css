@@ -1994,3 +1994,14 @@ body.light .acct-fav { background: color-mix(in srgb, var(--accent) 10%, rgba(25
   .settings-tabs { border-radius: 18px; }
   .settings-tabs a { flex-direction: column; gap: 2px; padding: 8px 4px; font-size: var(--fs-small); border-radius: 14px; }
 }
+/* profil: „Zobrazit všechny“ – rozbalení zbytku komentářů a nezískaných odznaků */
+.acct-more { display: grid; gap: 10px; }
+.acct-more > summary {
+  list-style: none; cursor: pointer; justify-self: center; display: inline-flex; align-items: center; gap: 8px; min-height: 40px;
+  padding: 8px 16px; border-radius: 99px; border: 1px solid var(--panel-border); color: var(--text); font-size: var(--fs-card);
+}
+.acct-more > summary::-webkit-details-marker { display: none; }
+.acct-more > summary::after { content: "▾"; color: var(--accent); transition: transform .2s; }
+.acct-more[open] > summary::after { transform: rotate(180deg); }
+.acct-more > summary:hover { border-color: var(--accent); color: var(--accent); }
+.pong-badge-box .acct-more { margin-top: 10px; }

@@ -22,7 +22,6 @@
     java.util.List<UserComment> myComments = java.util.List.of();
     PongProfile pong = new PongProfile();
     String[] showcase = { null, null, null, null, "brush" };
-    java.util.List<String[]> songChoices = new java.util.ArrayList<>();
     try {
       UserDao users = new UserDao();          // dao/UserDao
       UserProfile p = users.profile(uid);     // nothing saved yet = null
@@ -34,30 +33,10 @@
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
       showcase = new com.github.skeliit.dao.UserDao().showcase(uid);   // oblíbený song a moto
-      songChoices = new com.github.skeliit.dao.UserDao().songChoices();      // CatSmash: časy a odznaky (dao/PongDao)
     } catch (Exception ignore) {}
     String avatarUrl = WebUtils.safeUrl((String) session.getAttribute("avatar_url"), "/img/avatar-default.svg");
     String shownName = displayName != null && !displayName.isBlank() ? displayName : (me != null ? me.username : (String) session.getAttribute("username"));
 
-    // messages after a redirect: fixed codes only, never echoed back
-    String okKey = null;
-    if ("true".equals(request.getParameter("saved"))) okKey = "settings.saved";
-    if ("true".equals(request.getParameter("password_changed"))) okKey = "settings.passwordChanged";
-    if (request.getParameter("signedOut") != null) okKey = "settings.signedOutOthers";
-    // změna uživatelského jména (UsernameServlet): jen pevné kódy
-    String nameRes = request.getParameter("name");
-    if ("ok".equals(nameRes)) okKey = "account.username.ok";
-    String settingsError = request.getParameter("error"), errKey = null;
-    if ("empty".equals(settingsError)) errKey = "settings.error.empty";
-    else if ("mismatch".equals(settingsError)) errKey = "settings.error.mismatch";
-    else if ("short".equals(settingsError)) errKey = "auth.error.passwordStrength";
-    else if ("invalid_chars".equals(settingsError)) errKey = "auth.error.passwordInvalidChars";
-    else if ("too_long".equals(settingsError)) errKey = "auth.error.passwordTooLong";
-    else if ("pwned".equals(settingsError)) errKey = "auth.error.passwordPwned";
-    else if ("wrong_old".equals(settingsError)) errKey = "settings.error.wrongOld";
-    else if (settingsError != null) errKey = "settings.error.generic";
-    if ("required".equals(request.getParameter("confirm"))) errKey = "settings.deleteRequired";
-    if ("taken".equals(nameRes) || "invalid".equals(nameRes) || "reserved".equals(nameRes) || "limit".equals(nameRes)) errKey = "account.username." + nameRes;
   %>
 
   <%-- who you are: photo (click = choose a new one), name, since when, numbers --%>
@@ -113,6 +92,62 @@
     </ul>
   </section>
 
+  <%-- CatSmash: nejlepší výhra a místo na každé obtížnosti, odznaky (počítá je server z uložených výher) --%>
+  <section class="acct-card" id="pong">
+    <header class="acct-card-head">
+      <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> <%= t.getProperty("account.tab.pong") %></h3>
+      <p><%= t.getProperty("pong.profile.lead") %></p>
+    </header>
+    <div class="pong-best">
+    <% for (int d = 1; d <= 3; d++) { %>
+      <div class="pong-best-item<%= pong.bestMs[d - 1] != null ? " on" : "" %>">
+        <span class="pong-best-level"><%= t.getProperty("pong.level." + d) %></span>
+        <% if (pong.bestMs[d - 1] != null) { %>
+          <b><%= PongProfile.time(pong.bestMs[d - 1]) %></b>
+          <% if (pong.place[d - 1] != null) { %><span class="acct-dim"><%= t.getProperty("pong.profile.place").replace("{0}", String.valueOf(pong.place[d - 1])) %></span><% } %>
+        <% } else { %>
+          <span class="acct-dim"><%= t.getProperty("pong.profile.notYet") %></span>
+        <% } %>
+      </div>
+    <% } %>
+    </div>
+    <%-- odznaky v rolovacím okně: získané nahoře, u každého jak ho získat a odměna ve hře --%>
+    <div class="pong-badge-box">
+      <div class="pong-badge-head">
+        <b><%= t.getProperty("pong.badges.title") %></b>
+        <span><%= pong.earnedCount() %> / <%= pong.badges.size() %></span>
+        <span class="pong-badge-bar" style="--p:<%= pong.badges.isEmpty() ? 0 : pong.earnedCount() * 100 / pong.badges.size() %>%" aria-hidden="true"></span>
+      </div>
+      <p class="pong-badge-rule"><%= t.getProperty("pong.badges.rule") %></p>
+      <ul class="pong-badges" tabindex="0" aria-label="<%= t.getProperty("pong.badges.title") %>">
+      <% int locked = pong.badges.size() - pong.earnedCount();
+         for (int pass = 0; pass < 2; pass++) {
+           if (pass == 1) { %>
+      </ul>
+      <% if (locked > 0) { %>
+      <details class="acct-more"<%= pong.earnedCount() == 0 ? " open" : "" %>><summary><%= t.getProperty("pong.badges.locked").replace("{0}", String.valueOf(locked)) %></summary>
+      <ul class="pong-badges">
+      <% } else { break; } }
+           for (PongProfile.Badge b : pong.badges) {
+           if (b.earned != (pass == 0)) continue;
+           String tier = com.github.skeliit.model.PongBadges.tier(b.key);
+           String reward = t.getProperty("pong.badge." + b.key + ".reward"); %>
+        <li class="<%= b.earned ? "on" : "" %><%= tier != null ? " tier-" + tier : "" %>">
+          <span class="pong-badge-icon"><i class="fa-solid <%= b.earned ? b.icon : "fa-lock" %>" aria-hidden="true"></i></span>
+          <span class="pong-badge-text">
+            <b><%= t.getProperty("pong.badge." + b.key) %></b>
+            <span><%= t.getProperty("pong.badge." + b.key + ".how") %></span>
+            <% if (reward != null) { %><span class="pong-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i> <%= t.getProperty("pong.reward.label") %>: <%= reward %></span><% } %>
+          </span>
+          <span class="sr-only"><%= t.getProperty(b.earned ? "pong.badge.earned" : "pong.badge.locked") %></span>
+        </li>
+      <% } } %>
+      </ul>
+      <% if (locked > 0) { %></details><% } %>
+    </div>
+    <p class="pong-play-row"><a class="btn-primary" href="/?kevin=pong"><i class="fa-solid fa-play"></i> <%= t.getProperty("pong.profile.play") %></a></p>
+  </section>
+
   <%-- Comments: everything you wrote under lyrics and clips; edit in place or delete --%>
   <section class="acct-card" id="komentare">
     <header class="acct-card-head">
@@ -123,7 +158,9 @@
       <p class="acct-empty"><%= t.getProperty("cmt.none") %></p>
     <% } %>
     <div class="acct-comments">
-    <% for (UserComment uc : myComments) { %>
+    <% int ci = 0; for (UserComment uc : myComments) { if (ci++ == 3) { %>
+      <details class="acct-more"><summary><%= t.getProperty("account.comments.all").replace("{0}", String.valueOf(myComments.size())) %></summary>
+    <% } %>
       <article class="acct-comment">
         <div class="acct-comment-head">
           <i class="fa-solid <%= uc.isLyric() ? "fa-file-lines" : "fa-film" %>" aria-hidden="true"></i>
@@ -157,54 +194,8 @@
         </div>
       </article>
     <% } %>
+    <% if (myComments.size() > 3) { %></details><% } %>
     </div>
-  </section>
-
-  <%-- CatSmash: nejlepší výhra a místo na každé obtížnosti, odznaky (počítá je server z uložených výher) --%>
-  <section class="acct-card" id="pong">
-    <header class="acct-card-head">
-      <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> <%= t.getProperty("account.tab.pong") %></h3>
-      <p><%= t.getProperty("pong.profile.lead") %></p>
-    </header>
-    <div class="pong-best">
-    <% for (int d = 1; d <= 3; d++) { %>
-      <div class="pong-best-item<%= pong.bestMs[d - 1] != null ? " on" : "" %>">
-        <span class="pong-best-level"><%= t.getProperty("pong.level." + d) %></span>
-        <% if (pong.bestMs[d - 1] != null) { %>
-          <b><%= PongProfile.time(pong.bestMs[d - 1]) %></b>
-          <% if (pong.place[d - 1] != null) { %><span class="acct-dim"><%= t.getProperty("pong.profile.place").replace("{0}", String.valueOf(pong.place[d - 1])) %></span><% } %>
-        <% } else { %>
-          <span class="acct-dim"><%= t.getProperty("pong.profile.notYet") %></span>
-        <% } %>
-      </div>
-    <% } %>
-    </div>
-    <%-- odznaky v rolovacím okně: získané nahoře, u každého jak ho získat a odměna ve hře --%>
-    <div class="pong-badge-box">
-      <div class="pong-badge-head">
-        <b><%= t.getProperty("pong.badges.title") %></b>
-        <span><%= pong.earnedCount() %> / <%= pong.badges.size() %></span>
-        <span class="pong-badge-bar" style="--p:<%= pong.badges.isEmpty() ? 0 : pong.earnedCount() * 100 / pong.badges.size() %>%" aria-hidden="true"></span>
-      </div>
-      <p class="pong-badge-rule"><%= t.getProperty("pong.badges.rule") %></p>
-      <ul class="pong-badges" tabindex="0" aria-label="<%= t.getProperty("pong.badges.title") %>">
-      <% for (int pass = 0; pass < 2; pass++) for (PongProfile.Badge b : pong.badges) {
-           if (b.earned != (pass == 0)) continue;
-           String tier = com.github.skeliit.model.PongBadges.tier(b.key);
-           String reward = t.getProperty("pong.badge." + b.key + ".reward"); %>
-        <li class="<%= b.earned ? "on" : "" %><%= tier != null ? " tier-" + tier : "" %>">
-          <span class="pong-badge-icon"><i class="fa-solid <%= b.earned ? b.icon : "fa-lock" %>" aria-hidden="true"></i></span>
-          <span class="pong-badge-text">
-            <b><%= t.getProperty("pong.badge." + b.key) %></b>
-            <span><%= t.getProperty("pong.badge." + b.key + ".how") %></span>
-            <% if (reward != null) { %><span class="pong-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i> <%= t.getProperty("pong.reward.label") %>: <%= reward %></span><% } %>
-          </span>
-          <span class="sr-only"><%= t.getProperty(b.earned ? "pong.badge.earned" : "pong.badge.locked") %></span>
-        </li>
-      <% } %>
-      </ul>
-    </div>
-    <p class="pong-play-row"><a class="btn-primary" href="/?kevin=pong"><i class="fa-solid fa-play"></i> <%= t.getProperty("pong.profile.play") %></a></p>
   </section>
 
   <% } %>
