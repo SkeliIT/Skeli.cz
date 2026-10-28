@@ -54,7 +54,7 @@ public final class DashboardStats {
         /** Text pod číslem: „↑ 23 % proti minulým 7 dnům“, „nově“, „beze změny“. */
         public String getTrendText() {
             Long c = getChange();
-            String period = days == 7 ? "minulým 7 dnům" : "minulým 30 dnům";
+            String period = days == 1 ? "včerejšku" : days >= 365 ? "předchozímu roku" : "minulým " + days + " dnům";
             if (c == null) return getTotal() > 0 ? "nově – předtím nic" : "zatím nic";
             if (Math.abs(c) <= 2) return "≈ stejně jako v " + (days == 7 ? "minulých 7 dnech" : "minulých 30 dnech");
             return (c > 0 ? "↑ " : "↓ ") + Math.abs(c) + " % proti " + period;
@@ -112,6 +112,16 @@ public final class DashboardStats {
             }
         }
         return new Today(VisitStats.onlineNow(), now.getHour(), people, peopleY, pages, plays, h, y);
+    }
+
+    /** Kolik dní už se počítá (od prvního dne s návštěvou, včetně dneška) – „Celkem“ na stránce Statistiky. */
+    public static int daysSinceStart() throws SQLException {
+        LocalDate today = LocalDate.now(PRAGUE), first = today;
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT MIN(day) FROM visit_days");
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next() && rs.getObject(1, LocalDate.class) != null) first = rs.getObject(1, LocalDate.class);
+        }
+        return (int) Math.max(1, Math.min(3650, ChronoUnit.DAYS.between(first, today) + 1));
     }
 
     /** Všechny dlaždice nástěnky za období 7 nebo 30 dní. */

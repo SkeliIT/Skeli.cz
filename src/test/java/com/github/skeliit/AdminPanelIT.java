@@ -400,15 +400,16 @@ public class AdminPanelIT extends UiTestSupport {
     }
 
     @Test
-    @DisplayName("The statistics page shows the visits and the counters can be reset to zero (the dashboard shows four of them)")
+    @DisplayName("Nástěnka ukáže Dnes a 8 dlaždic, Statistiky 10 widgetů za celou dobu a počítadla jdou vynulovat")
     void visitStatsAndReset() throws Exception {
         driver.get(BASE_URL + "/admin.jsp");
-        assertEquals(4, driver.findElements(By.cssSelector(".admin-glance > .admin-visits .admin-stat")).size(), "visits at a glance on the dashboard");
-        assertEquals(4, driver.findElements(By.cssSelector(".admin-glance .stats-more .admin-stat")).size(), "the other four under the arrow");
-        assertEquals(3, driver.findElements(By.cssSelector(".admin-glance .stats-more .admin-more-top")).size(), "the top 5s of the week: lyrics, karaoke, clips");
-        driver.get(BASE_URL + "/admin/stats");
-        assertFalse(driver.findElements(By.cssSelector("#stats")).isEmpty(), "NĂˇvĹˇtÄ›vnost section");
-        assertEquals(8, driver.findElements(By.cssSelector(".admin-visits .admin-stat")).size());
+        assertFalse(driver.findElements(By.cssSelector(".today-board .today-big")).isEmpty(), "pás Dnes na nástěnce");
+        assertEquals(24, driver.findElements(By.cssSelector(".today-board .hour")).size(), "příchody po hodinách");
+        assertEquals(8, driver.findElements(By.cssSelector(".kpi-grid .kpi")).size(), "dlaždice za období (i Spotify, YouTube, Apple zvlášť)");
+        driver.get(BASE_URL + "/admin/stats?d=0");
+        assertEquals(10, driver.findElements(By.cssSelector("[data-widgets] > .w")).size(), "widgety statistik");
+        assertFalse(driver.findElements(By.cssSelector("details#stats")).isEmpty(), "jak se počítá a vynulování dole");
+        assertNotNull(driver.findElement(By.cssSelector(".st-editbar")).getAttribute("hidden"), "panel úprav je po načtení schovaný");
 
         WebElement form = driver.findElement(By.cssSelector("form[action='/admin/stats-reset']"));
         jsClick(form.findElement(By.name("confirm")));
