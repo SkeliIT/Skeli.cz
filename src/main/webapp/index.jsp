@@ -44,12 +44,14 @@
     <h1 class="sr-only">Skeli – SKELOSQUAD</h1>
     <p class="hero-tagline"><%= t.getProperty("home.lead") %></p>
     <div class="hero-actions">
-      <button type="button" class="btn btn-primary btn-lg" data-spotify-src="artist:5IouXw8U9uKCTwmncG5bUl">
+      <%-- Spotify je hlavní cesta k poslechu (streamy = výdělek): zelené tlačítko otevře přehrávač na webu --%>
+      <button type="button" class="btn btn-lg btn-spotify" data-spotify-src="artist:5IouXw8U9uKCTwmncG5bUl">
         <i class="fab fa-spotify"></i> <%= t.getProperty("home.cta.listen") %>
       </button>
       <a class="btn btn-lg btn-ghost" href="/texty.jsp">
         <i class="fa-solid fa-align-left"></i> <%= t.getProperty("home.cta.lyrics") %>
       </a>
+      <a class="hero-follow" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener"><i class="fab fa-spotify" aria-hidden="true"></i> <%= t.getProperty("home.cta.follow") %></a>
     </div>
     <%-- premiéra s odpočtem (admin → píseň → Premiéra): má přednost před kartou „Nový song“ --%>
     <% com.github.skeliit.model.Premiere premiere = null;
