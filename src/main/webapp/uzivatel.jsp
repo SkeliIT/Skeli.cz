@@ -75,11 +75,25 @@
              java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.LONG).withLocale(java.util.Locale.forLanguageTag(cur)).format(me.memberSince.toLocalDateTime()))) %><% } %>
       </p>
       <% if (bio != null && !bio.isBlank()) { %><p class="acct-bio"><%= WebUtils.escapeHtml(bio) %></p><% } %>
+      <%-- jako v návrhu od Gemini: zlatý ukazatel (odznaky místo XP) a štítky získaných odznaků --%>
+      <% int earned = pong.earnedCount(), allBadges = Math.max(1, pong.badges.size()); %>
+      <a class="acct-progress" href="#pong" aria-label="<%= t.getProperty("pong.badges.title") %> <%= earned %>/<%= pong.badges.size() %>">
+        <span class="acct-progress-bar" style="--p:<%= earned * 100 / allBadges %>%"><i></i></span>
+        <span class="acct-progress-n"><i class="fa-solid fa-medal" aria-hidden="true"></i> <%= earned %>/<%= pong.badges.size() %></span>
+      </a>
+      <% if (earned > 0) { %><ul class="acct-chips">
+        <% int shown = 0; for (PongProfile.Badge b : pong.badges) { if (!b.earned || shown >= 3) continue; shown++; %>
+        <li><i class="fa-solid <%= b.icon %>" aria-hidden="true"></i> <%= t.getProperty("pong.badge." + b.key) %></li>
+        <% } %>
+      </ul><% } %>
     </div>
     <ul class="acct-stats">
       <li><strong><%= me != null ? me.comments : 0 %></strong><span><%= t.getProperty("account.stats.comments") %></span></li>
       <li><strong><%= me != null ? me.likes : 0 %></strong><span><i class="fa-solid fa-thumbs-up"></i> <%= t.getProperty("account.stats.likes") %></span></li>
       <li><strong><%= me != null ? me.hearts : 0 %></strong><span><i class="fa-solid fa-heart"></i> <%= t.getProperty("account.stats.hearts") %></span></li>
+      <% Integer bestAll = null; for (Integer b : pong.bestMs) if (b != null && (bestAll == null || b < bestAll)) bestAll = b; %>
+      <li><strong><%= pong.wins %></strong><span><i class="fa-solid fa-trophy"></i> <%= t.getProperty("account.stats.wins") %></span></li>
+      <li><strong><%= bestAll == null ? "–" : PongProfile.time(bestAll) %></strong><span><i class="fa-solid fa-stopwatch"></i> <%= t.getProperty("account.stats.best") %></span></li>
     </ul>
   </section>
 
