@@ -24,6 +24,7 @@
   try { latest = new com.github.skeliit.dao.HomeDao().featured(homeVideos); } catch (SQLException ex) { /* zůstane nejnovější */ }
   final String featuredId = latest == null ? "" : latest.youtubeId();
   java.util.List<com.github.skeliit.dao.HomeDao.HomeVideo> newsVideos = new java.util.ArrayList<>();
+  if (latest != null) newsVideos.add(latest);   // první velká novinka = nový song
   for (com.github.skeliit.dao.HomeDao.HomeVideo hv : homeVideos) if (!hv.youtubeId().equals(featuredId) && newsVideos.size() < 5) newsVideos.add(hv);
 %>
 <main class="home-page">
@@ -63,14 +64,6 @@
       <span class="play"><i class="fa-solid fa-play"></i></span>
     </a>
     <script src="/js/premiere.js?v=<%= assetVersion %>"></script>
-    <% } else if (latest != null) {
-         String latestId = com.github.skeliit.WebUtils.escapeHtml(latest.youtubeId());
-         String latestTitle = latest.title() == null ? "YouTube" : latest.title(); %>
-    <a class="hero-latest" href="https://www.youtube.com/watch?v=<%= latestId %>" target="_blank" rel="noopener">
-      <img src="/yt-thumb/<%= latestId %>/mqdefault.jpg" alt="" width="104" height="58">
-      <span><small><span class="dot"></span><%= t.getProperty("home.latest") %></small><b><%= com.github.skeliit.WebUtils.escapeHtml(latestTitle) %></b></span>
-      <span class="play"><i class="fa-solid fa-play"></i></span>
-    </a>
     <% } %>
     <div class="hero-actions">
       <%-- Spotify je hlavní cesta k poslechu (streamy = výdělek): zelené tlačítko otevře přehrávač na webu --%>
@@ -126,6 +119,7 @@
             <div class="video-thumb">
               <img src="/yt-thumb/<%= vid %>/<%= big ? "maxresdefault" : "hqdefault" %>.jpg" alt="<%= title %>" loading="lazy"<% if (big) { %> onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')"<% } %>>
               <span class="video-play"><i class="fa-solid fa-play"></i></span>
+              <% if (big) { %><span class="video-badge"><%= t.getProperty("home.latest") %></span><% } %>
             </div>
             <div class="meta">
 
