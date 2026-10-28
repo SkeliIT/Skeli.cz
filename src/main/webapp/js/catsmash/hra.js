@@ -1341,6 +1341,8 @@
     var MOSQUITO_CHANCE = /[?&]komar=1(&|$)/.test(location.search) || location.hash === '#komar' ? 1 : 0;
     var mosq = { done: false, active: false };
     var keys = { left: false, right: false }, raf = 0, last = 0, signedIn = false, csrf = null;
+    // nepřihlášený hráč (web to ví hned: přihlášený má v hlavičce formulář na odhlášení; signedIn přijde až z /api/pong/me)
+    function guest() { return !signedIn && !document.querySelector('form.logout-form'); }
 
     var TALK = D.TALK, TALK_KEYS = ['more', 'normal', 'less', 'mute'];
     var talk = TALK[store.get('kevinPongTalk')] ? store.get('kevinPongTalk') : 'normal';
@@ -2107,7 +2109,12 @@
         '<p class="kp-rec" hidden></p>' +
         '<p class="kp-links"><button type="button" class="kp-link" data-go="how">' + esc(T.how || T.controlsTitle || '') + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="badges">' + esc(T.badgesTitle || '') + '</button><span aria-hidden="true">·</span>' +
-        '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p>' + tipLine + '</div>' +
+        '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p>' +
+        // nepřihlášený: Kevin nabídne účet (výsledky v tabulce, odemykání, odznaky, ozdoby profilu); po přihlášení zpět ke hře
+        (guest() && T.guest ? '<div class="kp-guest"><p>' + esc(T.guest) + '</p><p class="kp-guest-btns">' +
+          '<a class="btn btn-primary" href="/register.jsp"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> ' + esc(T.guestRegister || '') + '</a>' +
+          '<a class="btn btn-ghost" href="/login.jsp?next=' + encodeURIComponent('/?kevin=pong') + '"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> ' + esc(T.guestLogin || '') + '</a></p></div>' : '') +
+        tipLine + '</div>' +
         '<div class="kp-view kp-how"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + tipList + (T.credit ? '<p class="kp-credit">' + esc(T.credit) + '</p>' : '') + backBtn() + '</div>' +
         '<div class="kp-view kp-badges">' + badgeOverview() + backBtn() + '</div>' +
         '<div class="kp-view kp-top"><section class="kpong-board"></section>' + backBtn() + '</div>';
@@ -2127,7 +2134,7 @@
         tipBtn.querySelector('span').textContent = tips[tipAt];
       });
       board(level);
-      say(pick(T.hello), 3000);
+      say(pick(guest() && T.guestSay ? T.guestSay : T.hello), guest() ? 5000 : 3000);   // nepřihlášenému Kevin nabídne účet
     }
 
     var RARITY = D.RARITY;

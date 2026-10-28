@@ -66,6 +66,18 @@ public class UserProfileServlet extends HttpServlet {
                 ps.executeUpdate();
             }
             
+            // výstavka: oblíbený song (jen existující píseň) a moto (max 160 znaků, prázdné = nic)
+            String fav = req.getParameter("fav_song"), motto = req.getParameter("motto");
+            motto = motto == null ? null : motto.replaceAll("\\s+", " ").trim();
+            if (motto != null && motto.length() > 160) motto = motto.substring(0, 160);
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE user_profiles SET fav_song_uuid = (SELECT uuid FROM songs WHERE BINARY uuid = BINARY ? LIMIT 1), motto = ? WHERE user_id = ?")) {
+                ps.setString(1, fav == null || fav.isBlank() ? null : fav);
+                ps.setString(2, motto == null || motto.isEmpty() ? null : motto);
+                ps.setInt(3, userId);
+                ps.executeUpdate();
+            }
+
             session.setAttribute("lang", lang);
             
             resp.sendRedirect("/uzivatel.jsp?saved=true");

@@ -398,5 +398,12 @@ window.KEVIN_LINES.cs.pong = {
       "pc"
     ]
   ],
-  "credit": "Hru vymyslel a postavil Skeli."
+  "credit": "Hru vymyslel a postavil Skeli.",
+  "guest": "S účtem ti zapíšu výsledky a odemkneš vybavení, odznaky a ozdoby profilu.",
+  "guestRegister": "Registrovat",
+  "guestLogin": "Přihlásit",
+  "guestSay": [
+    "Hraješ bez účtu? Škoda. S účtem si pamatuju tvoje výhry, odznaky a všechno, co odemkneš.",
+    "Založ si účet. Pak ti budu zapisovat rekordy a ukážu tě v tabulce. Teda… jestli mě porazíš."
+  ]
 };

@@ -152,8 +152,8 @@ body.light .hero-quote {
 }
 .hero-quote:hover { text-decoration: none; }
 .hero-quote-text, .hero-quote-song { display: block; text-shadow: var(--burn-glow); transform: rotate(-4deg); }
-.hero-quote-text { font-size: clamp(1.9rem, 3.4vw, 2.9rem); line-height: 1.12; text-wrap: balance; }
-.hero-quote-song { font-size: clamp(1.35rem, 2.2vw, 1.8rem); transform: rotate(-2deg); opacity: .9; }
+.hero-quote-text { font-size: clamp(2.3rem, 4.4vw, 3.8rem); line-height: 1.12; text-wrap: balance; }
+.hero-quote-song { font-size: clamp(1.5rem, 2.6vw, 2.2rem); transform: rotate(-2deg); opacity: .9; }
 .hero-quote-line { display: block; }
 .hero-quote .qw { display: inline-block; white-space: nowrap; }
 .hero-quote:hover .hero-quote-text, .hero-quote:hover .hero-quote-song { filter: brightness(1.15); }
@@ -184,8 +184,8 @@ body.light .hero-quote {
 body.light .hero-quote.is-burnt .qc { animation: none; }
 @media (max-width: 600px) {
   .hero-quote { margin-bottom: 14px; padding: 0 6px; }
-  .hero-quote-text { font-size: 1.65rem; }
-  .hero-quote-song { font-size: 1.25rem; }
+  .hero-quote-text { font-size: 2.15rem; }
+  .hero-quote-song { font-size: 1.45rem; }
 }
 @media (prefers-reduced-motion: reduce) { .hero-quote.is-burnt .qc { animation: none; } }
 
