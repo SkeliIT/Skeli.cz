@@ -56,8 +56,40 @@
 %>
   <header class="admin-head">
     <h2>Admin</h2>
-    <p class="admin-hello">Ahoj, <b><%= adminName %></b>. <span class="live-now"><i class="fa-solid fa-circle" aria-hidden="true"></i> <%= com.github.skeliit.service.VisitStats.onlineNow() %> právě na webu</span></p>
+    <p class="admin-hello">Ahoj, <b><%= adminName %></b>.</p>
   </header>
+
+  <%-- DNES: hned na první pohled – kdo je tu teď, kolik lidí dnes a kdy chodí (po hodinách, včerejšek slabě vzadu) --%>
+<%
+  com.github.skeliit.service.DashboardStats.Today td = null;
+  try { td = com.github.skeliit.service.DashboardStats.today(); } catch (java.sql.SQLException e) { application.log("Dashboard today", e); }
+%>
+  <% if (td != null) { %>
+  <section class="today-board" aria-labelledby="today-h">
+    <div class="today-nums">
+      <h3 id="today-h"><i class="fa-solid fa-sun" aria-hidden="true"></i> Dnes</h3>
+      <p class="today-live"><i class="fa-solid fa-circle" aria-hidden="true"></i> <b><%= td.online %></b> právě na webu</p>
+      <p class="today-big"><b><%= td.people %></b> <span>lidí dnes</span></p>
+      <p class="today-vs"><%= td.getVersusYesterday() %></p>
+      <dl class="today-mini">
+        <div><dt>Stránek</dt><dd><%= td.pages %></dd></div>
+        <div><dt>Přehrání</dt><dd><%= td.plays %></dd></div>
+      </dl>
+    </div>
+    <figure class="today-chart">
+      <figcaption>Příchody po hodinách <span class="lg lg-today">dnes</span> <span class="lg lg-yest">včera</span></figcaption>
+      <div class="hours" role="img" aria-label="Příchody na web po hodinách, dnes a včera">
+        <% for (int i = 0; i < 24; i++) { %>
+        <div class="hour<%= i == td.hourNow ? " now" : i > td.hourNow ? " later" : "" %>" title="<%= i %>:00 – dnes <%= td.hours[i] %>, včera <%= td.hoursYesterday[i] %>">
+          <span class="bar-y" style="--h:<%= td.pct(td.hoursYesterday[i]) %>%"></span>
+          <span class="bar-t" style="--h:<%= td.pct(td.hours[i]) %>%"></span>
+          <% if (i % 6 == 0) { %><small><%= i %></small><% } %>
+        </div>
+        <% } %>
+      </div>
+    </figure>
+  </section>
+  <% } %>
 
   <%-- přehled za období: číslo, malá křivka po dnech a změna proti předchozímu období --%>
   <section class="kpi-board">
@@ -71,7 +103,7 @@
     <div class="kpi-grid">
       <% for (com.github.skeliit.service.DashboardStats.Tile k : kpis) { %>
       <a class="kpi kpi-<%= k.getTrend() %>" href="/admin/stats">
-        <span class="kpi-label"><i class="fa-solid <%= k.icon %>" aria-hidden="true"></i> <%= k.label %></span>
+        <span class="kpi-label"><i class="<%= k.icon.startsWith("fa-brands") ? k.icon : "fa-solid " + k.icon %>" aria-hidden="true"></i> <%= k.label %></span>
         <b class="kpi-value"><%= String.format(java.util.Locale.forLanguageTag("cs"), "%,d", k.getTotal()).replace(',', ' ') %></b>
         <span class="kpi-trend"><%= k.getTrendText() %></span>
         <%= k.getSpark() %>

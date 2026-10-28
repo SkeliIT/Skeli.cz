@@ -54,13 +54,74 @@ public final class DashboardStats {
         /** Text pod číslem: „↑ 23 % proti minulým 7 dnům“, „nově“, „beze změny“. */
         public String getTrendText() {
             Long c = getChange();
-            String period = days == 7 ? "minulým 7 dnům" : "minulým 30 dnům";
+            String period = days == 1 ? "včerejšku" : days >= 365 ? "předchozímu roku" : "minulým " + days + " dnům";
             if (c == null) return getTotal() > 0 ? "nově – předtím nic" : "zatím nic";
             if (Math.abs(c) <= 2) return "≈ stejně jako v " + (days == 7 ? "minulých 7 dnech" : "minulých 30 dnech");
             return (c > 0 ? "↑ " : "↓ ") + Math.abs(c) + " % proti " + period;
         }
         /** Malá křivka aktuálního období jako SVG (plocha se zlatým přechodem a čára). */
         public String getSpark() { return spark(java.util.Arrays.copyOfRange(series, days, series.length), key); }
+    }
+
+    /** Pás „Dnes“ nahoře na nástěnce: co se děje dnes, a příchody po hodinách dnes a včera. */
+    public static class Today {
+        public final int online, hourNow;
+        public final long people, peopleYesterday, pages, plays;
+        public final long[] hours, hoursYesterday;   // 24 hodin: začátky návštěv (kolikrát někdo přišel)
+        Today(int online, int hourNow, long people, long peopleYesterday, long pages, long plays, long[] hours, long[] hoursYesterday) {
+            this.online = online; this.hourNow = hourNow; this.people = people; this.peopleYesterday = peopleYesterday;
+            this.pages = pages; this.plays = plays; this.hours = hours; this.hoursYesterday = hoursYesterday;
+        }
+        /** Nejvyšší hodnota z obou dnů (výška grafu), aspoň 1. */
+        public long getMax() { long m = 1; for (int i = 0; i < 24; i++) m = Math.max(m, Math.max(hours[i], hoursYesterday[i])); return m; }
+        /** Výška sloupce v procentech grafu. */
+        public int pct(long v) { return (int) Math.round(v * 100.0 / getMax()); }
+        /** Lidé dnes proti celému včerejšku. */
+        public String getVersusYesterday() {
+            long d = people - peopleYesterday;
+            if (peopleYesterday == 0) return people > 0 ? "včera nikdo" : "zatím nikdo";
+            return d > 0 ? "o " + d + " víc než celý včerejšek" : d == 0 ? "stejně jako včera" : "včera celkem " + peopleYesterday;
+        }
+    }
+
+    public static Today today() throws SQLException {
+        java.time.ZonedDateTime now = java.time.ZonedDateTime.now(PRAGUE);
+        LocalDate day = now.toLocalDate();
+        long[] h = new long[24], y = new long[24];
+        long people = 0, peopleY = 0, pages = 0, plays = 0;
+        try (Connection c = Db.get()) {
+            try (PreparedStatement ps = c.prepareStatement(
+                    "SELECT day, hour, SUM(visits) FROM visit_origins WHERE day >= ? GROUP BY day, hour")) {
+                ps.setObject(1, day.minusDays(1));
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int hr = rs.getInt(2);
+                        if (hr < 0 || hr > 23) continue;
+                        if (day.equals(rs.getObject(1, LocalDate.class))) h[hr] += rs.getLong(3); else y[hr] += rs.getLong(3);
+                    }
+                }
+            }
+            try (PreparedStatement ps = c.prepareStatement("SELECT "
+                    + "(SELECT COUNT(*) FROM visit_days WHERE day = ?), (SELECT COUNT(*) FROM visit_days WHERE day = ?), "
+                    + "(SELECT COALESCE(SUM(pageviews), 0) FROM site_stats_daily WHERE day = ?), "
+                    + "(SELECT COALESCE(SUM(plays), 0) FROM play_daily WHERE day = ?)")) {
+                ps.setObject(1, day); ps.setObject(2, day.minusDays(1)); ps.setObject(3, day); ps.setObject(4, day);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) { people = rs.getLong(1); peopleY = rs.getLong(2); pages = rs.getLong(3); plays = rs.getLong(4); }
+                }
+            }
+        }
+        return new Today(VisitStats.onlineNow(), now.getHour(), people, peopleY, pages, plays, h, y);
+    }
+
+    /** Kolik dní už se počítá (od prvního dne s návštěvou, včetně dneška) – „Celkem“ na stránce Statistiky. */
+    public static int daysSinceStart() throws SQLException {
+        LocalDate today = LocalDate.now(PRAGUE), first = today;
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT MIN(day) FROM visit_days");
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next() && rs.getObject(1, LocalDate.class) != null) first = rs.getObject(1, LocalDate.class);
+        }
+        return (int) Math.max(1, Math.min(3650, ChronoUnit.DAYS.between(first, today) + 1));
     }
 
     /** Všechny dlaždice nástěnky za období 7 nebo 30 dní. */
@@ -71,8 +132,10 @@ public final class DashboardStats {
         out.add(new Tile("pages", "Zobrazených stránek", "fa-file-lines", "", daily("SELECT day, pageviews FROM site_stats_daily WHERE day >= ?", n), days));
         long[] plays = sum(VisitStats.dailyPlays("lyric", n), VisitStats.dailyPlays("karaoke", n), VisitStats.dailyPlays("clip", n));
         out.add(new Tile("plays", "Přehrání", "fa-play", "texty, klipy a karaoke", plays, days));
-        out.add(new Tile("out", "Kliků na Spotify, YouTube…", "fa-arrow-up-right-from-square", "kolik lidí z webu šlo poslouchat",
-                daily("SELECT day, SUM(clicks) FROM outbound_clicks WHERE day >= ? GROUP BY day", n), days));
+        // prokliky z webu na hudební služby – každá zvlášť (kam lidi chodí poslouchat; Spotify vydělává)
+        out.add(new Tile("spotify", "Kliků na Spotify", "fa-brands fa-spotify", "kolik lidí z webu šlo poslouchat na Spotify", outbound("spotify", n), days));
+        out.add(new Tile("youtube", "Kliků na YouTube", "fa-brands fa-youtube", "kolik lidí z webu šlo na YouTube", outbound("youtube", n), days));
+        out.add(new Tile("apple", "Kliků na Apple Music", "fa-brands fa-apple", "kolik lidí z webu šlo na Apple Music", outbound("apple", n), days));
         out.add(new Tile("comments", "Nových komentářů", "fa-comments", "",
                 sum(daily("SELECT DATE(created_at), COUNT(*) FROM comments WHERE created_at >= ? GROUP BY DATE(created_at)", n),
                     daily("SELECT DATE(created_at), COUNT(*) FROM video_comments WHERE created_at >= ? GROUP BY DATE(created_at)", n)), days));
@@ -82,6 +145,25 @@ public final class DashboardStats {
     }
 
     // ---------- pomocné ----------
+
+    /** Prokliky na jednu službu po dnech (target je pevný název z MarketingStats.TARGETS). */
+    private static long[] outbound(String target, int n) throws SQLException {
+        long[] out = new long[n];
+        LocalDate first = LocalDate.now(PRAGUE).minusDays(n - 1L);
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT day, SUM(clicks) FROM outbound_clicks WHERE day >= ? AND target = ? GROUP BY day")) {
+            ps.setObject(1, first);
+            ps.setString(2, target);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LocalDate d = rs.getObject(1, LocalDate.class);
+                    int i = d == null ? -1 : (int) ChronoUnit.DAYS.between(first, d);
+                    if (i >= 0 && i < n) out[i] += rs.getLong(2);
+                }
+            }
+        }
+        return out;
+    }
 
     /** Počty po dnech z dotazu, který vrací (den, počet) a má jeden parametr = první den. Nejstarší první. */
     private static long[] daily(String sql, int n) throws SQLException {
