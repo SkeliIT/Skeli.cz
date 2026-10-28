@@ -11,7 +11,7 @@
   var TOP_SLOT = 124, GEARS_KEVIN = [[1, 290.5, 122, 46], [2, 384, 118, 58], [3, 477.5, 122, 46]];
   // okénka s živou mechanikou [x, y, šířka, výška] – nahoře ji pohání Kevinův běh, dole hráčova pálka
   var WIN_TOP = [128, 191, 513, 79], WIN_BOT = [123, 1073, 523, 136];
-  var BGS = ['tma', 'mesto', 'zapad', 'les', 'vesmir', 'zare', 'ganja'];
+  var BGS = ['tma', 'mesto', 'zapad', 'les', 'vesmir', 'zare', 'ganja', 'sopka', 'poklad', 'kyber', 'podmori', 'podium', 'klenotnice', 'tovarna', 'plys'];
   // watch = jakou část hřiště (od sebe) Kevin sleduje, err = chyba odhadu (díl šířky), bounceErr = o kolik víc
   // se splete za každý odraz od stěny; chyba se losuje jednou za let míčku (ne pořád dokola – to by se zprůměrovalo)
   var LEVELS = {
@@ -33,11 +33,12 @@
     hwins5: 'fa-crown', hfast: 'fa-meteor', hclean: 'fa-skull', hsniper: 'fa-bullseye', hcomeback: 'fa-fire-flame-curved',   // jen za nejtěžší
     wardrobe: 'fa-shirt' };
   var CLAIMABLE = ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'hsniper', 'hcomeback'];
-  var LOOKS = ['first', 'easy', 'tinker', 'normal', 'loyal', 'streak', 'night', 'sniper', 'overheat', 'close', 'marathon', 'comeback', 'clean', 'super', 'angry', 'wins100'];
+  var LOOKS = ['first', 'easy', 'tinker', 'normal', 'loyal', 'streak', 'night', 'sniper', 'overheat', 'close', 'marathon', 'comeback', 'clean', 'super', 'angry', 'wins100', 'wins50'];
   // pozadí pro všechny: Tma a Noční město; ostatní odemkne odznak (kdo nic nevybral nebo má zamčené, má Noční město)
-  var BG_BADGE = { zapad: 'close', les: 'loyal', vesmir: 'fast', zare: 'overheat', ganja: 'comeback' };
+  // pozadí patří k pálce: odemkne ho stejný odznak jako pálku (Noční město ke Graffiti je zdarma)
+  var BG_BADGE = { zare: 'night', zapad: 'first', vesmir: 'angry', ganja: 'wins50', les: 'loyal', sopka: 'comeback', poklad: 'streak', kyber: 'sniper', podmori: 'close', podium: 'marathon', klenotnice: 'clean', tovarna: 'wins100', plys: 'tinker' };
   // výřez obrázku na hřiště (hřiště je na výšku, obrázky na šířku): kde je v obrázku to nejhezčí
-  var BG_POS = { mesto: '20%', zapad: '62%', les: '50%', vesmir: '28%', zare: '50%', ganja: '55%' };
+  var BG_POS = { mesto: '20%', zapad: '62%', les: '50%', vesmir: '28%', zare: '50%', ganja: '55%', sopka: '50%', poklad: '50%', kyber: '50%', podmori: '50%', podium: '50%', klenotnice: '50%', tovarna: '50%', plys: '50%' };
   var MOOD = { lazy: [0.85, 1.35], calm: [1, 1], try: [1.08, 0.8] };
   // Přívěsky pod pálkou se chovají podle materiálu (MAT podle id pálky):
   //  swing = tuhý kus, otáčí se celý kolem místa, kde visí (kov, dřevo, střapec);
