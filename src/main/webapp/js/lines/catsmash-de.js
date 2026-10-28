@@ -85,7 +85,8 @@ window.KEVIN_LINES.de.pong = {
     "Pfotenkette",
     "Neonröhre",
     "Rasta",
-    "Uhrwerk"
+    "Uhrwerk",
+    "SkeloSquad"
   ],
   "skinLock": [
     "",
@@ -119,7 +120,8 @@ window.KEVIN_LINES.de.pong = {
     "hclean": "Kevins Albtraum",
     "hsniper": "Scharfes Auge",
     "hcomeback": "Phönix aus der Maschine",
-    "wardrobe": "Kleiderschrank-König"
+    "wardrobe": "Kleiderschrank-König",
+    "skelosquad": "SkeloSquad"
   },
   "badgeLines": {
     "first": "Na sieh mal an! Noch eine Pfote für die Sammlung. Mach das nochmal!",
@@ -146,7 +148,8 @@ window.KEVIN_LINES.de.pong = {
     "hclean": "Nur drei Tore?! Das kommt nicht in meine Memoiren.",
     "hsniper": "Fünf perfekte Schüsse gegen den wütenden mich? Ich melde das der Katzenpolizei.",
     "hcomeback": "Fünf Tore hinten und du hast mich trotzdem erledigt? Ich leg mich in einen Karton.",
-    "wardrobe": "Alles freigeschaltet! Jetzt schalte mir noch den Weg zum vollen Napf frei."
+    "wardrobe": "Alles freigeschaltet! Jetzt schalte mir noch den Weg zum vollen Napf frei.",
+    "skelosquad": "SkeloSquad! Das Seltenste im ganzen Automaten. Ich verneige mich. Einmal."
   },
   "noBadges": "Auf Leicht gibt es keine Abzeichen – probier Normal.",
   "badgeHow": {
@@ -174,7 +177,8 @@ window.KEVIN_LINES.de.pong = {
     "hclean": "Gewinne auf der schwersten Stufe und lass Kevin höchstens 3 Tore schießen.",
     "hsniper": "Schaffe 5 perfekte Schüsse in einem Spiel auf der schwersten Stufe.",
     "hcomeback": "Gewinne auf der schwersten Stufe ein Spiel, in dem du 5 Tore zurücklagst.",
-    "wardrobe": "Schalte alle anderen Schläger und Bälle frei."
+    "wardrobe": "Schalte alle anderen Schläger und Bälle frei.",
+    "skelosquad": "Hol dir alle 5 Abzeichen der schwersten Stufe."
   },
   "badgesTitle": "Abzeichen",
   "loading": "Maschine startet…",
@@ -208,7 +212,8 @@ window.KEVIN_LINES.de.pong = {
     "hfast": "Rahmen Blitz",
     "hclean": "Rahmen Albtraum",
     "hsniper": "Rahmen Fadenkreuz",
-    "hcomeback": "Rahmen Phönix"
+    "hcomeback": "Rahmen Phönix",
+    "skelosquad": "Hintergrund SkeloSquad, Schläger SkeloSquad"
   },
   "ballTitle": "Ball",
   "balls": [
@@ -279,7 +284,8 @@ window.KEVIN_LINES.de.pong = {
     "Konzertbühne",
     "Goldene Schatzkammer",
     "Steampunk-Fabrik",
-    "Plüschland"
+    "Plüschland",
+    "SkeloSquad"
   ],
   "readyTouch": "Tippen und los!",
   "readyMouse": "Klicken oder Leertaste drücken",

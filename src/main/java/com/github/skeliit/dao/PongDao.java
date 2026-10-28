@@ -185,6 +185,9 @@ public class PongDao {
         for (String k : PongBadges.ICONS.keySet()) {
             if (PongBadges.CLAIMABLE.contains(k) && k.startsWith("h")) p.badge(k, PongBadges.icon(k), claimed.contains(k));
         }
+        boolean legend = true;
+        for (String k : PongBadges.HARD) legend &= p.has(k);
+        p.badge("skelosquad", PongBadges.icon("skelosquad"), legend);
         boolean all = true;
         for (String k : PongBadges.LOOKS) all &= p.has(k);
         p.badge("wardrobe", PongBadges.icon("wardrobe"), all);

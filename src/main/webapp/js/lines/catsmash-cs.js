@@ -85,7 +85,8 @@ window.KEVIN_LINES.cs.pong = {
     "Řetěz s tlapkou",
     "Neonová trubice",
     "Rasta",
-    "Strojovna"
+    "Strojovna",
+    "SkeloSquad"
   ],
   "skinLock": [
     "",
@@ -119,7 +120,8 @@ window.KEVIN_LINES.cs.pong = {
     "hclean": "Kevinova noční můra",
     "hsniper": "Ostré oko",
     "hcomeback": "Fénix ze stroje",
-    "wardrobe": "Šatní král"
+    "wardrobe": "Šatní král",
+    "skelosquad": "SkeloSquad"
   },
   "badgeLines": {
     "first": "No vida! Další packa do sbírky. Zkus to zopakovat!",
@@ -146,7 +148,8 @@ window.KEVIN_LINES.cs.pong = {
     "hclean": "Jen tři góly?! Tohle v mých pamětech nebude.",
     "hsniper": "Pět perfektních ran proti naštvanému mně? Hlásím to kočičí policii.",
     "hcomeback": "Pět gólů ztráta a stejně jsi mě sejmul? Jdu si lehnout do krabice.",
-    "wardrobe": "Celá výbava odemčená! Ještě mi odemkni cestu k plné misce."
+    "wardrobe": "Celá výbava odemčená! Ještě mi odemkni cestu k plné misce.",
+    "skelosquad": "SkeloSquad! Tak tohle je nejvzácnější věc v celým automatu. Klaním se. Jednou."
   },
   "noBadges": "Na Lehkou se odznaky nesbírají – zkus Normální.",
   "badgeHow": {
@@ -174,7 +177,8 @@ window.KEVIN_LINES.cs.pong = {
     "hclean": "Vyhraj na nejtěžší obtížnost a pusť Kevina nejvýš na 3 góly.",
     "hsniper": "Dej 5 perfektních odstřelů v jednom zápase na nejtěžší obtížnost.",
     "hcomeback": "Vyhraj na nejtěžší obtížnost zápas, ve kterém jsi prohrával o 5 gólů.",
-    "wardrobe": "Odemkni všechny ostatní pálky a míčky."
+    "wardrobe": "Odemkni všechny ostatní pálky a míčky.",
+    "skelosquad": "Získej všech 5 odznaků za nejtěžší obtížnost."
   },
   "badgesTitle": "Odznaky",
   "loading": "Startuju stroj…",
@@ -208,7 +212,8 @@ window.KEVIN_LINES.cs.pong = {
     "hfast": "rámeček Blesk",
     "hclean": "rámeček Noční můra",
     "hsniper": "rámeček Zaměřovač",
-    "hcomeback": "rámeček Fénix"
+    "hcomeback": "rámeček Fénix",
+    "skelosquad": "pozadí SkeloSquad, pálka SkeloSquad"
   },
   "ballTitle": "Míček",
   "balls": [
@@ -279,7 +284,8 @@ window.KEVIN_LINES.cs.pong = {
     "Koncertní pódium",
     "Zlatá klenotnice",
     "Steampunk továrna",
-    "Plyšová krajina"
+    "Plyšová krajina",
+    "SkeloSquad"
   ],
   "readyTouch": "Ťukni a jedem!",
   "readyMouse": "Klikni nebo zmáčkni mezerník",

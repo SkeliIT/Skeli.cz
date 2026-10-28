@@ -156,6 +156,8 @@
       var fresh = [];
       list.forEach(function (k) { if (BADGE_ICON[k] && !badges[k]) { badges[k] = true; fresh.push(k); } });
       if (!badges.wardrobe && LOOKS.every(function (k) { return badges[k]; })) { badges.wardrobe = true; fresh.push('wardrobe'); }
+      // SkeloSquad: všech 5 odznaků za nejtěžší obtížnost
+      if (!badges.skelosquad && ['hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback'].every(function (k) { return badges[k]; })) { badges.skelosquad = true; fresh.push('skelosquad'); }
       store.set('kevinPongBadges', JSON.stringify(Object.keys(badges)));
       return Object.keys(BADGE_ICON).filter(function (k) { return fresh.indexOf(k) >= 0; });
     }
@@ -1392,7 +1394,8 @@
       { b: 'clean', img: 'retez', pad: ['#ffe27a', '#a67c00'], rim: '#ffd23f', glow: 'rgba(255, 210, 63, 1)', trail: '#e6b730' },
       { b: 'angry', img: 'neon', pad: ['#2a2a35', '#08080c'], rim: '#7df9ff', glow: 'rgba(200, 110, 255, .95)', trail: '#b46bff' },
       { b: 'wins50', img: 'ganja', pad: ['#4f7a3a', '#1f3a17'], rim: '#ffd23f', glow: 'rgba(110, 210, 90, .9)', trail: '#7fd36b' },
-      { b: 'wins100', img: 'kola', pad: ['#e0a36a', '#7a4320'], rim: '#e0a36a', glow: 'rgba(224, 150, 90, .9)', trail: '#c9844a' }
+      { b: 'wins100', img: 'kola', pad: ['#e0a36a', '#7a4320'], rim: '#e0a36a', glow: 'rgba(224, 150, 90, .9)', trail: '#c9844a' },
+      { b: 'skelosquad', img: 'skelosquad', pad: ['#2a2418', '#000000'], rim: '#ffd23f', glow: 'rgba(255, 210, 63, 1)', trail: '#ffd23f' }   // nejvzácnější
     ];
     SKINS.forEach(function (s) { s.id = s.id || s.img; s.ok = function () { return hasBadge(s.b); }; });
     // (staré číselné kevinPongSkin / kevinPongBall patřily ke zrušeným barevným pálkám a míčkům → začne se od základu)
@@ -2706,7 +2709,7 @@
     // barva kolejnic ladí s automatem vybrané pálky (jen když je automat podle pálky zapnutý), jinak zlatá
     var RAIL_COL = { vetev: '134,196,90', plys: '255,182,206', graffiti: '255,79,216', jadeit: '110,214,150', mince: '255,206,84',
       led: '200,236,255', cip: '89,240,160', perly: '236,224,255', ekvalizer: '255,160,40', lava: '255,110,30', retez: '255,214,90',
-      neon: '125,249,255', kola: '224,150,90', ganja: '120,210,90' };
+      neon: '125,249,255', kola: '224,150,90', ganja: '120,210,90', skelosquad: '255,210,63' };
     function rail(y, x) {
       var rc = (atmoOn && RAIL_COL[curPad()]) || '230,183,48';
       cx.lineWidth = 3; cx.strokeStyle = 'rgba(' + rc + ',.18)';

@@ -85,7 +85,8 @@ window.KEVIN_LINES.vi.pong = {
     "Dây chuyền chân mèo",
     "Ống neon",
     "Rasta",
-    "Bánh răng"
+    "Bánh răng",
+    "SkeloSquad"
   ],
   "skinLock": [
     "",
@@ -119,7 +120,8 @@ window.KEVIN_LINES.vi.pong = {
     "hclean": "Ác mộng của Kevin",
     "hsniper": "Mắt tinh",
     "hcomeback": "Phượng hoàng từ cỗ máy",
-    "wardrobe": "Vua tủ đồ"
+    "wardrobe": "Vua tủ đồ",
+    "skelosquad": "SkeloSquad"
   },
   "badgeLines": {
     "first": "Ồ! Thêm một bàn chân vào bộ sưu tập. Thử lại xem nào!",
@@ -146,7 +148,8 @@ window.KEVIN_LINES.vi.pong = {
     "hclean": "Chỉ ba bàn?! Chuyện này sẽ không có trong hồi ký của tôi.",
     "hsniper": "Năm cú hoàn hảo trước tôi đang giận dữ? Tôi sẽ báo cảnh sát mèo.",
     "hcomeback": "Bị dẫn năm bàn mà vẫn hạ được tôi? Tôi đi nằm trong hộp đây.",
-    "wardrobe": "Mở khóa hết rồi! Giờ mở giúp tôi đường tới bát đồ ăn đầy."
+    "wardrobe": "Mở khóa hết rồi! Giờ mở giúp tôi đường tới bát đồ ăn đầy.",
+    "skelosquad": "SkeloSquad! Thứ hiếm nhất trong cả cỗ máy. Tôi cúi chào. Một lần thôi."
   },
   "noBadges": "Mức Dễ không có huy hiệu – thử mức Bình thường nhé.",
   "badgeHow": {
@@ -174,7 +177,8 @@ window.KEVIN_LINES.vi.pong = {
     "hclean": "Thắng ở mức khó nhất và để Kevin ghi tối đa 3 bàn.",
     "hsniper": "Thực hiện 5 cú bắn hoàn hảo trong một trận ở mức khó nhất.",
     "hcomeback": "Thắng một trận ở mức khó nhất sau khi bị dẫn 5 bàn.",
-    "wardrobe": "Mở khóa tất cả vợt và bóng còn lại."
+    "wardrobe": "Mở khóa tất cả vợt và bóng còn lại.",
+    "skelosquad": "Đạt cả 5 huy hiệu của độ khó cao nhất."
   },
   "badgesTitle": "Huy hiệu",
   "loading": "Đang khởi động cỗ máy…",
@@ -208,7 +212,8 @@ window.KEVIN_LINES.vi.pong = {
     "hfast": "khung Tia chớp",
     "hclean": "khung Ác mộng",
     "hsniper": "khung Tâm ngắm",
-    "hcomeback": "khung Phượng hoàng"
+    "hcomeback": "khung Phượng hoàng",
+    "skelosquad": "nền SkeloSquad, vợt SkeloSquad"
   },
   "ballTitle": "Bóng",
   "balls": [
@@ -279,7 +284,8 @@ window.KEVIN_LINES.vi.pong = {
     "Sân khấu hòa nhạc",
     "Kho vàng",
     "Nhà máy steampunk",
-    "Xứ sở nhung"
+    "Xứ sở nhung",
+    "SkeloSquad"
   ],
   "readyTouch": "Chạm để bắt đầu!",
   "readyMouse": "Nhấp chuột hoặc nhấn Space",

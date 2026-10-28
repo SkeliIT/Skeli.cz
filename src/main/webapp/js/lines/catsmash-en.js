@@ -85,7 +85,8 @@ window.KEVIN_LINES.en.pong = {
     "Paw chain",
     "Neon tube",
     "Rasta",
-    "Clockwork"
+    "Clockwork",
+    "SkeloSquad"
   ],
   "skinLock": [
     "",
@@ -119,7 +120,8 @@ window.KEVIN_LINES.en.pong = {
     "hclean": "Kevin's Nightmare",
     "hsniper": "Sharp Eye",
     "hcomeback": "Phoenix of the Machine",
-    "wardrobe": "Wardrobe King"
+    "wardrobe": "Wardrobe King",
+    "skelosquad": "SkeloSquad"
   },
   "badgeLines": {
     "first": "Well, well! Another paw for the collection. Try doing it again!",
@@ -146,7 +148,8 @@ window.KEVIN_LINES.en.pong = {
     "hclean": "Only three goals?! This will not be in my memoirs.",
     "hsniper": "Five perfect shots against angry me? I am reporting this to the cat police.",
     "hcomeback": "Five goals down and you still took me out? I am going to lie down in a box.",
-    "wardrobe": "Everything unlocked! Now unlock the way to a full bowl for me."
+    "wardrobe": "Everything unlocked! Now unlock the way to a full bowl for me.",
+    "skelosquad": "SkeloSquad! The rarest thing in the whole machine. I bow. Once."
   },
   "noBadges": "No badges on Easy – try Normal.",
   "badgeHow": {
@@ -174,7 +177,8 @@ window.KEVIN_LINES.en.pong = {
     "hclean": "Win on the hardest difficulty and let Kevin score 3 goals at most.",
     "hsniper": "Make 5 perfect power shots in one match on the hardest difficulty.",
     "hcomeback": "Win a match on the hardest difficulty after being 5 goals down.",
-    "wardrobe": "Unlock all the other paddles and balls."
+    "wardrobe": "Unlock all the other paddles and balls.",
+    "skelosquad": "Earn all 5 badges of the hardest difficulty."
   },
   "badgesTitle": "Badges",
   "loading": "Starting the machine…",
@@ -208,7 +212,8 @@ window.KEVIN_LINES.en.pong = {
     "hfast": "Lightning frame",
     "hclean": "Nightmare frame",
     "hsniper": "Crosshair frame",
-    "hcomeback": "Phoenix frame"
+    "hcomeback": "Phoenix frame",
+    "skelosquad": "SkeloSquad background, SkeloSquad paddle"
   },
   "ballTitle": "Ball",
   "balls": [
@@ -279,7 +284,8 @@ window.KEVIN_LINES.en.pong = {
     "Concert stage",
     "Golden vault",
     "Steampunk factory",
-    "Plush land"
+    "Plush land",
+    "SkeloSquad"
   ],
   "readyTouch": "Tap to start!",
   "readyMouse": "Click or press Space",
