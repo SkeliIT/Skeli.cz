@@ -3,7 +3,7 @@
 <%-- Karaoke cinema (preview of the coming big karaoke): /karaoke/{song uuid}, KaraokeCinemaServlet fills kinoJson.
      Two rooms: Prostor (/kino/prostor.js, a looping video; the default) and Ořechový salon (/kino/domov.js); switching loads the page again.
      A loading screen stays up until the room is built (no jerk on the way in). Czech only for now. --%>
-<% String v = "5.9.4"; %>
+<% String v = "5.9.5"; %>
 <!doctype html>
 <html lang="cs">
 <head>
@@ -181,12 +181,8 @@ button { font: inherit; color: inherit; }
 @keyframes turn { 0%, 25% { transform: rotate(0); } 55%, 85% { transform: rotate(-90deg); } 100% { transform: rotate(0); } }
 #fx { pointer-events: none; z-index: 2; }
 /* Kevin's speech bubble: the bit of the line he is rapping */
-.kbubble { position: fixed; z-index: 3; transform: translate(-50%, -100%); max-width: min(360px, 60vw); padding: 10px 16px; border-radius: 18px;
   background: #fff8e6; color: #15110a; font: 500 clamp(15px, 1.4vw, 20px)/1.25 'Oswald'; text-align: center; box-shadow: 0 8px 30px rgba(0, 0, 0, .5), 0 0 0 2px #e6b730;
   pointer-events: none; transition: opacity .3s, transform .3s; }
-.kbubble::after { content: ""; position: absolute; left: 50%; bottom: -9px; width: 16px; height: 16px; margin-left: -8px; background: #fff8e6; transform: rotate(45deg); box-shadow: 2px 2px 0 0 #e6b730; }
-.kbubble[hidden] { display: block; opacity: 0; transform: translate(-50%, -80%) scale(.9); }
-.kbubble b { color: #b8860b; }
 /* end titles over the closed curtain */
 .credits { position: fixed; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; transition: opacity 1s; }
 .credits[hidden] { display: block; opacity: 0; }
@@ -267,7 +263,6 @@ body.fading::after { opacity: 1; pointer-events: auto; }
 <canvas class="layer" id="front" aria-hidden="true"></canvas>
 
 <canvas class="layer" id="fx" aria-hidden="true"></canvas>
-<div class="kbubble" id="kbubble" hidden></div>
 <div class="credits" id="credits" hidden><div class="roll" id="roll"></div></div>
 <a class="kino-exit" id="kinoExit" href="/karaoke-kino"><span class="ke-ico" aria-hidden="true">←</span> <span class="ke-txt">Zpět na web</span></a>
 <div class="brand"><div class="squad" role="img" aria-label="SKELO SQUAD"></div><span class="brand-k">Karaoke</span></div>

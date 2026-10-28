@@ -3,7 +3,7 @@
 // Doplněno 2026-10-25 (nástroje v work/skeli-navrh/kevin-model/nastroje): vlastní kosti ocasu ocas0–ocas6
 // (ocas se vlní a houpe kódem, pohyby z Mixamo na něj nesahají), kost brady „celist“ a pusa jako nálepka
 // z 24 obrázků (kevin/pusy.webp + kevin/pusa.json) – mění tvar při řeči a výrazech, brada jde s ní dolů.
-// The same controller as the old gold statue (js/kevin3d.js, dnes už jen v karaoke salonu), so js/kevin.js
+// Stejné ovládání, jaké měla stará zlatá soška (dřív js/kevin3d.js, smazaná), takže js/kevin.js
 // drives either: setPose, setTalking, act, spin, look, setLight, setPaused, dispose; can(feature) says
 // which surprises this model can show; opts.onReady is called once the model is on screen.
 import * as THREE from './vendor/three/three.module.min.js';

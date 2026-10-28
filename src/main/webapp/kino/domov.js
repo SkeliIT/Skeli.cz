@@ -12,7 +12,6 @@ import { OutputPass } from './vendor/jsm/postprocessing/OutputPass.js';
 import { Reflector } from './vendor/jsm/objects/Reflector.js';
 import { RoomEnvironment } from './vendor/jsm/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from './vendor/jsm/geometries/RoundedBoxGeometry.js';
-import { buildKevin, ARMS } from '/js/kevin3d.js';
 import { GLTFLoader } from './vendor/jsm/loaders/GLTFLoader.js';
 import { GTAOPass } from './vendor/jsm/postprocessing/GTAOPass.js';
 import { RectAreaLightUniformsLib } from './vendor/jsm/lights/RectAreaLightUniformsLib.js';
@@ -466,21 +465,7 @@ let curtainOpen = 0;
 // a warm light grazing each gathered side, so the velvet shows
 const curtainSides = [-1, 1].map((sd) => { const l = new THREE.PointLight(0xffe2c4, 0, 3.2, 1.6); l.position.set(sd * (CPIV - .2), SCY + .3, CZ + .7); frontScene.add(l); return l; });
 
-// Kevin (placeholder until his new look): sits in the armchair on the left; in the chorus he gets up and raps
-// along, a bubble with the bit being sung. Plug the new model in at kevinSlot.
-const kev = buildKevin('/img/');
-kev.scale.setScalar(.16);
-kevinSlot.add(kev);
-kev.rotation.y = Math.PI;                       // facing the screen
-// he is not there at first: some time after the song starts (sooner or later, at random) he walks in from the
-// left and sits down. #kev=3 = in 3 seconds (for testing)
-kev.visible = false;
-let kevState = 'away', kevArrive = 0, kevWalk = 0;
-const KEV_FROM = new THREE.Vector3(-1.1, 0, 1.7);
-const scheduleKevin = () => { kevArrive = performance.now() + (qs.has('kev') ? +qs.get('kev') * 1000 : rnd(8000, 45000)); };
-const ku = kev.userData;
-const kevSpot = new THREE.SpotLight(0xffe2b8, 0, 5, .4, .7, 1.2); kevSpot.position.set(-1.6, 2.6, 1.8); kevSpot.target = kevinSlot; scene.add(kevSpot);
-let kStand = 0;
+// Kevinovo křeslo zůstává zatím prázdné: starý kódem stavěný Kevin (js/kevin3d.js) je pryč, nový přijde do kevinSlot.
 
 // ---------------- the clip in 3D: sized to the pixels it covers, so it is sharp ----------------
 const clipEl = document.createElement('div');
@@ -531,7 +516,6 @@ function play() { if (clock) clock.play(); else if (!simPlaying) { simAt = perfo
 function pause() { if (clock) clock.pause(); else if (simPlaying) { simT = now(); simPlaying = false; } }
 function seek(t) { t = Math.max(0, Math.min(duration() - .5, t)); if (clock) clock.seek(t); else { simT = t; simAt = performance.now(); } rebuild(t); }
 function startPlayer() {
-  scheduleKevin();
   if (SIM) { play(); return; }
   const f = document.createElement('iframe');
   f.src = 'https://www.youtube-nocookie.com/embed/' + D.yt + '?enablejsapi=1&autoplay=1&controls=0&cc_load_policy=0&disablekb=1&fs=0&rel=0&playsinline=1&iv_load_policy=3&modestbranding=1&origin=' + encodeURIComponent(location.origin);
@@ -715,7 +699,7 @@ function exitKino() {
   setTimeout(() => { try { sessionStorage.setItem('kinoOut', '1'); } catch (er) { /* no storage */ } location.href = '/karaoke-kino'; }, 3300);
 }
 function leave() { exitKino(); }
-if (qs.has('auto')) { entered = true; $('lobby').classList.add('gone'); on = onTo = 1; lights = lightsTo = 1; camAt = -1e9; play(); scheduleKevin(); if (!qs.has('end')) curtainOpen = 1; }
+if (qs.has('auto')) { entered = true; $('lobby').classList.add('gone'); on = onTo = 1; lights = lightsTo = 1; camAt = -1e9; play(); if (!qs.has('end')) curtainOpen = 1; }
 
 
 // the built furniture of room A: the sofa, lamp and plant (the models below replace them once loaded)
@@ -890,7 +874,6 @@ pano.src = '/kino/assets/tex/view_shanghai_bund.jpg';
 // shadows: walls, floor and rug take them; the speakers and Kevin cast them
 [backWall, rightWall, ceiling, floorTop, rug, ...leftWhole, ...leftWin].forEach((o) => { o.receiveShadow = true; });
 speakerParts.forEach((g) => g.traverse((o) => { if (o.isMesh) o.castShadow = o.receiveShadow = true; }));
-kev.traverse((o) => { if (o.isMesh) o.castShadow = true; });
 consoleBox.castShadow = consoleBox.receiveShadow = true;
 // the reflections: this room, lit, caught once by a camera in the middle of it
 const roomEnv = scene.environment, cubeRT = new THREE.WebGLCubeRenderTarget(256, { type: THREE.HalfFloatType });
@@ -981,7 +964,7 @@ const avg = new THREE.Color(), tmp = new THREE.Color(), tmp2 = new THREE.Color()
 function credits() {
   return '<span class="ct">' + D.title + '</span><span class="cv">' + D.artist + ' · ' + D.year + '</span>' +
     '<span class="cl">Rap a text</span><span class="cv">' + D.artist + '</span><span class="cl">Karaoke</span><span class="cv">SKELO SQUAD</span>' +
-    '<span class="cl">V křesle</span><span class="cv">Kevin</span><span class="cl">A hlavně</span><span class="cv">ty – díky, že sis zazpíval/a</span><span class="cs"></span>';
+    '<span class="cl">A hlavně</span><span class="cv">ty – díky, že sis zazpíval/a</span><span class="cs"></span>';
 }
 target(Math.max(20, simT), cur);
 fit();
@@ -1090,39 +1073,6 @@ function frame(ts) {
   curtainKey.intensity = (3 * (1 - co) + .9) * Math.max(lights, .3);
   curtainSides.forEach((l) => { l.intensity = 2.2 * co * Math.max(lights, .3); });
 
-  // Kevin (placeholder): up for the chorus, rapping the words being sung
-  if (kevState === 'away' && kevArrive && pl && ts > kevArrive) { kevState = 'walking'; kevWalk = ts; kev.visible = true; }
-  if (kevState === 'walking') {
-    const p = Math.min(1, (ts - kevWalk) / 2800), e2 = p < .85 ? (p / .85) * (p / .85) * (3 - 2 * p / .85) : 1, step = Math.sin(p * Math.PI * 9);
-    kev.position.set(KEV_FROM.x * (1 - e2), p < .85 ? -.53 + Math.abs(step) * .03 : -.53 + .53 * (p - .85) / .15, KEV_FROM.z * (1 - e2));
-    const walkYaw = Math.atan2(-KEV_FROM.x, -KEV_FROM.z);
-    kev.rotation.y = p < .85 ? walkYaw : walkYaw + (Math.PI - walkYaw) * (p - .85) / .15;
-    ku.armR.rotation.x = step * .45; ku.armL.rotation.x = -step * .45; ku.tail.rotation.y = Math.sin(sec * 5) * .3;
-    if (p >= 1) { kevState = 'here'; kev.position.set(0, 0, 0); kev.rotation.y = Math.PI; }
-  }
-  if (kevState === 'here') {
-  kStand += ((chorus > .5 && pl ? 1 : 0) - kStand) * (1 - Math.exp(-dt * 2.2));
-  kev.position.y = kStand * .22 + Math.abs(Math.sin(t * Math.PI * 1.5)) * .03 * kStand;
-  kev.rotation.y = Math.PI * (1 - kStand) + .5 * kStand + Math.sin(sec * 2.2) * .15 * kStand;   // turns to us, a little to the screen
-  const pose = kStand > .5 ? (Math.floor(sec / 2.5) % 2 ? 'beatbox' : 'rap') : 'idle', arm = ARMS[pose], ke = 1 - Math.exp(-dt * 8);
-  ku.armR.rotation.x += (arm[0] - ku.armR.rotation.x) * ke; ku.armR.rotation.z += (arm[1] - ku.armR.rotation.z) * ke;
-  ku.armL.rotation.x += (arm[2] + (pose === 'rap' ? Math.sin(sec * 9) * .2 : 0) - ku.armL.rotation.x) * ke; ku.armL.rotation.z += (arm[3] - ku.armL.rotation.z) * ke;
-  const rapping = kStand > .6 && line && line._w.some((w) => w.now);
-  ku.mouth.scale.y += ((rapping ? .35 + Math.abs(Math.sin(sec * 15)) * .6 : .05) - ku.mouth.scale.y) * .3;
-  ku.head.rotation.z = Math.sin(t * Math.PI * .75) * .07 * (.3 + kStand);
-  ku.body.position.y = beat * .04;
-  ku.eyes.forEach((ey) => { ey.scale.y += (((sec % 4.2) < .12 ? .1 : 1) - ey.scale.y) * .5; });
-  ku.tail.rotation.y = Math.sin(sec * (1.3 + kStand * 4)) * (.12 + kStand * .25);
-  kevSpot.intensity = 1 + kStand * 8;
-  const bub = $('kbubble');
-  const said = kStand > .7 && line ? line._w.filter((w) => w.lit).slice(-5) : [];
-  if (said.length) {
-    bub.innerHTML = said.map((w) => (w.now ? '<b>' + w.el.textContent + '</b>' : w.el.textContent)).join(' ');
-    const hp = new THREE.Vector3(0, 3.6, 0); kev.localToWorld(hp); hp.project(camera);
-    bub.style.left = Math.max(120, (hp.x + 1) / 2 * innerWidth) + 'px'; bub.style.top = ((1 - hp.y) / 2 * innerHeight - 6) + 'px';
-    bub.hidden = false;
-  } else bub.hidden = true;
-  } else document.getElementById('kbubble').hidden = true;
 
   if (entered) words(t);
   drawFx(dt);
