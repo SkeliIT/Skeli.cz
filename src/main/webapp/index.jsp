@@ -126,17 +126,10 @@
 
     <aside class="home-aside">
       <div class="card side-card">
-        <h3><i class="fa-solid fa-microphone-lines"></i> <%= t.getProperty("home.concerts","Koncerty") %></h3>
-        <p class="text-dim"><%= t.getProperty("home.concerts.none","Zatím nejsou naplánovány žádné koncerty.") %></p>
-      </div>
-
-      <div class="card side-card">
         <h3><i class="fa-solid fa-bullhorn"></i> <%= t.getProperty("home.social") %></h3>
         <div id="home-social" class="home-social-grid"></div>
         <a class="side-link" href="/aktuality.jsp"><%= t.getProperty("home.allNews") %></a>
       </div>
-
-<%@ include file="/includes/feedback-card.jspf" %>
 
       <%-- hra CatSmash: jedna karta, ať o ní lidi vědí (dřív jen přes Kevinovo menu) --%>
       <div class="card side-card game-card">
@@ -146,6 +139,8 @@
         <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
         <p class="game-credit"><%= t.getProperty("home.game.credit") %></p>
       </div>
+
+<%@ include file="/includes/feedback-card.jspf" %>
 
       <div class="card side-card newsletter card-gold">
         <div class="nl-photo" aria-hidden="true"><img src="/img/photos/point-sm.webp" alt="" loading="lazy" width="640" height="480"></div>
@@ -157,6 +152,12 @@
           <div class="hp-field" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
           <button type="submit"><%= t.getProperty("home.newsletter.submit","Odebírat") %></button>
         </form>
+      </div>
+
+      <%-- koncerty až úplně dole, dokud žádné nejsou --%>
+      <div class="card side-card">
+        <h3><i class="fa-solid fa-microphone-lines"></i> <%= t.getProperty("home.concerts","Koncerty") %></h3>
+        <p class="text-dim"><%= t.getProperty("home.concerts.none","Zatím nejsou naplánovány žádné koncerty.") %></p>
       </div>
     </aside>
   </section>
