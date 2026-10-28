@@ -38,6 +38,27 @@ public class HomeDao {
         }
     }
 
+    /**
+     * Klip, který je na úvodu nahoře jako „Nový song“: ručně vybraný (app_settings home_featured_youtube), dokud
+     * nevyjde novější klip – pak vždy ten nejnovější. Bez nastavení = nejnovější klip.
+     */
+    public HomeVideo featured(List<HomeVideo> newest) throws SQLException {
+        HomeVideo top = newest.isEmpty() ? null : newest.get(0);
+        try (Connection conn = Db.get();
+             PreparedStatement ps = conn.prepareStatement(
+                     "SELECT v.youtube_id, v.title, v.published_at, s.name, a.updated_at FROM app_settings a "
+                     + "JOIN videos v ON BINARY v.youtube_id = BINARY a.v LEFT JOIN songs s ON s.id = v.song_id WHERE a.k = 'home_featured_youtube'")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return top;
+                Timestamp chosenAt = rs.getTimestamp(5);
+                // vyšel klip až po ručním výběru → nový song je ten nový
+                if (top != null && top.published() != null && chosenAt != null && top.published().after(chosenAt)) return top;
+                String title = VideoTitles.display(rs.getString(2));
+                return new HomeVideo(rs.getString(1), title != null ? title : rs.getString(4), rs.getTimestamp(3));
+            }
+        }
+    }
+
     public List<HomeVideo> latestVideos(int limit) throws SQLException {
         List<HomeVideo> list = new ArrayList<>();
         try (Connection conn = Db.get();

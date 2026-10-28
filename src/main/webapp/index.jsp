@@ -11,7 +11,7 @@
   boolean homeDbError = false;
   try {
     com.github.skeliit.dao.HomeDao homeDao = new com.github.skeliit.dao.HomeDao();
-    homeVideos = homeDao.latestVideos(5);
+    homeVideos = homeDao.latestVideos(6);
     tapeSongs = homeDao.songsWithLyrics(cur);
     quote = homeDao.randomQuote(cur);
   } catch (SQLException ex) {
@@ -19,7 +19,12 @@
   }
   java.time.format.DateTimeFormatter dateFmt = java.time.format.DateTimeFormatter
       .ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(java.util.Locale.forLanguageTag(cur));
+  // nahoře „Nový song“ (ručně vybraný, nebo nejnovější klip); v Novinkách se pak už neopakuje
   com.github.skeliit.dao.HomeDao.HomeVideo latest = homeVideos.isEmpty() ? null : homeVideos.get(0);
+  try { latest = new com.github.skeliit.dao.HomeDao().featured(homeVideos); } catch (SQLException ex) { /* zůstane nejnovější */ }
+  final String featuredId = latest == null ? "" : latest.youtubeId();
+  java.util.List<com.github.skeliit.dao.HomeDao.HomeVideo> newsVideos = new java.util.ArrayList<>();
+  for (com.github.skeliit.dao.HomeDao.HomeVideo hv : homeVideos) if (!hv.youtubeId().equals(featuredId) && newsVideos.size() < 5) newsVideos.add(hv);
 %>
 <main class="home-page">
   <section class="hero">
@@ -35,7 +40,8 @@
     <% } else { %>
     <p class="hero-kicker"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><%= t.getProperty("home.kicker") %></p>
     <% } %>
-    <h1 class="hero-title"><span class="logo-mark" aria-hidden="true"></span><span class="sr-only">Skeli – SKELOSQUAD</span></h1>
+    <%-- nadpis jen pro vyhledávače a čtečky (velký nápis SKELOSQUAD uživatel nechtěl) --%>
+    <h1 class="sr-only">Skeli – SKELOSQUAD</h1>
     <p class="hero-tagline"><%= t.getProperty("home.lead") %></p>
     <div class="hero-actions">
       <button type="button" class="btn btn-primary btn-lg" data-spotify-src="artist:5IouXw8U9uKCTwmncG5bUl">
@@ -112,18 +118,18 @@
         <% } else if (homeVideos.isEmpty()) { %>
           <div class="empty-note"><%= t.getProperty("home.news.none","Žádná videa k zobrazení.") %></div>
         <% }
-           for (com.github.skeliit.dao.HomeDao.HomeVideo v : homeVideos) {
+           for (com.github.skeliit.dao.HomeDao.HomeVideo v : newsVideos) {
              String vid = com.github.skeliit.WebUtils.escapeHtml(v.youtubeId());
              String title = v.title() == null ? "" : com.github.skeliit.WebUtils.escapeHtml(v.title());
              String dateStr = v.published() == null ? "" : dateFmt.format(v.published().toLocalDateTime().toLocalDate());
-             boolean big = v == latest; %>
+             boolean big = v == newsVideos.get(0); %>
           <a class="video<%= big ? " video-featured" : "" %>" href="https://www.youtube.com/watch?v=<%= vid %>" target="_blank" rel="noopener">
             <div class="video-thumb">
               <img src="/yt-thumb/<%= vid %>/<%= big ? "maxresdefault" : "hqdefault" %>.jpg" alt="<%= title %>" loading="lazy"<% if (big) { %> onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')"<% } %>>
               <span class="video-play"><i class="fa-solid fa-play"></i></span>
             </div>
             <div class="meta">
-              <% if (big) { %><span class="video-badge"><%= t.getProperty("home.latest") %></span><% } %>
+
               <div class="video-title"><% if (title.isEmpty()) { %><i class="fab fa-youtube icon-youtube"></i> YouTube<% } else { %><%= title %><% } %></div>
               <% if (!dateStr.isEmpty()) { %><div class="video-date"><%= dateStr %></div><% } %>
             </div>
