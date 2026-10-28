@@ -1,5 +1,5 @@
-// Kevin – the rapping gold cat of SKELO SQUAD in the bottom left corner (css/effects.css).
-// The 3D model (js/kevin3d.js, Three.js) loads only after the page; with reduced motion,
+// Kevin – rapující kocour SKELO SQUAD: čeká jako zlatá tlapka v liště a vylézá z ní (css/effects.css).
+// 3D model (js/kevin-model.js, Three.js) se načte až po stránce; s omezeným pohybem,
 // save-data or without WebGL a still image stands in. He greets, comments on the page,
 // raps two lines of Skeli's lyrics (/api/kevin/bars) with a beat when clicked (sound only
 // ever after a click), reacts to window 'kevin' events ({detail: {pw: 'weak'|'strong'|…}}
@@ -104,7 +104,7 @@
   syncSound();
 
   // ---------- the 3D model (or the still image) ----------
-  var k = null;   // controller from kevin3d.js
+  var k = null;   // ovladač modelu z js/kevin-model.js
   var fake = { setPose: function () {}, setTalking: function () {}, spin: function () {}, look: function () {}, setLight: function () {}, setPaused: function () {}, act: function () { return 0; } };
   function model() { return k || fake; }
   function useStill() { canvas.hidden = true; still.hidden = false; }
@@ -599,15 +599,28 @@
     show(L.menu.hint, { pose: 'point', extra: box, ms: 9000 });
   }
 
-  // CatSmash: hra přes celou obrazovku (js/kevin-pong.js se načte až teď); Kevin v rohu se zatím schová
+  // CatSmash: hra přes celou obrazovku (složka js/catsmash/ se načte až teď); Kevin v rohu se zatím schová
   function pong() {
     hideBubble('idle');
-    var go = function () { window.KevinPong.open({ version: version }); };
+    var go = function () {
+      var css = document.querySelector('link[data-catsmash]');
+      if (!css || css.sheet) return window.KevinPong.open({ version: version });
+      var once = function () { css.removeEventListener('load', once); css.removeEventListener('error', once); window.KevinPong.open({ version: version }); };
+      css.addEventListener('load', once); css.addEventListener('error', once);
+    };
     if (window.KevinPong) return go();
-    // nejdřív hlášky do hry (js/kevin-pong-lines.js), pak hra; když hlášky nejdou načíst, hraje se i tak
+    // po sobě: texty hry v jazyce stránky, Kevinovy hlášky do zápasu, pevná data, zvuky a nakonec hra
+    // (js/catsmash/hra.js potřebuje data a zvuky); hlášky a texty můžou chybět, hraje se i tak
     var v = version ? '?' + version : '';
+    var parts = ['/js/lines/catsmash-' + lang + '.js', '/js/catsmash/hlasky.js', '/js/catsmash/data.js', '/js/catsmash/zvuky.js', '/js/catsmash/hra.js'];
     var load = function (src, done) { var sc = document.createElement('script'); sc.src = src; sc.onload = done; sc.onerror = done; document.head.appendChild(sc); };
-    load('/js/kevin-pong-lines.js' + v, function () { load('/js/kevin-pong.js' + v, go); });
+    // styly hry (css/catsmash.css) – na ostatních stránkách se nestahují; hra začne až s nimi, ať neproblikne bez vzhledu
+    if (!document.querySelector('link[data-catsmash]')) {
+      var css = document.createElement('link');
+      css.rel = 'stylesheet'; css.href = '/css/catsmash.css' + v; css.setAttribute('data-catsmash', '');
+      document.head.appendChild(css);
+    }
+    (function next(i) { if (i < parts.length) load(parts[i] + v, function () { next(i + 1); }); else if (window.KevinPong) go(); })(0);
   }
 
   // 1) find a song by its name or a line of its lyrics
@@ -1643,14 +1656,22 @@
   paw.addEventListener('click', function () {
     if (!pawUsed) { pawUsed = true; store.set('kevinPawUsed', '1'); clearInterval(nudgeTimer); paw.classList.remove('paw-nudge'); }
     if (walking) endWalk();   // only one Kevin at a time
-    if (!root.hidden) { endRap(); hideBubble('idle'); place(false); return; }   // a second tap: back in
+    // Kevin je venku (třeba zrovna něco říká): ťuknutí na tlapku otevře jeho menu – dřív ho jen zavřelo, což
+    // mátlo (lidi si mysleli, že tlapka nic nedělá). Zpátky do tlapky až druhé ťuknutí při otevřeném menu.
+    if (!root.hidden) {
+      if (!bubble.hidden && extra.querySelector('.kevin-menu')) { hideBubble('idle'); place(false); return; }
+      endRap();
+      menu();
+      return;
+    }
     var said = pending;
     pending = null;
     paw.classList.remove('has-news');
     setHidden(false);
     living = true;   // pulled out by the visitor: after what he says he stays a while and lives
     popOut();
-    if (said) show(said[0], said[1]); else if (pocket()) menu(); else show(pick(L.wake), { pose: 'point' });
+    // čekající zpráva (tečka na tlapce) má přednost, jinak rovnou menu – tlapka = „co pro tebe můžu udělat“
+    if (said) show(said[0], said[1]); else menu();
   });
 
   // he looks at the mouse

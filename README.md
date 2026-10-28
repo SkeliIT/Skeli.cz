@@ -111,7 +111,13 @@ src/main/webapp/                     JSP stránky
   css/pages.css                      jednotlivé stránky
   css/effects.css                    efekty a fotky (třpyt, kouř v logu, střídání pozadí)
   css/admin.css                      administrace (načítá se jen pod /admin)
+  css/comments.css                   komentáře pod texty a klipy
+  css/catsmash.css                   hra CatSmash (načte se až s hrou)
   js/                                skripty (Kevin, souhlas s cookies, heslo, avatar…), js/vendor = knihovny
+  js/lines/                          Kevinovy hlášky (kevin-<jazyk>.js) a texty hry (catsmash-<jazyk>.js)
+  js/catsmash/                       hra CatSmash: data.js, zvuky.js, hlasky.js (generuje tools/catsmash-hlasky.js), hra.js
+  kevin/                             Kevinův 3D model, pohyby, novinky; kevin/pong = obrázky hry
+  kino/                              karaoke kino (pokoje Prostor a Ořechový salon)
   img/                               obrázky, loga, vlajky (img/flags)
 src/main/resources/db/migration/     Flyway migrace
 src/test/java/                       unit testy a UI testy (*IT)

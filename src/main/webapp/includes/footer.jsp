@@ -131,7 +131,8 @@
 <script src="<%= request.getContextPath() %>/js/effects.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/presence.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/consent.js?v=<%= assetVersion %>" defer></script>
-<script src="<%= request.getContextPath() %>/js/kevin-lines.js?v=<%= assetVersion %>" defer></script>
+<%-- Kevinovy hlášky jen v jazyce stránky (texty hry CatSmash se načtou až se hrou, js/kevin.js) --%>
+<script src="<%= request.getContextPath() %>/js/lines/kevin-<%= cur %>.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/kevin.js?v=<%= assetVersion %>" defer></script>
 <script>
   // third-party players (YouTube, Spotify) in .consent-embed: they load after consent in the

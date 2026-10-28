@@ -3,7 +3,7 @@
 // Doplněno 2026-10-25 (nástroje v work/skeli-navrh/kevin-model/nastroje): vlastní kosti ocasu ocas0–ocas6
 // (ocas se vlní a houpe kódem, pohyby z Mixamo na něj nesahají), kost brady „celist“ a pusa jako nálepka
 // z 24 obrázků (kevin/pusy.webp + kevin/pusa.json) – mění tvar při řeči a výrazech, brada jde s ní dolů.
-// The same controller as the old gold statue (js/kevin3d.js, still used by the karaoke cinema), so js/kevin.js
+// Stejné ovládání, jaké měla stará zlatá soška (dřív js/kevin3d.js, smazaná), takže js/kevin.js
 // drives either: setPose, setTalking, act, spin, look, setLight, setPaused, dispose; can(feature) says
 // which surprises this model can show; opts.onReady is called once the model is on screen.
 import * as THREE from './vendor/three/three.module.min.js';
@@ -14,7 +14,7 @@ import { MeshoptDecoder } from './vendor/three/meshopt_decoder.module.js';
 // poses he stays in (looping clips)
 const POSES = { idle: 'idle', rap: 'rap', beatbox: 'silly', cool: 'bored', point: 'idle', sleep: 'bored', sulk: 'bored' };
 // one-shot acts for "Do something" (keys of KEVIN_LINES.surprise) → clips; null = done in code here
-// (each surprise in kevin-lines.js is one of his real moves; beatbox and the rhyme dance with a beat)
+// (each surprise in js/lines/kevin-<jazyk>.js is one of his real moves; beatbox and the rhyme dance with a beat)
 const ACTS = {
   beatbox: 'silly', rhyme: 'rap', dance: 'dance', dance2: 'dance2', dance3: 'dance3', robot: 'robot', silly: 'silly',
   breakdance: 'breakdance', flair: 'flair', jump: 'jump', dive: 'dive', kick: 'kick', cheer: 'cheer', clap: 'clap',
@@ -536,6 +536,11 @@ export function createKevin(canvas, opts = {}) {
     },
     // délka klipu v ms (0 = nemá ho)
     clipMs(name) { return actions[name] ? actions[name].getClip().duration * 1000 : 0; },
+    // ostrost obrazu (slabý telefon: méně pixelů = plynulejší hra); 0 = výchozí
+    setMaxPixelRatio(r) {
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, r || 1.75));
+      resize();
+    },
     dispose() {
       disposed = true;
       ro.disconnect();

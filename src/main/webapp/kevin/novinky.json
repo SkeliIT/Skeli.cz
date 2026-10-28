@@ -1,5 +1,14 @@
 [
   {
+    "d": "2026-10-28",
+    "href": "/?kevin=pong",
+    "cs": "V CatSmashi si teď na telefonu vybereš, jak pálka jede za prstem – jako dřív, páčkou jako na ovladači, nebo jako na trackpadu. A v menu hry najdeš tipy, jak mě porazit.",
+    "en": "In CatSmash you can now choose how the paddle follows your finger on a phone – classic, a stick like on a gamepad, or like a trackpad. And the game menu has tips on how to beat me.",
+    "de": "In CatSmash wählst du jetzt auf dem Handy, wie der Schläger deinem Finger folgt – klassisch, mit einem Stick wie am Controller oder wie ein Trackpad. Und im Spielmenü gibt es Tipps, wie du mich schlägst.",
+    "uk": "У CatSmash тепер на телефоні можна обрати, як ракетка рухається за пальцем – як раніше, джойстиком, як на геймпаді, або як трекпадом. А в меню гри є поради, як мене перемогти.",
+    "vi": "Trong CatSmash, giờ bạn có thể chọn cách vợt chạy theo ngón tay trên điện thoại – như cũ, cần điều khiển như tay cầm chơi game, hoặc như trackpad. Và trong menu trò chơi có mẹo để thắng tôi."
+  },
+  {
     "d": "2026-10-27",
     "href": "/uzivatel.jsp#pong",
     "cs": "Za nejtěžší odznaky v CatSmashi teď dostaneš rámeček kolem fotky – uvidí ho všichni u tvých komentářů.",
@@ -34,14 +43,5 @@
     "de": "CatSmash hat jetzt zwanzig Abzeichen. Für die meisten gibt es einen neuen Schläger, Ball oder Hintergrund, und eins kannst du als Titel neben deinem Namen tragen.",
     "uk": "У CatSmash тепер двадцять значків. За більшість отримаєш нову ракетку, м’ячик або фон, а один можна носити як титул біля імені.",
     "vi": "CatSmash giờ có hai mươi huy hiệu. Phần lớn cho bạn vợt, bóng hoặc nền mới, và bạn có thể đeo một cái làm danh hiệu cạnh tên."
-  },
-  {
-    "d": "2026-10-27",
-    "href": "/?kevin=pong",
-    "cs": "Moje hra se teď jmenuje CatSmash a má nové menu přímo na skle stroje. Nastavení najdeš v rohu displeje.",
-    "en": "My game is now called CatSmash and has a new menu right on the machine's glass. Settings are in the corner of the screen.",
-    "de": "Mein Spiel heißt jetzt CatSmash und hat ein neues Menü direkt auf dem Glas der Maschine. Die Einstellungen sind in der Ecke des Displays.",
-    "uk": "Моя гра тепер називається CatSmash і має нове меню просто на склі машини. Налаштування – в куті екрана.",
-    "vi": "Trò chơi của tôi giờ tên là CatSmash và có menu mới ngay trên mặt kính cỗ máy. Cài đặt nằm ở góc màn hình."
   }
 ]
