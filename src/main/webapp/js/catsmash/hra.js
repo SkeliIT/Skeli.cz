@@ -61,6 +61,7 @@
       '    <button type="button" class="kpong-set" aria-label="' + esc(T.settings || 'Settings') + '" aria-haspopup="dialog"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>' +
       '    <canvas class="kpong-kevin" aria-hidden="true"></canvas>' +
       '    <div class="kpong-rim" hidden aria-hidden="true"><i class="kpong-rim-shine"></i></div>' +
+      '    <div class="kpong-skin" hidden aria-hidden="true"><i class="kpong-rim-shine"></i></div>' +
       '    <div class="kpong-field">' +
       '      <div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
@@ -458,10 +459,22 @@
     // Kreslí se jako CSS border-image: ramy.json zná tloušťku pásu u každé strany (slice), šířku pásu na liště
     // určuje css podle vzácnosti pálky, takže tlustý plyš i tenká větvička jsou na liště stejně široké.
     // Lesk, záře a blikání dělá css/catsmash.css podle data-pad.
-    var RAMY = null, rimEl = root.querySelector('.kpong-rim');
+    // Automat podle pálky (kevin/pong/stroje/, tools/catsmash-stroje.py) má přednost: leží nad hřištěm a okénky
+    // s koly (otvory jsou průhledné), dnešní automat (ram.webp) i rámeček se pak schovají.
+    var RAMY = null, STROJE = null, rimEl = root.querySelector('.kpong-rim'), skinEl = root.querySelector('.kpong-skin');
+    var frameEl = root.querySelector('.kpong-frame');
     fetch('/kevin/pong/ramy/ramy.json' + ver).then(function (r) { return r.json(); }).then(function (j) { RAMY = j; setRim(); }).catch(function () { /* bez rámečků */ });
+    fetch('/kevin/pong/stroje/stroje.json' + ver).then(function (r) { return r.json(); }).then(function (j) { STROJE = j; setRim(); }).catch(function () { /* bez automatů */ });
     function setRim() {
-      var id = curPad(), m = RAMY && id && RAMY[id];
+      var id = curPad(), m = RAMY && id && RAMY[id], sk = atmoOn && STROJE && id && STROJE[id];
+      frameEl.classList.toggle('themed', !!sk);
+      skinEl.hidden = !sk;
+      if (sk) {
+        skinEl.style.setProperty('--rim', 'url("/kevin/pong/stroje/' + id + '.webp' + ver + '")');
+        skinEl.dataset.pad = id;
+        rimEl.hidden = true;
+        return;
+      }
       if (!m || !atmoOn) { rimEl.hidden = true; return; }
       rimEl.style.setProperty('--rim', 'url("/kevin/pong/ramy/' + id + '.webp' + ver + '")');
       rimEl.style.setProperty('--sl', m.slice.join(' '));

@@ -740,3 +740,20 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 @keyframes kp-rim-flicker { 0%, 70%, 74%, 100% { opacity: 1; } 71% { opacity: .55; } 72% { opacity: 1; } 73% { opacity: .7; } }
 .kpong-rim[data-pad="kola"] { --shine: rgba(255, 200, 140, .7); --shine-time: 5s; --glow-max: .35; --glow-time: 4s; }
 @media (prefers-reduced-motion: reduce) { .kpong-rim, .kpong-rim::before, .kpong-rim-shine::before { animation: none !important; } }
+
+/* ---------- automat podle pálky (js setRim, kevin/pong/stroje/) ----------
+   Leží nad hřištěm a okénky s koly (z-index 1, otvory průhledné), Kevinova kola a štěrbina nahoře nad ním.
+   Lesk přejíždí po celém automatu (maska = jeho obrázek). */
+.kpong-frame.themed { background: none; }
+.kpong-frame.themed .kpong-gears, .kpong-frame.themed .kpong-slot { z-index: 2; }
+.kpong-skin {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: var(--rim) 0 0 / 100% 100% no-repeat;
+  --shine: rgba(255, 244, 214, .45); --shine-time: 8s;
+}
+.kpong-skin[hidden] { display: none; }
+.kpong-skin .kpong-rim-shine { inset: 0; border: 0; -webkit-mask: var(--rim) 0 0 / 100% 100% no-repeat; mask: var(--rim) 0 0 / 100% 100% no-repeat; -webkit-mask-box-image: none; }
+.kpong-skin .kpong-rim-shine::before { top: -5%; bottom: -5%; left: 0; width: 45%; }
+.kpong-skin[data-pad="vetev"] { --shine: rgba(255, 240, 200, .35); --shine-time: 10s; }
+.kpong-skin[data-pad="plys"] { --shine: rgba(255, 235, 245, .45); --shine-time: 10s; }
+@media (prefers-reduced-motion: reduce) { .kpong-skin .kpong-rim-shine::before { animation: none !important; } }
