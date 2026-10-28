@@ -9,7 +9,7 @@ import java.util.Set;
  * Část odznaků počítá server z uložených výher (pong_results), zbytek se děje uvnitř zápasu (odstřely, šroubky…)
  * a hlásí ho prohlížeč – ty jsou v CLAIMABLE a ukládají se do pong_badges.
  * Každý získaný odznak jde nosit jako titul u jména (users.pong_title), většina navíc odemkne věc ve hře
- * (pálku, míček nebo pozadí – mapa je v js/kevin-pong.js).
+ * (pálku, míček nebo pozadí – mapa je v js/catsmash/hra.js).
  */
 public final class PongBadges {
     private PongBadges() {}

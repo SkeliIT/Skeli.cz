@@ -1,9 +1,9 @@
 /* ============================================
-   CatSmash – Kevinova hra (js/kevin-pong.js). Načítá se až s hrou (js/kevin.js pong()),
+   CatSmash – Kevinova hra (js/catsmash/hra.js). Načítá se až s hrou (js/kevin.js pong()),
    na ostatních stránkách se nestahuje. Barvy, písma a velikosti z css/base.css.
    ============================================ */
 
-/* ---------- CatSmash (js/kevin-pong.js): hra přes celou obrazovku, hřiště na výšku ---------- */
+/* ---------- CatSmash (js/catsmash/hra.js): hra přes celou obrazovku, hřiště na výšku ---------- */
 html.kpong-open, html.kpong-open body { overflow: hidden; }
 /* pod otevřenou hrou se pozadí webu nehýbe (šetří grafickou kartu, hra pak neškube) */
 html.kpong-open body::before, html.kpong-open .bg-slides { animation-play-state: paused; }
@@ -115,7 +115,7 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
 @keyframes kpong-shot { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 3px rgba(230, 183, 48, .9), inset 0 0 60px rgba(230, 183, 48, .25); } }
 @keyframes kpong-shot-super { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 4px rgba(255, 138, 30, .95), inset 0 0 90px rgba(255, 106, 0, .35); } }
 /* telefon a tablet: ⚡ Odstřel je kulaté tlačítko, které plave nad strojem (místo nezabírá, stroj je větší);
-   podržením se dá přesunout, kam hráči sedí (--sx/--sy v % okna, js/kevin-pong.js); pálku vede prst kdekoli
+   podržením se dá přesunout, kam hráči sedí (--sx/--sy v % okna, js/catsmash/hra.js); pálku vede prst kdekoli
    na automatu až po spodní hranu */
 .kpong-pad { display: none; }
 @media (pointer: coarse) {
@@ -158,7 +158,7 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
   .kp-layout-bar .kp-fullbtn, .kp-layout-bar .btn-primary { min-height: 44px; padding: 0 14px; }
 }
 /* ---------- stroj: rám z obrázku, sklo hřiště, ozubená kola, Kevin na prostředním kole ----------
-   všechno v pixelech obrázku rámu krát --u (nastavuje kevin-pong.js fit()); okraje stroje se rozplývají do tmy */
+   všechno v pixelech obrázku rámu krát --u (nastavuje catsmash/hra.js fit()); okraje stroje se rozplývají do tmy */
 .kpong .kpong-box { width: min-content; align-items: stretch; }   /* šířka = stroj, lišty nad ním se zalomí */
 @media (orientation: landscape) and (max-height: 500px) { .kpong .kpong-box { width: auto; } }
 .kpong-machine {

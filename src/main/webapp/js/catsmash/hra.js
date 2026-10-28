@@ -17,33 +17,17 @@
 // Pozadí hrací plochy (na skle hřiště, ztmavené, ať je vidět hopík a pálky): sklo stroje, nebo jeden ze 6 obrázků
 // (město, západ slunce, les, vesmír, polární záře, ganja údolí), výběr v menu hry (localStorage kevinPongBg);
 // obrázky žijí na plátně .kpong-bgfx (déšť, prach, světlušky, hvězdy s meteorem, sníh, pyl). Se „omezit pohyb“ jen obrázek.
-// Kevin komentuje hru hláškami z js/kevin-pong-lines.js (načte se se hrou) podle situace – série, mečbol, 9:9,
+// Kevin komentuje hru hláškami z js/catsmash/hlasky.js (načte se se hrou) podle situace – série, mečbol, 9:9,
 // obrat, dlouhá výměna, rychlý hopík, odstřely, trest, nehybný hráč, odveta, rekord, vzácné hlášky; bez opakování
-// (balíček se zamíchá), s odstupem mezi hláškami, důležité chvíle přebijí. Chybí-li jazyk, mluví z kevin-lines.js.
+// (balíček se zamíchá), s odstupem mezi hláškami, důležité chvíle přebijí. Chybí-li jazyk, mluví z js/lines/catsmash-<jazyk>.js.
 // Kevin dělá lidské chyby: míček „sleduje“ až od části hřiště, s každým odrazem od stěny a s rychlostí se víc splete.
 // Výhra přihlášeného hráče jde do tabulky pořadí (/api/pong: server měří čas od startu, pořadí = nejrychlejší
-// výhra). Nepřihlášenému se nejlepší čas uloží jen v prohlížeči. Texty: KEVIN_LINES[jazyk].pong (kevin-lines.js).
+// výhra). Nepřihlášenému se nejlepší čas uloží jen v prohlížeči. Texty: KEVIN_LINES[jazyk].pong (js/lines/catsmash-<jazyk>.js).
 (function () {
   if (window.KevinPong) return;
-  var W = 600, H = 900, PAD_W = 124, PAD_H = 16, BALL_R = 14, WIN = 10;
-  var PLAYER_Y = H - 46, KEVIN_Y = 60;               // pálky (logické souřadnice hřiště)
-  // rám: rozměr obrázku, sklo hřiště v něm a kola [obrázek, x, y, poloměr] (vše v pixelech obrázku)
-  var FRAME_W = 768, FRAME_H = 1376, GLASS = { x: 138, y: 316, w: 492, h: 741 };
-  // Kevinova kola koukají shora ze stroje: spodek je uvnitř (ořízne ho štěrbina v horní hraně rámu, y = TOP_SLOT)
-  var TOP_SLOT = 124, GEARS_KEVIN = [[1, 290.5, 122, 46], [2, 384, 118, 58], [3, 477.5, 122, 46]];
-  // okénka s živou mechanikou [x, y, šířka, výška] – nahoře ji pohání Kevinův běh, dole hráčova pálka
-  var WIN_TOP = [128, 191, 513, 79], WIN_BOT = [123, 1073, 523, 136];
-  var BGS = ['tma', 'mesto', 'zapad', 'les', 'vesmir', 'zare', 'ganja'];
-  // watch = jakou část hřiště (od sebe) Kevin sleduje, err = chyba odhadu (díl šířky), bounceErr = o kolik víc
-  // se splete za každý odraz od stěny; chyba se losuje jednou za let míčku (ne pořád dokola – to by se zprůměrovalo)
-  var LEVELS = {
-    1: { speed: 490, gain: 1.03, max: 1000, react: 0.26, err: 0.11, bounceErr: 0.6, watch: 0.6, aiSpeed: 340, aim: 0.1, kshot: 0 },
-    2: { speed: 580, gain: 1.04, max: 1250, react: 0.15, err: 0.065, bounceErr: 0.5, watch: 0.75, aiSpeed: 520, aim: 0.35, kshot: 0 },
-    // trojka: pořád těžká, ale porazitelná (dřív chyba 0,02 a běh 1000 = skoro neomylný, hráč dal 1 gól z 10 her)
-    3: { speed: 680, gain: 1.045, max: 1500, react: 0.08, err: 0.048, bounceErr: 0.45, watch: 0.95, aiSpeed: 800, aim: 0.7, kshot: 0.16 }
-  };
-  // odstřel: pálka je nejvýš SHOT_IDEAL ms po kliknutí; odchylka dotyku míčku od té chvíle (ms) → zrychlení
-  var SHOT = [[35, 1.6, 'perfect'], [90, 1.3, 'good'], [160, 1.12, 'weak']], SHOT_IDEAL = 40, SHOT_SUPER = 1.85, LIFT = 22;
+  // pevná data hry (rozměry, obtížnosti, tabulky efektů a odznaků) jsou v js/catsmash/data.js
+  var D = window.CatSmash.data;
+  var W = D.W, H = D.H, PAD_W = D.PAD_W, PAD_H = D.PAD_H, BALL_R = D.BALL_R, WIN = D.WIN, PLAYER_Y = D.PLAYER_Y, KEVIN_Y = D.KEVIN_Y, FRAME_W = D.FRAME_W, FRAME_H = D.FRAME_H, GLASS = D.GLASS, TOP_SLOT = D.TOP_SLOT, GEARS_KEVIN = D.GEARS_KEVIN, WIN_TOP = D.WIN_TOP, WIN_BOT = D.WIN_BOT, BGS = D.BGS, LEVELS = D.LEVELS, SHOT = D.SHOT, SHOT_IDEAL = D.SHOT_IDEAL, SHOT_SUPER = D.SHOT_SUPER, LIFT = D.LIFT;
 
   function open(opts) {
     opts = opts || {};
@@ -138,17 +122,9 @@
       });
     }).catch(function () { kevinReady(); /* hra jde i bez něj */ });
 
-    // ---------- odznaky: pamatuje si je prohlížeč, přihlášenému je sloučí s účtem (/api/pong/me) ----------
-    // Část se počítá z výher (první výhra, 10:0…), část se stane uvnitř zápasu (odstřely, šroubky…) – ty se
-    // přihlášenému posílají na server (/api/pong/badges). Odznaky odemykají pálky, míčky a pozadí.
-    var BADGE_ICON = { first: 'fa-trophy', easy: 'fa-mug-hot', normal: 'fa-scale-balanced', angry: 'fa-cat', clean: 'fa-shield-halved',
-      close: 'fa-heart-pulse', fast: 'fa-bolt', streak: 'fa-medal', wins50: 'fa-medal', wins100: 'fa-medal', sniper: 'fa-crosshairs',
-      super: 'fa-explosion', tinker: 'fa-screwdriver-wrench', yarn: 'fa-mitten', overheat: 'fa-fire', comeback: 'fa-arrow-trend-up',
-      marathon: 'fa-person-running', night: 'fa-moon', loyal: 'fa-calendar-check',
-      hwins5: 'fa-crown', hfast: 'fa-meteor', hclean: 'fa-skull', hsniper: 'fa-bullseye', hcomeback: 'fa-fire-flame-curved',   // jen za nejtěžší
-      wardrobe: 'fa-shirt' };
-    var CLAIMABLE = ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'hsniper', 'hcomeback'];
-    var LOOKS = ['first', 'easy', 'tinker', 'normal', 'loyal', 'streak', 'night', 'sniper', 'overheat', 'close', 'marathon', 'comeback', 'clean', 'super', 'angry', 'wins100'];
+    var BADGE_ICON = D.BADGE_ICON;
+    var CLAIMABLE = D.CLAIMABLE;
+    var LOOKS = D.LOOKS;
     var badges = {};
     try { (JSON.parse(store.get('kevinPongBadges') || '[]') || []).forEach(function (k) { if (BADGE_ICON[k]) badges[k] = true; }); } catch (e) { /* nic */ }
     // hráči z doby před odznaky: výhry podle rekordů v prohlížeči (Lehká se nepočítá)
@@ -185,12 +161,10 @@
     // ---------- pozadí a jeho život ----------
     var bgEl = root.querySelector('.kpong-bg'), fx = root.querySelector('.kpong-bgfx'), fxc = fx.getContext('2d');
     var bgName = store.get('kevinPongBg'), still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // pozadí pro všechny: Tma a Noční město; ostatní odemkne odznak (kdo nic nevybral nebo má zamčené, má Noční město)
-    var BG_BADGE = { zapad: 'close', les: 'loyal', vesmir: 'fast', zare: 'overheat', ganja: 'comeback' };
+    var BG_BADGE = D.BG_BADGE;
     if (BGS.indexOf(bgName) < 0 || !hasBadge(BG_BADGE[bgName])) bgName = 'mesto';
     var parts = [], fxLast = 0, shoot0 = 0, fxW = 1, fxH = 1;
-    // výřez obrázku na hřiště (hřiště je na výšku, obrázky na šířku): kde je v obrázku to nejhezčí
-    var BG_POS = { mesto: '20%', zapad: '62%', les: '50%', vesmir: '28%', zare: '50%', ganja: '55%' };
+    var BG_POS = D.BG_POS;
     function setBg(name) {
       bgName = name;
       root.dataset.bg = name;
@@ -359,7 +333,7 @@
     // šroubek ze stroje (chytí ho pálka = vylepšení na 8 s), Kevinovo klubíčko (trojka, jednou za zápas), Kevinova nálada:
     // vede o 3 a víc = líný (pomalejší, víc se splete, zívá), prohrává o 3 a víc = snaží se
     var screw = null, nextScrewAt = 0, power = { kind: null, until: 0 }, yarn = null, yarnUsed = false, mood = 'calm';
-    var MOOD = { lazy: [0.85, 1.35], calm: [1, 1], try: [1.08, 0.8] };   // [rychlost běhu, chyba odhadu]
+    var MOOD = D.MOOD;   // [rychlost běhu, chyba odhadu]
     var kevin = { x: W / 2, target: W / 2, nextThink: 0, moving: 0, miss: 0, planned: false, shot: false };
     // přehřátí kol: heat 0–1 roste s Kevinovým během, v klidu klesá; při 1 kola kouří a Kevin do hotUntil zpomalí
     var heat = 0, heatShown = -1, hotUntil = 0, isHot = false;
@@ -373,28 +347,7 @@
     loadJson('/kevin/pong/micky.json', function (j) { MIC = j; });
     palImg.onload = micImg.onload = spritesReady;
     hopik.addEventListener('load', spritesReady);
-    // Přívěsky pod pálkou se chovají podle materiálu (MAT podle id pálky):
-    //  swing = tuhý kus, otáčí se celý kolem místa, kde visí (kov, dřevo, střapec);
-    //  sway  = měkké nebo tekuté, ohýbá se (čím níž, tím víc): plyš, láva, barva;
-    //  beads = tuhé korálky na šňůrce: korálky se jen posouvají, ohýbá se šňůrka;
-    //  string = tuhý kus na provázku (klíček): provázek se kývá, klíček visí na jeho konci;
-    //  leg = chlupatá nožička (dokreslená) a na ní tuhá tlapka – nožička se houpe, tlapka se neohýbá;
-    //  rigid = nehýbe se vůbec (led, neon, ekvalizér, ozubená kola).
-    // damp = tlumení (kov se houpe dlouho, láva skoro hned stojí), stiff = pružnost (větvička se vrací sama),
-    // push = jak moc ho rozhoupe pohyb pálky (těžká láva málo, lehký plyš hodně)
-    var MAT = {
-      vetev: { mode: 'swing', damp: 3.2, stiff: 55, push: 0.55 },
-      lava: { mode: 'sway', damp: 7, stiff: 6, push: 0.3, drip: 'lava', every: [900, 2600] },
-      retez: { mode: 'swing', damp: 1.1, stiff: 0, push: 1 },
-      graffiti: { mode: 'sway', damp: 6, stiff: 10, push: 0.3, drip: 'paint', every: [1800, 4200] },
-      plys: { mode: 'leg', damp: 2.4, stiff: 16, push: 0.8, leg: 28 },
-      jadeit: { mode: 'swing', damp: 1.6, stiff: 0, push: 1 },
-      perly: { mode: 'beads', damp: 2.2, stiff: 0, push: 0.7 },
-      mince: { mode: 'swing', damp: 1.2, stiff: 0, push: 1 },
-      cip: { mode: 'swing', damp: 1.3, stiff: 0, push: 1 },
-      led: { mode: 'rigid' }, neon: { mode: 'rigid' }, ekvalizer: { mode: 'rigid' }, kola: { mode: 'rigid' },
-      kevin: { mode: 'swing', damp: 1.2, stiff: 0, push: 1 }    // Kevinova pálka: kočičí hlavička na řetízku a štítek K.V. (kov)
-    };
+    var MAT = D.MAT;
     // stav přívěsků zvlášť pro hráčovu a Kevinovu pálku (úhel a rychlost každého kyvadla, poslední poloha pálky)
     var playerRig = { hang: [], move: { last: null, v: 0, t: 0 } }, kevinRig = { hang: [], move: { last: null, v: 0, t: 0 } };
     var hangSkin = -1, HANG_G = 2200;
@@ -1052,72 +1005,11 @@
         }
       }
     }
-    // ---------- let míčku po odrazu od hráčovy pálky: stopa a částice podle pálky ----------
-    // Každá pálka má 3 varianty (vybere se jiná než minule) a každý let se ještě trochu liší (síla vlnění, hustota).
-    // Čára za míčkem slábne s časem i se vzdáleností od pálky; kreslí se pod míček.
-    // line = [barva jádra, barva záře], w = šířka, kind = tvar čáry, emit = částice, rate = kolik za sekundu
-    var FLIGHT = {
-      led: [{ line: ['#c6f1ff', '#7fd3ff'], w: 2.6, kind: 'smooth', emit: 'flake', rate: 16 },
-        { line: ['#a9e6ff', '#e9fbff'], w: 1.8, kind: 'zigzag', emit: 'flake', rate: 9 },
-        { line: ['#d8f5ff', '#7fd3ff'], w: 1.3, kind: 'helix', emit: 'flakeBig', rate: 7 }],
-      vetev: [{ line: ['#86d152', '#3f8f2a'], w: 2.4, kind: 'smooth', emit: 'tornado', rate: 9 },
-        { line: ['#6fbf4a', '#b8e68a'], w: 1.8, kind: 'wave', emit: 'leafDrop', rate: 7 },
-        { line: ['#9fd65a', '#3f8f2a'], w: 1.4, kind: 'helix', emit: 'leafSide', rate: 10 }],
-      lava: [{ line: ['#ffb02e', '#ff4a00'], w: 2.6, kind: 'smooth', emit: 'ember', rate: 22 },
-        { line: ['#ff8a1a', '#b32400'], w: 2.2, kind: 'wave', emit: 'lavaDrop', rate: 8 },
-        { line: ['#ffd36b', '#ff6a00'], w: 1.6, kind: 'zigzag', emit: 'smoke', rate: 10 }],
-      retez: [{ line: ['#ffe27a', '#b8860b'], w: 2.2, kind: 'smooth', emit: 'goldSpark', rate: 20 },
-        { line: ['#ffd23f', '#8f6600'], w: 1.4, kind: 'dots', emit: 'pawPrint', rate: 5 },
-        { line: ['#fff1a8', '#c99a12'], w: 1.4, kind: 'helix', emit: 'goldSpark', rate: 12 }],
-      graffiti: [{ line: 'multi', w: 2.6, kind: 'smooth', emit: 'paintSplat', rate: 10 },
-        { line: 'multi', w: 1.8, kind: 'wave', emit: 'paintDot', rate: 14 },
-        { line: 'multi', w: 2, kind: 'zigzag', emit: 'paintSplat', rate: 6 }],
-      plys: [{ line: ['#ffc2cf', '#ffffff'], w: 3, kind: 'smooth', emit: 'heart', rate: 4 },
-        { line: ['#ffffff', '#ffc2cf'], w: 2, kind: 'wave', emit: 'fluff', rate: 12 },
-        { line: ['#ffd6df', '#ff8fb0'], w: 1.6, kind: 'dots', emit: 'heart', rate: 3 }],
-      neon: [{ line: ['#c8fbff', '#7df9ff'], w: 2, kind: 'smooth', emit: 'zap', rate: 10, glow: true },
-        { line: ['#7df9ff', '#c76bff'], w: 1.6, kind: 'zigzag', emit: 'zap', rate: 14, glow: true },
-        { line: ['#e6c2ff', '#c76bff'], w: 1.4, kind: 'helix', emit: 'zap', rate: 6, glow: true }],
-      ekvalizer: [{ line: ['#ffd23f', '#8f6600'], w: 1.8, kind: 'wave', emit: 'note', rate: 5 },
-        { line: ['#e6b730', '#8f6600'], w: 1.4, kind: 'smooth', emit: 'bar', rate: 16 },
-        { line: ['#fff1a8', '#d9a441'], w: 1.4, kind: 'zigzag', emit: 'note', rate: 7 }],
-      jadeit: [{ line: ['#9fe6bb', '#2f7a4c'], w: 2.6, kind: 'wave', emit: 'jadeRing', rate: 3 },
-        { line: ['#7fd6a0', '#d6ffe6'], w: 1.8, kind: 'smooth', emit: 'jadeSpark', rate: 14 },
-        { line: ['#b9f0cc', '#4fae78'], w: 1.4, kind: 'helix', emit: 'jadeSpark', rate: 8 }],
-      perly: [{ line: 'iri', w: 2.6, kind: 'smooth', emit: 'pearl', rate: 6 },
-        { line: 'iri', w: 1.6, kind: 'dots', emit: 'shimmer', rate: 14 },
-        { line: 'iri', w: 1.4, kind: 'helix', emit: 'pearl', rate: 4 }],
-      mince: [{ line: ['#ffd23f', '#a07400'], w: 2, kind: 'smooth', emit: 'coin', rate: 5 },
-        { line: ['#ffe27a', '#8a6400'], w: 1.4, kind: 'dots', emit: 'goldSpark', rate: 14 },
-        { line: ['#fff1a8', '#c99a12'], w: 1.6, kind: 'wave', emit: 'coin', rate: 3 }],
-      cip: [{ line: ['#59f0a0', '#0e6b3c'], w: 1.8, kind: 'step', emit: 'pixel', rate: 10 },
-        { line: ['#ffd23f', '#59f0a0'], w: 1.4, kind: 'step', emit: 'bit', rate: 8 },
-        { line: ['#7dffbf', '#0e6b3c'], w: 1.4, kind: 'dots', emit: 'pixel', rate: 14 }],
-      kola: [{ line: ['#e0a36a', '#7a4320'], w: 2, kind: 'smooth', emit: 'gearlet', rate: 4 },
-        { line: ['#ffb35c', '#7a4320'], w: 1.6, kind: 'zigzag', emit: 'copperSpark', rate: 16 },
-        { line: ['#ece6de', '#9a8f80'], w: 1.8, kind: 'wave', emit: 'steam', rate: 7 }]
-    };
+    var FLIGHT = D.FLIGHT;
     var flight = null, flightLast = {}, FLIGHT_LIFE = 0.75;
-    // vlastní stopa každého míčku (barva a částice); s obrázkovou pálkou se obě čáry proplétají jako copánek
-    var BALL_FLIGHT = {
-      kastan: { line: ['#d39a5a', '#6b3e14'], emit: 'nutChip', rate: 8 },
-      ledovka: { line: ['#d8f5ff', '#7fd3ff'], emit: 'flake', rate: 10 },
-      lavak: { line: ['#ffb02e', '#ff4a00'], emit: 'ember', rate: 14 },
-      tlapka: { line: ['#ffe27a', '#b8860b'], emit: 'goldSpark', rate: 12 },
-      sprej: { line: 'multi', emit: 'paintDot', rate: 10 },
-      plysak: { line: ['#ffd6df', '#ff8fb0'], emit: 'fluff', rate: 9 },
-      vir: { line: ['#7df9ff', '#c76bff'], emit: 'zap', rate: 9, glow: true },
-      repro: { line: ['#ffd23f', '#8f6600'], emit: 'note', rate: 4 },
-      jadeitak: { line: ['#9fe6bb', '#2f7a4c'], emit: 'jadeSpark', rate: 10 },
-      perla: { line: 'iri', emit: 'shimmer', rate: 10 },
-      procesor: { line: ['#59f0a0', '#0e6b3c'], emit: 'bit', rate: 6 },
-      hodinky: { line: ['#e0a36a', '#7a4320'], emit: 'gearlet', rate: 3 },
-      mramor: { line: ['#f4f4f7', '#9a9aa4'], emit: 'dust', rate: 10 }
-    };
-    // pálka + míček, které spolu reagují: kde se jejich stopy potkají, vzniká navíc tohle
-    var REACT = { 'led|lavak': 'steam', 'vetev|lavak': 'smoke', 'lava|ledovka': 'steam', 'lava|kastan': 'smoke',
-      'neon|ledovka': 'zap', 'graffiti|perla': 'shimmer', 'mince|tlapka': 'coin', 'kola|hodinky': 'copperSpark' };
-    var BALL_KINDS = ['smooth', 'wave', 'dots', 'zigzag'];
+    var BALL_FLIGHT = D.BALL_FLIGHT;
+    var REACT = D.REACT;
+    var BALL_KINDS = D.BALL_KINDS;
     function startFlight(now) {
       var id = curPad(), vs = FLIGHT[id], bid = BALLS[ballType] && BALLS[ballType].id, bs = BALL_FLIGHT[bid];
       if (!vs && !bs) { flight = null; return; }
@@ -1448,10 +1340,7 @@
     var mosq = { done: false, active: false };
     var keys = { left: false, right: false }, raf = 0, last = 0, signedIn = false, csrf = null;
 
-    // ---------- nastavení hráče (⚙, pamatuje si je prohlížeč) ----------
-    // upovídanost: [násobek šance na hlášku, odstup mezi běžnými hláškami v ms]; mlčí = žádné komentáře
-    // (scénka s komárem a otázky „pokračujem?“ mluví dál)
-    var TALK = { more: [1.6, 3500], normal: [1, 6000], less: [0.4, 11000], mute: [0, 1e9] }, TALK_KEYS = ['more', 'normal', 'less', 'mute'];
+    var TALK = D.TALK, TALK_KEYS = ['more', 'normal', 'less', 'mute'];
     var talk = TALK[store.get('kevinPongTalk')] ? store.get('kevinPongTalk') : 'normal';
     var vibOn = store.get('kevinPongVib') !== '0', lefty = store.get('kevinPongLefty') === '1';
     // citlivost klávesnice: násobek rychlosti pálky na šipkách (0,5 = pomalá a přesná, 2 = rychlá)
@@ -1491,83 +1380,10 @@
     function vibe(p) { if (vibOn && navigator.vibrate) try { navigator.vibrate(p); } catch (e) { /* nevadí */ } }
 
     // ---------- zvuky stroje (Web Audio, nic se nestahuje; hrají jen po zapnutí v ⚙) ----------
-    var vol = +(store.get('kevinPongVol') || 0), ac = null, master = null, noiseBuf = null;
-    function audio() {
-      if (!vol) return null;
-      if (!ac) {
-        var C = window.AudioContext || window.webkitAudioContext;
-        if (!C) return null;
-        ac = new C(); master = ac.createGain(); master.connect(ac.destination);
-        noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
-        var d = noiseBuf.getChannelData(0);
-        for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-      }
-      if (ac.state === 'suspended') ac.resume();
-      master.gain.value = vol * 0.6;
-      return ac;
-    }
-    // at = za kolik sekund zazní (odstřel: náboj teď, rána až po zastavení času)
-    function tone(f, dur, type, gain, f2, at) {
-      var a = audio();
-      if (!a) return;
-      var t = a.currentTime + (at || 0), o = a.createOscillator(), g = a.createGain();
-      o.type = type || 'sine'; o.frequency.setValueAtTime(f, t);
-      if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
-      g.gain.setValueAtTime(gain || 0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.02);
-    }
-    function noise(dur, freq, gain, q, type, at, f2) {
-      var a = audio();
-      if (!a) return;
-      var t = a.currentTime + (at || 0), s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
-      s.buffer = noiseBuf; f.type = type || 'bandpass'; f.frequency.setValueAtTime(freq, t); f.Q.value = q || 1;
-      if (f2) f.frequency.exponentialRampToValueAtTime(f2, t + dur);
-      g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.02);
-    }
-    var sfx = {
-      pad: function (kevinSide) { tone(kevinSide ? 330 : 440, 0.09, 'triangle', 0.35, kevinSide ? 260 : 360); noise(0.04, 1800, 0.12); },   // bonk
-      wall: function () { tone(880, 0.04, 'sine', 0.08); },
-      // odstřel (vybral uživatel, varianta 27): elektrický náboj po dobu zastavení času, pak prásknutí jiskry,
-      // suchý úder a hopík slyšitelně odsviští pryč; bez náboje (obyčejný odstřel) jen kratší rána
-      shot: function (charge) {
-        if (charge) zap(charge);
-        var c = charge || 0;
-        noise(0.03, 5000, charge ? 0.9 : 0.6, 0.7, 'highpass', c); tone(2600, 0.04, 'square', 0.12, 500, c);            // prásknutí
-        tone(180, 0.09, 'sine', 1, 60, c); noise(0.03, 1800, 0.6, 1, 'bandpass', c); noise(0.06, 600, 0.5, 0.7, 'lowpass', c);   // úder
-        noise(charge ? 0.45 : 0.25, 3000, 0.45, 2.5, 'bandpass', c + 0.02, 400);                                      // svist pryč
-      },
-      miss: function () { tone(220, 0.25, 'square', 0.1, 110); },
-      goal: function (mine) { tone(mine ? 523 : 392, 0.14, 'triangle', 0.25); setTimeout(function () { tone(mine ? 784 : 262, 0.22, 'triangle', 0.25); }, 130); },
-      click: function () { noise(0.015, 3200, 0.05, 6); },     // cvaknutí zubu
-      hiss: function () { noise(1.6, 5000, 0.18, 0.4); }       // syčení přehřátých kol
-    };
-    var EQ_HIT = { pad: 0.55, wall: 0.25, shot: 1, miss: 0.5, goal: 0.9, click: 0.04, hiss: 0.3 };
-    Object.keys(sfx).forEach(function (k) {
-      var f = sfx[k];
-      sfx[k] = function () { eqPulse(EQ_HIT[k] || 0.2); return f.apply(this, arguments); };
-    });
-    // elektrický náboj: pila stoupá a chvěje se čím dál rychleji
-    function zap(dur) {
-      var a = audio();
-      if (!a) return;
-      var t = a.currentTime, o = a.createOscillator(), lfo = a.createOscillator(), lg = a.createGain(), trem = a.createGain(), g = a.createGain(), f = a.createBiquadFilter();
-      o.type = 'sawtooth'; o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(1600, t + dur);
-      lfo.frequency.setValueAtTime(12, t); lfo.frequency.exponentialRampToValueAtTime(70, t + dur); lg.gain.value = 0.5; trem.gain.value = 0.5;
-      f.type = 'lowpass'; f.frequency.setValueAtTime(600, t); f.frequency.exponentialRampToValueAtTime(6000, t + dur);
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + dur * 0.95); g.gain.linearRampToValueAtTime(0.0001, t + dur);
-      lfo.connect(lg); lg.connect(trem.gain);
-      o.connect(f); f.connect(trem); trem.connect(g); g.connect(master); o.start(t); lfo.start(t); o.stop(t + dur + 0.02); lfo.stop(t + dur + 0.02);
-    }
-    // bzučení komára: pila se chvěním, dokud ho Kevin netrefí
-    function buzzStart() {
-      var a = audio();
-      if (!a) return null;
-      var o = a.createOscillator(), l = a.createOscillator(), lg = a.createGain(), g = a.createGain();
-      o.type = 'sawtooth'; o.frequency.value = 620; l.frequency.value = 7; lg.gain.value = 40; g.gain.value = 0.04;
-      l.connect(lg); lg.connect(o.frequency); o.connect(g); g.connect(master); o.start(); l.start();
-      return { stop: function () { try { g.gain.setTargetAtTime(0, a.currentTime, 0.05); o.stop(a.currentTime + 0.3); l.stop(a.currentTime + 0.3); } catch (e) { /* už stojí */ } } };
-    }
+    // (js/catsmash/zvuky.js; hlasitost vol mění ⚙, eqPulse = pálka Ekvalizér reaguje na každý zvuk i potichu)
+    var vol = +(store.get('kevinPongVol') || 0);
+    var Z = window.CatSmash.zvuky(function () { return vol; }, function (p) { eqPulse(p); });
+    var sfx = Z.sfx, tone = Z.tone, buzzStart = Z.buzzStart;
 
     function resetBall(towardPlayer) {
       ball.x = W / 2; ball.y = H / 2; ball.trail = [];
@@ -2299,19 +2115,10 @@
       say(pick(T.hello), 3000);
     }
 
-    // přehled odznaků v menu hry: skupiny, u každého ikona, titul a ikonky odměn; ťuknutím se ukáže, jak ho získat
-    // vzácnost odznaků (barva v nastavení a v přehledu): běžný, neobvyklý, vzácný, epický, legendární
-    var RARITY = { first: 'c', easy: 'c', normal: 'c', tinker: 'c', loyal: 'c',
-      streak: 'u', night: 'u', sniper: 'u', overheat: 'u', close: 'u', fast: 'u',
-      marathon: 'r', comeback: 'r', super: 'r', yarn: 'r', wins50: 'r', clean: 'r',
-      angry: 'e', wins100: 'e', wardrobe: 'e',
-      hwins5: 'l', hfast: 'l', hclean: 'l', hsniper: 'l', hcomeback: 'l' };
+    var RARITY = D.RARITY;
     function rar(k) { return k && RARITY[k] ? ' data-rar="' + RARITY[k] + '"' : ''; }
-    // odznaky, které navíc odemknou rámeček kolem fotky (stejné jako PongBadges.FRAMES na serveru)
-    var FRAMES = ['angry', 'wins100', 'wardrobe', 'hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback'];
-    var BADGE_GROUPS = [['first', 'easy', 'normal', 'angry', 'clean', 'close', 'fast', 'streak', 'wins50', 'wins100'],
-      ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'wardrobe'],
-      ['hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback']];
+    var FRAMES = D.FRAMES;
+    var BADGE_GROUPS = D.BADGE_GROUPS;
     function badgeOverview() {
       var all = Object.keys(BADGE_ICON), got = all.filter(function (k) { return badges[k]; }).length;
       var html = '<h3 class="kp-label">' + esc(T.badgesTitle || '') + ' <small class="kp-count">' + got + '/' + all.length + '</small></h3>' +
@@ -2415,12 +2222,7 @@
       gamesPlayed++;
     }
 
-    // barvy pálky během vylepšení: velká pálka zelená, pomalý Kevin modrá, klidný hopík fialová
-    var POWER_COL = {
-      big: ['#c6ffd0', '#18a04e', 'rgba(90, 255, 140, .9)'],
-      slow: ['#cfe6ff', '#2a62d0', 'rgba(110, 170, 255, .9)'],
-      calm: ['#eadcff', '#7a46d0', 'rgba(190, 140, 255, .9)']
-    };
+    var POWER_COL = D.POWER_COL;
     // svítí barva vylepšení? Posledních 3 s bliká: z 2 bliknutí za sekundu až na 10 (fáze = integrál rostoucí frekvence)
     function powerLit(left) {
       if (left > 3000) return true;
@@ -2997,7 +2799,7 @@
 
     function close() {
       releaseMouse();
-      if (ac) try { ac.close(); } catch (e) { /* nevadí */ }
+      Z.close();
       if (running && !awaitStart) {
         var bye = line('odchod');
         if (bye) setTimeout(function () { window.dispatchEvent(new CustomEvent('kevin', { detail: { say: bye } })); }, 600);

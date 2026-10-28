@@ -1,4 +1,4 @@
-// Hlášky Kevina do hry CatSmash – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.
+// Hlášky Kevina do hry CatSmash – vygenerováno nástrojem tools/catsmash-hlasky.js, neupravovat ručně.
 window.KEVIN_PONG_LINES = {
  "cs": {
   "start": [

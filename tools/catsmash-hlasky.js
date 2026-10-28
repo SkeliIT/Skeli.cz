@@ -1,7 +1,7 @@
 // Hlášky do hry CatSmash: z textových souborů (klíč na řádku, pod ním „- hláška“) udělá
-// src/main/webapp/js/kevin-pong-lines.js (window.KEVIN_PONG_LINES = { cs: { start: [...], ... }, en: {...} }).
+// src/main/webapp/js/catsmash/hlasky.js (window.KEVIN_PONG_LINES = { cs: { start: [...], ... }, en: {...} }).
 // Hra ho načte až při otevření (zbytek webu nezpomaluje).
-//   node tools/kevin-pong-lines.js cs=../kevin-hlasky-pong.md [en=../kevin-hlasky-pong-en.md ...]
+//   node tools/catsmash-hlasky.js cs=../kevin-hlasky-pong.md [en=../kevin-hlasky-pong-en.md ...]
 // Vyřazené hlášky (slabé, opakující se vtip, skoro sprosté) jsou v SKIP – porovnává se celý text.
 const fs = require('fs');
 const path = require('path');
@@ -32,8 +32,8 @@ for (const arg of process.argv.slice(2)) {
   out[lang] = lines;
   console.log(lang, Object.keys(lines).length, 'situací,', Object.values(lines).reduce((n, a) => n + a.length, 0), 'hlášek');
 }
-const target = path.join(__dirname, '..', 'src', 'main', 'webapp', 'js', 'kevin-pong-lines.js');
+const target = path.join(__dirname, '..', 'src', 'main', 'webapp', 'js', 'catsmash', 'hlasky.js');
 fs.writeFileSync(target,
-  '// Hlášky Kevina do hry CatSmash – vygenerováno nástrojem tools/kevin-pong-lines.js, neupravovat ručně.\n' +
+  '// Hlášky Kevina do hry CatSmash – vygenerováno nástrojem tools/catsmash-hlasky.js, neupravovat ručně.\n' +
   'window.KEVIN_PONG_LINES = ' + JSON.stringify(out, null, 1) + ';\n');
 console.log('hotovo', target);

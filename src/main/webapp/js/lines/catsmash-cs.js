@@ -1,5 +1,5 @@
 // Texty hry CatSmash – čeština (menu, nastavení, odznaky, tituly). Načítá je js/kevin.js až se hrou.
-// Kevinovy hlášky během zápasu jsou v js/kevin-pong-lines.js (vygenerované, neupravovat ručně).
+// Kevinovy hlášky během zápasu jsou v js/catsmash/hlasky.js (vygenerované, neupravovat ručně).
 (window.KEVIN_LINES = window.KEVIN_LINES || {}).cs = window.KEVIN_LINES.cs || {};
 window.KEVIN_LINES.cs.pong = {
   "title": "CatSmash",

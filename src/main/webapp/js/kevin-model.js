@@ -14,7 +14,7 @@ import { MeshoptDecoder } from './vendor/three/meshopt_decoder.module.js';
 // poses he stays in (looping clips)
 const POSES = { idle: 'idle', rap: 'rap', beatbox: 'silly', cool: 'bored', point: 'idle', sleep: 'bored', sulk: 'bored' };
 // one-shot acts for "Do something" (keys of KEVIN_LINES.surprise) → clips; null = done in code here
-// (each surprise in kevin-lines.js is one of his real moves; beatbox and the rhyme dance with a beat)
+// (each surprise in js/lines/kevin-<jazyk>.js is one of his real moves; beatbox and the rhyme dance with a beat)
 const ACTS = {
   beatbox: 'silly', rhyme: 'rap', dance: 'dance', dance2: 'dance2', dance3: 'dance3', robot: 'robot', silly: 'silly',
   breakdance: 'breakdance', flair: 'flair', jump: 'jump', dive: 'dive', kick: 'kick', cheer: 'cheer', clap: 'clap',
