@@ -21,6 +21,8 @@
     AccountSummary me = null;
     java.util.List<UserComment> myComments = java.util.List.of();
     PongProfile pong = new PongProfile();
+    String[] showcase = new String[3];
+    java.util.List<String[]> songChoices = new java.util.ArrayList<>();
     try {
       UserDao users = new UserDao();          // dao/UserDao
       UserProfile p = users.profile(uid);     // nothing saved yet = null
@@ -30,7 +32,9 @@
       }
       me = users.summary(uid);
       myComments = users.comments(uid);
-      pong = new PongDao().profile(uid);      // CatSmash: časy a odznaky (dao/PongDao)
+      pong = new PongDao().profile(uid);
+      showcase = new com.github.skeliit.dao.UserDao().showcase(uid);   // oblíbený song a moto
+      songChoices = new com.github.skeliit.dao.UserDao().songChoices();      // CatSmash: časy a odznaky (dao/PongDao)
     } catch (Exception ignore) {}
     String avatarUrl = WebUtils.safeUrl((String) session.getAttribute("avatar_url"), "/img/avatar-default.svg");
     String shownName = displayName != null && !displayName.isBlank() ? displayName : (me != null ? me.username : (String) session.getAttribute("username"));
@@ -81,6 +85,10 @@
         <span class="acct-progress-bar" style="--p:<%= earned * 100 / allBadges %>%"><i></i></span>
         <span class="acct-progress-n"><i class="fa-solid fa-medal" aria-hidden="true"></i> <%= earned %>/<%= pong.badges.size() %></span>
       </a>
+      <%-- výstavka: jen co si hráč vyplnil --%>
+      <% if (showcase[2] != null) { %><blockquote class="acct-motto">„<%= WebUtils.escapeHtml(showcase[2]) %>“</blockquote><% } %>
+      <% if (showcase[0] != null) { %><p class="acct-fav"><i class="fa-solid fa-music" aria-hidden="true"></i> <%= t.getProperty("profile.favSong") %>:
+        <a href="<%= com.github.skeliit.I18n.songPath(request, showcase[0], 0) %>"><%= WebUtils.escapeHtml(showcase[1]) %></a></p><% } %>
       <% if (earned > 0) { %><ul class="acct-chips">
         <% int shown = 0; for (PongProfile.Badge b : pong.badges) { if (!b.earned || shown >= 3) continue; shown++; %>
         <li><i class="fa-solid <%= b.icon %>" aria-hidden="true"></i> <%= t.getProperty("pong.badge." + b.key) %></li>
@@ -143,6 +151,15 @@
           </select>
         </label>
         <label class="wide"><%= t.getProperty("settings.bio") %><textarea name="bio" rows="3"><%= WebUtils.escapeHtml(bio) %></textarea></label>
+        <label><%= t.getProperty("profile.favSong") %>
+          <select name="fav_song">
+            <option value=""><%= t.getProperty("profile.favSong.none") %></option>
+            <% for (String[] sc : songChoices) { %><option value="<%= WebUtils.escapeHtml(sc[0]) %>"<%= sc[0].equals(showcase[0]) ? " selected" : "" %>><%= WebUtils.escapeHtml(sc[1]) %></option><% } %>
+          </select>
+        </label>
+        <label class="wide"><%= t.getProperty("profile.motto") %>
+          <input type="text" name="motto" maxlength="160" value="<%= WebUtils.escapeHtml(showcase[2] == null ? "" : showcase[2]) %>" placeholder="<%= t.getProperty("profile.motto.hint") %>">
+        </label>
         <label><%= t.getProperty("header.language") %>
           <select name="lang">
             <option value="cs" <%= "cs".equals(prefLang) ? "selected" : "" %>>Čeština</option>

@@ -17,6 +17,29 @@ import java.util.List;
 /** A signed-in user's own data: the settings they filled in, their comments and a few numbers. */
 public class UserDao {
 
+    /** Výstavka na profilu: {uuid oblíbené písně, její název, moto}; prázdné hodnoty = null. */
+    public String[] showcase(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT p.fav_song_uuid, s.name, p.motto FROM user_profiles p LEFT JOIN songs s ON BINARY s.uuid = BINARY p.fav_song_uuid WHERE p.user_id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return new String[3];
+                String name = rs.getString(2), motto = rs.getString(3);
+                return new String[] { name != null ? rs.getString(1) : null, name, motto != null && !motto.isBlank() ? motto : null };
+            }
+        }
+    }
+
+    /** Písně pro výběr oblíbené: {uuid, název}, podle abecedy. */
+    public List<String[]> songChoices() throws SQLException {
+        List<String[]> out = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT uuid, name FROM songs WHERE uuid IS NOT NULL ORDER BY name");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) out.add(new String[] { rs.getString(1), rs.getString(2) });
+        }
+        return out;
+    }
+
     /** The user's settings, or null when they never saved any. */
     public UserProfile profile(int userId) throws SQLException {
         String sql = "SELECT display_name, age, city, bio, theme, lang FROM user_profiles WHERE user_id=?";

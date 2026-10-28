@@ -1930,3 +1930,8 @@ h1.hero-tagline { font-family: inherit; font-weight: inherit; letter-spacing: in
   .acct-hero .acct-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .acct-hero .acct-stats li:last-child { grid-column: 1 / -1; }
 }
+/* výstavka na profilu: moto jako vypálený citát, oblíbený song odkazem */
+.acct-motto { margin: 8px 0 0; padding: 0 0 0 12px; border-left: 3px solid var(--accent); font-family: var(--font-text); font-style: italic; font-size: var(--fs-h4); color: var(--text); max-width: 46ch; }
+.acct-fav { margin: 6px 0 0; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
+.acct-fav i { color: var(--accent); margin-right: 4px; }
+.acct-fav a { color: var(--accent); font-weight: 500; }
