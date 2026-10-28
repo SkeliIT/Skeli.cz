@@ -1893,9 +1893,13 @@ h1.hero-tagline { font-family: inherit; font-weight: inherit; letter-spacing: in
 .hero .hero-latest { margin-top: 22px; }
 .hero .hero-latest + .hero-actions, .hero .hero-tagline + .hero-actions { margin-top: 22px; }
 
-/* karta hry na úvodu: Kevin vpravo, text vlevo */
-.game-card { position: relative; padding-right: 108px; min-height: 140px; }
-.game-card-kevin { position: absolute; right: 12px; bottom: 10px; width: 86px; height: auto; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .55)); pointer-events: none; }
+/* karta hry na úvodu: vpravo náhled rozehrané hry (automat s Kevinem), text vlevo */
+.game-card { position: relative; padding-right: 118px; min-height: 200px; }
+.game-card-shot { position: absolute; right: 14px; top: 50%; translate: 0 -50%; width: 92px; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .45), 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent); transition: transform .25s ease; }
+.game-card-shot img { display: block; width: 100%; height: auto; }
+.game-card:hover .game-card-shot { transform: rotate(-2deg) scale(1.04); }
+@media (prefers-reduced-motion: reduce) { .game-card:hover .game-card-shot { transform: none; } }
 
 /* ---------- Můj účet ve stylu návrhu od Gemini ---------- */
 .acct-hero { border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--panel-border)); box-shadow: 0 18px 50px -24px rgba(0, 0, 0, .8), 0 0 40px -22px color-mix(in srgb, var(--accent) 60%, transparent); }
@@ -1930,8 +1934,34 @@ h1.hero-tagline { font-family: inherit; font-weight: inherit; letter-spacing: in
   .acct-hero .acct-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .acct-hero .acct-stats li:last-child { grid-column: 1 / -1; }
 }
-/* výstavka na profilu: moto jako vypálený citát, oblíbený song odkazem */
-.acct-motto { margin: 8px 0 0; padding: 0 0 0 12px; border-left: 3px solid var(--accent); font-family: var(--font-text); font-style: italic; font-size: var(--fs-h4); color: var(--text); max-width: 46ch; }
-.acct-fav { margin: 6px 0 0; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
-.acct-fav i { color: var(--accent); margin-right: 4px; }
-.acct-fav a { color: var(--accent); font-weight: 500; }
+/* výstavka na profilu: moto = zlatý podpis přes spodek fotky (3 písma), oblíbený song = karta s obrázkem */
+.acct-hero .acct-photo { grid-row: 1; }
+.acct-hero .acct-who { grid-row: 1 / span 2; }
+.acct-motto { grid-column: 1; grid-row: 2; margin: -34px 0 0 -6px; position: relative; z-index: 2; max-width: 260px;
+  color: #ffd23f; line-height: 1.05; transform: rotate(-5deg); transform-origin: left center;
+  text-shadow: 0 0 6px rgba(0, 0, 0, .9), 0 0 14px rgba(0, 0, 0, .75), 0 0 22px rgba(230, 183, 48, .45); }
+.motto-brush { font-family: var(--font-brush); font-size: 1.9rem; }
+.motto-modern { font-family: var(--font-display, var(--font-body)); font-size: 1rem; letter-spacing: .02em; }
+.motto-clean { font-family: var(--font-text); font-style: italic; font-weight: 500; font-size: 1.15rem; }
+body.light .acct-motto { color: #a37b00; text-shadow: 0 0 6px rgba(255, 255, 255, .95), 0 0 16px rgba(255, 255, 255, .8); }
+.acct-fav { display: inline-grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; margin: 10px 0 0; padding: 6px 12px 6px 6px;
+  border-radius: 12px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 8%, rgba(0, 0, 0, .25));
+  color: var(--text); text-decoration: none; max-width: 100%; }
+.acct-fav:hover { border-color: var(--accent); text-decoration: none; }
+.acct-fav img { width: 96px; height: 54px; border-radius: 8px; object-fit: cover; }
+.acct-fav small { display: block; font-family: var(--font-text); font-size: var(--fs-small); color: var(--accent); }
+.acct-fav small i { margin-right: 3px; }
+.acct-fav b { display: block; font-weight: 400; font-size: var(--fs-card); }
+.acct-fav-play { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-size: .75rem; }
+body.light .acct-fav { background: color-mix(in srgb, var(--accent) 10%, rgba(255, 255, 255, .7)); }
+.motto-fonts { border: 0; padding: 0; margin: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+.motto-fonts legend { padding: 0; margin-bottom: 6px; }
+.motto-font-opt { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--panel-border); cursor: pointer; }
+.motto-font-opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.motto-font-opt span { color: var(--accent); }
+.motto-font-opt .motto-brush { font-size: 1.5rem; line-height: 1; }
+@media (max-width: 600px) {
+  .acct-hero .acct-who { grid-row: auto; }
+  .acct-motto { grid-column: 1 / -1; grid-row: auto; margin: -10px 0 0; max-width: none; text-align: center; transform: rotate(-3deg); transform-origin: center; }
+  .acct-fav { display: grid; }
+}
