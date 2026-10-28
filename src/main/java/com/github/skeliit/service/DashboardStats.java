@@ -71,8 +71,10 @@ public final class DashboardStats {
         out.add(new Tile("pages", "Zobrazených stránek", "fa-file-lines", "", daily("SELECT day, pageviews FROM site_stats_daily WHERE day >= ?", n), days));
         long[] plays = sum(VisitStats.dailyPlays("lyric", n), VisitStats.dailyPlays("karaoke", n), VisitStats.dailyPlays("clip", n));
         out.add(new Tile("plays", "Přehrání", "fa-play", "texty, klipy a karaoke", plays, days));
-        out.add(new Tile("out", "Kliků na Spotify, YouTube…", "fa-arrow-up-right-from-square", "kolik lidí z webu šlo poslouchat",
-                daily("SELECT day, SUM(clicks) FROM outbound_clicks WHERE day >= ? GROUP BY day", n), days));
+        // prokliky z webu na hudební služby – každá zvlášť (kam lidi chodí poslouchat; Spotify vydělává)
+        out.add(new Tile("spotify", "Kliků na Spotify", "fa-brands fa-spotify", "kolik lidí z webu šlo poslouchat na Spotify", outbound("spotify", n), days));
+        out.add(new Tile("youtube", "Kliků na YouTube", "fa-brands fa-youtube", "kolik lidí z webu šlo na YouTube", outbound("youtube", n), days));
+        out.add(new Tile("apple", "Kliků na Apple Music", "fa-brands fa-apple", "kolik lidí z webu šlo na Apple Music", outbound("apple", n), days));
         out.add(new Tile("comments", "Nových komentářů", "fa-comments", "",
                 sum(daily("SELECT DATE(created_at), COUNT(*) FROM comments WHERE created_at >= ? GROUP BY DATE(created_at)", n),
                     daily("SELECT DATE(created_at), COUNT(*) FROM video_comments WHERE created_at >= ? GROUP BY DATE(created_at)", n)), days));
@@ -82,6 +84,25 @@ public final class DashboardStats {
     }
 
     // ---------- pomocné ----------
+
+    /** Prokliky na jednu službu po dnech (target je pevný název z MarketingStats.TARGETS). */
+    private static long[] outbound(String target, int n) throws SQLException {
+        long[] out = new long[n];
+        LocalDate first = LocalDate.now(PRAGUE).minusDays(n - 1L);
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT day, SUM(clicks) FROM outbound_clicks WHERE day >= ? AND target = ? GROUP BY day")) {
+            ps.setObject(1, first);
+            ps.setString(2, target);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LocalDate d = rs.getObject(1, LocalDate.class);
+                    int i = d == null ? -1 : (int) ChronoUnit.DAYS.between(first, d);
+                    if (i >= 0 && i < n) out[i] += rs.getLong(2);
+                }
+            }
+        }
+        return out;
+    }
 
     /** Počty po dnech z dotazu, který vrací (den, počet) a má jeden parametr = první den. Nejstarší první. */
     private static long[] daily(String sql, int n) throws SQLException {

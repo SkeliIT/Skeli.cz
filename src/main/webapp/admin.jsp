@@ -71,7 +71,7 @@
     <div class="kpi-grid">
       <% for (com.github.skeliit.service.DashboardStats.Tile k : kpis) { %>
       <a class="kpi kpi-<%= k.getTrend() %>" href="/admin/stats">
-        <span class="kpi-label"><i class="fa-solid <%= k.icon %>" aria-hidden="true"></i> <%= k.label %></span>
+        <span class="kpi-label"><i class="<%= k.icon.startsWith("fa-brands") ? k.icon : "fa-solid " + k.icon %>" aria-hidden="true"></i> <%= k.label %></span>
         <b class="kpi-value"><%= String.format(java.util.Locale.forLanguageTag("cs"), "%,d", k.getTotal()).replace(',', ' ') %></b>
         <span class="kpi-trend"><%= k.getTrendText() %></span>
         <%= k.getSpark() %>

@@ -740,7 +740,8 @@ body.light .live-now { background: rgba(30, 122, 69, .1); color: #1e7a45; }
 .kpi-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
 .kpi-head h3 { display: flex; align-items: center; gap: 10px; margin: 0; }
 .kpi-head h3 i { color: var(--accent); }
-.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }   /* 6 dlaždic = 2 řady po 3 */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+@media (min-width: 1100px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }   /* 8 dlaždic = 2 řady po 4 */
 .kpi {
   position: relative; display: grid; grid-template-rows: auto auto auto 1fr; gap: 4px; min-height: 150px; padding: 16px 16px 12px;
   border-radius: var(--radius); border: 1px solid var(--panel-border); color: var(--text); text-decoration: none; overflow: hidden;
