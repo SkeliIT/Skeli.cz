@@ -53,10 +53,6 @@
       <span><b><%= t.getProperty("cookie.cat.necessary") %></b><small><%= t.getProperty("cookie.cat.necessaryDesc") %></small></span>
     </label>
     <label class="cookie-cat">
-      <input type="checkbox" id="consentAnalytics">
-      <span><b><%= t.getProperty("cookie.cat.analytics") %></b><small><%= t.getProperty("cookie.cat.analyticsDesc") %></small></span>
-    </label>
-    <label class="cookie-cat">
       <input type="checkbox" id="consentMedia">
       <span><b><%= t.getProperty("cookie.cat.media") %></b><small><%= t.getProperty("cookie.cat.mediaDesc") %></small></span>
     </label>
@@ -158,7 +154,6 @@
     loadAll();
   })();
 </script>
-<%-- Matomo is loaded by js/consent.js, only after consent to analytics --%>
 
 </body>
 </html>
