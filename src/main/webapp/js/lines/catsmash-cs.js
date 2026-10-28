@@ -62,6 +62,7 @@ window.KEVIN_LINES.cs.pong = {
   "tabLook": "Vzhled",
   "tabSound": "Zvuk",
   "tabControls": "Ovládání",
+  "tabScreen": "Obraz",
   "power": {
     "big": "VELKÁ PÁLKA!",
     "slow": "KEVIN ZPOMALIL!",

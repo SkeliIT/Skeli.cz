@@ -62,6 +62,7 @@ window.KEVIN_LINES.uk.pong = {
   "tabLook": "Вигляд",
   "tabSound": "Звук",
   "tabControls": "Керування",
+  "tabScreen": "Екран",
   "power": {
     "big": "ВЕЛИКА РАКЕТКА!",
     "slow": "ПОВІЛЬНИЙ КЕВІН!",

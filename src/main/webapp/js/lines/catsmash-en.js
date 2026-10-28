@@ -62,6 +62,7 @@ window.KEVIN_LINES.en.pong = {
   "tabLook": "Look",
   "tabSound": "Sound",
   "tabControls": "Controls",
+  "tabScreen": "Display",
   "power": {
     "big": "BIG PADDLE!",
     "slow": "SLOW KEVIN!",

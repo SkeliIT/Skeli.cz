@@ -268,6 +268,7 @@
       return '<svg class="kp-burst" viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden="true"><polygon points="' + pts.join(' ') + '"/></svg>';
     }
     function comic(side, kind, text, ms) {
+      if (setCard && kind === 'say') return;                       // nastavení je otevřené: Kevin mlčí, ať nic nepřekrývá
       var spk = root.querySelector('.kpong-spk[data-side="' + side + '"]');
       if (!spk || !text) return;
       if (comics[side]) comics[side].remove();
@@ -2726,11 +2727,13 @@
       if (mosq.active) return;                                     // během scénky s komárem ne
       setPausedGame = running && !paused;
       if (setPausedGame) paused = true;
+      Object.keys(comics).forEach(function (k) { if (comics[k]) { comics[k].remove(); comics[k] = null; } });
       setCard = document.createElement('div');
       setCard.className = 'kpong-settings';
       setCard.setAttribute('role', 'dialog');
       setCard.setAttribute('aria-label', T.settings || 'Settings');
-      // nastavení ve třech záložkách: Vzhled (náhled + řady pálek, míčků a pozadí na posouvání), Zvuk, Ovládání
+      // nastavení ve čtyřech záložkách: Vzhled (náhled, pálky, míčky, pozadí, atmosféra pálky), Zvuk (hlasitost, vibrace,
+      // Kevin mluví), Ovládání (jen pálka: prst / klávesnice / myš), Obraz (detaily, celá obrazovka)
       function lockI(ok) { return ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i>'; }
       function count(list, okFn) { return '<small class="kp-count">' + list.filter(okFn).length + '/' + list.length + '</small>'; }
       var secSkin = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.skinTitle || '') + count(SKINS, function (x) { return x.ok(); }) + '</h3>' +
@@ -2779,14 +2782,14 @@
       var secDetail = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.detailTitle || '') + '</h3><div class="kp-talk" role="radiogroup" aria-label="' + esc(T.detailTitle || '') + '">' +
         DETAIL_KEYS.map(function (k, i) { return '<button type="button" role="radio" data-detail="' + k + '" aria-checked="' + (k === detail) + '">' + esc((T.detail || DETAIL_KEYS)[i]) + '</button>'; }).join('') +
         '</div><p class="kp-bgname">' + esc(T.detailHint || '') + '</p></section>';
-      var secChecks = '<div class="kp-checks">' +
-        (navigator.vibrate ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="vib" aria-pressed="' + vibOn + '"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> ' + esc(T.vibrate || '') + '</button>' : '') +
+      // přepínače, každý na svém místě: vibrace ke zvuku, atmosféra ke vzhledu, myš k ovládání, celá obrazovka k obrazu
+      function checks(html) { return html ? '<div class="kp-checks">' + html + '</div>' : ''; }
+      var btnVib = navigator.vibrate ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="vib" aria-pressed="' + vibOn + '"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> ' + esc(T.vibrate || '') + '</button>' : '';
 
-        '<button type="button" class="kp-fullbtn kp-opt" data-opt="atmo" aria-pressed="' + atmoOn + '"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ' + esc(T.atmo || '') + '</button>' +
-        (coarse ? '' : '<button type="button" class="kp-fullbtn kp-opt" data-opt="lock" aria-pressed="' + lockOn + '"><i class="fa-solid fa-computer-mouse" aria-hidden="true"></i> ' + esc(T.lockMouse || '') + '</button>') +
-        (canFull ? '<button type="button" class="kp-fullbtn kp-full"><i class="fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand') + '" aria-hidden="true"></i> ' + esc(T.fullscreen || '') + '</button>' : '') +
-        '</div>';
-      var TABS = [['look', 'fa-palette', T.tabLook], ['sound', 'fa-volume-high', T.tabSound], ['controls', 'fa-sliders', T.tabControls]];
+      var btnAtmo = '<button type="button" class="kp-fullbtn kp-opt" data-opt="atmo" aria-pressed="' + atmoOn + '"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ' + esc(T.atmo || '') + '</button>';
+      var btnLock = coarse ? '' : '<button type="button" class="kp-fullbtn kp-opt" data-opt="lock" aria-pressed="' + lockOn + '"><i class="fa-solid fa-computer-mouse" aria-hidden="true"></i> ' + esc(T.lockMouse || '') + '</button>';
+      var btnFull = canFull ? '<button type="button" class="kp-fullbtn kp-full"><i class="fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand') + '" aria-hidden="true"></i> ' + esc(T.fullscreen || '') + '</button>' : '';
+      var TABS = [['look', 'fa-palette', T.tabLook], ['sound', 'fa-volume-high', T.tabSound], ['controls', 'fa-gamepad', T.tabControls], ['screen', 'fa-display', T.tabScreen]];
       var tab = TABS.some(function (x) { return x[0] === store.get('kevinPongSetTab'); }) ? store.get('kevinPongSetTab') : 'look';
       setCard.innerHTML = '<h2 class="kpong-title">' + esc(T.settings || '') + '</h2>' +
         '<div class="kp-tabs" role="tablist">' + TABS.map(function (x) {
@@ -2794,9 +2797,10 @@
             '<i class="fa-solid ' + x[1] + '" aria-hidden="true"></i><span>' + esc(x[2] || x[0]) + '</span></button>';
         }).join('') + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-look" aria-labelledby="kp-tab-look" data-pane="look"' + (tab === 'look' ? '' : ' hidden') + '>' +
-        '<canvas class="kp-preview" width="600" height="200" aria-hidden="true"></canvas>' + secSkin + secBall + secBg + '</div>' +
-        '<div class="kp-pane" role="tabpanel" id="kp-pane-sound" aria-labelledby="kp-tab-sound" data-pane="sound"' + (tab === 'sound' ? '' : ' hidden') + '>' + secSound + secTalk + '</div>' +
-        '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secDetail + secTouch + secLayout + secKeys + secChecks + '</div>' +
+        '<canvas class="kp-preview" width="600" height="200" aria-hidden="true"></canvas>' + secSkin + secBall + secBg + checks(btnAtmo) + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-sound" aria-labelledby="kp-tab-sound" data-pane="sound"' + (tab === 'sound' ? '' : ' hidden') + '>' + secSound + checks(btnVib) + secTalk + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secTouch + secLayout + secKeys + checks(btnLock) + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-screen" aria-labelledby="kp-tab-screen" data-pane="screen"' + (tab === 'screen' ? '' : ' hidden') + '>' + secDetail + checks(btnFull) + '</div>' +
         '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>';
       root.appendChild(setCard);
       setBtn.setAttribute('aria-expanded', 'true');

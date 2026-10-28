@@ -750,3 +750,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 /* menu se musí vejít do skla: menší logo, popis hry malým písmem až pod dlaždicemi */
 .kp-logo img { width: min(100%, 270px); }
 .kpong-panel .kp-main .kpong-lead.kp-rules { font-size: var(--fs-small); color: #bfb39c; margin: 2px 0 0; }
+/* nastavení hry: čtyři záložky (Vzhled, Zvuk, Ovládání, Obraz), ikona nad textem, ať se vejdou na každou šířku */
+.kp-tabs { grid-template-columns: repeat(4, 1fr); }
+.kp-tabs button { flex-direction: column; gap: 2px; min-height: 48px; min-width: 0; padding: 4px 2px; }
+.kp-tabs button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

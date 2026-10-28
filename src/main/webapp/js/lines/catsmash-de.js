@@ -62,6 +62,7 @@ window.KEVIN_LINES.de.pong = {
   "tabLook": "Aussehen",
   "tabSound": "Ton",
   "tabControls": "Steuerung",
+  "tabScreen": "Anzeige",
   "power": {
     "big": "GROSSER SCHLÄGER!",
     "slow": "LANGSAMER KEVIN!",

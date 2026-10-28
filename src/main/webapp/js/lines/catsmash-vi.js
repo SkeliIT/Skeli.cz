@@ -62,6 +62,7 @@ window.KEVIN_LINES.vi.pong = {
   "tabLook": "Giao diện",
   "tabSound": "Âm thanh",
   "tabControls": "Điều khiển",
+  "tabScreen": "Hiển thị",
   "power": {
     "big": "VỢT LỚN!",
     "slow": "KEVIN CHẬM!",
