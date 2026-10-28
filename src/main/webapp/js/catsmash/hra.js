@@ -61,8 +61,7 @@
       '    <i class="kpong-spk" data-side="l" aria-hidden="true"></i><i class="kpong-spk" data-side="r" aria-hidden="true"></i>' +
       '    <button type="button" class="kpong-set" aria-label="' + esc(T.settings || 'Settings') + '" aria-haspopup="dialog"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>' +
       '    <canvas class="kpong-kevin" aria-hidden="true"></canvas>' +
-      '    <div class="kpong-rim" hidden aria-hidden="true"><i class="kpong-rim-shine"></i></div>' +
-      '    <div class="kpong-skin" hidden aria-hidden="true"><i class="kpong-rim-shine"></i></div>' +
+      '    <div class="kpong-skin" hidden aria-hidden="true"></div>' +
       '    <div class="kpong-field">' +
       '      <div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
@@ -466,31 +465,17 @@
     var EQ = { x0: 75, step: 31.2, w: 25, bottom: 107, max: 42, bg: [68, 58, 322, 51] };
     function addP(o) { if (pfx.length < (lowFx >= 3 ? 30 : lowFx ? 70 : 180)) { o.age = 0; pfx.push(o); } }
     function curPad() { return SKINS[skin] && SKINS[skin].img; }
-    // rámeček podle pálky: obrázek z kevin/pong/ramy/ (tools/catsmash-ramy.py) leží na zlaté liště kolem skla.
-    // Kreslí se jako CSS border-image: ramy.json zná tloušťku pásu u každé strany (slice), šířku pásu na liště
-    // určuje css podle vzácnosti pálky, takže tlustý plyš i tenká větvička jsou na liště stejně široké.
-    // Lesk, záře a blikání dělá css/catsmash.css podle data-pad.
-    // Automat podle pálky (kevin/pong/stroje/, tools/catsmash-stroje.py) má přednost: leží nad hřištěm a okénky
-    // s koly (otvory jsou průhledné), dnešní automat (ram.webp) i rámeček se pak schovají.
-    var RAMY = null, STROJE = null, rimEl = root.querySelector('.kpong-rim'), skinEl = root.querySelector('.kpong-skin');
-    var frameEl = root.querySelector('.kpong-frame');
-    fetch('/kevin/pong/ramy/ramy.json' + ver).then(function (r) { return r.json(); }).then(function (j) { RAMY = j; setRim(); }).catch(function () { /* bez rámečků */ });
-    fetch('/kevin/pong/stroje/stroje.json' + ver).then(function (r) { return r.json(); }).then(function (j) { STROJE = j; setRim(); }).catch(function () { /* bez automatů */ });
-    function setRim() {
-      var id = curPad(), m = RAMY && id && RAMY[id], sk = atmoOn && STROJE && id && STROJE[id];
+    // automat podle pálky (kevin/pong/stroje/, tools/catsmash-stroje.py): leží nad hřištěm a okénky s koly
+    // (otvory jsou průhledné), dnešní automat ram.webp se pod ním schová. Vypínač = ⚙ „Atmosféra pálky“.
+    var STROJE = null, skinEl = root.querySelector('.kpong-skin'), frameEl = root.querySelector('.kpong-frame');
+    fetch('/kevin/pong/stroje/stroje.json' + ver).then(function (r) { return r.json(); }).then(function (j) { STROJE = j; setSkin(); }).catch(function () { /* bez automatů */ });
+    function setSkin() {
+      var id = curPad(), sk = atmoOn && STROJE && id && STROJE[id];
       frameEl.classList.toggle('themed', !!sk);
       skinEl.hidden = !sk;
-      if (sk) {
-        skinEl.style.setProperty('--rim', 'url("/kevin/pong/stroje/' + id + '.webp' + ver + '")');
-        skinEl.dataset.pad = id;
-        rimEl.hidden = true;
-        return;
-      }
-      if (!m || !atmoOn) { rimEl.hidden = true; return; }
-      rimEl.style.setProperty('--rim', 'url("/kevin/pong/ramy/' + id + '.webp' + ver + '")');
-      rimEl.style.setProperty('--sl', m.slice.join(' '));
-      rimEl.dataset.pad = id;
-      rimEl.hidden = false;
+      if (!sk) return;
+      skinEl.style.setProperty('--skin', 'url("/kevin/pong/stroje/' + id + '.webp' + ver + '")');
+      skinEl.dataset.pad = id;
     }
     // výbuch u hráčovy pálky – čím lepší odpal, tím větší efekt: 1 = obyčejný odraz (menší), 1.5 = dobrý odstřel,
     // 2 = perfektní odstřel (velký efekt navíc), 3 = SUPER (ještě větší); pokažený odstřel efekt nemá
@@ -667,7 +652,6 @@
           break;
         case 'ekvalizer':                               // prostřední čára = zvuková vlna podle dění ve hře
           var lv = eqLv.reduce(function (a, b) { return a + b; }, 0) / eqLv.length;
-          rimEl.style.setProperty('--eq', lv.toFixed(2));
           skinEl.style.setProperty('--eq', lv.toFixed(2));
           cx.strokeStyle = 'rgba(230, 183, 48, .4)'; cx.lineWidth = 2; cx.beginPath();
           for (var x = 0; x <= W; x += 6) cx.lineTo(x, mid + Math.sin(x / 22 + t * 6) * Math.sin(x / 70 - t * 2) * (4 + lv * 18));
@@ -2870,7 +2854,7 @@
         b.addEventListener('click', function () {
           var i = +b.dataset.skin, name = (T.skins || [])[i] || '', nameEl = setCard.querySelector('.kp-skinname');
           if (!SKINS[i].ok()) { nameEl.textContent = name + ' – ' + lockText(SKINS[i].b); return; }
-          skin = i; store.set('kevinPongPad', SKINS[i].id); drawPreview(); setRim();
+          skin = i; store.set('kevinPongPad', SKINS[i].id); drawPreview(); setSkin();
           setCard.querySelectorAll('.kp-skin').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           nameEl.textContent = name;
         });
@@ -2938,7 +2922,7 @@
           var on = b.getAttribute('aria-pressed') !== 'true';
           b.setAttribute('aria-pressed', String(on));
           if (b.dataset.opt === 'vib') { vibOn = on; store.set('kevinPongVib', on ? '1' : '0'); if (on) vibe(30); }
-          else if (b.dataset.opt === 'atmo') { atmoOn = on; store.set('kevinPongAtmo', on ? '1' : '0'); apfx = []; setRim(); }
+          else if (b.dataset.opt === 'atmo') { atmoOn = on; store.set('kevinPongAtmo', on ? '1' : '0'); apfx = []; setSkin(); }
           else if (b.dataset.opt === 'lock') { lockOn = on; store.set('kevinPongLock', on ? '1' : '0'); }
           else { lefty = on; store.set('kevinPongLefty', on ? '1' : '0'); root.classList.toggle('lefty', on); shotPos = null; store.set('kevinPongShotPos', ''); placeShot(); setTimeout(fit, 50); }
         });
