@@ -397,5 +397,6 @@ window.KEVIN_LINES.cs.pong = {
       "Mezerník = odstřel, P = pauza, Esc pustí myš ze hry.",
       "pc"
     ]
-  ]
+  ],
+  "credit": "Hru vymyslel a postavil Skeli."
 };

@@ -37,6 +37,8 @@ class TotpTest {
         assertEquals(key, Totp.base32(Totp.unbase32(key)));
         String uri = Totp.otpauthUri("Jan Novák", key);
         assertTrue(uri.startsWith("otpauth://totp/Skeli.cz%3AJan%20Nov%C3%A1k?secret=" + key + "&issuer=Skeli.cz"));
+        assertTrue(uri.endsWith("&image=" + java.net.URLEncoder.encode(com.github.skeliit.WebUtils.baseUrl() + "/apple-touch-icon.png", java.nio.charset.StandardCharsets.UTF_8)),
+                "ikonka webu pro FreeOTP: " + uri);
         assertTrue(Totp.qrSvg(uri).startsWith("<svg"));
         assertEquals("ABCD EFGH IJ", Totp.grouped("ABCDEFGHIJ"));
     }

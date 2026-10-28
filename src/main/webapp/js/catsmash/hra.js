@@ -2108,7 +2108,7 @@
         '<p class="kp-links"><button type="button" class="kp-link" data-go="how">' + esc(T.how || T.controlsTitle || '') + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="badges">' + esc(T.badgesTitle || '') + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p>' + tipLine + '</div>' +
-        '<div class="kp-view kp-how"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + tipList + backBtn() + '</div>' +
+        '<div class="kp-view kp-how"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + tipList + (T.credit ? '<p class="kp-credit">' + esc(T.credit) + '</p>' : '') + backBtn() + '</div>' +
         '<div class="kp-view kp-badges">' + badgeOverview() + backBtn() + '</div>' +
         '<div class="kp-view kp-top"><section class="kpong-board"></section>' + backBtn() + '</div>';
       panel.querySelectorAll('.kpong-level').forEach(function (b) {

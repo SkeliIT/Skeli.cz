@@ -397,5 +397,6 @@ window.KEVIN_LINES.de.pong = {
       "Leertaste = Schuss, P = Pause, Esc gibt die Maus wieder frei.",
       "pc"
     ]
-  ]
+  ],
+  "credit": "Spiel ausgedacht und gebaut von Skeli."
 };

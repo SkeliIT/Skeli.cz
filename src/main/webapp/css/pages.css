@@ -1871,3 +1871,19 @@ body.light .k-poster:hover .k-ticket { background: #e6b730; color: #141414; }
   .pong-best-level { font-size: .62rem; letter-spacing: .04em; }
   .pong-best-item b { font-size: var(--fs-h4); }
 }
+
+/* úvod: karta hry CatSmash v postranním sloupci */
+.game-card-play { display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; }
+.game-credit { margin: 8px 0 0; font-size: var(--fs-small); color: var(--text-dim); opacity: .75; }
+
+/* úvod: Spotify ve značkové zelené (hlavní cesta k poslechu) a odkaz Sledovat */
+.btn.btn-spotify { background: #1ed760; border-color: #1ed760; color: #04210f; box-shadow: 0 8px 24px -10px rgba(30, 215, 96, .7); }
+.btn.btn-spotify:hover, .btn.btn-spotify:focus-visible { background: #3be477; border-color: #3be477; color: #04210f; }
+.hero-follow { flex-basis: 100%; text-align: center; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
+.hero-follow i { color: #1ed760; margin-right: 4px; }
+.hero-follow:hover { color: #1ed760; }
+
+/* úvod: hlavní věta je nadpis (h1), pod ní hned Nový song, pak tlačítka poslechu */
+h1.hero-tagline { font-family: inherit; font-weight: inherit; letter-spacing: inherit; line-height: 1.35; margin: 14px 0 0; }
+.hero .hero-latest { margin-top: 22px; }
+.hero .hero-latest + .hero-actions, .hero .hero-tagline + .hero-actions { margin-top: 22px; }

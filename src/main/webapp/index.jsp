@@ -11,7 +11,7 @@
   boolean homeDbError = false;
   try {
     com.github.skeliit.dao.HomeDao homeDao = new com.github.skeliit.dao.HomeDao();
-    homeVideos = homeDao.latestVideos(5);
+    homeVideos = homeDao.latestVideos(6);
     tapeSongs = homeDao.songsWithLyrics(cur);
     quote = homeDao.randomQuote(cur);
   } catch (SQLException ex) {
@@ -19,7 +19,12 @@
   }
   java.time.format.DateTimeFormatter dateFmt = java.time.format.DateTimeFormatter
       .ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(java.util.Locale.forLanguageTag(cur));
+  // nahoře „Nový song“ (ručně vybraný, nebo nejnovější klip); v Novinkách se pak už neopakuje
   com.github.skeliit.dao.HomeDao.HomeVideo latest = homeVideos.isEmpty() ? null : homeVideos.get(0);
+  try { latest = new com.github.skeliit.dao.HomeDao().featured(homeVideos); } catch (SQLException ex) { /* zůstane nejnovější */ }
+  final String featuredId = latest == null ? "" : latest.youtubeId();
+  java.util.List<com.github.skeliit.dao.HomeDao.HomeVideo> newsVideos = new java.util.ArrayList<>();
+  for (com.github.skeliit.dao.HomeDao.HomeVideo hv : homeVideos) if (!hv.youtubeId().equals(featuredId) && newsVideos.size() < 5) newsVideos.add(hv);
 %>
 <main class="home-page">
   <section class="hero">
@@ -35,16 +40,8 @@
     <% } else { %>
     <p class="hero-kicker"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><%= t.getProperty("home.kicker") %></p>
     <% } %>
-    <h1 class="hero-title"><span class="logo-mark" aria-hidden="true"></span><span class="sr-only">Skeli – SKELOSQUAD</span></h1>
-    <p class="hero-tagline"><%= t.getProperty("home.lead") %></p>
-    <div class="hero-actions">
-      <button type="button" class="btn btn-primary btn-lg" data-spotify-src="artist:5IouXw8U9uKCTwmncG5bUl">
-        <i class="fab fa-spotify"></i> <%= t.getProperty("home.cta.listen") %>
-      </button>
-      <a class="btn btn-lg btn-ghost" href="/texty.jsp">
-        <i class="fa-solid fa-align-left"></i> <%= t.getProperty("home.cta.lyrics") %>
-      </a>
-    </div>
+    <%-- pořadí: kdo (nadpis) → co je nového (Nový song / premiéra) → kde poslouchat (Spotify) → sítě --%>
+    <h1 class="hero-tagline"><%= t.getProperty("home.lead") %></h1>
     <%-- premiéra s odpočtem (admin → píseň → Premiéra): má přednost před kartou „Nový song“ --%>
     <% com.github.skeliit.model.Premiere premiere = null;
        try { premiere = new com.github.skeliit.dao.PremiereDao().forHome(); } catch (java.sql.SQLException e) { application.log("Premiere", e); }
@@ -75,12 +72,20 @@
       <span class="play"><i class="fa-solid fa-play"></i></span>
     </a>
     <% } %>
+    <div class="hero-actions">
+      <%-- Spotify je hlavní cesta k poslechu (streamy = výdělek): zelené tlačítko otevře přehrávač na webu --%>
+      <button type="button" class="btn btn-lg btn-spotify" data-spotify-src="artist:5IouXw8U9uKCTwmncG5bUl">
+        <i class="fab fa-spotify"></i> <%= t.getProperty("home.cta.listen") %>
+      </button>
+      <a class="btn btn-lg btn-ghost" href="/texty.jsp">
+        <i class="fa-solid fa-align-left"></i> <%= t.getProperty("home.cta.lyrics") %>
+      </a>
+      <a class="hero-follow" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener"><i class="fab fa-spotify" aria-hidden="true"></i> <%= t.getProperty("home.cta.follow") %></a>
+    </div>
     <div class="social-row hero-social">
       <a class="social-btn fb" href="https://www.facebook.com/mcskeli/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
       <a class="social-btn ig" href="https://www.instagram.com/skeli.official/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
       <a class="social-btn yt" href="https://www.youtube.com/@Skeli" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-      <a class="social-btn sp" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
-      <a class="social-btn am" href="https://music.apple.com/cz/artist/skeli/1820513581" target="_blank" rel="noopener" aria-label="Apple Music"><i class="fab fa-apple"></i></a>
     </div>
   </section>
 
@@ -112,18 +117,18 @@
         <% } else if (homeVideos.isEmpty()) { %>
           <div class="empty-note"><%= t.getProperty("home.news.none","Žádná videa k zobrazení.") %></div>
         <% }
-           for (com.github.skeliit.dao.HomeDao.HomeVideo v : homeVideos) {
+           for (com.github.skeliit.dao.HomeDao.HomeVideo v : newsVideos) {
              String vid = com.github.skeliit.WebUtils.escapeHtml(v.youtubeId());
              String title = v.title() == null ? "" : com.github.skeliit.WebUtils.escapeHtml(v.title());
              String dateStr = v.published() == null ? "" : dateFmt.format(v.published().toLocalDateTime().toLocalDate());
-             boolean big = v == latest; %>
+             boolean big = v == newsVideos.get(0); %>
           <a class="video<%= big ? " video-featured" : "" %>" href="https://www.youtube.com/watch?v=<%= vid %>" target="_blank" rel="noopener">
             <div class="video-thumb">
               <img src="/yt-thumb/<%= vid %>/<%= big ? "maxresdefault" : "hqdefault" %>.jpg" alt="<%= title %>" loading="lazy"<% if (big) { %> onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')"<% } %>>
               <span class="video-play"><i class="fa-solid fa-play"></i></span>
             </div>
             <div class="meta">
-              <% if (big) { %><span class="video-badge"><%= t.getProperty("home.latest") %></span><% } %>
+
               <div class="video-title"><% if (title.isEmpty()) { %><i class="fab fa-youtube icon-youtube"></i> YouTube<% } else { %><%= title %><% } %></div>
               <% if (!dateStr.isEmpty()) { %><div class="video-date"><%= dateStr %></div><% } %>
             </div>
@@ -146,6 +151,14 @@
       </div>
 
 <%@ include file="/includes/feedback-card.jspf" %>
+
+      <%-- hra CatSmash: jedna karta, ať o ní lidi vědí (dřív jen přes Kevinovo menu) --%>
+      <div class="card side-card game-card">
+        <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
+        <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
+        <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
+        <p class="game-credit"><%= t.getProperty("home.game.credit") %></p>
+      </div>
 
       <div class="card side-card newsletter card-gold">
         <div class="nl-photo" aria-hidden="true"><img src="/img/photos/point-sm.webp" alt="" loading="lazy" width="640" height="480"></div>
