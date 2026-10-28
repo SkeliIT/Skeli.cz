@@ -336,5 +336,66 @@ window.KEVIN_LINES.en.pong = {
   "lost": [
     "Cat reflexes, what can I say.",
     "Try again. I'll wait."
+  ],
+  "touchTitle": "Paddle by finger",
+  "touch": [
+    "Classic",
+    "Stick",
+    "Trackpad"
+  ],
+  "touchSens": "Sensitivity",
+  "touchHints": [
+    "The paddle is where your finger is. Precise, but it takes big moves.",
+    "Where you put your finger is the centre of the stick. Push it sideways and the paddle moves by itself – the further, the faster. Let go = it stops.",
+    "The paddle moves as far as your finger does, only amplified. A short flick sends it across the whole court; you can lift your finger and put it down elsewhere."
+  ],
+  "tipsTitle": "Tips",
+  "tipLabel": "Tip",
+  "tipNext": "Next tip",
+  "tips": [
+    [
+      "Time the power shot for the moment the ball lands on your paddle. A perfect shot freezes time and fires the ball fastest.",
+      "all"
+    ],
+    [
+      "Three perfect shots in a row = a SUPER shot, the fastest in the game.",
+      "all"
+    ],
+    [
+      "A botched shot slows the ball down and Kevin punishes it with a shot into the corner. If you are not sure, let the ball bounce on its own.",
+      "all"
+    ],
+    [
+      "Aim with the edge of the paddle: the closer to the edge you hit the ball, the steeper it flies (up to 60°).",
+      "all"
+    ],
+    [
+      "Kevin misjudges more when the ball is fast and bounces off the walls. Angled shots off the wall are your weapon.",
+      "all"
+    ],
+    [
+      "Make Kevin run a lot and his gears overheat – he slows down for a few seconds.",
+      "all"
+    ],
+    [
+      "Catch a falling screw or nut with your paddle: for 8 s you get a bigger paddle, a slower Kevin or a calmer ball.",
+      "all"
+    ],
+    [
+      "In ⚙ Controls pick how the paddle follows your finger: Classic, Stick or Trackpad. Put the ⚡ button wherever suits you.",
+      "touch"
+    ],
+    [
+      "If the game stutters, set ⚙ Controls → Detail to Low.",
+      "all"
+    ],
+    [
+      "Badges and rewards are only collected on Normal and Angry.",
+      "all"
+    ],
+    [
+      "Space = power shot, P = pause, Esc lets the mouse out of the game.",
+      "pc"
+    ]
   ]
 };

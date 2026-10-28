@@ -600,3 +600,33 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 }
 .kp-skin[data-rar="l"], .kp-ball[data-rar="l"], .kp-bgopt[data-rar="l"] { box-shadow: 0 0 14px 0 var(--rar); }
 .kp-bdg[data-rar] { box-shadow: inset 3px 0 0 var(--rar); }
+
+/* pálka prstem: tři režimy v ⚙ (3 tlačítka vedle sebe) a citlivost */
+.kp-talk.kp-touchmodes { grid-template-columns: repeat(3, 1fr); }
+.kp-keyrow .kp-sens { flex: 1; accent-color: var(--accent); }
+.kp-sensrow[hidden] { display: none; }
+/* páčka: průhledný kroužek tam, kam dopadl prst, a knoflík, který jde s prstem (--k = vychýlení, --r = dosah) */
+.kp-stick {
+  position: fixed; z-index: 9; width: calc(var(--r, 64px) * 2 + 44px); height: 64px; pointer-events: none;
+  transform: translate(-50%, -50%); border-radius: 999px;
+  border: 2px solid rgba(255, 210, 63, .45); background: rgba(10, 9, 8, .28);
+  box-shadow: inset 0 0 18px rgba(255, 210, 63, .12);
+}
+.kp-stick[hidden] { display: none; }
+.kp-stick-knob {
+  position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%;
+  transform: translateX(var(--k, 0px));
+  background: radial-gradient(circle at 35% 30%, #fff1a8, var(--accent) 50%, #8a6400); opacity: .85;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .5);
+}
+/* rady a tipy: jeden v menu hry (ťuknutí = další), celý seznam v „Jak se hraje?“ */
+.kp-tip { margin: 2px 0 0; max-width: 34ch; text-align: center; }
+.kp-tipbtn {
+  border: 0; background: none; padding: 4px 6px; cursor: pointer; color: var(--text-dim);
+  font-family: var(--font-text); font-size: var(--fs-small); line-height: 1.35;
+}
+.kp-tipbtn i, .kp-tipbtn b { color: #ffc861; font-weight: 500; }
+.kp-tips-title { margin-top: 10px; }
+.kp-tips { margin: 0; padding: 0 0 0 18px; text-align: left; font-family: var(--font-text); font-size: var(--fs-small); line-height: 1.4; color: var(--text-dim); }
+.kp-tips li { margin: 0 0 5px; }
+.kp-tips li::marker { color: #ffc861; }

@@ -336,5 +336,66 @@ window.KEVIN_LINES.de.pong = {
   "lost": [
     "Katzenreflexe, was soll ich sagen.",
     "Versuch's nochmal. Ich warte."
+  ],
+  "touchTitle": "Schläger per Finger",
+  "touch": [
+    "Klassisch",
+    "Stick",
+    "Trackpad"
+  ],
+  "touchSens": "Empfindlichkeit",
+  "touchHints": [
+    "Der Schläger ist dort, wo dein Finger ist. Genau, braucht aber große Bewegungen.",
+    "Wo du den Finger hinlegst, ist die Mitte des Sticks. Schieb ihn zur Seite und der Schläger fährt von selbst – je weiter, desto schneller. Loslassen = er hält an.",
+    "Der Schläger fährt so weit wie dein Finger, nur verstärkt. Ein kurzes Wischen schickt ihn übers ganze Feld; du kannst den Finger anheben und woanders aufsetzen."
+  ],
+  "tipsTitle": "Tipps",
+  "tipLabel": "Tipp",
+  "tipNext": "Nächster Tipp",
+  "tips": [
+    [
+      "Timing ist alles: Schieß, wenn der Ball auf dem Schläger landet. Ein perfekter Schuss hält die Zeit an und feuert den Ball am schnellsten.",
+      "all"
+    ],
+    [
+      "Drei perfekte Schüsse hintereinander = ein SUPER-Schuss, der schnellste im Spiel.",
+      "all"
+    ],
+    [
+      "Ein verpatzter Schuss bremst den Ball, und Kevin bestraft ihn mit einem Schuss in die Ecke. Wenn du unsicher bist, lass den Ball einfach abprallen.",
+      "all"
+    ],
+    [
+      "Ziel mit der Schlägerkante: Je näher am Rand du triffst, desto schräger fliegt der Ball (bis 60°).",
+      "all"
+    ],
+    [
+      "Kevin verschätzt sich öfter, wenn der Ball schnell ist und von den Wänden abprallt. Schräge Bälle über die Wand sind deine Waffe.",
+      "all"
+    ],
+    [
+      "Lass Kevin viel laufen, dann überhitzen seine Zahnräder – und er wird ein paar Sekunden langsamer.",
+      "all"
+    ],
+    [
+      "Fang eine fallende Schraube oder Mutter mit dem Schläger: 8 s lang gibt es einen größeren Schläger, einen langsameren Kevin oder einen ruhigeren Ball.",
+      "all"
+    ],
+    [
+      "Unter ⚙ Steuerung wählst du, wie der Schläger dem Finger folgt: Klassisch, Stick oder Trackpad. Die ⚡-Taste kannst du hinlegen, wo es dir passt.",
+      "touch"
+    ],
+    [
+      "Wenn das Spiel ruckelt, stell ⚙ Steuerung → Details auf Niedrig.",
+      "all"
+    ],
+    [
+      "Abzeichen und Belohnungen gibt es nur auf Normal und Wütend.",
+      "all"
+    ],
+    [
+      "Leertaste = Schuss, P = Pause, Esc gibt die Maus wieder frei.",
+      "pc"
+    ]
   ]
 };

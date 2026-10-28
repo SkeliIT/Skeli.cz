@@ -136,6 +136,8 @@
     // #klubko = Kevin hodí klubíčko hned na začátku zápasu (na jakékoli obtížnosti)
     var TRY_HOST = /^(test\.|localhost$|127\.)/.test(location.hostname);
     var PREVIEW_ALL = TRY_HOST && /\bvse\b/.test(location.hash), FORCE_YARN = TRY_HOST && /\bklubko\b/.test(location.hash);
+    // jen test/localhost: kde je hráčova pálka (pro testy ovládání prstem)
+    if (TRY_HOST) window.__kpPlayer = function () { return { x: Math.round(player.x), target: Math.round(player.target) }; };
     function hasBadge(k) { return !k || PREVIEW_ALL || !!badges[k]; }
     // přidá odznaky, vrátí ty opravdu nové (v pořadí BADGE_ICON)
     function addBadges(list) {
@@ -1662,6 +1664,7 @@
       // hráč: prst / myš (přímo) nebo šipky
       if (keys.left) player.target -= 900 * keySpeed * dt;
       if (keys.right) player.target += 900 * keySpeed * dt;
+      if (stickV) player.target += stickV * dt;          // páčka na dotyk: pálka jede, dokud je vychýlená
       player.target = clamp(player.target, player.w / 2, W - player.w / 2);
       player.x += (player.target - player.x) * Math.min(1, dt * (now < player.stunUntil ? 7 : 30));
       // šroubek: občas vypadne z horního okénka stroje a pomalu padá k hráči
@@ -2086,6 +2089,13 @@
           return '<li><i class="fa-solid ' + icons[i] + '" aria-hidden="true"></i><b>' + esc(c[0]) + '</b><span>' + esc(c[1]) + '</span></li>';
         }).join('') + '</ul><p class="kp-hint">' + esc(T.shotHint) + '</p>' : '<p class="kpong-help">' + esc(T.help) + '</p>';
       var short = T.levelsShort || T.levels;
+      // rady a tipy: v menu jeden náhodný (ťuknutí = další), v „Jak se hraje?“ všechny; jen ty pro toto zařízení
+      var tips = (T.tips || []).filter(function (x) { return x[1] === 'all' || x[1] === (coarse ? 'touch' : 'pc'); }).map(function (x) { return x[0]; });
+      var tipAt = Math.floor(Math.random() * tips.length);
+      var tipLine = tips.length ? '<p class="kp-tip"><button type="button" class="kp-tipbtn" title="' + esc(T.tipNext || '') + '"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> <b>' +
+        esc(T.tipLabel || 'Tip') + ':</b> <span>' + esc(tips[tipAt]) + '</span></button></p>' : '';
+      var tipList = tips.length ? '<h3 class="kp-label kp-tips-title">' + esc(T.tipsTitle || '') + '</h3><ul class="kp-tips">' +
+        tips.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '';
       panel.dataset.view = 'main';
       panel.innerHTML = '<div class="kp-view kp-main"><h2 class="kpong-title">' + esc(T.title) + '</h2><p class="kpong-lead">' + esc(T.lead) + '</p>' +
         '<div class="kp-seg" role="radiogroup" aria-label="' + esc(T.level) + '" style="--i:' + (level - 1) + '"><span class="kp-thumb" aria-hidden="true"></span>' +
@@ -2097,8 +2107,8 @@
         '<p class="kp-rec" hidden></p>' +
         '<p class="kp-links"><button type="button" class="kp-link" data-go="how">' + esc(T.how || T.controlsTitle || '') + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="badges">' + esc(T.badgesTitle || '') + '</button><span aria-hidden="true">·</span>' +
-        '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p></div>' +
-        '<div class="kp-view kp-how"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + backBtn() + '</div>' +
+        '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p>' + tipLine + '</div>' +
+        '<div class="kp-view kp-how"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + tipList + backBtn() + '</div>' +
         '<div class="kp-view kp-badges">' + badgeOverview() + backBtn() + '</div>' +
         '<div class="kp-view kp-top"><section class="kpong-board"></section>' + backBtn() + '</div>';
       panel.querySelectorAll('.kpong-level').forEach(function (b) {
@@ -2111,6 +2121,11 @@
         });
       });
       panel.querySelector('.kpong-play').addEventListener('click', begin);
+      var tipBtn = panel.querySelector('.kp-tipbtn');
+      if (tipBtn) tipBtn.addEventListener('click', function () {
+        tipAt = (tipAt + 1) % tips.length;
+        tipBtn.querySelector('span').textContent = tips[tipAt];
+      });
       board(level);
       say(pick(T.hello), 3000);
     }
@@ -2429,14 +2444,64 @@
           mover = e.pointerId;
           kickOff();
           try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
+          steerStart(e, 'field');
         } else if (e.pointerId !== mover) return;
+        steer(e); e.preventDefault();
+        return;
       } else if (e.type === 'pointerdown') {
         if (e.button !== 0 || setCard || e.target.closest('button, a, .kpong-panel, .kpong-settings')) return;
         shoot();
       }
       player.target = clamp(toField(e), player.w / 2, W - player.w / 2); e.preventDefault();
     }
-    function onPointerEnd(e) { if (e.pointerId === mover) mover = null; }
+    function onPointerEnd(e) { if (e.pointerId === mover) { mover = null; steerEnd(e); } }
+    // ---------- pálka prstem: tři režimy (⚙ Ovládání → Pálka prstem, localStorage kevinPongTouch) ----------
+    // direct = pálka je tam, kde je prst (jako dřív; s vlastní plochou přes její šířku);
+    // stick = páčka jako na ovladači: kam prst dopadne, tam je střed, vychýlení do strany = rychlost (mrtvá zóna
+    //   uprostřed, rychlost roste plynule, za okrajem páčky se střed posune s prstem, ať jde hned zacouvat);
+    // pad = trackpad: pálka jede o posun prstu krát citlivost (krátké švihnutí = přes celé hřiště).
+    // Citlivost (kevinPongTouchSens, 0,5–2,5) platí pro páčku a trackpad.
+    var TOUCH_KEYS = ['direct', 'stick', 'pad'];
+    var touchMode = TOUCH_KEYS.indexOf(store.get('kevinPongTouch')) >= 0 ? store.get('kevinPongTouch') : 'direct';
+    var touchSens = clamp(+(store.get('kevinPongTouchSens') || 1) || 1, 0.5, 2.5);
+    var st = null, stickV = 0;                           // st = prst, který zrovna vede pálku
+    var STICK_DEAD = 6, STICK_MAX_V = 1500;              // px mrtvé zóny, nejvyšší rychlost (jednotky hřiště / s)
+    function stickRange() { return 64 / touchSens; }     // o kolik px vychýlit na plnou rychlost
+    var stickEl = document.createElement('div');
+    stickEl.className = 'kp-stick'; stickEl.hidden = true;
+    stickEl.innerHTML = '<span class="kp-stick-knob"></span>';
+    root.appendChild(stickEl);
+    function steerStart(e, area) {
+      st = { id: e.pointerId, area: area, x0: e.clientX, last: e.clientX };
+      stickV = 0;
+      if (touchMode === 'stick') {
+        stickEl.style.left = e.clientX + 'px'; stickEl.style.top = e.clientY + 'px';
+        stickEl.style.setProperty('--r', stickRange() + 'px'); stickEl.style.setProperty('--k', '0px');
+        stickEl.hidden = false;
+      }
+    }
+    function steer(e) {
+      if (!st || e.pointerId !== st.id || !running) return;
+      if (touchMode === 'stick') {
+        var range = stickRange(), off = e.clientX - st.x0;
+        if (Math.abs(off) > range) { st.x0 = e.clientX - Math.sign(off) * range; off = Math.sign(off) * range; stickEl.style.left = st.x0 + 'px'; }
+        var a = Math.max(0, Math.abs(off) - STICK_DEAD) / (range - STICK_DEAD);
+        stickV = Math.sign(off) * Math.pow(a, 1.6) * STICK_MAX_V;
+        stickEl.style.setProperty('--k', off + 'px');
+      } else if (touchMode === 'pad') {
+        var w = court.getBoundingClientRect().width || 1;
+        player.target += (e.clientX - st.last) * W / w * 1.6 * touchSens;
+      } else if (st.area === 'zone') {
+        var r = zoneEl.getBoundingClientRect();
+        player.target = (e.clientX - r.left) / r.width * W;
+      } else player.target = toField(e);
+      st.last = e.clientX;
+      player.target = clamp(player.target, player.w / 2, W - player.w / 2);
+    }
+    function steerEnd(e) {
+      if (!st || (e && e.pointerId !== st.id)) return;
+      st = null; stickV = 0; stickEl.hidden = true;
+    }
     function mouseOnly(e) { if (e.pointerType !== 'touch') onPointer(e); }
     function touchOnly(e) { if (e.pointerType === 'touch') onPointer(e); }
     root.addEventListener('pointermove', mouseOnly);
@@ -2478,11 +2543,7 @@
       shoot();
     });
     // plocha pro pálku: první prst vede pálku, další prst v ploše = odstřel
-    function zoneSteer(e) {
-      var r = zoneEl.getBoundingClientRect();
-      player.target = clamp((e.clientX - r.left) / r.width * W, player.w / 2, W - player.w / 2);
-      e.preventDefault();
-    }
+    function zoneSteer(e) { steer(e); e.preventDefault(); }
     zoneEl.addEventListener('pointerdown', function (e) {
       e.stopPropagation();
       if (layoutMode) return dragLayout(e, e.target.closest('.kp-zone-grip') ? 'size' : 'zone');
@@ -2490,10 +2551,11 @@
       if (zoneMover !== null && zoneMover !== e.pointerId) { shoot(); e.preventDefault(); return; }
       zoneMover = e.pointerId; kickOff();
       try { zoneEl.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
+      steerStart(e, 'zone');
       zoneSteer(e);
     });
     zoneEl.addEventListener('pointermove', function (e) { if (e.pointerId === zoneMover && running) zoneSteer(e); });
-    function zoneEnd(e) { if (e.pointerId === zoneMover) zoneMover = null; }
+    function zoneEnd(e) { if (e.pointerId === zoneMover) { zoneMover = null; steerEnd(e); } }
     zoneEl.addEventListener('pointerup', zoneEnd); zoneEl.addEventListener('pointercancel', zoneEnd);
     // přetahování v režimu úprav: tlačítko, celá plocha, nebo roh plochy (velikost)
     function dragLayout(e, what) {
@@ -2617,6 +2679,14 @@
         '<input type="range" class="kp-vol" min="0.1" max="1" step="0.1" value="' + (vol || +(store.get('kevinPongVolLast') || 0.6)) + '" aria-label="' + esc(T.volume || '') + '"></div></section>';
       var secTalk = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.talkTitle || '') + '</h3><div class="kp-talk" role="radiogroup" aria-label="' + esc(T.talkTitle || '') + '">' +
         TALK_KEYS.map(function (k, i) { return '<button type="button" role="radio" data-talk="' + k + '" aria-checked="' + (k === talk) + '">' + esc((T.talk || TALK_KEYS)[i]) + '</button>'; }).join('') + '</div></section>';
+      // pálka prstem: tři režimy + citlivost (jen dotyk; citlivost nemá smysl u „Jako dřív“)
+      var secTouch = !coarse ? '' : '<section class="kp-sec"><h3 class="kp-label">' + esc(T.touchTitle || '') + '</h3>' +
+        '<div class="kp-talk kp-touchmodes" role="radiogroup" aria-label="' + esc(T.touchTitle || '') + '">' +
+        TOUCH_KEYS.map(function (k, i) { return '<button type="button" role="radio" data-touch="' + k + '" aria-checked="' + (k === touchMode) + '">' + esc((T.touch || TOUCH_KEYS)[i]) + '</button>'; }).join('') +
+        '</div><p class="kp-bgname kp-touchhint">' + esc((T.touchHints || [])[TOUCH_KEYS.indexOf(touchMode)] || '') + '</p>' +
+        '<div class="kp-row kp-keyrow kp-sensrow"' + (touchMode === 'direct' ? ' hidden' : '') + '><i class="fa-solid fa-gauge-simple-high" aria-hidden="true"></i>' +
+        '<input type="range" class="kp-sens" min="0.5" max="2.5" step="0.1" value="' + touchSens + '" aria-label="' + esc(T.touchSens || '') + '">' +
+        '<output class="kp-sensval">' + Math.round(touchSens * 100) + ' %</output></div></section>';
       var secLayout = !coarse ? '' : '<section class="kp-sec"><button type="button" class="kp-fullbtn kp-layout-btn"><i class="fa-solid fa-up-down-left-right" aria-hidden="true"></i> ' +
         esc(T.layoutBtn || '') + '</button><p class="kp-bgname">' + esc(T.layoutTip || '') + '</p></section>';
       var secKeys = coarse ? '' : '<section class="kp-sec"><h3 class="kp-label">' + esc(T.keysTitle || '') + '</h3><div class="kp-row kp-keyrow">' +
@@ -2644,7 +2714,7 @@
         '<div class="kp-pane" role="tabpanel" id="kp-pane-look" aria-labelledby="kp-tab-look" data-pane="look"' + (tab === 'look' ? '' : ' hidden') + '>' +
         '<canvas class="kp-preview" width="600" height="200" aria-hidden="true"></canvas>' + secSkin + secBall + secBg + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-sound" aria-labelledby="kp-tab-sound" data-pane="sound"' + (tab === 'sound' ? '' : ' hidden') + '>' + secSound + secTalk + '</div>' +
-        '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secDetail + secLayout + secKeys + secChecks + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secDetail + secTouch + secLayout + secKeys + secChecks + '</div>' +
         '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>';
       root.appendChild(setCard);
       setBtn.setAttribute('aria-expanded', 'true');
@@ -2748,6 +2818,19 @@
           talk = b.dataset.talk; store.set('kevinPongTalk', talk);
           setCard.querySelectorAll('[data-talk]').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
         });
+      });
+      setCard.querySelectorAll('[data-touch]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          touchMode = b.dataset.touch; store.set('kevinPongTouch', touchMode); steerEnd();
+          setCard.querySelectorAll('[data-touch]').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
+          setCard.querySelector('.kp-touchhint').textContent = (T.touchHints || [])[TOUCH_KEYS.indexOf(touchMode)] || '';
+          setCard.querySelector('.kp-sensrow').hidden = touchMode === 'direct';
+        });
+      });
+      var sensEl = setCard.querySelector('.kp-sens');
+      if (sensEl) sensEl.addEventListener('input', function () {
+        touchSens = +sensEl.value; store.set('kevinPongTouchSens', String(touchSens));
+        setCard.querySelector('.kp-sensval').textContent = Math.round(touchSens * 100) + ' %';
       });
       setCard.querySelectorAll('[data-detail]').forEach(function (b) {
         b.addEventListener('click', function () {

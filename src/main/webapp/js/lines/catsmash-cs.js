@@ -336,5 +336,66 @@ window.KEVIN_LINES.cs.pong = {
   "lost": [
     "Kočičí reflexy, co nadělám.",
     "Zkus to znovu. Já počkám."
+  ],
+  "touchTitle": "Pálka prstem",
+  "touch": [
+    "Jako dřív",
+    "Páčka",
+    "Trackpad"
+  ],
+  "touchSens": "Citlivost",
+  "touchHints": [
+    "Pálka je tam, kde máš prst. Přesné, ale chce to velké pohyby.",
+    "Kam položíš prst, tam je střed páčky. Vychyl ho do strany a pálka jede sama – čím víc, tím rychleji. Pustíš = zastaví.",
+    "Pálka jede o tolik, o kolik posuneš prst, jen zesíleně. Krátké švihnutí ji pošle přes celé hřiště, prst můžeš zvednout a položit jinam."
+  ],
+  "tipsTitle": "Rady a tipy",
+  "tipLabel": "Tip",
+  "tipNext": "Další tip",
+  "tips": [
+    [
+      "Odstřel načasuj na chvíli, kdy hopík dopadne na pálku. Perfektní odstřel zastaví čas a hopík vystřelí nejrychleji.",
+      "all"
+    ],
+    [
+      "Tři perfektní odstřely za sebou = SUPER rána, nejrychlejší ve hře.",
+      "all"
+    ],
+    [
+      "Pokažený odstřel hopík zpomalí a Kevin ho potrestá ranou do rohu. Když si nevěříš, nech hopík odrazit samotný.",
+      "all"
+    ],
+    [
+      "Miř krajem pálky: čím blíž okraji hopík trefíš, tím šikměji odletí (až o 60°).",
+      "all"
+    ],
+    [
+      "Kevin se plete víc, když hopík letí rychle a odráží se od stěn. Šikmé rány přes stěnu jsou tvoje zbraň.",
+      "all"
+    ],
+    [
+      "Když Kevina necháš hodně běhat, přehřejí se mu kola a na pár vteřin zpomalí.",
+      "all"
+    ],
+    [
+      "Padající šroubek nebo matičku chyť pálkou: na 8 s dostaneš větší pálku, pomalejšího Kevina, nebo klidnější hopík.",
+      "all"
+    ],
+    [
+      "V ⚙ Ovládání si vyber, jak pálka jede za prstem: Jako dřív, Páčka, nebo Trackpad. Tlačítko ⚡ si dej, kam ti sedí.",
+      "touch"
+    ],
+    [
+      "Když se hra seká, přepni v ⚙ Ovládání → Detaily na Nízké.",
+      "all"
+    ],
+    [
+      "Odznaky a odměny se sbírají jen na obtížnosti Normální a Naštvaný.",
+      "all"
+    ],
+    [
+      "Mezerník = odstřel, P = pauza, Esc pustí myš ze hry.",
+      "pc"
+    ]
   ]
 };

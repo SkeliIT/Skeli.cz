@@ -336,5 +336,66 @@ window.KEVIN_LINES.vi.pong = {
   "lost": [
     "Phản xạ mèo mà, biết sao được.",
     "Thử lại đi. Tôi đợi."
+  ],
+  "touchTitle": "Vợt bằng ngón tay",
+  "touch": [
+    "Như cũ",
+    "Cần điều khiển",
+    "Trackpad"
+  ],
+  "touchSens": "Độ nhạy",
+  "touchHints": [
+    "Vợt nằm đúng chỗ ngón tay. Chính xác nhưng cần cử động lớn.",
+    "Chỗ bạn đặt ngón tay là tâm của cần. Kéo sang bên và vợt tự chạy – càng xa càng nhanh. Thả tay = dừng.",
+    "Vợt di chuyển theo ngón tay nhưng được khuếch đại. Vuốt ngắn là vợt chạy hết sân; có thể nhấc ngón tay lên và đặt chỗ khác."
+  ],
+  "tipsTitle": "Mẹo",
+  "tipLabel": "Mẹo",
+  "tipNext": "Mẹo tiếp theo",
+  "tips": [
+    [
+      "Canh cú bắn đúng lúc bóng chạm vợt. Cú bắn hoàn hảo làm thời gian dừng lại và bóng bay nhanh nhất.",
+      "all"
+    ],
+    [
+      "Ba cú bắn hoàn hảo liên tiếp = cú SUPER, nhanh nhất trong trò chơi.",
+      "all"
+    ],
+    [
+      "Cú bắn hỏng làm bóng chậm lại và Kevin phạt bằng cú đánh vào góc. Nếu không chắc, cứ để bóng tự nảy.",
+      "all"
+    ],
+    [
+      "Nhắm bằng mép vợt: trúng càng gần mép, bóng bay càng xiên (tới 60°).",
+      "all"
+    ],
+    [
+      "Kevin đoán sai nhiều hơn khi bóng nhanh và nảy vào tường. Cú đánh xiên qua tường là vũ khí của bạn.",
+      "all"
+    ],
+    [
+      "Bắt Kevin chạy nhiều thì bánh răng của nó quá nóng – và nó chậm lại vài giây.",
+      "all"
+    ],
+    [
+      "Dùng vợt bắt con ốc hoặc đai ốc rơi xuống: trong 8 giây bạn có vợt to hơn, Kevin chậm hơn hoặc bóng hiền hơn.",
+      "all"
+    ],
+    [
+      "Trong ⚙ Điều khiển, chọn cách vợt theo ngón tay: Như cũ, Cần điều khiển hoặc Trackpad. Đặt nút ⚡ ở chỗ bạn thấy tiện.",
+      "touch"
+    ],
+    [
+      "Nếu trò chơi bị giật, chọn ⚙ Điều khiển → Chi tiết → Thấp.",
+      "all"
+    ],
+    [
+      "Huy hiệu và phần thưởng chỉ có ở mức Thường và Nổi giận.",
+      "all"
+    ],
+    [
+      "Phím cách = bắn, P = tạm dừng, Esc thả chuột ra khỏi trò chơi.",
+      "pc"
+    ]
   ]
 };
