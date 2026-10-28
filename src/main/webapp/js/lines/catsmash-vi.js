@@ -398,5 +398,5 @@ window.KEVIN_LINES.vi.pong = {
       "pc"
     ]
   ],
-  "credit": "Trò chơi này do chính tôi nghĩ ra và làm. – Skeli"
+  "credit": "Trò chơi do Skeli nghĩ ra và làm."
 };

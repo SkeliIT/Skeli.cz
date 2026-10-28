@@ -398,5 +398,5 @@ window.KEVIN_LINES.de.pong = {
       "pc"
     ]
   ],
-  "credit": "Dieses Spiel habe ich mir ausgedacht und gebaut. – Skeli"
+  "credit": "Spiel ausgedacht und gebaut von Skeli."
 };
