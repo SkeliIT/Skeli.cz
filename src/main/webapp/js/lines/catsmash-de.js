@@ -289,7 +289,8 @@ window.KEVIN_LINES.de.pong = {
     [
       "Pause · Ende",
       "P · Esc"
-    ]
+    ],
+    ["Superschuss","E · Magnet"]
   ],
   "shotHint": "Schmetterschuss: klick genau dann, wenn der Ball am Schläger ist.",
   "shot": "Schmetterschuss",
@@ -307,6 +308,9 @@ window.KEVIN_LINES.de.pong = {
   "loginToRank": "Melde dich an, um in die Rangliste zu kommen.",
   "login": "Anmelden",
   "localBest": "deine beste Zeit hier: {time}",
+  "stickReady": "SUPERSCHUSS BEREIT!",
+  "stickGo": "SUPERSCHUSS!",
+  "stickBtn": "Superschuss – Ball festhalten",
   "tileSub": {"how":"Regeln und Steuerung","badges":"Sammle sie und zeig, was du kannst","top":"Wo du im Vergleich stehst"},
   "progress": "Nächstes Abzeichen „{badge}“",
   "progressUnits": {"wins":"Siege","hardWins":"Siege auf schwerster Stufe","screws":"Schrauben","days":"Spieltage"},
@@ -363,6 +367,12 @@ window.KEVIN_LINES.de.pong = {
   "tipLabel": "Tipp",
   "tipNext": "Nächster Tipp",
   "tips": [
+    ["Superschuss (E oder Magnet): Der nächste Ball klebt am Schläger, die Zeit wird langsamer und du zielst mit Maus, Pfeiltasten oder Finger. Er feuert von selbst oder früher mit E / Leertaste.","all"],
+    ["Jedes Spiel beginnt mit einem geladenen Superschuss. 10 perfekte Schüsse laden ihn wieder – das Manometer im unteren Fenster zeigt, wie viel fehlt.","all"],
+    ["Eine Serie perfekter Schüsse (2× 3× 4×!!) lädt schneller. Ein schlechterer Schlag beendet die Serie, ein Tor von Kevin setzt auch die angefangene Ladung zurück.","all"],
+    ["Harte perfekte Schläge erschüttern den Automaten – eine Schraube fällt heraus und dein Schläger wird eine Weile groß.","all"],
+    ["Wenn Kevin zu viel rennt, überhitzen seine Zahnräder und eine Mutter fällt heraus – Kevin wird eine Weile langsamer.","all"],
+    ["Bei einem langen Ballwechsel springt eine Feder heraus – fang sie und der Ball wird langsamer.","all"],
     [
       "Timing ist alles: Schieß, wenn der Ball auf dem Schläger landet. Ein perfekter Schuss hält die Zeit an und feuert den Ball am schnellsten.",
       "all"
@@ -388,7 +398,7 @@ window.KEVIN_LINES.de.pong = {
       "all"
     ],
     [
-      "Fang eine fallende Schraube oder Mutter mit dem Schläger: 8 s lang gibt es einen größeren Schläger, einen langsameren Kevin oder einen ruhigeren Ball.",
+      "Fang ein fallendes Teil mit dem Schläger – der Bonus hält 8 s, in den letzten 3 s blinkt der Schläger: Schraube = großer Schläger, Mutter = langsamerer Kevin, Feder = langsamerer Ball.",
       "all"
     ],
     [
@@ -396,7 +406,7 @@ window.KEVIN_LINES.de.pong = {
       "touch"
     ],
     [
-      "Wenn das Spiel ruckelt, stell ⚙ Steuerung → Details auf Niedrig.",
+      "Wenn das Spiel ruckelt, stell ⚙ Anzeige → Details auf Niedrig.",
       "all"
     ],
     [

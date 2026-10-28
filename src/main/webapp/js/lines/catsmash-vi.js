@@ -289,7 +289,8 @@ window.KEVIN_LINES.vi.pong = {
     [
       "Tạm dừng · thoát",
       "P · Esc"
-    ]
+    ],
+    ["Siêu cú đánh","E · nam châm"]
   ],
   "shotHint": "Cú bắn: bấm đúng lúc bóng chạm vợt.",
   "shot": "Cú bắn",
@@ -307,6 +308,9 @@ window.KEVIN_LINES.vi.pong = {
   "loginToRank": "Đăng nhập để có tên trên bảng xếp hạng.",
   "login": "Đăng nhập",
   "localBest": "thời gian tốt nhất của bạn ở đây: {time}",
+  "stickReady": "SIÊU CÚ ĐÁNH SẴN SÀNG!",
+  "stickGo": "SIÊU CÚ ĐÁNH!",
+  "stickBtn": "Siêu cú đánh – dính bóng",
   "tileSub": {"how":"Luật chơi và điều khiển","badges":"Sưu tầm và khoe tài","top":"Xem bạn đứng thứ mấy"},
   "progress": "Huy hiệu tiếp theo “{badge}”",
   "progressUnits": {"wins":"trận thắng","hardWins":"trận thắng ở mức khó nhất","screws":"con ốc","days":"ngày chơi"},
@@ -363,6 +367,12 @@ window.KEVIN_LINES.vi.pong = {
   "tipLabel": "Mẹo",
   "tipNext": "Mẹo tiếp theo",
   "tips": [
+    ["Siêu cú đánh (E hoặc nam châm): quả bóng tiếp theo dính vào vợt, thời gian chậm lại và bạn ngắm bằng chuột, phím mũi tên hoặc ngón tay. Bóng tự bay đi, hoặc sớm hơn bằng E / phím cách.","all"],
+    ["Mỗi trận bạn có sẵn một siêu cú đánh. 10 cú đánh hoàn hảo sẽ nạp lại – đồng hồ áp suất ở ô dưới cho biết còn thiếu bao nhiêu.","all"],
+    ["Chuỗi cú hoàn hảo (2× 3× 4×!!) nạp nhanh hơn. Cú đánh kém sẽ cắt chuỗi, còn bàn thua từ Kevin xóa cả phần đang nạp.","all"],
+    ["Những cú hoàn hảo mạnh làm máy rung – một con ốc rơi ra và vợt của bạn to lên một lúc.","all"],
+    ["Khi Kevin chạy quá nhiều, bánh răng quá nóng và một đai ốc rơi ra – Kevin chậm lại một lúc.","all"],
+    ["Trong pha bóng dài, một chiếc lò xo bật ra khỏi máy – bắt lấy nó và bóng sẽ chậm lại.","all"],
     [
       "Canh cú bắn đúng lúc bóng chạm vợt. Cú bắn hoàn hảo làm thời gian dừng lại và bóng bay nhanh nhất.",
       "all"
@@ -388,7 +398,7 @@ window.KEVIN_LINES.vi.pong = {
       "all"
     ],
     [
-      "Dùng vợt bắt con ốc hoặc đai ốc rơi xuống: trong 8 giây bạn có vợt to hơn, Kevin chậm hơn hoặc bóng hiền hơn.",
+      "Dùng vợt bắt chi tiết rơi xuống – phần thưởng kéo dài 8 giây, 3 giây cuối vợt nhấp nháy: ốc vít = vợt to, đai ốc = Kevin chậm hơn, lò xo = bóng chậm hơn.",
       "all"
     ],
     [
@@ -396,7 +406,7 @@ window.KEVIN_LINES.vi.pong = {
       "touch"
     ],
     [
-      "Nếu trò chơi bị giật, chọn ⚙ Điều khiển → Chi tiết → Thấp.",
+      "Nếu trò chơi bị giật, chọn ⚙ Hiển thị → Chi tiết → Thấp.",
       "all"
     ],
     [

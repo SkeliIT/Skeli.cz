@@ -289,7 +289,8 @@ window.KEVIN_LINES.cs.pong = {
     [
       "Pauza · konec",
       "P · Esc"
-    ]
+    ],
+    ["Superútok","E · magnet"]
   ],
   "shotHint": "Odstřel: klikni přesně ve chvíli, kdy je hopík u pálky.",
   "shot": "Odstřel",
@@ -307,6 +308,9 @@ window.KEVIN_LINES.cs.pong = {
   "loginToRank": "Do tabulky se zapíšeš po přihlášení.",
   "login": "Přihlásit",
   "localBest": "tvůj nejlepší čas tady: {time}",
+  "stickReady": "SUPERÚTOK NABITÝ!",
+  "stickGo": "SUPERÚTOK!",
+  "stickBtn": "Superútok – přilepit míček",
   "tileSub": {"how":"Pravidla a ovládání","badges":"Sbírej a ukaž, co umíš","top":"Jak si stojíš mezi ostatními"},
   "progress": "Další odznak „{badge}“",
   "progressUnits": {"wins":"výhry","hardWins":"výhry na nejtěžší","screws":"šroubky","days":"dny se hrou"},
@@ -363,6 +367,12 @@ window.KEVIN_LINES.cs.pong = {
   "tipLabel": "Tip",
   "tipNext": "Další tip",
   "tips": [
+    ["Superútok (E nebo magnet): další hopík se přilepí na pálku, čas se zpomalí a ty zamíříš myší, šipkami nebo prstem. Pak vystřelí sám, nebo dřív E / mezerníkem.","all"],
+    ["Superútok máš na začátku zápasu nabitý jednou. Znovu ho nabije 10 perfektních odstřelů – manometr v dolním okénku ukazuje, kolik chybí.","all"],
+    ["Série perfektních odstřelů (2× 3× 4×!!) nabíjí superútok rychleji. Horší odpal sérii zruší a gól od Kevina vynuluje i rozpracované nabíjení.","all"],
+    ["Tvrdé perfektní rány otřesou strojem – vypadne šroubek a tvoje pálka bude chvíli velká.","all"],
+    ["Když Kevin moc běhá, kola se přehřejí a vypadne matička – Kevin pak chvíli zpomalí.","all"],
+    ["Při dlouhé výměně vyskočí ze stroje pružinka – chyť ji a hopík zpomalí.","all"],
     [
       "Odstřel načasuj na chvíli, kdy hopík dopadne na pálku. Perfektní odstřel zastaví čas a hopík vystřelí nejrychleji.",
       "all"
@@ -388,7 +398,7 @@ window.KEVIN_LINES.cs.pong = {
       "all"
     ],
     [
-      "Padající šroubek nebo matičku chyť pálkou: na 8 s dostaneš větší pálku, pomalejšího Kevina, nebo klidnější hopík.",
+      "Padající součástku chyť pálkou – bonus platí 8 s a poslední 3 s pálka bliká: šroubek = velká pálka, matička = pomalejší Kevin, pružinka = pomalejší hopík.",
       "all"
     ],
     [
@@ -396,7 +406,7 @@ window.KEVIN_LINES.cs.pong = {
       "touch"
     ],
     [
-      "Když se hra seká, přepni v ⚙ Ovládání → Detaily na Nízké.",
+      "Když se hra seká, přepni v ⚙ Obraz → Detaily na Nízké.",
       "all"
     ],
     [

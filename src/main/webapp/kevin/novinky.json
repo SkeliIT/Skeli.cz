@@ -2,6 +2,15 @@
   {
     "d": "2026-10-28",
     "href": "/?kevin=pong",
+    "cs": "V CatSmashi máš superútok! Zmáčkni E nebo magnet, hopík se přilepí na pálku, čas se zpomalí a ty zamíříš. A každá pálka má teď vlastní automat.",
+    "en": "CatSmash has a super shot! Press E or the magnet, the ball sticks to your paddle, time slows down and you aim. And every paddle now has its own machine.",
+    "de": "CatSmash hat jetzt einen Superschuss! Drück E oder den Magneten, der Ball klebt am Schläger, die Zeit wird langsamer und du zielst. Und jeder Schläger hat jetzt seinen eigenen Automaten.",
+    "uk": "У CatSmash є суперудар! Натисни E або магніт, м’ячик прилипне до ракетки, час сповільниться, а ти прицілишся. А кожна ракетка тепер має власний автомат.",
+    "vi": "CatSmash có siêu cú đánh! Nhấn E hoặc nam châm, bóng dính vào vợt, thời gian chậm lại và bạn ngắm bắn. Mỗi cây vợt giờ còn có cỗ máy riêng."
+  },
+  {
+    "d": "2026-10-28",
+    "href": "/?kevin=pong",
     "cs": "V CatSmashi si teď na telefonu vybereš, jak pálka jede za prstem – jako dřív, páčkou jako na ovladači, nebo jako na trackpadu. A v menu hry najdeš tipy, jak mě porazit.",
     "en": "In CatSmash you can now choose how the paddle follows your finger on a phone – classic, a stick like on a gamepad, or like a trackpad. And the game menu has tips on how to beat me.",
     "de": "In CatSmash wählst du jetzt auf dem Handy, wie der Schläger deinem Finger folgt – klassisch, mit einem Stick wie am Controller oder wie ein Trackpad. Und im Spielmenü gibt es Tipps, wie du mich schlägst.",
@@ -34,14 +43,5 @@
     "de": "CatSmash hat dreizehn neue Schläger und Bälle – Zweig, Eis, Lava, Plüsch, Perlen… Die Anhänger schaukeln und jeder Schläger hat beim perfekten Schuss seinen eigenen Effekt. Und ich habe endlich meinen eigenen Schläger.",
     "uk": "У CatSmash тринадцять нових ракеток і м’ячиків – гілочка, лід, лава, плюш, перли… Підвіски гойдаються, а кожна ракетка має свій ефект при ідеальному ударі. І я нарешті маю власну ракетку.",
     "vi": "CatSmash có mười ba vợt và bóng mới – cành cây, băng, dung nham, nhung, ngọc trai… Đồ treo đung đưa và mỗi vợt có hiệu ứng riêng khi đánh hoàn hảo. Và cuối cùng tôi cũng có vợt riêng."
-  },
-  {
-    "d": "2026-10-27",
-    "href": "/uzivatel.jsp#pong",
-    "cs": "V CatSmashi je dvacet odznaků. Za většinu dostaneš novou pálku, míček nebo pozadí a jeden si můžeš nosit jako titul u jména.",
-    "en": "CatSmash now has twenty badges. Most give you a new paddle, ball or background, and you can wear one as a title next to your name.",
-    "de": "CatSmash hat jetzt zwanzig Abzeichen. Für die meisten gibt es einen neuen Schläger, Ball oder Hintergrund, und eins kannst du als Titel neben deinem Namen tragen.",
-    "uk": "У CatSmash тепер двадцять значків. За більшість отримаєш нову ракетку, м’ячик або фон, а один можна носити як титул біля імені.",
-    "vi": "CatSmash giờ có hai mươi huy hiệu. Phần lớn cho bạn vợt, bóng hoặc nền mới, và bạn có thể đeo một cái làm danh hiệu cạnh tên."
   }
 ]

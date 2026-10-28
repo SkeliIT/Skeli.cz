@@ -777,6 +777,150 @@ window.KEVIN_PONG_LINES = {
    "To není podvod… teda je, ale tvůj.",
    "Kdo ho vyšrouboval? Přiznej se.",
    "Stroj se rozpadá a ty sbíráš suvenýry."
+  ],
+  "superutok_nabit": [
+   "No vida! Zlatá nádrž je plná. Tohle nevypadá dobře.",
+   "Ty sis něco nabil? Já myslel, že jen mačkáš tlačítka.",
+   "Pozor, hopík dostal prémiovou péči.",
+   "Zlatá trubka svítí. To bude zase cirkus.",
+   "Tak ukaž, jestli umíš i něco jiného než čekat.",
+   "Tohle tlačítko začínám osobně nesnášet.",
+   "Máš nabito? Já mám připravené vousky.",
+   "Kola září, ego roste. Zajímavá kombinace.",
+   "Tak jo. Teď se budu tvářit, že se nebojím.",
+   "Zlatá energie! Škoda, že si za ni nekoupíš reflexy."
+  ],
+  "superutok_pouzit": [
+   "Hopík se přilepil? To je proti kočičím pravidlům!",
+   "Tak si pěkně zamiř. Já si zatím promyslím výmluvu.",
+   "To je podraz. A já jsem odborník na podrazy!",
+   "Vidím tu čáru. Doufám, že vede do tvého pokoje.",
+   "Tohle je sport, ne lepicí dílna!",
+   "Klidně mi to ukaž ještě jednou. Stejně se netěším.",
+   "Taková příprava kvůli jednomu hopíku.",
+   "Míříš jako ostrostřelec. Doufám, že máš i plán B.",
+   "Uši nahoru, tlapky připravené. Tohle bude těsné.",
+   "Tak pojď, zlatý hopíku. Kevin tě vítá!"
+  ],
+  "superutok_gol": [
+   "Au! Ten hopík měl zlatou vstupenku!",
+   "Dobře, dobře. Tohle sis zasloužil.",
+   "Zásah! Já se jen díval na něco vedle.",
+   "To nebyl gól. To byla porucha mé pozornosti.",
+   "Tak tohle si do statistik radši nepiš.",
+   "Pěkná rána. Tvoje ego právě dostalo další krmení.",
+   "Hopík prošel! Já jen kontroloval sklo.",
+   "No dobře. Jeden bod pro lidskou civilizaci.",
+   "Tohle kolo si budu pamatovat. Bohužel.",
+   "Gratuluju. I rozbitý budík ukáže správný čas."
+  ],
+  "superutok_chycen": [
+   "Chycen! A teď mi zatleskej.",
+   "Zlatá střela? Zlatá chyba!",
+   "Takovou parádu jsem čekal. Jen ne od tebe.",
+   "Hopík zadržen, kočka spokojena.",
+   "Tohle si vystavím vedle prázdné misky.",
+   "Krásný výstřel. Škoda, že skončil u mě.",
+   "Tvoje energie, moje tlapky. Férový obchod.",
+   "Zlatý manometr, stříbrný výsledek.",
+   "To bylo těsné. Tvářím se, že ne.",
+   "Díky za rozcvičku. Další, prosím!"
+  ],
+  "serie_perfekt": [
+   "Ta série roste rychleji než moje chuť k jídlu.",
+   "Klid, Kevine. Jsi přece chlupatá legenda.",
+   "Tohle už začíná být osobní.",
+   "Perfektní odpal, perfektní návrat. Fuj, disciplína.",
+   "Jestli dáš další, schovám se do krabice.",
+   "Takovou přesnost bych chtěl při dávkování granulí.",
+   "Zase perfektně? Začínám být podezřívavý.",
+   "Ten hopík má něco proti mně."
+  ],
+  "serie_prerusena": [
+   "A je po sérii. Hopík si potřeboval odpočinout.",
+   "Ticho! Slyšeli jste to? To byla série, jak padá.",
+   "Tak nic. Zlaté ruce si vzaly dovolenou.",
+   "Konečně chyba. Už jsem se cítil jako špatný kocour.",
+   "Série skončila. Moje vousky slaví.",
+   "A teď zpátky do normálního světa.",
+   "To zamrzí. Mě tedy vůbec.",
+   "Perfektní už to není, ale sranda zůstává.",
+   "Já věděl, že se jednou unavíš. Mám na to čich."
+  ],
+  "zed_postavena": [
+   "Cože? Ty sis postavil vlastní zeď?",
+   "Tohle je pong, ne stavební veletrh!",
+   "Mosazná hradba. Tak tomu říkám přehnaná opatrnost.",
+   "Do zdi se nebouchá? Tak to si povíme.",
+   "Máš zeď. Já mám tlapky. Uvidíme.",
+   "To sis přinesl zedníka v kapse?",
+   "Taková paráda kvůli jednomu hopíku.",
+   "Zkusím ji přesvědčit pohledem.",
+   "Dobrá práce. Teď ji můžeš i uklidit.",
+   "Tady někdo nerad riskuje. Mňau."
+  ],
+  "zed_zastavila": [
+   "Au! Ta zeď má ostré lokty!",
+   "Mříže jedna mosazná! To si zapamatuju.",
+   "Hopík se vrátil. Já se neptal.",
+   "Dobře, tentokrát vyhrála architektura.",
+   "Tohle nebylo v manuálu automatu!",
+   "Hradba drží. Moje důstojnost méně.",
+   "Zkusil jsem to. Pro vědu.",
+   "Tak jo, zeď jedna, Kevin nula.",
+   "Tvoje mříže mají lepší obranu než já.",
+   "Tohle se mi nelíbí. Jdu si sednout."
+  ],
+  "zed_praskla": [
+   "Prásk! Konečně zase normální hřiště.",
+   "Zeď padla. Krabice už volá.",
+   "Mosazná hradba, mosazné nervy.",
+   "Hotovo. Stavební povolení vypršelo.",
+   "A teď si zahrajeme bez nábytku.",
+   "Konec opevnění. Začíná kočičí protiútok.",
+   "Ta zeď měla kratší kariéru než moje myš.",
+   "Příště přidej i střechu.",
+   "Mříže zmizely. Moje sebevědomí se vrátilo.",
+   "Děkuju za prohlídku pevnosti."
+  ],
+  "kychnuti_varovani": [
+   "A-a-a… něco mě lechtá na nose.",
+   "Počkej… tenhle vous je nějak podezřelý.",
+   "A-a-a… ne, teď ne, hopíku!",
+   "Mám takový pocit, že to bude hlasité.",
+   "Prosím, nikdo mi neříkejte „na zdraví“ předem.",
+   "Nos hlásí poruchu. Tři sekundy do katastrofy.",
+   "Něco tu poletuje. A já to nemám rád.",
+   "A-a-a… kde mám kapesník?",
+   "Tohle je jen malé kočičí varování.",
+   "Jestli kýchnu, za nic neručím!"
+  ],
+  "kychnuti": [
+   "HAPČÍ! Hopík, změň směr!",
+   "Promiň. Nos měl vlastní herní plán.",
+   "To nebyl podvod, to byl pyl.",
+   "Hopík se lekl víc než ty.",
+   "Zdravíčko! Tedy… moje zdravíčko.",
+   "Pára, prach, vousky. Všechno špatně.",
+   "Tohle jsem vůbec neplánoval. Skoro.",
+   "HAPČÍ! A teď dělej, že jsi to čekal.",
+   "Malé kýchnutí, velké následky.",
+   "Nos jedna, přesnost nula."
+  ],
+  "laser": [
+   "Červená tečka! Počkej na mě!",
+   "Já ji skoro mám! Nehýbej s ní!",
+   "Tohle je určitě nějaký mechanický hmyz.",
+   "Kdo sem pustil tu červenou věc?",
+   "Hopík počká. Tohle je naléhavější.",
+   "Já nejsem rozptýlený. Jen kontroluju okolí.",
+   "Kola rychleji! Tečka neuteče!",
+   "Mám ji! …Nemám ji.",
+   "To není hračka. To je vážná kočičí záležitost.",
+   "Tečka zmizela. Budu o ní přemýšlet celý den."
+  ],
+  "pruzina": [
+   "Pružina připravená. Hopík dostane expresní doručení."
   ]
  }
 };
