@@ -768,3 +768,130 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-gift-frame img { width: 22px; height: 22px; border-radius: 50%; }
 .kp-bdg:not(.on) .kp-gifts { opacity: .75; filter: saturate(.75); }
 .kp-bdg-gifts { display: none; }
+
+/* ---------- superútok „Přilepení“ ---------- */
+/* zpomalený čas: pozadí zešedne a rozostří se, kola zešednou, kolem tmavý okraj; míček, pálky a čára zůstanou ostré */
+.kpong-bg, .kpong-bgfx { transition: filter .3s ease; }
+.kpong.kp-bullet .kpong-bg, .kpong.kp-bullet .kpong-bgfx { filter: grayscale(.85) blur(2px) brightness(.65); }
+.kpong.kp-bullet .kpong-mech { filter: grayscale(.85) brightness(.75); }
+.kpong.kp-bullet .kpong-field::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 80%, transparent 40%, rgba(8, 5, 0, .6)); animation: kp-bullet-in .3s ease-out;
+}
+@keyframes kp-bullet-in { from { opacity: 0; } }
+/* připraveno: spodek hřiště zlatě svítí – další míček se přilepí */
+.kpong.stick-armed .kpong-field { box-shadow: inset 0 calc(-26px * var(--u)) calc(30px * var(--u)) calc(-14px * var(--u)) rgba(255, 200, 60, .75); }
+/* manometr nabití v dolním okénku (ručička 0–270°) */
+.kp-gauge {
+  position: absolute; z-index: 2; pointer-events: none; border-radius: 50%;
+  left: calc(134px * var(--u)); top: calc(1086px * var(--u)); width: calc(108px * var(--u)); height: calc(108px * var(--u));
+  background: radial-gradient(circle at 40% 35%, #2c251b, #0e0b07 70%);
+  border: calc(5px * var(--u)) solid #b8862b;
+  box-shadow: inset 0 0 calc(10px * var(--u)) #000, 0 calc(3px * var(--u)) calc(8px * var(--u)) rgba(0, 0, 0, .7);
+}
+/* stupnice: zlatý oblouk podle nabití (0–270°); --charge 0–1 (ne --p – ta je na webu zaregistrovaná jako procenta) */
+.kp-gauge::before {
+  content: ""; position: absolute; inset: 7%; border-radius: 50%;
+  background: conic-gradient(from 225deg, #e6b730 calc(var(--charge, 0) * 270deg), rgba(255, 255, 255, .14) 0 270deg, transparent 0);
+  -webkit-mask: radial-gradient(circle, transparent 60%, #000 61%); mask: radial-gradient(circle, transparent 60%, #000 61%);
+}
+.kp-gauge i {
+  position: absolute; left: 50%; top: 50%; width: calc(4px * var(--u)); height: 36%; margin-left: calc(-2px * var(--u));
+  background: linear-gradient(#ffe48a, #b8860b); border-radius: 2px; transform-origin: 50% 0;
+  transform: rotate(calc(45deg + var(--charge, 0) * 270deg)); transition: transform .4s cubic-bezier(.3, 1.4, .5, 1);
+}
+.kp-gauge::after { content: ""; position: absolute; left: 50%; top: 50%; width: 18%; height: 18%; translate: -50% -50%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff1a8, #8f6600); }
+.kp-gauge b { position: absolute; left: 50%; bottom: 12%; translate: -50% 0; font-size: calc(16px * var(--u)); line-height: 1; color: #6b5a3a; font-weight: 400; }
+.kp-gauge.ready { animation: kp-gauge-ready 1.2s ease-in-out infinite; }
+.kp-gauge.ready b { color: #ffd23f; }
+.kp-gauge.armed { border-color: #fff1a8; }
+@keyframes kp-gauge-ready { 50% { box-shadow: inset 0 0 calc(10px * var(--u)) #000, 0 0 calc(22px * var(--u)) rgba(255, 200, 60, .95); } }
+@media (pointer: coarse) { .kp-gauge b { display: none; } }
+/* série perfektních: 2× 3×! 4×!! 5× :O */
+.kp-streak { position: absolute; left: 50%; top: 40%; translate: -50% -50%; z-index: 3; pointer-events: none; opacity: 0;
+  font-size: clamp(1.6rem, 9cqi, 3rem); color: #ffd23f; text-shadow: 0 0 14px rgba(255, 170, 30, .9), 0 3px 0 #6b4a00; white-space: nowrap; }
+.kp-streak.pop { animation: kp-streak 1s cubic-bezier(.2, 1.4, .4, 1) forwards; }
+@keyframes kp-streak { 0% { opacity: 0; scale: .4; } 25% { opacity: 1; scale: 1.15; } 70% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1; translate: -50% -90%; } }
+/* tlačítko s magnetem na telefonu: nad tlačítkem odstřelu */
+.kpong-stickbtn {
+  position: absolute; left: calc(var(--sx, 12) * 1vw); top: calc(var(--sy, 58) * 1dvh - 82px); transform: translate(-50%, -50%);
+  pointer-events: auto; width: 54px; height: 54px; padding: 0; border-radius: 50%; display: grid; place-items: center;
+  color: #ffd23f; font-size: 1.3rem; background: rgba(20, 17, 12, .85); border: 2px solid #b8862b; box-shadow: 0 4px 14px rgba(0, 0, 0, .55);
+}
+.kpong-stickbtn:disabled { opacity: .45; }
+.kpong-stickbtn.ready { border-color: #ffd23f; animation: kp-gauge-ready 1.2s ease-in-out infinite; }
+.kpong-stickbtn.armed { background: radial-gradient(circle at 35% 30%, #fff1a8, var(--accent) 45%, #8a6400); color: #1a1405; }
+@media (prefers-reduced-motion: reduce) { .kp-gauge.ready, .kpong-stickbtn.ready, .kp-streak.pop { animation: none; } .kp-streak.pop { opacity: 1; } }
+/* tvrdá rána do Kevinovy pálky otřese strojem */
+.kpong.kp-shake .kpong-machine { animation: kp-shake .28s ease-out; }
+@keyframes kp-shake { 20% { translate: calc(-4px * var(--u)) calc(2px * var(--u)); } 45% { translate: calc(4px * var(--u)) calc(-2px * var(--u)); } 70% { translate: calc(-2px * var(--u)) 0; } }
+@media (prefers-reduced-motion: reduce) { .kpong.kp-shake .kpong-machine { animation: none; } }
+
+/* ---------- zpomalený záznam vítězného gólu (jako ve sportovním přenosu) ---------- */
+.kp-replay-ui { display: none; }
+/* přiblížení jen obrazu uvnitř skla (sklo samo zůstane v rámu) */
+.kpong.kp-replay .kpong-field { overflow: hidden; }
+.kpong.kp-replay .kpong-court, .kpong.kp-replay .kpong-bg, .kpong.kp-replay .kpong-bgfx { transform-origin: var(--rx, 50%) var(--ry, 50%); animation: kp-rp-zoom 4.5s ease-in-out forwards; }
+@keyframes kp-rp-zoom { from { transform: scale(1); } to { transform: scale(1.22); } }
+/* zlatavý filmový obraz se zrnem a řádkováním */
+.kpong.kp-replay .kpong-court { filter: sepia(.35) contrast(1.15) saturate(1.25); }
+.kpong.kp-replay .kpong-bg, .kpong.kp-replay .kpong-bgfx { filter: grayscale(.6) sepia(.4) brightness(.7); }
+.kpong.kp-replay .kpong-field::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .18) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at var(--rx, 50%) var(--ry, 50%), transparent 35%, rgba(20, 10, 0, .65));
+  animation: kp-bullet-in .4s ease-out;
+}
+/* filmové pruhy nahoře a dole, ● REPLAY a „ťukni pro přeskočení“ */
+.kpong.kp-replay .kp-replay-ui { display: block; position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.kpong.kp-replay .kp-replay-ui::before, .kpong.kp-replay .kp-replay-ui::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 9%; background: #000; animation: kp-rp-bars .45s ease-out both;
+}
+.kpong.kp-replay .kp-replay-ui::before { top: 0; transform-origin: top; }
+.kpong.kp-replay .kp-replay-ui::after { bottom: 0; transform-origin: bottom; }
+@keyframes kp-rp-bars { from { transform: scaleY(0); } }
+.kp-rp-tag {
+  position: absolute; left: 4%; top: 1.6%; z-index: 1; font-size: var(--fs-small); letter-spacing: .14em; color: #fff;
+  text-shadow: 0 0 6px rgba(255, 40, 40, .9); animation: kp-rp-blink 1s steps(2) infinite;
+}
+.kp-rp-skip { position: absolute; right: 4%; bottom: 2%; z-index: 1; font-family: var(--font-text); font-size: var(--fs-small); color: #bfb39c; }
+@keyframes kp-rp-blink { 50% { opacity: .35; } }
+/* gól: zlatý záblesk */
+.kpong.kp-replay-hit .kpong-field::before {
+  content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  background: radial-gradient(circle at var(--rx, 50%) var(--ry, 50%), rgba(255, 236, 160, .95), rgba(255, 190, 60, .4) 40%, transparent 75%);
+  animation: kp-rp-flash .9s ease-out forwards;
+}
+@keyframes kp-rp-flash { from { opacity: 1; } to { opacity: 0; } }
+
+/* ---------- délka zápasu a skóre ---------- */
+.kp-lenseg { margin-top: 6px; }
+.kp-row-meta { font-family: var(--font-text); font-size: var(--fs-small); color: #bfb39c; white-space: nowrap; }
+.kp-score { width: min(100%, 320px); margin: 4px auto 6px; display: grid; gap: 4px; }
+.kp-score ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.kp-score li, .kp-score-total {
+  display: flex; justify-content: space-between; gap: 10px; font-family: var(--font-text); font-size: var(--fs-small); color: #e8dcc5;
+  opacity: 0; animation: kp-score-row .35s ease-out forwards; animation-delay: calc(var(--i) * .12s + .3s);
+}
+.kp-score li b { font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+.kp-score li.kp-score-mult { border-top: 1px solid rgba(230, 183, 48, .3); padding-top: 3px; }
+.kp-score-total { margin: 2px 0 0; padding: 6px 10px; border-radius: 10px; background: rgba(230, 183, 48, .12); border: 1px solid rgba(230, 183, 48, .45); align-items: baseline; }
+.kp-score-total span { font-size: var(--fs-card); color: #fff; }
+.kp-score-total b { font-family: var(--font-display); font-size: var(--fs-h3); color: #ffd23f; text-shadow: 0 0 12px rgba(255, 190, 60, .6); font-variant-numeric: tabular-nums; }
+.kp-score-rec { margin: 0; text-align: center; font-size: var(--fs-card); color: #ffd23f; opacity: 0; animation: kp-score-rec .6s cubic-bezier(.2, 1.4, .4, 1) forwards; animation-delay: calc(var(--i) * .12s + .4s); }
+@keyframes kp-score-row { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+@keyframes kp-score-rec { from { opacity: 0; scale: .5; } to { opacity: 1; scale: 1; } }
+@media (prefers-reduced-motion: reduce) { .kp-score li, .kp-score-total, .kp-score-rec { animation: none; opacity: 1; } }
+/* po zápase: Kevinova reklama na podporu Skeliho */
+.kp-support {
+  display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; width: min(100%, 320px); margin: 8px auto 0;
+  padding: 8px 12px; border-radius: 14px; text-decoration: none; text-align: left;
+  border: 1px solid rgba(255, 120, 150, .45); background: linear-gradient(135deg, rgba(255, 90, 130, .14), rgba(230, 183, 48, .1));
+}
+.kp-support:hover, .kp-support:focus-visible { border-color: #ff7a9a; text-decoration: none; }
+.kp-support img { width: 40px; height: 40px; border-radius: 50%; }
+.kp-support span { display: grid; gap: 1px; min-width: 0; }
+.kp-support b { font-size: var(--fs-small); color: #fff; font-weight: 400; }
+.kp-support small { font-family: var(--font-text); font-size: var(--fs-small); color: #e8cfd6; line-height: 1.25; }
+.kp-support > i { color: #ff6f91; }

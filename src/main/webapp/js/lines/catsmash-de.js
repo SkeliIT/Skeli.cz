@@ -85,7 +85,8 @@ window.KEVIN_LINES.de.pong = {
     "Pfotenkette",
     "Neonröhre",
     "Rasta",
-    "Uhrwerk"
+    "Uhrwerk",
+    "SkeloSquad"
   ],
   "skinLock": [
     "",
@@ -119,7 +120,8 @@ window.KEVIN_LINES.de.pong = {
     "hclean": "Kevins Albtraum",
     "hsniper": "Scharfes Auge",
     "hcomeback": "Phönix aus der Maschine",
-    "wardrobe": "Kleiderschrank-König"
+    "wardrobe": "Kleiderschrank-König",
+    "skelosquad": "SkeloSquad"
   },
   "badgeLines": {
     "first": "Na sieh mal an! Noch eine Pfote für die Sammlung. Mach das nochmal!",
@@ -146,7 +148,8 @@ window.KEVIN_LINES.de.pong = {
     "hclean": "Nur drei Tore?! Das kommt nicht in meine Memoiren.",
     "hsniper": "Fünf perfekte Schüsse gegen den wütenden mich? Ich melde das der Katzenpolizei.",
     "hcomeback": "Fünf Tore hinten und du hast mich trotzdem erledigt? Ich leg mich in einen Karton.",
-    "wardrobe": "Alles freigeschaltet! Jetzt schalte mir noch den Weg zum vollen Napf frei."
+    "wardrobe": "Alles freigeschaltet! Jetzt schalte mir noch den Weg zum vollen Napf frei.",
+    "skelosquad": "SkeloSquad! Das Seltenste im ganzen Automaten. Ich verneige mich. Einmal."
   },
   "noBadges": "Auf Leicht gibt es keine Abzeichen – probier Normal.",
   "badgeHow": {
@@ -174,7 +177,8 @@ window.KEVIN_LINES.de.pong = {
     "hclean": "Gewinne auf der schwersten Stufe und lass Kevin höchstens 3 Tore schießen.",
     "hsniper": "Schaffe 5 perfekte Schüsse in einem Spiel auf der schwersten Stufe.",
     "hcomeback": "Gewinne auf der schwersten Stufe ein Spiel, in dem du 5 Tore zurücklagst.",
-    "wardrobe": "Schalte alle anderen Schläger und Bälle frei."
+    "wardrobe": "Schalte alle anderen Schläger und Bälle frei.",
+    "skelosquad": "Hol dir alle 5 Abzeichen der schwersten Stufe."
   },
   "badgesTitle": "Abzeichen",
   "loading": "Maschine startet…",
@@ -186,30 +190,30 @@ window.KEVIN_LINES.de.pong = {
   ],
   "badgeNoReward": "noch ohne Belohnung",
   "rewards": {
-    "wins50": "Schläger Rasta und Automat Rasta",
-    "close": "Hintergrund Sonnenuntergang, Schläger Perlen, Ball Perle",
+    "wins50": "Hintergrund Ganja-Tal, Schläger Rasta, Automat Rasta",
+    "close": "Hintergrund Unterwasserwelt, Schläger Perlen, Ball Perle",
     "loyal": "Hintergrund Zauberwald, Schläger Jade, Ball Jadekugel",
-    "fast": "Hintergrund Weltall",
-    "overheat": "Hintergrund Polarlicht, Ball Sprayball",
-    "comeback": "Hintergrund Ganja-Tal, Schläger Lava, Ball Lavastein",
-    "first": "Schläger Zweig",
+    "overheat": "Ball Sprayball",
+    "comeback": "Hintergrund Vulkan, Schläger Lava, Ball Lavastein",
+    "first": "Hintergrund Sonnenuntergang, Schläger Zweig",
     "easy": "Ball Marmor",
-    "tinker": "Schläger Plüsch, Ball Kastanie",
+    "tinker": "Hintergrund Plüschland, Schläger Plüsch, Ball Kastanie",
     "normal": "Schläger Graffiti, Ball Plüschball",
-    "streak": "Schläger Schatz",
-    "night": "Schläger Eis, Ball Eismurmel",
-    "sniper": "Schläger Chip, Ball Prozessor",
-    "marathon": "Schläger Equalizer, Ball Lautsprecher",
-    "clean": "Schläger Pfotenkette",
+    "streak": "Hintergrund Schatzhöhle, Schläger Schatz",
+    "night": "Hintergrund Polarlicht, Schläger Eis, Ball Eismurmel",
+    "sniper": "Hintergrund Digitale Welt, Schläger Chip, Ball Prozessor",
+    "marathon": "Hintergrund Konzertbühne, Schläger Equalizer, Ball Lautsprecher",
+    "clean": "Hintergrund Goldene Schatzkammer, Schläger Pfotenkette",
     "super": "Ball Goldpfote",
-    "angry": "Schläger Neonröhre, Ball Neonwirbel, Rahmen Flamme",
-    "wins100": "Schläger Uhrwerk, Ball Taschenuhr, Rahmen Goldene Legende",
+    "angry": "Hintergrund Weltall, Schläger Neonröhre, Ball Neonwirbel, Rahmen Flamme",
+    "wins100": "Hintergrund Steampunk-Fabrik, Schläger Uhrwerk, Ball Taschenuhr, Rahmen Goldene Legende",
     "wardrobe": "Rahmen Königssamt",
     "hwins5": "Rahmen Krone",
     "hfast": "Rahmen Blitz",
     "hclean": "Rahmen Albtraum",
     "hsniper": "Rahmen Fadenkreuz",
-    "hcomeback": "Rahmen Phönix"
+    "hcomeback": "Rahmen Phönix",
+    "skelosquad": "Hintergrund SkeloSquad, Schläger SkeloSquad"
   },
   "ballTitle": "Ball",
   "balls": [
@@ -272,7 +276,16 @@ window.KEVIN_LINES.de.pong = {
     "Zauberwald",
     "Weltall",
     "Polarlicht",
-    "Ganja-Tal"
+    "Ganja-Tal",
+    "Vulkan",
+    "Schatzhöhle",
+    "Digitale Welt",
+    "Unterwasserwelt",
+    "Konzertbühne",
+    "Goldene Schatzkammer",
+    "Steampunk-Fabrik",
+    "Plüschland",
+    "SkeloSquad"
   ],
   "readyTouch": "Tippen und los!",
   "readyMouse": "Klicken oder Leertaste drücken",
@@ -289,7 +302,8 @@ window.KEVIN_LINES.de.pong = {
     [
       "Pause · Ende",
       "P · Esc"
-    ]
+    ],
+    ["Superschuss","E · Magnet"]
   ],
   "shotHint": "Schmetterschuss: klick genau dann, wenn der Ball am Schläger ist.",
   "shot": "Schmetterschuss",
@@ -307,6 +321,22 @@ window.KEVIN_LINES.de.pong = {
   "loginToRank": "Melde dich an, um in die Rangliste zu kommen.",
   "login": "Anmelden",
   "localBest": "deine beste Zeit hier: {time}",
+  "supportAd": "Willst du mehr Spiele von Skeli?",
+  "supportCta": "Unterstütze ihn – damit er mir einen noch größeren Automaten baut.",
+  "supportSay": "Mehr Spiele gefällig? Unterstütz Skeli. Ich nehme einen goldenen Automaten und einen extra Napf.",
+  "lenTitle": "Spiellänge",
+  "lenGoals": "{n} Tore",
+  "scoreTotal": "Punkte",
+  "scoreRecord": "Neuer Rekord!",
+  "points": "Punkte",
+  "yourScore": "Dein Bestes: Platz {place}, {score} Punkte",
+  "localScore": "dein Rekord hier: {score} Punkte",
+  "emptyScore": "Hier hat noch niemand gespielt. Sei der Erste.",
+  "scoreRows": {"goals":"Tore","perfect":"Perfekte Schüsse","supers":"SUPER-Schläge","stick":"Superschuss-Tore","streaks":"Perfekte Serien","rally":"Längster Ballwechsel","screws":"Maschinenteile","kevin":"Kevins Tore","win":"Sieg","speed":"Tempo","mult":"Schwierigkeit"},
+  "replaySkip": "tippen zum Überspringen",
+  "stickReady": "SUPERSCHUSS BEREIT!",
+  "stickGo": "SUPERSCHUSS!",
+  "stickBtn": "Superschuss – Ball festhalten",
   "tileSub": {"how":"Regeln und Steuerung","badges":"Sammle sie und zeig, was du kannst","top":"Wo du im Vergleich stehst"},
   "progress": "Nächstes Abzeichen „{badge}“",
   "progressUnits": {"wins":"Siege","hardWins":"Siege auf schwerster Stufe","screws":"Schrauben","days":"Spieltage"},
@@ -363,6 +393,12 @@ window.KEVIN_LINES.de.pong = {
   "tipLabel": "Tipp",
   "tipNext": "Nächster Tipp",
   "tips": [
+    ["Superschuss (E oder Magnet): Der nächste Ball klebt am Schläger, die Zeit wird langsamer und du zielst mit Maus, Pfeiltasten oder Finger. Er feuert von selbst oder früher mit E / Leertaste.","all"],
+    ["Jedes Spiel beginnt mit einem geladenen Superschuss. 10 perfekte Schüsse laden ihn wieder – das Manometer im unteren Fenster zeigt, wie viel fehlt.","all"],
+    ["Eine Serie perfekter Schüsse (2× 3× 4×!!) lädt schneller. Ein schlechterer Schlag beendet die Serie, ein Tor von Kevin setzt auch die angefangene Ladung zurück.","all"],
+    ["Harte perfekte Schläge erschüttern den Automaten – eine Schraube fällt heraus und dein Schläger wird eine Weile groß.","all"],
+    ["Wenn Kevin zu viel rennt, überhitzen seine Zahnräder und eine Mutter fällt heraus – Kevin wird eine Weile langsamer.","all"],
+    ["Bei einem langen Ballwechsel springt eine Feder heraus – fang sie und der Ball wird langsamer.","all"],
     [
       "Timing ist alles: Schieß, wenn der Ball auf dem Schläger landet. Ein perfekter Schuss hält die Zeit an und feuert den Ball am schnellsten.",
       "all"
@@ -388,7 +424,7 @@ window.KEVIN_LINES.de.pong = {
       "all"
     ],
     [
-      "Fang eine fallende Schraube oder Mutter mit dem Schläger: 8 s lang gibt es einen größeren Schläger, einen langsameren Kevin oder einen ruhigeren Ball.",
+      "Fang ein fallendes Teil mit dem Schläger – der Bonus hält 8 s, in den letzten 3 s blinkt der Schläger: Schraube = großer Schläger, Mutter = langsamerer Kevin, Feder = langsamerer Ball.",
       "all"
     ],
     [
@@ -396,7 +432,7 @@ window.KEVIN_LINES.de.pong = {
       "touch"
     ],
     [
-      "Wenn das Spiel ruckelt, stell ⚙ Steuerung → Details auf Niedrig.",
+      "Wenn das Spiel ruckelt, stell ⚙ Anzeige → Details auf Niedrig.",
       "all"
     ],
     [

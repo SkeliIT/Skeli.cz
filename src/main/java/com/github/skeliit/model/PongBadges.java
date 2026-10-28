@@ -45,6 +45,7 @@ public final class PongBadges {
         ICONS.put("hsniper", "fa-bullseye");
         ICONS.put("hcomeback", "fa-fire-flame-curved");
         ICONS.put("wardrobe", "fa-shirt");
+        ICONS.put("skelosquad", "fa-gem");      // nejvzácnější: všech 5 odznaků za nejtěžší obtížnost
     }
 
     /** Odznaky, které hlásí prohlížeč (stalo se to uvnitř zápasu, server to nevidí). */
@@ -54,7 +55,10 @@ public final class PongBadges {
     /** Odznaky, které odemykají vzhled pálky nebo míček; má-li hráč všechny, dostane Šatník. */
     public static final Set<String> LOOKS = Set.of(
             "first", "easy", "tinker", "normal", "loyal", "streak", "night", "sniper", "overheat", "close", "marathon", "comeback",
-            "clean", "super", "angry", "wins100");
+            "clean", "super", "angry", "wins100", "wins50");
+
+    /** Odznaky za nejtěžší obtížnost; kdo má všech 5, dostane SkeloSquad. */
+    public static final java.util.List<String> HARD = java.util.List.of("hwins5", "hfast", "hclean", "hsniper", "hcomeback");
 
     /** Odznaky, které navíc odemknou rámeček kolem fotky (users.pong_frame): 3 nejtěžší běžné + 5 za nejtěžší obtížnost. */
     public static final java.util.List<String> FRAMES = java.util.List.of(

@@ -85,7 +85,8 @@ window.KEVIN_LINES.vi.pong = {
     "Dây chuyền chân mèo",
     "Ống neon",
     "Rasta",
-    "Bánh răng"
+    "Bánh răng",
+    "SkeloSquad"
   ],
   "skinLock": [
     "",
@@ -119,7 +120,8 @@ window.KEVIN_LINES.vi.pong = {
     "hclean": "Ác mộng của Kevin",
     "hsniper": "Mắt tinh",
     "hcomeback": "Phượng hoàng từ cỗ máy",
-    "wardrobe": "Vua tủ đồ"
+    "wardrobe": "Vua tủ đồ",
+    "skelosquad": "SkeloSquad"
   },
   "badgeLines": {
     "first": "Ồ! Thêm một bàn chân vào bộ sưu tập. Thử lại xem nào!",
@@ -146,7 +148,8 @@ window.KEVIN_LINES.vi.pong = {
     "hclean": "Chỉ ba bàn?! Chuyện này sẽ không có trong hồi ký của tôi.",
     "hsniper": "Năm cú hoàn hảo trước tôi đang giận dữ? Tôi sẽ báo cảnh sát mèo.",
     "hcomeback": "Bị dẫn năm bàn mà vẫn hạ được tôi? Tôi đi nằm trong hộp đây.",
-    "wardrobe": "Mở khóa hết rồi! Giờ mở giúp tôi đường tới bát đồ ăn đầy."
+    "wardrobe": "Mở khóa hết rồi! Giờ mở giúp tôi đường tới bát đồ ăn đầy.",
+    "skelosquad": "SkeloSquad! Thứ hiếm nhất trong cả cỗ máy. Tôi cúi chào. Một lần thôi."
   },
   "noBadges": "Mức Dễ không có huy hiệu – thử mức Bình thường nhé.",
   "badgeHow": {
@@ -174,7 +177,8 @@ window.KEVIN_LINES.vi.pong = {
     "hclean": "Thắng ở mức khó nhất và để Kevin ghi tối đa 3 bàn.",
     "hsniper": "Thực hiện 5 cú bắn hoàn hảo trong một trận ở mức khó nhất.",
     "hcomeback": "Thắng một trận ở mức khó nhất sau khi bị dẫn 5 bàn.",
-    "wardrobe": "Mở khóa tất cả vợt và bóng còn lại."
+    "wardrobe": "Mở khóa tất cả vợt và bóng còn lại.",
+    "skelosquad": "Đạt cả 5 huy hiệu của độ khó cao nhất."
   },
   "badgesTitle": "Huy hiệu",
   "loading": "Đang khởi động cỗ máy…",
@@ -186,30 +190,30 @@ window.KEVIN_LINES.vi.pong = {
   ],
   "badgeNoReward": "chưa có phần thưởng",
   "rewards": {
-    "wins50": "vợt Rasta và máy Rasta",
-    "close": "nền Hoàng hôn, vợt Ngọc trai, bóng Ngọc trai",
+    "wins50": "nền Thung lũng ganja, vợt Rasta, máy Rasta",
+    "close": "nền Thế giới dưới nước, vợt Ngọc trai, bóng Ngọc trai",
     "loyal": "nền Rừng phép thuật, vợt Ngọc bích, Bóng ngọc bích",
-    "fast": "nền Vũ trụ",
-    "overheat": "nền Cực quang, Bóng graffiti",
-    "comeback": "nền Thung lũng ganja, vợt Dung nham, bóng Đá dung nham",
-    "first": "vợt Cành cây",
+    "overheat": "Bóng graffiti",
+    "comeback": "nền Núi lửa, vợt Dung nham, bóng Đá dung nham",
+    "first": "nền Hoàng hôn, vợt Cành cây",
     "easy": "bóng Cẩm thạch",
-    "tinker": "vợt Nhung, bóng Hạt dẻ",
+    "tinker": "nền Xứ sở nhung, vợt Nhung, bóng Hạt dẻ",
     "normal": "vợt Graffiti, Bóng nhung",
-    "streak": "vợt Kho báu",
-    "night": "vợt Băng, bóng Bi băng",
-    "sniper": "vợt Vi mạch, bóng Bộ xử lý",
-    "marathon": "vợt Bộ cân bằng, bóng Loa",
-    "clean": "vợt Dây chuyền chân mèo",
+    "streak": "nền Hang kho báu, vợt Kho báu",
+    "night": "nền Cực quang, vợt Băng, bóng Bi băng",
+    "sniper": "nền Thế giới số, vợt Vi mạch, bóng Bộ xử lý",
+    "marathon": "nền Sân khấu hòa nhạc, vợt Bộ cân bằng, bóng Loa",
+    "clean": "nền Kho vàng, vợt Dây chuyền chân mèo",
     "super": "bóng Chân mèo vàng",
-    "angry": "vợt Ống neon, bóng Xoáy neon, khung Ngọn lửa",
-    "wins100": "vợt Bánh răng, bóng Đồng hồ, khung Huyền thoại vàng",
+    "angry": "nền Vũ trụ, vợt Ống neon, bóng Xoáy neon, khung Ngọn lửa",
+    "wins100": "nền Nhà máy steampunk, vợt Bánh răng, bóng Đồng hồ, khung Huyền thoại vàng",
     "wardrobe": "khung Nhung hoàng gia",
     "hwins5": "khung Vương miện",
     "hfast": "khung Tia chớp",
     "hclean": "khung Ác mộng",
     "hsniper": "khung Tâm ngắm",
-    "hcomeback": "khung Phượng hoàng"
+    "hcomeback": "khung Phượng hoàng",
+    "skelosquad": "nền SkeloSquad, vợt SkeloSquad"
   },
   "ballTitle": "Bóng",
   "balls": [
@@ -272,7 +276,16 @@ window.KEVIN_LINES.vi.pong = {
     "Rừng phép thuật",
     "Vũ trụ",
     "Cực quang",
-    "Thung lũng ganja"
+    "Thung lũng ganja",
+    "Núi lửa",
+    "Hang kho báu",
+    "Thế giới số",
+    "Thế giới dưới nước",
+    "Sân khấu hòa nhạc",
+    "Kho vàng",
+    "Nhà máy steampunk",
+    "Xứ sở nhung",
+    "SkeloSquad"
   ],
   "readyTouch": "Chạm để bắt đầu!",
   "readyMouse": "Nhấp chuột hoặc nhấn Space",
@@ -289,7 +302,8 @@ window.KEVIN_LINES.vi.pong = {
     [
       "Tạm dừng · thoát",
       "P · Esc"
-    ]
+    ],
+    ["Siêu cú đánh","E · nam châm"]
   ],
   "shotHint": "Cú bắn: bấm đúng lúc bóng chạm vợt.",
   "shot": "Cú bắn",
@@ -307,6 +321,22 @@ window.KEVIN_LINES.vi.pong = {
   "loginToRank": "Đăng nhập để có tên trên bảng xếp hạng.",
   "login": "Đăng nhập",
   "localBest": "thời gian tốt nhất của bạn ở đây: {time}",
+  "supportAd": "Muốn thêm trò chơi từ Skeli?",
+  "supportCta": "Ủng hộ anh ấy – để anh ấy xây cho tôi cỗ máy còn to hơn.",
+  "supportSay": "Muốn thêm trò chơi? Ủng hộ Skeli nhé. Tôi thì muốn một cỗ máy vàng và thêm một bát ăn.",
+  "lenTitle": "Độ dài trận",
+  "lenGoals": "{n} bàn",
+  "scoreTotal": "Điểm",
+  "scoreRecord": "Kỷ lục mới!",
+  "points": "điểm",
+  "yourScore": "Tốt nhất của bạn: hạng {place}, {score} điểm",
+  "localScore": "kỷ lục của bạn ở đây: {score} điểm",
+  "emptyScore": "Chưa ai chơi ở đây. Hãy là người đầu tiên.",
+  "scoreRows": {"goals":"Bàn thắng","perfect":"Cú đánh hoàn hảo","supers":"Cú SUPER","stick":"Bàn bằng siêu cú đánh","streaks":"Chuỗi hoàn hảo","rally":"Pha bóng dài nhất","screws":"Chi tiết máy","kevin":"Bàn của Kevin","win":"Chiến thắng","speed":"Tốc độ","mult":"Độ khó"},
+  "replaySkip": "chạm để bỏ qua",
+  "stickReady": "SIÊU CÚ ĐÁNH SẴN SÀNG!",
+  "stickGo": "SIÊU CÚ ĐÁNH!",
+  "stickBtn": "Siêu cú đánh – dính bóng",
   "tileSub": {"how":"Luật chơi và điều khiển","badges":"Sưu tầm và khoe tài","top":"Xem bạn đứng thứ mấy"},
   "progress": "Huy hiệu tiếp theo “{badge}”",
   "progressUnits": {"wins":"trận thắng","hardWins":"trận thắng ở mức khó nhất","screws":"con ốc","days":"ngày chơi"},
@@ -363,6 +393,12 @@ window.KEVIN_LINES.vi.pong = {
   "tipLabel": "Mẹo",
   "tipNext": "Mẹo tiếp theo",
   "tips": [
+    ["Siêu cú đánh (E hoặc nam châm): quả bóng tiếp theo dính vào vợt, thời gian chậm lại và bạn ngắm bằng chuột, phím mũi tên hoặc ngón tay. Bóng tự bay đi, hoặc sớm hơn bằng E / phím cách.","all"],
+    ["Mỗi trận bạn có sẵn một siêu cú đánh. 10 cú đánh hoàn hảo sẽ nạp lại – đồng hồ áp suất ở ô dưới cho biết còn thiếu bao nhiêu.","all"],
+    ["Chuỗi cú hoàn hảo (2× 3× 4×!!) nạp nhanh hơn. Cú đánh kém sẽ cắt chuỗi, còn bàn thua từ Kevin xóa cả phần đang nạp.","all"],
+    ["Những cú hoàn hảo mạnh làm máy rung – một con ốc rơi ra và vợt của bạn to lên một lúc.","all"],
+    ["Khi Kevin chạy quá nhiều, bánh răng quá nóng và một đai ốc rơi ra – Kevin chậm lại một lúc.","all"],
+    ["Trong pha bóng dài, một chiếc lò xo bật ra khỏi máy – bắt lấy nó và bóng sẽ chậm lại.","all"],
     [
       "Canh cú bắn đúng lúc bóng chạm vợt. Cú bắn hoàn hảo làm thời gian dừng lại và bóng bay nhanh nhất.",
       "all"
@@ -388,7 +424,7 @@ window.KEVIN_LINES.vi.pong = {
       "all"
     ],
     [
-      "Dùng vợt bắt con ốc hoặc đai ốc rơi xuống: trong 8 giây bạn có vợt to hơn, Kevin chậm hơn hoặc bóng hiền hơn.",
+      "Dùng vợt bắt chi tiết rơi xuống – phần thưởng kéo dài 8 giây, 3 giây cuối vợt nhấp nháy: ốc vít = vợt to, đai ốc = Kevin chậm hơn, lò xo = bóng chậm hơn.",
       "all"
     ],
     [
@@ -396,7 +432,7 @@ window.KEVIN_LINES.vi.pong = {
       "touch"
     ],
     [
-      "Nếu trò chơi bị giật, chọn ⚙ Điều khiển → Chi tiết → Thấp.",
+      "Nếu trò chơi bị giật, chọn ⚙ Hiển thị → Chi tiết → Thấp.",
       "all"
     ],
     [

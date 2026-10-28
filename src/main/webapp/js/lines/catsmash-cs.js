@@ -85,7 +85,8 @@ window.KEVIN_LINES.cs.pong = {
     "Řetěz s tlapkou",
     "Neonová trubice",
     "Rasta",
-    "Strojovna"
+    "Strojovna",
+    "SkeloSquad"
   ],
   "skinLock": [
     "",
@@ -119,7 +120,8 @@ window.KEVIN_LINES.cs.pong = {
     "hclean": "Kevinova noční můra",
     "hsniper": "Ostré oko",
     "hcomeback": "Fénix ze stroje",
-    "wardrobe": "Šatní král"
+    "wardrobe": "Šatní král",
+    "skelosquad": "SkeloSquad"
   },
   "badgeLines": {
     "first": "No vida! Další packa do sbírky. Zkus to zopakovat!",
@@ -146,7 +148,8 @@ window.KEVIN_LINES.cs.pong = {
     "hclean": "Jen tři góly?! Tohle v mých pamětech nebude.",
     "hsniper": "Pět perfektních ran proti naštvanému mně? Hlásím to kočičí policii.",
     "hcomeback": "Pět gólů ztráta a stejně jsi mě sejmul? Jdu si lehnout do krabice.",
-    "wardrobe": "Celá výbava odemčená! Ještě mi odemkni cestu k plné misce."
+    "wardrobe": "Celá výbava odemčená! Ještě mi odemkni cestu k plné misce.",
+    "skelosquad": "SkeloSquad! Tak tohle je nejvzácnější věc v celým automatu. Klaním se. Jednou."
   },
   "noBadges": "Na Lehkou se odznaky nesbírají – zkus Normální.",
   "badgeHow": {
@@ -174,7 +177,8 @@ window.KEVIN_LINES.cs.pong = {
     "hclean": "Vyhraj na nejtěžší obtížnost a pusť Kevina nejvýš na 3 góly.",
     "hsniper": "Dej 5 perfektních odstřelů v jednom zápase na nejtěžší obtížnost.",
     "hcomeback": "Vyhraj na nejtěžší obtížnost zápas, ve kterém jsi prohrával o 5 gólů.",
-    "wardrobe": "Odemkni všechny ostatní pálky a míčky."
+    "wardrobe": "Odemkni všechny ostatní pálky a míčky.",
+    "skelosquad": "Získej všech 5 odznaků za nejtěžší obtížnost."
   },
   "badgesTitle": "Odznaky",
   "loading": "Startuju stroj…",
@@ -186,30 +190,30 @@ window.KEVIN_LINES.cs.pong = {
   ],
   "badgeNoReward": "zatím bez odměny",
   "rewards": {
-    "wins50": "pálka Rasta a automat Rasta",
-    "close": "pozadí Západ slunce, pálka Perly, míček Perla",
+    "wins50": "pozadí Ganja údolí, pálka Rasta, automat Rasta",
+    "close": "pozadí Podmořský svět, pálka Perly, míček Perla",
     "loyal": "pozadí Kouzelný les, pálka Jadeit, míček Jadeitová koule",
-    "fast": "pozadí Vesmír",
-    "overheat": "pozadí Polární záře, míček Sprej",
-    "comeback": "pozadí Ganja údolí, pálka Láva, míček Lávový kámen",
-    "first": "pálka Větvička",
+    "overheat": "míček Sprej",
+    "comeback": "pozadí Sopka, pálka Láva, míček Lávový kámen",
+    "first": "pozadí Západ slunce, pálka Větvička",
     "easy": "míček Mramor",
-    "tinker": "pálka Plyš, míček Kaštan",
+    "tinker": "pozadí Plyšová krajina, pálka Plyš, míček Kaštan",
     "normal": "pálka Graffiti, míček Plyšák",
-    "streak": "pálka Poklad",
-    "night": "pálka Led, míček Ledová kulička",
-    "sniper": "pálka Čip, míček Procesor",
-    "marathon": "pálka Ekvalizér, míček Repráček",
-    "clean": "pálka Řetěz s tlapkou",
+    "streak": "pozadí Pokladnice, pálka Poklad",
+    "night": "pozadí Polární záře, pálka Led, míček Ledová kulička",
+    "sniper": "pozadí Digitální svět, pálka Čip, míček Procesor",
+    "marathon": "pozadí Koncertní pódium, pálka Ekvalizér, míček Repráček",
+    "clean": "pozadí Zlatá klenotnice, pálka Řetěz s tlapkou",
     "super": "míček Zlatá tlapka",
-    "angry": "pálka Neonová trubice, míček Neonový vír, rámeček Plamen",
-    "wins100": "pálka Strojovna, míček Hodinky, rámeček Zlatá legenda",
+    "angry": "pozadí Vesmír, pálka Neonová trubice, míček Neonový vír, rámeček Plamen",
+    "wins100": "pozadí Steampunk továrna, pálka Strojovna, míček Hodinky, rámeček Zlatá legenda",
     "wardrobe": "rámeček Královský samet",
     "hwins5": "rámeček Koruna",
     "hfast": "rámeček Blesk",
     "hclean": "rámeček Noční můra",
     "hsniper": "rámeček Zaměřovač",
-    "hcomeback": "rámeček Fénix"
+    "hcomeback": "rámeček Fénix",
+    "skelosquad": "pozadí SkeloSquad, pálka SkeloSquad"
   },
   "ballTitle": "Míček",
   "balls": [
@@ -272,7 +276,16 @@ window.KEVIN_LINES.cs.pong = {
     "Kouzelný les",
     "Vesmír",
     "Polární záře",
-    "Ganja údolí"
+    "Ganja údolí",
+    "Sopka",
+    "Pokladnice",
+    "Digitální svět",
+    "Podmořský svět",
+    "Koncertní pódium",
+    "Zlatá klenotnice",
+    "Steampunk továrna",
+    "Plyšová krajina",
+    "SkeloSquad"
   ],
   "readyTouch": "Ťukni a jedem!",
   "readyMouse": "Klikni nebo zmáčkni mezerník",
@@ -289,7 +302,8 @@ window.KEVIN_LINES.cs.pong = {
     [
       "Pauza · konec",
       "P · Esc"
-    ]
+    ],
+    ["Superútok","E · magnet"]
   ],
   "shotHint": "Odstřel: klikni přesně ve chvíli, kdy je hopík u pálky.",
   "shot": "Odstřel",
@@ -307,6 +321,22 @@ window.KEVIN_LINES.cs.pong = {
   "loginToRank": "Do tabulky se zapíšeš po přihlášení.",
   "login": "Přihlásit",
   "localBest": "tvůj nejlepší čas tady: {time}",
+  "supportAd": "Chceš víc her od Skeliho?",
+  "supportCta": "Podpoř ho – ať mi postaví ještě větší automat.",
+  "supportSay": "Chceš víc her? Podpoř Skeliho. Já bych bral zlatý automat a misku navíc.",
+  "lenTitle": "Délka zápasu",
+  "lenGoals": "{n} gólů",
+  "scoreTotal": "Skóre",
+  "scoreRecord": "Nový rekord!",
+  "points": "bodů",
+  "yourScore": "Tvoje nejlepší: {place}. místo, {score} bodů",
+  "localScore": "tvůj rekord tady: {score} bodů",
+  "emptyScore": "Zatím tu nikdo nehrál. Buď první.",
+  "scoreRows": {"goals":"Góly","perfect":"Perfektní odstřely","supers":"SUPER rány","stick":"Góly superútokem","streaks":"Série perfektních","rally":"Nejdelší výměna","screws":"Součástky","kevin":"Kevinovy góly","win":"Výhra","speed":"Rychlost","mult":"Obtížnost"},
+  "replaySkip": "ťukni pro přeskočení",
+  "stickReady": "SUPERÚTOK NABITÝ!",
+  "stickGo": "SUPERÚTOK!",
+  "stickBtn": "Superútok – přilepit míček",
   "tileSub": {"how":"Pravidla a ovládání","badges":"Sbírej a ukaž, co umíš","top":"Jak si stojíš mezi ostatními"},
   "progress": "Další odznak „{badge}“",
   "progressUnits": {"wins":"výhry","hardWins":"výhry na nejtěžší","screws":"šroubky","days":"dny se hrou"},
@@ -363,6 +393,12 @@ window.KEVIN_LINES.cs.pong = {
   "tipLabel": "Tip",
   "tipNext": "Další tip",
   "tips": [
+    ["Superútok (E nebo magnet): další hopík se přilepí na pálku, čas se zpomalí a ty zamíříš myší, šipkami nebo prstem. Pak vystřelí sám, nebo dřív E / mezerníkem.","all"],
+    ["Superútok máš na začátku zápasu nabitý jednou. Znovu ho nabije 10 perfektních odstřelů – manometr v dolním okénku ukazuje, kolik chybí.","all"],
+    ["Série perfektních odstřelů (2× 3× 4×!!) nabíjí superútok rychleji. Horší odpal sérii zruší a gól od Kevina vynuluje i rozpracované nabíjení.","all"],
+    ["Tvrdé perfektní rány otřesou strojem – vypadne šroubek a tvoje pálka bude chvíli velká.","all"],
+    ["Když Kevin moc běhá, kola se přehřejí a vypadne matička – Kevin pak chvíli zpomalí.","all"],
+    ["Při dlouhé výměně vyskočí ze stroje pružinka – chyť ji a hopík zpomalí.","all"],
     [
       "Odstřel načasuj na chvíli, kdy hopík dopadne na pálku. Perfektní odstřel zastaví čas a hopík vystřelí nejrychleji.",
       "all"
@@ -388,7 +424,7 @@ window.KEVIN_LINES.cs.pong = {
       "all"
     ],
     [
-      "Padající šroubek nebo matičku chyť pálkou: na 8 s dostaneš větší pálku, pomalejšího Kevina, nebo klidnější hopík.",
+      "Padající součástku chyť pálkou – bonus platí 8 s a poslední 3 s pálka bliká: šroubek = velká pálka, matička = pomalejší Kevin, pružinka = pomalejší hopík.",
       "all"
     ],
     [
@@ -396,7 +432,7 @@ window.KEVIN_LINES.cs.pong = {
       "touch"
     ],
     [
-      "Když se hra seká, přepni v ⚙ Ovládání → Detaily na Nízké.",
+      "Když se hra seká, přepni v ⚙ Obraz → Detaily na Nízké.",
       "all"
     ],
     [

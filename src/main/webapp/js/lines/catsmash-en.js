@@ -85,7 +85,8 @@ window.KEVIN_LINES.en.pong = {
     "Paw chain",
     "Neon tube",
     "Rasta",
-    "Clockwork"
+    "Clockwork",
+    "SkeloSquad"
   ],
   "skinLock": [
     "",
@@ -119,7 +120,8 @@ window.KEVIN_LINES.en.pong = {
     "hclean": "Kevin's Nightmare",
     "hsniper": "Sharp Eye",
     "hcomeback": "Phoenix of the Machine",
-    "wardrobe": "Wardrobe King"
+    "wardrobe": "Wardrobe King",
+    "skelosquad": "SkeloSquad"
   },
   "badgeLines": {
     "first": "Well, well! Another paw for the collection. Try doing it again!",
@@ -146,7 +148,8 @@ window.KEVIN_LINES.en.pong = {
     "hclean": "Only three goals?! This will not be in my memoirs.",
     "hsniper": "Five perfect shots against angry me? I am reporting this to the cat police.",
     "hcomeback": "Five goals down and you still took me out? I am going to lie down in a box.",
-    "wardrobe": "Everything unlocked! Now unlock the way to a full bowl for me."
+    "wardrobe": "Everything unlocked! Now unlock the way to a full bowl for me.",
+    "skelosquad": "SkeloSquad! The rarest thing in the whole machine. I bow. Once."
   },
   "noBadges": "No badges on Easy – try Normal.",
   "badgeHow": {
@@ -174,7 +177,8 @@ window.KEVIN_LINES.en.pong = {
     "hclean": "Win on the hardest difficulty and let Kevin score 3 goals at most.",
     "hsniper": "Make 5 perfect power shots in one match on the hardest difficulty.",
     "hcomeback": "Win a match on the hardest difficulty after being 5 goals down.",
-    "wardrobe": "Unlock all the other paddles and balls."
+    "wardrobe": "Unlock all the other paddles and balls.",
+    "skelosquad": "Earn all 5 badges of the hardest difficulty."
   },
   "badgesTitle": "Badges",
   "loading": "Starting the machine…",
@@ -186,30 +190,30 @@ window.KEVIN_LINES.en.pong = {
   ],
   "badgeNoReward": "no reward yet",
   "rewards": {
-    "wins50": "Rasta paddle and Rasta machine",
-    "close": "Sunset background, Pearls paddle, Pearl ball",
+    "wins50": "Ganja valley background, Rasta paddle, Rasta machine",
+    "close": "Underwater world background, Pearls paddle, Pearl ball",
     "loyal": "Magic forest background, Jade paddle, Jade ball",
-    "fast": "Space background",
-    "overheat": "Northern lights background, Spray ball",
-    "comeback": "Ganja valley background, Lava paddle, Lava rock ball",
-    "first": "Twig paddle",
+    "overheat": "Spray ball",
+    "comeback": "Volcano background, Lava paddle, Lava rock ball",
+    "first": "Sunset background, Twig paddle",
     "easy": "Marble ball",
-    "tinker": "Plush paddle, Chestnut ball",
+    "tinker": "Plush land background, Plush paddle, Chestnut ball",
     "normal": "Graffiti paddle, Plush ball",
-    "streak": "Treasure paddle",
-    "night": "Ice paddle, Ice marble ball",
-    "sniper": "Chip paddle, Processor ball",
-    "marathon": "Equalizer paddle, Speaker ball",
-    "clean": "Paw chain paddle",
+    "streak": "Treasure cave background, Treasure paddle",
+    "night": "Northern lights background, Ice paddle, Ice marble ball",
+    "sniper": "Digital world background, Chip paddle, Processor ball",
+    "marathon": "Concert stage background, Equalizer paddle, Speaker ball",
+    "clean": "Golden vault background, Paw chain paddle",
     "super": "Golden paw ball",
-    "angry": "Neon tube paddle, Neon swirl ball, Flame frame",
-    "wins100": "Clockwork paddle, Pocket watch ball, Golden legend frame",
+    "angry": "Space background, Neon tube paddle, Neon swirl ball, Flame frame",
+    "wins100": "Steampunk factory background, Clockwork paddle, Pocket watch ball, Golden legend frame",
     "wardrobe": "Royal velvet frame",
     "hwins5": "Crown frame",
     "hfast": "Lightning frame",
     "hclean": "Nightmare frame",
     "hsniper": "Crosshair frame",
-    "hcomeback": "Phoenix frame"
+    "hcomeback": "Phoenix frame",
+    "skelosquad": "SkeloSquad background, SkeloSquad paddle"
   },
   "ballTitle": "Ball",
   "balls": [
@@ -272,7 +276,16 @@ window.KEVIN_LINES.en.pong = {
     "Magic forest",
     "Space",
     "Northern lights",
-    "Ganja valley"
+    "Ganja valley",
+    "Volcano",
+    "Treasure cave",
+    "Digital world",
+    "Underwater world",
+    "Concert stage",
+    "Golden vault",
+    "Steampunk factory",
+    "Plush land",
+    "SkeloSquad"
   ],
   "readyTouch": "Tap to start!",
   "readyMouse": "Click or press Space",
@@ -289,7 +302,8 @@ window.KEVIN_LINES.en.pong = {
     [
       "Pause · quit",
       "P · Esc"
-    ]
+    ],
+    ["Super shot","E · magnet"]
   ],
   "shotHint": "Power shot: click just as the ball reaches your paddle.",
   "shot": "Power shot",
@@ -307,6 +321,22 @@ window.KEVIN_LINES.en.pong = {
   "loginToRank": "Sign in to get on the leaderboard.",
   "login": "Sign in",
   "localBest": "your best time here: {time}",
+  "supportAd": "Want more games from Skeli?",
+  "supportCta": "Support him – so he builds me an even bigger machine.",
+  "supportSay": "Want more games? Support Skeli. I’d take a golden machine and an extra bowl.",
+  "lenTitle": "Match length",
+  "lenGoals": "{n} goals",
+  "scoreTotal": "Score",
+  "scoreRecord": "New record!",
+  "points": "points",
+  "yourScore": "Your best: place {place}, {score} points",
+  "localScore": "your record here: {score} points",
+  "emptyScore": "Nobody has played here yet. Be the first.",
+  "scoreRows": {"goals":"Goals","perfect":"Perfect shots","supers":"SUPER hits","stick":"Super shot goals","streaks":"Perfect streaks","rally":"Longest rally","screws":"Machine parts","kevin":"Kevin’s goals","win":"Win","speed":"Speed","mult":"Difficulty"},
+  "replaySkip": "tap to skip",
+  "stickReady": "SUPER SHOT READY!",
+  "stickGo": "SUPER SHOT!",
+  "stickBtn": "Super shot – stick the ball",
   "tileSub": {"how":"Rules and controls","badges":"Collect them, show your skills","top":"See where you stand"},
   "progress": "Next badge “{badge}”",
   "progressUnits": {"wins":"wins","hardWins":"wins on the hardest","screws":"screws","days":"days played"},
@@ -363,6 +393,12 @@ window.KEVIN_LINES.en.pong = {
   "tipLabel": "Tip",
   "tipNext": "Next tip",
   "tips": [
+    ["Super shot (E or magnet): the next ball sticks to your paddle, time slows down and you aim with the mouse, arrows or finger. It fires by itself, or earlier with E / space.","all"],
+    ["You start each match with one super shot. 10 perfect shots charge it again – the gauge in the lower window shows how much is left.","all"],
+    ["A streak of perfect shots (2× 3× 4×!!) charges the super shot faster. A worse hit ends the streak and a goal from Kevin also resets the charge in progress.","all"],
+    ["Hard perfect hits shake the machine – a screw falls out and your paddle gets big for a while.","all"],
+    ["When Kevin runs too much, his gears overheat and a nut falls out – Kevin slows down for a while.","all"],
+    ["In a long rally a spring pops out of the machine – catch it and the ball slows down.","all"],
     [
       "Time the power shot for the moment the ball lands on your paddle. A perfect shot freezes time and fires the ball fastest.",
       "all"
@@ -388,7 +424,7 @@ window.KEVIN_LINES.en.pong = {
       "all"
     ],
     [
-      "Catch a falling screw or nut with your paddle: for 8 s you get a bigger paddle, a slower Kevin or a calmer ball.",
+      "Catch a falling part with your paddle – the bonus lasts 8 s and the paddle blinks for the last 3 s: screw = big paddle, nut = slower Kevin, spring = slower ball.",
       "all"
     ],
     [
@@ -396,7 +432,7 @@ window.KEVIN_LINES.en.pong = {
       "touch"
     ],
     [
-      "If the game stutters, set ⚙ Controls → Detail to Low.",
+      "If the game stutters, set ⚙ Display → Detail to Low.",
       "all"
     ],
     [
