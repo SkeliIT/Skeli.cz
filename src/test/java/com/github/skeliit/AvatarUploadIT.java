@@ -22,7 +22,7 @@ public class AvatarUploadIT extends UiTestSupport {
     @DisplayName("A photo over 15 MB shows up in the crop box and is saved as the avatar")
     void bigPhotoCanBeCroppedAndSaved() throws Exception {
         registerAndLogin("av" + uniq());
-        driver.get(BASE_URL + "/uzivatel.jsp");
+        driver.get(BASE_URL + "/nastaveni.jsp#profil");
 
         // random noise does not compress: about 17 MB as PNG
         BufferedImage pic = new BufferedImage(2700, 2100, BufferedImage.TYPE_INT_RGB);
@@ -65,7 +65,7 @@ public class AvatarUploadIT extends UiTestSupport {
     @DisplayName("A file the browser can't open gets a message on the page, not a pop-up")
     void notAPhotoGetsAMessage() throws Exception {
         registerAndLogin("av" + uniq());
-        driver.get(BASE_URL + "/uzivatel.jsp");
+        driver.get(BASE_URL + "/nastaveni.jsp#profil");
         File f = Files.createTempFile("not-a-photo", ".jpg").toFile();
         f.deleteOnExit();
         Files.writeString(f.toPath(), "this is not a picture");

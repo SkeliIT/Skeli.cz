@@ -78,7 +78,7 @@ public class TwoFactorSetupServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        resp.sendRedirect("/uzivatel.jsp" + (result != null ? "?tfa=" + result : "") + "#zabezpeceni");
+        resp.sendRedirect("/nastaveni.jsp" + (result != null ? "?tfa=" + result : "") + "#zabezpeceni");
     }
 
     /** A right code from the app (it then counts as used). */

@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.42.1";
+  String assetVersion = "6.43.1";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -30,6 +30,7 @@
         java.util.Map.entry("/forgot.jsp", "forgot.heading"),
         java.util.Map.entry("/reset.jsp", "reset.heading"),
         java.util.Map.entry("/uzivatel.jsp", "menu.account"),
+        java.util.Map.entry("/nastaveni.jsp", "menu.settings"),
         java.util.Map.entry("/privacy.jsp", "privacy.heading"),
         java.util.Map.entry("/terms.jsp", "terms.heading"),
         java.util.Map.entry("/error.jsp", "error.heading"));
@@ -195,6 +196,7 @@
                 <a href="<%= ctx %>/register.jsp" class="nav-register"><i class="fa-solid fa-user-plus"></i> <%= t.getProperty("btn.register") %></a>
               <% } else { %>
                 <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %> <span class="nav-user">· <%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></span></a>
+                <a href="<%= ctx %>/nastaveni.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
                 <button type="button" class="nav-notif" data-notif-open aria-controls="notifPanel"><i class="fa-regular fa-bell"></i> <%= t.getProperty("notif.title") %> <span class="notif-badge" hidden></span></button>
                 <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
                 <form method="post" action="<%= ctx %>/logout" class="logout-form">
@@ -268,6 +270,7 @@
                   </button>
                   <div class="user-dropdown">
                     <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %></a>
+                    <a href="<%= ctx %>/nastaveni.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
                     <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
                     <%-- a POST with the CSRF token: another site cannot log people out with a link --%>
                     <form method="post" action="<%= ctx %>/logout" class="logout-form">
@@ -497,7 +500,7 @@
                 // allow full reload for language switch to refresh header/nav strings
                 if (href.includes('lang=')) return;
                 // disable PJAX for pages that need full refresh or include page-scoped styles/scripts
-                const noPjax = ['/auth/', '/karaoke-kino/', '/lyrics/', '/texty', '/admin', '/logout', '/login.jsp', '/register.jsp', '/uzivatel.jsp', '/profile.jsp'];
+                const noPjax = ['/auth/', '/karaoke-kino/', '/lyrics/', '/texty', '/admin', '/logout', '/login.jsp', '/register.jsp', '/uzivatel.jsp', '/nastaveni.jsp', '/profile.jsp'];
                 if (noPjax.some(p => href.includes(p))) return;
                 if (document.body.classList.contains('is-admin')) return;   // z adminu ven vždy celou stránkou (jiné pozadí a patička)
                 e.preventDefault();

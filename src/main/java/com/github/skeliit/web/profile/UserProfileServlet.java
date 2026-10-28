@@ -82,7 +82,7 @@ public class UserProfileServlet extends HttpServlet {
 
             session.setAttribute("lang", lang);
             
-            resp.sendRedirect("/uzivatel.jsp?saved=true");
+            resp.sendRedirect("/nastaveni.jsp?saved=true#profil");
         } catch (SQLException e) {
             throw new ServletException("Database error", e);
         }

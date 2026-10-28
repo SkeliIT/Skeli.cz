@@ -37,7 +37,7 @@ class AccountSecurityIT extends UiTestSupport {
         update("INSERT INTO lyrics_votes (lyric_id, user_id, vote) VALUES (?, ?, 1)", lyricId, id);
         update("INSERT INTO user_profiles (user_id, city, age) VALUES (?, 'Plzen', 30) ON DUPLICATE KEY UPDATE city='Plzen', age=30", id);
 
-        driver.get(BASE_URL + "/uzivatel.jsp");
+        driver.get(BASE_URL + "/nastaveni.jsp#soukromi");
         driver.findElement(By.name("confirm")).sendKeys("DELETE");
         String old = driver.getCurrentUrl();
         jsClick(driver.findElement(By.xpath("//form[@action='/profile/delete']//button[@type='submit']")));
@@ -79,7 +79,7 @@ class AccountSecurityIT extends UiTestSupport {
             other.get(BASE_URL + "/");
             assertFalse(other.findElements(By.cssSelector("form.logout-form")).isEmpty(), "the other device is signed in");
 
-            driver.get(BASE_URL + "/uzivatel.jsp");
+            driver.get(BASE_URL + "/nastaveni.jsp#zabezpeceni");
             submit(By.cssSelector("form[action='/profile/signout-others'] button"));
             assertTrue(driver.getCurrentUrl().contains("signedOut="), driver.getCurrentUrl());
 

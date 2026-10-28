@@ -20,6 +20,6 @@ public class SignOutEverywhereServlet extends HttpServlet {
             return;
         }
         int n = SessionRegistry.signOut(uid, s);
-        resp.sendRedirect("/uzivatel.jsp?signedOut=" + n);
+        resp.sendRedirect("/nastaveni.jsp?signedOut=" + n + "#zabezpeceni");
     }
 }
