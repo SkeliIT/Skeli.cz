@@ -71,10 +71,14 @@ public final class Totp {
         return -1;
     }
 
-    /** The link the authenticator app reads from the QR code: otpauth://totp/Skeli.cz:name?secret=…&issuer=Skeli.cz */
+    /**
+     * The link the authenticator app reads from the QR code: otpauth://totp/Skeli.cz:name?secret=…&issuer=Skeli.cz
+     * image = ikonka webu v aplikaci (FreeOTP si ji stáhne; bez ní ukazuje obecné hodiny) – zlaté „S“ z apple-touch-icon.
+     */
     public static String otpauthUri(String account, String secret) {
         String label = enc("Skeli.cz:" + account);
-        return "otpauth://totp/" + label + "?secret=" + secret + "&issuer=" + enc("Skeli.cz") + "&digits=" + DIGITS + "&period=" + STEP_SECONDS;
+        return "otpauth://totp/" + label + "?secret=" + secret + "&issuer=" + enc("Skeli.cz") + "&digits=" + DIGITS + "&period=" + STEP_SECONDS
+                + "&image=" + enc(com.github.skeliit.WebUtils.baseUrl() + "/apple-touch-icon.png");
     }
 
     /** A QR code of the text as an SVG (black squares on white, a quiet zone round it). */
