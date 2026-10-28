@@ -46,6 +46,7 @@
     root.setAttribute('aria-modal', 'true');
     root.setAttribute('aria-label', T.title);
     root.innerHTML =
+      '<div class="kpong-amb" aria-hidden="true"></div>' +
       '<div class="kpong-box">' +
       '  <div class="kpong-top">' +
       '    <div class="kpong-score" aria-live="polite"><span class="kpong-who">' + esc(T.you) + '</span><b class="kpong-you">0</b><i>:</i><b class="kpong-kev">0</b><span class="kpong-who">Kevin</span></div>' +
@@ -175,6 +176,7 @@
       root.dataset.bg = name;
       bgEl.style.backgroundImage = name === 'tma' ? '' : 'url(/kevin/pong/pozadi-' + name + '.webp' + ver + ')';
       bgEl.style.backgroundPosition = (BG_POS[name] || '50%') + ' 50%';
+      root.querySelector('.kpong-amb').style.backgroundImage = bgEl.style.backgroundImage;   // totéž rozmazaně kolem automatu
       seedFx();
     }
     function fxSize() {
@@ -277,6 +279,15 @@
         el.style.top = Math.round(r.top + r.height / 2) + 'px';
         if (side === 'l') el.style.right = Math.round(innerWidth - r.left + 4) + 'px';
         else el.style.left = Math.round(r.right + 4) + 'px';
+        var kr = kind === 'say' && root.querySelector('.kpong-kevin').getBoundingClientRect();
+        if (kr && kr.width) {                           // Kevin mluví: bublina vlevo vedle něj (špička k němu), ať je jasné, kdo mluví;
+          var sc = root.querySelector('.kpong-top').getBoundingClientRect();   // vpravo je skóre a křížek, nahoře řádek skóre
+          el.className = 'kp-comic say l out';
+          el.style.left = '';
+          el.style.right = Math.round(innerWidth - (kr.left + kr.width * 0.36)) + 'px';
+          el.style.top = Math.round(Math.max(kr.top + kr.height * 0.42, sc.bottom + 46)) + 'px';
+          room = kr.left + kr.width * 0.36;
+        }
         el.style.maxWidth = Math.round(Math.min(room - 16, 300)) + 'px';
       } else {
         // telefon: nic přes hřiště – Kevinova bublina v horním okénku pod ním (špička k němu), nápis odstřelu
@@ -2173,6 +2184,11 @@
           panel.querySelectorAll('.kpong-level').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           panel.querySelector('.kp-seg').style.setProperty('--i', level - 1);
           panel.querySelector('.kp-desc').textContent = T.levelHints[level - 1];
+          if (K) {                                        // Lehká = zívne, Normální = zajásá, Naštvaný = dupne a zamračí se
+            if (level === 1) K.once(K.has('yawn') ? 'yawn' : 'shrug');
+            else if (level === 2) { K.once(K.has('fistPump') ? 'fistPump' : 'cheer'); K.expression(2, 1400); }
+            else { K.once(K.has('stomp') ? 'stomp' : 'no'); K.expression(23, 1800); }
+          }
           board(level);
           panel.querySelectorAll('[data-board]').forEach(function (x) { x.setAttribute('aria-pressed', String(+x.dataset.board === level)); });
         });

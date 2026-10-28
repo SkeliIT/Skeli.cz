@@ -255,10 +255,13 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-bdg.on .kp-bdg-gifts { color: var(--accent); }
 .kp-bdg p { margin: 0; padding: 0 10px 6px 46px; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
 .kp-bdg p.kp-bdg-reward { color: var(--accent); }
+/* logo hry: kovové zlato s hranou (dva tmavé stíny pod sebou = tloušťka plechu) a jemnou září */
 .kpong-panel .kp-main .kpong-title {
-  font-size: clamp(1.4rem, 11cqi, 2.8rem); line-height: 1.1; text-wrap: balance; margin-top: 18px;
-  background: linear-gradient(#fff2b8, #ffc83d 50%, #c98a12); -webkit-background-clip: text; background-clip: text; color: transparent;
-  filter: drop-shadow(0 2px 8px #000); text-shadow: none;
+  font-size: clamp(1.6rem, 12.5cqi, 3.1rem); line-height: 1.1; text-wrap: balance; margin-top: 18px; letter-spacing: .03em;
+  background: linear-gradient(180deg, #fff8d6 0%, #ffd76a 36%, #b8860b 50%, #ffe08a 62%, #a87400 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 1px 0 #6b4a00) drop-shadow(0 2px 0 #2e1f00) drop-shadow(0 0 12px rgba(255, 190, 60, .45)) drop-shadow(0 6px 10px rgba(0, 0, 0, .9));
+  text-shadow: none;
 }
 .kpong-panel .kp-main .kpong-lead { color: #ddd3c2; margin-bottom: 4px; font-size: var(--fs-card); line-height: 1.35; }
 /* v menu se neodstřeluje: tlačítko pod strojem schované (místo mu zůstane, stroj neposkočí) */
@@ -757,3 +760,10 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong-skin[data-pad="vetev"] { --shine: rgba(255, 240, 200, .35); --shine-time: 10s; }
 .kpong-skin[data-pad="plys"] { --shine: rgba(255, 235, 245, .45); --shine-time: 10s; }
 @media (prefers-reduced-motion: reduce) { .kpong-skin .kpong-rim-shine::before { animation: none !important; } }
+
+/* rozmazané pozadí podle nastavení kolem automatu (jen na širších obrazovkách – na telefonu automat vyplní obrazovku) */
+.kpong-amb { display: none; }
+@media (min-width: 700px) {
+  .kpong-amb { display: block; position: fixed; inset: -60px; z-index: 0; pointer-events: none; background: center / cover no-repeat;
+    filter: blur(30px) brightness(.32) saturate(1.25); }
+}
