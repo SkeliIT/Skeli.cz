@@ -1887,3 +1887,7 @@ body.light .k-poster:hover .k-ticket { background: #e6b730; color: #141414; }
 h1.hero-tagline { font-family: inherit; font-weight: inherit; letter-spacing: inherit; line-height: 1.35; margin: 14px 0 0; }
 .hero .hero-latest { margin-top: 22px; }
 .hero .hero-latest + .hero-actions, .hero .hero-tagline + .hero-actions { margin-top: 22px; }
+
+/* karta hry na úvodu: Kevin vpravo, text vlevo */
+.game-card { position: relative; padding-right: 108px; min-height: 140px; }
+.game-card-kevin { position: absolute; right: 12px; bottom: 10px; width: 86px; height: auto; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .55)); pointer-events: none; }

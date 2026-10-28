@@ -148,6 +148,7 @@
 
       <%-- hra CatSmash: jedna karta, ať o ní lidi vědí (dřív jen přes Kevinovo menu) --%>
       <div class="card side-card game-card">
+        <img class="game-card-kevin" src="/img/kevin.webp" alt="" width="86" height="100" loading="lazy">
         <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
         <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
         <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
