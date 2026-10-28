@@ -82,6 +82,7 @@ window.KEVIN_LINES.de.pong = {
     "Lava",
     "Pfotenkette",
     "Neonröhre",
+    "Rasta",
     "Uhrwerk"
   ],
   "skinLock": [
@@ -183,6 +184,7 @@ window.KEVIN_LINES.de.pong = {
   ],
   "badgeNoReward": "noch ohne Belohnung",
   "rewards": {
+    "wins50": "Schläger Rasta und Automat Rasta",
     "close": "Hintergrund Sonnenuntergang, Schläger Perlen, Ball Perle",
     "loyal": "Hintergrund Zauberwald, Schläger Jade, Ball Jadekugel",
     "fast": "Hintergrund Weltall",

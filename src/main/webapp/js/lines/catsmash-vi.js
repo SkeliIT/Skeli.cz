@@ -82,6 +82,7 @@ window.KEVIN_LINES.vi.pong = {
     "Dung nham",
     "Dây chuyền chân mèo",
     "Ống neon",
+    "Rasta",
     "Bánh răng"
   ],
   "skinLock": [
@@ -183,6 +184,7 @@ window.KEVIN_LINES.vi.pong = {
   ],
   "badgeNoReward": "chưa có phần thưởng",
   "rewards": {
+    "wins50": "vợt Rasta và máy Rasta",
     "close": "nền Hoàng hôn, vợt Ngọc trai, bóng Ngọc trai",
     "loyal": "nền Rừng phép thuật, vợt Ngọc bích, Bóng ngọc bích",
     "fast": "nền Vũ trụ",

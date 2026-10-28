@@ -82,6 +82,7 @@ window.KEVIN_LINES.cs.pong = {
     "Láva",
     "Řetěz s tlapkou",
     "Neonová trubice",
+    "Rasta",
     "Strojovna"
   ],
   "skinLock": [
@@ -183,6 +184,7 @@ window.KEVIN_LINES.cs.pong = {
   ],
   "badgeNoReward": "zatím bez odměny",
   "rewards": {
+    "wins50": "pálka Rasta a automat Rasta",
     "close": "pozadí Západ slunce, pálka Perly, míček Perla",
     "loyal": "pozadí Kouzelný les, pálka Jadeit, míček Jadeitová koule",
     "fast": "pozadí Vesmír",

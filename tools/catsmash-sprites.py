@@ -2,7 +2,7 @@
 # Pálku rozdělí na tělo (horní hrana = plocha, od které se míček odráží) a na to, co pod ní visí (přívěsky),
 # aby se přívěsky ve hře mohly houpat. Výstup: kevin/pong/palky.webp + palky.json a micky.webp + micky.json.
 #
-# Spuštění: python tools/catsmash-sprites.py <obrázek1.jpg> <obrázek2.jpg> <kevinova-pálka.jpg> [--nahled složka]
+# Spuštění: python tools/catsmash-sprites.py <obrázek1.jpg> <obrázek2.jpg> <kevinova-pálka.jpg> [ganja-palka.png] [--nahled složka]
 import json
 import os
 import sys
@@ -34,7 +34,8 @@ PADDLES = [
 # Kreslí se v pořadí odzadu dopředu; hra vyřízne kruh z celého obrázku pálky (full) a otočí ho.
 GEARS = {'kola': [[230, 36, 27, -1], [232, 70, 11, 1], [275, 109, 20, -1], [218, 108, 10, 1], [360, 62, 16, -1], [178, 75, 33, 1]]}
 # další obrázky s jedinou pálkou: (index obrázku, výřez x0, y0, x1, y1, id, pohyb); Kevinova pálka (3. obrázek)
-SINGLE = [(2, (20, 70, 1250, 530), 'kevin', 'swing')]
+SINGLE = [(2, (20, 70, 1250, 530), 'kevin', 'swing'),
+          (3, (40, 520, 1264, 1063), 'ganja', 'swing')]   # 4. obrázek: rasta pálka s přívěskem (kevin-reference/Kevin/ganja-palka.png)
 BALLS = [
     (0, 0, 0, 'kastan'), (0, 0, 1, 'ledovka'), (0, 0, 2, 'lavak'), (0, 0, 3, 'tlapka'),
     (0, 1, 0, 'sprej'), (0, 1, 1, 'plysak'), (0, 1, 2, 'vir'), (0, 1, 3, 'repro'),
@@ -159,7 +160,10 @@ class Atlas:
 
 
 def main():
-    srcs = [np.array(Image.open(p).convert('RGB')) for p in sys.argv[1:4] if not p.startswith('--')]
+    args = sys.argv[1:]
+    if '--nahled' in args:
+        del args[args.index('--nahled'):args.index('--nahled') + 2]
+    srcs = [np.array(Image.open(p).convert('RGB')) for p in args]
     preview = sys.argv[sys.argv.index('--nahled') + 1] if '--nahled' in sys.argv else None
     if preview:
         os.makedirs(preview, exist_ok=True)

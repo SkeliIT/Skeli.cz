@@ -82,6 +82,7 @@ window.KEVIN_LINES.en.pong = {
     "Lava",
     "Paw chain",
     "Neon tube",
+    "Rasta",
     "Clockwork"
   ],
   "skinLock": [
@@ -183,6 +184,7 @@ window.KEVIN_LINES.en.pong = {
   ],
   "badgeNoReward": "no reward yet",
   "rewards": {
+    "wins50": "Rasta paddle and Rasta machine",
     "close": "Sunset background, Pearls paddle, Pearl ball",
     "loyal": "Magic forest background, Jade paddle, Jade ball",
     "fast": "Space background",
