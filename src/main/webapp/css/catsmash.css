@@ -754,3 +754,17 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-tabs { grid-template-columns: repeat(4, 1fr); }
 .kp-tabs button { flex-direction: column; gap: 2px; min-height: 48px; min-width: 0; padding: 4px 2px; }
 .kp-tabs button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* přehled odznaků: odměna pod názvem hned vidět (i u nezískaných) */
+.kp-bdg-name { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.kp-bdg-name b { flex: none; }
+.kp-bdg-rw { font-family: var(--font-text); font-size: var(--fs-small); line-height: 1.25; color: #b9a77e; }
+.kp-bdg.on .kp-bdg-rw { color: var(--accent); }
+/* obrázky odměn pod názvem odznaku: pálka, míček, pozadí, rámeček fotky (nezískané ztlumené) */
+.kp-gifts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 3px; }
+.kp-gift-pad { width: 56px; height: 28px; }
+.kp-gift-ball { width: 26px; height: 26px; }
+.kp-gift-bg { width: 40px; height: 26px; border-radius: 5px; background: #111 center / cover no-repeat; border: 1px solid rgba(255, 255, 255, .2); }
+.kp-gift-frame { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; }
+.kp-gift-frame img { width: 22px; height: 22px; border-radius: 50%; }
+.kp-bdg:not(.on) .kp-gifts { opacity: .75; filter: saturate(.75); }
+.kp-bdg-gifts { display: none; }
