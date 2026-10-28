@@ -62,6 +62,7 @@ window.KEVIN_LINES.cs.pong = {
   "tabLook": "Vzhled",
   "tabSound": "Zvuk",
   "tabControls": "Ovládání",
+  "tabScreen": "Obraz",
   "power": {
     "big": "VELKÁ PÁLKA!",
     "slow": "KEVIN ZPOMALIL!",
@@ -82,6 +83,7 @@ window.KEVIN_LINES.cs.pong = {
     "Láva",
     "Řetěz s tlapkou",
     "Neonová trubice",
+    "Rasta",
     "Strojovna"
   ],
   "skinLock": [
@@ -183,6 +185,7 @@ window.KEVIN_LINES.cs.pong = {
   ],
   "badgeNoReward": "zatím bez odměny",
   "rewards": {
+    "wins50": "pálka Rasta a automat Rasta",
     "close": "pozadí Západ slunce, pálka Perly, míček Perla",
     "loyal": "pozadí Kouzelný les, pálka Jadeit, míček Jadeitová koule",
     "fast": "pozadí Vesmír",
@@ -303,6 +306,7 @@ window.KEVIN_LINES.cs.pong = {
   "loginToRank": "Do tabulky se zapíšeš po přihlášení.",
   "login": "Přihlásit",
   "localBest": "tvůj nejlepší čas tady: {time}",
+  "tileSub": {"how":"Pravidla a ovládání","badges":"Sbírej a ukaž, co umíš","top":"Jak si stojíš mezi ostatními"},
   "progress": "Další odznak „{badge}“",
   "progressUnits": {"wins":"výhry","hardWins":"výhry na nejtěžší","screws":"šroubky","days":"dny se hrou"},
   "moreBadges": "…a ještě {n} další – najdeš je v Odznacích.",

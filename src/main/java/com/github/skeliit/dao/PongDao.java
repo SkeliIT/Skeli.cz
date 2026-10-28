@@ -46,7 +46,7 @@ public class PongDao {
                 while (rs.next()) {
                     place++;
                     PongRank r = new PongRank(place, rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(7), meId != null && meId == rs.getInt(1));
-                    r.title = PongBadges.exists(rs.getString(5)) ? rs.getString(5) : null;
+                    r.title = PongBadges.TITLES_ON && PongBadges.exists(rs.getString(5)) ? rs.getString(5) : null;
                     r.frame = PongBadges.isFrame(rs.getString(6)) ? rs.getString(6) : null;
                     out.add(r);
                 }

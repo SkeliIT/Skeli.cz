@@ -35,23 +35,23 @@ public class ChangePasswordServlet extends HttpServlet {
         if (oldPassword == null || oldPassword.trim().isEmpty() ||
             newPassword == null || newPassword.trim().isEmpty() ||
             confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            resp.sendRedirect("/uzivatel.jsp?error=empty");
+            resp.sendRedirect("/nastaveni.jsp?error=empty#zabezpeceni");
             return;
         }
         
         if (!newPassword.equals(confirmPassword)) {
-            resp.sendRedirect("/uzivatel.jsp?error=mismatch");
+            resp.sendRedirect("/nastaveni.jsp?error=mismatch#zabezpeceni");
             return;
         }
         
         java.util.Set<String> problems = WebUtils.passwordProblems(newPassword);
         if (!problems.isEmpty()) {
             String code = problems.contains("invalid") ? "invalid_chars" : problems.contains("long") ? "too_long" : "short";
-            resp.sendRedirect("/uzivatel.jsp?error=" + code);
+            resp.sendRedirect("/nastaveni.jsp?error=" + code + "#zabezpeceni");
             return;
         }
         if (PwnedPasswords.breachCount(newPassword) > 0) {
-            resp.sendRedirect("/uzivatel.jsp?error=pwned");
+            resp.sendRedirect("/nastaveni.jsp?error=pwned#zabezpeceni");
             return;
         }
         
@@ -63,7 +63,7 @@ public class ChangePasswordServlet extends HttpServlet {
                 ps.setInt(1, userId);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (!rs.next()) {
-                        resp.sendRedirect("/uzivatel.jsp?error=user_not_found");
+                        resp.sendRedirect("/nastaveni.jsp?error=user_not_found#zabezpeceni");
                         return;
                     }
                     currentHash = rs.getString("password_hash");
@@ -72,7 +72,7 @@ public class ChangePasswordServlet extends HttpServlet {
             
             // Zkontroluj staré heslo
             if (!BCrypt.checkpw(oldPassword, currentHash)) {
-                resp.sendRedirect("/uzivatel.jsp?error=wrong_old");
+                resp.sendRedirect("/nastaveni.jsp?error=wrong_old#zabezpeceni");
                 return;
             }
             
@@ -87,7 +87,7 @@ public class ChangePasswordServlet extends HttpServlet {
             // anyone else signed in with the old password is signed out (this device stays)
             SessionRegistry.signOut(userId, req.getSession(false));
 
-            resp.sendRedirect("/uzivatel.jsp?password_changed=true");
+            resp.sendRedirect("/nastaveni.jsp?password_changed=true#zabezpeceni");
         } catch (SQLException e) {
             throw new ServletException("Database error", e);
         }

@@ -114,7 +114,7 @@ public class PongServlet extends HttpServlet {
                 throw new ServletException(e);
             }
             if ("account".equals(req.getParameter("back"))) {
-                resp.sendRedirect("/uzivatel.jsp?" + (ok ? "pongFrame=1" : "pongFrame=0") + "#pong");
+                resp.sendRedirect("/nastaveni.jsp?" + (ok ? "pongFrame=1" : "pongFrame=0") + "#profil");
                 return;
             }
             if (!ok) resp.setStatus(400);
@@ -133,7 +133,7 @@ public class PongServlet extends HttpServlet {
                 throw new ServletException(e);
             }
             if ("account".equals(req.getParameter("back"))) {                 // formulář na stránce Můj účet
-                resp.sendRedirect("/uzivatel.jsp?" + (ok ? "pongTitle=1" : "pongTitle=0") + "#pong");
+                resp.sendRedirect("/nastaveni.jsp?" + (ok ? "pongTitle=1" : "pongTitle=0") + "#profil");
                 return;
             }
             if (!ok) resp.setStatus(400);

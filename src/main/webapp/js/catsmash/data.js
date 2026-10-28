@@ -52,6 +52,7 @@
     vetev: { mode: 'swing', damp: 3.2, stiff: 55, push: 0.55 },
     lava: { mode: 'sway', damp: 7, stiff: 6, push: 0.3, drip: 'lava', every: [900, 2600] },
     retez: { mode: 'swing', damp: 1.1, stiff: 0, push: 1 },
+    ganja: { mode: 'swing', damp: 1.6, stiff: 8, push: 0.9 },
     graffiti: { mode: 'sway', damp: 6, stiff: 10, push: 0.3, drip: 'paint', every: [1800, 4200] },
     plys: { mode: 'leg', damp: 2.4, stiff: 16, push: 0.8, leg: 28 },
     jadeit: { mode: 'swing', damp: 1.6, stiff: 0, push: 1 },
@@ -75,6 +76,9 @@
     lava: [{ line: ['#ffb02e', '#ff4a00'], w: 2.6, kind: 'smooth', emit: 'ember', rate: 22 },
       { line: ['#ff8a1a', '#b32400'], w: 2.2, kind: 'wave', emit: 'lavaDrop', rate: 8 },
       { line: ['#ffd36b', '#ff6a00'], w: 1.6, kind: 'zigzag', emit: 'smoke', rate: 10 }],
+    ganja: [{ line: ['#7fd36b', '#2f7a2a'], w: 2.4, kind: 'wave', emit: 'smoke', rate: 12 },     // zelený kouř
+      { line: ['#d62a1e', '#ffd23f'], w: 1.6, kind: 'dots', emit: 'smoke', rate: 6 },           // rasta tečky
+      { line: ['#ffd23f', '#3fbf4f'], w: 1.6, kind: 'helix', emit: 'tornado', rate: 8 }],
     retez: [{ line: ['#ffe27a', '#b8860b'], w: 2.2, kind: 'smooth', emit: 'goldSpark', rate: 20 },
       { line: ['#ffd23f', '#8f6600'], w: 1.4, kind: 'dots', emit: 'pawPrint', rate: 5 },
       { line: ['#fff1a8', '#c99a12'], w: 1.4, kind: 'helix', emit: 'goldSpark', rate: 12 }],

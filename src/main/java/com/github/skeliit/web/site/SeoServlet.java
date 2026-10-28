@@ -70,6 +70,7 @@ public class SeoServlet extends HttpServlet {
         }
         out.println("Disallow: /admin");
         out.println("Disallow: /uzivatel.jsp");
+        out.println("Disallow: /nastaveni.jsp");
         out.println("Disallow: /profile.jsp");
         out.println();
         out.println("Sitemap: " + base + "/sitemap.xml");

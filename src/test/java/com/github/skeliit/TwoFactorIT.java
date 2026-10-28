@@ -35,7 +35,7 @@ class TwoFactorIT extends UiTestSupport {
         int id = registerAndLogin(name);
 
         // on: the key from the page, the code the app would show
-        driver.get(BASE_URL + "/uzivatel.jsp#zabezpeceni");
+        driver.get(BASE_URL + "/nastaveni.jsp#zabezpeceni");
         submit(By.cssSelector(".acct-tfa form button[type=submit]"));
         String key = driver.findElement(By.cssSelector(".tfa-key")).getText().replace(" ", "");
         assertTrue(driver.findElement(By.cssSelector(".tfa-qr svg")).isDisplayed(), "the QR code for the app");
@@ -72,7 +72,7 @@ class TwoFactorIT extends UiTestSupport {
         assertTrue(driver.findElements(By.cssSelector(".error-page")).isEmpty(), "žádná chybová stránka");
 
         // off again, with another backup code
-        driver.get(BASE_URL + "/uzivatel.jsp#zabezpeceni");
+        driver.get(BASE_URL + "/nastaveni.jsp#zabezpeceni");
         assertTrue(driver.findElement(By.cssSelector(".acct-tfa")).getText().contains(": 9."), "nine backup codes left");
         code("XXXXX-XXXXX", "disable");   // a wrong one first
         assertTrue(exists("SELECT 1 FROM users WHERE id=? AND totp_enabled_at IS NOT NULL", id), "still on after a wrong code");

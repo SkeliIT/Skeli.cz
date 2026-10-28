@@ -62,6 +62,7 @@ window.KEVIN_LINES.en.pong = {
   "tabLook": "Look",
   "tabSound": "Sound",
   "tabControls": "Controls",
+  "tabScreen": "Display",
   "power": {
     "big": "BIG PADDLE!",
     "slow": "SLOW KEVIN!",
@@ -82,6 +83,7 @@ window.KEVIN_LINES.en.pong = {
     "Lava",
     "Paw chain",
     "Neon tube",
+    "Rasta",
     "Clockwork"
   ],
   "skinLock": [
@@ -183,6 +185,7 @@ window.KEVIN_LINES.en.pong = {
   ],
   "badgeNoReward": "no reward yet",
   "rewards": {
+    "wins50": "Rasta paddle and Rasta machine",
     "close": "Sunset background, Pearls paddle, Pearl ball",
     "loyal": "Magic forest background, Jade paddle, Jade ball",
     "fast": "Space background",
@@ -303,6 +306,7 @@ window.KEVIN_LINES.en.pong = {
   "loginToRank": "Sign in to get on the leaderboard.",
   "login": "Sign in",
   "localBest": "your best time here: {time}",
+  "tileSub": {"how":"Rules and controls","badges":"Collect them, show your skills","top":"See where you stand"},
   "progress": "Next badge “{badge}”",
   "progressUnits": {"wins":"wins","hardWins":"wins on the hardest","screws":"screws","days":"days played"},
   "moreBadges": "…and {n} more – find them under Badges.",

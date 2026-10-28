@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Změna uživatelského jména (to, které je vidět u komentářů a v hlavičce) – i pro účty založené přes Google.
  * Stejná pravidla jako při registraci, jméno nesmí být obsazené ani se vydávat za Skeliho, admina nebo Kevina,
- * nejvýš 3 změny za den. Výsledek: /uzivatel.jsp?name=ok|taken|invalid|reserved|limit#profil
+ * nejvýš 3 změny za den. Výsledek: /nastaveni.jsp?name=ok|taken|invalid|reserved|limit#profil
  */
 @WebServlet(name = "UsernameServlet", urlPatterns = {"/profile/username"})
 public class UsernameServlet extends HttpServlet {
@@ -37,7 +37,7 @@ public class UsernameServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("user_id") == null) {
-            resp.sendRedirect("/login.jsp?next=/uzivatel.jsp");
+            resp.sendRedirect("/login.jsp?next=/nastaveni.jsp");
             return;
         }
         int userId = (int) session.getAttribute("user_id");
@@ -70,6 +70,6 @@ public class UsernameServlet extends HttpServlet {
                 else throw new ServletException(e);
             }
         }
-        resp.sendRedirect("/uzivatel.jsp?name=" + result + "#profil");
+        resp.sendRedirect("/nastaveni.jsp?name=" + result + "#profil");
     }
 }

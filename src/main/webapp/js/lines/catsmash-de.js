@@ -62,6 +62,7 @@ window.KEVIN_LINES.de.pong = {
   "tabLook": "Aussehen",
   "tabSound": "Ton",
   "tabControls": "Steuerung",
+  "tabScreen": "Anzeige",
   "power": {
     "big": "GROSSER SCHLÄGER!",
     "slow": "LANGSAMER KEVIN!",
@@ -82,6 +83,7 @@ window.KEVIN_LINES.de.pong = {
     "Lava",
     "Pfotenkette",
     "Neonröhre",
+    "Rasta",
     "Uhrwerk"
   ],
   "skinLock": [
@@ -183,6 +185,7 @@ window.KEVIN_LINES.de.pong = {
   ],
   "badgeNoReward": "noch ohne Belohnung",
   "rewards": {
+    "wins50": "Schläger Rasta und Automat Rasta",
     "close": "Hintergrund Sonnenuntergang, Schläger Perlen, Ball Perle",
     "loyal": "Hintergrund Zauberwald, Schläger Jade, Ball Jadekugel",
     "fast": "Hintergrund Weltall",
@@ -303,6 +306,7 @@ window.KEVIN_LINES.de.pong = {
   "loginToRank": "Melde dich an, um in die Rangliste zu kommen.",
   "login": "Anmelden",
   "localBest": "deine beste Zeit hier: {time}",
+  "tileSub": {"how":"Regeln und Steuerung","badges":"Sammle sie und zeig, was du kannst","top":"Wo du im Vergleich stehst"},
   "progress": "Nächstes Abzeichen „{badge}“",
   "progressUnits": {"wins":"Siege","hardWins":"Siege auf schwerster Stufe","screws":"Schrauben","days":"Spieltage"},
   "moreBadges": "…und noch {n} weitere – du findest sie unter Abzeichen.",

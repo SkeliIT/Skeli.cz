@@ -12,6 +12,9 @@ import java.util.Set;
  * (pálku, míček nebo pozadí – mapa je v js/catsmash/hra.js).
  */
 public final class PongBadges {
+    /** Titul u jména (komentáře, tabulka, Můj účet) – zatím vypnutý, majitel vymýšlí lepší názvy. Data zůstávají. */
+    public static final boolean TITLES_ON = false;
+
     private PongBadges() {}
 
     public static final Map<String, String> ICONS = new LinkedHashMap<>();

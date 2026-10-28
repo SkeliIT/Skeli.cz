@@ -255,10 +255,13 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-bdg.on .kp-bdg-gifts { color: var(--accent); }
 .kp-bdg p { margin: 0; padding: 0 10px 6px 46px; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
 .kp-bdg p.kp-bdg-reward { color: var(--accent); }
+/* logo hry: kovové zlato s hranou (dva tmavé stíny pod sebou = tloušťka plechu) a jemnou září */
 .kpong-panel .kp-main .kpong-title {
-  font-size: clamp(1.4rem, 11cqi, 2.8rem); line-height: 1.1; text-wrap: balance; margin-top: 18px;
-  background: linear-gradient(#fff2b8, #ffc83d 50%, #c98a12); -webkit-background-clip: text; background-clip: text; color: transparent;
-  filter: drop-shadow(0 2px 8px #000); text-shadow: none;
+  font-size: clamp(1.6rem, 12.5cqi, 3.1rem); line-height: 1.1; text-wrap: balance; margin-top: 18px; letter-spacing: .03em;
+  background: linear-gradient(180deg, #fff8d6 0%, #ffd76a 36%, #b8860b 50%, #ffe08a 62%, #a87400 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 1px 0 #6b4a00) drop-shadow(0 2px 0 #2e1f00) drop-shadow(0 0 12px rgba(255, 190, 60, .45)) drop-shadow(0 6px 10px rgba(0, 0, 0, .9));
+  text-shadow: none;
 }
 .kpong-panel .kp-main .kpong-lead { color: #ddd3c2; margin-bottom: 4px; font-size: var(--fs-card); line-height: 1.35; }
 /* v menu se neodstřeluje: tlačítko pod strojem schované (místo mu zůstane, stroj neposkočí) */
@@ -677,3 +680,77 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-boardtabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
 .kp-boardtabs button { font: inherit; font-size: var(--fs-small); color: #e8dcc5; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 210, 63, .35); border-radius: 99px; padding: 6px 12px; min-height: 32px; cursor: pointer; }
 .kp-boardtabs button[aria-pressed="true"] { background: var(--accent); color: #1a1405; border-color: var(--accent); }
+
+/* rozmazané pozadí podle nastavení kolem automatu (jen na širších obrazovkách – na telefonu automat vyplní obrazovku) */
+.kpong-amb { display: none; }
+@media (min-width: 700px) {
+  .kpong-amb { display: block; position: fixed; inset: -60px; z-index: 0; pointer-events: none; background: center / cover no-repeat;
+    filter: blur(30px) brightness(.32) saturate(1.25); }
+}
+
+/* ---------- automat podle pálky (js setSkin, kevin/pong/stroje/) ----------
+   Leží nad hřištěm a okénky s koly (z-index 1, otvory průhledné), Kevinova kola a štěrbina nahoře nad ním.
+   Záře podle tématu = rozmazaná kopie automatu pod ním, animuje se jen průhlednost (šetrné k telefonům). */
+.kpong-frame.themed { background: none; }
+.kpong-frame.themed .kpong-gears, .kpong-frame.themed .kpong-slot { z-index: 2; }
+.kpong-skin {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: var(--skin) 0 0 / 100% 100% no-repeat;
+  --glow: 0; --glow-time: 3s;
+}
+.kpong-skin[hidden] { display: none; }
+.kpong-skin::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--skin) 0 0 / 100% 100% no-repeat;
+  filter: blur(calc(14px * var(--u))) saturate(1.8) brightness(1.4);
+  opacity: var(--glow); will-change: opacity;
+}
+@keyframes kp-skin-glow { 50% { opacity: var(--glow-max, .8); } }
+.kpong-skin:is([data-pad="led"], [data-pad="cip"], [data-pad="lava"], [data-pad="neon"], [data-pad="kola"])::before { animation: kp-skin-glow var(--glow-time) ease-in-out infinite; }
+.kpong-skin[data-pad="led"] { --glow-max: .4; }
+.kpong-skin[data-pad="cip"] { --glow-max: .5; --glow-time: 2.4s; }
+.kpong-skin[data-pad="cip"]::before { animation-timing-function: steps(2); }
+.kpong-skin[data-pad="lava"] { --glow-max: .8; --glow-time: 2.6s; }
+.kpong-skin[data-pad="neon"] { --glow: .5; --glow-max: .95; --glow-time: 2.2s; }
+.kpong-skin[data-pad="kola"] { --glow-max: .3; --glow-time: 4s; }
+.kpong-skin[data-pad="ekvalizer"] { --glow: calc(var(--eq, 0) * 1.1); }
+@media (prefers-reduced-motion: reduce) { .kpong-skin, .kpong-skin::before { animation: none !important; } }
+
+/* ---------- nové menu (návrh z Gemini) ---------- */
+/* logo: obrázek místo nápisu */
+.kpong-panel .kpong-title.kp-logo { margin: 6px 0 0; padding: 0; background: none; color: inherit; filter: none; line-height: 0; }
+.kp-logo img { display: block; width: min(100%, 360px); height: auto; margin: 0 auto; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .7)); }
+/* obtížnost: hvězdičky nad názvem */
+.kp-stars { display: block; font-size: .8em; line-height: 1; letter-spacing: .1em; color: var(--accent); margin-bottom: 2px; }
+.kpong-level[aria-checked="true"] .kp-stars { color: #1a1405; }
+/* HRÁT: přišroubované – dva nýty po stranách */
+.kpong-panel .kpong-play { position: relative; }
+.kpong-panel .kpong-play::before, .kpong-panel .kpong-play::after {
+  content: ""; position: absolute; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff3c4, #8f6600 70%); box-shadow: 0 1px 1px rgba(0, 0, 0, .5);
+}
+.kpong-panel .kpong-play::before { left: 16px; }
+.kpong-panel .kpong-play::after { right: 16px; }
+/* tři dlaždice s medailony */
+.kp-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin-top: 4px; }
+.kp-tile {
+  display: grid; justify-items: center; align-content: start; gap: 3px; min-width: 0; padding: 8px 4px 10px; cursor: pointer;
+  border-radius: 14px; border: 1px solid rgba(230, 183, 48, .35); background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .25));
+  color: #f3ead6; font: inherit; text-align: center; transition: border-color .2s, transform .2s;
+}
+.kp-tile:hover, .kp-tile:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
+.kp-tile img { width: min(56px, 70%); height: auto; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .6)); }
+.kp-tile b { font-size: var(--fs-small); line-height: 1.2; color: #fff; }
+.kp-tile small { font-family: var(--font-text); font-size: var(--fs-small); line-height: 1.2; color: #cbbfa8; }
+@media (prefers-reduced-motion: reduce) { .kp-tile { transition: none; } .kp-tile:hover { transform: none; } }
+/* skóre: fotka hráče a Kevinova hlava */
+.kpong-face { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); box-shadow: 0 2px 8px rgba(0, 0, 0, .6); }
+.kpong-face.kev { border: 0; }
+@media (max-width: 420px) { .kpong-face { width: 28px; height: 28px; } }
+/* menu se musí vejít do skla: menší logo, popis hry malým písmem až pod dlaždicemi */
+.kp-logo img { width: min(100%, 270px); }
+.kpong-panel .kp-main .kpong-lead.kp-rules { font-size: var(--fs-small); color: #bfb39c; margin: 2px 0 0; }
+/* nastavení hry: čtyři záložky (Vzhled, Zvuk, Ovládání, Obraz), ikona nad textem, ať se vejdou na každou šířku */
+.kp-tabs { grid-template-columns: repeat(4, 1fr); }
+.kp-tabs button { flex-direction: column; gap: 2px; min-height: 48px; min-width: 0; padding: 4px 2px; }
+.kp-tabs button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

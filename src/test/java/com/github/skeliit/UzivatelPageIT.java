@@ -16,7 +16,7 @@ import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Exercises every interactive option on /uzivatel.jsp (account settings) while logged in:
+ * Exercises every interactive option on /nastaveni.jsp (account settings) while logged in:
  * profile update, password change, data export, avatar upload, account deletion.
  * Requires a running local instance (start with: mvn org.eclipse.jetty:jetty-maven-plugin:11.0.15:run).
  * Verifies effects directly in the local MariaDB (jdbc:mariadb://localhost:3306/skeliweb).
@@ -53,7 +53,7 @@ public class UzivatelPageIT {
     @Test
     @DisplayName("Profile update form persists display name, age, city, bio, theme and language")
     void profileUpdate() throws Exception {
-        driver.get(BASE_URL + "/uzivatel.jsp");
+        driver.get(BASE_URL + "/nastaveni.jsp#profil");
         driver.findElement(By.name("display_name")).sendKeys("Selenium Tester");
         driver.findElement(By.name("age")).sendKeys("33");
         driver.findElement(By.name("city")).sendKeys("Praha");
@@ -89,7 +89,7 @@ public class UzivatelPageIT {
     @DisplayName("Change password form updates the password hash and new password works at login")
     void changePassword() throws Exception {
         String newPassword = "Sel3nium#Changed2026";
-        driver.get(BASE_URL + "/uzivatel.jsp");
+        driver.get(BASE_URL + "/nastaveni.jsp#zabezpeceni");
         driver.findElement(By.name("old_password")).sendKeys(password);
         driver.findElement(By.name("new_password")).sendKeys(newPassword);
         driver.findElement(By.name("confirm_password")).sendKeys(newPassword);
@@ -147,7 +147,7 @@ public class UzivatelPageIT {
         BufferedImage img = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
         ImageIO.write(img, "jpg", tmp);
 
-        driver.get(BASE_URL + "/uzivatel.jsp");
+        driver.get(BASE_URL + "/nastaveni.jsp#profil");
         WebElement fileInput = driver.findElement(By.id("avatar-file-hidden"));
         fileInput.sendKeys(tmp.getAbsolutePath());
         ((JavascriptExecutor) driver).executeScript(
@@ -175,7 +175,7 @@ public class UzivatelPageIT {
     @DisplayName("Delete account requires typing DELETE and anonymizes the account")
     void deleteAccountRequiresConfirmText() throws Exception {
         // Wrong confirmation text should be rejected
-        driver.get(BASE_URL + "/uzivatel.jsp");
+        driver.get(BASE_URL + "/nastaveni.jsp#soukromi");
         driver.findElement(By.name("confirm")).sendKeys("nope");
         String oldUrl = driver.getCurrentUrl();
         jsClick(driver.findElement(By.xpath("//form[@action='/profile/delete']//button[@type='submit']")));
@@ -193,7 +193,7 @@ public class UzivatelPageIT {
         }
 
         // Correct confirmation text deletes (anonymizes) the account
-        driver.get(BASE_URL + "/uzivatel.jsp");
+        driver.get(BASE_URL + "/nastaveni.jsp#soukromi");
         driver.findElement(By.name("confirm")).sendKeys("DELETE");
         oldUrl = driver.getCurrentUrl();
         jsClick(driver.findElement(By.xpath("//form[@action='/profile/delete']//button[@type='submit']")));

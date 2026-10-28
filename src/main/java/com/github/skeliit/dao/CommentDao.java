@@ -90,7 +90,7 @@ public class CommentDao {
         it.avatar = gone ? "" : WebUtils.safeUrl(rs.getString("avatar_url"), "");
         it.artist = !gone && rs.getBoolean("is_artist");
         String title = gone ? null : rs.getString("pong_title");
-        if (PongBadges.exists(title)) {
+        if (PongBadges.TITLES_ON && PongBadges.exists(title)) {
             it.titleKey = title;
             it.titleIcon = PongBadges.icon(title);
             it.titleTier = PongBadges.tier(title);

@@ -1,0 +1,47 @@
+{
+ "cip": {
+  "top": true
+ },
+ "ekvalizer": {
+  "top": false
+ },
+ "ganja": {
+  "top": true
+ },
+ "graffiti": {
+  "top": true
+ },
+ "jadeit": {
+  "top": true
+ },
+ "kola": {
+  "top": true
+ },
+ "lava": {
+  "top": true
+ },
+ "led": {
+  "top": true
+ },
+ "mince": {
+  "top": true
+ },
+ "neon": {
+  "top": true
+ },
+ "perly": {
+  "top": true
+ },
+ "plys": {
+  "top": true
+ },
+ "retez": {
+  "top": false
+ },
+ "skelosquad": {
+  "top": false
+ },
+ "vetev": {
+  "top": true
+ }
+}

@@ -1966,3 +1966,42 @@ body.light .acct-fav { background: color-mix(in srgb, var(--accent) 10%, rgba(25
   .acct-motto { grid-column: 1 / -1; grid-row: auto; margin: -10px 0 0; max-width: none; text-align: center; transform: rotate(-3deg); transform-origin: center; }
   .acct-fav { display: grid; }
 }
+
+/* ---------- Můj profil = vitrína, Nastavení = samostatná stránka se záložkami ---------- */
+.acct-hero { position: relative; }
+.acct-edit {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 14px; border-radius: 99px;
+  font-size: var(--fs-card); color: var(--text); text-decoration: none;
+  background: color-mix(in srgb, var(--panel) 80%, transparent); border: 1px solid var(--panel-border);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.acct-edit:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+@media (max-width: 600px) { .acct-edit { top: 8px; right: 8px; padding: 8px 12px; } }
+.settings-head { display: grid; gap: 6px; margin: 8px 0 16px; }
+.settings-head h1 { margin: 0; font-size: var(--fs-h2); color: var(--accent); display: flex; align-items: center; gap: 10px; }
+.settings-back { justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; font-size: var(--fs-card); color: var(--text-dim); text-decoration: none; }
+.settings-back:hover { color: var(--accent); text-decoration: none; }
+.settings-page section.acct-card[hidden] { display: none; }
+/* telefon: Upravit profil není přes jméno, ale jako poslední řádek hlavičky */
+@media (max-width: 600px) {
+  .acct-edit { position: static; order: 99; grid-column: 1 / -1; justify-self: center; }
+}
+/* záložky Nastavení: vždy všechny tři vidět (na telefonu menší písmo, ikona nad textem) */
+.settings-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; overflow: visible; }
+.settings-tabs a { justify-content: center; text-align: center; }
+@media (max-width: 600px) {
+  .settings-tabs { border-radius: 18px; }
+  .settings-tabs a { flex-direction: column; gap: 2px; padding: 8px 4px; font-size: var(--fs-small); border-radius: 14px; }
+}
+/* profil: „Zobrazit všechny“ – rozbalení zbytku komentářů a nezískaných odznaků */
+.acct-more { display: grid; gap: 10px; }
+.acct-more > summary {
+  list-style: none; cursor: pointer; justify-self: center; display: inline-flex; align-items: center; gap: 8px; min-height: 40px;
+  padding: 8px 16px; border-radius: 99px; border: 1px solid var(--panel-border); color: var(--text); font-size: var(--fs-card);
+}
+.acct-more > summary::-webkit-details-marker { display: none; }
+.acct-more > summary::after { content: "▾"; color: var(--accent); transition: transform .2s; }
+.acct-more[open] > summary::after { transform: rotate(180deg); }
+.acct-more > summary:hover { border-color: var(--accent); color: var(--accent); }
+.pong-badge-box .acct-more { margin-top: 10px; }
