@@ -66,14 +66,11 @@
     <script src="/js/premiere.js?v=<%= assetVersion %>"></script>
     <% } %>
     <div class="hero-actions">
-      <%-- Spotify je hlavní cesta k poslechu (streamy = výdělek): zelené tlačítko otevře přehrávač na webu --%>
-      <button type="button" class="btn btn-lg btn-spotify" data-spotify-src="artist:5IouXw8U9uKCTwmncG5bUl">
-        <i class="fab fa-spotify"></i> <%= t.getProperty("home.cta.listen") %>
-      </button>
-      <a class="btn btn-lg btn-ghost" href="/texty.jsp">
-        <i class="fa-solid fa-align-left"></i> <%= t.getProperty("home.cta.lyrics") %>
+      <%-- Spotify je hlavní cesta k poslechu (streamy = výdělek): zlaté tlačítko webu vede rovnou na Spotify (na telefonu do aplikace,
+           tam jde i sledovat); přehrávač na webu zůstává vpravo dole --%>
+      <a class="btn btn-primary btn-lg btn-spotify" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener">
+        <i class="fab fa-spotify" aria-hidden="true"></i> <%= t.getProperty("home.cta.listen") %>
       </a>
-      <a class="hero-follow" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener"><i class="fab fa-spotify" aria-hidden="true"></i> <%= t.getProperty("home.cta.follow") %></a>
     </div>
     <div class="social-row hero-social">
       <a class="social-btn fb" href="https://www.facebook.com/mcskeli/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
