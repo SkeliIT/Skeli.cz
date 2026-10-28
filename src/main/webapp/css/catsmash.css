@@ -641,3 +641,10 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-guest-btns { display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap; margin-top: 0 !important; }
 .kp-guest-btns .btn { padding: 7px 14px; font-size: var(--fs-small); }
 .kp-guest-btns .btn { padding: 6px 12px; }
+
+/* postup k dalšímu odznaku (menu hry i konec zápasu): text, čísla a zlatý proužek */
+.kp-next { width: min(100%, 320px); margin: 6px auto 0; display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: baseline;
+  font-family: var(--font-text); font-size: var(--fs-small); color: #e8dcc5; text-align: left; }
+.kp-next b { font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+.kp-next i { grid-column: 1 / -1; height: 5px; border-radius: 99px; background: linear-gradient(90deg, var(--accent) var(--p), rgba(255, 255, 255, .14) var(--p)); }
+.kp-more { margin: 0; font-family: var(--font-text); font-size: var(--fs-small); color: #e8dcc5; }

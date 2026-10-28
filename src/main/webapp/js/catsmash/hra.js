@@ -1760,6 +1760,7 @@
       comic('l', 'burst good', (T.power || {})[k] || k, 1500);
       sfx.shot(0); vibe(30);
       if (level >= 2) store.set('kevinPongScrews', String(+(store.get('kevinPongScrews') || 0) + 1));
+      mt.screws++;
       quip('sroubek', 0.7);
     }
     // Kevin hodí klubíčko vlny, ale konec nitky drží na své pálce: klubíčko vyletí, nitka se napne a klubíčko
@@ -2034,6 +2035,9 @@
       var bestKey = 'kevinPongBest' + level, best = +(store.get(bestKey) || 0);
       if (playerWon && (!best || ms < best)) store.set(bestKey, String(ms));
       var fresh = earnBadges(playerWon, ms);
+      var screwBest = +(store.get('kevinPongScrewBest') || 0), screwRec = mt.screws > screwBest;
+      if (screwRec) store.set('kevinPongScrewBest', String(mt.screws));
+      lastScrews = { n: mt.screws, best: Math.max(screwBest, mt.screws), rec: screwRec && screwBest > 0 };
       var newBest = playerWon && best && ms < best;               // nepřihlášený: rekord v prohlížeči
       var send = playerWon && signedIn ? post('/api/pong/win', { d: level, ms: ms, kevin: kev }) : Promise.resolve(null);
       send.then(function (res) {
@@ -2082,6 +2086,28 @@
       return fresh;
     }
 
+    var lastScrews = null;
+    // počítadla v prohlížeči → odznak, který za ně přijde (jen Normální a nejtěžší, viz earnBadges)
+    var PROGRESS = [['kevinPongWins', 'wins', [['streak', 10], ['wins50', 50], ['wins100', 100]]],
+      ['kevinPongHardWins', 'hardWins', [['hwins5', 5]]], ['kevinPongScrews', 'screws', [['tinker', 10]]], ['kevinPongDays', 'days', [['loyal', 7]]]];
+    function nextBadge() {
+      var best = null;
+      PROGRESS.forEach(function (p) {
+        var have = +(store.get(p[0]) || 0);
+        var goal = p[2].filter(function (g) { return !badges[g[0]]; })[0];
+        if (!goal || have >= goal[1]) return;
+        var part = have / goal[1];
+        if (!best || part > best.part) best = { key: goal[0], unit: p[1], have: have, need: goal[1], part: part };
+      });
+      return best;
+    }
+    function progressHtml() {
+      var n = nextBadge();
+      if (!n || !T.progress) return '';
+      return '<p class="kp-next"><span>' + esc(T.progress.replace('{badge}', (T.badgeNames || {})[n.key] || n.key)) + ' · ' + esc((T.progressUnits || {})[n.unit] || '') + '</span>' +
+        '<b>' + n.have + ' / ' + n.need + '</b><i aria-hidden="true" style="--p:' + Math.round(n.part * 100) + '%"></i></p>';
+    }
+
     // ---------- obrazovky (start, konec) a tabulka ----------
     function startScreen() {
       panel.hidden = false;
@@ -2106,7 +2132,7 @@
         }).join('') + '</div>' +
         '<p class="kp-desc">' + esc(T.levelHints[level - 1]) + '</p>' +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.play) + '</button>' +
-        '<p class="kp-rec" hidden></p>' +
+        '<p class="kp-rec" hidden></p>' + progressHtml() +
         '<p class="kp-links"><button type="button" class="kp-link" data-go="how">' + esc(T.how || T.controlsTitle || '') + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="badges">' + esc(T.badgesTitle || '') + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p>' +
@@ -2207,11 +2233,15 @@
       panel.dataset.view = 'main';
       panel.innerHTML = '<div class="kp-view kp-main"><h2 class="kpong-title">' + esc(won ? T.winTitle : T.loseTitle) + '</h2>' +
         '<p class="kpong-final">' + you + ' : ' + kev + '</p><p class="kpong-lead">' + esc(line) + '</p>' +
-        (fresh && fresh.length ? '<div class="kp-newbadges"><p class="kp-label">' + esc(T.newBadge || '') + '</p><ul>' + fresh.map(function (k) {
+        (fresh && fresh.length ? '<div class="kp-newbadges"><p class="kp-label">' + esc(T.newBadge || '') + '</p><ul>' + fresh.slice(0, 3).map(function (k) {
           var rw = (T.rewards || {})[k];
           return '<li><span class="kp-nb-icon' + ({ streak: ' bronze', wins50: ' silver' }[k] || '') + '"><i class="fa-solid ' + BADGE_ICON[k] + '" aria-hidden="true"></i></span>' +
             '<span><b>' + esc((T.badgeNames || {})[k] || k) + '</b>' + (rw ? '<small><i class="fa-solid fa-gift" aria-hidden="true"></i> ' + esc(T.rewardLabel || '') + ': ' + esc(rw) + '</small>' : '') + '</span></li>';
-        }).join('') + '</ul>' + (signedIn ? '<a class="kp-link" href="/uzivatel.jsp#pong">' + esc(T.seeProfile || '') + '</a>' : '') + '</div>' : '') +
+        }).join('') + '</ul>' + (fresh.length > 3 && T.moreBadges ? '<p class="kp-more">' + esc(T.moreBadges.replace('{n}', fresh.length - 3)) + '</p>' : '') +
+          (signedIn ? '<a class="kp-link" href="/uzivatel.jsp#pong">' + esc(T.seeProfile || '') + '</a>' : '') + '</div>' : '') +
+        (lastScrews && lastScrews.n && T.screwsLine ? '<p class="kp-rec"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> ' +
+          esc((lastScrews.rec ? T.screwsRecord : T.screwsLine).replace('{n}', lastScrews.n).replace('{best}', lastScrews.best)) + '</p>' : '') +
+        progressHtml() +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> ' + esc(T.again) + '</button>' +
         '<p class="kp-links"><button type="button" class="kp-link kpong-back">' + esc(T.changeLevel) + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p></div>' +
@@ -2232,7 +2262,7 @@
       started = performance.now(); mosq.done = false;
       screw = null; nextScrewAt = performance.now() + rnd(15000, 25000); power = { kind: null, until: 0 }; player.w = PAD_W;
       yarn = null; yarnUsed = false; mood = 'calm';
-      mt = { perfect: 0, superHit: false, overheats: 0, maxRally: 0, yarn: false };
+      mt = { perfect: 0, superHit: false, overheats: 0, maxRally: 0, yarn: false, screws: 0 };
       var today = new Date().toISOString().slice(0, 10);              // Věrný parťák: počet různých dní se hrou
       if (level >= 2 && store.get('kevinPongDay') !== today) { store.set('kevinPongDay', today); store.set('kevinPongDays', String(+(store.get('kevinPongDays') || 0) + 1)); }
       heat = 0; hotUntil = 0; isHot = false; root.classList.remove('hot'); frame.style.setProperty('--heat', 0); heatShown = 0;
