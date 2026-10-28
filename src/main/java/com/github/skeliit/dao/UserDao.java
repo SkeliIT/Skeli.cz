@@ -17,15 +17,25 @@ import java.util.List;
 /** A signed-in user's own data: the settings they filled in, their comments and a few numbers. */
 public class UserDao {
 
-    /** Výstavka na profilu: {uuid oblíbené písně, její název, moto}; prázdné hodnoty = null. */
+    /** Písma mota na profilu (CSS třída motto-<klíč>). */
+    public static final java.util.List<String> MOTTO_FONTS = java.util.List.of("brush", "modern", "clean");
+
+    /**
+     * Výstavka na profilu: {uuid oblíbené písně, její název, moto, obrázek písně, písmo mota}; prázdné hodnoty = null
+     * (písmo vždy jedno z MOTTO_FONTS). Obrázek = náhled nejnovějšího klipu, jinak náhledová fotka písně.
+     */
     public String[] showcase(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT p.fav_song_uuid, s.name, p.motto FROM user_profiles p LEFT JOIN songs s ON BINARY s.uuid = BINARY p.fav_song_uuid WHERE p.user_id = ?")) {
+                "SELECT p.fav_song_uuid, s.name, p.motto, s.preview_image_url, "
+                + "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1), p.motto_font "
+                + "FROM user_profiles p LEFT JOIN songs s ON BINARY s.uuid = BINARY p.fav_song_uuid WHERE p.user_id = ?")) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return new String[3];
-                String name = rs.getString(2), motto = rs.getString(3);
-                return new String[] { name != null ? rs.getString(1) : null, name, motto != null && !motto.isBlank() ? motto : null };
+                if (!rs.next()) return new String[] { null, null, null, null, "brush" };
+                String name = rs.getString(2), motto = rs.getString(3), yt = rs.getString(5), font = rs.getString(6);
+                String thumb = yt != null ? "/yt-thumb/" + yt + "/mqdefault.jpg" : rs.getString(4);
+                return new String[] { name != null ? rs.getString(1) : null, name, motto != null && !motto.isBlank() ? motto : null,
+                        name != null ? thumb : null, MOTTO_FONTS.contains(font) ? font : "brush" };
             }
         }
     }

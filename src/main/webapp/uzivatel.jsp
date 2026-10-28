@@ -21,7 +21,7 @@
     AccountSummary me = null;
     java.util.List<UserComment> myComments = java.util.List.of();
     PongProfile pong = new PongProfile();
-    String[] showcase = new String[3];
+    String[] showcase = { null, null, null, null, "brush" };
     java.util.List<String[]> songChoices = new java.util.ArrayList<>();
     try {
       UserDao users = new UserDao();          // dao/UserDao
@@ -67,12 +67,14 @@
       <span class="acct-photo-edit" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
       <span class="sr-only"><%= t.getProperty("account.changePhoto") %></span>
     </label>
+    <%-- moto: zlatý podpis vybraným písmem, lehce přes spodek fotky --%>
+    <% if (showcase[2] != null) { %><p class="acct-motto motto-<%= showcase[4] %>">„<%= WebUtils.escapeHtml(showcase[2]) %>“</p><% } %>
     <div class="acct-who">
       <h2 class="acct-name"><%= WebUtils.escapeHtml(shownName) %>
         <% if (me != null && me.artist) { %><span class="acct-badge artist"><i class="fa-solid fa-circle-check"></i> <%= t.getProperty("cmt.artist") %></span><% } %>
         <% if (me != null && me.admin) { %><span class="acct-badge">★ Admin</span><% } %>
       </h2>
-      <% if (pong.title != null) { %><p class="acct-title"><i class="fa-solid fa-crown" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pong.badge." + pong.title)) %></p><% } %>
+      <% if (com.github.skeliit.model.PongBadges.TITLES_ON && pong.title != null) { %><p class="acct-title"><i class="fa-solid fa-crown" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pong.badge." + pong.title)) %></p><% } %>
       <p class="acct-meta">
         <% if (me != null) { %>@<%= WebUtils.escapeHtml(me.username) %><% } %>
         <% if (me != null && me.memberSince != null) { %> · <%= WebUtils.escapeHtml(t.getProperty("account.memberSince").replace("{0}",
@@ -86,9 +88,13 @@
         <span class="acct-progress-n"><i class="fa-solid fa-medal" aria-hidden="true"></i> <%= earned %>/<%= pong.badges.size() %></span>
       </a>
       <%-- výstavka: jen co si hráč vyplnil --%>
-      <% if (showcase[2] != null) { %><blockquote class="acct-motto">„<%= WebUtils.escapeHtml(showcase[2]) %>“</blockquote><% } %>
-      <% if (showcase[0] != null) { %><p class="acct-fav"><i class="fa-solid fa-music" aria-hidden="true"></i> <%= t.getProperty("profile.favSong") %>:
-        <a href="<%= com.github.skeliit.I18n.songPath(request, showcase[0], 0) %>"><%= WebUtils.escapeHtml(showcase[1]) %></a></p><% } %>
+      <% if (showcase[0] != null) { %>
+      <a class="acct-fav" href="<%= com.github.skeliit.I18n.songPath(request, showcase[0], 0) %>">
+        <% if (showcase[3] != null) { %><img src="<%= WebUtils.escapeHtml(showcase[3]) %>" alt="" width="96" height="54" loading="lazy"><% } %>
+        <span><small><i class="fa-solid fa-heart" aria-hidden="true"></i> <%= t.getProperty("profile.favSong") %></small><b><%= WebUtils.escapeHtml(showcase[1]) %></b></span>
+        <i class="fa-solid fa-play acct-fav-play" aria-hidden="true"></i>
+      </a>
+      <% } %>
       <% if (earned > 0) { %><ul class="acct-chips">
         <% int shown = 0; for (PongProfile.Badge b : pong.badges) { if (!b.earned || shown >= 3) continue; shown++; %>
         <li><i class="fa-solid <%= b.icon %>" aria-hidden="true"></i> <%= t.getProperty("pong.badge." + b.key) %></li>
@@ -160,6 +166,12 @@
         <label class="wide"><%= t.getProperty("profile.motto") %>
           <input type="text" name="motto" maxlength="160" value="<%= WebUtils.escapeHtml(showcase[2] == null ? "" : showcase[2]) %>" placeholder="<%= t.getProperty("profile.motto.hint") %>">
         </label>
+        <fieldset class="wide motto-fonts"><legend><%= t.getProperty("profile.mottoFont") %></legend>
+          <% for (String mf : com.github.skeliit.dao.UserDao.MOTTO_FONTS) { %>
+          <label class="motto-font-opt"><input type="radio" name="motto_font" value="<%= mf %>"<%= mf.equals(showcase[4]) ? " checked" : "" %>>
+            <span class="motto-<%= mf %>"><%= t.getProperty("profile.mottoFont." + mf) %></span></label>
+          <% } %>
+        </fieldset>
         <label><%= t.getProperty("header.language") %>
           <select name="lang">
             <option value="cs" <%= "cs".equals(prefLang) ? "selected" : "" %>>Čeština</option>
@@ -242,6 +254,7 @@
     <% } %>
     </div>
     <%-- titul u jména: jeden získaný odznak (ukazuje se v komentářích a v tabulce pořadí) --%>
+    <% if (com.github.skeliit.model.PongBadges.TITLES_ON) { %>
     <form class="pong-title-form" method="post" action="/api/pong/title">
       <input type="hidden" name="csrf" value="${csrf}">
       <input type="hidden" name="back" value="account">
@@ -262,6 +275,7 @@
       </div>
       <% } %>
     </form>
+    <% } %>
     <%-- rámeček kolem fotky: jen z odznaků PongBadges.FRAMES (ukazuje se v komentářích, v tabulce a tady na profilu) --%>
     <form class="pong-title-form pong-frame-form" method="post" action="/api/pong/frame">
       <input type="hidden" name="csrf" value="${csrf}">

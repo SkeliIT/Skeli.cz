@@ -71,10 +71,12 @@ public class UserProfileServlet extends HttpServlet {
             motto = motto == null ? null : motto.replaceAll("\\s+", " ").trim();
             if (motto != null && motto.length() > 160) motto = motto.substring(0, 160);
             try (PreparedStatement ps = conn.prepareStatement(
-                    "UPDATE user_profiles SET fav_song_uuid = (SELECT uuid FROM songs WHERE BINARY uuid = BINARY ? LIMIT 1), motto = ? WHERE user_id = ?")) {
+                    "UPDATE user_profiles SET fav_song_uuid = (SELECT uuid FROM songs WHERE BINARY uuid = BINARY ? LIMIT 1), motto = ?, motto_font = ? WHERE user_id = ?")) {
+                String font = req.getParameter("motto_font");
                 ps.setString(1, fav == null || fav.isBlank() ? null : fav);
                 ps.setString(2, motto == null || motto.isEmpty() ? null : motto);
-                ps.setInt(3, userId);
+                ps.setString(3, com.github.skeliit.dao.UserDao.MOTTO_FONTS.contains(font) ? font : "brush");
+                ps.setInt(4, userId);
                 ps.executeUpdate();
             }
 
