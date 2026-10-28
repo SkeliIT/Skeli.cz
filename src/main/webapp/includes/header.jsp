@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.38.1";
+  String assetVersion = "6.38.8";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -488,7 +488,7 @@
                 // another handler took the click (gallery viewer, Kevin…), or a new tab is wanted
                 if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
                 const a = e.target.closest('a');
-                if (!a || a.hasAttribute('data-lightbox')) return;
+                if (!a || a.hasAttribute('data-lightbox') || a.hasAttribute('data-play-game')) return;   // hra se otevírá na místě (js/kevin.js), ne jako nová stránka
                 if (!isInternal(a)) return;
                 const href = a.getAttribute('href') || '';
                 if (!href || href.startsWith('#')) return;

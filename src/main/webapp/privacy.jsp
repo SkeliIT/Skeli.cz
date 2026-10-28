@@ -34,7 +34,6 @@
       <ul>
         <li><%= t.getProperty("privacy.s3.session") %></li>
         <li><%= t.getProperty("privacy.s3.storage") %></li>
-        <li><%= t.getProperty("privacy.s3.matomo") %></li>
       </ul>
       <p><button type="button" class="btn btn-ghost" data-cookie-settings><i class="fa-solid fa-sliders" aria-hidden="true"></i> <%= t.getProperty("cookie.settingsLink") %></button></p>
     </section>

@@ -104,6 +104,9 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* body tvoří vlastní vrstvu: fotka pozadí (body::before, .bg-slides se z-index -1) se pak kreslí NAD barvou
+     body. Bez toho ji ve Firefoxu (nebo s doplňky typu Dark Reader, které dají pozadí i <html>) barva body zakryla. */
+  isolation: isolate;
 }
 
 /* The photo lives on its own viewport-sized layer, so it always covers the

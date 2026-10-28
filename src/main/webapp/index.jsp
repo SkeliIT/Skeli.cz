@@ -126,26 +126,22 @@
 
     <aside class="home-aside">
       <div class="card side-card">
-        <h3><i class="fa-solid fa-microphone-lines"></i> <%= t.getProperty("home.concerts","Koncerty") %></h3>
-        <p class="text-dim"><%= t.getProperty("home.concerts.none","Zatím nejsou naplánovány žádné koncerty.") %></p>
-      </div>
-
-      <div class="card side-card">
         <h3><i class="fa-solid fa-bullhorn"></i> <%= t.getProperty("home.social") %></h3>
         <div id="home-social" class="home-social-grid"></div>
         <a class="side-link" href="/aktuality.jsp"><%= t.getProperty("home.allNews") %></a>
       </div>
 
-<%@ include file="/includes/feedback-card.jspf" %>
-
       <%-- hra CatSmash: jedna karta, ať o ní lidi vědí (dřív jen přes Kevinovo menu) --%>
       <div class="card side-card game-card">
-        <img class="game-card-kevin" src="/img/kevin.webp" alt="" width="86" height="100" loading="lazy">
+        <a class="game-card-shot" href="/?kevin=pong" data-play-game tabindex="-1" aria-hidden="true"><img src="/img/catsmash-nahled.jpg" alt="" width="200" height="389" loading="lazy"></a>
         <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
         <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
         <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
+        <a class="side-link game-card-board" href="/?kevin=pong&amp;view=top" data-play-game="top"><i class="fa-solid fa-trophy" aria-hidden="true"></i> <%= t.getProperty("home.game.board") %></a>
         <p class="game-credit"><%= t.getProperty("home.game.credit") %></p>
       </div>
+
+<%@ include file="/includes/feedback-card.jspf" %>
 
       <div class="card side-card newsletter card-gold">
         <div class="nl-photo" aria-hidden="true"><img src="/img/photos/point-sm.webp" alt="" loading="lazy" width="640" height="480"></div>
@@ -157,6 +153,12 @@
           <div class="hp-field" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
           <button type="submit"><%= t.getProperty("home.newsletter.submit","Odebírat") %></button>
         </form>
+      </div>
+
+      <%-- koncerty až úplně dole, dokud žádné nejsou --%>
+      <div class="card side-card">
+        <h3><i class="fa-solid fa-microphone-lines"></i> <%= t.getProperty("home.concerts","Koncerty") %></h3>
+        <p class="text-dim"><%= t.getProperty("home.concerts.none","Zatím nejsou naplánovány žádné koncerty.") %></p>
       </div>
     </aside>
   </section>

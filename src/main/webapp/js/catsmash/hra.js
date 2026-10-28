@@ -31,6 +31,7 @@
 
   function open(opts) {
     opts = opts || {};
+    if (window.KevinPong && window.KevinPong.isOpen) return;   // už běží: druhé otevření by vyrobilo druhý automat
     var lang = document.documentElement.lang || 'cs';
     var KL = (window.KEVIN_LINES || {})[lang] || (window.KEVIN_LINES || {}).en || {};
     var T = KL.pong || ((window.KEVIN_LINES || {}).en || {}).pong;
@@ -1459,7 +1460,12 @@
       if (kind === 'perfect') { combo++; if (combo >= 3) { kind = 'super'; mult = SHOT_SUPER; combo = 0; ball.fire = true; } }
       else combo = 0;
       if (kind === 'perfect' || kind === 'super') mt.perfect++;
-      if (kind === 'super') mt.superHit = true;
+      if (kind === 'super') {
+        mt.superHit = true;
+        if (K && !mosq.active) { K.once(K.has('stomp') && Math.random() < 0.5 ? 'stomp' : K.has('no') ? 'no' : 'shrug'); K.expression(23, 1200); }
+        root.classList.remove('gold-flash'); void root.offsetWidth; root.classList.add('gold-flash');
+        setTimeout(function () { root.classList.remove('gold-flash'); }, 900);
+      }
       player.boosted = true;
       ball.speed *= mult; ball.vx *= mult; ball.vy *= mult;
       aimError();
@@ -1760,6 +1766,7 @@
       comic('l', 'burst good', (T.power || {})[k] || k, 1500);
       sfx.shot(0); vibe(30);
       if (level >= 2) store.set('kevinPongScrews', String(+(store.get('kevinPongScrews') || 0) + 1));
+      mt.screws++;
       quip('sroubek', 0.7);
     }
     // Kevin hodí klubíčko vlny, ale konec nitky drží na své pálce: klubíčko vyletí, nitka se napne a klubíčko
@@ -1893,7 +1900,7 @@
       if (byPlayer) { streakP++; streakK = 0; } else { streakK++; streakP = 0; }
       maxDown = Math.max(maxDown, kev - you);
       var diff = kev - you;
-      if (you === 9 && kev === 9) quip('9_9', 1, null, 0, true);
+      if (you === 9 && kev === 9) { quip('9_9', 1, null, 0, true); root.classList.add('final'); }
       else if (kev === 9 && !byPlayer) quip('mecbol_kevin', 1, null, 0, true);
       else if (you === 9 && byPlayer) quip('mecbol_hrac', 1, null, 0, true);
       else if (byPlayer && maxDown >= 3 && you >= kev && !comebackSaid) { comebackSaid = true; quip('obrat', 1, null, 0, true); }
@@ -1947,7 +1954,7 @@
       mechEls.forEach(function (c) {
         var m = MECH[c.dataset.win], want = running && !paused ? mechWant[c.dataset.win] : 0;
         if (Math.abs(want) > 1) m.dir = want > 0 ? 1 : -1;
-        var target = Math.abs(want) + 9;                     // 9 px/s = klidné tikání
+        var target = Math.abs(want) + 9 + (running && rally >= 8 ? Math.min(rally, 30) * 5 : 0);   // 9 px/s = klidné tikání, dlouhá výměna kola roztočí
         m.v += (target - m.v) * Math.min(1, dt * 5);
         var step = m.v * dt * m.dir;
         if (Math.abs(want) > 20) { m.acc = (m.acc || 0) + Math.abs(step); if (m.acc > 28) { m.acc = 0; sfx.click(); } }
@@ -2024,6 +2031,10 @@
     }
     function finish(playerWon) {
       releaseMouse();
+      if (root.classList.contains('final')) {
+        root.classList.remove('final');
+        if (playerWon) { root.classList.add('celebrate'); setTimeout(function () { root.classList.remove('celebrate'); }, 2400); }
+      }
       running = false;
       var ms = Math.round(performance.now() - started - pausedMs);
       if (K) { K.hold(null); if (playerWon) { K.once(K.has('defeat') ? 'defeat' : 'shrug'); K.expression(23, 3000); } else { K.hold(K.has('dance2') ? 'dance2' : 'cheer'); K.expression(2, 3000); } }
@@ -2034,6 +2045,9 @@
       var bestKey = 'kevinPongBest' + level, best = +(store.get(bestKey) || 0);
       if (playerWon && (!best || ms < best)) store.set(bestKey, String(ms));
       var fresh = earnBadges(playerWon, ms);
+      var screwBest = +(store.get('kevinPongScrewBest') || 0), screwRec = mt.screws > screwBest;
+      if (screwRec) store.set('kevinPongScrewBest', String(mt.screws));
+      lastScrews = { n: mt.screws, best: Math.max(screwBest, mt.screws), rec: screwRec && screwBest > 0 };
       var newBest = playerWon && best && ms < best;               // nepřihlášený: rekord v prohlížeči
       var send = playerWon && signedIn ? post('/api/pong/win', { d: level, ms: ms, kevin: kev }) : Promise.resolve(null);
       send.then(function (res) {
@@ -2082,6 +2096,29 @@
       return fresh;
     }
 
+    var lastScrews = null;
+    // počítadla v prohlížeči → odznak, který za ně přijde (jen Normální a nejtěžší, viz earnBadges)
+    var PROGRESS = [['kevinPongWins', 'wins', [['streak', 10], ['wins50', 50], ['wins100', 100]]],
+      ['kevinPongHardWins', 'hardWins', [['hwins5', 5]]], ['kevinPongScrews', 'screws', [['tinker', 10]]], ['kevinPongDays', 'days', [['loyal', 7]]]];
+    function nextBadge() {
+      var best = null;
+      PROGRESS.forEach(function (p) {
+        var have = +(store.get(p[0]) || 0);
+        var goal = p[2].filter(function (g) { return !badges[g[0]]; })[0];
+        if (!goal || have >= goal[1]) return;
+        var part = have / goal[1];
+        if (!best || part > best.part) best = { key: goal[0], unit: p[1], have: have, need: goal[1], part: part };
+      });
+      return best;
+    }
+    function progressHtml() {
+      var n = nextBadge();
+      if (!n || !T.progress) return '';
+      return '<p class="kp-next"><span>' + esc(T.progress.replace('{badge}', (T.badgeNames || {})[n.key] || n.key)) + ' · ' + esc((T.progressUnits || {})[n.unit] || '') + '</span>' +
+        '<b>' + n.have + ' / ' + n.need + '</b><i aria-hidden="true" style="--p:' + Math.round(n.part * 100) + '%"></i>' +
+        ((T.rewards || {})[n.key] ? '<small><i class="fa-solid fa-gift" aria-hidden="true"></i> ' + esc(T.rewardLabel || '') + ': ' + esc(T.rewards[n.key]) + '</small>' : '') + '</p>';
+    }
+
     // ---------- obrazovky (start, konec) a tabulka ----------
     function startScreen() {
       panel.hidden = false;
@@ -2106,7 +2143,7 @@
         }).join('') + '</div>' +
         '<p class="kp-desc">' + esc(T.levelHints[level - 1]) + '</p>' +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.play) + '</button>' +
-        '<p class="kp-rec" hidden></p>' +
+        '<p class="kp-rec" hidden></p>' + progressHtml() +
         '<p class="kp-links"><button type="button" class="kp-link" data-go="how">' + esc(T.how || T.controlsTitle || '') + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="badges">' + esc(T.badgesTitle || '') + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p>' +
@@ -2117,7 +2154,7 @@
         tipLine + '</div>' +
         '<div class="kp-view kp-how"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + tipList + (T.credit ? '<p class="kp-credit">' + esc(T.credit) + '</p>' : '') + backBtn() + '</div>' +
         '<div class="kp-view kp-badges">' + badgeOverview() + backBtn() + '</div>' +
-        '<div class="kp-view kp-top"><section class="kpong-board"></section>' + backBtn() + '</div>';
+        topView();
       panel.querySelectorAll('.kpong-level').forEach(function (b) {
         b.addEventListener('click', function () {
           level = +b.dataset.d; L = LEVELS[level]; store.set('kevinPongLevel', String(level));
@@ -2125,6 +2162,7 @@
           panel.querySelector('.kp-seg').style.setProperty('--i', level - 1);
           panel.querySelector('.kp-desc').textContent = T.levelHints[level - 1];
           board(level);
+          panel.querySelectorAll('[data-board]').forEach(function (x) { x.setAttribute('aria-pressed', String(+x.dataset.board === level)); });
         });
       });
       panel.querySelector('.kpong-play').addEventListener('click', begin);
@@ -2164,8 +2202,22 @@
       });
       return html + '</div>';
     }
+    // pohled Tabulka: přepínač obtížností + tabulka (board) + zpět
+    function topView() {
+      var short = T.levelsShort || T.levels;
+      return '<div class="kp-view kp-top"><div class="kp-boardtabs" role="group" aria-label="' + esc(T.level) + '">' + [1, 2, 3].map(function (d) {
+        return '<button type="button" data-board="' + d + '" aria-pressed="' + (d === level) + '">' + esc(short[d - 1]) + '</button>';
+      }).join('') + '</div><section class="kpong-board"></section>' + backBtn() + '</div>';
+    }
     function backBtn() { return '<button type="button" class="kp-link kp-backto" data-go="main"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> ' + esc(T.back || '') + '</button>'; }
     // odkazy v menu přepínají pohled: hlavní · jak se hraje · tabulka
+    panel.addEventListener('click', function (e) {
+      var bt = e.target.closest('[data-board]');
+      if (bt) {
+        panel.querySelectorAll('[data-board]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === bt)); });
+        board(+bt.dataset.board);
+      }
+    });
     panel.addEventListener('click', function (e) {
       var g = e.target.closest('[data-go]');
       if (!g) return;
@@ -2207,18 +2259,23 @@
       panel.dataset.view = 'main';
       panel.innerHTML = '<div class="kp-view kp-main"><h2 class="kpong-title">' + esc(won ? T.winTitle : T.loseTitle) + '</h2>' +
         '<p class="kpong-final">' + you + ' : ' + kev + '</p><p class="kpong-lead">' + esc(line) + '</p>' +
-        (fresh && fresh.length ? '<div class="kp-newbadges"><p class="kp-label">' + esc(T.newBadge || '') + '</p><ul>' + fresh.map(function (k) {
+        (fresh && fresh.length ? '<div class="kp-newbadges"><p class="kp-label">' + esc(T.newBadge || '') + '</p><ul>' + fresh.slice(0, 3).map(function (k) {
           var rw = (T.rewards || {})[k];
-          return '<li><span class="kp-nb-icon' + ({ streak: ' bronze', wins50: ' silver' }[k] || '') + '"><i class="fa-solid ' + BADGE_ICON[k] + '" aria-hidden="true"></i></span>' +
+          return '<li' + rar(k) + '><span class="kp-nb-icon' + ({ streak: ' bronze', wins50: ' silver' }[k] || '') + '"><i class="fa-solid ' + BADGE_ICON[k] + '" aria-hidden="true"></i></span>' +
             '<span><b>' + esc((T.badgeNames || {})[k] || k) + '</b>' + (rw ? '<small><i class="fa-solid fa-gift" aria-hidden="true"></i> ' + esc(T.rewardLabel || '') + ': ' + esc(rw) + '</small>' : '') + '</span></li>';
-        }).join('') + '</ul>' + (signedIn ? '<a class="kp-link" href="/uzivatel.jsp#pong">' + esc(T.seeProfile || '') + '</a>' : '') + '</div>' : '') +
+        }).join('') + '</ul>' + (fresh.length > 3 && T.moreBadges ? '<p class="kp-more">' + esc(T.moreBadges.replace('{n}', fresh.length - 3)) + '</p>' : '') +
+          (signedIn ? '<a class="kp-link" href="/uzivatel.jsp#pong">' + esc(T.seeProfile || '') + '</a>' : '') + '</div>' : '') +
+        (lastScrews && lastScrews.n && T.screwsLine ? '<p class="kp-rec"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> ' +
+          esc((lastScrews.rec ? T.screwsRecord : T.screwsLine).replace('{n}', lastScrews.n).replace('{best}', lastScrews.best)) + '</p>' : '') +
+        progressHtml() +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> ' + esc(T.again) + '</button>' +
         '<p class="kp-links"><button type="button" class="kp-link kpong-back">' + esc(T.changeLevel) + '</button><span aria-hidden="true">·</span>' +
         '<button type="button" class="kp-link" data-go="top">' + esc(T.board) + '</button></p></div>' +
-        '<div class="kp-view kp-top"><section class="kpong-board"></section>' + backBtn() + '</div>';
+        topView();
       panel.querySelector('.kpong-play').addEventListener('click', begin);
       panel.querySelector('.kpong-back').addEventListener('click', startScreen);
       board(level);
+      if (fresh && fresh.length) { root.classList.add('badge-moment'); setTimeout(function () { root.classList.remove('badge-moment'); }, 2600); }
       if (fresh && fresh.length && (T.badgeLines || {})[fresh[0]]) setTimeout(function () { say(T.badgeLines[fresh[0]], 5200); }, 900);
       else if (won && level === 1 && T.noBadges) setTimeout(function () { say(T.noBadges, 4200); }, 900);
     }
@@ -2232,10 +2289,10 @@
       started = performance.now(); mosq.done = false;
       screw = null; nextScrewAt = performance.now() + rnd(15000, 25000); power = { kind: null, until: 0 }; player.w = PAD_W;
       yarn = null; yarnUsed = false; mood = 'calm';
-      mt = { perfect: 0, superHit: false, overheats: 0, maxRally: 0, yarn: false };
+      mt = { perfect: 0, superHit: false, overheats: 0, maxRally: 0, yarn: false, screws: 0 };
       var today = new Date().toISOString().slice(0, 10);              // Věrný parťák: počet různých dní se hrou
       if (level >= 2 && store.get('kevinPongDay') !== today) { store.set('kevinPongDay', today); store.set('kevinPongDays', String(+(store.get('kevinPongDays') || 0) + 1)); }
-      heat = 0; hotUntil = 0; isHot = false; root.classList.remove('hot'); frame.style.setProperty('--heat', 0); heatShown = 0;
+      heat = 0; hotUntil = 0; isHot = false; root.classList.remove('hot', 'final', 'celebrate'); frame.style.setProperty('--heat', 0); heatShown = 0;
       running = true; awaitStart = 'start';            // první hopík vyletí, až hráč ťukne / klikne / zmáčkne mezerník
       resetBall(Math.random() < 0.5);
       streakP = streakK = maxDown = 0; comebackSaid = false; lastMoveAt = performance.now(); idleSaid = false;
@@ -2976,7 +3033,11 @@
     panel.hidden = false; panel.dataset.view = 'main';
     panel.innerHTML = '<div class="kp-view kp-main kp-loading"><h2 class="kpong-title">' + esc(T.title) + '</h2><div class="kp-load"><span></span></div>' +
       '<p class="kp-bdg-rule">' + esc(T.loading || '') + '</p></div>';
-    preload().then(function () { if (window.KevinPong.isOpen && panel.querySelector('.kp-loading')) startScreen(); });
+    preload().then(function () {
+      if (!window.KevinPong.isOpen || !panel.querySelector('.kp-loading')) return;
+      startScreen();
+      if (opts.view === 'top') panel.dataset.view = 'top';     // odkaz „Tabulka rekordů“ z úvodu
+    });
     root.querySelector('.kpong-close').focus();
   }
 

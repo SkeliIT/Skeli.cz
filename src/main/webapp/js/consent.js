@@ -1,6 +1,6 @@
 // Cookie consent with categories (no dark patterns: "Accept all" and "Reject all" look the same).
 //   necessary  – sign-in cookie, settings in the browser: always on, never asked
-//   analytics  – Matomo on the operator's server: loaded ONLY after consent (no request before)
+//   (měření návštěvnosti přes Matomo bylo odstraněno – stačí logy serveru a vlastní počítadlo bez cookies)
 //   media      – YouTube / Spotify players (they see the IP address)
 // Stored in localStorage 'consent' = {"v":1,"analytics":bool,"media":bool,"at":"…"}.
 // 'cookieConsent' ('true'/'false' = media) stays for the older code (players, Spotify bar, Kevin).
@@ -10,7 +10,6 @@
   const bar = document.getElementById('cookieBar');
   if (!bar) return;
   const prefs = bar.querySelector('.cookie-prefs');
-  const boxAnalytics = document.getElementById('consentAnalytics');
   const boxMedia = document.getElementById('consentMedia');
 
   function read() {
@@ -37,45 +36,17 @@
   }
 
   function apply(c, before) {
-    if (c.analytics) loadMatomo();
-    else if (before && before.analytics && window._paq) window._paq.push(['forgetConsentGiven']);
     if (c.media && !(before && before.media)) document.dispatchEvent(new Event('consent-granted'));
   }
-
-  // ---------- Matomo (only after consent) ----------
-  let matomoLoaded = false;
-  function loadMatomo() {
-    if (matomoLoaded) return;
-    matomoLoaded = true;
-    const _paq = window._paq = window._paq || [];
-    const u = 'https://matomo.vitexsoftware.com/';
-    _paq.push(['requireConsent']);
-    _paq.push(['setConsentGiven']);
-    _paq.push(['setTrackerUrl', u + 'matomo.php']);
-    _paq.push(['setSiteId', '18']);
-    _paq.push(['trackPageView']);
-    _paq.push(['enableLinkTracking']);
-    const g = document.createElement('script');
-    g.async = true;
-    g.src = u + 'matomo.js';
-    document.head.appendChild(g);
-  }
-  document.addEventListener('pjax:done', function (e) {
-    if (!matomoLoaded) return;
-    window._paq.push(['setCustomUrl', e.detail && e.detail.url ? e.detail.url : location.href]);
-    window._paq.push(['setDocumentTitle', document.title]);
-    window._paq.push(['trackPageView']);
-  });
 
   // ---------- the bar ----------
   function show(withPrefs) {
     const c = read();
-    boxAnalytics.checked = !!(c && c.analytics);
     boxMedia.checked = !!(c && c.media);
     prefs.hidden = !withPrefs;
     bar.querySelector('[data-consent=settings]').setAttribute('aria-expanded', String(!!withPrefs));
     bar.style.display = 'block';
-    if (withPrefs) boxAnalytics.focus();
+    if (withPrefs) boxMedia.focus();
   }
   function hide() { bar.style.display = 'none'; }
 
@@ -85,11 +56,11 @@
     const what = b.dataset.consent;
     if (what === 'all') save(true, true);
     else if (what === 'none') save(false, false);
-    else if (what === 'save') save(boxAnalytics.checked, boxMedia.checked);
+    else if (what === 'save') save(false, boxMedia.checked);
     else if (what === 'settings') {
       prefs.hidden = !prefs.hidden;
       b.setAttribute('aria-expanded', String(!prefs.hidden));
-      if (!prefs.hidden) boxAnalytics.focus();
+      if (!prefs.hidden) boxMedia.focus();
     }
   });
   document.addEventListener('click', function (e) {
