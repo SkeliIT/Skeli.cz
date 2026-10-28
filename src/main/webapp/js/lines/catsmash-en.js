@@ -398,5 +398,12 @@ window.KEVIN_LINES.en.pong = {
       "pc"
     ]
   ],
-  "credit": "Game designed and built by Skeli."
+  "credit": "Game designed and built by Skeli.",
+  "guest": "With an account I keep your results and you unlock gear, badges and profile frames.",
+  "guestRegister": "Sign up",
+  "guestLogin": "Sign in",
+  "guestSay": [
+    "Playing without an account? Shame. With one I remember your wins, badges and everything you unlock.",
+    "Get an account. Then I'll record your best times and put you on the leaderboard. If you beat me, that is."
+  ]
 };

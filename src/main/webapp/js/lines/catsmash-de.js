@@ -398,5 +398,12 @@ window.KEVIN_LINES.de.pong = {
       "pc"
     ]
   ],
-  "credit": "Spiel ausgedacht und gebaut von Skeli."
+  "credit": "Spiel ausgedacht und gebaut von Skeli.",
+  "guest": "Mit Konto speichere ich deine Ergebnisse und du schaltest Ausrüstung, Abzeichen und Profilrahmen frei.",
+  "guestRegister": "Registrieren",
+  "guestLogin": "Anmelden",
+  "guestSay": [
+    "Ohne Konto? Schade. Mit Konto merke ich mir deine Siege, Abzeichen und alles, was du freischaltest.",
+    "Leg dir ein Konto an. Dann trage ich deine Rekorde ein und zeige dich in der Tabelle. Wenn du mich schlägst."
+  ]
 };

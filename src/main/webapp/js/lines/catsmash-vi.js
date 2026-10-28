@@ -398,5 +398,12 @@ window.KEVIN_LINES.vi.pong = {
       "pc"
     ]
   ],
-  "credit": "Trò chơi do Skeli nghĩ ra và làm."
+  "credit": "Trò chơi do Skeli nghĩ ra và làm.",
+  "guest": "Có tài khoản, tôi lưu kết quả và bạn mở khóa đồ, huy hiệu và khung hồ sơ.",
+  "guestRegister": "Đăng ký",
+  "guestLogin": "Đăng nhập",
+  "guestSay": [
+    "Chơi không có tài khoản à? Tiếc ghê. Có tài khoản thì tôi nhớ chiến thắng, huy hiệu và mọi thứ bạn mở khóa.",
+    "Tạo tài khoản đi. Rồi tôi ghi kỷ lục và đưa bạn lên bảng xếp hạng. Nếu bạn thắng được tôi."
+  ]
 };
