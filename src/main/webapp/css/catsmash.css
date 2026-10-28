@@ -648,3 +648,32 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-next b { font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
 .kp-next i { grid-column: 1 / -1; height: 5px; border-radius: 99px; background: linear-gradient(90deg, var(--accent) var(--p), rgba(255, 255, 255, .14) var(--p)); }
 .kp-more { margin: 0; font-family: var(--font-text); font-size: var(--fs-small); color: #e8dcc5; }
+.kp-next small { grid-column: 1 / -1; color: var(--accent); }
+
+/* ---------- stroj reaguje na zápas ---------- */
+/* SUPER rána: okénka s koly zlatě bliknou */
+.kpong.gold-flash .kpong-mech { animation: kp-gold-flash .9s ease-out; }
+@keyframes kp-gold-flash { 15% { filter: sepia(1) saturate(2.6) brightness(1.7) drop-shadow(0 0 8px rgba(255, 196, 46, .9)); } }
+/* finále při 9:9: stroj pulzuje zlatou září, okolí ztmavne */
+.kpong.final .kpong-frame { animation: kp-final 1.1s ease-in-out infinite; }
+@keyframes kp-final { 50% { filter: drop-shadow(0 0 calc(26px * var(--u)) rgba(255, 176, 46, .75)) brightness(1.08); } }
+.kpong::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, .7)); opacity: 0; transition: opacity 1.2s ease; }
+.kpong.final::after { opacity: 1; }
+/* po vítězném gólu ve finále: krátká zlatá oslava */
+.kpong.celebrate .kpong-frame { animation: kp-celebrate 1.2s ease-out 2; }
+@keyframes kp-celebrate { 20% { filter: drop-shadow(0 0 calc(40px * var(--u)) rgba(255, 210, 63, .95)) brightness(1.2); } }
+/* nový odznak: hřiště na chvíli ztmavne a emblém přiletí s otočkou; vzácné odznaky se třpytí déle */
+.kpong.badge-moment::after { opacity: .85; }
+.kp-newbadges li .kp-nb-icon { animation: kp-emblem .8s cubic-bezier(.2, 1.3, .4, 1) both; }
+.kp-newbadges li:nth-child(2) .kp-nb-icon { animation-delay: .15s; }
+.kp-newbadges li:nth-child(3) .kp-nb-icon { animation-delay: .3s; }
+@keyframes kp-emblem { from { transform: scale(2.6) rotate(-200deg); opacity: 0; } 60% { box-shadow: 0 0 22px rgba(255, 210, 63, .95); } }
+.kp-newbadges li:is([data-rar="r"], [data-rar="e"], [data-rar="l"]) .kp-nb-icon { animation: kp-emblem .8s cubic-bezier(.2, 1.3, .4, 1) both, kp-rare-glow 1.6s ease-in-out .8s 3; }
+@keyframes kp-rare-glow { 50% { box-shadow: 0 0 0 3px rgba(255, 210, 63, .35), 0 0 26px rgba(255, 210, 63, .9); } }
+@media (prefers-reduced-motion: reduce) {
+  .kpong.gold-flash .kpong-mech, .kpong.final .kpong-frame, .kpong.celebrate .kpong-frame, .kp-newbadges li .kp-nb-icon { animation: none !important; }
+}
+/* tabulka: přepínač obtížností */
+.kp-boardtabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.kp-boardtabs button { font: inherit; font-size: var(--fs-small); color: #e8dcc5; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 210, 63, .35); border-radius: 99px; padding: 6px 12px; min-height: 32px; cursor: pointer; }
+.kp-boardtabs button[aria-pressed="true"] { background: var(--accent); color: #1a1405; border-color: var(--accent); }

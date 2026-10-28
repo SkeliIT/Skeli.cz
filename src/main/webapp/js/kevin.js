@@ -459,16 +459,17 @@
     e.preventDefault();
     var nav = document.querySelector('.main-nav.open'), tog = document.getElementById('menuToggle');
     if (nav && tog) tog.click();                       // zavřít mobilní menu
-    pong();
+    pong(a.getAttribute('data-play-game'));          // data-play-game="top" = rovnou tabulka rekordů
   });
 
   // CatSmash: hra přes celou obrazovku (složka js/catsmash/ se načte až teď); Kevin v rohu se zatím schová
-  function pong() {
+  function pong(view) {
     hideBubble('idle');
+    var opts = { version: version, view: view === 'top' ? 'top' : null };
     var go = function () {
       var css = document.querySelector('link[data-catsmash]');
-      if (!css || css.sheet) return window.KevinPong.open({ version: version });
-      var once = function () { css.removeEventListener('load', once); css.removeEventListener('error', once); window.KevinPong.open({ version: version }); };
+      if (!css || css.sheet) return window.KevinPong.open(opts);
+      var once = function () { css.removeEventListener('load', once); css.removeEventListener('error', once); window.KevinPong.open(opts); };
       css.addEventListener('load', once); css.addEventListener('error', once);
     };
     if (window.KevinPong) return go();
@@ -1010,7 +1011,7 @@
     if (!adminPage) { scheduleTip(); loadWalk(function () { W.schedule(); }); }
     // ukázka kousku hned: adresa ?kevin=drop | sit | run | walk | all (všechno najednou; dokola na /kevin-ukazka.jsp) (na zkoušku, jinak chodí sám jednou za čas)
     var show = new URLSearchParams(location.search).get('kevin');
-    if (show === 'pong') setTimeout(pong, 1200);   // ?kevin=pong = rovnou hra (odkaz z menu, testy)
+    if (show === 'pong') setTimeout(function () { pong(new URLSearchParams(location.search).get('view')); }, 1200);   // ?kevin=pong = rovnou hra (odkaz z menu, testy)
     if (/^(drop|sit|run|walk|climb|all)$/.test(show || '')) setTimeout(function () { window.dispatchEvent(new CustomEvent('kevin', { detail: { walk: show } })); }, 2500);
   }
 
