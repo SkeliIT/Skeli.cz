@@ -2214,9 +2214,11 @@
           var rw = (T.rewards || {})[k];
           html += '<details class="kp-bdg' + (on ? ' on' : '') + (gi === 2 ? ' hard' : '') + '"' + rar(k) + '><summary>' +
             '<span class="kp-bdg-icon' + tier + '"><i class="fa-solid ' + (on ? BADGE_ICON[k] : 'fa-lock') + '" aria-hidden="true"></i></span>' +
-            '<b>' + esc((T.badgeNames || {})[k] || k) + '</b><span class="kp-bdg-gifts" aria-hidden="true">' + gifts + '</span></summary>' +
+            '<span class="kp-bdg-name"><b>' + esc((T.badgeNames || {})[k] || k) + '</b>' +
+            (rw ? '<small class="kp-bdg-rw"><i class="fa-solid fa-gift" aria-hidden="true"></i> ' + esc(rw) + '</small>' : '') + '</span>' +
+            '<span class="kp-bdg-gifts" aria-hidden="true">' + gifts + '</span></summary>' +
             '<p>' + esc((T.badgeHow || {})[k] || '') + '</p>' +
-            '<p class="kp-bdg-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i> ' + esc(rw || T.badgeNoReward || '') + '</p></details>';
+            (rw ? '' : '<p class="kp-bdg-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i> ' + esc(T.badgeNoReward || '') + '</p>') + '</details>';
         });
       });
       return html + '</div>';
