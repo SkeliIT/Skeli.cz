@@ -305,6 +305,7 @@ window.KEVIN_LINES.vi.pong = {
   "loginToRank": "Đăng nhập để có tên trên bảng xếp hạng.",
   "login": "Đăng nhập",
   "localBest": "thời gian tốt nhất của bạn ở đây: {time}",
+  "tileSub": {"how":"Luật chơi và điều khiển","badges":"Sưu tầm và khoe tài","top":"Xem bạn đứng thứ mấy"},
   "progress": "Huy hiệu tiếp theo “{badge}”",
   "progressUnits": {"wins":"trận thắng","hardWins":"trận thắng ở mức khó nhất","screws":"con ốc","days":"ngày chơi"},
   "moreBadges": "…và còn {n} huy hiệu nữa – xem trong mục Huy hiệu.",

@@ -305,6 +305,7 @@ window.KEVIN_LINES.cs.pong = {
   "loginToRank": "Do tabulky se zapíšeš po přihlášení.",
   "login": "Přihlásit",
   "localBest": "tvůj nejlepší čas tady: {time}",
+  "tileSub": {"how":"Pravidla a ovládání","badges":"Sbírej a ukaž, co umíš","top":"Jak si stojíš mezi ostatními"},
   "progress": "Další odznak „{badge}“",
   "progressUnits": {"wins":"výhry","hardWins":"výhry na nejtěžší","screws":"šroubky","days":"dny se hrou"},
   "moreBadges": "…a ještě {n} další – najdeš je v Odznacích.",

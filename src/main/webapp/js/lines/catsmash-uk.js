@@ -305,6 +305,7 @@ window.KEVIN_LINES.uk.pong = {
   "loginToRank": "Увійди, щоб потрапити в таблицю.",
   "login": "Увійти",
   "localBest": "твій найкращий час тут: {time}",
+  "tileSub": {"how":"Правила й керування","badges":"Збирай і покажи, що вмієш","top":"Де ти серед інших"},
   "progress": "Наступний значок «{badge}»",
   "progressUnits": {"wins":"перемоги","hardWins":"перемоги на найважчому","screws":"гвинтики","days":"дні гри"},
   "moreBadges": "…і ще {n} – знайдеш їх у Значках.",

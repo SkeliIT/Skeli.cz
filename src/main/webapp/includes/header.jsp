@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.43.2";
+  String assetVersion = "6.44.1";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">

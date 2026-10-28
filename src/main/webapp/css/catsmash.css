@@ -715,3 +715,38 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong-skin[data-pad="kola"] { --glow-max: .3; --glow-time: 4s; }
 .kpong-skin[data-pad="ekvalizer"] { --glow: calc(var(--eq, 0) * 1.1); }
 @media (prefers-reduced-motion: reduce) { .kpong-skin, .kpong-skin::before { animation: none !important; } }
+
+/* ---------- nové menu (návrh z Gemini) ---------- */
+/* logo: obrázek místo nápisu */
+.kpong-panel .kpong-title.kp-logo { margin: 6px 0 0; padding: 0; background: none; color: inherit; filter: none; line-height: 0; }
+.kp-logo img { display: block; width: min(100%, 360px); height: auto; margin: 0 auto; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .7)); }
+/* obtížnost: hvězdičky nad názvem */
+.kp-stars { display: block; font-size: .8em; line-height: 1; letter-spacing: .1em; color: var(--accent); margin-bottom: 2px; }
+.kpong-level[aria-checked="true"] .kp-stars { color: #1a1405; }
+/* HRÁT: přišroubované – dva nýty po stranách */
+.kpong-panel .kpong-play { position: relative; }
+.kpong-panel .kpong-play::before, .kpong-panel .kpong-play::after {
+  content: ""; position: absolute; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff3c4, #8f6600 70%); box-shadow: 0 1px 1px rgba(0, 0, 0, .5);
+}
+.kpong-panel .kpong-play::before { left: 16px; }
+.kpong-panel .kpong-play::after { right: 16px; }
+/* tři dlaždice s medailony */
+.kp-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin-top: 4px; }
+.kp-tile {
+  display: grid; justify-items: center; align-content: start; gap: 3px; min-width: 0; padding: 8px 4px 10px; cursor: pointer;
+  border-radius: 14px; border: 1px solid rgba(230, 183, 48, .35); background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .25));
+  color: #f3ead6; font: inherit; text-align: center; transition: border-color .2s, transform .2s;
+}
+.kp-tile:hover, .kp-tile:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
+.kp-tile img { width: min(56px, 70%); height: auto; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .6)); }
+.kp-tile b { font-size: var(--fs-small); line-height: 1.2; color: #fff; }
+.kp-tile small { font-family: var(--font-text); font-size: var(--fs-small); line-height: 1.2; color: #cbbfa8; }
+@media (prefers-reduced-motion: reduce) { .kp-tile { transition: none; } .kp-tile:hover { transform: none; } }
+/* skóre: fotka hráče a Kevinova hlava */
+.kpong-face { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); box-shadow: 0 2px 8px rgba(0, 0, 0, .6); }
+.kpong-face.kev { border: 0; }
+@media (max-width: 420px) { .kpong-face { width: 28px; height: 28px; } }
+/* menu se musí vejít do skla: menší logo, popis hry malým písmem až pod dlaždicemi */
+.kp-logo img { width: min(100%, 270px); }
+.kpong-panel .kp-main .kpong-lead.kp-rules { font-size: var(--fs-small); color: #bfb39c; margin: 2px 0 0; }

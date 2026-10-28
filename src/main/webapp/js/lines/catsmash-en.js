@@ -305,6 +305,7 @@ window.KEVIN_LINES.en.pong = {
   "loginToRank": "Sign in to get on the leaderboard.",
   "login": "Sign in",
   "localBest": "your best time here: {time}",
+  "tileSub": {"how":"Rules and controls","badges":"Collect them, show your skills","top":"See where you stand"},
   "progress": "Next badge “{badge}”",
   "progressUnits": {"wins":"wins","hardWins":"wins on the hardest","screws":"screws","days":"days played"},
   "moreBadges": "…and {n} more – find them under Badges.",
