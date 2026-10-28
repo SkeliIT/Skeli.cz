@@ -72,11 +72,6 @@
         <i class="fab fa-spotify" aria-hidden="true"></i> <%= t.getProperty("home.cta.listen") %>
       </a>
     </div>
-    <div class="social-row hero-social">
-      <a class="social-btn fb" href="https://www.facebook.com/mcskeli/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a class="social-btn ig" href="https://www.instagram.com/skeli.official/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-      <a class="social-btn yt" href="https://www.youtube.com/@Skeli" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-    </div>
   </section>
 
   <% if (!tapeSongs.isEmpty()) { %>
