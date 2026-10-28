@@ -452,6 +452,16 @@
     show(L.menu.hint, { pose: 'point', extra: box, ms: 9000 });
   }
 
+  // odkazy na hru odjinud (mobilní menu, karta na úvodu, patička): otevřou hru hned tady
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('[data-play-game]');
+    if (!a || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    e.preventDefault();
+    var nav = document.querySelector('.main-nav.open'), tog = document.getElementById('menuToggle');
+    if (nav && tog) tog.click();                       // zavřít mobilní menu
+    pong();
+  });
+
   // CatSmash: hra přes celou obrazovku (složka js/catsmash/ se načte až teď); Kevin v rohu se zatím schová
   function pong() {
     hideBubble('idle');

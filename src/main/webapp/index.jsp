@@ -147,6 +147,13 @@
 
 <%@ include file="/includes/feedback-card.jspf" %>
 
+      <%-- hra CatSmash: jedna karta, ať o ní lidi vědí (dřív jen přes Kevinovo menu) --%>
+      <div class="card side-card game-card">
+        <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
+        <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
+        <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
+      </div>
+
       <div class="card side-card newsletter card-gold">
         <div class="nl-photo" aria-hidden="true"><img src="/img/photos/point-sm.webp" alt="" loading="lazy" width="640" height="480"></div>
         <p class="nl-lead"><%= t.getProperty("home.newsletter.lead") %></p>

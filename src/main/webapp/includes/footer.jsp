@@ -13,6 +13,7 @@
         <a href="<%= request.getContextPath() %>/music.jsp"><%= t.getProperty("menu.music") %></a>
         <a href="<%= request.getContextPath() %>/texty.jsp"><%= t.getProperty("menu.lyrics") %></a>
         <a href="<%= request.getContextPath() %>/karaoke-kino"><%= t.getProperty("menu.karaoke") %></a>
+        <a href="<%= request.getContextPath() %>/?kevin=pong" data-play-game><%= t.getProperty("footer.game") %></a>
         <a href="<%= request.getContextPath() %>/about.jsp"><%= t.getProperty("menu.about") %></a>
         <a href="<%= request.getContextPath() %>/donate.jsp"><%= t.getProperty("btn.donate") %></a>
       </nav>

@@ -117,7 +117,7 @@ body.light .main-nav a:hover { background: rgba(0, 0, 0, 0.05); }
 /* the current page is a filled gold pill */
 .main-nav a.active { opacity: 1; color: var(--accent-ink); background: var(--accent); }
 .main-nav a.active:hover { background: var(--accent); }
-.main-nav .nav-donate { display: none; }
+.main-nav .nav-donate, .main-nav .nav-game { display: none; }
 
 .top-controls {
   display: flex;
@@ -365,7 +365,7 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav.open { display: flex; }
   .main-nav a { padding: 12px 14px; font-size: 0.95rem; border-radius: 10px; }
   .main-nav a.active { background: var(--accent-soft); color: var(--accent); }
-  .main-nav .nav-donate { display: block; }
+  .main-nav .nav-donate, .main-nav .nav-game { display: block; }
   .main-nav .nav-donate i { color: var(--red); }
 }
 
@@ -435,7 +435,7 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   body.light .main-nav > a { background: rgba(0, 0, 0, 0.03); }
   .main-nav > a .nav-ico { display: block; font-size: 1.15rem; color: var(--accent); opacity: .9; }
   .main-nav > a.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-  .main-nav > .nav-donate {
+  .main-nav > .nav-donate, .main-nav > .nav-game {
     grid-column: 1 / -1;
     flex-direction: row;
     align-items: center;
@@ -543,7 +543,7 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     width: min(620px, calc(100vw - 24px));
   }
   .main-nav > a { grid-column: 1; padding: 7px 14px; min-height: 0; flex-direction: row; align-items: center; }
-  .main-nav > .nav-donate { grid-column: 1; justify-content: flex-start; }
+  .main-nav > .nav-donate, .main-nav > .nav-game { grid-column: 1; justify-content: flex-start; }
   .main-nav .nav-account { grid-template-columns: 1fr 1fr; align-content: start; align-self: start; }
   .main-nav .nav-settings { align-self: start; }
   .main-nav .nav-account > a, .main-nav .nav-account > .nav-notif, .main-nav .nav-account .logout-form button { min-height: 40px; }

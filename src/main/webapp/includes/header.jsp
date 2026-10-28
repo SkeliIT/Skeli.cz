@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.35.0";
+  String assetVersion = "6.36.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -179,6 +179,7 @@
               <%-- karaoke je jen pro přihlášené: v menu jemně odlišené, nepřihlášený vidí štítek „pro členy“ (láká k registraci) --%>
               <a href="<%= ctx %>/karaoke-kino" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><i class="fa-solid fa-star" aria-hidden="true"></i><span><%= t.getProperty("menu.membersOnly") %></span></span><% } %></a>
               <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.about","About") %></a>
+              <a href="<%= ctx %>/?kevin=pong" class="nav-game" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.game") %></a>
               <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
               <%-- phones and tablets: the display controls, language and account live in the menu --%>
               <div class="nav-settings">
