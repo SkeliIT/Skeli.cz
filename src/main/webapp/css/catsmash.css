@@ -677,3 +677,66 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-boardtabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
 .kp-boardtabs button { font: inherit; font-size: var(--fs-small); color: #e8dcc5; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 210, 63, .35); border-radius: 99px; padding: 6px 12px; min-height: 32px; cursor: pointer; }
 .kp-boardtabs button[aria-pressed="true"] { background: var(--accent); color: #1a1405; border-color: var(--accent); }
+
+/* ---------- rámeček podle pálky (na zlaté liště kolem skla, js setRim) ----------
+   Prvek má přesně velikost skla, obrázek rámečku je border-image vystrčený ven (outset) o šířku pásu --bw
+   (v bodech obrázku automatu): čím vzácnější pálka, tím širší a zdobnější pás.
+   Šetrně k telefonům: záře je rozmazaná kopie rámečku (::before), animuje se jen její průhlednost;
+   lesk je proužek, který se posouvá transformací uvnitř masky ve tvaru rámečku. Nic se nepřekresluje. */
+.kpong-rim {
+  --bw: 40; --b: calc(var(--bw) * var(--u) * 1px);
+  position: absolute; z-index: 1; pointer-events: none; box-sizing: border-box;
+  left: calc(138px * var(--u)); top: calc(316px * var(--u)); width: calc(492px * var(--u)); height: calc(741px * var(--u));
+  --shine: rgba(255, 244, 214, .5); --shine-time: 7s; --glow: 0; --glow-time: 3s;
+}
+.kpong-rim[hidden] { display: none; }
+.kpong-rim, .kpong-rim::before {
+  border: var(--b) solid transparent;
+  border-image: var(--rim) var(--sl) / var(--b) / var(--b) stretch;
+}
+.kpong-rim::before {
+  content: ""; position: absolute; inset: calc(-1 * var(--b)); box-sizing: border-box; z-index: -1;
+  filter: blur(calc(9px * var(--u))) saturate(1.8) brightness(1.5);
+  opacity: var(--glow); will-change: opacity;
+}
+.kpong-rim-shine {
+  position: absolute; inset: calc(-1 * var(--b)); box-sizing: border-box; overflow: hidden;
+  border: var(--b) solid transparent;
+  -webkit-mask-box-image: var(--rim) var(--sl) / var(--b) / var(--b) stretch;
+}
+.kpong-rim-shine::before {
+  content: ""; position: absolute; top: calc(-2 * var(--b)); bottom: calc(-2 * var(--b)); left: calc(-1 * var(--b)); width: 50%;
+  background: linear-gradient(105deg, transparent, var(--shine), transparent);
+  transform: translateX(-150%); will-change: transform;
+  animation: kp-rim-shine var(--shine-time) ease-in-out infinite;
+}
+/* lesk jen tam, kde prohlížeč umí masku ve tvaru rámečku (Firefox ne – tam rámeček bez lesku) */
+@supports not (-webkit-mask-box-image: none) { .kpong-rim-shine { display: none; } }
+@keyframes kp-rim-shine { 0% { transform: translateX(-150%); } 45%, 100% { transform: translateX(350%); } }
+@keyframes kp-rim-glow { 50% { opacity: var(--glow-max, .8); } }
+/* šířka pásu podle vzácnosti pálky */
+.kpong-rim:is([data-pad="mince"], [data-pad="led"], [data-pad="cip"], [data-pad="perly"]) { --bw: 44; }
+.kpong-rim:is([data-pad="ekvalizer"], [data-pad="lava"], [data-pad="retez"]) { --bw: 48; }
+.kpong-rim:is([data-pad="neon"], [data-pad="kola"]) { --bw: 52; }
+/* běžné pálky: jen klidný lesk */
+.kpong-rim[data-pad="vetev"] { --shine: rgba(220, 255, 190, .35); --shine-time: 9s; }
+.kpong-rim[data-pad="plys"] { --shine: rgba(255, 230, 240, .4); --shine-time: 9s; }
+.kpong-rim[data-pad="graffiti"] { --shine: rgba(255, 120, 230, .45); }
+.kpong-rim[data-pad="jadeit"] { --shine: rgba(200, 255, 220, .45); --shine-time: 8s; }
+/* neobvyklé: výraznější lesk, led a čip jemně září */
+.kpong-rim[data-pad="mince"] { --shine: rgba(255, 236, 160, .75); --shine-time: 5s; }
+.kpong-rim[data-pad="perly"] { --shine: rgba(235, 215, 255, .7); --shine-time: 6s; }
+.kpong-rim[data-pad="led"] { --shine: rgba(230, 248, 255, .8); --shine-time: 6s; --glow-max: .45; }
+.kpong-rim[data-pad="cip"] { --shine: rgba(160, 255, 200, .5); --glow-max: .55; }
+.kpong-rim:is([data-pad="led"], [data-pad="cip"], [data-pad="lava"], [data-pad="neon"], [data-pad="kola"])::before { animation: kp-rim-glow var(--glow-time) ease-in-out infinite; }
+.kpong-rim[data-pad="cip"]::before { animation-timing-function: steps(2); --glow-time: 2.4s; }
+/* vzácné: ekvalizér svítí podle hry (--eq z js), láva pulzuje, řetěz se třpytí */
+.kpong-rim[data-pad="ekvalizer"] { --glow: calc(var(--eq, 0) * 1.2); }
+.kpong-rim[data-pad="lava"] { --shine: rgba(255, 170, 80, .5); --glow-time: 2.6s; --glow-max: .9; }
+.kpong-rim[data-pad="retez"] { --shine: rgba(255, 248, 200, .9); --shine-time: 4s; }
+/* epické: neon září a občas zabliká, kola měděně žhnou */
+.kpong-rim[data-pad="neon"] { --shine: rgba(255, 255, 255, .45); --shine-time: 3.5s; --glow: .6; --glow-max: 1; --glow-time: 2.2s; }
+.kpong-rim[data-pad="neon"] { animation: kp-rim-flicker 6s linear infinite; }
+@keyframes kp-rim-flicker { 0%, 70%, 74%, 100% { opacity: 1; } 71% { opacity: .55; } 72% { opacity: 1; } 73% { opacity: .7; } }
+.kpong-rim[data-pad="kola"] { --shine: rgba(255, 200, 140, .7); --shine-time: 5s; --glow-max: .35; --glow-time: 4s; }
+@media (prefers-reduced-motion: reduce) { .kpong-rim, .kpong-rim::before, .kpong-rim-shine::before { animation: none !important; } }

@@ -60,6 +60,7 @@
       '    <i class="kpong-spk" data-side="l" aria-hidden="true"></i><i class="kpong-spk" data-side="r" aria-hidden="true"></i>' +
       '    <button type="button" class="kpong-set" aria-label="' + esc(T.settings || 'Settings') + '" aria-haspopup="dialog"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>' +
       '    <canvas class="kpong-kevin" aria-hidden="true"></canvas>' +
+      '    <div class="kpong-rim" hidden aria-hidden="true"><i class="kpong-rim-shine"></i></div>' +
       '    <div class="kpong-field">' +
       '      <div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas>' +
@@ -453,6 +454,20 @@
     var EQ = { x0: 75, step: 31.2, w: 25, bottom: 107, max: 42, bg: [68, 58, 322, 51] };
     function addP(o) { if (pfx.length < (lowFx >= 3 ? 30 : lowFx ? 70 : 180)) { o.age = 0; pfx.push(o); } }
     function curPad() { return SKINS[skin] && SKINS[skin].img; }
+    // rámeček podle pálky: obrázek z kevin/pong/ramy/ (tools/catsmash-ramy.py) leží na zlaté liště kolem skla.
+    // Kreslí se jako CSS border-image: ramy.json zná tloušťku pásu u každé strany (slice), šířku pásu na liště
+    // určuje css podle vzácnosti pálky, takže tlustý plyš i tenká větvička jsou na liště stejně široké.
+    // Lesk, záře a blikání dělá css/catsmash.css podle data-pad.
+    var RAMY = null, rimEl = root.querySelector('.kpong-rim');
+    fetch('/kevin/pong/ramy/ramy.json' + ver).then(function (r) { return r.json(); }).then(function (j) { RAMY = j; setRim(); }).catch(function () { /* bez rámečků */ });
+    function setRim() {
+      var id = curPad(), m = RAMY && id && RAMY[id];
+      if (!m || !atmoOn) { rimEl.hidden = true; return; }
+      rimEl.style.setProperty('--rim', 'url("/kevin/pong/ramy/' + id + '.webp' + ver + '")');
+      rimEl.style.setProperty('--sl', m.slice.join(' '));
+      rimEl.dataset.pad = id;
+      rimEl.hidden = false;
+    }
     // výbuch u hráčovy pálky – čím lepší odpal, tím větší efekt: 1 = obyčejný odraz (menší), 1.5 = dobrý odstřel,
     // 2 = perfektní odstřel (velký efekt navíc), 3 = SUPER (ještě větší); pokažený odstřel efekt nemá
     function padBurst(level, now) {
@@ -536,13 +551,6 @@
             o.cracks.push(pts);
           }
         });
-      } else if (id === 'vetev') {                      // úponky s lístky v horních rozích
-        o.vines = [[0, 1], [W, -1]].map(function (c) {
-          var pts = [], leaves = [];
-          for (i = 0; i <= 10; i++) { var t = i / 10; pts.push([c[0] + c[1] * (t * 120 + Math.sin(t * 5) * 14), 6 + t * 150 + Math.cos(t * 4) * 10]); }
-          for (i = 2; i < 10; i += 2) leaves.push({ i: i, side: i % 4 ? 1 : -1, size: rnd(5, 8) });
-          return { pts: pts, leaves: leaves, dir: c[1] };
-        });
       } else if (id === 'graffiti') {                   // vybledlé tagy a cákance po stranách skla
         o.splats = [];
         for (i = 0; i < 9; i++) o.splats.push({ x: i % 2 ? rnd(W - 50, W - 8) : rnd(8, 50), y: rnd(120, H - 160), r: rnd(6, 16), c: ['#ff4fd8', '#ffd23f', '#3fb6ff', '#7cff6b'][i % 4], drip: rnd(10, 40), seed: rnd(0, 9) });
@@ -599,17 +607,6 @@
           cx.beginPath(); cx.moveTo(0, mid); cx.lineTo(W, mid); cx.stroke(); ownMid = true;
           break;
         case 'vetev':
-          if (false) o.vines.forEach(function (v) {
-            var sway = Math.sin(t * 0.9 + v.dir) * 3;
-            cx.strokeStyle = 'rgba(110, 160, 70, .55)'; cx.lineWidth = 2.6; cx.beginPath();
-            v.pts.forEach(function (p, k) { cx[k ? 'lineTo' : 'moveTo'](p[0] + sway * k / 10, p[1]); }); cx.stroke();
-            v.leaves.forEach(function (l) {
-              var p = v.pts[l.i];
-              cx.save(); cx.translate(p[0] + sway * l.i / 10, p[1]); cx.rotate(l.side * 0.8 + Math.sin(t * 1.3 + l.i) * 0.15);
-              cx.fillStyle = 'rgba(110, 180, 70, .55)'; cx.beginPath(); cx.ellipse(l.size * 0.9, 0, l.size, l.size * 0.45, 0, 0, 7); cx.fill();
-              cx.restore();
-            });
-          });
           cx.strokeStyle = 'rgba(120, 190, 80, .22)'; cx.lineWidth = 3; cx.setLineDash([14, 14]);
           cx.beginPath(); cx.moveTo(0, mid); cx.lineTo(W, mid); cx.stroke(); cx.setLineDash([]); ownMid = true;
           break;
@@ -646,6 +643,7 @@
           break;
         case 'ekvalizer':                               // prostřední čára = zvuková vlna podle dění ve hře
           var lv = eqLv.reduce(function (a, b) { return a + b; }, 0) / eqLv.length;
+          rimEl.style.setProperty('--eq', lv.toFixed(2));
           cx.strokeStyle = 'rgba(230, 183, 48, .4)'; cx.lineWidth = 2; cx.beginPath();
           for (var x = 0; x <= W; x += 6) cx.lineTo(x, mid + Math.sin(x / 22 + t * 6) * Math.sin(x / 70 - t * 2) * (4 + lv * 18));
           cx.stroke(); ownMid = true;
@@ -701,229 +699,11 @@
           });
           break;
       }
-      drawEdges(id, now);
       cx.restore();
       atmoParticles(now, id);
       return ownMid;
     }
 
-    // ---------- ozdoby po okrajích hřiště (podle pálky) ----------
-    // běžné pálky: jedna klidná ozdoba (rostlinky, šev, stékající barva, bambus); neobvyklé: ozdoba se hýbe
-    // (mince, rampouchy, běžící světla, perly); vzácné: reaguje na hru (ekvalizér, láva, řetězy);
-    // epické: celý rám (neon s nápisy, soukolí, které se točí tím rychleji, čím delší výměna).
-    // Rostlinky a stékající barva po začátku zápasu teprve dorůstají (edgeStart se nuluje v begin()).
-    // hřiště má 600×900 bodů, ale na obrazovce je asi poloviční – ozdoby se kreslí 2× zvětšené (EW×EH = hřiště v jejich měřítku)
-    var EDGE_S = 2, EW = W / EDGE_S, EH = H / EDGE_S, edgeCache = {}, edgeStart = 0;
-    function edgeRun(left, reach) {                      // cesta podél boku zdola nahoru a kus podél horní hrany
-      var pts = [], len = 0, y, x, n;
-      for (y = EH; y >= 0; y -= 6) { len += 6; n = 6 + Math.sin(len / 37) * 4; pts.push([left ? n : EW - n, y]); }
-      for (x = 6; x <= EW * reach; x += 6) { len += 6; n = 6 + Math.sin(len / 37) * 4; pts.push([left ? x : EW - x, n]); }
-      return pts;
-    }
-    function edgeShapes(id) {
-      if (edgeCache[id]) return edgeCache[id];
-      var o = {}, i;
-      if (id === 'vetev') {
-        o.vines = [true, false].map(function (left) {
-          var pts = edgeRun(left, 0.4), leaves = [], flowers = [];
-          for (i = 4; i < pts.length; i += Math.round(rnd(3, 5))) leaves.push({ i: i, side: leaves.length % 2 ? 1 : -1, size: rnd(4, 7), hue: rnd(95, 125) });
-          for (i = 30; i < pts.length; i += Math.round(rnd(28, 44))) flowers.push({ i: i, c: Math.random() < 0.5 ? '#fff6e0' : '#ffc6dc' });
-          return { pts: pts, leaves: leaves, flowers: flowers };
-        });
-      } else if (id === 'graffiti') {
-        o.drips = [];
-        for (i = 0; i < 14; i++) o.drips.push({ x: rnd(10, EW - 10), len: rnd(20, 90), w: rnd(3, 6), c: ['#ff4fd8', '#ffd23f', '#3fb6ff', '#7cff6b'][i % 4], sp: rnd(0.5, 1.2) });
-      } else if (id === 'led') {
-        o.ice = [];
-        for (var x = 4; x < EW - 4; x += rnd(9, 18)) o.ice.push({ x: x, len: rnd(10, 46), w: rnd(4, 8), ph: rnd(0, 9) });
-      } else if (id === 'lava') {
-        o.cracks = [];
-        for (i = 0; i < 10; i++) {
-          var side = i % 3, p = side === 0 ? [rnd(0, EW), EH] : [side === 1 ? 0 : EW, rnd(EH * 0.35, EH)], pts = [p.slice()];
-          for (var k = 0; k < 5; k++) { p = [p[0] + (side === 0 ? rnd(-14, 14) : side === 1 ? rnd(6, 16) : rnd(-16, -6)), p[1] + (side === 0 ? rnd(-18, -8) : rnd(-14, 14))]; pts.push(p.slice()); }
-          o.cracks.push({ pts: pts, ph: rnd(0, 6) });
-        }
-      }
-      edgeCache[id] = o;
-      return o;
-    }
-    // řetízek perel / článků podél řetězovky mezi dvěma body (prověšení sag)
-    function swag(x1, x2, y, sag, step, fn) {
-      var n = Math.max(2, Math.round((x2 - x1) / step));
-      for (var i = 0; i <= n; i++) { var u = i / n; fn(x1 + (x2 - x1) * u, y + Math.sin(u * Math.PI) * sag, i, u); }
-    }
-    function drawEdges(id, now) {
-      if (!edgeStart) edgeStart = now;
-      cx.save(); cx.scale(EDGE_S, EDGE_S);
-      var t = now / 1000, grow = Math.min(1, (now - edgeStart) / 14000), o = edgeShapes(id), i, g;
-      switch (id) {
-        case 'vetev':                                   // popínavé rostliny dorůstají po bocích a kus po horní hraně
-          o.vines.forEach(function (v) {
-            var count = Math.floor(v.pts.length * (0.15 + 0.85 * grow));
-            function at(k) { var p = v.pts[k]; return [p[0] + Math.sin(t * 0.8 + k / 9) * 1.4, p[1]]; }
-            cx.strokeStyle = 'rgba(86, 128, 52, .75)'; cx.lineWidth = 2.6; cx.lineCap = 'round';
-            cx.beginPath(); for (var k = 0; k < count; k++) { var p = at(k); cx[k ? 'lineTo' : 'moveTo'](p[0], p[1]); } cx.stroke();
-            v.leaves.forEach(function (l) {
-              if (l.i >= count) return;
-              var p = at(l.i), q = at(Math.min(l.i + 1, v.pts.length - 1)), ang = Math.atan2(q[1] - p[1], q[0] - p[0]);
-              var sc = Math.min(1, (count - l.i) / 8);
-              cx.save(); cx.translate(p[0], p[1]); cx.rotate(ang + l.side * 1.0 + Math.sin(t * 1.3 + l.i) * 0.12); cx.scale(sc, sc);
-              cx.fillStyle = 'hsla(' + l.hue + ', 55%, 45%, .8)';
-              cx.beginPath(); cx.moveTo(0, 0); cx.quadraticCurveTo(l.size, -l.size * 0.6, l.size * 2, 0); cx.quadraticCurveTo(l.size, l.size * 0.6, 0, 0); cx.fill();
-              cx.strokeStyle = 'rgba(40, 70, 25, .5)'; cx.lineWidth = 0.6; cx.beginPath(); cx.moveTo(0, 0); cx.lineTo(l.size * 1.7, 0); cx.stroke();
-              cx.restore();
-            });
-            v.flowers.forEach(function (f) {
-              if (f.i >= count - 12) return;
-              var p = at(f.i), r = 3.2 * Math.min(1, (count - 12 - f.i) / 10);
-              cx.fillStyle = f.c;
-              for (var j = 0; j < 5; j++) { var a = j / 5 * 6.283 + t * 0.2; cx.beginPath(); cx.arc(p[0] + Math.cos(a) * r, p[1] + Math.sin(a) * r, r * 0.75, 0, 7); cx.fill(); }
-              cx.fillStyle = '#ffd23f'; cx.beginPath(); cx.arc(p[0], p[1], r * 0.6, 0, 7); cx.fill();
-            });
-          });
-          break;
-        case 'plys':                                    // prošívaný šev kolem hřiště a bambulky v rozích
-          cx.strokeStyle = 'rgba(255, 220, 232, .5)'; cx.lineWidth = 1.6; cx.setLineDash([7, 5]);
-          cx.strokeRect(7, 7, EW - 14, EH - 14); cx.setLineDash([]);
-          [[12, 12], [EW - 12, 12], [12, EH - 12], [EW - 12, EH - 12]].forEach(function (c, k) {
-            var b = Math.sin(t * 1.5 + k) * 1.5;
-            for (i = 0; i < 9; i++) { var a = i / 9 * 6.283; cx.fillStyle = i % 2 ? 'rgba(255, 190, 212, .75)' : 'rgba(255, 232, 240, .8)'; cx.beginPath(); cx.arc(c[0] + Math.cos(a) * 5, c[1] + b + Math.sin(a) * 5, 4.5, 0, 7); cx.fill(); }
-          });
-          break;
-        case 'graffiti':                                // barva stéká z horní hrany a pomalu se prodlužuje
-          o.drips.forEach(function (d) {
-            var l = d.len * Math.min(1, grow * d.sp + 0.1);
-            cx.fillStyle = d.c; cx.globalAlpha = 0.5;
-            cx.fillRect(d.x - d.w / 2, 0, d.w, l);
-            cx.beginPath(); cx.arc(d.x, l, d.w * 0.75, 0, 7); cx.fill();
-          });
-          cx.globalAlpha = 1;
-          g = cx.createLinearGradient(0, 0, 0, 14); g.addColorStop(0, 'rgba(255, 79, 216, .35)'); g.addColorStop(1, 'rgba(255, 79, 216, 0)');
-          cx.fillStyle = g; cx.fillRect(0, 0, EW, 14);
-          break;
-        case 'jadeit':                                  // bambus po obou bocích, u kolének lístky
-          [8, EW - 8].forEach(function (x, side) {
-            cx.fillStyle = 'rgba(110, 200, 140, .4)'; cx.fillRect(x - 3.5, 0, 7, EH);
-            for (var y = 30; y < EH; y += 46) {
-              cx.fillStyle = 'rgba(40, 110, 70, .6)'; cx.fillRect(x - 4.5, y, 9, 3);
-              if ((y / 46 | 0) % 2 === side) {
-                cx.save(); cx.translate(x, y); cx.rotate((side ? -1 : 1) * (0.6 + Math.sin(t + y) * 0.08) + (side ? Math.PI : 0));
-                cx.fillStyle = 'rgba(120, 210, 150, .55)'; cx.beginPath(); cx.ellipse(12, 0, 12, 3, 0, 0, 7); cx.fill(); cx.restore();
-              }
-            }
-          });
-          break;
-        case 'mince':                                   // sloupky mincí v dolních rozích, horem se kutálí mince
-          [[16, 1], [EW - 16, -1]].forEach(function (c) {
-            for (var st = 0; st < 3; st++) {
-              var x = c[0] + c[1] * st * 15, hgt = [7, 4, 9][st];
-              for (i = 0; i < hgt; i++) {
-                var y = EH - 6 - i * 4;
-                cx.fillStyle = i % 2 ? '#c99a12' : '#e6b730'; cx.beginPath(); cx.ellipse(x, y, 7, 2.6, 0, 0, 7); cx.fill();
-              }
-              cx.fillStyle = 'rgba(255, 245, 200, ' + (0.5 + 0.5 * Math.sin(t * 3 + st)) + ')'; cx.fillRect(x - 1, EH - 6 - (hgt - 1) * 4 - 1, 2, 2);
-            }
-          });
-          var rx = (t * 46) % (EW + 40) - 20, roll = Math.abs(Math.cos(t * 5));
-          cx.fillStyle = '#e6b730'; cx.beginPath(); cx.ellipse(rx, 10, 7 * Math.max(0.2, roll), 7, 0, 0, 7); cx.fill();
-          cx.strokeStyle = '#8f6600'; cx.lineWidth = 1; cx.stroke();
-          break;
-        case 'led':                                     // rampouchy z horní hrany, z nich občas kápne voda
-          o.ice.forEach(function (c) {
-            g = cx.createLinearGradient(0, 0, 0, c.len);
-            g.addColorStop(0, 'rgba(235, 248, 255, .75)'); g.addColorStop(1, 'rgba(170, 220, 255, .25)');
-            cx.fillStyle = g; cx.beginPath(); cx.moveTo(c.x - c.w / 2, 0); cx.lineTo(c.x + c.w / 2, 0); cx.lineTo(c.x, c.len); cx.closePath(); cx.fill();
-            var dy = ((t * 70 + c.ph * 40) % 260);
-            if (dy < 120) { cx.fillStyle = 'rgba(200, 235, 255, ' + (0.6 * (1 - dy / 120)) + ')'; cx.beginPath(); cx.arc(c.x, c.len + dy, 1.4, 0, 7); cx.fill(); }
-          });
-          [0, EW].forEach(function (x) {
-            g = cx.createLinearGradient(x, 0, x ? x - 22 : 22, 0); g.addColorStop(0, 'rgba(220, 245, 255, .25)'); g.addColorStop(1, 'rgba(220, 245, 255, 0)');
-            cx.fillStyle = g; cx.fillRect(x ? x - 22 : 0, 0, 22, EH);
-          });
-          break;
-        case 'cip':                                     // běžící světýlka dokola po celém okraji
-          var per = 2 * (EW + EH), stepL = 18;
-          for (var d = 0; d < per; d += stepL) {
-            var px = d < EW ? d : d < EW + EH ? EW - 4 : d < 2 * EW + EH ? EW - (d - EW - EH) : 4;
-            var py = d < EW ? 4 : d < EW + EH ? d - EW : d < 2 * EW + EH ? EH - 4 : EH - (d - 2 * EW - EH);
-            var wave = Math.max(0, Math.cos((d / per - t * 0.25) * 6.283 * 3));
-            cx.fillStyle = 'rgba(89, 240, 160, ' + (0.15 + 0.7 * Math.pow(wave, 6)) + ')';
-            cx.fillRect(px - 2, py - 2, 4, 4);
-          }
-          break;
-        case 'perly':                                   // perlové girlandy horem a šňůry perel po stranách
-          [[0, EW / 3], [EW / 3, EW * 2 / 3], [EW * 2 / 3, EW]].forEach(function (sw, k) {
-            swag(sw[0], sw[1], 4, 18 + Math.sin(t + k) * 2, 9, function (x, y, j) {
-              cx.fillStyle = 'hsla(' + ((j * 25 + t * 50) % 360) + ', 70%, 92%, .85)';
-              cx.beginPath(); cx.arc(x, y, 3, 0, 7); cx.fill();
-              cx.fillStyle = 'rgba(255, 255, 255, .9)'; cx.fillRect(x - 1.2, y - 1.6, 1.2, 1.2);
-            });
-          });
-          [6, EW - 6].forEach(function (x, k) {
-            for (var y = 30; y < EH - 20; y += 10) {
-              var sx = x + Math.sin(t * 1.2 + y / 60 + k) * 2;
-              cx.fillStyle = 'hsla(' + ((y + t * 50) % 360) + ', 60%, 92%, .6)'; cx.beginPath(); cx.arc(sx, y, 2.4, 0, 7); cx.fill();
-            }
-          });
-          break;
-        case 'ekvalizer':                               // sloupce ekvalizéru po obou bocích, hrají podle dění ve hře
-          var bars = 28, bh = EH / bars;
-          for (i = 0; i < bars; i++) {
-            var lv2 = eqLv[i % eqLv.length] || 0, len2 = 4 + lv2 * 46 + (Math.sin(t * 7 + i * 0.9) * 0.5 + 0.5) * 6;
-            g = cx.createLinearGradient(0, 0, len2, 0); g.addColorStop(0, 'rgba(230, 183, 48, .55)'); g.addColorStop(1, 'rgba(255, 106, 0, .25)');
-            cx.fillStyle = g; cx.fillRect(0, i * bh + 2, len2, bh - 4);
-            cx.save(); cx.translate(EW, 0); cx.scale(-1, 1); cx.fillRect(0, (bars - 1 - i) * bh + 2, len2, bh - 4); cx.restore();
-          }
-          break;
-        case 'lava':                                    // žhnoucí praskliny u dolní hrany a po bocích, pulzují
-          o.cracks.forEach(function (c) {
-            var glow = 0.45 + 0.35 * Math.sin(t * 2 + c.ph);
-            cx.strokeStyle = 'rgba(255, 120, 20, ' + glow + ')'; cx.lineWidth = 2.4; cx.lineJoin = 'round';
-            cx.beginPath(); c.pts.forEach(function (p, k) { cx[k ? 'lineTo' : 'moveTo'](p[0], p[1]); }); cx.stroke();
-            cx.strokeStyle = 'rgba(255, 230, 150, ' + glow * 0.8 + ')'; cx.lineWidth = 0.8; cx.stroke();
-          });
-          [0, EW].forEach(function (x) {
-            g = cx.createLinearGradient(x, 0, x ? x - 18 : 18, 0); g.addColorStop(0, 'rgba(255, 90, 10, .22)'); g.addColorStop(1, 'rgba(255, 90, 10, 0)');
-            cx.fillStyle = g; cx.fillRect(x ? x - 18 : 0, EH * 0.35, 18, EH * 0.65);
-          });
-          break;
-        case 'retez':                                   // zlaté řetězy: girlandy horem a po bocích, po článcích běží záblesk
-          var glintAt = (t * 0.6) % 1;
-          function link(x, y, j, u, vert) {
-            var lit = Math.abs(u - glintAt) < 0.04;
-            cx.strokeStyle = lit ? 'rgba(255, 248, 210, .95)' : 'rgba(230, 183, 48, .7)'; cx.lineWidth = lit ? 2 : 1.5;
-            cx.beginPath(); cx.ellipse(x, y, j % 2 ? 2 : 5, j % 2 ? 5 : 2, vert ? Math.PI / 2 : 0, 0, 7); cx.stroke();
-          }
-          [[0, EW / 2], [EW / 2, EW]].forEach(function (sw) { swag(sw[0], sw[1], 5, 26, 7, function (x, y, j, u) { link(x, y, j, u, false); }); });
-          [6, EW - 6].forEach(function (x) { for (var y = 20, j = 0; y < EH - 10; y += 7, j++) link(x, y, j, y / EH, true); });
-          break;
-        case 'neon':                                    // neonový rám s nápisy CAT a SMASH, barvy obíhají
-          var hue = (t * 40) % 360, fl = Math.random() < 0.01 ? 0.3 : 1;
-          cx.shadowBlur = 14;
-          cx.shadowColor = 'hsl(' + hue + ', 100%, 65%)'; cx.strokeStyle = 'hsla(' + hue + ', 100%, 70%, ' + 0.55 * fl + ')'; cx.lineWidth = 2.5;
-          cx.beginPath(); cx.roundRect ? cx.roundRect(10, 10, EW - 20, EH - 20, 18) : cx.rect(10, 10, EW - 20, EH - 20); cx.stroke();
-          cx.font = '700 20px "Bruno Ace SC", sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
-          cx.fillStyle = 'rgba(255, 79, 216, ' + 0.55 * fl + ')'; cx.shadowColor = '#ff4fd8';
-          cx.save(); cx.translate(24, EH / 2); cx.rotate(-Math.PI / 2); cx.fillText('CAT', 0, 0); cx.restore();
-          cx.fillStyle = 'rgba(125, 249, 255, ' + 0.55 * fl + ')'; cx.shadowColor = '#7df9ff';
-          cx.save(); cx.translate(EW - 24, EH / 2); cx.rotate(Math.PI / 2); cx.fillText('SMASH', 0, 0); cx.restore();
-          cx.shadowBlur = 0;
-          break;
-        case 'kola':                                    // soukolí po obou bocích; dlouhá výměna ho roztáčí
-          var spin = t * (0.6 + Math.min(rally, 30) * 0.08);
-          [10, EW - 10].forEach(function (x, side) {
-            for (var y = 70, j = 0; y < EH - 60; y += 23, j++) {
-              var r = j % 2 ? 9 : 13, dir = (j % 2 ? -1 : 1) * (side ? -1 : 1);
-              gearPath(x, y, r, Math.round(r / 2.2), spin * dir * 13 / r);
-              cx.fillStyle = 'rgba(150, 92, 44, .45)'; cx.fill();
-              cx.strokeStyle = 'rgba(224, 163, 106, .55)'; cx.lineWidth = 1.2; cx.stroke();
-              cx.fillStyle = 'rgba(40, 24, 12, .5)'; cx.beginPath(); cx.arc(x, y, r * 0.28, 0, 7); cx.fill();
-            }
-          });
-          break;
-      }
-      cx.restore();
-    }
     // občasné drobnosti ve vzduchu (vločka, uhlík, lístek, obláček páry) – málo a pomalu
     function atmoParticles(now, id) {
       var dt = atmoT ? Math.min(0.05, (now - atmoT) / 1000) : 0;
@@ -2511,8 +2291,7 @@
       mt = { perfect: 0, superHit: false, overheats: 0, maxRally: 0, yarn: false, screws: 0 };
       var today = new Date().toISOString().slice(0, 10);              // Věrný parťák: počet různých dní se hrou
       if (level >= 2 && store.get('kevinPongDay') !== today) { store.set('kevinPongDay', today); store.set('kevinPongDays', String(+(store.get('kevinPongDays') || 0) + 1)); }
-      heat = 0; hotUntil = 0; isHot = false; root.classList.remove('hot', 'final', 'celebrate');
-      edgeStart = 0;                                    // ozdoby okrajů (rostlinky, barva) dorůstají znovu frame.style.setProperty('--heat', 0); heatShown = 0;
+      heat = 0; hotUntil = 0; isHot = false; root.classList.remove('hot', 'final', 'celebrate'); frame.style.setProperty('--heat', 0); heatShown = 0;
       running = true; awaitStart = 'start';            // první hopík vyletí, až hráč ťukne / klikne / zmáčkne mezerník
       resetBall(Math.random() < 0.5);
       streakP = streakK = maxDown = 0; comebackSaid = false; lastMoveAt = performance.now(); idleSaid = false;
@@ -3060,7 +2839,7 @@
         b.addEventListener('click', function () {
           var i = +b.dataset.skin, name = (T.skins || [])[i] || '', nameEl = setCard.querySelector('.kp-skinname');
           if (!SKINS[i].ok()) { nameEl.textContent = name + ' – ' + lockText(SKINS[i].b); return; }
-          skin = i; store.set('kevinPongPad', SKINS[i].id); drawPreview();
+          skin = i; store.set('kevinPongPad', SKINS[i].id); drawPreview(); setRim();
           setCard.querySelectorAll('.kp-skin').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           nameEl.textContent = name;
         });
@@ -3128,7 +2907,7 @@
           var on = b.getAttribute('aria-pressed') !== 'true';
           b.setAttribute('aria-pressed', String(on));
           if (b.dataset.opt === 'vib') { vibOn = on; store.set('kevinPongVib', on ? '1' : '0'); if (on) vibe(30); }
-          else if (b.dataset.opt === 'atmo') { atmoOn = on; store.set('kevinPongAtmo', on ? '1' : '0'); apfx = []; }
+          else if (b.dataset.opt === 'atmo') { atmoOn = on; store.set('kevinPongAtmo', on ? '1' : '0'); apfx = []; setRim(); }
           else if (b.dataset.opt === 'lock') { lockOn = on; store.set('kevinPongLock', on ? '1' : '0'); }
           else { lefty = on; store.set('kevinPongLefty', on ? '1' : '0'); root.classList.toggle('lefty', on); shotPos = null; store.set('kevinPongShotPos', ''); placeShot(); setTimeout(fit, 50); }
         });
