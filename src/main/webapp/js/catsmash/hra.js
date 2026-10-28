@@ -668,6 +668,7 @@
         case 'ekvalizer':                               // prostřední čára = zvuková vlna podle dění ve hře
           var lv = eqLv.reduce(function (a, b) { return a + b; }, 0) / eqLv.length;
           rimEl.style.setProperty('--eq', lv.toFixed(2));
+          skinEl.style.setProperty('--eq', lv.toFixed(2));
           cx.strokeStyle = 'rgba(230, 183, 48, .4)'; cx.lineWidth = 2; cx.beginPath();
           for (var x = 0; x <= W; x += 6) cx.lineTo(x, mid + Math.sin(x / 22 + t * 6) * Math.sin(x / 70 - t * 2) * (4 + lv * 18));
           cx.stroke(); ownMid = true;

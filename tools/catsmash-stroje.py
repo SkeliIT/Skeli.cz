@@ -12,7 +12,7 @@ import sys
 from collections import deque
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 
 OUT = os.path.join(os.path.dirname(__file__), '..', 'src', 'main', 'webapp', 'kevin', 'pong', 'stroje')
 FW, FH = 768, 1376
@@ -79,6 +79,14 @@ def cut(path):
     big = rgba.resize((round(FW * sx), round(FH * sy)), Image.LANCZOS)
     out = Image.new('RGBA', (FW, FH), (0, 0, 0, 0))
     out.paste(big, (round(gx - g[0] * sx), round(gy - g[1] * sy)), big)
+    # vnitřek skla vždycky průhledný (ozdoby nakreslené dovnitř skla, třeba sloupce ekvalizéru, by zakrývaly hřiště)
+    hole = Image.new('L', (FW, FH), 255)
+    ImageDraw.Draw(hole).rounded_rectangle((GLASS[0] + 5, GLASS[1] + 5, GLASS[0] + GLASS[2] - 5, GLASS[1] + GLASS[3] - 5), radius=12, fill=0)
+    # okénka s koly taky (Gemini je někdy nakreslí jako černé sklo nebo je zakryje deskou)
+    for x, y, w, h in (WIN_TOP, WIN_BOT):
+        ImageDraw.Draw(hole).rounded_rectangle((x + 3, y + 3, x + w - 3, y + h - 3), radius=8, fill=0)
+    a = out.getchannel('A')
+    out.putalpha(Image.fromarray(np.minimum(np.asarray(a), np.asarray(hole))))
     def moved(r):
         return None if r is None else (round(gx + (r[0] - g[0]) * sx), round(gy + (r[1] - g[1]) * sy), round(r[2] * sx), round(r[3] * sy))
     tb, bb = bbox(top), bbox(bot)
