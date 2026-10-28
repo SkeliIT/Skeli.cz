@@ -826,3 +826,41 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong.kp-shake .kpong-machine { animation: kp-shake .28s ease-out; }
 @keyframes kp-shake { 20% { translate: calc(-4px * var(--u)) calc(2px * var(--u)); } 45% { translate: calc(4px * var(--u)) calc(-2px * var(--u)); } 70% { translate: calc(-2px * var(--u)) 0; } }
 @media (prefers-reduced-motion: reduce) { .kpong.kp-shake .kpong-machine { animation: none; } }
+
+/* ---------- zpomalený záznam vítězného gólu (jako ve sportovním přenosu) ---------- */
+.kp-replay-ui { display: none; }
+/* přiblížení jen obrazu uvnitř skla (sklo samo zůstane v rámu) */
+.kpong.kp-replay .kpong-field { overflow: hidden; }
+.kpong.kp-replay .kpong-court, .kpong.kp-replay .kpong-bg, .kpong.kp-replay .kpong-bgfx { transform-origin: var(--rx, 50%) var(--ry, 50%); animation: kp-rp-zoom 4.5s ease-in-out forwards; }
+@keyframes kp-rp-zoom { from { transform: scale(1); } to { transform: scale(1.22); } }
+/* zlatavý filmový obraz se zrnem a řádkováním */
+.kpong.kp-replay .kpong-court { filter: sepia(.35) contrast(1.15) saturate(1.25); }
+.kpong.kp-replay .kpong-bg, .kpong.kp-replay .kpong-bgfx { filter: grayscale(.6) sepia(.4) brightness(.7); }
+.kpong.kp-replay .kpong-field::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .18) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at var(--rx, 50%) var(--ry, 50%), transparent 35%, rgba(20, 10, 0, .65));
+  animation: kp-bullet-in .4s ease-out;
+}
+/* filmové pruhy nahoře a dole, ● REPLAY a „ťukni pro přeskočení“ */
+.kpong.kp-replay .kp-replay-ui { display: block; position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.kpong.kp-replay .kp-replay-ui::before, .kpong.kp-replay .kp-replay-ui::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 9%; background: #000; animation: kp-rp-bars .45s ease-out both;
+}
+.kpong.kp-replay .kp-replay-ui::before { top: 0; transform-origin: top; }
+.kpong.kp-replay .kp-replay-ui::after { bottom: 0; transform-origin: bottom; }
+@keyframes kp-rp-bars { from { transform: scaleY(0); } }
+.kp-rp-tag {
+  position: absolute; left: 4%; top: 1.6%; z-index: 1; font-size: var(--fs-small); letter-spacing: .14em; color: #fff;
+  text-shadow: 0 0 6px rgba(255, 40, 40, .9); animation: kp-rp-blink 1s steps(2) infinite;
+}
+.kp-rp-skip { position: absolute; right: 4%; bottom: 2%; z-index: 1; font-family: var(--font-text); font-size: var(--fs-small); color: #bfb39c; }
+@keyframes kp-rp-blink { 50% { opacity: .35; } }
+/* gól: zlatý záblesk */
+.kpong.kp-replay-hit .kpong-field::before {
+  content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  background: radial-gradient(circle at var(--rx, 50%) var(--ry, 50%), rgba(255, 236, 160, .95), rgba(255, 190, 60, .4) 40%, transparent 75%);
+  animation: kp-rp-flash .9s ease-out forwards;
+}
+@keyframes kp-rp-flash { from { opacity: 1; } to { opacity: 0; } }

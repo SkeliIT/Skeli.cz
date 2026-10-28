@@ -308,6 +308,7 @@ window.KEVIN_LINES.de.pong = {
   "loginToRank": "Melde dich an, um in die Rangliste zu kommen.",
   "login": "Anmelden",
   "localBest": "deine beste Zeit hier: {time}",
+  "replaySkip": "tippen zum Überspringen",
   "stickReady": "SUPERSCHUSS BEREIT!",
   "stickGo": "SUPERSCHUSS!",
   "stickBtn": "Superschuss – Ball festhalten",

@@ -68,6 +68,7 @@
       '    <div class="kpong-field">' +
       '      <div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas><span class="kp-streak" aria-hidden="true"></span>' +
+      '      <div class="kp-replay-ui" aria-hidden="true"><span class="kp-rp-tag">● REPLAY</span><span class="kp-rp-skip">' + esc(T.replaySkip || '') + '</span></div>' +
       '      <div class="kpong-panel"></div>' +
       '    </div>' +
       '  </div></div>' +
@@ -145,6 +146,7 @@
     // jen test/localhost: kde je hráčova pálka (pro testy ovládání prstem)
     if (TRY_HOST) window.__kpPlayer = function () { return { x: Math.round(player.x), target: Math.round(player.target) }; };
     // jen na testu/localhost: stav míčku a superútoku pro automatické testy (TmpStickIT)
+    if (TRY_HOST) window.__kpSet = function (y, k) { you = y; kev = k; };   // test: skóre těsně před koncem zápasu
     if (TRY_HOST) window.__kpHold = function (ms) { if (stick.active) stick.active.end += ms; };   // test: delší míření kvůli snímku
     if (TRY_HOST) window.__kpBall = function () { return { x: Math.round(ball.x), y: Math.round(ball.y), vy: Math.round(ball.vy), W: W, stick: { charges: stick.charges, pts: stick.pts, armed: stick.armed, active: !!stick.active }, screw: screw && screw.kind }; };
     function hasBadge(k) { return !k || PREVIEW_ALL || !!badges[k]; }
@@ -1756,6 +1758,7 @@
         nextScrewAt += real;
         if (stick.active) { stick.active.end += real; stick.active.start += real; }
       }   // pauzy, komár, nastavení, čekání na ťuknutí
+      if (replay) { replayTick(now); draw(now); return; }
       if (!running || paused) { draw(now); return; }
       // zastavení času po perfektním odstřelu: všechno stojí, jen se kreslí
       if (now < hitStop) { draw(now); return; }
@@ -1867,6 +1870,7 @@
         else if (ball.y < KEVIN_Y - 70) goal(true);
       }
       animateKevin(dt);
+      if (!awaitStart && now >= serveAt) recordFrame(now);
       draw(now);
     }
 
@@ -2154,6 +2158,50 @@
       if (rally === 10) quip('dlouha_vymena', 1);
       else if (!fastSaid && ball.speed > L.max * 0.92) { fastSaid = true; quip('rychly_hopik', 0.35); }
     }
+    // ---------- zpomalený záznam vítězného gólu ----------
+    // Během hry se ukládají poslední ~2,4 s (míček, obě pálky); po posledním gólu zápasu se přehrají zpomaleně,
+    // poslední 0,7 s ještě pomaleji, kamera se přiblíží k místu gólu. Pak teprve konec zápasu.
+    var rec = [], replay = null, REC_MS = 2400;
+    function recordFrame(now) {
+      rec.push({ t: now, bx: ball.x, by: ball.y, px: player.x, kx: kevin.x, f: !!ball.fire });
+      while (rec.length > 2 && now - rec[0].t > REC_MS) rec.shift();
+    }
+    function startReplay(done) {
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (rec.length < 10 || reduce) return done();
+      var end = rec[rec.length - 1], fr = root.querySelector('.kpong-field');
+      replay = { frames: rec.slice(), clock: 0, last: 0, done: done, flashed: false, len: end.t - rec[0].t };
+      fr.style.setProperty('--rx', Math.round(clamp(end.bx / W, 0.15, 0.85) * 100) + '%');
+      fr.style.setProperty('--ry', Math.round(clamp(end.by / H, 0.1, 0.9) * 100) + '%');
+      root.classList.add('kp-replay');
+      tone(300, 0.6, 'sine', 0.15, 120);                 // „přetočení“
+      flight = null;
+    }
+    function replayTick(now) {
+      var r = replay, dtr = r.last ? Math.min(250, now - r.last) : 0;   // i na pomalém počítači trvá stejně dlouho
+      r.last = now;
+      var left = r.len - r.clock;
+      r.clock += dtr * (left < 700 ? 0.18 : 0.45);         // poslední chvíle před gólem ještě pomaleji
+      var t0 = r.frames[0].t + r.clock, i = 1;
+      while (i < r.frames.length - 1 && r.frames[i].t < t0) i++;
+      var a = r.frames[i - 1], b = r.frames[i], k = b.t > a.t ? clamp((t0 - a.t) / (b.t - a.t), 0, 1) : 1;
+      ball.x = a.bx + (b.bx - a.bx) * k; ball.y = a.by + (b.by - a.by) * k; ball.fire = b.f;
+      player.x = a.px + (b.px - a.px) * k; kevin.x = a.kx + (b.kx - a.kx) * k;
+      ball.trail.push([ball.x, ball.y]); if (ball.trail.length > 16) ball.trail.shift();
+      if (r.clock >= r.len && !r.flashed) {               // gól: záblesk a hluboký zvuk
+        r.flashed = true;
+        root.classList.add('kp-replay-hit');
+        tone(110, 0.7, 'triangle', 0.3, 70);
+        setTimeout(stopReplay, 1100);
+      }
+    }
+    function stopReplay() {
+      if (!replay) return;
+      var done = replay.done;
+      replay = null; rec = [];
+      root.classList.remove('kp-replay', 'kp-replay-hit');
+      done();
+    }
     function finish(playerWon) {
       releaseMouse();
       if (root.classList.contains('final')) {
@@ -2175,10 +2223,14 @@
       lastScrews = { n: mt.screws, best: Math.max(screwBest, mt.screws), rec: screwRec && screwBest > 0 };
       var newBest = playerWon && best && ms < best;               // nepřihlášený: rekord v prohlížeči
       var send = playerWon && signedIn ? post('/api/pong/win', { d: level, ms: ms, kevin: kev }) : Promise.resolve(null);
+      // nejdřív zpomalený záznam vítězného gólu, pak konec zápasu (výsledek ze serveru mezitím dorazí)
+      var replayDone = false, result;
+      function showEnd() { if (replayDone && result !== undefined) endScreen(playerWon, ms, result, fresh); }
+      startReplay(function () { replayDone = true; showEnd(); });
       send.then(function (res) {
         if (newBest || (res && res.ok && res.best === ms)) setTimeout(function () { quip('rekord', 1, null, 3600, true); }, 4400);
-        endScreen(playerWon, ms, res && res.ok ? res : null, fresh);
-      }).catch(function () { endScreen(playerWon, ms, null, fresh); });
+        result = res && res.ok ? res : null; showEnd();
+      }).catch(function () { result = null; showEnd(); });
     }
     // odznaky po zápase: co se stalo v zápase + počítadla v prohlížeči; vrací nové (ukáže je konec zápasu)
     // odznaky jen na Normální a nejtěžší (na Lehké se nesbírají ani výhry, šroubky a dny); h* = jen za nejtěžší
@@ -2455,7 +2507,7 @@
       var today = new Date().toISOString().slice(0, 10);              // Věrný parťák: počet různých dní se hrou
       if (level >= 2 && store.get('kevinPongDay') !== today) { store.set('kevinPongDay', today); store.set('kevinPongDays', String(+(store.get('kevinPongDays') || 0) + 1)); }
       heat = 0; hotUntil = 0; isHot = false; root.classList.remove('hot', 'final', 'celebrate');
-      stickReset(); frame.style.setProperty('--heat', 0); heatShown = 0;
+      stickReset(); rec = []; frame.style.setProperty('--heat', 0); heatShown = 0;
       running = true; awaitStart = 'start';            // první hopík vyletí, až hráč ťukne / klikne / zmáčkne mezerník
       resetBall(Math.random() < 0.5);
       streakP = streakK = maxDown = 0; comebackSaid = false; lastMoveAt = performance.now(); idleSaid = false;
@@ -2548,8 +2600,8 @@
         cx.restore();
       }
       // míč: zlatý hopík se stopou
-      if (running && now >= serveAt) drawComet(now);
-      if (running) {
+      if ((running && now >= serveAt) || replay) drawComet(now);
+      if (running || replay) {
         if (ball.fire) { cx.shadowColor = 'rgba(255, 120, 20, .95)'; cx.shadowBlur = 22; }
         if (ballType > 0) {
           drawBall(BALLS[ballType].id, ball.x, ball.y, ball.spin || 0, now);
@@ -2799,6 +2851,8 @@
       zoneEl.style.cssText = '--zx:' + z.x + ';--zy:' + z.y + ';--zw:' + z.w + ';--zh:' + z.h;
     }
     placeShot(); placeZone();
+    // záznam gólu: ťuknutí / klik kamkoli ho přeskočí
+    root.addEventListener('pointerdown', function (e) { if (replay) { e.preventDefault(); e.stopPropagation(); stopReplay(); } }, true);
     root.querySelector('.kpong-stickbtn').addEventListener('pointerdown', function (e) {
       e.preventDefault(); e.stopPropagation();
       if (!layoutMode) useStick();
@@ -2864,6 +2918,7 @@
     }
 
     function onKey(e) {
+      if (replay && e.type === 'keydown' && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); return stopReplay(); }
       if (e.key === 'Escape' && Date.now() - lockLostAt < 400) return;   // Esc jen uvolnil myš – hru nezavírat
       if (e.key === 'Escape') return setCard ? closeSettings() : close();
       if (setCard) return;                                         // v nastavení klávesy nehrají

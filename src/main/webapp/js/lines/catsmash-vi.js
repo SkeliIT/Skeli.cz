@@ -308,6 +308,7 @@ window.KEVIN_LINES.vi.pong = {
   "loginToRank": "Đăng nhập để có tên trên bảng xếp hạng.",
   "login": "Đăng nhập",
   "localBest": "thời gian tốt nhất của bạn ở đây: {time}",
+  "replaySkip": "chạm để bỏ qua",
   "stickReady": "SIÊU CÚ ĐÁNH SẴN SÀNG!",
   "stickGo": "SIÊU CÚ ĐÁNH!",
   "stickBtn": "Siêu cú đánh – dính bóng",

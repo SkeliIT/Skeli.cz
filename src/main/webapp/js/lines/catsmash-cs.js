@@ -308,6 +308,7 @@ window.KEVIN_LINES.cs.pong = {
   "loginToRank": "Do tabulky se zapíšeš po přihlášení.",
   "login": "Přihlásit",
   "localBest": "tvůj nejlepší čas tady: {time}",
+  "replaySkip": "ťukni pro přeskočení",
   "stickReady": "SUPERÚTOK NABITÝ!",
   "stickGo": "SUPERÚTOK!",
   "stickBtn": "Superútok – přilepit míček",

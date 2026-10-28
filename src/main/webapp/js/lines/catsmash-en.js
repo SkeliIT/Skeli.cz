@@ -308,6 +308,7 @@ window.KEVIN_LINES.en.pong = {
   "loginToRank": "Sign in to get on the leaderboard.",
   "login": "Sign in",
   "localBest": "your best time here: {time}",
+  "replaySkip": "tap to skip",
   "stickReady": "SUPER SHOT READY!",
   "stickGo": "SUPER SHOT!",
   "stickBtn": "Super shot – stick the ball",

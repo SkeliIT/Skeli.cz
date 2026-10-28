@@ -308,6 +308,7 @@ window.KEVIN_LINES.uk.pong = {
   "loginToRank": "Увійди, щоб потрапити в таблицю.",
   "login": "Увійти",
   "localBest": "твій найкращий час тут: {time}",
+  "replaySkip": "торкнись, щоб пропустити",
   "stickReady": "СУПЕРУДАР ЗАРЯДЖЕНО!",
   "stickGo": "СУПЕРУДАР!",
   "stickBtn": "Суперудар – приліпити м’ячик",
