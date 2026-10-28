@@ -68,6 +68,7 @@
         <% if (me != null && me.artist) { %><span class="acct-badge artist"><i class="fa-solid fa-circle-check"></i> <%= t.getProperty("cmt.artist") %></span><% } %>
         <% if (me != null && me.admin) { %><span class="acct-badge">★ Admin</span><% } %>
       </h2>
+      <% if (pong.title != null) { %><p class="acct-title"><i class="fa-solid fa-crown" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pong.badge." + pong.title)) %></p><% } %>
       <p class="acct-meta">
         <% if (me != null) { %>@<%= WebUtils.escapeHtml(me.username) %><% } %>
         <% if (me != null && me.memberSince != null) { %> · <%= WebUtils.escapeHtml(t.getProperty("account.memberSince").replace("{0}",

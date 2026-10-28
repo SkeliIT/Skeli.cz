@@ -1402,10 +1402,19 @@ html.bold-text body :where(.side-card p,
 }
 .acct-signed-out { max-width: 460px; }
 .acct-hero { display: grid; grid-template-columns: auto 1fr auto; gap: 22px; align-items: center; position: relative; overflow: hidden; }
+/* hlavička profilu: pruh nahoře jako na sociálních sítích (fotka webu + zlato-oranžový přechod, dole do ztracena),
+   fotka profilu do něj zasahuje */
+.acct-hero { padding-top: 78px; }
 .acct-hero::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: -1;
-  background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 55%);
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 130px; pointer-events: none; z-index: -1;
+  background: linear-gradient(115deg, color-mix(in srgb, var(--accent) 45%, transparent), rgba(255, 110, 40, .28) 55%, rgba(150, 70, 255, .18)),
+    url("/img/photos/street-md.webp?v=4") center 35% / cover;
+  -webkit-mask-image: linear-gradient(#000 45%, transparent); mask-image: linear-gradient(#000 45%, transparent);
+  opacity: .75;
 }
+body.light .acct-hero::before { opacity: .55; }
+.acct-title { margin: 2px 0 0; font-family: var(--font-text); font-weight: 500; color: var(--accent); letter-spacing: .02em; }
+.acct-title i { margin-right: 4px; }
 .acct-photo { position: relative; display: block; width: 116px; height: 116px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
 .acct-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.7); }
 .acct-photo-edit {
