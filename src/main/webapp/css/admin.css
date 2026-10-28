@@ -770,3 +770,44 @@ body.light .kpi-down .kpi-trend { color: #b3261e; }
   .kpi-hint { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .live-now i { animation: none; } }
+
+/* nástěnka: pás „Dnes“ – čísla vlevo, příchody po hodinách vpravo (dnes zlatě, včerejšek slabě vzadu) */
+.today-board {
+  display: grid; grid-template-columns: minmax(200px, 260px) 1fr; gap: 18px; margin: 0 0 18px; padding: 18px;
+  border-radius: var(--radius); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--panel-border));
+  background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%), var(--panel);
+}
+.today-nums { display: grid; align-content: start; gap: 6px; }
+.today-nums h3 { display: flex; align-items: center; gap: 10px; margin: 0; }
+.today-nums h3 i { color: var(--accent); }
+.today-live { margin: 0; font-family: var(--font-text); color: var(--text-dim); }
+.today-live i { color: #4fdc8c; font-size: .6em; vertical-align: .25em; animation: today-pulse 2s ease-in-out infinite; }
+.today-live b { color: var(--text); font-weight: 500; }
+@keyframes today-pulse { 50% { opacity: .35; } }
+.today-big { margin: 4px 0 0; display: flex; align-items: baseline; gap: 10px; }
+.today-big b { font-family: var(--font-body); font-weight: 400; font-size: clamp(2.4rem, 6vw, 3.4rem); line-height: 1; color: var(--accent); }
+.today-big span { color: var(--text-dim); font-size: var(--fs-small); }
+.today-vs { margin: 0; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
+.today-mini { display: flex; gap: 18px; margin: 8px 0 0; }
+.today-mini div { display: grid; }
+.today-mini dt { font-size: var(--fs-small); color: var(--text-dim); }
+.today-mini dd { margin: 0; font-family: var(--font-body); font-size: var(--fs-h3); font-variant-numeric: tabular-nums; }
+.today-chart { margin: 0; display: grid; grid-template-rows: auto 1fr; gap: 8px; min-width: 0; }
+.today-chart figcaption { font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.lg::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.lg-today::before { background: var(--accent); }
+.lg-yest::before { background: color-mix(in srgb, var(--text-dim) 45%, transparent); }
+.hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; align-items: end; height: 150px; padding-bottom: 16px; }
+.hour { position: relative; height: 100%; }
+.hour .bar-y, .hour .bar-t { position: absolute; left: 0; right: 0; bottom: 0; height: var(--h); border-radius: 4px 4px 1px 1px; }
+.hour .bar-y { background: color-mix(in srgb, var(--text-dim) 28%, transparent); }
+.hour .bar-t { left: 18%; right: 18%; background: linear-gradient(180deg, #ffe08a, var(--accent)); box-shadow: 0 0 10px -2px color-mix(in srgb, var(--accent) 60%, transparent); }
+.hour.later .bar-t { display: none; }
+.hour.now .bar-t { background: linear-gradient(180deg, #fff1b8, #ffd23f); }
+.hour.now::after { content: ""; position: absolute; left: 50%; bottom: -3px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: #4fdc8c; }
+.hour small { position: absolute; top: 100%; left: 0; margin-top: 3px; font-size: .62rem; color: var(--text-dim); }
+@media (max-width: 760px) {
+  .today-board { grid-template-columns: 1fr; padding: 14px; }
+  .hours { height: 110px; gap: 2px; }
+}
+@media (prefers-reduced-motion: reduce) { .today-live i { animation: none; } }

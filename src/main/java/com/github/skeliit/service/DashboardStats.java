@@ -63,6 +63,57 @@ public final class DashboardStats {
         public String getSpark() { return spark(java.util.Arrays.copyOfRange(series, days, series.length), key); }
     }
 
+    /** Pás „Dnes“ nahoře na nástěnce: co se děje dnes, a příchody po hodinách dnes a včera. */
+    public static class Today {
+        public final int online, hourNow;
+        public final long people, peopleYesterday, pages, plays;
+        public final long[] hours, hoursYesterday;   // 24 hodin: začátky návštěv (kolikrát někdo přišel)
+        Today(int online, int hourNow, long people, long peopleYesterday, long pages, long plays, long[] hours, long[] hoursYesterday) {
+            this.online = online; this.hourNow = hourNow; this.people = people; this.peopleYesterday = peopleYesterday;
+            this.pages = pages; this.plays = plays; this.hours = hours; this.hoursYesterday = hoursYesterday;
+        }
+        /** Nejvyšší hodnota z obou dnů (výška grafu), aspoň 1. */
+        public long getMax() { long m = 1; for (int i = 0; i < 24; i++) m = Math.max(m, Math.max(hours[i], hoursYesterday[i])); return m; }
+        /** Výška sloupce v procentech grafu. */
+        public int pct(long v) { return (int) Math.round(v * 100.0 / getMax()); }
+        /** Lidé dnes proti celému včerejšku. */
+        public String getVersusYesterday() {
+            long d = people - peopleYesterday;
+            if (peopleYesterday == 0) return people > 0 ? "včera nikdo" : "zatím nikdo";
+            return d > 0 ? "o " + d + " víc než celý včerejšek" : d == 0 ? "stejně jako včera" : "včera celkem " + peopleYesterday;
+        }
+    }
+
+    public static Today today() throws SQLException {
+        java.time.ZonedDateTime now = java.time.ZonedDateTime.now(PRAGUE);
+        LocalDate day = now.toLocalDate();
+        long[] h = new long[24], y = new long[24];
+        long people = 0, peopleY = 0, pages = 0, plays = 0;
+        try (Connection c = Db.get()) {
+            try (PreparedStatement ps = c.prepareStatement(
+                    "SELECT day, hour, SUM(visits) FROM visit_origins WHERE day >= ? GROUP BY day, hour")) {
+                ps.setObject(1, day.minusDays(1));
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int hr = rs.getInt(2);
+                        if (hr < 0 || hr > 23) continue;
+                        if (day.equals(rs.getObject(1, LocalDate.class))) h[hr] += rs.getLong(3); else y[hr] += rs.getLong(3);
+                    }
+                }
+            }
+            try (PreparedStatement ps = c.prepareStatement("SELECT "
+                    + "(SELECT COUNT(*) FROM visit_days WHERE day = ?), (SELECT COUNT(*) FROM visit_days WHERE day = ?), "
+                    + "(SELECT COALESCE(SUM(pageviews), 0) FROM site_stats_daily WHERE day = ?), "
+                    + "(SELECT COALESCE(SUM(plays), 0) FROM play_daily WHERE day = ?)")) {
+                ps.setObject(1, day); ps.setObject(2, day.minusDays(1)); ps.setObject(3, day); ps.setObject(4, day);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) { people = rs.getLong(1); peopleY = rs.getLong(2); pages = rs.getLong(3); plays = rs.getLong(4); }
+                }
+            }
+        }
+        return new Today(VisitStats.onlineNow(), now.getHour(), people, peopleY, pages, plays, h, y);
+    }
+
     /** Všechny dlaždice nástěnky za období 7 nebo 30 dní. */
     public static List<Tile> tiles(int days) throws SQLException {
         int n = days * 2;
