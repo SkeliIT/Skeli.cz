@@ -4,6 +4,8 @@ import com.github.skeliit.Db;
 import com.github.skeliit.model.PongBadges;
 import com.github.skeliit.model.PongProfile;
 import com.github.skeliit.model.PongRank;
+import com.github.skeliit.model.PongScore;
+import com.github.skeliit.model.PongScoreRank;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,14 +21,65 @@ import java.util.Set;
 /** CatSmash (pong_results, V98): wins of signed-in players; the leaderboard = each player's fastest win. */
 public class PongDao {
 
-    public void addWin(int userId, int difficulty, int durationMs, int kevinGoals) throws SQLException {
+    public void addWin(int userId, int difficulty, int durationMs, int kevinGoals, int matchLen) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "INSERT INTO pong_results (user_id, difficulty, duration_ms, kevin_goals) VALUES (?, ?, ?, ?)")) {
+                "INSERT INTO pong_results (user_id, difficulty, duration_ms, kevin_goals, match_len) VALUES (?, ?, ?, ?, ?)")) {
             ps.setInt(1, userId);
             ps.setInt(2, difficulty);
             ps.setInt(3, durationMs);
             ps.setInt(4, kevinGoals);
+            ps.setInt(5, matchLen);
             ps.executeUpdate();
+        }
+    }
+
+    /** Skóre zápasu (výhra i prohra), pro tabulky podle délky zápasu. */
+    public void addScore(int userId, PongScore p, int score) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "INSERT INTO pong_scores (user_id, match_len, difficulty, score, you, kevin, duration_ms) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+            ps.setInt(1, userId); ps.setInt(2, p.len); ps.setInt(3, p.difficulty); ps.setInt(4, score);
+            ps.setInt(5, p.you); ps.setInt(6, p.kevin); ps.setInt(7, p.ms);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Tabulka podle délky zápasu: každý hráč jednou se svým nejlepším skóre (při shodě kdo dřív). */
+    public List<PongScoreRank> topScores(int len, int limit, Integer meId) throws SQLException {
+        List<PongScoreRank> out = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT u.id, u.username, u.avatar_url, u.pong_frame, s.score, s.difficulty, s.you, s.kevin "
+                        + "FROM pong_scores s JOIN users u ON u.id = s.user_id "
+                        + "WHERE s.match_len = ? AND s.id = (SELECT s2.id FROM pong_scores s2 WHERE s2.user_id = s.user_id AND s2.match_len = ? "
+                        + "  ORDER BY s2.score DESC, s2.id LIMIT 1) "
+                        + "ORDER BY s.score DESC, s.id LIMIT ?")) {
+            ps.setInt(1, len); ps.setInt(2, len); ps.setInt(3, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                int place = 0;
+                while (rs.next()) {
+                    PongScoreRank r = new PongScoreRank();
+                    r.place = ++place; r.username = rs.getString(2); r.avatarUrl = rs.getString(3);
+                    r.frame = PongBadges.isFrame(rs.getString(4)) ? rs.getString(4) : null;
+                    r.score = rs.getInt(5); r.difficulty = rs.getInt(6); r.you = rs.getInt(7); r.kevin = rs.getInt(8);
+                    r.me = meId != null && meId == rs.getInt(1);
+                    out.add(r);
+                }
+            }
+        }
+        return out;
+    }
+
+    /** Hráčovo nejlepší skóre v dané délce zápasu a místo v tabulce (null = ještě nehrál). */
+    public PongScoreRank myScore(int len, int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT b.best, 1 + (SELECT COUNT(*) FROM (SELECT user_id, MAX(score) AS m FROM pong_scores WHERE match_len = ? GROUP BY user_id) o WHERE o.m > b.best) "
+                        + "FROM (SELECT MAX(score) AS best FROM pong_scores WHERE match_len = ? AND user_id = ?) b WHERE b.best IS NOT NULL")) {
+            ps.setInt(1, len); ps.setInt(2, len); ps.setInt(3, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                PongScoreRank r = new PongScoreRank();
+                r.score = rs.getInt(1); r.place = rs.getInt(2); r.me = true;
+                return r;
+            }
         }
     }
 
@@ -36,7 +89,7 @@ public class PongDao {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "SELECT u.id, u.username, u.avatar_url, b.best, u.pong_title, u.pong_frame, "
                         + " (SELECT r2.kevin_goals FROM pong_results r2 WHERE r2.user_id = b.user_id AND r2.difficulty = ? AND r2.duration_ms = b.best ORDER BY r2.id LIMIT 1) "
-                        + "FROM (SELECT user_id, MIN(duration_ms) AS best, MIN(created_at) AS first_at FROM pong_results WHERE difficulty = ? GROUP BY user_id) b "
+                        + "FROM (SELECT user_id, MIN(duration_ms) AS best, MIN(created_at) AS first_at FROM pong_results WHERE difficulty = ? AND match_len = 10 GROUP BY user_id) b "
                         + "JOIN users u ON u.id = b.user_id ORDER BY b.best, b.first_at LIMIT ?")) {
             ps.setInt(1, difficulty);
             ps.setInt(2, difficulty);
@@ -59,8 +112,8 @@ public class PongDao {
     public PongRank mine(int difficulty, int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "SELECT u.username, u.avatar_url, b.best, "
-                        + " 1 + (SELECT COUNT(*) FROM (SELECT user_id, MIN(duration_ms) AS m FROM pong_results WHERE difficulty = ? GROUP BY user_id) o WHERE o.m < b.best) "
-                        + "FROM (SELECT MIN(duration_ms) AS best FROM pong_results WHERE difficulty = ? AND user_id = ?) b "
+                        + " 1 + (SELECT COUNT(*) FROM (SELECT user_id, MIN(duration_ms) AS m FROM pong_results WHERE difficulty = ? AND match_len = 10 GROUP BY user_id) o WHERE o.m < b.best) "
+                        + "FROM (SELECT MIN(duration_ms) AS best FROM pong_results WHERE difficulty = ? AND match_len = 10 AND user_id = ?) b "
                         + "JOIN users u ON u.id = ? WHERE b.best IS NOT NULL")) {
             ps.setInt(1, difficulty);
             ps.setInt(2, difficulty);
@@ -84,7 +137,8 @@ public class PongDao {
         boolean clean = false, close = false, hardClean = false;
         int fastest = Integer.MAX_VALUE, hardFastest = Integer.MAX_VALUE, winsCounted = 0, winsHard = 0;
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT difficulty, COUNT(*), MIN(duration_ms), MIN(kevin_goals), MAX(kevin_goals) "
+                "SELECT difficulty, COUNT(*), MIN(CASE WHEN match_len = 10 THEN duration_ms END), MIN(CASE WHEN match_len = 10 THEN kevin_goals END), "
+                        + "MAX(CASE WHEN match_len = 10 THEN kevin_goals END), SUM(match_len = 10) "
                         + "FROM pong_results WHERE user_id = ? GROUP BY difficulty")) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -92,13 +146,16 @@ public class PongDao {
                     int d = rs.getInt(1);
                     if (d < 1 || d > 3) continue;
                     p.wins += rs.getInt(2);
-                    p.bestMs[d - 1] = rs.getInt(3);
+                    boolean ten = rs.getInt(6) > 0;          // časy a výsledky jen ze zápasů do 10 (delší zápasy mají skóre)
+                    if (ten) p.bestMs[d - 1] = rs.getInt(3);
                     if (d < 2) continue;
                     winsCounted += rs.getInt(2);
+                    if (d == 3) winsHard = rs.getInt(2);
+                    if (!ten) continue;
                     fastest = Math.min(fastest, rs.getInt(3));
                     if (rs.getInt(4) == 0) clean = true;
                     if (rs.getInt(5) == 9) close = true;
-                    if (d == 3) { winsHard = rs.getInt(2); hardFastest = rs.getInt(3); hardClean = rs.getInt(4) <= 3; }
+                    if (d == 3) { hardFastest = rs.getInt(3); hardClean = rs.getInt(4) <= 3; }
                 }
             }
         }
