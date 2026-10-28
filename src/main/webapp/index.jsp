@@ -40,19 +40,8 @@
     <% } else { %>
     <p class="hero-kicker"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><%= t.getProperty("home.kicker") %></p>
     <% } %>
-    <%-- nadpis jen pro vyhledávače a čtečky (velký nápis SKELOSQUAD uživatel nechtěl) --%>
-    <h1 class="sr-only">Skeli – SKELOSQUAD</h1>
-    <p class="hero-tagline"><%= t.getProperty("home.lead") %></p>
-    <div class="hero-actions">
-      <%-- Spotify je hlavní cesta k poslechu (streamy = výdělek): zelené tlačítko otevře přehrávač na webu --%>
-      <button type="button" class="btn btn-lg btn-spotify" data-spotify-src="artist:5IouXw8U9uKCTwmncG5bUl">
-        <i class="fab fa-spotify"></i> <%= t.getProperty("home.cta.listen") %>
-      </button>
-      <a class="btn btn-lg btn-ghost" href="/texty.jsp">
-        <i class="fa-solid fa-align-left"></i> <%= t.getProperty("home.cta.lyrics") %>
-      </a>
-      <a class="hero-follow" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener"><i class="fab fa-spotify" aria-hidden="true"></i> <%= t.getProperty("home.cta.follow") %></a>
-    </div>
+    <%-- pořadí: kdo (nadpis) → co je nového (Nový song / premiéra) → kde poslouchat (Spotify) → sítě --%>
+    <h1 class="hero-tagline"><%= t.getProperty("home.lead") %></h1>
     <%-- premiéra s odpočtem (admin → píseň → Premiéra): má přednost před kartou „Nový song“ --%>
     <% com.github.skeliit.model.Premiere premiere = null;
        try { premiere = new com.github.skeliit.dao.PremiereDao().forHome(); } catch (java.sql.SQLException e) { application.log("Premiere", e); }
@@ -83,12 +72,20 @@
       <span class="play"><i class="fa-solid fa-play"></i></span>
     </a>
     <% } %>
+    <div class="hero-actions">
+      <%-- Spotify je hlavní cesta k poslechu (streamy = výdělek): zelené tlačítko otevře přehrávač na webu --%>
+      <button type="button" class="btn btn-lg btn-spotify" data-spotify-src="artist:5IouXw8U9uKCTwmncG5bUl">
+        <i class="fab fa-spotify"></i> <%= t.getProperty("home.cta.listen") %>
+      </button>
+      <a class="btn btn-lg btn-ghost" href="/texty.jsp">
+        <i class="fa-solid fa-align-left"></i> <%= t.getProperty("home.cta.lyrics") %>
+      </a>
+      <a class="hero-follow" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener"><i class="fab fa-spotify" aria-hidden="true"></i> <%= t.getProperty("home.cta.follow") %></a>
+    </div>
     <div class="social-row hero-social">
       <a class="social-btn fb" href="https://www.facebook.com/mcskeli/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
       <a class="social-btn ig" href="https://www.instagram.com/skeli.official/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
       <a class="social-btn yt" href="https://www.youtube.com/@Skeli" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-      <a class="social-btn sp" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
-      <a class="social-btn am" href="https://music.apple.com/cz/artist/skeli/1820513581" target="_blank" rel="noopener" aria-label="Apple Music"><i class="fab fa-apple"></i></a>
     </div>
   </section>
 
