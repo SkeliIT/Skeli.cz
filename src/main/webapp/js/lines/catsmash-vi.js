@@ -397,5 +397,6 @@ window.KEVIN_LINES.vi.pong = {
       "Phím cách = bắn, P = tạm dừng, Esc thả chuột ra khỏi trò chơi.",
       "pc"
     ]
-  ]
+  ],
+  "credit": "Trò chơi do Skeli nghĩ ra và làm."
 };

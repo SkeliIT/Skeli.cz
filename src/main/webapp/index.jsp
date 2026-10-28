@@ -152,6 +152,7 @@
         <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
         <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
         <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
+        <p class="game-credit"><%= t.getProperty("home.game.credit") %></p>
       </div>
 
       <div class="card side-card newsletter card-gold">

@@ -1874,3 +1874,4 @@ body.light .k-poster:hover .k-ticket { background: #e6b730; color: #141414; }
 
 /* úvod: karta hry CatSmash v postranním sloupci */
 .game-card-play { display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; }
+.game-credit { margin: 8px 0 0; font-size: var(--fs-small); color: var(--text-dim); opacity: .75; }

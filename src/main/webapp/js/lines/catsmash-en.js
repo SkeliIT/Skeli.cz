@@ -397,5 +397,6 @@ window.KEVIN_LINES.en.pong = {
       "Space = power shot, P = pause, Esc lets the mouse out of the game.",
       "pc"
     ]
-  ]
+  ],
+  "credit": "Game designed and built by Skeli."
 };
