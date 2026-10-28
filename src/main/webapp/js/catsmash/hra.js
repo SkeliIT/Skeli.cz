@@ -2191,6 +2191,7 @@
         tipBtn.querySelector('span').textContent = tips[tipAt];
       });
       board(level);
+      drawGiftThumbs(panel);
       say(pick(guest() && T.guestSay ? T.guestSay : T.hello), guest() ? 5000 : 3000);   // nepřihlášenému Kevin nabídne účet
     }
 
@@ -2198,6 +2199,34 @@
     function rar(k) { return k && RARITY[k] ? ' data-rar="' + RARITY[k] + '"' : ''; }
     var FRAMES = D.FRAMES;
     var BADGE_GROUPS = D.BADGE_GROUPS;
+    // obrázky odměny za odznak: pálka a míček (náhled kreslí drawGiftThumbs), pozadí, rámeček fotky; text odměny v title
+    function giftPics(k, rw) {
+      var h = '';
+      SKINS.forEach(function (x, i) { if (x.b === k && x.img) h += '<canvas class="kp-gift-pad" data-gift-pad="' + i + '" width="132" height="66"></canvas>'; });
+      BALLS.forEach(function (x, i) { if (x.b === k) h += '<canvas class="kp-gift-ball" data-gift-ball="' + i + '" width="88" height="88"></canvas>'; });
+      Object.keys(BG_BADGE).forEach(function (bg) { if (BG_BADGE[bg] === k) h += '<span class="kp-gift-bg" style="background-image:url(/kevin/pong/pozadi-' + bg + '-mini.webp' + ver + ')"></span>'; });
+      if (FRAMES.indexOf(k) >= 0) h += '<span class="kp-gift-frame av-frame f-' + k + '"><img src="/img/avatar-default.svg" alt="" width="22" height="22"></span>';
+      return '<span class="kp-gifts" role="img" title="' + esc(rw) + '" aria-label="' + esc((T.rewardLabel || '') + ': ' + rw) + '">' + h + '</span>';
+    }
+    function drawGiftThumbs(scope) {
+      if (!scope) return;
+      scope.querySelectorAll('canvas[data-gift-pad]').forEach(function (c) {
+        var i = +c.dataset.giftPad, sp = padSprite(i), keep = cx;
+        if (!sp) return;
+        cx = c.getContext('2d'); cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, c.width, c.height);
+        var kk = c.width / (PAD_W * 1.08); cx.scale(kk, kk);
+        drawSpritePad(sp, PAD_W * 0.54, (c.height / kk - (sp.h * PAD_W / sp.w)) / 2, PAD_W, null, true, i);
+        cx = keep;
+      });
+      scope.querySelectorAll('canvas[data-gift-ball]').forEach(function (c) {
+        var i = +c.dataset.giftBall, keep = cx;
+        if (!MIC || !MIC[BALLS[i].id]) return;
+        cx = c.getContext('2d'); cx.setTransform(88 / (BALL_R * 2.6), 0, 0, 88 / (BALL_R * 2.6), 0, 0); cx.clearRect(0, 0, BALL_R * 2.6, BALL_R * 2.6);
+        drawBall(BALLS[i].id, BALL_R * 1.3, BALL_R * 1.3, 0.4, 0);
+        cx = keep;
+      });
+    }
+    onSprites.push(function () { drawGiftThumbs(panel); });
     function badgeOverview() {
       var all = Object.keys(BADGE_ICON), got = all.filter(function (k) { return badges[k]; }).length;
       var html = '<h3 class="kp-label">' + esc(T.badgesTitle || '') + ' <small class="kp-count">' + got + '/' + all.length + '</small></h3>' +
@@ -2214,8 +2243,7 @@
           var rw = (T.rewards || {})[k];
           html += '<details class="kp-bdg' + (on ? ' on' : '') + (gi === 2 ? ' hard' : '') + '"' + rar(k) + '><summary>' +
             '<span class="kp-bdg-icon' + tier + '"><i class="fa-solid ' + (on ? BADGE_ICON[k] : 'fa-lock') + '" aria-hidden="true"></i></span>' +
-            '<span class="kp-bdg-name"><b>' + esc((T.badgeNames || {})[k] || k) + '</b>' +
-            (rw ? '<small class="kp-bdg-rw"><i class="fa-solid fa-gift" aria-hidden="true"></i> ' + esc(rw) + '</small>' : '') + '</span>' +
+            '<span class="kp-bdg-name"><b>' + esc((T.badgeNames || {})[k] || k) + '</b>' + (rw ? giftPics(k, rw) : '') + '</span>' +
             '<span class="kp-bdg-gifts" aria-hidden="true">' + gifts + '</span></summary>' +
             '<p>' + esc((T.badgeHow || {})[k] || '') + '</p>' +
             (rw ? '' : '<p class="kp-bdg-reward"><i class="fa-solid fa-gift" aria-hidden="true"></i> ' + esc(T.badgeNoReward || '') + '</p>') + '</details>';
