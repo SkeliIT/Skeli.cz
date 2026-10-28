@@ -24,6 +24,7 @@
   try { latest = new com.github.skeliit.dao.HomeDao().featured(homeVideos); } catch (SQLException ex) { /* zůstane nejnovější */ }
   final String featuredId = latest == null ? "" : latest.youtubeId();
   java.util.List<com.github.skeliit.dao.HomeDao.HomeVideo> newsVideos = new java.util.ArrayList<>();
+  if (latest != null) newsVideos.add(latest);   // první velká novinka = nový song
   for (com.github.skeliit.dao.HomeDao.HomeVideo hv : homeVideos) if (!hv.youtubeId().equals(featuredId) && newsVideos.size() < 5) newsVideos.add(hv);
 %>
 <main class="home-page">
@@ -63,14 +64,6 @@
       <span class="play"><i class="fa-solid fa-play"></i></span>
     </a>
     <script src="/js/premiere.js?v=<%= assetVersion %>"></script>
-    <% } else if (latest != null) {
-         String latestId = com.github.skeliit.WebUtils.escapeHtml(latest.youtubeId());
-         String latestTitle = latest.title() == null ? "YouTube" : latest.title(); %>
-    <a class="hero-latest" href="https://www.youtube.com/watch?v=<%= latestId %>" target="_blank" rel="noopener">
-      <img src="/yt-thumb/<%= latestId %>/mqdefault.jpg" alt="" width="104" height="58">
-      <span><small><span class="dot"></span><%= t.getProperty("home.latest") %></small><b><%= com.github.skeliit.WebUtils.escapeHtml(latestTitle) %></b></span>
-      <span class="play"><i class="fa-solid fa-play"></i></span>
-    </a>
     <% } %>
     <div class="hero-actions">
       <%-- Spotify je hlavní cesta k poslechu (streamy = výdělek): zelené tlačítko otevře přehrávač na webu --%>
@@ -126,6 +119,7 @@
             <div class="video-thumb">
               <img src="/yt-thumb/<%= vid %>/<%= big ? "maxresdefault" : "hqdefault" %>.jpg" alt="<%= title %>" loading="lazy"<% if (big) { %> onerror="this.onerror=null;this.src=this.src.replace('maxresdefault','hqdefault')"<% } %>>
               <span class="video-play"><i class="fa-solid fa-play"></i></span>
+              <% if (big) { %><span class="video-badge"><%= t.getProperty("home.latest") %></span><% } %>
             </div>
             <div class="meta">
 
@@ -154,6 +148,7 @@
 
       <%-- hra CatSmash: jedna karta, ať o ní lidi vědí (dřív jen přes Kevinovo menu) --%>
       <div class="card side-card game-card">
+        <img class="game-card-kevin" src="/img/kevin.webp" alt="" width="86" height="100" loading="lazy">
         <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
         <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
         <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
