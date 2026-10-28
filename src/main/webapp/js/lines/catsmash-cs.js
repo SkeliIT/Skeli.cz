@@ -398,5 +398,5 @@ window.KEVIN_LINES.cs.pong = {
       "pc"
     ]
   ],
-  "credit": "Hru vymyslel a postavil Skeli."
+  "credit": "Hru jsem vymyslel a postavil já. – Skeli"
 };

@@ -398,5 +398,5 @@ window.KEVIN_LINES.uk.pong = {
       "pc"
     ]
   ],
-  "credit": "Гру вигадав і створив Skeli."
+  "credit": "Цю гру я вигадав і створив сам. – Skeli"
 };

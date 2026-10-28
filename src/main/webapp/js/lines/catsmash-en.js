@@ -398,5 +398,5 @@ window.KEVIN_LINES.en.pong = {
       "pc"
     ]
   ],
-  "credit": "Game designed and built by Skeli."
+  "credit": "I came up with this game and built it. – Skeli"
 };
