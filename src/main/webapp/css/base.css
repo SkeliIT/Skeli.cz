@@ -222,7 +222,6 @@ main > h2:first-child::after {
 .about-card,
 .admin-card,
 .auth-card,
-.settings-shell,
 .donate-card {
   background: var(--panel);
   border: 1px solid var(--panel-border);

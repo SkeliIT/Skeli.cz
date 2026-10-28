@@ -222,17 +222,6 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .report-text { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); }
 
 /* Admin: lyrics editor */
-.lyrics-editor-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; align-items: start; }
-.lyrics-song-list, .lyrics-edit { padding: 20px; }
-.lyrics-song-list h3 { font-size: var(--fs-h4); margin: 18px 0 10px; }
-.lyrics-song-list h3:first-child { margin-top: 0; }
-.lyrics-song-list ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.lyrics-song-list li a { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 10px; border: 1px solid transparent; color: var(--text); }
-.lyrics-song-list li a:hover { border-color: var(--panel-border); text-decoration: none; }
-.lyrics-song-list li a.active { border-color: var(--accent); background: var(--accent-soft); }
-.lyrics-song-list li a.missing .ls-meta { color: #ffb84d; }
-.ls-name { font-size: var(--fs-card); }
-.ls-meta { font-size: var(--fs-small); color: var(--text-dim); }
 .ls-video { margin: 0 0 6px; }
 .ls-video button { width: 100%; justify-content: flex-start; text-align: left; font-size: var(--fs-small); padding: 7px 12px; }
 .ls-video .fa-youtube { color: var(--youtube); }
@@ -243,16 +232,6 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .ls-video-hide button { width: 40px; min-height: 40px; padding: 0; justify-content: center; color: var(--text-dim); }
 .ls-video-hide button:hover { color: #ff6b6e; border-color: #ff6b6e; }
 .ls-new { display: flex; flex-direction: column; gap: 8px; }
-.lyrics-edit h3 { display: flex; align-items: center; gap: 12px; }
-.lyrics-langs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-.lyrics-langs a { padding: 5px 14px; border-radius: 999px; border: 1px solid var(--panel-border); color: var(--text-dim); font-size: var(--fs-small); }
-.lyrics-langs a.active { border-color: var(--accent); color: var(--accent); }
-.lyrics-langs a:hover { text-decoration: none; color: var(--text); }
-.lyrics-langs .lyrics-view { margin-left: auto; border-color: transparent; }
-.lyrics-edit textarea { min-height: 480px; resize: vertical; font-family: var(--font-body); font-size: 0.95rem; line-height: 1.7; }
-.lyrics-edit form { display: flex; flex-direction: column; gap: 10px; }
-.lyrics-edit form button { align-self: flex-end; }
-@media (max-width: 900px) { .lyrics-editor-layout { grid-template-columns: 1fr; } }
 
 /* ============================================
    Admin 2026: one bar on every admin page, a dashboard with numbers,
@@ -317,7 +296,6 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .admin-glance .admin-stats { margin: 0; }
 .admin-spark { height: 70px; }
 .admin-spark-note { margin: 0; font-size: var(--fs-small); }
-.admin-quick { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
 .admin-manual > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 40px; font-size: var(--fs-h4); }
 .admin-manual > summary::-webkit-details-marker { display: none; }
 .admin-manual > summary i { color: var(--accent); }
@@ -385,8 +363,6 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 }
 .admin-page .admin-card h3 { margin: 0 0 10px; font-size: var(--fs-h4); }
 .admin-card-wide { grid-column: 1 / -1; }
-.admin-link-card { display: flex; flex-direction: column; align-items: flex-start; }
-.admin-link-card p { flex: 1; margin: 0 0 16px; }
 .admin-btn {
   display: inline-flex;
   align-items: center;
@@ -477,8 +453,6 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
    Texty page's own .song-row styles; the phone one copies its ≤600 px rules. */
 .art-editor { display: flex; flex-direction: column; gap: 14px; margin: 12px 0; }
 .art-preview { position: relative; }
-.art-desk { max-width: 1080px; }
-.art-phone { width: 343px; max-width: 100%; }
 .art-device { display: block; margin-bottom: 4px; font-size: var(--fs-small); color: var(--text-dim); }
 .art-row { cursor: grab; touch-action: none; user-select: none; }
 .art-row.dragging { cursor: grabbing; }
@@ -486,10 +460,6 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .art-row .song-row-art img { transition: none; }
 .art-row:hover .song-row-art img:not([data-manual]) { transform: none; }
 .art-row:hover .song-row-art img[data-manual] { transform: translate(calc(var(--tx, 0) * 1cqw), calc(var(--py, 45) * -1% * var(--az, 1))) scale(var(--az, 1)); }
-.art-phone .song-row { min-height: 88px; padding: 12px 48px 12px 14px; }
-.art-phone .song-row-art { width: 70%; }
-.art-phone .song-row-text { max-width: 62%; }
-.art-phone .song-row-title { font-size: var(--fs-h4); }
 .art-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 10px; }
 .art-zoom { display: flex; align-items: center; gap: 10px; }
 .art-zoom input[type="range"] { width: 220px; accent-color: var(--accent); }

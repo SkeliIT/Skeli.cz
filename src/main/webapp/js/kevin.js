@@ -1,5 +1,5 @@
-// Kevin – the rapping gold cat of SKELO SQUAD in the bottom left corner (css/effects.css).
-// The 3D model (js/kevin3d.js, Three.js) loads only after the page; with reduced motion,
+// Kevin – rapující kocour SKELO SQUAD: čeká jako zlatá tlapka v liště a vylézá z ní (css/effects.css).
+// 3D model (js/kevin-model.js, Three.js) se načte až po stránce; s omezeným pohybem,
 // save-data or without WebGL a still image stands in. He greets, comments on the page,
 // raps two lines of Skeli's lyrics (/api/kevin/bars) with a beat when clicked (sound only
 // ever after a click), reacts to window 'kevin' events ({detail: {pw: 'weak'|'strong'|…}}
@@ -104,7 +104,7 @@
   syncSound();
 
   // ---------- the 3D model (or the still image) ----------
-  var k = null;   // controller from kevin3d.js
+  var k = null;   // ovladač modelu z js/kevin-model.js
   var fake = { setPose: function () {}, setTalking: function () {}, spin: function () {}, look: function () {}, setLight: function () {}, setPaused: function () {}, act: function () { return 0; } };
   function model() { return k || fake; }
   function useStill() { canvas.hidden = true; still.hidden = false; }
