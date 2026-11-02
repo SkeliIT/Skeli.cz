@@ -2092,6 +2092,15 @@
         back: [{ img: 2, x: 190, y: 1102, r: 80, sign: 1, a: 0 }, { img: 0, x: 420, y: 1096, r: 92, sign: -1, a: 0 }, { img: 1, x: 640, y: 1108, r: 80, sign: 1, a: 0 }],
         v: 0, dir: 1 }
     };
+    // manometr nabití superútoku sedí přímo na velkém kole vlevo v dolním okénku (druhé v řetězu): stejný střed,
+    // průměr 84 % kola = kolem dokola koukají zuby, které se pod ním točí
+    (function () {
+      var g = MECH.bot.front[1], el = root.querySelector('.kp-gauge');
+      if (!g || !el) return;
+      el.style.setProperty('--gx', g.x.toFixed(1));
+      el.style.setProperty('--gy', g.y.toFixed(1));
+      el.style.setProperty('--gd', (2 * g.r * 0.84).toFixed(1));
+    })();
     var mechWant = { top: 0, bot: 0 }, mechLast = 0;
     function mechTick(now) {
       var dt = mechLast ? Math.min(0.05, (now - mechLast) / 1000) : 0;
@@ -2122,12 +2131,15 @@
       m.back.forEach(draw1);
       g2.fillStyle = 'rgba(5, 4, 7, .62)';                     // zadní vrstva ztmavená = hloubka
       g2.fillRect(w[0], w[1], w[2], w[3]);
-      // píst: klika na posledním kole řetězu, ojnice k pístu ve válci vpravo
-      var k = m.front[m.front.length - 1], ang = k.a * k.sign, pin = [k.x + Math.cos(ang) * k.r * 0.5, k.y + Math.sin(ang) * k.r * 0.5];
-      var L = k.r * 1.9, cyl = k.y, px = pin[0] + Math.sqrt(Math.max(0, L * L - (cyl - pin[1]) * (cyl - pin[1])));
-      var cylX = k.x + k.r * 0.5 + L + 6;
+      // píst: čep na horním paprsku posledního kola řetězu (kolo má 6 paprsků, obrázek je natočený o k.a – čep se
+      // točí s paprskem, nikdy nevisí v díře), ojnice k pístu ve válci vpravo. Válec je přesně tak dlouhý, kolik
+      // píst ujede (+ kostička), a ojnice se zkrátí, aby se celý vešel do okénka.
+      var k = m.front[m.front.length - 1], pr = k.r * 0.45, ang = k.a - Math.PI / 2, pin = [k.x + Math.cos(ang) * pr, k.y + Math.sin(ang) * pr];
+      var winR = m.win[0] + m.win[2] - 8, L = Math.max(pr * 1.6, Math.min(k.r * 1.9, winR - 18 - k.x - pr)), cyl = k.y;
+      var px = pin[0] + Math.sqrt(Math.max(0, L * L - (cyl - pin[1]) * (cyl - pin[1])));
+      var lo = k.x - pr + Math.sqrt(L * L - pr * pr), hi = k.x + pr + L;     // krajní polohy pístu
       g2.fillStyle = '#0f0e12'; g2.strokeStyle = 'rgba(230,183,48,.55)'; g2.lineWidth = 2;
-      g2.beginPath(); g2.rect(cylX - 34, cyl - 9, 46, 18); g2.fill(); g2.stroke();
+      g2.beginPath(); g2.rect(lo - 6, cyl - 9, hi - lo + 22, 18); g2.fill(); g2.stroke();
       m.front.forEach(draw1);
       var rod = g2.createLinearGradient(pin[0], pin[1] - 3, pin[0], pin[1] + 3);
       rod.addColorStop(0, '#f3d27a'); rod.addColorStop(1, '#8f6600');

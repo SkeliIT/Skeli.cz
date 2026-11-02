@@ -58,7 +58,7 @@ body.light .kpong-field { background: linear-gradient(180deg, rgba(255, 255, 255
 }
 .kpong-kevin.on { opacity: 1; }
 .kpong-panel {
-  position: absolute; inset: 0; overflow-y: auto;
+  position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin;   /* svislý posuvník ubere místo – vodorovný nikdy */
   display: flex; flex-direction: column; align-items: center; gap: 10px;
   padding: 34% 18px 18px;
   background: linear-gradient(180deg, transparent 0, rgba(5, 4, 3, .72) 30%, rgba(5, 4, 3, .9));
@@ -276,12 +276,14 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   background: linear-gradient(#ffd766, #e9a514); box-shadow: 0 2px 10px rgba(255, 178, 30, .4);
   translate: calc(var(--i, 1) * 100%) 0; transition: translate .3s cubic-bezier(.3, 1.4, .5, 1);
 }
-.kp-seg .kpong-level {
-  position: relative; display: grid; place-items: center; min-height: 40px; padding: 0 2px; border: 0; background: none; border-radius: 99px;
-  font-family: var(--font-display); font-size: clamp(.58rem, 3.8cqi, .8rem); color: #e6e0d6; transition: color .2s;
+/* obtížnost i délka zápasu: text nad zlatým jezdcem (position: relative), nikdy širší než svůj díl */
+.kp-seg :is(.kpong-level, .kpong-len) {
+  position: relative; display: grid; place-items: center; min-width: 0; min-height: 40px; padding: 0 2px; border: 0; background: none; border-radius: 99px;
+  font-family: var(--font-display); font-size: clamp(.52rem, 3.4cqi, .8rem); color: #e6e0d6; transition: color .2s; cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.kp-seg .kpong-level[aria-checked="true"] { color: #2a1a00; }
-.kp-seg .kpong-level:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+.kp-seg :is(.kpong-level, .kpong-len)[aria-checked="true"] { color: #2a1a00; }
+.kp-seg :is(.kpong-level, .kpong-len):focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
 .kp-desc { margin: 0 0 6px; font-family: var(--font-text); font-size: var(--fs-text); color: #c9bda6; }
 .kp-desc::first-letter { text-transform: uppercase; }
 .kpong-panel .kpong-play { width: 100%; min-height: 48px; border-radius: 99px; font-size: var(--fs-h4); box-shadow: 0 8px 24px rgba(255, 178, 30, .35); }
@@ -639,10 +641,10 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-credit { margin: 10px 0 0; text-align: center; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); opacity: .7; }
 
 /* menu hry: nepřihlášenému pozvání k účtu (Kevin) */
-.kp-guest { margin: 2px 0 0; padding: 8px 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; border-radius: 12px; border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+.kp-guest { box-sizing: border-box; max-width: 100%; margin: 2px 0 0; padding: 8px 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; border-radius: 12px; border: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
   background: color-mix(in srgb, var(--accent) 8%, transparent); text-align: center; }
 .kp-guest p { margin: 0; font-family: var(--font-text); font-size: var(--fs-small); line-height: 1.4; color: var(--text); }
-.kp-guest-btns { display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap; margin-top: 0 !important; }
+.kp-guest-btns { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 0 !important; }
 .kp-guest-btns .btn { padding: 7px 14px; font-size: var(--fs-small); }
 .kp-guest-btns .btn { padding: 6px 12px; }
 
@@ -758,12 +760,15 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 @keyframes kp-bullet-in { from { opacity: 0; } }
 /* připraveno: spodek hřiště zlatě svítí – další míček se přilepí */
 .kpong.stick-armed .kpong-field { box-shadow: inset 0 calc(-26px * var(--u)) calc(30px * var(--u)) calc(-14px * var(--u)) rgba(255, 200, 60, .75); }
-/* manometr nabití v dolním okénku (ručička 0–270°) */
+/* manometr nabití v dolním okénku (ručička 0–270°): leží na velkém kole vlevo (střed --gx/--gy a průměr --gd
+   v pixelech obrázku nastaví hra podle kola; zuby kola koukají kolem dokola) */
 .kp-gauge {
-  position: absolute; z-index: 2; pointer-events: none; border-radius: 50%;
-  left: calc(134px * var(--u)); top: calc(1086px * var(--u)); width: calc(108px * var(--u)); height: calc(108px * var(--u));
+  position: absolute; z-index: 2; pointer-events: none; border-radius: 50%; box-sizing: border-box;
+  --gx: 246; --gy: 1150; --gd: 94;
+  left: calc((var(--gx) - var(--gd) / 2) * var(--u) * 1px); top: calc((var(--gy) - var(--gd) / 2) * var(--u) * 1px);
+  width: calc(var(--gd) * var(--u) * 1px); height: calc(var(--gd) * var(--u) * 1px);
   background: radial-gradient(circle at 40% 35%, #2c251b, #0e0b07 70%);
-  border: calc(5px * var(--u)) solid #b8862b;
+  border: calc(4px * var(--u)) solid #b8862b;
   box-shadow: inset 0 0 calc(10px * var(--u)) #000, 0 calc(3px * var(--u)) calc(8px * var(--u)) rgba(0, 0, 0, .7);
 }
 /* stupnice: zlatý oblouk podle nabití (0–270°); --charge 0–1 (ne --p – ta je na webu zaregistrovaná jako procenta) */
