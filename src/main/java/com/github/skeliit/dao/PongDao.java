@@ -167,7 +167,7 @@ public class PongDao {
         p.title = title(userId);
         for (int d = 1; d <= 3; d++) {
             if (p.bestMs[d - 1] == null) continue;
-            PongRank r = mine(d, userId);
+            PongRank r = mine(d, 10, userId);          // profil ukazuje časy ze zápasů do 10 gólů
             if (r != null) p.place[d - 1] = r.place;
         }
         p.badge("first", "fa-trophy", winsCounted > 0);
