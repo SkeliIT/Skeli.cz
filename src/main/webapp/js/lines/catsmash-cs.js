@@ -348,7 +348,7 @@ window.KEVIN_LINES.cs.pong = {
   "itemMachine": "jeho automat",
   "itemPrev": "Předchozí",
   "itemNext": "Další",
-  "podiumNeed": "Na bednu ti chybí {n}. To dáš… možná.",
+  "podiumNeed": "Na 3. místo ti chybí {n}. To dáš… možná.",
   "seasonTitle": "Sezóna",
   "seasonAll": "Navždy",
   "champMonth": "ŠAMPION MĚSÍCE",
