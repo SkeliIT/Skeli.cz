@@ -9,6 +9,7 @@ window.KEVIN_LINES.en.pong = {
   "fullscreen": "Full screen",
   "settings": "Settings",
   "resume": "Resume",
+  "restart": "Start over",
   "done": "Done",
   "level": "Difficulty",
   "levels": [
@@ -394,7 +395,7 @@ window.KEVIN_LINES.en.pong = {
   "tipNext": "Next tip",
   "tips": [
     ["Super shot (E or magnet): the next ball sticks to your paddle, time slows down and you aim with the mouse, arrows or finger. It fires by itself, or earlier with E / space.","all"],
-    ["You start each match with one super shot. 10 perfect shots charge it again – the gauge in the lower window shows how much is left.","all"],
+    ["You start each match with one super shot. 10 perfect shots charge it again, ordinary hits help a little. A goal by Kevin takes away half the charge – the gauge in the lower window shows how much is left.","all"],
     ["A streak of perfect shots (2× 3× 4×!!) charges the super shot faster. A worse hit ends the streak and a goal from Kevin also resets the charge in progress.","all"],
     ["Hard perfect hits shake the machine – a screw falls out and your paddle gets big for a while.","all"],
     ["When Kevin runs too much, his gears overheat and a nut falls out – Kevin slows down for a while.","all"],

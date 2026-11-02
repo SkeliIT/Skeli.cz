@@ -9,6 +9,7 @@ window.KEVIN_LINES.de.pong = {
   "fullscreen": "Vollbild",
   "settings": "Einstellungen",
   "resume": "Weiter",
+  "restart": "Neu starten",
   "done": "Fertig",
   "level": "Schwierigkeit",
   "levels": [
@@ -394,7 +395,7 @@ window.KEVIN_LINES.de.pong = {
   "tipNext": "Nächster Tipp",
   "tips": [
     ["Superschuss (E oder Magnet): Der nächste Ball klebt am Schläger, die Zeit wird langsamer und du zielst mit Maus, Pfeiltasten oder Finger. Er feuert von selbst oder früher mit E / Leertaste.","all"],
-    ["Jedes Spiel beginnt mit einem geladenen Superschuss. 10 perfekte Schüsse laden ihn wieder – das Manometer im unteren Fenster zeigt, wie viel fehlt.","all"],
+    ["Jedes Spiel beginnt mit einem geladenen Superschuss. 10 perfekte Schüsse laden ihn wieder, normale Treffer helfen ein bisschen. Ein Tor von Kevin nimmt die Hälfte der Ladung – das Manometer im unteren Fenster zeigt, wie viel fehlt.","all"],
     ["Eine Serie perfekter Schüsse (2× 3× 4×!!) lädt schneller. Ein schlechterer Schlag beendet die Serie, ein Tor von Kevin setzt auch die angefangene Ladung zurück.","all"],
     ["Harte perfekte Schläge erschüttern den Automaten – eine Schraube fällt heraus und dein Schläger wird eine Weile groß.","all"],
     ["Wenn Kevin zu viel rennt, überhitzen seine Zahnräder und eine Mutter fällt heraus – Kevin wird eine Weile langsamer.","all"],

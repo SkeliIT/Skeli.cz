@@ -361,7 +361,7 @@
     var player = { x: W / 2, target: W / 2, w: PAD_W, shotAt: -1e9, shotUsed: true, stunUntil: 0, lastHit: -1e9, boosted: false };
     // šroubek ze stroje (chytí ho pálka = vylepšení na 8 s), Kevinovo klubíčko (trojka, jednou za zápas), Kevinova nálada:
     // vede o 3 a víc = líný (pomalejší, víc se splete, zívá), prohrává o 3 a víc = snaží se
-    var screw = null, nextScrewAt = 0, power = { kind: null, until: 0 }, yarn = null, yarnUsed = false, mood = 'calm';
+    var screw = null, nextScrewAt = 0, powers = {}, yarn = null, yarnUsed = false, mood = 'calm';
     var MOOD = D.MOOD;   // [rychlost běhu, chyba odhadu]
     var kevin = { x: W / 2, target: W / 2, nextThink: 0, moving: 0, miss: 0, planned: false, shot: false };
     // přehřátí kol: heat 0–1 roste s Kevinovým během, v klidu klesá; při 1 kola kouří a Kevin do hotUntil zpomalí
@@ -666,7 +666,6 @@
           break;
         case 'ekvalizer':                               // prostřední čára = zvuková vlna podle dění ve hře
           var lv = eqLv.reduce(function (a, b) { return a + b; }, 0) / eqLv.length;
-          skinEl.style.setProperty('--eq', lv.toFixed(2));
           cx.strokeStyle = 'rgba(230, 183, 48, .4)'; cx.lineWidth = 2; cx.beginPath();
           for (var x = 0; x <= W; x += 6) cx.lineTo(x, mid + Math.sin(x / 22 + t * 6) * Math.sin(x / 70 - t * 2) * (4 + lv * 18));
           cx.stroke(); ownMid = true;
@@ -1355,9 +1354,10 @@
     }
     var ball = { x: W / 2, y: H / 2, vx: 0, vy: 0, speed: 0, trail: [], fire: false, mishit: false };
     var combo = 0, hitStop = 0, flash = null, awaitStart = false, pausedMs = 0;
-    // superútok „Přilepení“: na začátku zápasu nabitý 1×, další nabití = 10 bodů z perfektních odpalů; série perfektních
-    // (hráč perfektně, Kevin vrátí, hráč zase perfektně…) dává víc bodů, horší odpal sérii zruší, gól od Kevina i body
-    var STICK_PTS = 10, STICK_AIM_MS = 1600, STICK_SLOW = 0.25, STICK_MAX_ANG = 55 * Math.PI / 180, STICK_STEP = [1, 1, 1.25, 1.5, 1.75, 2];
+    // superútok „Přilepení“: na začátku zápasu nabitý 1×, další nabití = 10 bodů; perfektní odpal 1 bod, série perfektních
+    // (hráč perfektně, Kevin vrátí, hráč zase perfektně…) víc, obyčejný odraz čtvrt bodu (STICK_TOUCH); horší odpal sérii
+    // zruší, gól od Kevina sebere polovinu bodů
+    var STICK_TOUCH = 0.25, STICK_PTS = 10, STICK_AIM_MS = 1600, STICK_SLOW = 0.25, STICK_MAX_ANG = 55 * Math.PI / 180, STICK_STEP = [1, 1, 1.25, 1.5, 1.75, 2];
     var stick = { charges: 1, pts: 0, armed: false, active: null, streak: 0 };
     // co se v zápase stalo (pro odznaky): perfektní odstřely, SUPER, přehřátí kol, nejdelší výměna, klubíčko
     var mt = { perfect: 0, superHit: false, overheats: 0, maxRally: 0, yarn: false };
@@ -1504,8 +1504,12 @@
     function stickPerfect() {                         // perfektní odpal hráče: série a body do nabití
       stick.streak++;
       if (stick.streak >= 2) { streakPop(stick.streak); if (stick.streak >= 3) quip('serie_perfekt', 0.5); }
+      stickAdd(STICK_STEP[Math.min(stick.streak, 5)]);
+    }
+    function stickTouch() { stickAdd(STICK_TOUCH); }  // obyčejný (ne pokažený) odraz hráče: malinko nabije
+    function stickAdd(n) {
       if (stick.charges > 0) return gauge();          // už nabitý (víc než jedno nabití naráz se nedrží)
-      stick.pts += STICK_STEP[Math.min(stick.streak, 5)];
+      stick.pts += n;
       if (stick.pts >= STICK_PTS) {
         stick.pts = 0; stick.charges = 1;
         comic('l', 'burst good', T.stickReady || 'SUPERÚTOK NABITÝ!', 1600);
@@ -1517,7 +1521,7 @@
     function stickBreak(lostPoint) {
       if (stick.streak >= 3) quip('serie_prerusena', 0.6);
       if (stick.streak >= 2) mt.streakPts += 10 * stick.streak;   // série do skóre: 10 × délka
-      stick.streak = 0; if (lostPoint) stick.pts = 0; gauge();
+      stick.streak = 0; if (lostPoint) stick.pts /= 2; gauge();
     }
     // E / tlačítko s magnetem: připravit (další míček se přilepí), znovu = zrušit; během míření = vystřelit
     function useStick() {
@@ -1548,7 +1552,7 @@
       if (!a) return;
       stick.active = null;
       root.classList.remove('kp-bullet');
-      var sp = Math.min(L.max * 1.2, Math.max(ball.speed, L.speed) * 1.35);
+      var sp = L.max * 1.5;                            // SUPER = vždy nejvyšší rychlost hry a ještě o polovinu víc (dřív jen 1,35× aktuální)
       ball.speed = sp; ball.vx = Math.sin(a.ang) * sp; ball.vy = -Math.cos(a.ang) * sp;
       ball.y = PLAYER_Y - PAD_H / 2 - BALL_R - 1; ball.fire = true; ball.superStick = true;
       player.target = player.x;
@@ -1566,12 +1570,10 @@
       var mult = tier[1], kind = tier[2];
       if (kind === 'perfect') { combo++; if (combo >= 3) { kind = 'super'; mult = SHOT_SUPER; combo = 0; ball.fire = true; } }
       else combo = 0;
-      if (kind === 'perfect' || kind === 'super') { mt.perfect++; stickPerfect(); } else stickBreak(false);
+      if (kind === 'perfect' || kind === 'super') { mt.perfect++; stickPerfect(); } else { stickBreak(false); stickTouch(); }
       if (kind === 'super') {
         mt.superHit = true; mt.supers++;
         if (K && !mosq.active) { K.once(K.has('stomp') && Math.random() < 0.5 ? 'stomp' : K.has('no') ? 'no' : 'shrug'); K.expression(23, 1200); }
-        root.classList.remove('gold-flash'); void root.offsetWidth; root.classList.add('gold-flash');
-        setTimeout(function () { root.classList.remove('gold-flash'); }, 900);
       }
       player.boosted = true;
       ball.speed *= mult; ball.vx *= mult; ball.vy *= mult;
@@ -1760,7 +1762,7 @@
       if (running && (paused || awaitStart)) {
         pausedMs += real;
         if (hotUntil > now) hotUntil += real;
-        if (power.kind) power.until += real;
+        for (var pk in powers) powers[pk] += real;   // bonusy během pauzy neubývají
         if (yarn) { yarn.until += real; yarn.land += real; yarn.at += real; }   // (nitka se mezitím jen nehýbe)
         nextScrewAt += real;
         if (stick.active) { stick.active.end += real; stick.active.start += real; }
@@ -1795,7 +1797,7 @@
         if (Math.abs(screw.y - PLAYER_Y) < PAD_H + 10 && Math.abs(screw.x - player.x) < player.w / 2 + 12) { powerUp(now, screw.kind); screw = null; nextScrewAt = now + rnd(30000, 45000); }
         else if (screw.y > H + 20) { screw = null; nextScrewAt = now + rnd(30000, 45000); }
       }
-      if (power.kind && now > power.until) { power.kind = null; player.w = PAD_W; }
+      for (var pk in powers) if (now > powers[pk]) { delete powers[pk]; if (pk === 'big') player.w = PAD_W; }
       // Kevin: přemýšlí jednou za „react“, cíl = kam přiletí míč (+ chyba); na těžké míří do protirohu
       if (now / 1000 >= kevin.nextThink) {
         kevin.nextThink = now / 1000 + L.react + (isHot ? 0.06 : 0);
@@ -1813,7 +1815,7 @@
       }
       var dx = kevin.target - kevin.x, ran;
       // zpomalení se násobí (přehřátí, šroubek, nálada), ale Kevin nikdy pod polovinu rychlosti – aby měl šanci
-      var maxStep = L.aiSpeed * Math.max(0.5, (isHot ? 0.7 : 1) * (power.kind === 'slow' ? 0.65 : 1) * MOOD[mood][0]) * dt;
+      var maxStep = L.aiSpeed * Math.max(0.5, (isHot ? 0.7 : 1) * (powers.slow > now ? 0.65 : 1) * MOOD[mood][0]) * dt;
       ran = clamp(dx, -maxStep, maxStep);
       kevin.moving = Math.abs(dx) > 4 ? Math.sign(dx) : 0;
       kevin.x += ran;
@@ -1824,6 +1826,7 @@
       // míč
       if (stick.active) { ball.x = stick.active.x; ball.y = PLAYER_Y - PAD_H / 2 - BALL_R - 1; }   // přilepený na pálce
       else if (now >= serveAt) {
+        var prevY = ball.y;                             // kde byl před krokem: rychlý míček (superútok, pomalý telefon) by jinak pálku přeskočil
         ball.x += ball.vx * dt; ball.y += ball.vy * dt;
         ball.trail.push([ball.x, ball.y]); if (ball.trail.length > 16) ball.trail.shift();
         ball.spin = (ball.spin || 0) + (ball.vx * 0.5 + ball.vy * 0.15) * dt / BALL_R;   // hopík se kutálí
@@ -1844,7 +1847,7 @@
         if (ball.x > W - BALL_R) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx); sfx.wall(); }
         // pálka hráče (při odstřelu zvednutá)
         var py = PLAYER_Y - liftAt(now);
-        if (ball.vy > 0 && ball.y + BALL_R >= py - PAD_H / 2 && ball.y < py + PAD_H && Math.abs(ball.x - player.x) <= player.w / 2 + BALL_R) {
+        if (ball.vy > 0 && ball.y + BALL_R >= py - PAD_H / 2 && (ball.y < py + PAD_H || prevY < py) && Math.abs(ball.x - player.x) <= player.w / 2 + BALL_R) {
           if (stick.armed) { stickStart(now); hangKick(6); } else {
           bounce(player.x, -1, py, player.w);
           hangKick(4 + ball.speed / 300);                // ťuk rozhoupe přívěsky
@@ -1854,11 +1857,11 @@
           player.lastHit = now; player.boosted = false; rallyTick();
           if (!player.shotUsed) boost(Math.abs(now - player.shotAt - SHOT_IDEAL), now);
           else if (now < player.stunUntil + 200) { mishit(now); stickBreak(false); }   // pálka se po odstřelu naprázdno ještě nevzpamatovala
-          else { combo = 0; aimError(); stickBreak(false); }
+          else { combo = 0; aimError(); stickBreak(false); stickTouch(); }
           }
         }
         // Kevinova pálka
-        if (ball.vy < 0 && ball.y - BALL_R <= KEVIN_Y + PAD_H / 2 && ball.y > KEVIN_Y - PAD_H && Math.abs(ball.x - kevin.x) <= PAD_W / 2 + BALL_R) {
+        if (ball.vy < 0 && ball.y - BALL_R <= KEVIN_Y + PAD_H / 2 && (ball.y > KEVIN_Y - PAD_H || prevY > KEVIN_Y) && Math.abs(ball.x - kevin.x) <= PAD_W / 2 + BALL_R) {
           bounce(kevin.x, 1); sfx.pad(true); hangKick(4 + ball.speed / 300, kevinRig, MAT.kevin);
           if (ball.superStick) quip('superutok_chycen', 1, null, 0, true);
           ball.fire = false; ball.superStick = false;
@@ -1890,8 +1893,9 @@
     }
     function powerUp(now, kind) {
       var k = kind || ['big', 'slow', 'calm'][Math.floor(Math.random() * 3)];
-      power = { kind: k, until: now + 8000 };
-      player.w = k === 'big' ? PAD_W * 1.5 : PAD_W;
+      // bonusy platí naráz, každý má svých 8 s; stejný znovu = jen se mu prodlouží čas (nejvýš 16 s dopředu), účinek se nesčítá
+      powers[k] = Math.min(now + 16000, Math.max(now, powers[k] || 0) + 8000);
+      if (k === 'big') player.w = PAD_W * 1.5;
       if (k === 'calm') { var f = Math.min(1, Math.max(0.7, L.speed / ball.speed)); ball.speed *= f; ball.vx *= f; ball.vy *= f; }
       comic('l', 'burst good', (T.power || {})[k] || k, 1500);
       sfx.shot(0); vibe(30);
@@ -2241,10 +2245,7 @@
     }
     function finish(playerWon) {
       releaseMouse();
-      if (root.classList.contains('final')) {
-        root.classList.remove('final');
-        if (playerWon) { root.classList.add('celebrate'); setTimeout(function () { root.classList.remove('celebrate'); }, 2400); }
-      }
+      root.classList.remove('final');
       running = false;
       var ms = Math.round(performance.now() - started - pausedMs);
       if (K) { K.hold(null); if (playerWon) { K.once(K.has('defeat') ? 'defeat' : 'shrug'); K.expression(23, 3000); } else { K.hold(K.has('dance2') ? 'dance2' : 'cheer'); K.expression(2, 3000); } }
@@ -2565,13 +2566,13 @@
       if (K) { K.hold(null); K.look(0, 0); }
       L = LEVELS[level];
       started = performance.now(); mosq.done = false;
-      screw = null; nextScrewAt = performance.now() + rnd(30000, 45000); shake = 0; power = { kind: null, until: 0 }; player.w = PAD_W;
+      screw = null; nextScrewAt = performance.now() + rnd(30000, 45000); shake = 0; powers = {}; player.w = PAD_W;
       yarn = null; yarnUsed = false; mood = 'calm';
       WIN = matchLen;
       mt = { perfect: 0, superHit: false, overheats: 0, maxRally: 0, yarn: false, screws: 0, supers: 0, stickGoals: 0, streakPts: 0 };
       var today = new Date().toISOString().slice(0, 10);              // Věrný parťák: počet různých dní se hrou
       if (level >= 2 && store.get('kevinPongDay') !== today) { store.set('kevinPongDay', today); store.set('kevinPongDays', String(+(store.get('kevinPongDays') || 0) + 1)); }
-      heat = 0; hotUntil = 0; isHot = false; root.classList.remove('hot', 'final', 'celebrate');
+      heat = 0; hotUntil = 0; isHot = false; root.classList.remove('hot', 'final');
       stickReset(); rec = []; frame.style.setProperty('--heat', 0); heatShown = 0;
       running = true; awaitStart = 'start';            // první hopík vyletí, až hráč ťukne / klikne / zmáčkne mezerník
       resetBall(Math.random() < 0.5);
@@ -2620,7 +2621,9 @@
       var lift = liftAt(now);
       if (lift > 0) { cx.shadowColor = 'rgba(230,183,48,.9)'; cx.shadowBlur = 24 * lift / LIFT; }
       // vylepšení obarví pálku (každé jinak); poslední 3 s bliká zpátky do normální barvy, čím blíž konec, tím rychleji
-      var pc = power.kind && powerLit(power.until - now) ? POWER_COL[power.kind] : null;
+      // víc bonusů naráz: barvy se po 0,6 s střídají (každá bliká podle svého zbývajícího času)
+      var act = Object.keys(powers).filter(function (k) { return powers[k] > now; }), pk = act.length ? act[Math.floor(now / 600) % act.length] : null;
+      var pc = pk && powerLit(powers[pk] - now) ? POWER_COL[pk] : null;
       var sp = padSprite(skin);
       hangTick(now);
       if (sp) {
@@ -3105,7 +3108,9 @@
         '<div class="kp-pane" role="tabpanel" id="kp-pane-sound" aria-labelledby="kp-tab-sound" data-pane="sound"' + (tab === 'sound' ? '' : ' hidden') + '>' + secSound + checks(btnVib) + secTalk + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secTouch + secLayout + secKeys + checks(btnLock) + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-screen" aria-labelledby="kp-tab-screen" data-pane="screen"' + (tab === 'screen' ? '' : ' hidden') + '>' + secDetail + checks(btnFull) + '</div>' +
-        '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>';
+        '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>' +
+        // rozehraný zápas jde zahodit a začít znovu (nic se nezapíše – výhry se jen sčítají, série nejsou, takže to nic nezvýhodní)
+        (setPausedGame ? '<button type="button" class="kp-fullbtn kp-restart"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> ' + esc(T.restart || '') + '</button>' : '');
       root.appendChild(setCard);
       setBtn.setAttribute('aria-expanded', 'true');
       setCard.querySelectorAll('.kp-tabs [data-tab]').forEach(function (b) {
@@ -3240,6 +3245,8 @@
         });
       });
       setCard.querySelector('.kp-resume').addEventListener('click', closeSettings);
+      var rs = setCard.querySelector('.kp-restart');
+      if (rs) rs.addEventListener('click', restartMatch);
       var lb = setCard.querySelector('.kp-layout-btn');
       if (lb) lb.addEventListener('click', function () { closeSettings(); openLayout(); });
       setCard.querySelector('.kp-resume').focus();
@@ -3258,6 +3265,16 @@
       if (ballType > 0) drawBall(BALLS[ballType].id, bx, by, 0.4, 0);
       else if (hopik.naturalWidth) cx.drawImage(hopik, bx - BALL_R, by - BALL_R, BALL_R * 2, BALL_R * 2);
       cx = keep;
+    }
+    // Začít znovu: zavřít nastavení bez „pokračovat?“, uklidit rozehraný stav a nový zápas (čeká na ťuknutí jako na začátku)
+    function restartMatch() {
+      setPausedGame = false;
+      closeSettings();
+      if (replay) { replay = null; rec = []; root.classList.remove('kp-replay', 'kp-replay-hit'); }
+      stick.active = null; root.classList.remove('kp-bullet');
+      hitStop = 0; paused = false; pausedMs = 0;
+      Object.keys(comics).forEach(function (k) { if (comics[k]) { comics[k].remove(); comics[k] = null; } });
+      begin();
     }
     function closeSettings() {
       if (!setCard) return;

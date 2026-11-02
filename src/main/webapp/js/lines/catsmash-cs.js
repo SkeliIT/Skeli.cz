@@ -9,6 +9,7 @@ window.KEVIN_LINES.cs.pong = {
   "fullscreen": "Celá obrazovka",
   "settings": "Nastavení",
   "resume": "Pokračovat",
+  "restart": "Začít znovu",
   "done": "Hotovo",
   "level": "Obtížnost",
   "levels": [
@@ -394,7 +395,7 @@ window.KEVIN_LINES.cs.pong = {
   "tipNext": "Další tip",
   "tips": [
     ["Superútok (E nebo magnet): další hopík se přilepí na pálku, čas se zpomalí a ty zamíříš myší, šipkami nebo prstem. Pak vystřelí sám, nebo dřív E / mezerníkem.","all"],
-    ["Superútok máš na začátku zápasu nabitý jednou. Znovu ho nabije 10 perfektních odstřelů – manometr v dolním okénku ukazuje, kolik chybí.","all"],
+    ["Superútok máš na začátku zápasu nabitý jednou. Znovu ho nabije 10 perfektních odstřelů, trochu i obyčejné odrazy. Kevinův gól sebere polovinu nabití – manometr v dolním okénku ukazuje, kolik chybí.","all"],
     ["Série perfektních odstřelů (2× 3× 4×!!) nabíjí superútok rychleji. Horší odpal sérii zruší a gól od Kevina vynuluje i rozpracované nabíjení.","all"],
     ["Tvrdé perfektní rány otřesou strojem – vypadne šroubek a tvoje pálka bude chvíli velká.","all"],
     ["Když Kevin moc běhá, kola se přehřejí a vypadne matička – Kevin pak chvíli zpomalí.","all"],
