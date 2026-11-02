@@ -306,7 +306,7 @@ window.KEVIN_LINES.cs.pong = {
     ],
     ["Superútok","E"]
   ],
-  "shotHint": "Odstřel: klikni přesně ve chvíli, kdy je hopík u pálky.",
+  "shotHint": "Odstřel: když hopík letí k tobě, nad pálkou se objeví zlatý terčík a kolem něj se stahuje kroužek – klikni, když se potkají.",
   "shot": "Odstřel",
   "shots": {
     "perfect": "PERFEKTNÍ ODSTŘEL",
@@ -346,6 +346,8 @@ window.KEVIN_LINES.cs.pong = {
   "itemMachine": "jeho automat",
   "itemPrev": "Předchozí",
   "itemNext": "Další",
+  "timing": {"early":"brzo","late":"pozdě"},
+  "aimOpt": "Ukazatel odstřelu",
   "menuBtn": "Menu",
   "menuTitle": "Pauza",
   "menuBack": "Zpět do menu",

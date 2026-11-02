@@ -1496,7 +1496,7 @@
       if (!running || paused || now - player.shotAt < 380) return;
       player.shotAt = now; player.shotUsed = false;
       // kliknuto chvilku PO dotyku: míček ještě zrychlí, ale slaběji (odchylka = zpoždění + SHOT_IDEAL)
-      if (ball.vy < 0 && !player.boosted && now - player.lastHit < 160) boost(now - player.lastHit + SHOT_IDEAL, now);
+      if (ball.vy < 0 && !player.boosted && now - player.lastHit < 160) { shotSign = 'late'; boost(now - player.lastHit + SHOT_IDEAL, now); }
     }
 
     // ---------- superútok „Přilepení“ ----------
@@ -1596,7 +1596,7 @@
       player.boosted = true;
       ball.speed *= mult; ball.vx *= mult; ball.vy *= mult;
       aimError();
-      flash = { kind: kind, text: T.shots ? T.shots[kind] : kind, at: now };
+      flash = { kind: kind, text: (T.shots ? T.shots[kind] : kind) + timingNote(kind), at: now };
       showFlash(flash);
       sfx.shot(kind === 'super' ? 0.3 : kind === 'perfect' ? 0.22 : 0);
       if (kind === 'perfect' || kind === 'super') {
@@ -1615,13 +1615,45 @@
 
     // pokažený odstřel: míček nezrychlí (ani o běžné zrychlení odrazu), naopak trochu zpomalí – ne pod 90 % základní
     // rychlosti; Kevin ho vidí jasně (žádná chyba odhadu) a vrátí ho šikmo (viz punish)
+    // k nápisu po ráně, která nebyla perfektní: „ · brzo“ / „ · pozdě“ (ať hráč ví, co zlepšit)
+    function timingNote(kind) {
+      if (kind === 'perfect' || kind === 'super' || !shotSign || !T.timing) return '';
+      var s = ' · ' + (T.timing[shotSign] || ''); shotSign = '';
+      return s;
+    }
+    // ukazatel načasování: když hopík letí k pálce, nad ní v místě dopadu svítí terčík a kolem stahující se kroužek;
+    // kroužek se s terčíkem potká přesně ve chvíli ideálního kliknutí (SHOT_IDEAL před dopadem), v okně perfektní
+    // rány (±35 ms) terčík zazáří zlatě. Po kliknutí zmizí. V ⚙ Ovládání jde vypnout.
+    function drawAim(now) {
+      if (!aimOn || !running || paused || awaitStart || replay || stick.active || now < serveAt || ball.vy <= 0) return;
+      if (!player.shotUsed && now - player.shotAt < 380) return;
+      var py = PLAYER_Y - PAD_H / 2 - BALL_R, t = (py - ball.y) / ball.vy;
+      if (t < 0 || t > 0.75) return;
+      var tIdeal = t - SHOT_IDEAL / 1000, R0 = 13;
+      // kam hopík dopadne (i s odrazy od stěn)
+      var span = W - 2 * BALL_R, per = 2 * span, xr = ((ball.x + ball.vx * t - BALL_R) % per + per) % per;
+      var x = (xr > span ? per - xr : xr) + BALL_R, y = PLAYER_Y - PAD_H / 2 - 4;
+      var hot = Math.abs(tIdeal) < 0.035, fade = Math.min(1, (0.75 - t) / 0.2);
+      cx.save();
+      cx.globalAlpha = fade;
+      cx.lineWidth = hot ? 5 : 3;
+      cx.strokeStyle = hot ? '#fff1a8' : 'rgba(255, 210, 63, .95)';          // terčík vždy zlatý, v okně perfektní rány světlý
+      cx.shadowColor = 'rgba(255, 200, 60, .9)'; cx.shadowBlur = hot ? 20 : 8;
+      cx.beginPath(); cx.ellipse(x, y, R0 * 1.6, R0 * 0.62, 0, 0, Math.PI * 2); cx.stroke();      // terčík (plochý, leží na pálce)
+      if (tIdeal > 0) {
+        var r = R0 + tIdeal * 260;                                                              // stahující se kroužek
+        cx.shadowBlur = 0; cx.lineWidth = 2.5; cx.strokeStyle = 'rgba(255, 236, 190, ' + (0.5 + 0.5 * (1 - Math.min(1, tIdeal / 0.5))).toFixed(2) + ')';
+        cx.beginPath(); cx.ellipse(x, y, r * 1.6, r * 0.62, 0, 0, Math.PI * 2); cx.stroke();
+      }
+      cx.restore();
+    }
     function mishit(now) {
       combo = 0; player.boosted = true;
       flight = null; ballFx = { kind: null, until: 0 };   // pokažený odstřel: žádný efekt
       var k = Math.max(L.speed * 0.9, ball.speed / L.gain * 0.88) / ball.speed;
       ball.speed *= k; ball.vx *= k; ball.vy *= k;
       ball.mishit = true; kevin.miss = 0;
-      flash = { kind: 'miss', text: T.shots ? T.shots.miss : 'miss', at: now };
+      flash = { kind: 'miss', text: (T.shots ? T.shots.miss : 'miss') + timingNote('miss'), at: now };
       showFlash(flash);
       sfx.miss();
       quip('odstrel_pokazeny', 0.25);
@@ -1873,7 +1905,7 @@
           if (player.shotUsed && now >= player.stunUntil + 200) padBurst(1, now);   // obyčejný odpal: efekt pálky (odstřel rozhodne boost níž)
           ball.fire = false; sfx.pad(false);
           player.lastHit = now; player.boosted = false; rallyTick();
-          if (!player.shotUsed) boost(Math.abs(now - player.shotAt - SHOT_IDEAL), now);
+          if (!player.shotUsed) { var off = now - player.shotAt - SHOT_IDEAL; shotSign = off > 0 ? 'early' : 'late'; boost(Math.abs(off), now); }
           else if (now < player.stunUntil + 200) { mishit(now); stickBreak(false); }   // pálka se po odstřelu naprázdno ještě nevzpamatovala
           else { combo = 0; aimError(); stickBreak(false); stickTouch(); }
           }
@@ -2908,6 +2940,7 @@
       pfxTick(now);
       drawFlight(now);
       drawPfx();
+      drawAim(now);
       if (screw) drawScrew(screw);
       if (yarn) {
         drawYarnThread();
@@ -3068,6 +3101,8 @@
     // vyjela a hráč prohrál); pálka jede podle pohybu myši. Esc / přepnutí okna = uvolní a hra počká na kliknutí.
     // V ⚙ jde vypnout (kevinPongLock = 0).
     var lockOn = store.get('kevinPongLock') !== '0';
+    var aimOn = store.get('kevinPongAim') !== '0';          // ukazatel načasování odstřelu (výchozí zapnutý)
+    var shotSign = '';                                       // 'early' / 'late' – kam se poslední odstřel netrefil
     function locked() { return document.pointerLockElement === root; }
     function lockMouse() {
       if (!lockOn || coarse || locked() || setCard || !root.requestPointerLock) return;
@@ -3401,6 +3436,7 @@
       var btnVib = navigator.vibrate ? '<button type="button" class="kp-fullbtn kp-opt" data-opt="vib" aria-pressed="' + vibOn + '"><i class="fa-solid fa-mobile-screen" aria-hidden="true"></i> ' + esc(T.vibrate || '') + '</button>' : '';
 
       var btnAtmo = '<button type="button" class="kp-fullbtn kp-opt" data-opt="atmo" aria-pressed="' + atmoOn + '"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ' + esc(T.atmo || '') + '</button>';
+      var btnAim = '<button type="button" class="kp-fullbtn kp-opt" data-opt="aim" aria-pressed="' + aimOn + '"><i class="fa-solid fa-bullseye" aria-hidden="true"></i> ' + esc(T.aimOpt || '') + '</button>';
       var btnLock = coarse ? '' : '<button type="button" class="kp-fullbtn kp-opt" data-opt="lock" aria-pressed="' + lockOn + '"><i class="fa-solid fa-computer-mouse" aria-hidden="true"></i> ' + esc(T.lockMouse || '') + '</button>';
       var btnFull = canFull ? '<button type="button" class="kp-fullbtn kp-full"><i class="fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand') + '" aria-hidden="true"></i> ' + esc(T.fullscreen || '') + '</button>' : '';
       var TABS = [['look', 'fa-palette', T.tabLook], ['sound', 'fa-volume-high', T.tabSound], ['controls', 'fa-gamepad', T.tabControls], ['screen', 'fa-display', T.tabScreen]];
@@ -3413,7 +3449,7 @@
         '<div class="kp-pane" role="tabpanel" id="kp-pane-look" aria-labelledby="kp-tab-look" data-pane="look"' + (tab === 'look' ? '' : ' hidden') + '>' +
         '<canvas class="kp-preview" width="600" height="200" aria-hidden="true"></canvas>' + secSkin + secBall + secBg + checks(btnAtmo) + '<p class="kp-bgname">' + esc(T.atmoHint || '') + '</p></div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-sound" aria-labelledby="kp-tab-sound" data-pane="sound"' + (tab === 'sound' ? '' : ' hidden') + '>' + secSound + checks(btnVib) + secTalk + '</div>' +
-        '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secTouch + secLayout + secKeys + checks(btnLock) + '</div>' +
+        '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secTouch + secLayout + secKeys + checks(btnAim + btnLock) + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-screen" aria-labelledby="kp-tab-screen" data-pane="screen"' + (tab === 'screen' ? '' : ' hidden') + '>' + secDetail + checks(btnFull) + '</div>' +
         '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>' +
         '';                                              // (Začít znovu je v menu hry)
@@ -3530,6 +3566,7 @@
           if (b.dataset.opt === 'vib') { vibOn = on; store.set('kevinPongVib', on ? '1' : '0'); if (on) vibe(30); }
           else if (b.dataset.opt === 'atmo') { atmoOn = on; store.set('kevinPongAtmo', on ? '1' : '0'); apfx = []; setSkin(); }
           else if (b.dataset.opt === 'lock') { lockOn = on; store.set('kevinPongLock', on ? '1' : '0'); }
+          else if (b.dataset.opt === 'aim') { aimOn = on; store.set('kevinPongAim', on ? '1' : '0'); }
           else { lefty = on; store.set('kevinPongLefty', on ? '1' : '0'); root.classList.toggle('lefty', on); shotPos = null; store.set('kevinPongShotPos', ''); placeShot(); setTimeout(fit, 50); }
         });
       });

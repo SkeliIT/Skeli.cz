@@ -306,7 +306,7 @@ window.KEVIN_LINES.en.pong = {
     ],
     ["Super shot","E"]
   ],
-  "shotHint": "Power shot: click just as the ball reaches your paddle.",
+  "shotHint": "Power shot: when the ball comes at you, a gold target appears above your paddle with a ring closing in on it – click when they meet.",
   "shot": "Power shot",
   "shots": {
     "perfect": "PERFECT SHOT",
@@ -346,6 +346,8 @@ window.KEVIN_LINES.en.pong = {
   "itemMachine": "its machine",
   "itemPrev": "Previous",
   "itemNext": "Next",
+  "timing": {"early":"too early","late":"too late"},
+  "aimOpt": "Shot timing guide",
   "menuBtn": "Menu",
   "menuTitle": "Paused",
   "menuBack": "Back to menu",

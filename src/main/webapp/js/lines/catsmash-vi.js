@@ -306,7 +306,7 @@ window.KEVIN_LINES.vi.pong = {
     ],
     ["Siêu cú đánh","E"]
   ],
-  "shotHint": "Cú bắn: bấm đúng lúc bóng chạm vợt.",
+  "shotHint": "Cú đánh mạnh: khi bóng bay tới, phía trên vợt hiện một bia vàng và một vòng tròn thu nhỏ dần – bấm khi chúng gặp nhau.",
   "shot": "Cú bắn",
   "shots": {
     "perfect": "CÚ BẮN HOÀN HẢO",
@@ -346,6 +346,8 @@ window.KEVIN_LINES.vi.pong = {
   "itemMachine": "máy của nó",
   "itemPrev": "Trước",
   "itemNext": "Tiếp",
+  "timing": {"early":"sớm quá","late":"muộn quá"},
+  "aimOpt": "Chỉ báo thời điểm đánh",
   "menuBtn": "Menu",
   "menuTitle": "Tạm dừng",
   "menuBack": "Về menu",

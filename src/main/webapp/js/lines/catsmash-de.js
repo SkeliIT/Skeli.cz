@@ -306,7 +306,7 @@ window.KEVIN_LINES.de.pong = {
     ],
     ["Superschuss","E"]
   ],
-  "shotHint": "Schmetterschuss: klick genau dann, wenn der Ball am Schläger ist.",
+  "shotHint": "Powerschuss: Wenn der Ball auf dich zufliegt, erscheint über dem Schläger ein goldenes Ziel und ein Ring zieht sich zusammen – klick, wenn sie sich treffen.",
   "shot": "Schmetterschuss",
   "shots": {
     "perfect": "PERFEKTER SCHUSS",
@@ -346,6 +346,8 @@ window.KEVIN_LINES.de.pong = {
   "itemMachine": "sein Automat",
   "itemPrev": "Zurück",
   "itemNext": "Weiter",
+  "timing": {"early":"zu früh","late":"zu spät"},
+  "aimOpt": "Schuss-Timing-Anzeige",
   "menuBtn": "Menü",
   "menuTitle": "Pause",
   "menuBack": "Zurück zum Menü",
