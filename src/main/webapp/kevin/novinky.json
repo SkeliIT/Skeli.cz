@@ -2,6 +2,15 @@
   {
     "d": "2026-11-02",
     "href": "/?kevin=pong",
+    "cs": "CatSmash má nové menu a na telefonu je hřiště mnohem větší. Skóre svítí přímo ve skle a lupou si můžeš celý automat prohlédnout a naklánět prstem.",
+    "en": "CatSmash has a new menu and on phones the court is much bigger. The score glows right in the glass, and with the magnifier you can look at the whole machine and tilt it with your finger.",
+    "de": "CatSmash hat ein neues Menü und auf dem Handy ist das Spielfeld viel größer. Der Spielstand leuchtet direkt im Glas, und mit der Lupe kannst du den ganzen Automaten ansehen und mit dem Finger kippen.",
+    "uk": "У CatSmash нове меню, а на телефоні поле набагато більше. Рахунок світиться просто в склі, а лупою можна оглянути весь автомат і нахиляти його пальцем.",
+    "vi": "CatSmash có menu mới và trên điện thoại sân chơi lớn hơn nhiều. Tỉ số sáng ngay trong kính, và với kính lúp bạn có thể xem cả máy và nghiêng nó bằng ngón tay."
+  },
+  {
+    "d": "2026-11-02",
+    "href": "/?kevin=pong",
     "cs": "V CatSmashi je zpátky tabulka času: kdo mě porazí nejrychleji, je první. Hraje se na 10, 20 nebo 30 gólů, bonusy ze součástek platí naráz a superstřela letí opravdu nejrychleji. Prohra se do tabulky nepočítá.",
     "en": "The time table is back in CatSmash: whoever beats me fastest is number one. Play to 10, 20 or 30 goals, power-ups from the parts now stack and the super shot really flies at top speed. A loss doesn’t go on the table.",
     "de": "In CatSmash ist die Zeittabelle zurück: Wer mich am schnellsten schlägt, ist Erster. Gespielt wird bis 10, 20 oder 30 Tore, Boni aus den Teilen gelten gleichzeitig und der Superschuss fliegt wirklich am schnellsten. Niederlagen zählen nicht für die Tabelle.",
@@ -34,14 +43,5 @@
     "de": "Die schwersten CatSmash-Abzeichen geben dir jetzt einen Rahmen um dein Foto – alle sehen ihn bei deinen Kommentaren.",
     "uk": "За найважчі значки в CatSmash тепер отримаєш рамку довкола фото – її побачать усі біля твоїх коментарів.",
     "vi": "Các huy hiệu khó nhất trong CatSmash giờ tặng bạn khung quanh ảnh – mọi người đều thấy bên cạnh bình luận của bạn."
-  },
-  {
-    "d": "2026-10-27",
-    "href": "/uzivatel.jsp#pong",
-    "cs": "Odznaky v CatSmashi mají nové vtipné tituly a pět nových jde získat jen na nejtěžší obtížnost. Na Lehkou se odznaky nesbírají.",
-    "en": "CatSmash badges have new funny titles, and five new ones can only be earned on the hardest difficulty. Easy gives no badges.",
-    "de": "Die CatSmash-Abzeichen haben neue lustige Titel, und fünf neue gibt es nur auf der schwersten Stufe. Auf Leicht gibt es keine Abzeichen.",
-    "uk": "Значки в CatSmash мають нові смішні титули, а п’ять нових можна здобути лише на найважчому рівні. На Легкому значків немає.",
-    "vi": "Huy hiệu trong CatSmash có danh hiệu mới vui nhộn, và năm huy hiệu mới chỉ nhận được ở mức khó nhất. Mức Dễ không có huy hiệu."
   }
 ]

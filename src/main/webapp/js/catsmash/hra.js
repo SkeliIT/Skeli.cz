@@ -52,6 +52,7 @@
       '<div class="kpong-box">' +
       '  <div class="kpong-top">' +
       '    <div class="kpong-score" aria-live="polite"><img class="kpong-face" src="' + esc(myFace()) + '" alt="" width="34" height="34"><span class="kpong-who">' + esc(T.you) + '</span><b class="kpong-you">0</b><i>:</i><b class="kpong-kev">0</b><span class="kpong-who">Kevin</span><img class="kpong-face kev" src="/kevin/pong/menu/kevin.webp' + ver + '" alt="" width="34" height="34"></div>' +
+      '    <button type="button" class="kpong-look" aria-label="' + esc(T.lookBtn || '') + '" title="' + esc(T.lookBtn || '') + '"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>' +
       '    <button type="button" class="kpong-close" aria-label="' + esc(T.close) + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
       '  </div>' +
       '  <div class="kpong-machine"><div class="kpong-frame">' +
@@ -74,6 +75,8 @@
       '      <div class="kpong-panel"></div>' +
       '    </div>' +
       '  </div></div>' +
+      // prohlídka: nápověda nahoře a „Zpět ke hře“ dole (jen během prohlídky)
+      '  <div class="kp-look-ui" hidden><p>' + esc(T.lookHint || '') + '</p><button type="button" class="kpong-play btn-primary kp-look-back"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.lookBack || '') + '</button></div>' +
       '  <div class="kpong-pad"><button type="button" class="kpong-shot"><i class="fa-solid fa-bolt" aria-hidden="true"></i><span>' + esc(T.shot || 'Odstřel') + '</span></button><button type="button" class="kpong-stickbtn" aria-label="' + esc(T.stickBtn || 'Superútok') + '"><i class="fa-solid fa-magnet" aria-hidden="true"></i></button></div>' +
       '</div>' +
       '<p class="sr-only kpong-live" aria-live="polite"></p>';   // úvod a konec (.kpong-panel) leží přímo na skle hřiště
@@ -99,16 +102,16 @@
       var padW = getComputedStyle(padEl).position === 'fixed' ? 0 : padEl.offsetWidth, padH = padW ? padEl.offsetHeight : 0;
       var availW = innerWidth - 16 - (landscape ? topBar.offsetWidth + padW + 24 : 0);
       // skóre a křížek leží přes volné místo nad strojem (vedle Kevina), na výšku tedy nezabírají řádek
-      var availH = innerHeight - 16 - (landscape ? 0 : (padH ? padH + 8 : 0));
+      var availH = innerHeight - 16 - (landscape ? 0 : (padH ? padH + 8 : 0)) - (looking ? 96 : 0);   // prohlídka: místo pro „Zpět ke hře“
       // telefon na výšku: automat přiblížený – nahoře celá horní strana s Kevinem, boky a spodek za okraji
       // telefonu (z rámu jen tenký lem kolem skla), hřiště přes celou šířku
-      var phone = !landscape && innerWidth <= 600;
+      var phone = !landscape && innerWidth <= 600 && !looking;   // při prohlídce celý automat
       if (phone) availW = innerWidth;
       var all = { x0: 0, x1: FRAME_W, y0: -110, y1: FRAME_H };    // nad rámem místo pro Kevina
       var cut = phone ? { x0: GLASS.x - 16, x1: GLASS.x + GLASS.w + 16, y0: -110, y1: GLASS.y + GLASS.h + 16 }
         : { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1300 };
       var uAll = Math.min(availW / FRAME_W, availH / FRAME_H), uCut = Math.min(availW / (cut.x1 - cut.x0), availH / (cut.y1 - cut.y0));
-      var v = phone || uCut > uAll * 1.12 ? cut : all, u = v === cut ? uCut : uAll;
+      var v = !looking && (phone || uCut > uAll * 1.12) ? cut : all, u = v === cut ? uCut : uAll;   // prohlídka = vždy celý automat
       machine.classList.toggle('cut', v === cut);
       machine.classList.toggle('phone', phone);
       gaugeTop = phone; if (typeof placeGauge === 'function') placeGauge();
@@ -123,7 +126,7 @@
         c.width = Math.round(w[2] * u * dpr); c.height = Math.round(w[3] * u * dpr);
       });
     }
-    var mechEls = [].slice.call(root.querySelectorAll('.kpong-mech')), gaugeTop = false;
+    var mechEls = [].slice.call(root.querySelectorAll('.kpong-mech')), gaugeTop = false, looking = false;
     fit();
     addEventListener('resize', fit);
 
@@ -3137,7 +3140,8 @@
     function onKey(e) {
       if (replay && e.type === 'keydown' && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); return stopReplay(); }
       if (e.key === 'Escape' && Date.now() - lockLostAt < 400) return;   // Esc jen uvolnil myš – hru nezavírat
-      if (e.key === 'Escape') return setCard ? closeSettings() : close();
+      if (e.key === 'Escape') return looking ? closeLook() : setCard ? closeSettings() : close();
+      if (looking) return;                                         // při prohlídce klávesy nehrají
       if (setCard) return;                                         // v nastavení klávesy nehrají
       // zkouška na testu: E = efekt perfektního odstřelu vybrané pálky, Shift+E = SUPER (obyčejný odpal = klávesa L)
       if ((e.key === 'e' || e.key === 'E') && e.type === 'keydown' && running) { if (!e.repeat) useStick(); e.preventDefault(); return; }
@@ -3425,6 +3429,52 @@
       Object.keys(comics).forEach(function (k) { if (comics[k]) { comics[k].remove(); comics[k] = null; } });
       begin();
     }
+    // ---------- prohlídka automatu ----------
+    // Hra se pozastaví (jako u nastavení), automat se ukáže celý a naklání se za prstem / myší (±14°), když se ho
+    // nikdo nedotýká, pomalu se pohupuje. „Zpět ke hře“ (nebo Esc) vrátí pohled a hra čeká na ťuknutí.
+    var lookUi = root.querySelector('.kp-look-ui'), lookPaused = false, lookRaf = 0, lookAt = 0, tiltX = 0, tiltY = 0, aimX = 0, aimY = 0;
+    function openLook() {
+      if (looking || mosq.active) return;
+      if (setCard) closeSettings();
+      releaseMouse();
+      lookPaused = running && !paused;
+      if (lookPaused) paused = true;
+      Object.keys(comics).forEach(function (k) { if (comics[k]) { comics[k].remove(); comics[k] = null; } });
+      looking = true; root.classList.add('kp-look'); lookUi.hidden = false; fit();
+      lookAt = 0; lookRaf = requestAnimationFrame(lookTick);
+      lookUi.querySelector('.kp-look-back').focus({ preventScroll: true });
+    }
+    function closeLook() {
+      if (!looking) return;
+      looking = false; root.classList.remove('kp-look'); lookUi.hidden = true;
+      cancelAnimationFrame(lookRaf); machine.style.transform = '';
+      fit();
+      if (lookPaused) askToResume();
+      lookPaused = false;
+    }
+    function lookTick(now) {
+      if (!looking) return;
+      var still = now - lookAt > 1500, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (still && !reduce) { aimY = Math.sin(now / 1700) * 9; aimX = Math.sin(now / 2300) * 4; }   // v klidu se pohupuje
+      tiltX += (aimX - tiltX) * 0.12; tiltY += (aimY - tiltY) * 0.12;
+      machine.style.transform = 'perspective(1100px) rotateX(' + tiltX.toFixed(2) + 'deg) rotateY(' + tiltY.toFixed(2) + 'deg)';
+      lookRaf = requestAnimationFrame(lookTick);
+    }
+    // naklánění: kam ukazuje prst / myš vůči středu automatu (zachytí se dřív, než by pohnul pálkou)
+    root.addEventListener('pointermove', function (e) {
+      if (!looking) return;
+      var r = machine.getBoundingClientRect();
+      aimY = clamp((e.clientX - (r.left + r.width / 2)) / (r.width / 2), -1, 1) * 14;
+      aimX = clamp(-(e.clientY - (r.top + r.height / 2)) / (r.height / 2), -1, 1) * 10;
+      lookAt = performance.now();
+      e.stopPropagation();
+    }, true);
+    root.addEventListener('pointerdown', function (e) {
+      if (!looking || e.target.closest('.kp-look-ui')) return;
+      e.stopPropagation(); e.preventDefault();
+    }, true);
+    root.querySelector('.kpong-look').addEventListener('click', function () { if (looking) closeLook(); else openLook(); });
+    lookUi.querySelector('.kp-look-back').addEventListener('click', closeLook);
     function closeSettings() {
       if (!setCard) return;
       setCard.remove(); setCard = null;

@@ -960,3 +960,21 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong-machine.phone .kpong-set { left: calc(604px * var(--u) - 20px); }
 @media (prefers-reduced-motion: reduce) { .kp-bigscore b.pop { animation: none; } }
 .kpong:has(.kpong-machine.phone) .kpong-top { justify-content: flex-end; }   /* ✕ zůstane vpravo, i když skóre není vidět */
+
+/* prohlídka automatu (🔍, jen telefon na výšku): celý automat, naklání se za prstem (transform z hra.js),
+   nahoře nápověda, dole „Zpět ke hře“; lišta, pálky a odstřel schované */
+.kpong-look { display: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--panel-border);
+  background: var(--panel); color: var(--text); font-size: 1rem; margin-right: 6px; }
+.kpong:has(.kpong-machine.phone) .kpong-look, .kpong.kp-look .kpong-look { display: block; }
+.kpong.kp-look .kpong-look { border-color: var(--accent); color: var(--accent); }
+.kpong.kp-look .kpong-machine { transition: none; will-change: transform; transform-style: preserve-3d; }
+.kpong.kp-look .kpong-pad, .kpong.kp-look .kpong-shot, .kpong.kp-look .kpong-stickbtn, .kpong.kp-look .kp-bigscore { visibility: hidden; }
+.kp-look-ui { position: fixed; inset: 0; z-index: 7; pointer-events: none; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px;
+  align-items: center; padding: 16px 16px calc(14px + env(safe-area-inset-bottom)); }
+.kpong.kp-look .kpong-box { align-self: flex-start; }
+.kpong.kp-look .kpong-score > * { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.kpong.kp-look .kpong-top { justify-content: flex-end; }
+.kp-look-ui[hidden] { display: none; }
+.kp-look-ui p { margin: 0; padding: 6px 14px; border-radius: 99px; background: rgba(0, 0, 0, .55); color: #ffd766;
+  font-family: var(--font-text); font-size: var(--fs-small); }
+.kp-look-ui .kp-look-back { pointer-events: auto; min-width: 60%; }
