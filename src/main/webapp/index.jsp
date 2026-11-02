@@ -136,6 +136,39 @@
         <a class="game-card-shot" href="/?kevin=pong" data-play-game tabindex="-1" aria-hidden="true"><img src="/img/catsmash-nahled.jpg" alt="" width="200" height="389" loading="lazy"></a>
         <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
         <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
+<%
+  // šampioni CatSmash: první tři tohoto měsíce; když tento měsíc ještě nikdo nevyhrál, Síň slávy (navždy)
+  java.util.List<com.github.skeliit.model.PongScoreRank> champs = java.util.List.of();
+  String champsHead = null;
+  try {
+    com.github.skeliit.dao.PongDao pongDao = new com.github.skeliit.dao.PongDao();
+    java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague"));
+    champs = pongDao.champions(3, today.withDayOfMonth(1).atStartOfDay());
+    if (!champs.isEmpty()) {
+      String month = today.getMonth().getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, java.util.Locale.forLanguageTag(cur));
+      champsHead = t.getProperty("home.game.champs").replace("{month}", month.substring(0, 1).toUpperCase() + month.substring(1));
+    } else {
+      champs = pongDao.champions(3, null);
+      champsHead = t.getProperty("home.game.fame");
+    }
+  } catch (SQLException ex) { /* bez šampionů */ }
+  java.text.NumberFormat champNum = java.text.NumberFormat.getIntegerInstance(java.util.Locale.forLanguageTag(cur));
+  if (!champs.isEmpty()) {
+%>
+        <div class="game-champs">
+          <p class="game-champs-head"><i class="fa-solid fa-crown" aria-hidden="true"></i> <%= com.github.skeliit.WebUtils.escapeHtml(champsHead) %></p>
+          <ol>
+          <% for (com.github.skeliit.model.PongScoreRank r : champs) { %>
+            <li class="p<%= r.place %>">
+              <span class="champ-place"><%= r.place %>.</span>
+              <% if (r.frame != null) { %><span class="av-frame f-<%= com.github.skeliit.WebUtils.escapeHtml(r.frame) %>"><% } %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(com.github.skeliit.WebUtils.safeUrl(r.avatarUrl, "/img/avatar-default.svg")) %>" alt="" width="26" height="26" loading="lazy"><% if (r.frame != null) { %></span><% } %>
+              <span class="champ-who"><span class="champ-name"><%= com.github.skeliit.WebUtils.escapeHtml(r.username) %><% if (r.mark != null) { %> <i class="fa-solid <%= r.getMarkIcon() %> champ-mark" aria-hidden="true"></i><% } %></span>
+                <small><b><%= champNum.format(r.score) %></b> <%= "★★★".substring(0, Math.max(1, Math.min(3, r.difficulty))) %> · <%= t.getProperty("home.game.goals").replace("{n}", String.valueOf(r.len)) %></small></span>
+            </li>
+          <% } %>
+          </ol>
+        </div>
+<% } %>
         <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
         <a class="side-link game-card-board" href="/?kevin=pong&amp;view=top" data-play-game="top"><i class="fa-solid fa-trophy" aria-hidden="true"></i> <%= t.getProperty("home.game.board") %></a>
         <p class="game-credit"><%= t.getProperty("home.game.credit") %></p>

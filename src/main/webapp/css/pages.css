@@ -1926,6 +1926,30 @@ h1.hero-tagline { font-family: inherit; font-weight: inherit; letter-spacing: in
 .game-card:hover .game-card-shot { transform: rotate(-2deg) scale(1.04); }
 @media (prefers-reduced-motion: reduce) { .game-card:hover .game-card-shot { transform: none; } }
 
+/* karta hry: šampioni měsíce (první tři) – zlatá, stříbrná, bronzová */
+.game-champs { margin: 4px 0 12px; }
+.game-champs-head { margin: 0 0 6px; font-size: var(--fs-small); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.game-champs ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.game-champs li { display: grid; grid-template-columns: 1.4em auto minmax(0, 1fr); align-items: center; gap: 6px;
+  padding: 4px 4px 4px 4px; border-radius: 10px; font-size: var(--fs-card); }
+.game-champs li.p1 { background: linear-gradient(90deg, rgba(255, 210, 63, .16), transparent 80%); }
+.game-champs li.p2 { background: linear-gradient(90deg, rgba(217, 221, 227, .12), transparent 80%); }
+.game-champs li.p3 { background: linear-gradient(90deg, rgba(208, 138, 74, .14), transparent 80%); }
+.game-champs .champ-place { font-weight: 700; text-align: right; }
+.game-champs .p1 .champ-place { color: #ffd23f; }
+.game-champs .p2 .champ-place { color: #d9dde3; }
+.game-champs .p3 .champ-place { color: #d08a4a; }
+body.light .game-champs .p1 .champ-place { color: #a37b00; }
+body.light .game-champs .p2 .champ-place { color: #6b7280; }
+body.light .game-champs .p3 .champ-place { color: #9a5a22; }
+.game-champs img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; display: block; }
+.game-champs .av-frame { font-size: 26px; --fw: .12em; }
+.game-champs .champ-who { min-width: 0; line-height: 1.2; }
+.game-champs .champ-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.game-champs .champ-mark { color: var(--accent); font-size: .85em; }
+.game-champs .champ-who small { display: block; font-size: var(--fs-small); color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.game-champs .champ-who b { color: var(--text); }
+
 /* ---------- Můj účet ve stylu návrhu od Gemini ---------- */
 .acct-hero { border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--panel-border)); box-shadow: 0 18px 50px -24px rgba(0, 0, 0, .8), 0 0 40px -22px color-mix(in srgb, var(--accent) 60%, transparent); }
 .acct-hero .acct-photo { width: 136px; height: 136px; }

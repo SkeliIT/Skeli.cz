@@ -81,6 +81,35 @@ public class PongDao {
         return out;
     }
 
+    /**
+     * Šampioni na úvodní stránce: nejvyšší skóre každého hráče od from (null = navždy) napříč všemi tabulkami
+     * (delší zápas a těžší obtížnost dávají víc bodů, takže je to férové), seřazené od nejlepšího. Smazané účty ne.
+     */
+    public List<PongScoreRank> champions(int limit, java.time.LocalDateTime from) throws SQLException {
+        List<PongScoreRank> out = new ArrayList<>();
+        Timestamp t = since(from);
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT u.username, u.avatar_url, u.pong_frame, u.pong_mark, s.score, s.difficulty, s.match_len "
+                        + "FROM pong_scores s JOIN users u ON u.id = s.user_id "
+                        + "WHERE s.created_at >= ? AND u.role <> 'DELETED' AND s.id = (SELECT s2.id FROM pong_scores s2 "
+                        + "  WHERE s2.user_id = s.user_id AND s2.created_at >= ? ORDER BY s2.score DESC, s2.id LIMIT 1) "
+                        + "ORDER BY s.score DESC, s.id LIMIT ?")) {
+            ps.setTimestamp(1, t); ps.setTimestamp(2, t); ps.setInt(3, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                int place = 0;
+                while (rs.next()) {
+                    PongScoreRank r = new PongScoreRank();
+                    r.place = ++place; r.username = rs.getString(1); r.avatarUrl = rs.getString(2);
+                    r.frame = PongBadges.isFrame(rs.getString(3)) ? rs.getString(3) : null;
+                    r.mark = PongBadges.isMark(rs.getString(4)) ? rs.getString(4) : null;
+                    r.score = rs.getInt(5); r.difficulty = rs.getInt(6); r.len = rs.getInt(7);
+                    out.add(r);
+                }
+            }
+        }
+        return out;
+    }
+
     /** Pořadí hráčů (id) v tabulce Skóre – top 10, věčná (pro upozornění „předběhl tě“). */
     public List<Integer> scoreOrder(int len, int difficulty) throws SQLException {
         return ids("SELECT s.user_id FROM pong_scores s WHERE s.match_len = ? AND s.difficulty = ? AND s.id = (SELECT s2.id FROM pong_scores s2 "

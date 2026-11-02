@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-11-02",
+    "href": "/",
+    "cs": "Na úvodní stránce teď u CatSmashe svítí první tři šampioni měsíce. Každý měsíc nová šance dostat se tam.",
+    "en": "The home page now shows the top three CatSmash champions of the month. Every month is a new chance to get there.",
+    "de": "Auf der Startseite stehen jetzt die drei CatSmash-Champions des Monats. Jeden Monat eine neue Chance.",
+    "uk": "На головній сторінці тепер світяться три чемпіони CatSmash за місяць. Щомісяця новий шанс туди потрапити.",
+    "vi": "Trang chủ giờ hiện ba nhà vô địch CatSmash của tháng. Mỗi tháng là một cơ hội mới."
+  },
+  {
+    "d": "2026-11-02",
     "href": "/?kevin=pong",
     "cs": "CatSmash má nové menu a na telefonu je hřiště mnohem větší. Skóre svítí přímo ve skle a lupou si můžeš celý automat prohlédnout a naklánět prstem.",
     "en": "CatSmash has a new menu and on phones the court is much bigger. The score glows right in the glass, and with the magnifier you can look at the whole machine and tilt it with your finger.",
@@ -34,14 +43,5 @@
     "de": "In CatSmash wählst du jetzt auf dem Handy, wie der Schläger deinem Finger folgt – klassisch, mit einem Stick wie am Controller oder wie ein Trackpad. Und im Spielmenü gibt es Tipps, wie du mich schlägst.",
     "uk": "У CatSmash тепер на телефоні можна обрати, як ракетка рухається за пальцем – як раніше, джойстиком, як на геймпаді, або як трекпадом. А в меню гри є поради, як мене перемогти.",
     "vi": "Trong CatSmash, giờ bạn có thể chọn cách vợt chạy theo ngón tay trên điện thoại – như cũ, cần điều khiển như tay cầm chơi game, hoặc như trackpad. Và trong menu trò chơi có mẹo để thắng tôi."
-  },
-  {
-    "d": "2026-10-27",
-    "href": "/uzivatel.jsp#pong",
-    "cs": "Za nejtěžší odznaky v CatSmashi teď dostaneš rámeček kolem fotky – uvidí ho všichni u tvých komentářů.",
-    "en": "The hardest CatSmash badges now give you a frame around your photo – everyone sees it next to your comments.",
-    "de": "Die schwersten CatSmash-Abzeichen geben dir jetzt einen Rahmen um dein Foto – alle sehen ihn bei deinen Kommentaren.",
-    "uk": "За найважчі значки в CatSmash тепер отримаєш рамку довкола фото – її побачать усі біля твоїх коментарів.",
-    "vi": "Các huy hiệu khó nhất trong CatSmash giờ tặng bạn khung quanh ảnh – mọi người đều thấy bên cạnh bình luận của bạn."
   }
 ]
