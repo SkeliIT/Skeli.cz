@@ -289,7 +289,7 @@
       return '<svg class="kp-burst" viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden="true"><polygon points="' + pts.join(' ') + '"/></svg>';
     }
     function comic(side, kind, text, ms) {
-      if (setCard && kind === 'say') return;                       // nastavení je otevřené: Kevin mlčí, ať nic nepřekrývá
+      if ((setCard || item || supportEl || looking) && kind === 'say') return;   // nastavení, náhled, podpora nebo prohlídka: Kevin mlčí, ať nic nepřekrývá
       var spk = root.querySelector('.kpong-spk[data-side="' + side + '"]');
       if (!spk || !text) return;
       if (comics[side]) comics[side].remove();
@@ -3254,6 +3254,7 @@
     function onKey(e) {
       if (replay && e.type === 'keydown' && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); return stopReplay(); }
       if (e.key === 'Escape' && Date.now() - lockLostAt < 400) return;   // Esc jen uvolnil myš – hru nezavírat
+      if (e.key === 'Escape' && supportEl) return closeSupport();
       if (e.key === 'Escape') return item ? closeItem() : looking ? closeLook() : setCard ? closeSettings() : close();
       if (item && e.type === 'keydown' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); return stepItem(e.key === 'ArrowLeft' ? -1 : 1); }
       if (item) return;                                            // v náhledu předmětu klávesy nehrají (šipky listují)
@@ -3286,8 +3287,33 @@
     root.addEventListener('click', function (e) {
       var a = e.target.closest('a[href]');
       if (!a || e.defaultPrevented || a.target === '_blank' || /^#/.test(a.getAttribute('href'))) return;
+      if (a.classList.contains('kp-support')) { e.preventDefault(); return openSupport(); }   // podpora: karta ve hře
+      // zavřít hru a stránku otevřít sami (odkaz po zavření zmizí ze stránky a prohlížeč by ho už neotevřel)
+      e.preventDefault();
+      var href = a.href;
       close();
+      location.href = href;
     });
+    // karta podpory: hra zůstane (uživatel nechtěl, aby se zavírala), Revolut se otevře v novém okně
+    var REVOLUT = 'https://revolut.me/skelimc', supportEl = null;
+    function openSupport() {
+      if (supportEl) return;
+      Object.keys(comics).forEach(function (k) { if (comics[k]) { comics[k].remove(); comics[k] = null; } });   // Kevinova bublina pryč
+      supportEl = document.createElement('div');
+      supportEl.className = 'kp-support-card';
+      supportEl.setAttribute('role', 'dialog'); supportEl.setAttribute('aria-label', T.supportCardTitle || '');
+      supportEl.innerHTML = '<div class="kp-sc-box"><button type="button" class="kp-item-x" aria-label="' + esc(T.close || '') + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+        '<img src="/kevin/pong/menu/kevin-2.webp' + ver + '" alt="" width="72" height="72">' +
+        '<h3>' + esc(T.supportCardTitle || '') + '</h3><p>' + esc(T.supportCardText || '') + '</p>' +
+        '<a class="kpong-play btn-primary kp-sc-revolut" href="' + REVOLUT + '" target="_blank" rel="noopener"><i class="fa-solid fa-heart" aria-hidden="true"></i> Revolut</a>' +
+        '<a class="kp-link kp-sc-more" href="/donate.jsp">' + esc(T.supportMore || '') + '</a></div>';
+      root.appendChild(supportEl);
+      supportEl.querySelector('.kp-item-x').addEventListener('click', closeSupport);
+      supportEl.addEventListener('click', function (ev) { if (ev.target === supportEl) closeSupport(); });
+      supportEl.querySelector('.kp-sc-revolut').addEventListener('click', function () { setTimeout(closeSupport, 300); });
+      supportEl.querySelector('.kp-sc-revolut').focus({ preventScroll: true });
+    }
+    function closeSupport() { if (supportEl) { supportEl.remove(); supportEl = null; } }
 
     // ---------- nastavení ve hře (⚙): pozadí hrací plochy (mění se hned, je vidět pod kartou) a celá obrazovka;
     // během hry se při otevření zapauzuje, po zavření se po krátké chvilce rozjede ----------

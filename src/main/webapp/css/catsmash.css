@@ -1019,3 +1019,18 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-item-prog i { grid-column: 1 / -1; height: 6px; border-radius: 99px; background: linear-gradient(90deg, var(--accent) var(--p), rgba(255, 255, 255, .14) var(--p)); }
 .kp-gift-pad, .kp-gift-ball { cursor: zoom-in; }
 @media (prefers-reduced-motion: reduce) { .kp-item-obj { transform: none; animation: none; } }
+
+/* karta podpory ve hře (odkaz Podpoř po zápase): hra zůstane, Revolut v novém okně */
+.kp-support-card { position: fixed; inset: 0; z-index: 9; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, .62);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); animation: kp-fade .2s ease-out; }
+.kp-sc-box { position: relative; width: min(320px, 100%); display: grid; justify-items: center; gap: 10px; padding: 20px 18px 16px; text-align: center;
+  border-radius: 22px; border: 1.5px solid rgba(230, 183, 48, .6); background: radial-gradient(120% 70% at 50% 25%, rgba(34, 30, 22, .98), rgba(8, 7, 6, .98));
+  box-shadow: 0 0 0 4px rgba(20, 16, 10, .9), 0 0 0 5.5px rgba(184, 134, 43, .55), 0 30px 60px -20px rgba(0, 0, 0, .9);
+  animation: kp-pop .3s cubic-bezier(.2, 1.4, .4, 1) both; }
+.kp-sc-box img { width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #b8862b, 0 4px 12px rgba(0, 0, 0, .6); }
+.kp-sc-box h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: var(--fs-h3); color: var(--accent); }
+.kp-sc-box p { margin: 0; font-family: var(--font-text); font-size: var(--fs-text); color: var(--text); }
+.kp-sc-revolut { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 75%; min-height: 48px; padding: 0 22px;
+  border-radius: 99px; text-decoration: none; }
+.kp-sc-revolut:focus-visible { outline: 2px solid #fff3c4; outline-offset: 3px; }
+.kp-sc-more { font-size: var(--fs-small); }
