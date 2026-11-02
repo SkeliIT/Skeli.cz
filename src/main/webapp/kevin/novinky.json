@@ -1,5 +1,14 @@
 [
   {
+    "d": "2026-11-03",
+    "href": "/?kevin=pong",
+    "cs": "CatSmash má nové odměny: čím vzácnější odznak, tím hezčí pálka, míček nebo pozadí. Odznaky začínají všem znovu od nuly – kdo je vybojuje první?",
+    "en": "CatSmash has new rewards: the rarer the badge, the finer the paddle, ball or background. Badges start from zero for everyone – who wins them first?",
+    "de": "CatSmash hat neue Belohnungen: je seltener das Abzeichen, desto edler Schläger, Ball oder Hintergrund. Abzeichen starten für alle bei null – wer holt sie zuerst?",
+    "uk": "У CatSmash нові нагороди: що рідший значок, то гарніша ракетка, м’ячик чи фон. Значки для всіх починаються з нуля – хто здобуде їх першим?",
+    "vi": "CatSmash có phần thưởng mới: huy hiệu càng hiếm thì vợt, bóng hay hình nền càng đẹp. Huy hiệu của mọi người bắt đầu lại từ đầu – ai giành được trước?"
+  },
+  {
     "d": "2026-11-02",
     "href": "/?kevin=pong",
     "cs": "CatSmash má v menu nový Vzhled: pálky, míčky, pozadí a vítězné oslavy vybíráš ze seznamu se zvětšeným náhledem a každou oslavu si můžeš přehrát.",
@@ -34,14 +43,5 @@
     "de": "In CatSmash ist die Zeittabelle zurück: Wer mich am schnellsten schlägt, ist Erster. Gespielt wird bis 10, 20 oder 30 Tore, Boni aus den Teilen gelten gleichzeitig und der Superschuss fliegt wirklich am schnellsten. Niederlagen zählen nicht für die Tabelle.",
     "uk": "У CatSmash повернулася таблиця часу: хто переможе мене найшвидше, той перший. Граємо до 10, 20 або 30 голів, бонуси з деталей діють одночасно, а суперудар летить справді найшвидше. Поразка до таблиці не йде.",
     "vi": "Bảng thời gian đã trở lại trong CatSmash: ai thắng tôi nhanh nhất sẽ đứng đầu. Chơi tới 10, 20 hoặc 30 bàn, các phần thưởng từ linh kiện giờ cộng dồn và siêu cú đánh bay nhanh nhất thật sự. Thua thì không được vào bảng."
-  },
-  {
-    "d": "2026-10-28",
-    "href": "/?kevin=pong",
-    "cs": "V CatSmashi máš superútok! Zmáčkni E nebo magnet, hopík se přilepí na pálku, čas se zpomalí a ty zamíříš. A každá pálka má teď vlastní automat. Gól, který rozhodne zápas, uvidíš zpomaleně jako v televizi.",
-    "en": "CatSmash has a super shot! Press E or the magnet, the ball sticks to your paddle, time slows down and you aim. And every paddle now has its own machine. The goal that decides the match plays back in slow motion, like on TV.",
-    "de": "CatSmash hat jetzt einen Superschuss! Drück E oder den Magneten, der Ball klebt am Schläger, die Zeit wird langsamer und du zielst. Und jeder Schläger hat jetzt seinen eigenen Automaten. Das entscheidende Tor siehst du in Zeitlupe wie im Fernsehen.",
-    "uk": "У CatSmash є суперудар! Натисни E або магніт, м’ячик прилипне до ракетки, час сповільниться, а ти прицілишся. А кожна ракетка тепер має власний автомат. Гол, що вирішує матч, побачиш у сповільненому повторі, як по телевізору.",
-    "vi": "CatSmash có siêu cú đánh! Nhấn E hoặc nam châm, bóng dính vào vợt, thời gian chậm lại và bạn ngắm bắn. Mỗi cây vợt giờ còn có cỗ máy riêng. Bàn thắng quyết định trận đấu được chiếu chậm như trên TV."
   }
 ]

@@ -36,7 +36,7 @@
   var LOOKS = ['first', 'easy', 'tinker', 'normal', 'loyal', 'streak', 'night', 'sniper', 'overheat', 'close', 'marathon', 'comeback', 'clean', 'super', 'angry', 'wins100', 'wins50'];
   // pozadí pro všechny: Tma a Noční město; ostatní odemkne odznak (kdo nic nevybral nebo má zamčené, má Noční město)
   // pozadí patří k pálce: odemkne ho stejný odznak jako pálku (Noční město ke Graffiti je zdarma)
-  var BG_BADGE = { zare: 'night', zapad: 'first', vesmir: 'angry', ganja: 'wins50', les: 'loyal', sopka: 'comeback', poklad: 'streak', kyber: 'sniper', podmori: 'close', podium: 'marathon', klenotnice: 'clean', tovarna: 'wins100', plys: 'tinker', skelosquad: 'skelosquad' };
+  var BG_BADGE = { zare: 'fast', zapad: 'normal', vesmir: 'clean', ganja: 'wins50', les: 'streak', sopka: 'comeback', poklad: 'wardrobe', kyber: 'sniper', podmori: 'night', podium: 'hsniper', klenotnice: 'hcomeback', tovarna: 'wins100', plys: 'tinker', skelosquad: 'skelosquad' };
   // výřez obrázku na hřiště (hřiště je na výšku, obrázky na šířku): kde je v obrázku to nejhezčí
   var BG_POS = { mesto: '20%', zapad: '62%', les: '50%', vesmir: '28%', zare: '50%', ganja: '55%', sopka: '50%', poklad: '50%', kyber: '50%', podmori: '50%', podium: '50%', klenotnice: '50%', tovarna: '50%', plys: '50%', skelosquad: '50%' };
   var MOOD = { lazy: [0.85, 1.35], calm: [1, 1], try: [1.08, 0.8] };
@@ -147,6 +147,8 @@
     angry: 'e', wins100: 'e', wardrobe: 'e',
     hwins5: 'l', hfast: 'l', hclean: 'l', hsniper: 'l', hcomeback: 'l', skelosquad: 'l' };
   // odznaky, které navíc odemknou rámeček kolem fotky (stejné jako PongBadges.FRAMES na serveru)
+  // pořadí odznaků od nejsnazšího po nejvzácnější (tak se řadí i pálky, míčky a pozadí v seznamech)
+  var RANK = ['first', 'easy', 'tinker', 'loyal', 'normal', 'streak', 'night', 'close', 'overheat', 'sniper', 'fast', 'super', 'yarn', 'marathon', 'comeback', 'clean', 'wins50', 'angry', 'wardrobe', 'wins100', 'hsniper', 'hcomeback', 'hclean', 'hfast', 'hwins5', 'skelosquad'];
   var FRAMES = ['angry', 'wins100', 'wardrobe', 'hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback'];
   var BADGE_GROUPS = [['first', 'easy', 'normal', 'angry', 'clean', 'close', 'fast', 'streak', 'wins50', 'wins100'],
     ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'wardrobe'],
@@ -158,5 +160,5 @@
     calm: ['#eadcff', '#7a46d0', 'rgba(190, 140, 255, .9)']
   };
 
-  C.data = { W: W, H: H, PAD_W: PAD_W, PAD_H: PAD_H, BALL_R: BALL_R, WIN: WIN, PLAYER_Y: PLAYER_Y, KEVIN_Y: KEVIN_Y, FRAME_W: FRAME_W, FRAME_H: FRAME_H, GLASS: GLASS, TOP_SLOT: TOP_SLOT, GEARS_KEVIN: GEARS_KEVIN, WIN_TOP: WIN_TOP, WIN_BOT: WIN_BOT, BGS: BGS, LEVELS: LEVELS, SHOT: SHOT, SHOT_IDEAL: SHOT_IDEAL, SHOT_SUPER: SHOT_SUPER, LIFT: LIFT, BADGE_ICON: BADGE_ICON, CLAIMABLE: CLAIMABLE, LOOKS: LOOKS, BG_BADGE: BG_BADGE, BG_POS: BG_POS, MOOD: MOOD, MAT: MAT, FLIGHT: FLIGHT, BALL_FLIGHT: BALL_FLIGHT, REACT: REACT, BALL_KINDS: BALL_KINDS, TALK: TALK, RARITY: RARITY, FRAMES: FRAMES, BADGE_GROUPS: BADGE_GROUPS, POWER_COL: POWER_COL };
+  C.data = { W: W, H: H, PAD_W: PAD_W, PAD_H: PAD_H, BALL_R: BALL_R, WIN: WIN, PLAYER_Y: PLAYER_Y, KEVIN_Y: KEVIN_Y, FRAME_W: FRAME_W, FRAME_H: FRAME_H, GLASS: GLASS, TOP_SLOT: TOP_SLOT, GEARS_KEVIN: GEARS_KEVIN, WIN_TOP: WIN_TOP, WIN_BOT: WIN_BOT, BGS: BGS, LEVELS: LEVELS, SHOT: SHOT, SHOT_IDEAL: SHOT_IDEAL, SHOT_SUPER: SHOT_SUPER, LIFT: LIFT, BADGE_ICON: BADGE_ICON, CLAIMABLE: CLAIMABLE, LOOKS: LOOKS, BG_BADGE: BG_BADGE, BG_POS: BG_POS, MOOD: MOOD, MAT: MAT, FLIGHT: FLIGHT, BALL_FLIGHT: BALL_FLIGHT, REACT: REACT, BALL_KINDS: BALL_KINDS, TALK: TALK, RARITY: RARITY, RANK: RANK, FRAMES: FRAMES, BADGE_GROUPS: BADGE_GROUPS, POWER_COL: POWER_COL };
 })();
