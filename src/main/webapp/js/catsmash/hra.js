@@ -3281,6 +3281,13 @@
     }
     document.addEventListener('visibilitychange', onHidden);
     root.querySelector('.kpong-close').addEventListener('click', close);
+    // odkaz ve hře na jinou stránku webu (Podpoř, Přihlásit, profil…): hru nejdřív zavřít, jinak se stránka otevře
+    // pod ní a vypadá to, že odkaz nic neudělal. Navigace (i PJAX) pak proběhne normálně.
+    root.addEventListener('click', function (e) {
+      var a = e.target.closest('a[href]');
+      if (!a || e.defaultPrevented || a.target === '_blank' || /^#/.test(a.getAttribute('href'))) return;
+      close();
+    });
 
     // ---------- nastavení ve hře (⚙): pozadí hrací plochy (mění se hned, je vidět pod kartou) a celá obrazovka;
     // během hry se při otevření zapauzuje, po zavření se po krátké chvilce rozjede ----------
