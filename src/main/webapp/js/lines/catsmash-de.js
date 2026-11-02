@@ -344,6 +344,8 @@ window.KEVIN_LINES.de.pong = {
   "itemUse": "Benutzen",
   "itemUsing": "In Gebrauch",
   "itemMachine": "sein Automat",
+  "itemPrev": "Zurück",
+  "itemNext": "Weiter",
   "lookBtn": "Automat ansehen",
   "lookBack": "Zurück zum Spiel",
   "lookHint": "Kipp den Automaten mit dem Finger",

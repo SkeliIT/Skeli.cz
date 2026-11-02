@@ -344,6 +344,8 @@ window.KEVIN_LINES.cs.pong = {
   "itemUse": "Použít",
   "itemUsing": "Používáš",
   "itemMachine": "jeho automat",
+  "itemPrev": "Předchozí",
+  "itemNext": "Další",
   "lookBtn": "Prohlídka automatu",
   "lookBack": "Zpět ke hře",
   "lookHint": "Nakloň automat prstem",

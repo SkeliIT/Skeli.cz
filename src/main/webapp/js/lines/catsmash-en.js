@@ -344,6 +344,8 @@ window.KEVIN_LINES.en.pong = {
   "itemUse": "Use",
   "itemUsing": "In use",
   "itemMachine": "its machine",
+  "itemPrev": "Previous",
+  "itemNext": "Next",
   "lookBtn": "Look at the machine",
   "lookBack": "Back to the game",
   "lookHint": "Tilt the machine with your finger",

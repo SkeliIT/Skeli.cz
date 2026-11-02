@@ -344,6 +344,8 @@ window.KEVIN_LINES.vi.pong = {
   "itemUse": "Dùng",
   "itemUsing": "Đang dùng",
   "itemMachine": "máy của nó",
+  "itemPrev": "Trước",
+  "itemNext": "Tiếp",
   "lookBtn": "Xem máy chơi game",
   "lookBack": "Quay lại trò chơi",
   "lookHint": "Dùng ngón tay nghiêng máy",

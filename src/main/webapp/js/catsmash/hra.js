@@ -2559,7 +2559,7 @@
     });
 
     // ---------- karta položky (pálka, míček, pozadí) ----------
-    // Velký náhled, naklání se za prstem / myší jako dlaždice na webu (zlatý odlesk jede s náklonem).
+    // Jen samotný předmět ve velkém (bez karty), naklání se za prstem / myší jako dlaždice na webu, pod ním stín.
     // Odemčené: Použít (Používáš, když už je vybraná). Zamčené: 🔒, za jaký odznak, jak ho získat a kolik chybí.
     var item = null;
     function badgeProgress(k) {
@@ -2572,18 +2572,36 @@
       if (kind === 'ball') return { name: (T.balls || [])[i] || '', b: BALLS[i].b, on: i === ballType };
       return { name: (T.bgs || BGS)[i] || '', b: BG_BADGE[BGS[i]], on: BGS[i] === bgName };
     }
+    // velké míčky (256 px) pro náhled – načtou se až při prvním otevření (tools/catsmash-micky-velke.py)
+    var micBig = null, micBigImg = null;
+    function loadMicBig(done) {
+      if (micBig) return done();
+      fetch('/kevin/pong/micky-velke.json' + ver).then(function (r) { return r.json(); }).then(function (j) {
+        var im = new Image(); im.onload = function () { micBig = j; micBigImg = im; done(); }; im.src = '/kevin/pong/micky-velke.webp' + ver;
+      }).catch(function () {});
+    }
+    function itemCount(kind) { return kind === 'pad' ? SKINS.length : kind === 'ball' ? BALLS.length : BGS.length; }
+    // listování v náhledu: dokola (po poslední zase první)
+    function stepItem(d) {
+      if (!item) return;
+      var n = itemCount(item.kind);
+      openItem(item.kind, (item.i + d + n) % n);
+    }
     function openItem(kind, i) {
       closeItem();
       var inf = itemInfo(kind, i), ok = !inf.b || hasBadge(inf.b), pr = !ok && badgeProgress(inf.b);
       var art = kind === 'bg'
         ? (BGS[i] === 'tma' ? '<div class="kp-item-bg tma"></div>' : '<img class="kp-item-bg" src="/kevin/pong/pozadi-' + BGS[i] + '.webp' + ver + '" alt="">')
-        : '<canvas class="kp-item-cv ' + kind + '" width="' + (kind === 'pad' ? 560 : 300) + '" height="' + (kind === 'pad' ? 260 : 300) + '"></canvas>';
+        : '<canvas class="kp-item-cv ' + kind + '"></canvas>';
       item = { kind: kind, i: i, raf: 0, el: document.createElement('div') };
-      item.el.className = 'kp-item' + (ok ? '' : ' locked');
+      item.el.className = 'kp-item ' + kind + (ok ? '' : ' locked');
       item.el.setAttribute('role', 'dialog'); item.el.setAttribute('aria-label', inf.name);
-      item.el.innerHTML = '<div class="kp-item-card"><button type="button" class="kp-item-x" aria-label="' + esc(T.close || '') + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
-        '<div class="kp-item-art">' + art + (ok ? '' : '<i class="fa-solid fa-lock kp-item-lockicon" aria-hidden="true"></i>') + '</div>' +
-        '<h3>' + esc(inf.name) + '</h3>' +
+      item.el.innerHTML = '<button type="button" class="kp-item-x" aria-label="' + esc(T.close || '') + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+        // šipky ‹ › = předchozí / další ve stejné skupině (pálky, míčky, pozadí); jde i přejet prstem a šipkami
+        '<button type="button" class="kp-item-nav prev" aria-label="' + esc(T.itemPrev || '') + '"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>' +
+        '<button type="button" class="kp-item-nav next" aria-label="' + esc(T.itemNext || '') + '"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
+        '<div class="kp-item-obj">' + art + (ok ? '' : '<i class="fa-solid fa-lock kp-item-lockicon" aria-hidden="true"></i>') + '</div>' +
+        '<div class="kp-item-info"><p class="kp-item-count">' + (i + 1) + ' / ' + itemCount(kind) + '</p><h3>' + esc(inf.name) + '</h3>' +
         (inf.mach ? '<p class="kp-item-mach"><img src="/kevin/pong/stroje/' + inf.mach + '.webp' + ver + '" alt="" onerror="this.parentNode.remove()"> ' + esc(T.itemMachine || '') + '</p>' : '') +
         (ok
           ? '<button type="button" class="kpong-play btn-primary kp-item-use"' + (inf.on ? ' disabled' : '') + '><i class="fa-solid fa-' + (inf.on ? 'check' : 'hand-pointer') + '" aria-hidden="true"></i> ' + esc(inf.on ? T.itemUsing || '' : T.itemUse || '') + '</button>'
@@ -2592,44 +2610,53 @@
             (pr ? '<p class="kp-item-prog"><span>' + esc((T.progressUnits || {})[pr.unit] || '') + '</span><b>' + pr.have + ' / ' + pr.need + '</b><i style="--p:' + Math.round(pr.have / pr.need * 100) + '%"></i></p>' : '')) +
         '</div>';
       root.appendChild(item.el);
-      var card = item.el.querySelector('.kp-item-card');
-      item.el.querySelector('.kp-item-x').addEventListener('click', closeItem);
-      var box = item.el;                                  // (handlery nesmí sahat na item – po zavření je null)
+      var box = item.el, obj = box.querySelector('.kp-item-obj');   // (handlery nesmí sahat na item – po zavření je null)
+      box.querySelector('.kp-item-x').addEventListener('click', closeItem);
       box.addEventListener('click', function (e) { if (e.target === box) closeItem(); });
-      var use = item.el.querySelector('.kp-item-use');
+      var use = box.querySelector('.kp-item-use');
       if (use) use.addEventListener('click', function () { useItem(kind, i); closeItem(); });
-      // naklánění za prstem / myší (±12°), odlesk podle polohy; po opuštění se srovná
+      // předmět se naklání za prstem / myší (±18°), po opuštění se srovná
       box.addEventListener('pointermove', function (e) {
-        var r = card.getBoundingClientRect(), px = clamp((e.clientX - r.left) / r.width, 0, 1), py = clamp((e.clientY - r.top) / r.height, 0, 1);
-        card.style.setProperty('--ry', ((px - 0.5) * 24).toFixed(1) + 'deg'); card.style.setProperty('--rx', ((0.5 - py) * 18).toFixed(1) + 'deg');
-        card.style.setProperty('--gx', (px * 100).toFixed(0) + '%'); card.style.setProperty('--gy', (py * 100).toFixed(0) + '%');
+        var r = obj.getBoundingClientRect(), px = clamp((e.clientX - r.left) / r.width, -0.5, 1.5), py = clamp((e.clientY - r.top) / r.height, -0.5, 1.5);
+        obj.style.setProperty('--ry', clamp((px - 0.5) * 36, -18, 18).toFixed(1) + 'deg');
+        obj.style.setProperty('--rx', clamp((0.5 - py) * 28, -14, 14).toFixed(1) + 'deg');
       });
-      box.addEventListener('pointerleave', function () { card.style.setProperty('--rx', '0deg'); card.style.setProperty('--ry', '0deg'); });
-      // obraz: pálka (houpe se), míček (točí se)
-      var cv = item.el.querySelector('.kp-item-cv');
+      box.addEventListener('pointerleave', function () { obj.style.setProperty('--rx', '0deg'); obj.style.setProperty('--ry', '0deg'); });
+      box.querySelector('.kp-item-nav.prev').addEventListener('click', function () { stepItem(-1); });
+      box.querySelector('.kp-item-nav.next').addEventListener('click', function () { stepItem(1); });
+      // přejetí prstem doleva / doprava = další / předchozí
+      var sx = null;
+      box.addEventListener('pointerdown', function (e) { sx = e.target.closest('button') ? null : e.clientX; });
+      box.addEventListener('pointerup', function (e) { if (sx != null && Math.abs(e.clientX - sx) > 50) stepItem(e.clientX < sx ? 1 : -1); sx = null; });
+      // obraz v rozlišení displeje (ostrý): pálka se jemně houpe, míček se točí
+      var cv = box.querySelector('.kp-item-cv');
       if (cv) {
+        var dpr = Math.min(3, window.devicePixelRatio || 1), cw = cv.clientWidth || 280, ch = cv.clientHeight || 140;
+        cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr);
+        if (kind === 'ball') loadMicBig(function () {});
         var t0 = performance.now();
         (function tick(now) {
-          if (!item || item.kind !== kind) return;
+          if (!item || item.el !== box) return;
           var c = cv.getContext('2d'), keep = cx, t = (now - t0) / 1000;
           cx = c; cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height);
           if (kind === 'pad') {
-            var sp = padSprite(i), k = cv.width / (PAD_W * 1.3);
-            cx.translate(cv.width / 2, cv.height / 2); cx.rotate(Math.sin(t * 1.4) * 0.05); cx.translate(-cv.width / 2, -cv.height / 2);
+            var sp = padSprite(i), k = cv.width / (PAD_W * 1.12);
+            cx.translate(cv.width / 2, cv.height / 2); cx.rotate(Math.sin(t * 1.4) * 0.04); cx.translate(-cv.width / 2, -cv.height / 2);
             cx.scale(k, k);
-            if (sp) drawSpritePad(sp, PAD_W * 0.65, (cv.height / k - (sp.h * PAD_W / sp.w)) / 2, PAD_W, null, true, i);
-            else pad(PAD_W * 0.65, cv.height / k / 2, SKINS[i].pad[0], SKINS[i].pad[1], PAD_W);
+            if (sp) drawSpritePad(sp, PAD_W * 0.56, (cv.height / k - (sp.h * PAD_W / sp.w)) / 2, PAD_W, null, true, i);
+            else pad(PAD_W * 0.56, cv.height / k / 2, SKINS[i].pad[0], SKINS[i].pad[1], PAD_W);
           } else {
-            var s = cv.width / (BALL_R * 2.8);
-            cx.setTransform(s, 0, 0, s, 0, 0);
-            if (i === 0 && hopik.naturalWidth) { cx.translate(BALL_R * 1.4, BALL_R * 1.4); cx.rotate(t * 1.2); cx.drawImage(hopik, -BALL_R, -BALL_R, BALL_R * 2, BALL_R * 2); }
-            else if (i > 0) drawBall(BALLS[i].id, BALL_R * 1.4, BALL_R * 1.4, t * 1.2, 0);
+            var R = cv.width / 2, big = micBig && i > 0 && micBig[BALLS[i].id];
+            cx.translate(R, R); cx.rotate(t * 1.1);
+            if (i === 0 && hopik.naturalWidth) cx.drawImage(hopik, -R, -R, R * 2, R * 2);
+            else if (big) cx.drawImage(micBigImg, big[0], big[1], big[2], big[3], -R, -R, R * 2, R * 2);
+            else if (i > 0) { var s2 = R / BALL_R; cx.scale(s2, s2); drawBall(BALLS[i].id, 0, 0, 0); }
           }
           cx = keep;
           item.raf = requestAnimationFrame(tick);
         })(t0);
       }
-      (use || item.el.querySelector('.kp-item-x')).focus({ preventScroll: true });
+      (use || box.querySelector('.kp-item-x')).focus({ preventScroll: true });
     }
     function closeItem() {
       if (!item) return;
@@ -3237,7 +3264,8 @@
       if (replay && e.type === 'keydown' && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); return stopReplay(); }
       if (e.key === 'Escape' && Date.now() - lockLostAt < 400) return;   // Esc jen uvolnil myš – hru nezavírat
       if (e.key === 'Escape') return item ? closeItem() : looking ? closeLook() : setCard ? closeSettings() : close();
-      if (item) return;                                            // na kartě položky klávesy nehrají
+      if (item && e.type === 'keydown' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); return stepItem(e.key === 'ArrowLeft' ? -1 : 1); }
+      if (item) return;                                            // v náhledu předmětu klávesy nehrají (šipky listují)
       if (looking) return;                                         // při prohlídce klávesy nehrají
       if (setCard) return;                                         // v nastavení klávesy nehrají
       // zkouška na testu: E = efekt perfektního odstřelu vybrané pálky, Shift+E = SUPER (obyčejný odpal = klávesa L)

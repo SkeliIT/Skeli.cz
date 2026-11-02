@@ -344,6 +344,8 @@ window.KEVIN_LINES.uk.pong = {
   "itemUse": "Використати",
   "itemUsing": "Використовуєш",
   "itemMachine": "його автомат",
+  "itemPrev": "Попередній",
+  "itemNext": "Наступний",
   "lookBtn": "Оглянути автомат",
   "lookBack": "Назад до гри",
   "lookHint": "Нахили автомат пальцем",
