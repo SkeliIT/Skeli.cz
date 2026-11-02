@@ -2243,8 +2243,8 @@
     // ---------- zpomalený záznam vítězného gólu ----------
     // Během hry se ukládají poslední ~2,4 s (míček, obě pálky); po posledním gólu zápasu se přehrají zpomaleně.
     // Aby bylo jasné, na co se díváš: nejdřív nápis, kdo gól dal; záznam začne až od posledního odpalu (rána,
-    // která gól dala); hřiště celé bez přiblížení, míček v kroužku a za ním zlatá čára jeho dráhy, u pálek
-    // štítky TY / KEVIN, při gólu velké GÓL!. Poslední 0,7 s ještě pomaleji.
+    // která gól dala); hřiště celé bez přiblížení, míček v kroužku a za ním zlatá čára jeho dráhy, při gólu
+    // velké GÓL!. Poslední 0,7 s ještě pomaleji.
     var rec = [], replay = null, REC_MS = 2400;
     function recordFrame(now) {
       rec.push({ t: now, bx: ball.x, by: ball.y, px: player.x, kx: kevin.x, f: !!ball.fire });
@@ -2291,7 +2291,7 @@
         setTimeout(stopReplay, 1100);
       }
     }
-    // přes hřiště během záznamu: zlatá čára dráhy míčku od posledního odpalu, kroužek kolem míčku, štítky u pálek
+    // přes hřiště během záznamu: zlatá čára dráhy míčku od posledního odpalu a kroužek kolem míčku (štítky u pálek uživatel nechtěl)
     function drawReplayMarks(now) {
       var r = replay, f = r.frames;
       cx.save();
@@ -2303,15 +2303,6 @@
       cx.strokeStyle = '#ffe27a'; cx.lineWidth = 4; cx.shadowColor = 'rgba(255, 200, 60, .9)'; cx.shadowBlur = 14;
       cx.beginPath(); cx.arc(ball.x, ball.y, (BALL_R + 12) * pulse, 0, 7); cx.stroke();
       cx.shadowBlur = 0;
-      cx.font = '600 30px Oswald, sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
-      function tag(x, y, text, gold) {
-        var w = cx.measureText(text).width + 22;
-        cx.fillStyle = gold ? 'rgba(230, 183, 48, .95)' : 'rgba(0, 0, 0, .7)';
-        roundRect(x - w / 2, y - 20, w, 40, 20);          // (vlastní – starší Safari cx.roundRect nezná)
-        cx.fillStyle = gold ? '#1a1405' : '#ffe27a'; cx.fillText(text, x, y + 1);
-      }
-      tag(clamp(kevin.x, 70, W - 70), KEVIN_Y + PAD_H / 2 + 38, 'KEVIN', !r.won);
-      tag(clamp(player.x, 70, W - 70), PLAYER_Y - PAD_H / 2 - 38, (T.you || 'TY').toUpperCase(), r.won);
       cx.restore();
     }
     function stopReplay() {
