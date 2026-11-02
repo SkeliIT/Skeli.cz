@@ -346,6 +346,7 @@ window.KEVIN_LINES.en.pong = {
   "itemMachine": "its machine",
   "itemPrev": "Previous",
   "itemNext": "Next",
+  "podiumNeed": "You’re {n} away from the podium. You can do it… maybe.",
   "seasonTitle": "Season",
   "seasonAll": "All time",
   "champMonth": "CHAMPION OF THE MONTH",

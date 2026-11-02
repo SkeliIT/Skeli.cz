@@ -346,6 +346,7 @@ window.KEVIN_LINES.uk.pong = {
   "itemMachine": "його автомат",
   "itemPrev": "Попередній",
   "itemNext": "Наступний",
+  "podiumNeed": "До п’єдесталу тобі бракує {n}. Впораєшся… мабуть.",
   "seasonTitle": "Сезон",
   "seasonAll": "Назавжди",
   "champMonth": "ЧЕМПІОН МІСЯЦЯ",

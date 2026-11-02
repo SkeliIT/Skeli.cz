@@ -2843,6 +2843,14 @@
     var boardSeq = 0;                                  // pozdní odpověď staršího dotazu nesmí přepsat novější tabulku
     // legendární znak u jména v tabulce (jen když si ho hráč zapnul)
     function markIcon(k) { return k && BADGE_ICON[k] ? ' <i class="fa-solid ' + BADGE_ICON[k] + ' kp-mark" title="' + esc((T.badgeNames || {})[k] || '') + '"></i>' : ''; }
+    // Kevin řekne, kolik ti chybí na bednu (3. místo) – jednou za otevření hry, jen přihlášenému mimo top 3
+    var podiumSaid = false;
+    function podiumNeed(j, diff, fmt) {
+      if (podiumSaid || !j.me || j.me.place <= 3 || !j.top || j.top.length < 3 || !T.podiumNeed || panel.dataset.view !== 'main') return;
+      podiumSaid = true;
+      var need = diff(j.top[2], j.me);
+      if (need > 0) setTimeout(function () { say(T.podiumNeed.replace('{n}', fmt(need)), 4200); }, 3500);
+    }
     function boardLen() { var b = panel.querySelector('[data-board][aria-pressed="true"]'); return b ? +b.dataset.board : matchLen; }
     function board(len) {
       if (boardKind === 'time') return timeBoard(len);
@@ -2861,6 +2869,7 @@
             '<span class="kpong-time">' + r.score + '</span></li>';
         }).join('');
         var mine = j.me ? '<p class="kpong-note">' + esc((T.yourScore || '').replace('{place}', j.me.place).replace('{score}', j.me.score)) + '</p>' : '';
+        podiumNeed(j, function (a, b) { return a.score - b.score + 1; }, function (n) { return n + ' ' + (T.points || ''); });
         var local = +(store.get(ptsKey(len, d)) || 0);
         var guest = !signedIn ? '<p class="kpong-note">' + esc(T.loginToRank) + ' <a href="/login.jsp?next=' + encodeURIComponent(location.pathname + location.search) + '">' + esc(T.login) + '</a>' +
           (local ? ' · ' + esc((T.localScore || '').replace('{score}', local)) : '') + '</p>' : '';
@@ -2889,6 +2898,7 @@
             '<span class="kpong-time">' + time(r.ms) + '</span></li>';
         }).join('');
         var mine = j.me ? '<p class="kpong-note">' + esc((T.yourBest || '').replace('{place}', j.me.place).replace('{time}', time(j.me.ms))) + '</p>' : '';
+        podiumNeed(j, function (a, b) { return b.ms - a.ms + 1; }, function (n) { return (n / 1000).toFixed(1).replace('.', ',') + ' s'; });
         var local = +(store.get(timeKey(d, len)) || 0);
         var guest = !signedIn ? '<p class="kpong-note">' + esc(T.loginToRank) + ' <a href="/login.jsp?next=' + encodeURIComponent(location.pathname + location.search) + '">' + esc(T.login) + '</a>' +
           (local ? ' · ' + esc((T.localBest || '').replace('{time}', time(local))) : '') + '</p>' : '';

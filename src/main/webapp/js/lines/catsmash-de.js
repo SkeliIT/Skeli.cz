@@ -346,6 +346,7 @@ window.KEVIN_LINES.de.pong = {
   "itemMachine": "sein Automat",
   "itemPrev": "Zurück",
   "itemNext": "Weiter",
+  "podiumNeed": "Bis aufs Treppchen fehlen dir {n}. Schaffst du… vielleicht.",
   "seasonTitle": "Saison",
   "seasonAll": "Für immer",
   "champMonth": "CHAMPION DES MONATS",

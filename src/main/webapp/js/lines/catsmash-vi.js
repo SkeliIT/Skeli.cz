@@ -346,6 +346,7 @@ window.KEVIN_LINES.vi.pong = {
   "itemMachine": "máy của nó",
   "itemPrev": "Trước",
   "itemNext": "Tiếp",
+  "podiumNeed": "Còn thiếu {n} để lên bục. Bạn làm được… chắc vậy.",
   "seasonTitle": "Mùa",
   "seasonAll": "Mọi thời đại",
   "champMonth": "VÔ ĐỊCH THÁNG",
