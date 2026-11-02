@@ -354,6 +354,7 @@ window.KEVIN_LINES.uk.pong = {
   "seasonTitle": "Сезон",
   "seasonAll": "Назавжди",
   "champMonth": "ЧЕМПІОН МІСЯЦЯ",
+  "victory": "ПЕРЕМОГА!",
   "celebTitle": "Святкування перемоги",
   "celebAuto": "Автоматично",
   "celebOff": "Вимкнено",

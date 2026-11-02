@@ -1057,7 +1057,29 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-how .kp-tut-again { width: 100%; }
 
 /* vítězná oslava (legendární odznak) přes hřiště i konec zápasu, nekliká se na ni */
-.kp-celeb { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+/* vítězné oslavy (Lottie): animace přes hřiště, záblesk, nápis, otřes automatu */
+.kp-celeb { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; container-type: inline-size; }
+.kp-celeb:not(.kp-celeb-win) { background: radial-gradient(circle at 50% 40%, rgba(0, 0, 0, .35), rgba(0, 0, 0, .7)); animation: kp-celeb-box 4.2s ease forwards; }
+@keyframes kp-celeb-box { 0% { opacity: 0; } 8% { opacity: 1; } 82% { opacity: 1; } 100% { opacity: 0; } }
+.kp-lottie { position: absolute; left: 50%; top: 40%; width: 92%; aspect-ratio: 1; translate: -50% -50%; }
+.kp-lottie svg { display: block; }
+.kp-lottie-ohnostroj1 { width: 130%; aspect-ratio: 16 / 9; top: 34%; }
+.kp-lottie-blesk1 { left: 34%; top: 42%; width: 130%; aspect-ratio: 386 / 362; }
+.kp-lottie-blesk2 { left: 66%; top: 52%; width: 130%; aspect-ratio: 386 / 362; }
+.kp-lottie-vybuch { width: 120%; }
+.kp-lottie-koruna { width: 62%; top: 44%; filter: drop-shadow(0 0 18px rgba(255, 200, 60, .8)); }
+.kp-lottie-ohnostroj2, .kp-lottie-ohnostroj3 { width: 110%; top: 36%; }
+.kp-celeb-flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 40%, rgba(255, 244, 200, .9), rgba(255, 200, 60, .35) 40%, transparent 72%);
+  animation: kp-celeb-flash .8s ease-out forwards; }
+@keyframes kp-celeb-flash { to { opacity: 0; } }
+.kp-celeb-text { position: absolute; left: 50%; top: 20%; translate: -50% -50%; white-space: nowrap; font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(1.6rem, 11cqi, 3.4rem); letter-spacing: .04em; background: linear-gradient(#fff6c8, #ffd23f 45%, #b8860b); -webkit-background-clip: text;
+  background-clip: text; color: transparent; filter: drop-shadow(0 3px 0 #5a3d00) drop-shadow(0 0 18px rgba(255, 200, 60, .7));
+  animation: kp-celeb-text 4s cubic-bezier(.2, 1.4, .4, 1) forwards; }
+@keyframes kp-celeb-text { 0% { opacity: 0; scale: 2.6; } 12% { opacity: 1; scale: .94; } 18% { scale: 1; } 85% { opacity: 1; } 100% { opacity: 0; scale: 1.04; } }
+.kpong-machine.kp-quake { animation: kp-quake .5s cubic-bezier(.36, .07, .19, .97); }
+@keyframes kp-quake { 15% { translate: -6px 3px; } 30% { translate: 6px -3px; } 45% { translate: -4px 2px; } 60% { translate: 3px -1px; } 80% { translate: -1px 0; } }
+@media (prefers-reduced-motion: reduce) { .kpong-machine.kp-quake { animation: none; } }
 .kp-celebs [aria-disabled="true"] { opacity: .45; }
 
 /* sezóny: přepínač Navždy / Tento měsíc; první tři v tabulce s korunkou (zlatá, stříbrná, bronzová) */

@@ -354,6 +354,7 @@ window.KEVIN_LINES.vi.pong = {
   "seasonTitle": "Mùa",
   "seasonAll": "Mọi thời đại",
   "champMonth": "VÔ ĐỊCH THÁNG",
+  "victory": "CHIẾN THẮNG!",
   "celebTitle": "Ăn mừng chiến thắng",
   "celebAuto": "Tự động",
   "celebOff": "Tắt",

@@ -354,6 +354,7 @@ window.KEVIN_LINES.en.pong = {
   "seasonTitle": "Season",
   "seasonAll": "All time",
   "champMonth": "CHAMPION OF THE MONTH",
+  "victory": "VICTORY!",
   "celebTitle": "Victory celebration",
   "celebAuto": "Automatic",
   "celebOff": "Off",

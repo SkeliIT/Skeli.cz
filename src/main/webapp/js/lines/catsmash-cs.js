@@ -354,6 +354,7 @@ window.KEVIN_LINES.cs.pong = {
   "seasonTitle": "Sezóna",
   "seasonAll": "Navždy",
   "champMonth": "ŠAMPION MĚSÍCE",
+  "victory": "VÍTĚZSTVÍ!",
   "celebTitle": "Vítězná oslava",
   "celebAuto": "Automaticky",
   "celebOff": "Vypnuto",
