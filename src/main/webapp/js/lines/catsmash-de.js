@@ -341,6 +341,8 @@ window.KEVIN_LINES.de.pong = {
   "emptyScore": "Hier hat noch niemand gespielt. Sei der Erste.",
   "scoreRows": {"goals":"Tore","perfect":"Perfekte Schüsse","supers":"SUPER-Schläge","stick":"Superschuss-Tore","streaks":"Perfekte Serien","rally":"Längster Ballwechsel","screws":"Maschinenteile","kevin":"Kevins Tore","win":"Sieg","speed":"Zeit","mult":"Schwierigkeit"},
   "replaySkip": "tippen zum Überspringen",
+  "pickPlay": "Vorschau abspielen",
+  "pickInspect": "Ansehen",
   "itemUse": "Benutzen",
   "itemUsing": "In Gebrauch",
   "itemMachine": "sein Automat",

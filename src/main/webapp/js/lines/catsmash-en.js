@@ -341,6 +341,8 @@ window.KEVIN_LINES.en.pong = {
   "emptyScore": "Nobody has played here yet. Be the first.",
   "scoreRows": {"goals":"Goals","perfect":"Perfect shots","supers":"SUPER hits","stick":"Super shot goals","streaks":"Perfect streaks","rally":"Longest rally","screws":"Machine parts","kevin":"Kevin’s goals","win":"Win","speed":"Time","mult":"Difficulty"},
   "replaySkip": "tap to skip",
+  "pickPlay": "Play preview",
+  "pickInspect": "Inspect",
   "itemUse": "Use",
   "itemUsing": "In use",
   "itemMachine": "its machine",

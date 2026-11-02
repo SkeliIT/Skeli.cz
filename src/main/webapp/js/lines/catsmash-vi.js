@@ -341,6 +341,8 @@ window.KEVIN_LINES.vi.pong = {
   "emptyScore": "Chưa ai chơi ở đây. Hãy là người đầu tiên.",
   "scoreRows": {"goals":"Bàn thắng","perfect":"Cú đánh hoàn hảo","supers":"Cú SUPER","stick":"Bàn bằng siêu cú đánh","streaks":"Chuỗi hoàn hảo","rally":"Pha bóng dài nhất","screws":"Chi tiết máy","kevin":"Bàn của Kevin","win":"Chiến thắng","speed":"Thời gian","mult":"Độ khó"},
   "replaySkip": "chạm để bỏ qua",
+  "pickPlay": "Xem thử",
+  "pickInspect": "Xem kỹ",
   "itemUse": "Dùng",
   "itemUsing": "Đang dùng",
   "itemMachine": "máy của nó",

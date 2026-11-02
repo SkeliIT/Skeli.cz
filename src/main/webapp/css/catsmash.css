@@ -1069,3 +1069,88 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong-list li.p1 .kpong-place::before, .kpong-list li.p2 .kpong-place::before, .kpong-list li.p3 .kpong-place::before {
   content: "\f521"; font: 900 .6rem/1 "Font Awesome 6 Free"; position: absolute; left: 50%; top: -7px; translate: -50% 0; }
 .kpong-list li.p1 { background: linear-gradient(90deg, rgba(255, 210, 63, .14), transparent 70%); }
+
+/* ---------- Nastavení → Vzhled: jedna položka z každé skupiny (slot), ostatní ve vyskakovacím seznamu ---------- */
+.kp-slots { display: grid; gap: 8px; }
+.kp-slot { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 58px;
+  padding: 6px 12px 6px 6px; border-radius: 14px; border: 1px solid var(--panel-border); background: rgba(255, 255, 255, .05);
+  color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: border-color .15s, background .15s; }
+.kp-slot:hover, .kp-slot:focus-visible, .kp-slot[aria-expanded="true"] { border-color: var(--accent); background: rgba(230, 183, 48, .1); }
+.kp-slot-txt { display: grid; min-width: 0; line-height: 1.25; }
+.kp-slot-txt small { font-size: var(--fs-small); color: var(--text-dim); }
+.kp-slot-txt small .kp-count { margin-left: 2px; }
+.kp-slot-txt b { font-weight: 400; font-size: var(--fs-card); color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kp-slot-arrow { color: var(--text-dim); transition: transform .2s; }
+.kp-slot[aria-expanded="true"] .kp-slot-arrow { transform: translateX(3px); color: var(--accent); }
+/* malý obrázek (slot i seznam) */
+.kp-tb { display: grid; place-items: center; width: 64px; height: 44px; border-radius: 10px; background: rgba(0, 0, 0, .35); overflow: hidden; }
+.kp-tb canvas { width: 100%; height: 100%; display: block; }
+.kp-tb.ball canvas { width: 40px; height: 40px; }
+.kp-tb.pad canvas { width: 60px; height: auto; aspect-ratio: 2.2 / 1; }
+.kp-tb.celeb i { font-size: 1.25rem; color: var(--accent); }
+.kp-tbg { width: 100%; height: 100%; background: center / cover no-repeat; }
+.kp-tbg.tma { background: radial-gradient(circle at 50% 40%, #2a2620, #050505); }
+
+/* vyskakovací seznam: PC vedle slotu (seznam | velký náhled), telefon přes nastavení (náhled nahoře) */
+.kp-picker { position: absolute; z-index: 8; display: flex; gap: 12px; animation: kp-fade .18s ease both; }
+.kp-pick-col, .kp-pick-big { border-radius: 18px; border: 1px solid rgba(230, 183, 48, .5);
+  background: linear-gradient(180deg, rgba(26, 24, 22, .97), rgba(12, 11, 10, .98)); box-shadow: 0 24px 60px -18px rgba(0, 0, 0, .9); }
+.kp-pick-col { display: flex; flex-direction: column; width: 230px; padding: 6px; }
+.kp-pick-arrow { display: grid; place-items: center; height: 34px; border: 0; border-radius: 10px; background: transparent; color: var(--accent); font-size: 1rem; cursor: pointer; }
+.kp-pick-arrow:hover:not(:disabled), .kp-pick-arrow:focus-visible { background: rgba(230, 183, 48, .14); }
+.kp-pick-arrow:disabled { opacity: .25; cursor: default; }
+.kp-pick-list { list-style: none; margin: 0; padding: 2px; display: grid; gap: 4px; max-height: calc(5 * 52px + 4 * 4px); overflow-y: auto;
+  scrollbar-width: none; overscroll-behavior: contain; scroll-snap-type: y proximity; }
+.kp-pick-list::-webkit-scrollbar { display: none; }
+.kp-pick-list li { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 52px; padding: 4px 10px 4px 4px;
+  border-radius: 12px; border: 1px solid transparent; cursor: pointer; scroll-snap-align: start; outline: none; }
+.kp-pick-list li.hot, .kp-pick-list li:focus-visible { background: rgba(255, 255, 255, .07); border-color: rgba(230, 183, 48, .4); }
+.kp-pick-list li[data-rar] .kp-tb { box-shadow: inset 0 0 0 1.5px var(--rar); }
+.kp-pick-list li[aria-disabled="true"] .kp-tb > * { filter: grayscale(.6) brightness(.75); }
+.kp-pick-list li > .fa-lock { color: var(--text-dim); font-size: .8rem; }
+.kp-pick-list li .kp-pick-on { visibility: hidden; color: var(--accent); }
+.kp-pick-list li[aria-selected="true"] { background: rgba(230, 183, 48, .14); border-color: var(--accent); }
+.kp-pick-list li[aria-selected="true"] .kp-pick-on { visibility: visible; }
+.kp-pick-list li.nope { animation: kp-nope .35s ease; }
+@keyframes kp-nope { 25% { translate: -5px 0; } 75% { translate: 5px 0; } }
+.kp-pick-name { font-size: var(--fs-card); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kp-pick-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 4px 10px; }
+.kp-pick-head b { font-weight: 400; color: var(--accent); }
+.kp-pick-x { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--panel-border); background: rgba(255, 255, 255, .06); color: var(--text); cursor: pointer; }
+.kp-pick-x:hover, .kp-pick-x:focus-visible { background: var(--accent); color: #2a1a00; }
+
+/* velký náhled: pálka, míček, pozadí nebo oslava */
+.kp-pick-big { width: 250px; padding: 16px 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.kp-big-obj { position: relative; display: grid; place-items: center; min-height: 120px; }
+.kp-big-cv.pad { width: 220px; aspect-ratio: 2.2 / 1; filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .6)); }
+.kp-big-cv.ball { width: 120px; aspect-ratio: 1; filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .6)); }
+.kp-big-bg { display: block; width: 140px; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 24px rgba(0, 0, 0, .6); }
+.kp-big-bg.tma { background: radial-gradient(circle at 50% 40%, #2a2620, #050505); }
+.kp-big-celeb { display: grid; place-items: center; width: 110px; height: 110px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(230, 183, 48, .25), transparent 70%); }
+.kp-big-celeb i { font-size: 3.2rem; color: var(--accent); filter: drop-shadow(0 0 14px rgba(230, 183, 48, .6)); }
+.kp-pick-big h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: var(--fs-h4); color: var(--accent); }
+.kp-pick-big .kp-item-lockicon { width: 28px; height: 28px; }
+.kp-big-acts { display: grid; gap: 6px; width: 100%; }
+.kp-big-acts .kp-fullbtn { min-height: 40px; }
+.kp-big-using { font-size: var(--fs-small); color: var(--accent); }
+
+.kp-picker.side .kp-pick-big { align-self: center; }
+/* telefon / málo místa: seznam přes nastavení, náhled nahoře */
+.kp-picker.sheet { left: 50%; top: 64px; translate: -50% 0; width: min(360px, calc(100vw - 24px)); max-height: calc(100dvh - 80px);
+  flex-direction: column; gap: 8px; }
+.kp-picker.sheet .kp-pick-big { order: -1; width: auto; padding: 12px; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+.kp-picker.sheet .kp-big-obj { min-height: 0; }
+.kp-picker.sheet .kp-big-cv.pad { width: 170px; }
+.kp-picker.sheet .kp-big-cv.ball { width: 84px; }
+.kp-picker.sheet .kp-big-bg { width: 84px; }
+.kp-picker.sheet .kp-big-celeb { width: 76px; height: 76px; }
+.kp-picker.sheet .kp-big-celeb i { font-size: 2.3rem; }
+.kp-picker.sheet .kp-pick-big h3, .kp-picker.sheet .kp-pick-big > p, .kp-picker.sheet .kp-big-acts { flex-basis: 100%; }
+.kp-picker.sheet .kp-big-acts { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.kp-picker.sheet .kp-pick-col { width: auto; min-height: 0; }
+.kp-picker.sheet .kp-pick-list { max-height: min(calc(5 * 52px + 4 * 4px), calc(100dvh - 420px)); min-height: 110px; }
+
+/* ukázka vítězné oslavy: nastavení a menu na chvíli zmizí */
+.kp-peeking .kpong-settings, .kp-peeking .kp-menu-card, .kp-peeking .kp-picker, .kp-peeking .kpong-panel { opacity: 0; pointer-events: none; transition: opacity .25s; }
+.kp-tabs[hidden] { display: none; }
