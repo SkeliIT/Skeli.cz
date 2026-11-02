@@ -1567,6 +1567,30 @@ p.acct-dim { font-family: var(--font-text); font-weight: 300; font-size: var(--f
 .lyric-page .karaoke-btn.on i { animation: karaoke-mic 1.6s ease-in-out infinite; }
 @keyframes karaoke-mic { 50% { transform: rotate(-12deg); } }
 @media (prefers-reduced-motion: reduce) { .lyric-page .karaoke-btn.on i { animation: none; } }
+/* karaoke je pro přihlášené: nepřihlášený má u mikrofonu zámeček, klik ukáže výzvu (js/karaoke.js showLock) */
+.lyric-page .karaoke-btn.locked { position: relative; }
+.lyric-page .karaoke-btn.locked::after {
+  content: "\f023"; font: 900 9px/1 "Font Awesome 6 Free"; position: absolute; right: -2px; bottom: -2px;
+  display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); color: var(--accent-ink);
+}
+.k-lock {
+  position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 1200; translate: -50% 0;
+  width: min(380px, calc(100vw - 24px)); padding: 16px 18px 14px; border-radius: var(--radius);
+  background: var(--panel); border: 1px solid var(--accent); box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); animation: k-lock-in .25s ease-out;
+}
+.k-lock p { margin: 0; }
+.k-lock-title { font-family: var(--font-display); font-size: var(--fs-h4); color: var(--accent); padding-right: 36px; }
+.k-lock-text { margin-top: 6px !important; font-family: var(--font-text); font-size: var(--fs-text); color: var(--text); }
+.k-lock-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px !important; }
+.k-lock-btns .btn { flex: 1 1 140px; justify-content: center; min-height: 44px; }
+.k-lock-x {
+  position: absolute; top: 6px; right: 6px; width: 40px; height: 40px; border: 0; border-radius: 50%;
+  background: none; color: var(--text-dim); font-size: 1.1rem; cursor: pointer;
+}
+.k-lock-x:hover, .k-lock-x:focus-visible { color: var(--accent); }
+@keyframes k-lock-in { from { opacity: 0; translate: -50% 12px; } }
+@media (prefers-reduced-motion: reduce) { .k-lock { animation: none; } }
 
 /* ---------- Full screen with the lyrics (js/karaoke.js): the clip box on the whole screen, the sung line over it ---------- */
 .fs-lyrics-btn {

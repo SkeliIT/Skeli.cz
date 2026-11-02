@@ -18,6 +18,41 @@
   var lines = [];            // the spans of the non-empty lines, in order
   var data = null, clipId = null, on = true, cur = -1;
   try { on = localStorage.getItem('karaoke') !== 'off'; } catch (e) {}
+  // karaoke je pro přihlášené: nepřihlášený text normálně čte, tlačítko (i celá obrazovka s textem a K) ukáže výzvu
+  var guest = button.dataset.guest === 'true';
+  if (guest) { on = false; button.classList.add('locked'); }
+
+  // výzva k přihlášení: karta dole uprostřed (na telefonu na dosah palce), zavře ji křížek, Esc nebo klik vedle
+  var lockCard = null;
+  function closeLock() {
+    if (!lockCard) return;
+    lockCard.remove(); lockCard = null;
+    document.removeEventListener('keydown', lockKey); document.removeEventListener('pointerdown', lockOutside, true);
+  }
+  function lockKey(e) { if (e.key === 'Escape') closeLock(); }
+  function lockOutside(e) { if (lockCard && !lockCard.contains(e.target) && e.target !== button && e.target !== fsBtn) closeLock(); }
+  function showLock() {
+    if (lockCard) return closeLock();
+    var d = button.dataset, next = encodeURIComponent(location.pathname + location.search);
+    lockCard = document.createElement('div');
+    lockCard.className = 'k-lock';
+    lockCard.setAttribute('role', 'dialog');
+    lockCard.setAttribute('aria-label', d.lockTitle || '');
+    lockCard.innerHTML = '<button type="button" class="k-lock-x"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+      '<p class="k-lock-title"><i class="fa-solid fa-microphone-lines" aria-hidden="true"></i> <b></b></p><p class="k-lock-text"></p>' +
+      '<p class="k-lock-btns"><a class="btn btn-primary" href="/login.jsp?next=' + next + '"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> <span></span></a>' +
+      '<a class="btn btn-ghost" href="/register.jsp"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> <span></span></a></p>';
+    lockCard.querySelector('b').textContent = d.lockTitle || '';
+    lockCard.querySelector('.k-lock-text').textContent = d.lockText || '';
+    var spans = lockCard.querySelectorAll('.k-lock-btns span');
+    spans[0].textContent = d.login || ''; spans[1].textContent = d.register || '';
+    var x = lockCard.querySelector('.k-lock-x');
+    x.setAttribute('aria-label', d.close || ''); x.title = d.close || '';
+    x.addEventListener('click', closeLock);
+    document.body.appendChild(lockCard);
+    document.addEventListener('keydown', lockKey); document.addEventListener('pointerdown', lockOutside, true);
+    lockCard.querySelector('a').focus();
+  }
 
   // ---------- the lyrics as one span per line ----------
   function split() {
@@ -103,6 +138,7 @@
     button.classList.toggle('on', on);
   }
   button.addEventListener('click', function () {
+    if (guest) return showLock();
     on = !on;
     try { localStorage.setItem('karaoke', on ? 'on' : 'off'); } catch (e) {}
     paintButton();
@@ -258,7 +294,7 @@
     fsBtn.hidden = true;
     fsBtn.innerHTML = '<i class="fa-solid fa-expand" aria-hidden="true"></i> ';
     fsBtn.appendChild(document.createTextNode(button.dataset.fs || ''));
-    fsBtn.addEventListener('click', enterFs);
+    fsBtn.addEventListener('click', function () { if (guest) showLock(); else enterFs(); });
     if (under) under.insertBefore(fsBtn, under.firstChild);
     fsBox = document.createElement('div');
     fsBox.className = 'fs-lyrics';
