@@ -22,6 +22,9 @@ public class CommentItem {
     public String titleName;          // název titulu v jazyce stránky (doplní CommentsApiServlet)
     public String titleTier;          // bronze / silver / gold u stupňů, jinak null
     public String frame;              // rámeček kolem fotky z CatSmash (klíč odznaku) nebo null
+    public String mark;               // legendární znak u jména (klíč odznaku za nejtěžší obtížnost) nebo null
+    public String markIcon;           // ikona znaku
+    public String markName;           // název odznaku v jazyce stránky (doplní CommentsApiServlet)
     public String content;
     public long created;              // epoch ms; the browser writes "2 days ago" in its language
     public Long edited;               // epoch ms of the last edit, null = never edited

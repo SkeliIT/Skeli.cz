@@ -125,6 +125,8 @@
       // titul z CatSmash (odznak, který si autor vybral na stránce Můj účet)
       if (c.user != null && c.titleKey) name += ' <span class="cmt-title' + (c.titleTier ? ' tier-' + c.titleTier : '') + '" title="' + esc(c.titleName) + '">'
         + '<i class="fa-solid ' + esc(c.titleIcon) + '" aria-hidden="true"></i> ' + esc(c.titleName) + '</span>';
+      // legendární znak z CatSmash (jen když si ho autor zapnul v Nastavení)
+      if (c.user != null && c.mark) name += ' <i class="fa-solid ' + esc(c.markIcon) + ' cmt-mark mark-' + esc(c.mark) + '" title="' + esc(c.markName || '') + '" aria-label="' + esc(c.markName || '') + '"></i>';
       var me = data.me;
       return '<article class="cmt' + (isReply ? ' cmt-reply' : '') + (c.pinned ? ' is-pinned' : '') + '" id="comment-' + c.id
         + '" data-id="' + c.id + '" data-root="' + (c.parentId || c.id) + '">'

@@ -17,6 +17,7 @@ public class PongProfile {
     public String title;
     /** Vybraný rámeček kolem fotky (klíč odznaku) nebo null. */
     public String frame;
+    public String mark;               // legendární znak u jména (jen když ho hráč zapnul a má odznak)
     public final List<Badge> badges = new ArrayList<>();
 
     /** Jeden odznak: klíč textů pong.badge.{key} a pong.badge.{key}.how, ikona Font Awesome, získaný? */

@@ -24,7 +24,9 @@ import java.util.Set;
 
 /**
  * CatSmash (js/catsmash/hra.js): pinkání s Kevinem do 10 gólů, tabulka pořadí pro registrované.
- * GET  /api/pong/top?d=1|2|3 → {"signedIn":…, "csrf":"…", "top":[{place,name,avatar,ms,kevin,me}], "me":{place,ms}|null}
+ * GET  /api/pong/top?kind=time&d=1|2|3&len=10|20|30 → tabulka času (nejrychlejší výhry):
+ *                     {"signedIn":…, "csrf":"…", "top":[{place,name,avatar,ms,kevin,me}], "me":{place,ms}|null}
+ * GET  /api/pong/top?len=10|20|30&d=1|2|3 → tabulka skóre (jen výhry, podle obtížnosti, každý hráč jednou se svým nejlepším)
  * POST /api/pong/start d      → začátek hry (čas startu si pamatuje server v session)
  * POST /api/pong/win  d, ms, kevin → výhra přihlášeného hráče; ms = délka hry podle prohlížeče, server ji přijme
  *                     jen když sedí s jeho vlastním měřením (nejvýš o 1,5 s víc než od startu) a je reálná
@@ -32,6 +34,7 @@ import java.util.Set;
  * GET  /api/pong/me             → {"signedIn":…, "csrf":"…", "badges":["first",…], "title":"…"|null} (odznaky z účtu)
  * POST /api/pong/badges keys=a,b → odznaky ze zápasu, které viděl prohlížeč (jen PongBadges.CLAIMABLE)
  * POST /api/pong/title  t=klíč  → titul u jména (jen získaný odznak, prázdné = bez titulu); s back= přesměruje
+ * POST /api/pong/mark   m=klíč  → legendární znak u jména (jen získaný odznak za nejtěžší obtížnost, prázdné = neukazovat); s back= přesměruje
  * POST /api/pong/frame  f=klíč  → rámeček kolem fotky (jen získaný odznak z PongBadges.FRAMES, prázdné = bez); s back= přesměruje
  */
 @WebServlet(name = "PongServlet", urlPatterns = {"/api/pong/*"})
@@ -60,11 +63,12 @@ public class PongServlet extends HttpServlet {
             return;
         }
         if (!"/top".equals(req.getPathInfo())) { resp.sendError(404); return; }
-        if (req.getParameter("len") != null) { topScores(req, resp, s, me); return; }
-        int d = difficulty(req.getParameter("d"));
+        if (req.getParameter("len") != null && !"time".equals(req.getParameter("kind"))) { topScores(req, resp, s, me); return; }
+        int d = difficulty(req.getParameter("d")), len = len(req.getParameter("len"));
+        java.time.LocalDateTime from = season(req);
         try {
-            List<PongRank> top = pong.top(d, 10, me);
-            PongRank mine = me == null ? null : pong.mine(d, me);
+            List<PongRank> top = pong.top(d, len, 10, me, from);
+            PongRank mine = me == null ? null : pong.mine(d, len, me, from);
             StringBuilder b = new StringBuilder("{\"signedIn\":").append(me != null);
             if (me != null) b.append(",\"csrf\":\"").append(WebUtils.escapeJs(CsrfFilter.token(s))).append('"');
             b.append(",\"top\":[");
@@ -75,7 +79,8 @@ public class PongServlet extends HttpServlet {
                         .append("\",\"avatar\":").append(r.avatarUrl == null ? "null" : "\"" + WebUtils.escapeJs(r.avatarUrl) + "\"")
                         .append(",\"ms\":").append(r.durationMs).append(",\"kevin\":").append(r.kevinGoals).append(",\"me\":").append(r.me)
                         .append(",\"title\":").append(titleJson(req, r.title))
-                        .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"").append('}');
+                        .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"")
+                        .append(",\"mark\":").append(r.mark == null ? "null" : "\"" + r.mark + "\"").append('}');
             }
             b.append("],\"me\":");
             b.append(mine == null ? "null" : "{\"place\":" + mine.place + ",\"ms\":" + mine.durationMs + "}");
@@ -104,6 +109,24 @@ public class PongServlet extends HttpServlet {
             } catch (SQLException e) {
                 throw new ServletException(e);
             }
+            return;
+        }
+        if ("/mark".equals(req.getPathInfo())) {
+            String m = req.getParameter("m");
+            if (m != null && m.isBlank()) m = null;
+            boolean ok;
+            try {
+                ok = m == null || PongBadges.isMark(m) && pong.earned(me).contains(m);
+                if (ok) pong.setMark(me, m);
+            } catch (SQLException e) {
+                throw new ServletException(e);
+            }
+            if ("account".equals(req.getParameter("back"))) {
+                resp.sendRedirect("/nastaveni.jsp?" + (ok ? "pongMark=1" : "pongMark=0") + "#profil");
+                return;
+            }
+            if (!ok) resp.setStatus(400);
+            json(resp, "{\"ok\":" + ok + "}");
             return;
         }
         if ("/frame".equals(req.getPathInfo())) {
@@ -170,15 +193,17 @@ public class PongServlet extends HttpServlet {
             return;
         }
         try {
+            List<Integer> before = pong.timeOrder(d, len);
             pong.addWin(me, d, ms, kevin, len);
-            PongRank mine = pong.mine(d, me);
+            notifyPassed("time", d, len, before, pong.timeOrder(d, len), me, req);
+            PongRank mine = pong.mine(d, len, me);
             json(resp, "{\"ok\":true,\"place\":" + (mine == null ? 0 : mine.place) + ",\"best\":" + (mine == null ? ms : mine.durationMs) + "}");
         } catch (SQLException e) {
             throw new ServletException(e);
         }
     }
 
-    /** POST /api/pong/score: skóre zápasu přepočítá server z hodnot zápasu (a odmítne nemožné) a uloží ho. */
+    /** POST /api/pong/score: skóre zápasu přepočítá server z hodnot zápasu (a odmítne nemožné); uloží jen výhru (prohra je prohra). */
     private void score(HttpServletRequest req, HttpServletResponse resp, HttpSession s, int me, int d) throws ServletException, IOException {
         Object start = s.getAttribute("pongStartScore");
         s.removeAttribute("pongStartScore");               // jedno skóre na jeden start
@@ -202,20 +227,27 @@ public class PongServlet extends HttpServlet {
         }
         try {
             int sc = p.score();
+            if (!p.won()) {                                 // prohra: skóre se jen ukáže, do tabulky nejde
+                json(resp, "{\"ok\":true,\"score\":" + sc + ",\"saved\":false}");
+                return;
+            }
+            List<Integer> before = pong.scoreOrder(p.len, d);
             pong.addScore(me, p, sc);
-            PongScoreRank mine = pong.myScore(p.len, me);
+            notifyPassed("score", d, p.len, before, pong.scoreOrder(p.len, d), me, req);
+            PongScoreRank mine = pong.myScore(p.len, d, me);
             json(resp, "{\"ok\":true,\"score\":" + sc + ",\"best\":" + (mine == null ? sc : mine.score) + ",\"place\":" + (mine == null ? 0 : mine.place) + "}");
         } catch (SQLException e) {
             throw new ServletException(e);
         }
     }
 
-    /** GET /api/pong/top?len=10|15|20: tabulka skóre (každý hráč jednou se svým nejlepším) + moje místo. */
+    /** GET /api/pong/top?len=10|20|30: tabulka skóre (každý hráč jednou se svým nejlepším) + moje místo. */
     private void topScores(HttpServletRequest req, HttpServletResponse resp, HttpSession s, Integer me) throws ServletException, IOException {
-        int len = len(req.getParameter("len"));
+        int len = len(req.getParameter("len")), d = difficulty(req.getParameter("d"));
+        java.time.LocalDateTime from = season(req);
         try {
-            List<PongScoreRank> top = pong.topScores(len, 10, me);
-            PongScoreRank mine = me == null ? null : pong.myScore(len, me);
+            List<PongScoreRank> top = pong.topScores(len, d, 10, me, from);
+            PongScoreRank mine = me == null ? null : pong.myScore(len, d, me, from);
             StringBuilder b = new StringBuilder("{\"signedIn\":").append(me != null);
             if (me != null) b.append(",\"csrf\":\"").append(WebUtils.escapeJs(CsrfFilter.token(s))).append('"');
             b.append(",\"len\":").append(len).append(",\"top\":[");
@@ -226,13 +258,30 @@ public class PongServlet extends HttpServlet {
                         .append("\",\"avatar\":").append(r.avatarUrl == null ? "null" : "\"" + WebUtils.escapeJs(r.avatarUrl) + "\"")
                         .append(",\"score\":").append(r.score).append(",\"d\":").append(r.difficulty)
                         .append(",\"you\":").append(r.you).append(",\"kevin\":").append(r.kevin).append(",\"me\":").append(r.me)
-                        .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"").append('}');
+                        .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"")
+                        .append(",\"mark\":").append(r.mark == null ? "null" : "\"" + r.mark + "\"").append('}');
             }
             b.append("],\"me\":").append(mine == null ? "null" : "{\"place\":" + mine.place + ",\"score\":" + mine.score + "}");
             json(resp, b.append('}').toString());
         } catch (SQLException e) {
             throw new ServletException(e);
         }
+    }
+
+    /** „Někdo tě předběhl“: každému, kdo kvůli tomuhle zápisu klesl v top 10, upozornění do zvonečku (chyba nevadí). */
+    private void notifyPassed(String kind, int d, int len, List<Integer> before, List<Integer> after, int me, HttpServletRequest req) {
+        try {
+            com.github.skeliit.dao.NotificationDao n = new com.github.skeliit.dao.NotificationDao();
+            for (int[] x : PongDao.passed(before, after, me)) n.addPassed(x[0], me, kind + "|" + d + "|" + len + "|" + x[1]);
+        } catch (SQLException e) {
+            req.getServletContext().log("CatSmash: upozornění předběhl", e);
+        }
+    }
+
+    /** Sezóna: ?season=month = od začátku tohoto měsíce (pražský čas), jinak věčná tabulka (null). */
+    static java.time.LocalDateTime season(HttpServletRequest req) {
+        if (!"month".equals(req.getParameter("season"))) return null;
+        return java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague")).withDayOfMonth(1).atStartOfDay();
     }
 
     static int len(String v) {

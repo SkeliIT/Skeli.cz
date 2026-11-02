@@ -203,7 +203,7 @@
       <%-- reading the lyrics: karaoke (when the clip has timings) and Aa = size and font, in the corner of the frame --%>
       <div class="lyric-tools">
         <c:if test="${not empty lyric.youtubeId}">
-          <button type="button" class="tool-btn karaoke-btn" id="karaokeToggle" hidden aria-pressed="true" data-back="<%= t.getProperty("karaoke.back") %>" data-fs="<%= t.getProperty("karaoke.fullscreen") %>" data-fs-text="<%= t.getProperty("karaoke.fsText") %>" data-fs-exit="<%= t.getProperty("karaoke.fsExit") %>" title="<%= t.getProperty("lyric.karaokeHint") %>" aria-label="<%= t.getProperty("lyric.karaokeHint") %>">
+          <button type="button" class="tool-btn karaoke-btn" id="karaokeToggle" hidden aria-pressed="true" data-back="<%= t.getProperty("karaoke.back") %>" data-fs="<%= t.getProperty("karaoke.fullscreen") %>" data-fs-text="<%= t.getProperty("karaoke.fsText") %>" data-fs-exit="<%= t.getProperty("karaoke.fsExit") %>" data-guest="${empty sessionScope.userId}" data-lock-title="<%= t.getProperty("karaoke.members.title") %>" data-lock-text="<%= t.getProperty("karaoke.lock.text") %>" data-login="<%= t.getProperty("btn.login") %>" data-register="<%= t.getProperty("btn.register") %>" data-close="<%= t.getProperty("common.close") %>" title="<%= t.getProperty("lyric.karaokeHint") %>" aria-label="<%= t.getProperty("lyric.karaokeHint") %>">
             <i class="fa-solid fa-microphone-lines" aria-hidden="true"></i>
           </button>
         </c:if>

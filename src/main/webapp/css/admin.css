@@ -863,3 +863,9 @@ body.light .st-up { color: #1e7a45; } body.light .st-down { color: #b3261e; }
 .st-tip { margin: 0 0 10px; }
 .st-tip i { color: var(--accent); margin-right: 4px; }
 @media (max-width: 600px) { .st-peak { grid-template-columns: 1fr 1fr; } }
+
+/* Statistiky → CatSmash: tabulka obtížností */
+.st-table { width: 100%; border-collapse: collapse; font-family: var(--font-text); font-size: var(--fs-card); }
+.st-table th, .st-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--panel-border); white-space: nowrap; }
+.st-table th { color: var(--text-dim); font-weight: 400; font-size: var(--fs-small); }
+.st-table td small { color: var(--text-dim); }

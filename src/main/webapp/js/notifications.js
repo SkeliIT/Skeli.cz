@@ -44,10 +44,20 @@
       .catch(function () {});
   }
 
+  // CatSmash: „X tě předběhl“ – tabulka (Skóre / Čas, hvězdičky obtížnosti, počet gólů) a nové místo; odkaz otevře hru
+  function passedItem(n, who) {
+    var p = String(n.placeName || '').split('|'), d = +p[1] || 1, place = +p[3] || 0;
+    var board = (p[0] === 'time' ? panel.dataset.tPongTime : panel.dataset.tPongScore) + ' · ' + '★★★'.slice(0, d) + ' · ' + (p[2] || '10');
+    var where = place > 10 ? board : (panel.dataset.tPassedPlace || '').replace('{n}', place) + ' · ' + board;
+    return '<a class="notif-item' + (n.read ? '' : ' unread') + '" href="' + esc(n.link) + '"><span class="notif-icon passed"><i class="fa-solid fa-crown"></i></span>'
+      + '<span class="notif-body"><span class="notif-text">' + esc((panel.dataset.tPassed || '').replace('{name}', who)) + '</span>'
+      + '<span class="notif-meta">' + esc(where) + ' · ' + esc(ago(n.created)) + '</span></span></a>';
+  }
   function render(items) {
     if (!items.length) { list.innerHTML = empty; return; }
     list.innerHTML = items.map(function (n) {
       var who = n.actor == null ? panel.dataset.tDeleted : n.actor;
+      if (n.type === 'passed') return passedItem(n, who);
       var text = n.type === 'heart' ? panel.dataset.tHeart : (panel.dataset.tReply || '').replace('{name}', who);
       var where = (n.place === 'clip' ? panel.dataset.tClip : panel.dataset.tSong).replace('{0}', n.placeName || '');
       var pic = n.type === 'heart' ? '<span class="notif-icon heart"><i class="fa-solid fa-heart"></i></span>'

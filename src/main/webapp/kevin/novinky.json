@@ -1,5 +1,41 @@
 [
   {
+    "d": "2026-11-02",
+    "href": "/?kevin=pong",
+    "cs": "CatSmash má v menu nový Vzhled: pálky, míčky, pozadí a vítězné oslavy vybíráš ze seznamu se zvětšeným náhledem a každou oslavu si můžeš přehrát.",
+    "en": "CatSmash has a new Look page in the menu: pick paddles, balls, backgrounds and victory celebrations from a list with a bigger preview, and play any celebration.",
+    "de": "CatSmash hat im Menü ein neues Aussehen: Schläger, Bälle, Hintergründe und Siegesfeiern wählst du aus einer Liste mit großer Vorschau, und jede Feier kannst du abspielen.",
+    "uk": "У меню CatSmash новий Вигляд: ракетки, м’ячики, фони й переможні святкування обираєш зі списку зі збільшеним переглядом, а кожне святкування можна програти.",
+    "vi": "CatSmash có mục Giao diện mới trong menu: chọn vợt, bóng, hình nền và màn ăn mừng từ danh sách có ảnh xem trước lớn, và có thể xem thử mọi màn ăn mừng."
+  },
+  {
+    "d": "2026-11-02",
+    "href": "/",
+    "cs": "Na úvodní stránce teď u CatSmashe svítí první tři šampioni měsíce. Každý měsíc nová šance dostat se tam.",
+    "en": "The home page now shows the top three CatSmash champions of the month. Every month is a new chance to get there.",
+    "de": "Auf der Startseite stehen jetzt die drei CatSmash-Champions des Monats. Jeden Monat eine neue Chance.",
+    "uk": "На головній сторінці тепер світяться три чемпіони CatSmash за місяць. Щомісяця новий шанс туди потрапити.",
+    "vi": "Trang chủ giờ hiện ba nhà vô địch CatSmash của tháng. Mỗi tháng là một cơ hội mới."
+  },
+  {
+    "d": "2026-11-02",
+    "href": "/?kevin=pong",
+    "cs": "CatSmash má nové menu a na telefonu je hřiště mnohem větší. Skóre svítí přímo ve skle a lupou si můžeš celý automat prohlédnout a naklánět prstem.",
+    "en": "CatSmash has a new menu and on phones the court is much bigger. The score glows right in the glass, and with the magnifier you can look at the whole machine and tilt it with your finger.",
+    "de": "CatSmash hat ein neues Menü und auf dem Handy ist das Spielfeld viel größer. Der Spielstand leuchtet direkt im Glas, und mit der Lupe kannst du den ganzen Automaten ansehen und mit dem Finger kippen.",
+    "uk": "У CatSmash нове меню, а на телефоні поле набагато більше. Рахунок світиться просто в склі, а лупою можна оглянути весь автомат і нахиляти його пальцем.",
+    "vi": "CatSmash có menu mới và trên điện thoại sân chơi lớn hơn nhiều. Tỉ số sáng ngay trong kính, và với kính lúp bạn có thể xem cả máy và nghiêng nó bằng ngón tay."
+  },
+  {
+    "d": "2026-11-02",
+    "href": "/?kevin=pong",
+    "cs": "V CatSmashi je zpátky tabulka času: kdo mě porazí nejrychleji, je první. Hraje se na 10, 20 nebo 30 gólů, bonusy ze součástek platí naráz a superstřela letí opravdu nejrychleji. Prohra se do tabulky nepočítá.",
+    "en": "The time table is back in CatSmash: whoever beats me fastest is number one. Play to 10, 20 or 30 goals, power-ups from the parts now stack and the super shot really flies at top speed. A loss doesn’t go on the table.",
+    "de": "In CatSmash ist die Zeittabelle zurück: Wer mich am schnellsten schlägt, ist Erster. Gespielt wird bis 10, 20 oder 30 Tore, Boni aus den Teilen gelten gleichzeitig und der Superschuss fliegt wirklich am schnellsten. Niederlagen zählen nicht für die Tabelle.",
+    "uk": "У CatSmash повернулася таблиця часу: хто переможе мене найшвидше, той перший. Граємо до 10, 20 або 30 голів, бонуси з деталей діють одночасно, а суперудар летить справді найшвидше. Поразка до таблиці не йде.",
+    "vi": "Bảng thời gian đã trở lại trong CatSmash: ai thắng tôi nhanh nhất sẽ đứng đầu. Chơi tới 10, 20 hoặc 30 bàn, các phần thưởng từ linh kiện giờ cộng dồn và siêu cú đánh bay nhanh nhất thật sự. Thua thì không được vào bảng."
+  },
+  {
     "d": "2026-10-28",
     "href": "/?kevin=pong",
     "cs": "V CatSmashi máš superútok! Zmáčkni E nebo magnet, hopík se přilepí na pálku, čas se zpomalí a ty zamíříš. A každá pálka má teď vlastní automat. Gól, který rozhodne zápas, uvidíš zpomaleně jako v televizi.",
@@ -7,41 +43,5 @@
     "de": "CatSmash hat jetzt einen Superschuss! Drück E oder den Magneten, der Ball klebt am Schläger, die Zeit wird langsamer und du zielst. Und jeder Schläger hat jetzt seinen eigenen Automaten. Das entscheidende Tor siehst du in Zeitlupe wie im Fernsehen.",
     "uk": "У CatSmash є суперудар! Натисни E або магніт, м’ячик прилипне до ракетки, час сповільниться, а ти прицілишся. А кожна ракетка тепер має власний автомат. Гол, що вирішує матч, побачиш у сповільненому повторі, як по телевізору.",
     "vi": "CatSmash có siêu cú đánh! Nhấn E hoặc nam châm, bóng dính vào vợt, thời gian chậm lại và bạn ngắm bắn. Mỗi cây vợt giờ còn có cỗ máy riêng. Bàn thắng quyết định trận đấu được chiếu chậm như trên TV."
-  },
-  {
-    "d": "2026-10-28",
-    "href": "/?kevin=pong",
-    "cs": "V CatSmashi si teď na telefonu vybereš, jak pálka jede za prstem – jako dřív, páčkou jako na ovladači, nebo jako na trackpadu. A v menu hry najdeš tipy, jak mě porazit.",
-    "en": "In CatSmash you can now choose how the paddle follows your finger on a phone – classic, a stick like on a gamepad, or like a trackpad. And the game menu has tips on how to beat me.",
-    "de": "In CatSmash wählst du jetzt auf dem Handy, wie der Schläger deinem Finger folgt – klassisch, mit einem Stick wie am Controller oder wie ein Trackpad. Und im Spielmenü gibt es Tipps, wie du mich schlägst.",
-    "uk": "У CatSmash тепер на телефоні можна обрати, як ракетка рухається за пальцем – як раніше, джойстиком, як на геймпаді, або як трекпадом. А в меню гри є поради, як мене перемогти.",
-    "vi": "Trong CatSmash, giờ bạn có thể chọn cách vợt chạy theo ngón tay trên điện thoại – như cũ, cần điều khiển như tay cầm chơi game, hoặc như trackpad. Và trong menu trò chơi có mẹo để thắng tôi."
-  },
-  {
-    "d": "2026-10-27",
-    "href": "/uzivatel.jsp#pong",
-    "cs": "Za nejtěžší odznaky v CatSmashi teď dostaneš rámeček kolem fotky – uvidí ho všichni u tvých komentářů.",
-    "en": "The hardest CatSmash badges now give you a frame around your photo – everyone sees it next to your comments.",
-    "de": "Die schwersten CatSmash-Abzeichen geben dir jetzt einen Rahmen um dein Foto – alle sehen ihn bei deinen Kommentaren.",
-    "uk": "За найважчі значки в CatSmash тепер отримаєш рамку довкола фото – її побачать усі біля твоїх коментарів.",
-    "vi": "Các huy hiệu khó nhất trong CatSmash giờ tặng bạn khung quanh ảnh – mọi người đều thấy bên cạnh bình luận của bạn."
-  },
-  {
-    "d": "2026-10-27",
-    "href": "/uzivatel.jsp#pong",
-    "cs": "Odznaky v CatSmashi mají nové vtipné tituly a pět nových jde získat jen na nejtěžší obtížnost. Na Lehkou se odznaky nesbírají.",
-    "en": "CatSmash badges have new funny titles, and five new ones can only be earned on the hardest difficulty. Easy gives no badges.",
-    "de": "Die CatSmash-Abzeichen haben neue lustige Titel, und fünf neue gibt es nur auf der schwersten Stufe. Auf Leicht gibt es keine Abzeichen.",
-    "uk": "Значки в CatSmash мають нові смішні титули, а п’ять нових можна здобути лише на найважчому рівні. На Легкому значків немає.",
-    "vi": "Huy hiệu trong CatSmash có danh hiệu mới vui nhộn, và năm huy hiệu mới chỉ nhận được ở mức khó nhất. Mức Dễ không có huy hiệu."
-  },
-  {
-    "d": "2026-10-27",
-    "href": "/?kevin=pong",
-    "cs": "V CatSmashi je třináct nových pálek a míčků – větvička, led, láva, plyš, perly… Přívěsky se houpou a každá pálka má při perfektním odstřelu svůj efekt. A já mám konečně vlastní pálku.",
-    "en": "CatSmash has thirteen new paddles and balls – twig, ice, lava, plush, pearls… The charms swing and every paddle has its own effect on a perfect shot. And I finally have my own paddle.",
-    "de": "CatSmash hat dreizehn neue Schläger und Bälle – Zweig, Eis, Lava, Plüsch, Perlen… Die Anhänger schaukeln und jeder Schläger hat beim perfekten Schuss seinen eigenen Effekt. Und ich habe endlich meinen eigenen Schläger.",
-    "uk": "У CatSmash тринадцять нових ракеток і м’ячиків – гілочка, лід, лава, плюш, перли… Підвіски гойдаються, а кожна ракетка має свій ефект при ідеальному ударі. І я нарешті маю власну ракетку.",
-    "vi": "CatSmash có mười ba vợt và bóng mới – cành cây, băng, dung nham, nhung, ngọc trai… Đồ treo đung đưa và mỗi vợt có hiệu ứng riêng khi đánh hoàn hảo. Và cuối cùng tôi cũng có vợt riêng."
   }
 ]
