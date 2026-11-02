@@ -2383,6 +2383,11 @@
           : (T.champEmpty || '');
       }).catch(function () { el.textContent = T.champEmpty || ''; });
     }
+    // hlavička podstránky menu: mosazný medailon z dlaždice + zlatý nadpis (+ např. počet odznaků)
+    function viewHead(icon, title, extra) {
+      return '<div class="kp-vhead">' + (icon ? '<img src="/kevin/pong/menu/ikona-' + icon + '.webp' + ver + '" alt="" width="160" height="162">' : '') +
+        '<h2>' + esc(title || '') + (extra || '') + '</h2></div>';
+    }
     function startScreen() {
       panel.hidden = false;
       // bloky: nadpis · obtížnost · Hrát · ovládání (3 dlaždice + rada k odstřelu) · tabulka
@@ -2415,9 +2420,9 @@
         // světelná tabule šampionů (nejrychlejší výhry na zvolené obtížnosti a délce, champs()) – motivace dostat se nahoru
         '<div class="kp-led" aria-hidden="true"><span></span></div>' + '</div>' +
         // menu se vejde na jednu obrazovku: popis hry, tipy a pozvánka k účtu jsou v „Jak se hraje?“, postup k odznaku v Odznacích
-        '<div class="kp-view kp-how"><p class="kpong-lead kp-rules">' + esc(T.lead.replace(/10/, matchLen)) + '</p>' + guestCard() +
+        '<div class="kp-view kp-how">' + viewHead('jak', T.how || T.controlsTitle) + '<p class="kpong-lead kp-rules">' + esc(T.lead.replace(/10/, matchLen)) + '</p>' + guestCard() +
         '<h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + tipList + (T.credit ? '<p class="kp-credit">' + esc(T.credit) + '</p>' : '') + backBtn() + '</div>' +
-        '<div class="kp-view kp-badges">' + progressHtml() + badgeOverview() + backBtn() + '</div>' +
+        '<div class="kp-view kp-badges">' + badgeOverview(progressHtml()) + backBtn() + '</div>' +
         topView();
       panel.querySelectorAll('.kpong-level').forEach(function (b) {
         b.addEventListener('click', function () {
@@ -2486,9 +2491,9 @@
       });
     }
     onSprites.push(function () { drawGiftThumbs(panel); });
-    function badgeOverview() {
+    function badgeOverview(progress) {
       var all = Object.keys(BADGE_ICON), got = all.filter(function (k) { return badges[k]; }).length;
-      var html = '<h3 class="kp-label">' + esc(T.badgesTitle || '') + ' <small class="kp-count">' + got + '/' + all.length + '</small></h3>' +
+      var html = viewHead('odznaky', T.badgesTitle, ' <small class="kp-count">' + got + '/' + all.length + '</small>') + (progress || '') +
         '<div class="kp-bdg-bar" style="--p:' + Math.round(got / all.length * 100) + '%"><span></span></div>' +
         '<p class="kp-bdg-rule">' + esc(T.badgesRule || '') + '</p><div class="kp-bdg-list">';
       BADGE_GROUPS.forEach(function (grp, gi) {
@@ -2514,7 +2519,7 @@
     function topView() {
       var short = T.levelsShort || T.levels;
       if (!boardD) boardD = level;
-      return '<div class="kp-view kp-top">' +
+      return '<div class="kp-view kp-top">' + viewHead('tabulka', T.board) +
         '<div class="kp-seg kp-kindseg" role="radiogroup" aria-label="' + esc(T.board || '') + '" style="--i:' + (boardKind === 'time' ? 1 : 0) + '"><span class="kp-thumb" aria-hidden="true"></span>' +
         [['score', 'fa-star', T.tabScore], ['time', 'fa-stopwatch', T.tabTime]].map(function (x) {
           return '<button type="button" role="radio" data-bkind="' + x[0] + '" aria-checked="' + (x[0] === boardKind) + '"><i class="fa-solid ' + x[1] + '" aria-hidden="true"></i> ' + esc(x[2] || x[0]) + '</button>';
@@ -3185,7 +3190,7 @@
       var btnFull = canFull ? '<button type="button" class="kp-fullbtn kp-full"><i class="fa-solid ' + (isFull() ? 'fa-compress' : 'fa-expand') + '" aria-hidden="true"></i> ' + esc(T.fullscreen || '') + '</button>' : '';
       var TABS = [['look', 'fa-palette', T.tabLook], ['sound', 'fa-volume-high', T.tabSound], ['controls', 'fa-gamepad', T.tabControls], ['screen', 'fa-display', T.tabScreen]];
       var tab = TABS.some(function (x) { return x[0] === store.get('kevinPongSetTab'); }) ? store.get('kevinPongSetTab') : 'look';
-      setCard.innerHTML = '<h2 class="kpong-title">' + esc(T.settings || '') + '</h2>' +
+      setCard.innerHTML = '<div class="kp-vhead"><span class="kp-vgear" aria-hidden="true"><i class="fa-solid fa-gear"></i></span><h2>' + esc(T.settings || '') + '</h2></div>' +
         '<div class="kp-tabs" role="tablist">' + TABS.map(function (x) {
           return '<button type="button" role="tab" id="kp-tab-' + x[0] + '" aria-controls="kp-pane-' + x[0] + '" data-tab="' + x[0] + '" aria-selected="' + (x[0] === tab) + '">' +
             '<i class="fa-solid ' + x[1] + '" aria-hidden="true"></i><span>' + esc(x[2] || x[0]) + '</span></button>';
@@ -3336,7 +3341,7 @@
       if (rs) rs.addEventListener('click', restartMatch);
       var lb = setCard.querySelector('.kp-layout-btn');
       if (lb) lb.addEventListener('click', function () { closeSettings(); openLayout(); });
-      setCard.querySelector('.kp-resume').focus();
+      setCard.querySelector('.kp-resume').focus({ preventScroll: true });
     }
     // velký náhled v nastavení: vybraná pálka a nad ní vybraný míček
     function drawPreview() {
