@@ -68,7 +68,7 @@
       '    <div class="kpong-field">' +
       '      <div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas><span class="kp-streak" aria-hidden="true"></span>' +
-      '      <div class="kp-replay-ui" aria-hidden="true"><span class="kp-rp-tag">● REPLAY</span><span class="kp-rp-skip">' + esc(T.replaySkip || '') + '</span></div>' +
+      '      <div class="kp-replay-ui" aria-hidden="true"><span class="kp-rp-tag">● REPLAY</span><b class="kp-rp-title"></b><b class="kp-rp-goal"></b><span class="kp-rp-skip">' + esc(T.replaySkip || '') + '</span></div>' +
       '      <div class="kpong-panel"></div>' +
       '    </div>' +
       '  </div></div>' +
@@ -1772,7 +1772,7 @@
         nextScrewAt += real;
         if (stick.active) { stick.active.end += real; stick.active.start += real; }
       }   // pauzy, komár, nastavení, čekání na ťuknutí
-      if (replay) { replayTick(now); draw(now); return; }
+      if (replay) { replayTick(now); draw(now); drawReplayMarks(now); return; }
       if (!running || paused) { draw(now); return; }
       // zastavení času po perfektním odstřelu: všechno stojí, jen se kreslí
       if (now < hitStop) { draw(now); return; }
@@ -2218,20 +2218,32 @@
     }
 
     // ---------- zpomalený záznam vítězného gólu ----------
-    // Během hry se ukládají poslední ~2,4 s (míček, obě pálky); po posledním gólu zápasu se přehrají zpomaleně,
-    // poslední 0,7 s ještě pomaleji, kamera se přiblíží k místu gólu. Pak teprve konec zápasu.
+    // Během hry se ukládají poslední ~2,4 s (míček, obě pálky); po posledním gólu zápasu se přehrají zpomaleně.
+    // Aby bylo jasné, na co se díváš: nejdřív nápis, kdo gól dal; záznam začne až od posledního odpalu (rána,
+    // která gól dala); hřiště celé bez přiblížení, míček v kroužku a za ním zlatá čára jeho dráhy, u pálek
+    // štítky TY / KEVIN, při gólu velké GÓL!. Poslední 0,7 s ještě pomaleji.
     var rec = [], replay = null, REC_MS = 2400;
     function recordFrame(now) {
       rec.push({ t: now, bx: ball.x, by: ball.y, px: player.x, kx: kevin.x, f: !!ball.fire });
       while (rec.length > 2 && now - rec[0].t > REC_MS) rec.shift();
     }
-    function startReplay(done) {
+    function startReplay(done, won) {
       var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (rec.length < 3 || rec[rec.length - 1].t - rec[0].t < 300 || reduce) return done();   // aspoň 0,3 s záznamu (i na pomalém zařízení)
-      var end = rec[rec.length - 1], fr = root.querySelector('.kpong-field');
-      replay = { frames: rec.slice(), clock: 0, last: 0, done: done, flashed: false, len: end.t - rec[0].t };
-      fr.style.setProperty('--rx', Math.round(clamp(end.bx / W, 0.15, 0.85) * 100) + '%');
-      fr.style.setProperty('--ry', Math.round(clamp(end.by / H, 0.1, 0.9) * 100) + '%');
+      // od posledního odpalu: poslední místo, kde míček u pálky obrátil svislý směr, a 0,25 s před ním
+      var fs = rec.slice(), from = 0;
+      for (var i = fs.length - 2; i > 0; i--) {
+        var d1 = fs[i].by - fs[i - 1].by, d2 = fs[i + 1].by - fs[i].by;
+        if (d1 * d2 < 0 && (Math.abs(fs[i].by - PLAYER_Y) < 60 || Math.abs(fs[i].by - KEVIN_Y) < 60)) { from = i; break; }
+      }
+      var t0 = fs[from].t - 250;
+      while (from > 0 && fs[from - 1].t >= t0) from--;
+      if (fs[fs.length - 1].t - fs[from].t < 300) from = 0;   // moc krátké – celý záznam
+      fs = fs.slice(from);
+      var end = fs[fs.length - 1];
+      replay = { frames: fs, clock: 0, last: 0, done: done, flashed: false, len: end.t - fs[0].t, intro: 900, won: won };
+      root.querySelector('.kp-rp-title').textContent = won ? (T.replayYou || '') : (T.replayKevin || '');
+      root.querySelector('.kp-rp-goal').textContent = T.replayGoal || '';
       root.classList.add('kp-replay');
       tone(300, 0.6, 'sine', 0.15, 120);                 // „přetočení“
       flight = null;
@@ -2239,6 +2251,7 @@
     function replayTick(now) {
       var r = replay, dtr = r.last ? Math.min(250, now - r.last) : 0;   // i na pomalém počítači trvá stejně dlouho
       r.last = now;
+      if (r.intro > 0) { r.intro -= dtr; dtr = 0; }       // nejdřív chvíli jen nápis, kdo gól dal (obraz stojí na začátku)
       var left = r.len - r.clock;
       r.clock += dtr * (left < 700 ? 0.18 : 0.45);         // poslední chvíle před gólem ještě pomaleji
       var t0 = r.frames[0].t + r.clock, i = 1;
@@ -2247,12 +2260,36 @@
       ball.x = a.bx + (b.bx - a.bx) * k; ball.y = a.by + (b.by - a.by) * k; ball.fire = b.f;
       player.x = a.px + (b.px - a.px) * k; kevin.x = a.kx + (b.kx - a.kx) * k;
       ball.trail.push([ball.x, ball.y]); if (ball.trail.length > 16) ball.trail.shift();
+      r.pos = i;
       if (r.clock >= r.len && !r.flashed) {               // gól: záblesk a hluboký zvuk
         r.flashed = true;
         root.classList.add('kp-replay-hit');
         tone(110, 0.7, 'triangle', 0.3, 70);
         setTimeout(stopReplay, 1100);
       }
+    }
+    // přes hřiště během záznamu: zlatá čára dráhy míčku od posledního odpalu, kroužek kolem míčku, štítky u pálek
+    function drawReplayMarks(now) {
+      var r = replay, f = r.frames;
+      cx.save();
+      cx.strokeStyle = 'rgba(255, 215, 90, .85)'; cx.lineWidth = 4; cx.setLineDash([10, 8]); cx.lineCap = 'round';
+      cx.beginPath(); cx.moveTo(f[0].bx, f[0].by);
+      for (var i = 1; i < (r.pos || 1); i++) cx.lineTo(f[i].bx, f[i].by);
+      cx.lineTo(ball.x, ball.y); cx.stroke(); cx.setLineDash([]);
+      var pulse = 1 + 0.18 * Math.sin(now / 120);
+      cx.strokeStyle = '#ffe27a'; cx.lineWidth = 4; cx.shadowColor = 'rgba(255, 200, 60, .9)'; cx.shadowBlur = 14;
+      cx.beginPath(); cx.arc(ball.x, ball.y, (BALL_R + 12) * pulse, 0, 7); cx.stroke();
+      cx.shadowBlur = 0;
+      cx.font = '600 30px Oswald, sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      function tag(x, y, text, gold) {
+        var w = cx.measureText(text).width + 22;
+        cx.fillStyle = gold ? 'rgba(230, 183, 48, .95)' : 'rgba(0, 0, 0, .7)';
+        roundRect(x - w / 2, y - 20, w, 40, 20);          // (vlastní – starší Safari cx.roundRect nezná)
+        cx.fillStyle = gold ? '#1a1405' : '#ffe27a'; cx.fillText(text, x, y + 1);
+      }
+      tag(clamp(kevin.x, 70, W - 70), KEVIN_Y + PAD_H / 2 + 38, 'KEVIN', !r.won);
+      tag(clamp(player.x, 70, W - 70), PLAYER_Y - PAD_H / 2 - 38, (T.you || 'TY').toUpperCase(), r.won);
+      cx.restore();
     }
     function stopReplay() {
       if (!replay) return;
@@ -2290,7 +2327,7 @@
       // nejdřív zpomalený záznam vítězného gólu, pak konec zápasu (výsledek ze serveru mezitím dorazí)
       var replayDone = false, result;
       function showEnd() { if (replayDone && result !== undefined) endScreen(playerWon, ms, result, fresh); }
-      startReplay(function () { replayDone = true; showEnd(); });
+      startReplay(function () { replayDone = true; showEnd(); }, playerWon);
       send.then(function (res) {
         if (newBest || (res && res.ok && res.best === ms)) setTimeout(function () { quip('rekord', 1, null, 3600, true); }, 4400);
         result = res && res.ok ? res : null; showEnd();

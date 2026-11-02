@@ -304,7 +304,7 @@ window.KEVIN_LINES.vi.pong = {
       "Tạm dừng · thoát",
       "P · Esc"
     ],
-    ["Siêu cú đánh","E · nam châm"]
+    ["Siêu cú đánh","E"]
   ],
   "shotHint": "Cú bắn: bấm đúng lúc bóng chạm vợt.",
   "shot": "Cú bắn",
@@ -341,6 +341,9 @@ window.KEVIN_LINES.vi.pong = {
   "emptyScore": "Chưa ai chơi ở đây. Hãy là người đầu tiên.",
   "scoreRows": {"goals":"Bàn thắng","perfect":"Cú đánh hoàn hảo","supers":"Cú SUPER","stick":"Bàn bằng siêu cú đánh","streaks":"Chuỗi hoàn hảo","rally":"Pha bóng dài nhất","screws":"Chi tiết máy","kevin":"Bàn của Kevin","win":"Chiến thắng","speed":"Thời gian","mult":"Độ khó"},
   "replaySkip": "chạm để bỏ qua",
+  "replayYou": "BÀN THẮNG QUYẾT ĐỊNH CỦA BẠN",
+  "replayKevin": "KEVIN ĐÃ QUYẾT ĐỊNH",
+  "replayGoal": "VÀO!",
   "stickReady": "SIÊU CÚ ĐÁNH SẴN SÀNG!",
   "stickGo": "SIÊU CÚ ĐÁNH!",
   "stickBtn": "Siêu cú đánh – dính bóng",
@@ -400,7 +403,7 @@ window.KEVIN_LINES.vi.pong = {
   "tipLabel": "Mẹo",
   "tipNext": "Mẹo tiếp theo",
   "tips": [
-    ["Siêu cú đánh (E hoặc nam châm): quả bóng tiếp theo dính vào vợt, thời gian chậm lại và bạn ngắm bằng chuột, phím mũi tên hoặc ngón tay. Bóng tự bay đi, hoặc sớm hơn bằng E / phím cách.","all"],
+    ["Siêu cú đánh (E): quả bóng tiếp theo dính vào vợt, thời gian chậm lại và bạn ngắm bằng chuột, phím mũi tên hoặc ngón tay. Bóng tự bay đi, hoặc sớm hơn bằng E / phím cách.","all"],
     ["Mỗi trận bạn có sẵn một siêu cú đánh. 10 cú đánh hoàn hảo sẽ nạp lại, cú đỡ thường cũng nạp một chút. Kevin ghi bàn sẽ lấy mất một nửa – đồng hồ áp suất ở ô dưới cho biết còn thiếu bao nhiêu.","all"],
     ["Chuỗi cú hoàn hảo (2× 3× 4×!!) nạp nhanh hơn. Cú đánh kém sẽ cắt chuỗi, còn bàn thua từ Kevin xóa cả phần đang nạp.","all"],
     ["Những cú hoàn hảo mạnh làm máy rung – một con ốc rơi ra và vợt của bạn to lên một lúc.","all"],

@@ -304,7 +304,7 @@ window.KEVIN_LINES.cs.pong = {
       "Pauza · konec",
       "P · Esc"
     ],
-    ["Superútok","E · magnet"]
+    ["Superútok","E"]
   ],
   "shotHint": "Odstřel: klikni přesně ve chvíli, kdy je hopík u pálky.",
   "shot": "Odstřel",
@@ -341,6 +341,9 @@ window.KEVIN_LINES.cs.pong = {
   "emptyScore": "Zatím tu nikdo nehrál. Buď první.",
   "scoreRows": {"goals":"Góly","perfect":"Perfektní odstřely","supers":"SUPER rány","stick":"Góly superútokem","streaks":"Série perfektních","rally":"Nejdelší výměna","screws":"Součástky","kevin":"Kevinovy góly","win":"Výhra","speed":"Čas","mult":"Obtížnost"},
   "replaySkip": "ťukni pro přeskočení",
+  "replayYou": "TVŮJ VÍTĚZNÝ GÓL",
+  "replayKevin": "KEVIN TO ROZHODL",
+  "replayGoal": "GÓL!",
   "stickReady": "SUPERÚTOK NABITÝ!",
   "stickGo": "SUPERÚTOK!",
   "stickBtn": "Superútok – přilepit míček",
@@ -400,7 +403,7 @@ window.KEVIN_LINES.cs.pong = {
   "tipLabel": "Tip",
   "tipNext": "Další tip",
   "tips": [
-    ["Superútok (E nebo magnet): další hopík se přilepí na pálku, čas se zpomalí a ty zamíříš myší, šipkami nebo prstem. Pak vystřelí sám, nebo dřív E / mezerníkem.","all"],
+    ["Superútok (E): další hopík se přilepí na pálku, čas se zpomalí a ty zamíříš myší, šipkami nebo prstem. Pak vystřelí sám, nebo dřív E / mezerníkem.","all"],
     ["Superútok máš na začátku zápasu nabitý jednou. Znovu ho nabije 10 perfektních odstřelů, trochu i obyčejné odrazy. Kevinův gól sebere polovinu nabití – manometr v dolním okénku ukazuje, kolik chybí.","all"],
     ["Série perfektních odstřelů (2× 3× 4×!!) nabíjí superútok rychleji. Horší odpal sérii zruší a gól od Kevina vynuluje i rozpracované nabíjení.","all"],
     ["Tvrdé perfektní rány otřesou strojem – vypadne šroubek a tvoje pálka bude chvíli velká.","all"],

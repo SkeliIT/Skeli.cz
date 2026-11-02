@@ -304,7 +304,7 @@ window.KEVIN_LINES.de.pong = {
       "Pause · Ende",
       "P · Esc"
     ],
-    ["Superschuss","E · Magnet"]
+    ["Superschuss","E"]
   ],
   "shotHint": "Schmetterschuss: klick genau dann, wenn der Ball am Schläger ist.",
   "shot": "Schmetterschuss",
@@ -341,6 +341,9 @@ window.KEVIN_LINES.de.pong = {
   "emptyScore": "Hier hat noch niemand gespielt. Sei der Erste.",
   "scoreRows": {"goals":"Tore","perfect":"Perfekte Schüsse","supers":"SUPER-Schläge","stick":"Superschuss-Tore","streaks":"Perfekte Serien","rally":"Längster Ballwechsel","screws":"Maschinenteile","kevin":"Kevins Tore","win":"Sieg","speed":"Zeit","mult":"Schwierigkeit"},
   "replaySkip": "tippen zum Überspringen",
+  "replayYou": "DEIN SIEGTOR",
+  "replayKevin": "KEVIN HAT ES ENTSCHIEDEN",
+  "replayGoal": "TOR!",
   "stickReady": "SUPERSCHUSS BEREIT!",
   "stickGo": "SUPERSCHUSS!",
   "stickBtn": "Superschuss – Ball festhalten",
@@ -400,7 +403,7 @@ window.KEVIN_LINES.de.pong = {
   "tipLabel": "Tipp",
   "tipNext": "Nächster Tipp",
   "tips": [
-    ["Superschuss (E oder Magnet): Der nächste Ball klebt am Schläger, die Zeit wird langsamer und du zielst mit Maus, Pfeiltasten oder Finger. Er feuert von selbst oder früher mit E / Leertaste.","all"],
+    ["Superschuss (E): Der nächste Ball klebt am Schläger, die Zeit wird langsamer und du zielst mit Maus, Pfeiltasten oder Finger. Er feuert von selbst oder früher mit E / Leertaste.","all"],
     ["Jedes Spiel beginnt mit einem geladenen Superschuss. 10 perfekte Schüsse laden ihn wieder, normale Treffer helfen ein bisschen. Ein Tor von Kevin nimmt die Hälfte der Ladung – das Manometer im unteren Fenster zeigt, wie viel fehlt.","all"],
     ["Eine Serie perfekter Schüsse (2× 3× 4×!!) lädt schneller. Ein schlechterer Schlag beendet die Serie, ein Tor von Kevin setzt auch die angefangene Ladung zurück.","all"],
     ["Harte perfekte Schläge erschüttern den Automaten – eine Schraube fällt heraus und dein Schläger wird eine Weile groß.","all"],

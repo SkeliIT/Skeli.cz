@@ -304,7 +304,7 @@ window.KEVIN_LINES.en.pong = {
       "Pause · quit",
       "P · Esc"
     ],
-    ["Super shot","E · magnet"]
+    ["Super shot","E"]
   ],
   "shotHint": "Power shot: click just as the ball reaches your paddle.",
   "shot": "Power shot",
@@ -341,6 +341,9 @@ window.KEVIN_LINES.en.pong = {
   "emptyScore": "Nobody has played here yet. Be the first.",
   "scoreRows": {"goals":"Goals","perfect":"Perfect shots","supers":"SUPER hits","stick":"Super shot goals","streaks":"Perfect streaks","rally":"Longest rally","screws":"Machine parts","kevin":"Kevin’s goals","win":"Win","speed":"Time","mult":"Difficulty"},
   "replaySkip": "tap to skip",
+  "replayYou": "YOUR WINNING GOAL",
+  "replayKevin": "KEVIN SEALED IT",
+  "replayGoal": "GOAL!",
   "stickReady": "SUPER SHOT READY!",
   "stickGo": "SUPER SHOT!",
   "stickBtn": "Super shot – stick the ball",
@@ -400,7 +403,7 @@ window.KEVIN_LINES.en.pong = {
   "tipLabel": "Tip",
   "tipNext": "Next tip",
   "tips": [
-    ["Super shot (E or magnet): the next ball sticks to your paddle, time slows down and you aim with the mouse, arrows or finger. It fires by itself, or earlier with E / space.","all"],
+    ["Super shot (E): the next ball sticks to your paddle, time slows down and you aim with the mouse, arrows or finger. It fires by itself, or earlier with E / space.","all"],
     ["You start each match with one super shot. 10 perfect shots charge it again, ordinary hits help a little. A goal by Kevin takes away half the charge – the gauge in the lower window shows how much is left.","all"],
     ["A streak of perfect shots (2× 3× 4×!!) charges the super shot faster. A worse hit ends the streak and a goal from Kevin also resets the charge in progress.","all"],
     ["Hard perfect hits shake the machine – a screw falls out and your paddle gets big for a while.","all"],
