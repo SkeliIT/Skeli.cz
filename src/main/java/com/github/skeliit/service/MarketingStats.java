@@ -121,6 +121,49 @@ public final class MarketingStats {
         }
     }
 
+    /**
+     * CatSmash: začátek (e=start) nebo konec (e=end) zápasu → denní součty podle obtížnosti a délky (pong_daily).
+     * Bez lidí a IP; nesmyslné hodnoty se zahodí, z jedné adresy nejvýš 120 za hodinu.
+     */
+    public static void pong(HttpServletRequest req, String e, String d, String len, String won, String you, String kev, String ms) {
+        int dif = num(d, 0), l = num(len, 0);
+        if (dif < 1 || dif > 3 || !com.github.skeliit.model.PongScore.validLength(l) || skip(req) || !allowed(req, "hit-pong", 120)) return;
+        boolean end = "end".equals(e);
+        if (!end && !"start".equals(e)) return;
+        int y = num(you, -1), k = num(kev, -1), t = num(ms, -1);
+        if (end && (y < 0 || k < 0 || y > l || k > l || t < 0 || t > 60 * 60_000)) return;
+        String sql = end
+            ? "INSERT INTO pong_daily (day, difficulty, match_len, finished, wins, ms_sum, you_sum, kevin_sum) VALUES (?, ?, ?, 1, ?, ?, ?, ?) "
+              + "ON DUPLICATE KEY UPDATE finished = finished + 1, wins = wins + VALUES(wins), ms_sum = ms_sum + VALUES(ms_sum), "
+              + "you_sum = you_sum + VALUES(you_sum), kevin_sum = kevin_sum + VALUES(kevin_sum)"
+            : "INSERT INTO pong_daily (day, difficulty, match_len, starts) VALUES (?, ?, ?, 1) ON DUPLICATE KEY UPDATE starts = starts + 1";
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, today()); ps.setInt(2, dif); ps.setInt(3, l);
+            if (end) { ps.setInt(4, "1".equals(won) ? 1 : 0); ps.setLong(5, t); ps.setInt(6, y); ps.setInt(7, k); }
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            req.getServletContext().log("Marketing stats (pong)", ex);
+        }
+    }
+
+    private static int num(String v, int def) {
+        try { return v == null ? def : Integer.parseInt(v); } catch (NumberFormatException ex) { return def; }
+    }
+
+    /** CatSmash za posledních N dní: {obtížnost, délka, rozehrané, dohrané, výhry, součet ms, góly hráče, góly Kevina}. */
+    public static List<long[]> pongBy(int days) throws SQLException {
+        List<long[]> out = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT difficulty, match_len, SUM(starts), SUM(finished), SUM(wins), SUM(ms_sum), SUM(you_sum), SUM(kevin_sum) "
+                        + "FROM pong_daily WHERE day >= ? GROUP BY difficulty, match_len ORDER BY difficulty, match_len")) {
+            ps.setObject(1, today().minusDays(days - 1));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) { long[] r = new long[8]; for (int i = 0; i < 8; i++) r[i] = rs.getLong(i + 1); out.add(r); }
+            }
+        }
+        return out;
+    }
+
     // ---------- pro admin (posledních N dní) ----------
 
     /** Počty návštěv podle jednoho sloupce (source, campaign, device, lang), od největšího: {hodnota, počet}. */
@@ -170,7 +213,7 @@ public final class MarketingStats {
 
     /** Vynulování spolu s ostatními statistikami (VisitStats.reset). */
     public static void reset(Connection c) throws SQLException {
-        for (String sql : new String[] { "DELETE FROM visit_origins", "DELETE FROM outbound_clicks", "DELETE FROM search_terms" }) {
+        for (String sql : new String[] { "DELETE FROM visit_origins", "DELETE FROM outbound_clicks", "DELETE FROM search_terms", "DELETE FROM pong_daily" }) {
             try (PreparedStatement ps = c.prepareStatement(sql)) {
                 ps.executeUpdate();
             }

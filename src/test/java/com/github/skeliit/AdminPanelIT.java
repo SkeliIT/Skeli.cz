@@ -407,7 +407,7 @@ public class AdminPanelIT extends UiTestSupport {
         assertEquals(24, driver.findElements(By.cssSelector(".today-board .hour")).size(), "příchody po hodinách");
         assertEquals(8, driver.findElements(By.cssSelector(".kpi-grid .kpi")).size(), "dlaždice za období (i Spotify, YouTube, Apple zvlášť)");
         driver.get(BASE_URL + "/admin/stats?d=0");
-        assertEquals(10, driver.findElements(By.cssSelector("[data-widgets] > .w")).size(), "widgety statistik");
+        assertEquals(11, driver.findElements(By.cssSelector("[data-widgets] > .w")).size(), "widgety statistik (i CatSmash)");
         assertFalse(driver.findElements(By.cssSelector("details#stats")).isEmpty(), "jak se počítá a vynulování dole");
         assertNotNull(driver.findElement(By.cssSelector(".st-editbar")).getAttribute("hidden"), "panel úprav je po načtení schovaný");
 

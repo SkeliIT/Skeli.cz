@@ -1473,9 +1473,15 @@
 
     // hráč je připravený: odpočet 3–2–1, pak první podání (čas hry i na serveru běží až od teď), nebo hopík
     // poletí dál, kde se zastavil (po komárovi, nastavení, návratu do okna)
+    // anonymní počítadlo pro admin (vyváženost obtížností): jen obtížnost, délka a výsledek, nic o hráči
+    function pongHit(p) {
+      p.k = 'pong'; p.d = level; p.len = WIN;
+      try { fetch('/api/hit?' + new URLSearchParams(p), { credentials: 'same-origin', cache: 'no-store', keepalive: true }).catch(function () {}); } catch (e) { /* nevadí */ }
+    }
     function kickOff() {
       if (!awaitStart || !running) return false;
       var first = awaitStart === 'start';
+      if (first) pongHit({ e: 'start' });
       awaitStart = false;
       serveAt = performance.now() + 1500;
       if (first) {
@@ -2390,6 +2396,7 @@
       root.classList.remove('final');
       running = false;
       var ms = Math.round(performance.now() - started - pausedMs);
+      pongHit({ e: 'end', won: playerWon ? 1 : 0, you: you, kev: kev, ms: ms });
       if (K) { K.hold(null); if (playerWon) { K.once(K.has('defeat') ? 'defeat' : 'shrug'); K.expression(23, 3000); } else { K.hold(K.has('dance2') ? 'dance2' : 'cheer'); K.expression(2, 3000); } }
       var endKey = playerWon ? (level === 3 && !store.get('kevinPongBeat3') ? 'vyhra_hrac_3' : kev === WIN - 1 ? 'vyhra_hrac_tesne' : 'vyhra_hrac')
         : (you === 0 ? 'vyhra_kevin_10_0' : 'vyhra_kevin');

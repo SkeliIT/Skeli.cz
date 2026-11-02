@@ -13,6 +13,7 @@ import java.io.IOException;
  * GET /api/hit?k=visit&ref=<adresa webu, odkud přišel>&z=<štítek kampaně>   začátek návštěvy
  * GET /api/hit?k=out&t=spotify|apple|youtube|instagram|facebook|tiktok&p=<druh stránky>   kliknutí ven
  * GET /api/hit?k=search&q=<výraz>&f=1|0   hledání v Textech (f = našlo se něco)
+ * GET /api/hit?k=pong&e=start|end&d=1..3&len=10|20|30[&won=1|0&you=&kev=&ms=]   zápas CatSmash (pro vyváženost obtížností)
  * GET místo POST: jde jen o počítadlo a prohlížeč ho pošle i ve chvíli, kdy člověk odchází ze stránky.
  */
 @WebServlet(name = "StatsHitServlet", urlPatterns = {"/api/hit"})
@@ -24,6 +25,8 @@ public class StatsHitServlet extends HttpServlet {
             case "visit" -> MarketingStats.visit(req, req.getParameter("ref"), req.getParameter("z"));
             case "out" -> MarketingStats.out(req, req.getParameter("t"), req.getParameter("p"));
             case "search" -> MarketingStats.search(req, req.getParameter("q"), "1".equals(req.getParameter("f")));
+            case "pong" -> MarketingStats.pong(req, req.getParameter("e"), req.getParameter("d"), req.getParameter("len"),
+                    req.getParameter("won"), req.getParameter("you"), req.getParameter("kev"), req.getParameter("ms"));
             default -> { }
         }
         resp.setHeader("Cache-Control", "no-store");

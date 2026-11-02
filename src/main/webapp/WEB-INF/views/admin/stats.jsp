@@ -17,6 +17,7 @@
   java.util.List<String[]> topPlays = new java.util.ArrayList<>(), mSources = new java.util.ArrayList<>(), mCampaigns = new java.util.ArrayList<>(),
       mDevices = new java.util.ArrayList<>(), mLangs = new java.util.ArrayList<>(), mOut = new java.util.ArrayList<>(),
       mOutPages = new java.util.ArrayList<>(), mSearch = new java.util.ArrayList<>();
+  java.util.List<long[]> mPong = new java.util.ArrayList<>();   // CatSmash (vyváženost obtížností)
   long[][] mWeek = new long[7][24];
   Object since = "–";
   try {
@@ -30,6 +31,7 @@
     mOut = com.github.skeliit.service.MarketingStats.clicksByTarget(n);
     mOutPages = com.github.skeliit.service.MarketingStats.clicksByPage(n);
     mSearch = com.github.skeliit.service.MarketingStats.topSearches(n, 12);
+    mPong = com.github.skeliit.service.MarketingStats.pongBy(n);
     mWeek = com.github.skeliit.service.MarketingStats.weekHours(n);
     since = com.github.skeliit.service.VisitStats.summary().getOrDefault("since", "–");
   } catch (java.sql.SQLException e) {
@@ -264,6 +266,24 @@
         <% for (String[] r : mSearch) { %><li><span><%= com.github.skeliit.WebUtils.escapeHtml(r[0]) %><% if ("0".equals(r[2])) { %> <em class="mk-none">nic nenašlo</em><% } %></span> <b><%= r[1] %>×</b></li><% } %>
       </ol>
       <p class="st-note">„Nic nenašlo“ = nápad, co lidi chtějí a na webu není. Hledání se maže po 90 dnech.</p>
+      <% } %>
+    </section>
+    <%-- CATSMASH: vyváženost obtížností (anonymní součty, MarketingStats.pong) --%>
+    <section class="w" data-w="pong" data-size="m" data-title="CatSmash">
+      <h3><i class="fa-solid fa-table-tennis-paddle-ball" aria-hidden="true"></i> CatSmash – jak se hraje</h3>
+      <% if (mPong.isEmpty()) { %><p class="st-note">Zatím nikdo nehrál (počítá se od nasazení).</p><% } else { %>
+      <table class="st-table">
+        <thead><tr><th>Obtížnost</th><th>Gólů</th><th>Hry</th><th>Dohráno</th><th>Výhry</th><th>Ø délka</th><th>Ø skóre</th></tr></thead>
+        <tbody>
+        <% String[] dn = {"", "Lehká", "Normální", "Naštvaný"}; for (long[] r : mPong) { long fin = Math.max(1, r[3]); %>
+          <tr><td><%= dn[(int) r[0]] %></td><td><%= r[1] %></td><td><%= r[2] %></td><td><%= r[3] %><% if (r[2] > 0) { %> <small>(<%= Math.round(r[3] * 100.0 / r[2]) %> %)</small><% } %></td>
+            <td><b><%= r[3] > 0 ? Math.round(r[4] * 100.0 / fin) + " %" : "–" %></b></td>
+            <td><%= r[3] > 0 ? String.format("%d:%02d", r[5] / fin / 60000, r[5] / fin / 1000 % 60) : "–" %></td>
+            <td><%= r[3] > 0 ? String.format("%.1f : %.1f", r[6] / (double) fin, r[7] / (double) fin) : "–" %></td></tr>
+        <% } %>
+        </tbody>
+      </table>
+      <p class="st-note">Výhry = kolik dohraných zápasů hráči vyhráli. Lehká by měla být kolem 70–80 %, Normální kolem 40–50 %, Naštvaný pod 20 %. Bez jmen, bez IP; roboti a admini se nepočítají.</p>
       <% } %>
     </section>
   </div>
