@@ -81,6 +81,40 @@ public class PongDao {
         return out;
     }
 
+    /** Pořadí hráčů (id) v tabulce Skóre – top 10, věčná (pro upozornění „předběhl tě“). */
+    public List<Integer> scoreOrder(int len, int difficulty) throws SQLException {
+        return ids("SELECT s.user_id FROM pong_scores s WHERE s.match_len = ? AND s.difficulty = ? AND s.id = (SELECT s2.id FROM pong_scores s2 "
+                + "WHERE s2.user_id = s.user_id AND s2.match_len = ? AND s2.difficulty = ? ORDER BY s2.score DESC, s2.id LIMIT 1) "
+                + "ORDER BY s.score DESC, s.id LIMIT 10", len, difficulty, len, difficulty);
+    }
+
+    /** Pořadí hráčů (id) v tabulce Čas – top 10, věčná. */
+    public List<Integer> timeOrder(int difficulty, int len) throws SQLException {
+        return ids("SELECT user_id FROM pong_results WHERE difficulty = ? AND match_len = ? GROUP BY user_id "
+                + "ORDER BY MIN(duration_ms), MIN(created_at) LIMIT 10", difficulty, len);
+    }
+
+    private static List<Integer> ids(String sql, int... args) throws SQLException {
+        List<Integer> out = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
+            for (int i = 0; i < args.length; i++) ps.setInt(i + 1, args[i]);
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) out.add(rs.getInt(1)); }
+        }
+        return out;
+    }
+
+    /** Kdo klesl kvůli hráči me: {id, nové místo (11 = vypadl z top 10)} pro každého, kdo byl před zápisem výš. */
+    public static List<int[]> passed(List<Integer> before, List<Integer> after, int me) {
+        List<int[]> out = new ArrayList<>();
+        for (int i = 0; i < before.size(); i++) {
+            int u = before.get(i);
+            if (u == me) continue;
+            int ia = after.indexOf(u);
+            if (ia == -1 || ia > i) out.add(new int[] { u, ia == -1 ? 11 : ia + 1 });
+        }
+        return out;
+    }
+
     /** Hráčovo nejlepší skóre v dané délce zápasu a obtížnosti a místo v tabulce (null = tam ještě nevyhrál). */
     public PongScoreRank myScore(int len, int difficulty, int userId) throws SQLException {
         return myScore(len, difficulty, userId, null);

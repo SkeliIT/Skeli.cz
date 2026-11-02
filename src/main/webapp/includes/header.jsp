@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.71.0";
+  String assetVersion = "6.72.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -292,6 +292,10 @@
              data-t-heart="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.heart")) %>"
              data-t-song="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.onSong")) %>"
              data-t-clip="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.onClip")) %>"
+             data-t-passed="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.passed")) %>"
+             data-t-passed-place="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.passedPlace")) %>"
+             data-t-pong-score="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.pongScore")) %>"
+             data-t-pong-time="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.pongTime")) %>"
              data-t-deleted="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("account.deleted")) %>">
           <div class="notif-head">
             <strong><%= t.getProperty("notif.title") %></strong>

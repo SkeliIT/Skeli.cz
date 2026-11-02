@@ -1105,3 +1105,4 @@ body.light .card-gold {
 /* legendární znak u jména (CatSmash, odznaky za nejtěžší obtížnost) – jen když si ho autor zapnul */
 .cmt-mark { margin-left: 4px; font-size: .85em; color: var(--accent); filter: drop-shadow(0 0 4px rgba(230, 183, 48, .55)); vertical-align: baseline; }
 body.light .cmt-mark { color: #8f6600; filter: none; }
+.notif-icon.passed { color: #ffd23f; background: rgba(255, 210, 63, 0.14); }   /* CatSmash: někdo tě předběhl */

@@ -50,11 +50,32 @@ public class NotificationDao {
     }
 
     /** The newest ones; those whose comment was deleted in the meantime are left out. */
+    /**
+     * CatSmash: hráč actorId předběhl hráče userId v tabulce (info = druh|obtížnost|délka|nové místo).
+     * Bez opakování: když už má od stejného hráče nepřečtené upozornění na stejnou tabulku, nové se nepřidá.
+     */
+    public void addPassed(int userId, int actorId, String info) throws SQLException {
+        if (userId == actorId) return;
+        String board = info.substring(0, info.lastIndexOf('|') + 1);
+        try (Connection c = Db.get()) {
+            try (PreparedStatement ps = c.prepareStatement(
+                    "SELECT 1 FROM notifications WHERE user_id = ? AND actor_id = ? AND type = 'passed' AND read_at IS NULL AND info LIKE ? LIMIT 1")) {
+                ps.setInt(1, userId); ps.setInt(2, actorId); ps.setString(3, board + "%");
+                try (ResultSet rs = ps.executeQuery()) { if (rs.next()) return; }
+            }
+            try (PreparedStatement ps = c.prepareStatement(
+                    "INSERT INTO notifications (user_id, type, actor_id, info) VALUES (?, 'passed', ?, ?)")) {
+                ps.setInt(1, userId); ps.setInt(2, actorId); ps.setString(3, info);
+                ps.executeUpdate();
+            }
+        }
+    }
+
     public List<Notification> latest(int userId, int limit) throws SQLException {
         List<Notification> out = new ArrayList<>();
         try (Connection c = Db.get()) {
             try (PreparedStatement ps = c.prepareStatement(
-                    "SELECT n.id, n.type, n.comment_kind, n.comment_id, n.created_at, n.read_at, "
+                    "SELECT n.id, n.type, n.comment_kind, n.comment_id, n.created_at, n.read_at, n.info, "
                             + "CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.username END, "
                             + "CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.avatar_url END "
                             + "FROM notifications n LEFT JOIN users u ON u.id = n.actor_id "
@@ -68,9 +89,12 @@ public class NotificationDao {
                         n.type = rs.getString(2);
                         n.created = rs.getTimestamp(5).getTime();
                         n.read = rs.getTimestamp(6) != null;
-                        n.actor = rs.getString(7);
-                        n.actorAvatar = WebUtils.safeUrl(rs.getString(8), "");
-                        if (where(c, n, rs.getString(3), rs.getInt(4))) out.add(n);
+                        n.actor = rs.getString(8);
+                        n.actorAvatar = WebUtils.safeUrl(rs.getString(9), "");
+                        if ("passed".equals(n.type)) {                // CatSmash: tabulka a nové místo, odkaz otevře hru
+                            n.place = "pong"; n.placeName = rs.getString(7); n.snippet = ""; n.link = "/?kevin=pong";
+                            out.add(n);
+                        } else if (where(c, n, rs.getString(3), rs.getInt(4))) out.add(n);
                     }
                 }
             }

@@ -193,7 +193,9 @@ public class PongServlet extends HttpServlet {
             return;
         }
         try {
+            List<Integer> before = pong.timeOrder(d, len);
             pong.addWin(me, d, ms, kevin, len);
+            notifyPassed("time", d, len, before, pong.timeOrder(d, len), me, req);
             PongRank mine = pong.mine(d, len, me);
             json(resp, "{\"ok\":true,\"place\":" + (mine == null ? 0 : mine.place) + ",\"best\":" + (mine == null ? ms : mine.durationMs) + "}");
         } catch (SQLException e) {
@@ -229,7 +231,9 @@ public class PongServlet extends HttpServlet {
                 json(resp, "{\"ok\":true,\"score\":" + sc + ",\"saved\":false}");
                 return;
             }
+            List<Integer> before = pong.scoreOrder(p.len, d);
             pong.addScore(me, p, sc);
+            notifyPassed("score", d, p.len, before, pong.scoreOrder(p.len, d), me, req);
             PongScoreRank mine = pong.myScore(p.len, d, me);
             json(resp, "{\"ok\":true,\"score\":" + sc + ",\"best\":" + (mine == null ? sc : mine.score) + ",\"place\":" + (mine == null ? 0 : mine.place) + "}");
         } catch (SQLException e) {
@@ -261,6 +265,16 @@ public class PongServlet extends HttpServlet {
             json(resp, b.append('}').toString());
         } catch (SQLException e) {
             throw new ServletException(e);
+        }
+    }
+
+    /** „Někdo tě předběhl“: každému, kdo kvůli tomuhle zápisu klesl v top 10, upozornění do zvonečku (chyba nevadí). */
+    private void notifyPassed(String kind, int d, int len, List<Integer> before, List<Integer> after, int me, HttpServletRequest req) {
+        try {
+            com.github.skeliit.dao.NotificationDao n = new com.github.skeliit.dao.NotificationDao();
+            for (int[] x : PongDao.passed(before, after, me)) n.addPassed(x[0], me, kind + "|" + d + "|" + len + "|" + x[1]);
+        } catch (SQLException e) {
+            req.getServletContext().log("CatSmash: upozornění předběhl", e);
         }
     }
 
