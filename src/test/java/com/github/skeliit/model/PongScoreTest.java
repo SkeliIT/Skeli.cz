@@ -17,8 +17,8 @@ class PongScoreTest {
         PongScore good = match(10, 2, 10, 4, 180_000);
         good.perfect = 12; good.supers = 2; good.streakPts = 40;
         assertTrue(good.score() > plain.score());
-        // 10×100 + 500 − 4×40 + čas (2000 × 200 s ÷ 180 s = 2222) = 3562, × 1,5
-        assertEquals(5343, plain.score());
+        // 10×100 + 500 − 4×40 + čas (2000 × 200 s ÷ 180 s = 2222) = 3562, × 2 (Normální)
+        assertEquals(7124, plain.score());
     }
 
     @Test

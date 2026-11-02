@@ -44,15 +44,16 @@ public class PongDao {
     }
 
     /** Tabulka podle délky zápasu: každý hráč jednou se svým nejlepším skóre (při shodě kdo dřív). */
-    public List<PongScoreRank> topScores(int len, int limit, Integer meId) throws SQLException {
+    /** Tabulka skóre na délce zápasu a obtížnosti (každý hráč jednou se svým nejlepším; Lehká soupeří jen s Lehkou). */
+    public List<PongScoreRank> topScores(int len, int difficulty, int limit, Integer meId) throws SQLException {
         List<PongScoreRank> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "SELECT u.id, u.username, u.avatar_url, u.pong_frame, s.score, s.difficulty, s.you, s.kevin "
                         + "FROM pong_scores s JOIN users u ON u.id = s.user_id "
-                        + "WHERE s.match_len = ? AND s.id = (SELECT s2.id FROM pong_scores s2 WHERE s2.user_id = s.user_id AND s2.match_len = ? "
-                        + "  ORDER BY s2.score DESC, s2.id LIMIT 1) "
+                        + "WHERE s.match_len = ? AND s.difficulty = ? AND s.id = (SELECT s2.id FROM pong_scores s2 WHERE s2.user_id = s.user_id "
+                        + "  AND s2.match_len = ? AND s2.difficulty = ? ORDER BY s2.score DESC, s2.id LIMIT 1) "
                         + "ORDER BY s.score DESC, s.id LIMIT ?")) {
-            ps.setInt(1, len); ps.setInt(2, len); ps.setInt(3, limit);
+            ps.setInt(1, len); ps.setInt(2, difficulty); ps.setInt(3, len); ps.setInt(4, difficulty); ps.setInt(5, limit);
             try (ResultSet rs = ps.executeQuery()) {
                 int place = 0;
                 while (rs.next()) {
@@ -68,12 +69,12 @@ public class PongDao {
         return out;
     }
 
-    /** Hráčovo nejlepší skóre v dané délce zápasu a místo v tabulce (null = ještě nehrál). */
-    public PongScoreRank myScore(int len, int userId) throws SQLException {
+    /** Hráčovo nejlepší skóre v dané délce zápasu a obtížnosti a místo v tabulce (null = tam ještě nevyhrál). */
+    public PongScoreRank myScore(int len, int difficulty, int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT b.best, 1 + (SELECT COUNT(*) FROM (SELECT user_id, MAX(score) AS m FROM pong_scores WHERE match_len = ? GROUP BY user_id) o WHERE o.m > b.best) "
-                        + "FROM (SELECT MAX(score) AS best FROM pong_scores WHERE match_len = ? AND user_id = ?) b WHERE b.best IS NOT NULL")) {
-            ps.setInt(1, len); ps.setInt(2, len); ps.setInt(3, userId);
+                "SELECT b.best, 1 + (SELECT COUNT(*) FROM (SELECT user_id, MAX(score) AS m FROM pong_scores WHERE match_len = ? AND difficulty = ? GROUP BY user_id) o WHERE o.m > b.best) "
+                        + "FROM (SELECT MAX(score) AS best FROM pong_scores WHERE match_len = ? AND difficulty = ? AND user_id = ?) b WHERE b.best IS NOT NULL")) {
+            ps.setInt(1, len); ps.setInt(2, difficulty); ps.setInt(3, len); ps.setInt(4, difficulty); ps.setInt(5, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) return null;
                 PongScoreRank r = new PongScoreRank();

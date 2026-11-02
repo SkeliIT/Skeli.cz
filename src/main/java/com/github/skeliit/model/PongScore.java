@@ -7,7 +7,7 @@ package com.github.skeliit.model;
  * Body: gól hráče 100, perfektní odstřel 20, SUPER rána 60, gól superútokem 150, série (10 × délka každé série
  * od 2×, počítá prohlížeč jako streakPts), nejdelší výměna 5 za odraz, chycená součástka 30, Kevinův gól −40,
  * výhra 500 + čas (2000 × normální čas ÷ můj čas; normální čas = 20 s na každý gól zápasu; nejvýš 8000).
- * Čím déle zápas trvá, tím méně bodů – plynule, nikdy pod nulu. Celek × obtížnost (1 / 1,5 / 2,5), nejméně 0.
+ * Čím déle zápas trvá, tím méně bodů – plynule, nikdy pod nulu. Celek × obtížnost (1 / 2 / 3), nejméně 0.
  * Do tabulek se počítají jen výhry (prohra je prohra), skóre prohry se jen ukáže po zápase.
  */
 public final class PongScore {
@@ -26,7 +26,7 @@ public final class PongScore {
     }
 
     public static double multiplier(int difficulty) {
-        return difficulty == 3 ? 2.5 : difficulty == 2 ? 1.5 : 1;
+        return difficulty;                                   // Lehká ×1, Normální ×2, Naštvaný ×3
     }
 
     public int score() {

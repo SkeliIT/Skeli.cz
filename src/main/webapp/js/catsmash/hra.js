@@ -357,9 +357,10 @@
     var level = +(store.get('kevinPongLevel') || 2), L = LEVELS[level];
     // délka zápasu (10 / 15 / 20 gólů): tabulka rekordů je pro každou délku zvlášť, obtížnost je v násobiči skóre
     var LENGTHS = [10, 20, 30], matchLen = LENGTHS.indexOf(+store.get('kevinPongLen')) >= 0 ? +store.get('kevinPongLen') : 10;
-    // tabulka je jedna: přepínač Skóre / Čas (nejrychlejší výhra); u Času ještě obtížnost (na Lehké se vyhrává rychleji)
+    // tabulka je jedna: přepínač Skóre / Čas (nejrychlejší výhra), délka zápasu a obtížnost (Lehká soupeří jen s Lehkou)
     var boardKind = store.get('kevinPongBoardKind') === 'time' ? 'time' : 'score', boardD = 0;
     // místní rekord času na obtížnosti a délce (do 10 gólů starý klíč, ať se dřívější rekordy neztratí)
+    function ptsKey(len, d) { return 'kevinPongPts' + len + 'd' + d; }   // místní rekord skóre (délka a obtížnost)
     function timeKey(d, len) { return 'kevinPongBest' + d + (len === 10 ? '' : 'x' + len); }
     var you = 0, kev = 0, running = false, paused = false, started = 0, serveAt = 0, serving = 1;
     var player = { x: W / 2, target: W / 2, w: PAD_W, shotAt: -1e9, shotUsed: true, stunUntil: 0, lastHit: -1e9, boosted: false };
@@ -2175,7 +2176,7 @@
       else if (!fastSaid && ball.speed > L.max * 0.92) { fastSaid = true; quip('rychly_hopik', 0.35); }
     }
     // ---------- skóre zápasu (stejný vzorec počítá server: model/PongScore.java – ten je rozhodující) ----------
-    var MULT = [1, 1.5, 2.5], lastScore = null;
+    var MULT = [1, 2, 3], lastScore = null;          // Lehká ×1, Normální ×2, Naštvaný ×3
     function scoreOf(ms, won) {
       var rows = [], raw = 0, SR = T.scoreRows || {};
       function row(key, n, pts) { if (!n) return; raw += pts; rows.push([(SR[key] || key) + (n > 1 || key === 'goals' ? ' × ' + n : ''), pts]); }
@@ -2268,7 +2269,7 @@
       var send = playerWon && signedIn ? post('/api/pong/win', { d: level, ms: ms, kevin: kev }) : Promise.resolve(null);
       if (stick.streak >= 2) { mt.streakPts += 10 * stick.streak; stick.streak = 0; }   // rozběhnutá série se taky počítá
       lastScore = scoreOf(ms, playerWon);
-      var scoreKey = 'kevinPongPts' + WIN, scoreBest = +(store.get(scoreKey) || 0);   // (nový klíč: dřív jiné bodování a i prohry)
+      var scoreKey = ptsKey(WIN, level), scoreBest = +(store.get(scoreKey) || 0);   // (nový klíč: dřív jiné bodování a i prohry)
       lastScore.rec = playerWon && lastScore.total > scoreBest && lastScore.total > 0;   // prohra je prohra – ani rekord, ani tabulka
       lastScore.loss = !playerWon;
       if (lastScore.rec) store.set(scoreKey, String(lastScore.total));
@@ -2393,6 +2394,10 @@
           panel.querySelectorAll('.kpong-level').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           panel.querySelector('.kp-seg').style.setProperty('--i', level - 1);
           panel.querySelector('.kp-desc').textContent = T.levelHints[level - 1];
+          // tabulka a rekord v menu se přepnou na zvolenou obtížnost
+          boardD = level;
+          panel.querySelectorAll('[data-bd]').forEach(function (x) { x.setAttribute('aria-pressed', String(+x.dataset.bd === level)); });
+          board(boardLen());
           if (K) {                                        // Lehká = zívne, Normální = zajásá, Naštvaný = dupne a zamračí se
             if (level === 1) K.once(K.has('yawn') ? 'yawn' : 'shrug');
             else if (level === 2) { K.once(K.has('fistPump') ? 'fistPump' : 'cheer'); K.expression(2, 1400); }
@@ -2478,7 +2483,7 @@
       });
       return html + '</div>';
     }
-    // pohled Tabulka: Skóre / Čas, délka zápasu, u Času obtížnost + tabulka (board) + zpět
+    // pohled Tabulka: Skóre / Čas, délka zápasu, obtížnost + tabulka (board) + zpět
     function topView() {
       var short = T.levelsShort || T.levels;
       if (!boardD) boardD = level;
@@ -2490,7 +2495,7 @@
         '<div class="kp-boardtabs" role="group" aria-label="' + esc(T.lenTitle || '') + '">' + LENGTHS.map(function (n) {
           return '<button type="button" data-board="' + n + '" aria-pressed="' + (n === matchLen) + '">' + esc((T.lenGoals || '{n}').replace('{n}', n)) + '</button>';
         }).join('') + '</div>' +
-        '<div class="kp-boardtabs kp-boardlv" role="group" aria-label="' + esc(T.level || '') + '"' + (boardKind === 'time' ? '' : ' hidden') + '>' + [1, 2, 3].map(function (d) {
+        '<div class="kp-boardtabs kp-boardlv" role="group" aria-label="' + esc(T.level || '') + '"' + '>' + [1, 2, 3].map(function (d) {
           return '<button type="button" data-bd="' + d + '" aria-pressed="' + (d === boardD) + '" title="' + esc(T.levels[d - 1]) + '" aria-label="' + esc(T.levels[d - 1]) + '">' + '★★★'.slice(0, d) + '</button>';   // jen hvězdičky, jméno je v nadpisu
         }).join('') + '</div>' +
         '<section class="kpong-board"></section>' + backBtn() + '</div>';
@@ -2507,7 +2512,6 @@
         boardKind = bk.dataset.bkind; store.set('kevinPongBoardKind', boardKind);
         panel.querySelectorAll('[data-bkind]').forEach(function (x) { x.setAttribute('aria-checked', String(x === bk)); });
         panel.querySelector('.kp-kindseg').style.setProperty('--i', boardKind === 'time' ? 1 : 0);
-        panel.querySelector('.kp-boardlv').hidden = boardKind !== 'time';
         board(boardLen());
       }
       if (bd) {
@@ -2531,24 +2535,25 @@
       if (boardKind === 'time') return timeBoard(len);
       var box = panel.querySelector('.kpong-board'), seq = ++boardSeq;
       if (!box) return;
-      var head = '<h3 class="kp-label">' + esc(T.tabScore || T.board) + ' · ' + esc((T.lenGoals || '{n}').replace('{n}', len)) + '</h3>';
+      var d = boardD || level, short = T.levelsShort || T.levels;
+      var head = '<h3 class="kp-label">' + esc(T.tabScore || T.board) + ' · ' + esc((T.lenGoals || '{n}').replace('{n}', len)) + ' · ' + '★★★'.slice(0, d) + ' ' + esc(short[d - 1]) + '</h3>';
       box.innerHTML = head + '<p class="kpong-note">…</p>';
-      fetch('/api/pong/top?len=' + len, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+      fetch('/api/pong/top?len=' + len + '&d=' + d, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
         if (seq !== boardSeq) return;
         signedIn = !!j.signedIn; csrf = j.csrf || null;
         var rows = (j.top || []).map(function (r) {
           return '<li class="' + (r.me ? 'me' : '') + '"><span class="kpong-place">' + r.place + '.</span>' +
             (r.frame ? '<span class="av-frame f-' + esc(r.frame) + '">' : '') + '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' + (r.frame ? '</span>' : '') +
-            '<span class="kpong-name">' + esc(r.name) + ' <small class="kp-row-meta" title="' + esc(T.levels[r.d - 1] || '') + '">' + '★★★'.slice(0, r.d) + ' · ' + r.you + ':' + r.kevin + '</small></span>' +
+            '<span class="kpong-name">' + esc(r.name) + ' <small class="kp-row-meta">' + r.you + ':' + r.kevin + '</small></span>' +
             '<span class="kpong-time">' + r.score + '</span></li>';
         }).join('');
         var mine = j.me ? '<p class="kpong-note">' + esc((T.yourScore || '').replace('{place}', j.me.place).replace('{score}', j.me.score)) + '</p>' : '';
-        var local = +(store.get('kevinPongPts' + len) || 0);
+        var local = +(store.get(ptsKey(len, d)) || 0);
         var guest = !signedIn ? '<p class="kpong-note">' + esc(T.loginToRank) + ' <a href="/login.jsp?next=' + encodeURIComponent(location.pathname + location.search) + '">' + esc(T.login) + '</a>' +
           (local ? ' · ' + esc((T.localScore || '').replace('{score}', local)) : '') + '</p>' : '';
         box.innerHTML = head + (rows ? '<ol class="kpong-list">' + rows + '</ol>' : '<p class="kpong-note">' + esc(T.emptyScore || T.empty) + '</p>') + mine + guest;
         var rec = panel.querySelector('.kp-rec'), best = j.me ? j.me.score : local;
-        if (rec && len === matchLen) {
+        if (rec && len === matchLen && d === level) {
           rec.hidden = !best;
           if (best) rec.innerHTML = '<i class="fa-solid fa-trophy" aria-hidden="true"></i> ' + esc(T.best || '') + ' <b>' + best + '</b> ' + esc(T.points || '');
         }

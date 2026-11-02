@@ -26,7 +26,7 @@ import java.util.Set;
  * CatSmash (js/catsmash/hra.js): pinkání s Kevinem do 10 gólů, tabulka pořadí pro registrované.
  * GET  /api/pong/top?kind=time&d=1|2|3&len=10|20|30 → tabulka času (nejrychlejší výhry):
  *                     {"signedIn":…, "csrf":"…", "top":[{place,name,avatar,ms,kevin,me}], "me":{place,ms}|null}
- * GET  /api/pong/top?len=10|20|30 → tabulka skóre (jen výhry, každý hráč jednou se svým nejlepším)
+ * GET  /api/pong/top?len=10|20|30&d=1|2|3 → tabulka skóre (jen výhry, podle obtížnosti, každý hráč jednou se svým nejlepším)
  * POST /api/pong/start d      → začátek hry (čas startu si pamatuje server v session)
  * POST /api/pong/win  d, ms, kevin → výhra přihlášeného hráče; ms = délka hry podle prohlížeče, server ji přijme
  *                     jen když sedí s jeho vlastním měřením (nejvýš o 1,5 s víc než od startu) a je reálná
@@ -209,7 +209,7 @@ public class PongServlet extends HttpServlet {
                 return;
             }
             pong.addScore(me, p, sc);
-            PongScoreRank mine = pong.myScore(p.len, me);
+            PongScoreRank mine = pong.myScore(p.len, d, me);
             json(resp, "{\"ok\":true,\"score\":" + sc + ",\"best\":" + (mine == null ? sc : mine.score) + ",\"place\":" + (mine == null ? 0 : mine.place) + "}");
         } catch (SQLException e) {
             throw new ServletException(e);
@@ -218,10 +218,10 @@ public class PongServlet extends HttpServlet {
 
     /** GET /api/pong/top?len=10|20|30: tabulka skóre (každý hráč jednou se svým nejlepším) + moje místo. */
     private void topScores(HttpServletRequest req, HttpServletResponse resp, HttpSession s, Integer me) throws ServletException, IOException {
-        int len = len(req.getParameter("len"));
+        int len = len(req.getParameter("len")), d = difficulty(req.getParameter("d"));
         try {
-            List<PongScoreRank> top = pong.topScores(len, 10, me);
-            PongScoreRank mine = me == null ? null : pong.myScore(len, me);
+            List<PongScoreRank> top = pong.topScores(len, d, 10, me);
+            PongScoreRank mine = me == null ? null : pong.myScore(len, d, me);
             StringBuilder b = new StringBuilder("{\"signedIn\":").append(me != null);
             if (me != null) b.append(",\"csrf\":\"").append(WebUtils.escapeJs(CsrfFilter.token(s))).append('"');
             b.append(",\"len\":").append(len).append(",\"top\":[");
