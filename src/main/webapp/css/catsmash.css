@@ -893,3 +893,30 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-support b { font-size: var(--fs-small); color: #fff; font-weight: 400; }
 .kp-support small { font-family: var(--font-text); font-size: var(--fs-small); color: #e8cfd6; line-height: 1.25; }
 .kp-support > i { color: #ff6f91; }
+
+/* ---------- menu varianta B (2026-11-02): jedna obrazovka bez posouvání ----------
+   obtížnost = Kevinovy hlavy v přepínači (ospalý / v pohodě / naštvaný), dlaždice bez podtitulku,
+   dole světelná tabule šampionů (champs v hra.js) */
+.kpong-panel .kp-main { height: 100%; min-height: 0; justify-content: space-between; gap: clamp(5px, 1.8cqi, 12px); padding: 10px 6% 10px; }
+.kp-main .kp-logo img { width: min(66cqi, 320px); }
+/* hlava nad jménem (na telefonu by se vedle sebe nevešly) */
+.kp-seg .kpong-level { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: clamp(44px, 15cqi, 60px); padding: 3px 1px; font-size: clamp(.48rem, 2.8cqi, .72rem); }
+.kp-kevhead { flex: none; width: clamp(22px, 8.6cqi, 38px); height: auto; aspect-ratio: 1; border-radius: 50%; object-fit: cover; transition: filter .3s, box-shadow .3s; }
+.kpong-level[data-d="1"] .kp-kevhead[src*="/kevin.webp"] { filter: saturate(.55) brightness(.85); }   /* ospalý, dokud nemá vlastní obrázek */
+.kpong-level[data-d="3"] .kp-kevhead[src*="/kevin.webp"] { filter: sepia(.35) saturate(1.8) hue-rotate(-18deg) contrast(1.1); }   /* naštvaný */
+.kpong-level[aria-checked="true"] .kp-kevhead { box-shadow: 0 0 0 2px #2a1a00, 0 0 0 3.5px #fff3c4; }
+.kp-main .kp-desc { margin: -4px 0 0; }
+.kp-main .kpong-play { width: 100%; min-height: clamp(44px, 14cqi, 60px); font-size: clamp(1rem, 5cqi, 1.4rem); }
+.kp-main .kp-tile small { display: none; }
+.kp-main .kp-tile img { width: min(44px, 12cqi); }
+.kp-main .kp-tile { padding-top: 6px; padding-bottom: 6px; }
+.kp-main .kp-tile b { font-size: clamp(.55rem, 3cqi, .8rem); line-height: 1.15; }
+.kp-main .kpong-play { min-height: clamp(42px, 12.5cqi, 58px); }
+/* světelná tabule: oranžové LED body, text jede zprava doleva */
+.kp-led { position: relative; flex: none; width: 100%; height: clamp(26px, 8cqi, 34px); overflow: hidden; display: flex; align-items: center;
+  border-radius: 8px; border: 2px solid #3a3020; background: #0d0904; box-shadow: inset 0 0 12px #000; }
+.kp-led span { white-space: nowrap; font-family: var(--font-display); font-size: clamp(.7rem, 3.4cqi, .9rem); color: #ffb02e;
+  text-shadow: 0 0 6px rgba(255, 150, 30, .9); animation: kp-led 18s linear infinite; }
+.kp-led::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle, transparent 55%, rgba(13, 9, 4, .45) 70%) 0 0 / 3px 3px; }
+@keyframes kp-led { from { transform: translateX(100cqi); } to { transform: translateX(-100%); } }
+@media (prefers-reduced-motion: reduce) { .kp-led span { animation: none; padding-left: 8px; } }

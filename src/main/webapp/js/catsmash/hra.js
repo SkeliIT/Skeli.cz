@@ -2361,6 +2361,28 @@
     }
 
     // ---------- obrazovky (start, konec) a tabulka ----------
+    // Kevinova hlava v přepínači obtížnosti: vlastní obrázek, až bude (KEV_HEADS), jinak dnešní medailon (přibarví CSS)
+    var KEV_HEADS = { 1: null, 2: 'kevin', 3: null };
+    function kevinHead(d) { return '/kevin/pong/menu/' + (KEV_HEADS[d] || 'kevin') + '.webp' + ver; }
+    // pozvánka k účtu pro nepřihlášené (výsledky v tabulce, odemykání, odznaky, ozdoby profilu); po přihlášení zpět ke hře
+    function guestCard() {
+      return guest() && T.guest ? '<div class="kp-guest"><p>' + esc(T.guest) + '</p><p class="kp-guest-btns">' +
+        '<a class="btn btn-primary" href="/register.jsp"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> ' + esc(T.guestRegister || '') + '</a>' +
+        '<a class="btn btn-ghost" href="/login.jsp?next=' + encodeURIComponent('/?kevin=pong') + '"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> ' + esc(T.guestLogin || '') + '</a></p></div>' : '';
+    }
+    // světelná tabule v menu: top 3 nejrychlejší výhry na zvolené obtížnosti a délce zápasu, běží zprava doleva
+    var champSeq = 0;
+    function champs() {
+      var el = panel.querySelector('.kp-led span'), seq = ++champSeq;
+      if (!el) return;
+      fetch('/api/pong/top?kind=time&d=' + level + '&len=' + matchLen, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+        if (seq !== champSeq) return;
+        var top = (j.top || []).slice(0, 3);
+        el.textContent = top.length
+          ? '👑 ' + (T.champ || 'ŠAMPION') + ': ' + top.map(function (r, i) { return (i ? (i + 1) + '. ' : '') + r.name + ' ' + time(r.ms); }).join(' · ') + ' · ' + (T.champCall || '')
+          : (T.champEmpty || '');
+      }).catch(function () { el.textContent = T.champEmpty || ''; });
+    }
     function startScreen() {
       panel.hidden = false;
       // bloky: nadpis · obtížnost · Hrát · ovládání (3 dlaždice + rada k odstřelu) · tabulka
@@ -2371,34 +2393,31 @@
       var short = T.levelsShort || T.levels;
       // rady a tipy: v menu jeden náhodný (ťuknutí = další), v „Jak se hraje?“ všechny; jen ty pro toto zařízení
       var tips = (T.tips || []).filter(function (x) { return x[1] === 'all' || x[1] === (coarse ? 'touch' : 'pc'); }).map(function (x) { return x[0]; });
-      var tipAt = Math.floor(Math.random() * tips.length);
-      var tipLine = tips.length ? '<p class="kp-tip"><button type="button" class="kp-tipbtn" title="' + esc(T.tipNext || '') + '"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> <b>' +
-        esc(T.tipLabel || 'Tip') + ':</b> <span>' + esc(tips[tipAt]) + '</span></button></p>' : '';
       var tipList = tips.length ? '<h3 class="kp-label kp-tips-title">' + esc(T.tipsTitle || '') + '</h3><ul class="kp-tips">' +
         tips.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '';
       panel.dataset.view = 'main';
       panel.innerHTML = '<div class="kp-view kp-main"><h2 class="kpong-title kp-logo"><img src="/kevin/pong/menu/logo.webp' + ver + '" alt="' + esc(T.title) + '" width="900" height="277"></h2>' +
         '<div class="kp-seg" role="radiogroup" aria-label="' + esc(T.level) + '" style="--i:' + (level - 1) + '"><span class="kp-thumb" aria-hidden="true"></span>' +
         [1, 2, 3].map(function (d) {
-          return '<button type="button" role="radio" class="kpong-level" data-d="' + d + '" aria-checked="' + (d === level) + '" title="' + esc(T.levels[d - 1]) + '"><span class="kp-stars" aria-hidden="true">' + '★★★'.slice(0, d) + '</span>' + esc(short[d - 1]) + '</button>';
+          // Kevinova hlava podle obtížnosti (ospalý / v pohodě / naštvaný; zatím jeden obrázek přibarvený – kevinHead)
+          return '<button type="button" role="radio" class="kpong-level" data-d="' + d + '" aria-checked="' + (d === level) + '" title="' + esc(T.levels[d - 1]) + '">' +
+            '<img class="kp-kevhead" src="' + kevinHead(d) + '" alt="" width="64" height="64">' + esc(short[d - 1]) + '</button>';
         }).join('') + '</div>' +
         '<p class="kp-desc">' + esc(T.levelHints[level - 1]) + '</p>' +
         '<div class="kp-seg kp-lenseg" role="radiogroup" aria-label="' + esc(T.lenTitle || '') + '" style="--i:' + LENGTHS.indexOf(matchLen) + '"><span class="kp-thumb" aria-hidden="true"></span>' +
         LENGTHS.map(function (n) { return '<button type="button" role="radio" class="kpong-len" data-len="' + n + '" aria-checked="' + (n === matchLen) + '">' + esc((T.lenGoals || '{n}').replace('{n}', n)) + '</button>'; }).join('') + '</div>' +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.play) + '</button>' +
-        '<p class="kp-rec" hidden></p>' +
         // tři dlaždice s mosaznými medailony (kevin/pong/menu/, tools/catsmash-menu.py): jak se hraje · odznaky · tabulka
         '<div class="kp-tiles">' + [['how', 'jak', T.how || T.controlsTitle || ''], ['badges', 'odznaky', T.badgesTitle || ''], ['top', 'tabulka', T.board]].map(function (x) {
           return '<button type="button" class="kp-tile" data-go="' + x[0] + '"><img src="/kevin/pong/menu/ikona-' + x[1] + '.webp' + ver + '" alt="" width="160" height="162">' +
             '<b>' + esc(x[2]) + '</b><small>' + esc((T.tileSub || {})[x[0]] || '') + '</small></button>';
-        }).join('') + '</div>' + progressHtml() + '<p class="kpong-lead kp-rules">' + esc(T.lead.replace(/10/, matchLen)) + '</p>' +
-        // nepřihlášený: Kevin nabídne účet (výsledky v tabulce, odemykání, odznaky, ozdoby profilu); po přihlášení zpět ke hře
-        (guest() && T.guest ? '<div class="kp-guest"><p>' + esc(T.guest) + '</p><p class="kp-guest-btns">' +
-          '<a class="btn btn-primary" href="/register.jsp"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> ' + esc(T.guestRegister || '') + '</a>' +
-          '<a class="btn btn-ghost" href="/login.jsp?next=' + encodeURIComponent('/?kevin=pong') + '"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> ' + esc(T.guestLogin || '') + '</a></p></div>' : '') +
-        tipLine + '</div>' +
-        '<div class="kp-view kp-how"><h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + tipList + (T.credit ? '<p class="kp-credit">' + esc(T.credit) + '</p>' : '') + backBtn() + '</div>' +
-        '<div class="kp-view kp-badges">' + badgeOverview() + backBtn() + '</div>' +
+        }).join('') + '</div>' +
+        // světelná tabule šampionů (nejrychlejší výhry na zvolené obtížnosti a délce, champs()) – motivace dostat se nahoru
+        '<div class="kp-led" aria-hidden="true"><span></span></div>' + '</div>' +
+        // menu se vejde na jednu obrazovku: popis hry, tipy a pozvánka k účtu jsou v „Jak se hraje?“, postup k odznaku v Odznacích
+        '<div class="kp-view kp-how"><p class="kpong-lead kp-rules">' + esc(T.lead.replace(/10/, matchLen)) + '</p>' + guestCard() +
+        '<h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + tipList + (T.credit ? '<p class="kp-credit">' + esc(T.credit) + '</p>' : '') + backBtn() + '</div>' +
+        '<div class="kp-view kp-badges">' + progressHtml() + badgeOverview() + backBtn() + '</div>' +
         topView();
       panel.querySelectorAll('.kpong-level').forEach(function (b) {
         b.addEventListener('click', function () {
@@ -2407,7 +2426,7 @@
           panel.querySelector('.kp-seg').style.setProperty('--i', level - 1);
           panel.querySelector('.kp-desc').textContent = T.levelHints[level - 1];
           // tabulka a rekord v menu se přepnou na zvolenou obtížnost
-          boardD = level;
+          boardD = level; champs();
           panel.querySelectorAll('[data-bd]').forEach(function (x) { x.setAttribute('aria-pressed', String(+x.dataset.bd === level)); });
           board(boardLen());
           if (K) {                                        // Lehká = zívne, Normální = zajásá, Naštvaný = dupne a zamračí se
@@ -2420,7 +2439,7 @@
       // délka zápasu: tabulka a rekord se přepnou na tu délku
       panel.querySelectorAll('.kpong-len').forEach(function (b) {
         b.addEventListener('click', function () {
-          matchLen = +b.dataset.len; store.set('kevinPongLen', String(matchLen));
+          matchLen = +b.dataset.len; store.set('kevinPongLen', String(matchLen)); champs();
           panel.querySelectorAll('.kpong-len').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           panel.querySelector('.kp-lenseg').style.setProperty('--i', LENGTHS.indexOf(matchLen));
           var rules = panel.querySelector('.kp-rules'); if (rules) rules.textContent = T.lead.replace(/10/, matchLen);
@@ -2429,12 +2448,8 @@
         });
       });
       panel.querySelector('.kpong-play').addEventListener('click', begin);
-      var tipBtn = panel.querySelector('.kp-tipbtn');
-      if (tipBtn) tipBtn.addEventListener('click', function () {
-        tipAt = (tipAt + 1) % tips.length;
-        tipBtn.querySelector('span').textContent = tips[tipAt];
-      });
       board(matchLen);
+      champs();
       drawGiftThumbs(panel);
       say(pick(guest() && T.guestSay ? T.guestSay : T.hello), guest() ? 5000 : 3000);   // nepřihlášenému Kevin nabídne účet
     }
@@ -2538,7 +2553,7 @@
       panel.dataset.view = g.dataset.go;
       panel.scrollTop = 0;
       var first = panel.querySelector('.kp-' + g.dataset.go + ' button');
-      if (first) first.focus();
+      if (first) first.focus({ preventScroll: true });   // (bez skoku na konec pohledu – hráč má vidět začátek)
     });
 
     var boardSeq = 0;                                  // pozdní odpověď staršího dotazu nesmí přepsat novější tabulku
