@@ -1043,3 +1043,15 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 
 /* legendární znak u jména v tabulce */
 .kp-mark { margin-left: 3px; font-size: .85em; color: var(--accent); filter: drop-shadow(0 0 4px rgba(230, 183, 48, .55)); }
+
+/* výuka v prvním zápase: panel nahoře ve skle (krok, co udělat, Přeskočit) – nad hřištěm, pod menu */
+.kp-tut { position: absolute; left: 6%; right: 6%; top: 11%; z-index: 3; display: grid; justify-items: center; gap: 4px; padding: 10px 14px 6px;
+  border-radius: 16px; border: 1.5px solid rgba(230, 183, 48, .65); background: rgba(10, 8, 5, .82); text-align: center; pointer-events: auto;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .6); }
+.kp-tut[hidden] { display: none; }
+.kp-tut.pop { animation: kp-pop .35s cubic-bezier(.2, 1.4, .4, 1) both; }
+.kp-tut p { margin: 0; }
+.kp-tut-step { font-family: var(--font-display); font-size: var(--fs-small); letter-spacing: .1em; color: var(--accent); text-transform: uppercase; }
+.kp-tut-text { font-family: var(--font-text); font-size: var(--fs-text); color: #f3ead6; line-height: 1.35; }
+.kp-tut-skip { font-size: var(--fs-small); min-height: 32px; }
+.kp-how .kp-tut-again { width: 100%; }

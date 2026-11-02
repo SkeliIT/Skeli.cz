@@ -73,6 +73,7 @@
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas><span class="kp-streak" aria-hidden="true"></span>' +
       '      <div class="kp-replay-ui" aria-hidden="true"><span class="kp-rp-tag">● REPLAY</span><b class="kp-rp-title"></b><b class="kp-rp-goal"></b><span class="kp-rp-skip">' + esc(T.replaySkip || '') + '</span></div>' +
       '      <div class="kpong-panel"></div>' +
+      '      <div class="kp-tut" hidden><p class="kp-tut-step"></p><p class="kp-tut-text"></p><button type="button" class="kp-link kp-tut-skip"></button></div>' +
       '    </div>' +
       '  </div></div>' +
       // prohlídka: nápověda nahoře a „Zpět ke hře“ dole (jen během prohlídky)
@@ -1568,6 +1569,7 @@
     function stickFire(now) {
       var a = stick.active;
       if (!a) return;
+      if (tut && tut.step === 3) setTimeout(tutNext, 900);
       stick.active = null;
       root.classList.remove('kp-bullet');
       var sp = L.max * 1.5;                            // SUPER = vždy nejvyšší rychlost hry a ještě o polovinu víc (dřív jen 1,35× aktuální)
@@ -1589,6 +1591,7 @@
       if (kind === 'perfect') { combo++; if (combo >= 3) { kind = 'super'; mult = SHOT_SUPER; combo = 0; ball.fire = true; } }
       else combo = 0;
       if (kind === 'perfect' || kind === 'super') { mt.perfect++; stickPerfect(); } else { stickBreak(false); stickTouch(); }
+      if (tut && tut.step === 2 && kind !== 'weak') setTimeout(tutNext, 700);
       if (kind === 'super') {
         mt.superHit = true; mt.supers++;
         if (K && !mosq.active) { K.once(K.has('stomp') && Math.random() < 0.5 ? 'stomp' : K.has('no') ? 'no' : 'shrug'); K.expression(23, 1200); }
@@ -2069,7 +2072,44 @@
       field.classList.remove('hit'); void field.offsetWidth; field.classList.add('hit');
     }
 
+    // ---------- výuka (první zápas): Kevin trenér ----------
+    // 1. posuň pálkou, 2. odstřel podle terčíku (stačí dobrý nebo perfektní), 3. superútok (E / magnet).
+    // Během výuky se góly nepočítají (hopík se jen znovu podá), na konci se začne naostro od 0:0.
+    // Hotová výuka = localStorage kevinPongTut; znovu ji pustí „Zopakovat výuku“ v Jak se hraje.
+    var tut = null, tutEl = root.querySelector('.kp-tut');
+    function tutStart() {
+      tut = { step: 0, x0: player.x, tries: 0 };
+      tutEl.querySelector('.kp-tut-skip').textContent = T.tutSkip || '';
+      tutEl.hidden = false;
+      tutNext();
+    }
+    function tutNext() {
+      tut.step++;
+      if (tut.step > 3) return tutDone();
+      if (tut.step === 3) { stick.charges = Math.max(1, stick.charges); gauge(); }
+      tutEl.querySelector('.kp-tut-step').textContent = (T.tutStep || '{n} / 3').replace('{n}', tut.step);
+      tutEl.querySelector('.kp-tut-text').textContent = (tut.step === 3 && coarse ? T.tutSuperTouch : (T.tut || [])[tut.step - 1]) || '';
+      tutEl.classList.remove('pop'); void tutEl.offsetWidth; tutEl.classList.add('pop');
+      if (tut.step > 1) say(pick(T.tutGood || ['👍']), 2200);
+      tut.x0 = player.x;
+    }
+    function tutDone() {
+      tut = null; tutEl.hidden = true;
+      store.set('kevinPongTut', '1');
+      you = 0; kev = 0; youEl.textContent = '0'; kevEl.textContent = '0'; bigScore();
+      comic('l', 'burst good', T.tutDone || '', 2200);
+      say(T.tutGo || '', 3000);
+    }
+    tutEl.querySelector('.kp-tut-skip').addEventListener('click', function () { if (tut) tutDone(); });
+    // krok 1: pálka popojela; krok 2: odstřel (v boost), krok 3: superútok (stickFire)
+    function tutTick() { if (tut && tut.step === 1 && Math.abs(player.x - tut.x0) > 140) tutNext(); }
     function goal(byPlayer) {
+      if (tut) {                                         // během výuky se nepočítá – jen nové podání
+        stickBreak(false); ball.superStick = false;
+        if (!byPlayer && tut.step === 2 && ++tut.tries >= 3 && T.tutHint) say(T.tutHint, 3200);
+        resetBall(byPlayer ? false : true);
+        return;
+      }
       if (!byPlayer) stickBreak(true);
       var superGoal = byPlayer && ball.superStick;
       if (superGoal) mt.stickGoals++;
@@ -2505,6 +2545,7 @@
         '<div class="kp-led" aria-hidden="true"><span></span></div>' + '</div>' +
         // menu se vejde na jednu obrazovku: popis hry, tipy a pozvánka k účtu jsou v „Jak se hraje?“, postup k odznaku v Odznacích
         '<div class="kp-view kp-how">' + viewHead('jak', T.how || T.controlsTitle) + '<p class="kpong-lead kp-rules">' + esc(T.lead.replace(/10/, matchLen)) + '</p>' + guestCard() +
+        '<button type="button" class="kp-fullbtn kp-tut-again"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> ' + esc(T.tutAgain || '') + '</button>' +
         '<h3 class="kp-label">' + esc(T.controlsTitle || '') + '</h3>' + controls + tipList + (T.credit ? '<p class="kp-credit">' + esc(T.credit) + '</p>' : '') + backBtn() + '</div>' +
         '<div class="kp-view kp-badges">' + badgeOverview(progressHtml()) + backBtn() + '</div>' +
         topView();
@@ -2538,6 +2579,8 @@
       });
       panel.querySelector('.kpong-play').addEventListener('click', begin);
       board(matchLen);
+      var ta = panel.querySelector('.kp-tut-again');
+      if (ta) ta.addEventListener('click', function () { tutAgain = true; begin(); });
       champs();
       drawGiftThumbs(panel);
       say(pick(guest() && T.guestSay ? T.guestSay : T.hello), guest() ? 5000 : 3000);   // nepřihlášenému Kevin nabídne účet
@@ -2880,6 +2923,8 @@
       streakP = streakK = maxDown = 0; comebackSaid = false; lastMoveAt = performance.now(); idleSaid = false;
       quip(gamesPlayed > 0 ? 'odveta' : level === 3 ? 'start_3' : 'start', 1, T.start, 2800, true);
       if (FORCE_YARN) { yarnUsed = true; setTimeout(throwYarn, 1800); }   // zkouška #klubko: hned na začátku
+      tut = null; tutEl.hidden = true;
+      if (!store.get('kevinPongTut') || tutAgain) { tutAgain = false; tutStart(); }
       gamesPlayed++;
     }
 
@@ -2941,6 +2986,7 @@
       drawFlight(now);
       drawPfx();
       drawAim(now);
+      tutTick();
       if (screw) drawScrew(screw);
       if (yarn) {
         drawYarnThread();
@@ -3102,7 +3148,7 @@
     // V ⚙ jde vypnout (kevinPongLock = 0).
     var lockOn = store.get('kevinPongLock') !== '0';
     var aimOn = store.get('kevinPongAim') !== '0';          // ukazatel načasování odstřelu (výchozí zapnutý)
-    var shotSign = '';                                       // 'early' / 'late' – kam se poslední odstřel netrefil
+    var shotSign = '', tutAgain = false;                   // tutAgain = „Zopakovat výuku“ v Jak se hraje                                       // 'early' / 'late' – kam se poslední odstřel netrefil
     function locked() { return document.pointerLockElement === root; }
     function lockMouse() {
       if (!lockOn || coarse || locked() || setCard || !root.requestPointerLock) return;
