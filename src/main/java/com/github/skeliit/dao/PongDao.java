@@ -231,31 +231,38 @@ public class PongDao {
      * Odznaky z výher počítá server (první výhra, každá obtížnost, 10:0, 10:9, pod 75 s, 10/50/100 výher),
      * odznaky ze zápasu hlásí prohlížeč (pong_badges), Šatník = odemčené všechny pálky a míčky.
      */
+    /** Od kdy se počítají výhry do odznaků (odznaky všem vynulované při přeskládání odměn). */
+    public static final String BADGES_FROM = "2026-11-03 00:00:00";
+
     public PongProfile profile(int userId) throws SQLException {
         PongProfile p = new PongProfile();
         // odznaky jen z výher na Normální a nejtěžší (na Lehké se nesbírají); celkový počet výher zůstává pro profil
         boolean clean = false, close = false, hardClean = false;
         int fastest = Integer.MAX_VALUE, hardFastest = Integer.MAX_VALUE, winsCounted = 0, winsHard = 0;
+        // odznaky se počítají jen z výher od BADGES_FROM (2. 11. 2026 se odznaky všem vynulovaly); výhry a nejlepší časy navždy
+        Timestamp from = Timestamp.valueOf(BADGES_FROM);
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT difficulty, COUNT(*), MIN(CASE WHEN match_len = 10 THEN duration_ms END), MIN(CASE WHEN match_len = 10 THEN kevin_goals END), "
-                        + "MAX(CASE WHEN match_len = 10 THEN kevin_goals END), SUM(match_len = 10) "
+                "SELECT difficulty, COUNT(*), MIN(CASE WHEN match_len = 10 THEN duration_ms END), SUM(match_len = 10), "
+                        + "SUM(created_at >= ?), MIN(CASE WHEN match_len = 10 AND created_at >= ? THEN duration_ms END), "
+                        + "MIN(CASE WHEN match_len = 10 AND created_at >= ? THEN kevin_goals END), MAX(CASE WHEN match_len = 10 AND created_at >= ? THEN kevin_goals END), "
+                        + "SUM(match_len = 10 AND created_at >= ?) "
                         + "FROM pong_results WHERE user_id = ? GROUP BY difficulty")) {
-            ps.setInt(1, userId);
+            for (int i = 1; i <= 5; i++) ps.setTimestamp(i, from);
+            ps.setInt(6, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     int d = rs.getInt(1);
                     if (d < 1 || d > 3) continue;
                     p.wins += rs.getInt(2);
-                    boolean ten = rs.getInt(6) > 0;          // časy a výsledky jen ze zápasů do 10 (delší zápasy mají skóre)
-                    if (ten) p.bestMs[d - 1] = rs.getInt(3);
+                    if (rs.getInt(4) > 0) p.bestMs[d - 1] = rs.getInt(3);   // časy jen ze zápasů do 10 (delší zápasy mají skóre)
                     if (d < 2) continue;
-                    winsCounted += rs.getInt(2);
-                    if (d == 3) winsHard = rs.getInt(2);
-                    if (!ten) continue;
-                    fastest = Math.min(fastest, rs.getInt(3));
-                    if (rs.getInt(4) == 0) clean = true;
-                    if (rs.getInt(5) == 9) close = true;
-                    if (d == 3) { hardFastest = rs.getInt(3); hardClean = rs.getInt(4) <= 3; }
+                    winsCounted += rs.getInt(5);
+                    if (d == 3) winsHard = rs.getInt(5);
+                    if (rs.getInt(9) == 0) continue;
+                    fastest = Math.min(fastest, rs.getInt(6));
+                    if (rs.getInt(7) == 0) clean = true;
+                    if (rs.getInt(8) == 9) close = true;
+                    if (d == 3) { hardFastest = rs.getInt(6); hardClean = rs.getInt(7) <= 3; }
                 }
             }
         }
