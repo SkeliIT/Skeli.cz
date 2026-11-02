@@ -17,12 +17,22 @@ class PongScoreTest {
         PongScore good = match(10, 2, 10, 4, 180_000);
         good.perfect = 12; good.supers = 2; good.streakPts = 40;
         assertTrue(good.score() > plain.score());
-        // 10×100 + 500 − 4×40 + rychlost (200 s − 180 s = 20 s × 5) = 1440, × 1,5
-        assertEquals(2160, plain.score());
+        // 10×100 + 500 − 4×40 + čas (2000 × 200 s ÷ 180 s = 2222) = 3562, × 1,5
+        assertEquals(5343, plain.score());
     }
 
     @Test
-    void lossStillCountsButLessAndNeverNegative() {
+    void longerMatchGivesFewerPointsForTime() {
+        assertEquals(2000, PongScore.timeBonus(10, 200_000), "normální čas");
+        assertEquals(4000, PongScore.timeBonus(10, 100_000), "za polovinu dvojnásobek");
+        assertEquals(1000, PongScore.timeBonus(10, 400_000), "za dvojnásobek polovina");
+        assertEquals(8000, PongScore.timeBonus(10, 20_000), "strop");
+        assertTrue(PongScore.timeBonus(30, 700_000) > PongScore.timeBonus(30, 900_000));
+        assertTrue(PongScore.timeBonus(10, 3_600_000) > 0, "nikdy pod nulu");
+    }
+
+    @Test
+    void lossScoreIsLowerAndNeverNegative() {
         PongScore loss = match(10, 1, 8, 10, 200_000);
         assertEquals(800 - 400, loss.score());
         assertEquals(0, match(10, 1, 0, 10, 60_000).score());
@@ -30,8 +40,9 @@ class PongScoreTest {
 
     @Test
     void impossibleMatchesAreRejected() {
-        assertTrue(match(15, 3, 15, 9, 300_000).plausible());
-        assertFalse(match(12, 2, 12, 3, 300_000).plausible(), "jen 10 / 15 / 20");
+        assertTrue(match(20, 3, 20, 9, 400_000).plausible());
+        assertTrue(match(30, 2, 30, 12, 900_000).plausible());
+        assertFalse(match(15, 2, 15, 3, 300_000).plausible(), "jen 10 / 20 / 30");
         assertFalse(match(10, 2, 9, 8, 300_000).plausible(), "zápas neskončil");
         assertFalse(match(10, 2, 10, 2, 5_000).plausible(), "moc rychle");
         PongScore cheat = match(10, 2, 10, 0, 120_000);

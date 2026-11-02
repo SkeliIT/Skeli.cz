@@ -844,6 +844,22 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 
 /* ---------- délka zápasu a skóre ---------- */
 .kp-lenseg { margin-top: 6px; }
+/* tabulka: přepínač Skóre / Čas (dvě volby), pod ním délka zápasu a u Času obtížnost */
+.kp-kindseg { grid-template-columns: repeat(2, 1fr); margin-bottom: 8px; }
+.kp-kindseg .kp-thumb { width: calc((100% - 8px) / 2); }
+.kp-kindseg button {
+  position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 4px; border: 0;
+  background: none; border-radius: 99px; font-family: var(--font-display); font-size: var(--fs-card); color: #e6e0d6; cursor: pointer; transition: color .2s;
+}
+.kp-kindseg button[aria-checked="true"] { color: #2a1a00; }
+.kp-kindseg button:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+.kp-top .kp-boardtabs { flex-wrap: nowrap; gap: 4px; }
+.kp-top .kp-boardtabs button { flex: 1 1 0; min-width: 0; padding: 6px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kp-boardlv { margin-top: -2px; }
+.kp-boardlv[hidden] { display: none; }
+/* po prohře: skóre se ukáže, ale do tabulky nejde */
+.kp-score-loss { margin: 0; text-align: center; font-family: var(--font-text); font-size: var(--fs-small); color: #bfb39c;
+  opacity: 0; animation: kp-score-row .35s ease-out forwards; animation-delay: calc(var(--i) * .12s + .4s); }
 .kp-row-meta { font-family: var(--font-text); font-size: var(--fs-small); color: #bfb39c; white-space: nowrap; }
 .kp-score { width: min(100%, 320px); margin: 4px auto 6px; display: grid; gap: 4px; }
 .kp-score ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
@@ -859,7 +875,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-score-rec { margin: 0; text-align: center; font-size: var(--fs-card); color: #ffd23f; opacity: 0; animation: kp-score-rec .6s cubic-bezier(.2, 1.4, .4, 1) forwards; animation-delay: calc(var(--i) * .12s + .4s); }
 @keyframes kp-score-row { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
 @keyframes kp-score-rec { from { opacity: 0; scale: .5; } to { opacity: 1; scale: 1; } }
-@media (prefers-reduced-motion: reduce) { .kp-score li, .kp-score-total, .kp-score-rec { animation: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .kp-score li, .kp-score-total, .kp-score-rec, .kp-score-loss { animation: none; opacity: 1; } }
 /* po zápase: Kevinova reklama na podporu Skeliho */
 .kp-support {
   display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; width: min(100%, 320px); margin: 8px auto 0;
