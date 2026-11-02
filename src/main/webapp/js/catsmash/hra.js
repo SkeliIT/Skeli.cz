@@ -67,6 +67,8 @@
       '    <div class="kp-gauge" aria-hidden="true"><i></i><b>E</b></div>' +
       '    <div class="kpong-field">' +
       '      <div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
+      // telefon: skóre jako velká průhledná čísla ve skle (Kevin nahoře, ty dole) – pod míčkem, nic nezakrývají
+      '      <div class="kp-bigscore" aria-hidden="true"><b data-s="kev">0</b><b data-s="you">0</b></div>' +
       '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas><span class="kp-streak" aria-hidden="true"></span>' +
       '      <div class="kp-replay-ui" aria-hidden="true"><span class="kp-rp-tag">● REPLAY</span><b class="kp-rp-title"></b><b class="kp-rp-goal"></b><span class="kp-rp-skip">' + esc(T.replaySkip || '') + '</span></div>' +
       '      <div class="kpong-panel"></div>' +
@@ -98,11 +100,18 @@
       var availW = innerWidth - 16 - (landscape ? topBar.offsetWidth + padW + 24 : 0);
       // skóre a křížek leží přes volné místo nad strojem (vedle Kevina), na výšku tedy nezabírají řádek
       var availH = innerHeight - 16 - (landscape ? 0 : (padH ? padH + 8 : 0));
+      // telefon na výšku: automat přiblížený – nahoře celá horní strana s Kevinem, boky a spodek za okraji
+      // telefonu (z rámu jen tenký lem kolem skla), hřiště přes celou šířku
+      var phone = !landscape && innerWidth <= 600;
+      if (phone) availW = innerWidth;
       var all = { x0: 0, x1: FRAME_W, y0: -110, y1: FRAME_H };    // nad rámem místo pro Kevina
-      var cut = { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1300 };
+      var cut = phone ? { x0: GLASS.x - 16, x1: GLASS.x + GLASS.w + 16, y0: -110, y1: GLASS.y + GLASS.h + 16 }
+        : { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1300 };
       var uAll = Math.min(availW / FRAME_W, availH / FRAME_H), uCut = Math.min(availW / (cut.x1 - cut.x0), availH / (cut.y1 - cut.y0));
-      var v = uCut > uAll * 1.12 ? cut : all, u = v === cut ? uCut : uAll;
+      var v = phone || uCut > uAll * 1.12 ? cut : all, u = v === cut ? uCut : uAll;
       machine.classList.toggle('cut', v === cut);
+      machine.classList.toggle('phone', phone);
+      gaugeTop = phone; if (typeof placeGauge === 'function') placeGauge();
       machine.style.width = Math.floor((v.x1 - v.x0) * u) + 'px';
       machine.style.height = Math.floor((v.y1 - v.y0) * u) + 'px';
       frame.style.setProperty('--u', u);
@@ -114,7 +123,7 @@
         c.width = Math.round(w[2] * u * dpr); c.height = Math.round(w[3] * u * dpr);
       });
     }
-    var mechEls = [].slice.call(root.querySelectorAll('.kpong-mech'));
+    var mechEls = [].slice.call(root.querySelectorAll('.kpong-mech')), gaugeTop = false;
     fit();
     addEventListener('resize', fit);
 
@@ -146,7 +155,7 @@
     // jen test/localhost: kde je hráčova pálka (pro testy ovládání prstem)
     if (TRY_HOST) window.__kpPlayer = function () { return { x: Math.round(player.x), target: Math.round(player.target) }; };
     // jen na testu/localhost: stav míčku a superútoku pro automatické testy (TmpStickIT)
-    if (TRY_HOST) window.__kpSet = function (y, k) { you = y; kev = k; };
+    if (TRY_HOST) window.__kpSet = function (y, k) { you = y; kev = k; youEl.textContent = y; kevEl.textContent = k; bigScore(); };
     if (TRY_HOST) window.__kpLen = function () { return WIN; };   // test: skóre těsně před koncem zápasu
     if (TRY_HOST) window.__kpHold = function (ms) { if (stick.active) stick.active.end += ms; };   // test: delší míření kvůli snímku
     if (TRY_HOST) window.__kpBall = function () { return { x: Math.round(ball.x), y: Math.round(ball.y), vy: Math.round(ball.vy), W: W, stick: { charges: stick.charges, pts: stick.pts, armed: stick.armed, active: !!stick.active }, screw: screw && screw.kind }; };
@@ -2030,6 +2039,7 @@
       if (superGoal) mt.stickGoals++;
       ball.superStick = false;
       if (byPlayer) { you++; youEl.textContent = you; } else { kev++; kevEl.textContent = kev; }
+      bigScore(byPlayer ? 'you' : 'kev');
       bump(byPlayer ? youEl : kevEl); sfx.goal(byPlayer);
       var was = mood;
       mood = kev - you >= 3 ? 'lazy' : you - kev >= 3 ? 'try' : 'calm';
@@ -2094,13 +2104,23 @@
     };
     // manometr nabití superútoku sedí přímo na velkém kole vlevo v dolním okénku (druhé v řetězu): stejný střed,
     // průměr 84 % kola = kolem dokola koukají zuby, které se pod ním točí
-    (function () {
-      var g = MECH.bot.front[1], el = root.querySelector('.kp-gauge');
+    // (na telefonu je spodní okénko za okrajem – manometr pak sedí na velkém kole v horním okénku)
+    // velká čísla skóre ve skle (telefon): přepíše obě, kdo dal gól, ten se na chvíli rozsvítí
+    function bigScore(who) {
+      var b = root.querySelectorAll('.kp-bigscore b');
+      if (!b.length) return;
+      b[0].textContent = kev; b[1].textContent = you;
+      if (who) { var el = b[who === 'kev' ? 0 : 1]; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    }
+    function placeGauge() {
+      if (!MECH) return;                                  // (fit() běží dřív, než je mechanika připravená)
+      var g = (gaugeTop ? MECH.top : MECH.bot).front[1], el = root.querySelector('.kp-gauge');
       if (!g || !el) return;
       el.style.setProperty('--gx', g.x.toFixed(1));
       el.style.setProperty('--gy', g.y.toFixed(1));
       el.style.setProperty('--gd', (2 * g.r * 0.84).toFixed(1));
-    })();
+    }
+    placeGauge();
     var mechWant = { top: 0, bot: 0 }, mechLast = 0;
     function mechTick(now) {
       var dt = mechLast ? Math.min(0.05, (now - mechLast) / 1000) : 0;
@@ -2690,7 +2710,7 @@
 
     function begin() {
       panel.hidden = true;
-      you = 0; kev = 0; youEl.textContent = '0'; kevEl.textContent = '0';
+      you = 0; kev = 0; youEl.textContent = '0'; kevEl.textContent = '0'; bigScore();
       player.x = player.target = W / 2; kevin.x = kevin.target = W / 2;
       if (K) { K.hold(null); K.look(0, 0); }
       L = LEVELS[level];
