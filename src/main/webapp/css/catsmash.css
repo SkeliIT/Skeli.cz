@@ -978,3 +978,41 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-look-ui p { margin: 0; padding: 6px 14px; border-radius: 99px; background: rgba(0, 0, 0, .55); color: #ffd766;
   font-family: var(--font-text); font-size: var(--fs-small); }
 .kp-look-ui .kp-look-back { pointer-events: auto; min-width: 60%; }
+
+/* ---------- karta položky (pálka, míček, pozadí): velký náhled, naklání se jako dlaždice na webu ---------- */
+.kp-item { position: fixed; inset: 0; z-index: 9; display: grid; place-items: center; padding: 16px;
+  background: rgba(0, 0, 0, .62); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); animation: kp-fade .2s ease-out; perspective: 900px; }
+.kp-item-card {
+  --rx: 0deg; --ry: 0deg; --gx: 50%; --gy: 30%;
+  position: relative; width: min(340px, 100%); display: grid; justify-items: center; gap: 10px; padding: 18px 18px 16px; text-align: center;
+  border-radius: 22px; border: 1.5px solid rgba(230, 183, 48, .6);
+  background: radial-gradient(120% 70% at 50% 25%, rgba(34, 30, 22, .98), rgba(8, 7, 6, .98));
+  box-shadow: 0 0 0 4px rgba(20, 16, 10, .9), 0 0 0 5.5px rgba(184, 134, 43, .55), 0 30px 60px -20px rgba(0, 0, 0, .9);
+  transform: rotateX(var(--rx)) rotateY(var(--ry)); transition: transform .25s ease-out; transform-style: preserve-3d;
+  animation: kp-pop .3s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.kp-item-card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(circle at var(--gx) var(--gy), rgba(255, 230, 150, .2), transparent 45%); }
+.kp-item-x { position: absolute; top: 8px; right: 8px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: none;
+  color: var(--text-dim); font-size: 1.1rem; cursor: pointer; z-index: 1; }
+.kp-item-x:hover, .kp-item-x:focus-visible { color: var(--accent); }
+.kp-item-art { position: relative; width: 100%; display: grid; place-items: center; min-height: 150px; border-radius: 16px;
+  background: radial-gradient(ellipse at 50% 60%, rgba(230, 183, 48, .18), rgba(0, 0, 0, .35) 72%); transform: translateZ(30px); }
+.kp-item-cv { display: block; width: 100%; height: auto; }
+.kp-item-cv.ball { width: 60%; }
+.kp-item-bg { display: block; width: 100%; aspect-ratio: 2 / 3; max-height: 46vh; object-fit: cover; border-radius: 14px; }
+.kp-item-bg.tma { background: radial-gradient(circle at 50% 40%, #2a2620, #050505); }
+.kp-item.locked .kp-item-art > :not(.kp-item-lockicon) { filter: grayscale(.85) brightness(.55); }
+.kp-item-lockicon { position: absolute; font-size: 2.2rem; color: #ffd766; text-shadow: 0 2px 10px #000; }
+.kp-item-card h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: var(--fs-h3); color: var(--accent); }
+.kp-item-mach { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
+.kp-item-mach img { width: 34px; height: auto; border-radius: 4px; }
+.kp-item-use { min-width: 70%; }
+.kp-item-use:disabled { opacity: .7; cursor: default; }
+.kp-item-lock { margin: 0; font-family: var(--font-display); font-size: var(--fs-card); color: #ffd766; }
+.kp-item-how { margin: 0; font-family: var(--font-text); font-size: var(--fs-text); color: var(--text); }
+.kp-item-prog { width: 100%; margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); text-align: left; }
+.kp-item-prog b { color: var(--accent); font-weight: 600; }
+.kp-item-prog i { grid-column: 1 / -1; height: 6px; border-radius: 99px; background: linear-gradient(90deg, var(--accent) var(--p), rgba(255, 255, 255, .14) var(--p)); }
+.kp-gift-pad, .kp-gift-ball { cursor: zoom-in; }
+@media (prefers-reduced-motion: reduce) { .kp-item-card { transform: none; animation: none; } }
