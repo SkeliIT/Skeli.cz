@@ -66,6 +66,9 @@ public final class PongBadges {
 
     public static boolean isFrame(String key) { return key != null && FRAMES.contains(key); }
 
+    /** Legendární znak u jména (users.pong_mark): jen odznaky za nejtěžší obtížnost; dobrovolný, výchozí žádný. */
+    public static boolean isMark(String key) { return key != null && HARD.contains(key); }
+
     /** Stupeň odznaku (barva medaile) nebo null. */
     public static String tier(String key) {
         return switch (key) {

@@ -2736,6 +2736,8 @@
     });
 
     var boardSeq = 0;                                  // pozdní odpověď staršího dotazu nesmí přepsat novější tabulku
+    // legendární znak u jména v tabulce (jen když si ho hráč zapnul)
+    function markIcon(k) { return k && BADGE_ICON[k] ? ' <i class="fa-solid ' + BADGE_ICON[k] + ' kp-mark" title="' + esc((T.badgeNames || {})[k] || '') + '"></i>' : ''; }
     function boardLen() { var b = panel.querySelector('[data-board][aria-pressed="true"]'); return b ? +b.dataset.board : matchLen; }
     function board(len) {
       if (boardKind === 'time') return timeBoard(len);
@@ -2750,7 +2752,7 @@
         var rows = (j.top || []).map(function (r) {
           return '<li class="' + (r.me ? 'me' : '') + '"><span class="kpong-place">' + r.place + '.</span>' +
             (r.frame ? '<span class="av-frame f-' + esc(r.frame) + '">' : '') + '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' + (r.frame ? '</span>' : '') +
-            '<span class="kpong-name">' + esc(r.name) + ' <small class="kp-row-meta">' + r.you + ':' + r.kevin + '</small></span>' +
+            '<span class="kpong-name">' + esc(r.name) + markIcon(r.mark) + ' <small class="kp-row-meta">' + r.you + ':' + r.kevin + '</small></span>' +
             '<span class="kpong-time">' + r.score + '</span></li>';
         }).join('');
         var mine = j.me ? '<p class="kpong-note">' + esc((T.yourScore || '').replace('{place}', j.me.place).replace('{score}', j.me.score)) + '</p>' : '';
@@ -2778,7 +2780,7 @@
         var rows = (j.top || []).map(function (r) {
           return '<li class="' + (r.me ? 'me' : '') + '"><span class="kpong-place">' + r.place + '.</span>' +
             (r.frame ? '<span class="av-frame f-' + esc(r.frame) + '">' : '') + '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' + (r.frame ? '</span>' : '') +
-            '<span class="kpong-name">' + esc(r.name) + ' <small class="kp-row-meta">' + len + ':' + r.kevin + '</small></span>' +
+            '<span class="kpong-name">' + esc(r.name) + markIcon(r.mark) + ' <small class="kp-row-meta">' + len + ':' + r.kevin + '</small></span>' +
             '<span class="kpong-time">' + time(r.ms) + '</span></li>';
         }).join('');
         var mine = j.me ? '<p class="kpong-note">' + esc((T.yourBest || '').replace('{place}', j.me.place).replace('{time}', time(j.me.ms))) + '</p>' : '';

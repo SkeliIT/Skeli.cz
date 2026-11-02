@@ -184,6 +184,28 @@
       </div>
       <% } %>
     </form>
+    <%-- legendární znak u jména (odznaky za nejtěžší obtížnost): dobrovolný, výchozí Neukazovat --%>
+    <form class="pong-title-form pong-mark-form" method="post" action="/api/pong/mark">
+      <input type="hidden" name="csrf" value="${csrf}">
+      <input type="hidden" name="back" value="account">
+      <label for="pongMark"><b><%= t.getProperty("pong.mark.title") %></b> <span class="acct-dim"><%= t.getProperty("pong.mark.lead") %></span></label>
+      <% if ("1".equals(request.getParameter("pongMark"))) { %><p class="pong-title-msg ok" role="status"><%= t.getProperty("pong.mark.saved") %></p><% } %>
+      <% if ("0".equals(request.getParameter("pongMark"))) { %><p class="pong-title-msg" role="alert"><%= t.getProperty("pong.title.failed") %></p><% } %>
+      <% boolean anyMark = false; for (PongProfile.Badge b : pong.badges) if (b.earned && com.github.skeliit.model.PongBadges.isMark(b.key)) anyMark = true; %>
+      <% if (!anyMark) { %>
+        <p class="acct-dim"><%= t.getProperty("pong.mark.empty") %></p>
+      <% } else { %>
+      <div class="pong-title-row">
+        <select id="pongMark" name="m">
+          <option value=""><%= t.getProperty("pong.mark.none") %></option>
+          <% for (PongProfile.Badge b : pong.badges) { if (!b.earned || !com.github.skeliit.model.PongBadges.isMark(b.key)) continue; %>
+          <option value="<%= b.key %>"<%= b.key.equals(pong.mark) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("pong.badge." + b.key)) %></option>
+          <% } %>
+        </select>
+        <button type="submit" class="btn-primary"><%= t.getProperty("pong.title.save") %></button>
+      </div>
+      <% } %>
+    </form>
   </section>
 
   <%-- Security: password and the devices you are signed in on --%>

@@ -48,7 +48,7 @@ public class PongDao {
     public List<PongScoreRank> topScores(int len, int difficulty, int limit, Integer meId) throws SQLException {
         List<PongScoreRank> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT u.id, u.username, u.avatar_url, u.pong_frame, s.score, s.difficulty, s.you, s.kevin "
+                "SELECT u.id, u.username, u.avatar_url, u.pong_frame, s.score, s.difficulty, s.you, s.kevin, u.pong_mark "
                         + "FROM pong_scores s JOIN users u ON u.id = s.user_id "
                         + "WHERE s.match_len = ? AND s.difficulty = ? AND s.id = (SELECT s2.id FROM pong_scores s2 WHERE s2.user_id = s.user_id "
                         + "  AND s2.match_len = ? AND s2.difficulty = ? ORDER BY s2.score DESC, s2.id LIMIT 1) "
@@ -60,6 +60,7 @@ public class PongDao {
                     PongScoreRank r = new PongScoreRank();
                     r.place = ++place; r.username = rs.getString(2); r.avatarUrl = rs.getString(3);
                     r.frame = PongBadges.isFrame(rs.getString(4)) ? rs.getString(4) : null;
+                    r.mark = PongBadges.isMark(rs.getString(9)) ? rs.getString(9) : null;
                     r.score = rs.getInt(5); r.difficulty = rs.getInt(6); r.you = rs.getInt(7); r.kevin = rs.getInt(8);
                     r.me = meId != null && meId == rs.getInt(1);
                     out.add(r);
@@ -88,7 +89,7 @@ public class PongDao {
     public List<PongRank> top(int difficulty, int matchLen, int limit, Integer meId) throws SQLException {
         List<PongRank> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT u.id, u.username, u.avatar_url, b.best, u.pong_title, u.pong_frame, "
+                "SELECT u.id, u.username, u.avatar_url, b.best, u.pong_title, u.pong_frame, u.pong_mark, "
                         + " (SELECT r2.kevin_goals FROM pong_results r2 WHERE r2.user_id = b.user_id AND r2.difficulty = ? AND r2.match_len = ? AND r2.duration_ms = b.best ORDER BY r2.id LIMIT 1) "
                         + "FROM (SELECT user_id, MIN(duration_ms) AS best, MIN(created_at) AS first_at FROM pong_results WHERE difficulty = ? AND match_len = ? GROUP BY user_id) b "
                         + "JOIN users u ON u.id = b.user_id ORDER BY b.best, b.first_at LIMIT ?")) {
@@ -101,9 +102,10 @@ public class PongDao {
                 int place = 0;
                 while (rs.next()) {
                     place++;
-                    PongRank r = new PongRank(place, rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(7), meId != null && meId == rs.getInt(1));
+                    PongRank r = new PongRank(place, rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(8), meId != null && meId == rs.getInt(1));
                     r.title = PongBadges.TITLES_ON && PongBadges.exists(rs.getString(5)) ? rs.getString(5) : null;
                     r.frame = PongBadges.isFrame(rs.getString(6)) ? rs.getString(6) : null;
+                    r.mark = PongBadges.isMark(rs.getString(7)) ? rs.getString(7) : null;
                     out.add(r);
                 }
             }
@@ -199,6 +201,8 @@ public class PongDao {
         if (p.title != null && !p.has(p.title)) p.title = null;
         p.frame = frame(userId);
         if (p.frame != null && !p.has(p.frame)) p.frame = null;
+        p.mark = mark(userId);
+        if (p.mark != null && !p.has(p.mark)) p.mark = null;
         return p;
     }
 
@@ -251,6 +255,24 @@ public class PongDao {
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() && PongBadges.isFrame(rs.getString(1)) ? rs.getString(1) : null;
             }
+        }
+    }
+
+    public String mark(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT pong_mark FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && PongBadges.isMark(rs.getString(1)) ? rs.getString(1) : null;
+            }
+        }
+    }
+
+    /** Nastaví legendární znak u jména; null = neukazovat. Volající ověří, že odznak hráč má. */
+    public void setMark(int userId, String key) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET pong_mark = ? WHERE id = ?")) {
+            ps.setString(1, key);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
         }
     }
 

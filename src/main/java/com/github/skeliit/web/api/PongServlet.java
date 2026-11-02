@@ -34,6 +34,7 @@ import java.util.Set;
  * GET  /api/pong/me             → {"signedIn":…, "csrf":"…", "badges":["first",…], "title":"…"|null} (odznaky z účtu)
  * POST /api/pong/badges keys=a,b → odznaky ze zápasu, které viděl prohlížeč (jen PongBadges.CLAIMABLE)
  * POST /api/pong/title  t=klíč  → titul u jména (jen získaný odznak, prázdné = bez titulu); s back= přesměruje
+ * POST /api/pong/mark   m=klíč  → legendární znak u jména (jen získaný odznak za nejtěžší obtížnost, prázdné = neukazovat); s back= přesměruje
  * POST /api/pong/frame  f=klíč  → rámeček kolem fotky (jen získaný odznak z PongBadges.FRAMES, prázdné = bez); s back= přesměruje
  */
 @WebServlet(name = "PongServlet", urlPatterns = {"/api/pong/*"})
@@ -77,7 +78,8 @@ public class PongServlet extends HttpServlet {
                         .append("\",\"avatar\":").append(r.avatarUrl == null ? "null" : "\"" + WebUtils.escapeJs(r.avatarUrl) + "\"")
                         .append(",\"ms\":").append(r.durationMs).append(",\"kevin\":").append(r.kevinGoals).append(",\"me\":").append(r.me)
                         .append(",\"title\":").append(titleJson(req, r.title))
-                        .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"").append('}');
+                        .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"")
+                        .append(",\"mark\":").append(r.mark == null ? "null" : "\"" + r.mark + "\"").append('}');
             }
             b.append("],\"me\":");
             b.append(mine == null ? "null" : "{\"place\":" + mine.place + ",\"ms\":" + mine.durationMs + "}");
@@ -106,6 +108,24 @@ public class PongServlet extends HttpServlet {
             } catch (SQLException e) {
                 throw new ServletException(e);
             }
+            return;
+        }
+        if ("/mark".equals(req.getPathInfo())) {
+            String m = req.getParameter("m");
+            if (m != null && m.isBlank()) m = null;
+            boolean ok;
+            try {
+                ok = m == null || PongBadges.isMark(m) && pong.earned(me).contains(m);
+                if (ok) pong.setMark(me, m);
+            } catch (SQLException e) {
+                throw new ServletException(e);
+            }
+            if ("account".equals(req.getParameter("back"))) {
+                resp.sendRedirect("/nastaveni.jsp?" + (ok ? "pongMark=1" : "pongMark=0") + "#profil");
+                return;
+            }
+            if (!ok) resp.setStatus(400);
+            json(resp, "{\"ok\":" + ok + "}");
             return;
         }
         if ("/frame".equals(req.getPathInfo())) {
@@ -232,7 +252,8 @@ public class PongServlet extends HttpServlet {
                         .append("\",\"avatar\":").append(r.avatarUrl == null ? "null" : "\"" + WebUtils.escapeJs(r.avatarUrl) + "\"")
                         .append(",\"score\":").append(r.score).append(",\"d\":").append(r.difficulty)
                         .append(",\"you\":").append(r.you).append(",\"kevin\":").append(r.kevin).append(",\"me\":").append(r.me)
-                        .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"").append('}');
+                        .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"")
+                        .append(",\"mark\":").append(r.mark == null ? "null" : "\"" + r.mark + "\"").append('}');
             }
             b.append("],\"me\":").append(mine == null ? "null" : "{\"place\":" + mine.place + ",\"score\":" + mine.score + "}");
             json(resp, b.append('}').toString());

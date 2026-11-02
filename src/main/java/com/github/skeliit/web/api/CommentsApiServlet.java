@@ -231,5 +231,6 @@ public class CommentsApiServlet extends HttpServlet {
     /** Titul z CatSmash u jména: název odznaku v jazyce stránky. */
     private static void nameTitle(HttpServletRequest req, CommentItem it) {
         if (it.titleKey != null) it.titleName = I18n.getText(req, "pong.badge." + it.titleKey, it.titleKey);
+        if (it.mark != null) it.markName = I18n.getText(req, "pong.badge." + it.mark, it.mark);
     }
 }

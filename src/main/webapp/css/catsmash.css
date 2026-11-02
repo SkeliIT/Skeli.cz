@@ -1034,3 +1034,6 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   border-radius: 99px; text-decoration: none; }
 .kp-sc-revolut:focus-visible { outline: 2px solid #fff3c4; outline-offset: 3px; }
 .kp-sc-more { font-size: var(--fs-small); }
+
+/* legendární znak u jména v tabulce */
+.kp-mark { margin-left: 3px; font-size: .85em; color: var(--accent); filter: drop-shadow(0 0 4px rgba(230, 183, 48, .55)); }
