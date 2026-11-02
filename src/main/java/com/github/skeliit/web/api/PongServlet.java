@@ -65,9 +65,10 @@ public class PongServlet extends HttpServlet {
         if (!"/top".equals(req.getPathInfo())) { resp.sendError(404); return; }
         if (req.getParameter("len") != null && !"time".equals(req.getParameter("kind"))) { topScores(req, resp, s, me); return; }
         int d = difficulty(req.getParameter("d")), len = len(req.getParameter("len"));
+        java.time.LocalDateTime from = season(req);
         try {
-            List<PongRank> top = pong.top(d, len, 10, me);
-            PongRank mine = me == null ? null : pong.mine(d, len, me);
+            List<PongRank> top = pong.top(d, len, 10, me, from);
+            PongRank mine = me == null ? null : pong.mine(d, len, me, from);
             StringBuilder b = new StringBuilder("{\"signedIn\":").append(me != null);
             if (me != null) b.append(",\"csrf\":\"").append(WebUtils.escapeJs(CsrfFilter.token(s))).append('"');
             b.append(",\"top\":[");
@@ -239,9 +240,10 @@ public class PongServlet extends HttpServlet {
     /** GET /api/pong/top?len=10|20|30: tabulka skóre (každý hráč jednou se svým nejlepším) + moje místo. */
     private void topScores(HttpServletRequest req, HttpServletResponse resp, HttpSession s, Integer me) throws ServletException, IOException {
         int len = len(req.getParameter("len")), d = difficulty(req.getParameter("d"));
+        java.time.LocalDateTime from = season(req);
         try {
-            List<PongScoreRank> top = pong.topScores(len, d, 10, me);
-            PongScoreRank mine = me == null ? null : pong.myScore(len, d, me);
+            List<PongScoreRank> top = pong.topScores(len, d, 10, me, from);
+            PongScoreRank mine = me == null ? null : pong.myScore(len, d, me, from);
             StringBuilder b = new StringBuilder("{\"signedIn\":").append(me != null);
             if (me != null) b.append(",\"csrf\":\"").append(WebUtils.escapeJs(CsrfFilter.token(s))).append('"');
             b.append(",\"len\":").append(len).append(",\"top\":[");
@@ -260,6 +262,12 @@ public class PongServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
+    }
+
+    /** Sezóna: ?season=month = od začátku tohoto měsíce (pražský čas), jinak věčná tabulka (null). */
+    static java.time.LocalDateTime season(HttpServletRequest req) {
+        if (!"month".equals(req.getParameter("season"))) return null;
+        return java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague")).withDayOfMonth(1).atStartOfDay();
     }
 
     static int len(String v) {

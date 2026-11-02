@@ -372,6 +372,12 @@
     var LENGTHS = [10, 20, 30], matchLen = LENGTHS.indexOf(+store.get('kevinPongLen')) >= 0 ? +store.get('kevinPongLen') : 10;
     // tabulka je jedna: přepínač Skóre / Čas (nejrychlejší výhra), délka zápasu a obtížnost (Lehká soupeří jen s Lehkou)
     var boardKind = store.get('kevinPongBoardKind') === 'time' ? 'time' : 'score', boardD = 0;
+    // sezóna: věčná tabulka (all) nebo tento měsíc (month) – každý měsíc nová šance dostat se nahoru
+    var boardSeason = store.get('kevinPongSeason') === 'month' ? 'month' : 'all';
+    function monthName() { try { var m = new Date().toLocaleDateString(document.documentElement.lang || 'cs', { month: 'long' }); return m.charAt(0).toUpperCase() + m.slice(1); } catch (e) { return ''; } }
+    function seasonQ() { return boardSeason === 'month' ? '&season=month' : ''; }
+    function seasonHead() { return boardSeason === 'month' ? ' · ' + monthName() : ''; }
+    function medal(place) { return place <= 3 ? ' p' + place : ''; }   // první tři: zlatá, stříbrná, bronzová korunka
     // místní rekord času na obtížnosti a délce (do 10 gólů starý klíč, ať se dřívější rekordy neztratí)
     function ptsKey(len, d) { return 'kevinPongPts' + len + 'd' + d; }   // místní rekord skóre (délka a obtížnost)
     function timeKey(d, len) { return 'kevinPongBest' + d + (len === 10 ? '' : 'x' + len); }
@@ -2507,11 +2513,16 @@
     function champs() {
       var el = panel.querySelector('.kp-led span'), seq = ++champSeq;
       if (!el) return;
-      fetch('/api/pong/top?kind=time&d=' + level + '&len=' + matchLen, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+      function get(q) { return fetch('/api/pong/top?kind=time&d=' + level + '&len=' + matchLen + q, { credentials: 'same-origin' }).then(function (r) { return r.json(); }); }
+      var label = T.champMonth || T.champ;
+      get('&season=month').then(function (j) {
+        if ((j.top || []).length) return j;
+        label = T.champ; return get('');
+      }).then(function (j) {
         if (seq !== champSeq) return;
         var top = (j.top || []).slice(0, 3);
         el.textContent = top.length
-          ? '👑 ' + (T.champ || 'ŠAMPION') + ': ' + top.map(function (r, i) { return (i ? (i + 1) + '. ' : '') + r.name + ' ' + time(r.ms); }).join(' · ') + ' · ' + (T.champCall || '')
+          ? '👑 ' + (label || 'ŠAMPION') + ': ' + top.map(function (r, i) { return (i ? (i + 1) + '. ' : '') + r.name + ' ' + time(r.ms); }).join(' · ') + ' · ' + (T.champCall || '')
           : (T.champEmpty || '');
       }).catch(function () { el.textContent = T.champEmpty || ''; });
     }
@@ -2782,6 +2793,10 @@
         [['score', 'fa-star', T.tabScore], ['time', 'fa-stopwatch', T.tabTime]].map(function (x) {
           return '<button type="button" role="radio" data-bkind="' + x[0] + '" aria-checked="' + (x[0] === boardKind) + '"><i class="fa-solid ' + x[1] + '" aria-hidden="true"></i> ' + esc(x[2] || x[0]) + '</button>';
         }).join('') + '</div>' +
+        '<div class="kp-seg kp-kindseg kp-seasonseg" role="radiogroup" aria-label="' + esc(T.seasonTitle || '') + '" style="--i:' + (boardSeason === 'month' ? 1 : 0) + '"><span class="kp-thumb" aria-hidden="true"></span>' +
+        [['all', 'fa-infinity', T.seasonAll], ['month', 'fa-calendar', monthName()]].map(function (x) {
+          return '<button type="button" role="radio" data-bseason="' + x[0] + '" aria-checked="' + (x[0] === boardSeason) + '"><i class="fa-solid ' + x[1] + '" aria-hidden="true"></i> ' + esc(x[2] || x[0]) + '</button>';
+        }).join('') + '</div>' +
         '<div class="kp-boardtabs" role="group" aria-label="' + esc(T.lenTitle || '') + '">' + LENGTHS.map(function (n) {
           return '<button type="button" data-board="' + n + '" aria-pressed="' + (n === matchLen) + '">' + esc((T.lenGoals || '{n}').replace('{n}', n)) + '</button>';
         }).join('') + '</div>' +
@@ -2793,7 +2808,13 @@
     function backBtn() { return '<button type="button" class="kp-link kp-backto" data-go="main"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> ' + esc(T.back || '') + '</button>'; }
     // odkazy v menu přepínají pohled: hlavní · jak se hraje · tabulka
     panel.addEventListener('click', function (e) {
-      var bt = e.target.closest('[data-board]'), bk = e.target.closest('[data-bkind]'), bd = e.target.closest('[data-bd]');
+      var bt = e.target.closest('[data-board]'), bk = e.target.closest('[data-bkind]'), bd = e.target.closest('[data-bd]'), bs = e.target.closest('[data-bseason]');
+      if (bs) {
+        boardSeason = bs.dataset.bseason; store.set('kevinPongSeason', boardSeason);
+        panel.querySelectorAll('[data-bseason]').forEach(function (x) { x.setAttribute('aria-checked', String(x === bs)); });
+        panel.querySelector('.kp-seasonseg').style.setProperty('--i', boardSeason === 'month' ? 1 : 0);
+        board(boardLen());
+      }
       if (bt) {
         panel.querySelectorAll('[data-board]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === bt)); });
         board(+bt.dataset.board);
@@ -2828,13 +2849,13 @@
       var box = panel.querySelector('.kpong-board'), seq = ++boardSeq;
       if (!box) return;
       var d = boardD || level, short = T.levelsShort || T.levels;
-      var head = '<h3 class="kp-label">' + esc(T.tabScore || T.board) + ' · ' + esc((T.lenGoals || '{n}').replace('{n}', len)) + ' · ' + '★★★'.slice(0, d) + ' ' + esc(short[d - 1]) + '</h3>';
+      var head = '<h3 class="kp-label">' + esc(T.tabScore || T.board) + esc(seasonHead()) + ' · ' + esc((T.lenGoals || '{n}').replace('{n}', len)) + ' · ' + '★★★'.slice(0, d) + ' ' + esc(short[d - 1]) + '</h3>';
       box.innerHTML = head + '<p class="kpong-note">…</p>';
-      fetch('/api/pong/top?len=' + len + '&d=' + d, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+      fetch('/api/pong/top?len=' + len + '&d=' + d + seasonQ(), { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
         if (seq !== boardSeq) return;
         signedIn = !!j.signedIn; csrf = j.csrf || null;
         var rows = (j.top || []).map(function (r) {
-          return '<li class="' + (r.me ? 'me' : '') + '"><span class="kpong-place">' + r.place + '.</span>' +
+          return '<li class="' + (r.me ? 'me' : '') + medal(r.place) + '"><span class="kpong-place">' + r.place + '.</span>' +
             (r.frame ? '<span class="av-frame f-' + esc(r.frame) + '">' : '') + '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' + (r.frame ? '</span>' : '') +
             '<span class="kpong-name">' + esc(r.name) + markIcon(r.mark) + ' <small class="kp-row-meta">' + r.you + ':' + r.kevin + '</small></span>' +
             '<span class="kpong-time">' + r.score + '</span></li>';
@@ -2856,13 +2877,13 @@
       var box = panel.querySelector('.kpong-board'), seq = ++boardSeq;
       if (!box) return;
       var d = boardD || level, short = T.levelsShort || T.levels;
-      var head = '<h3 class="kp-label">' + esc(T.tabTime || '') + ' · ' + esc((T.lenGoals || '{n}').replace('{n}', len)) + ' · ' + '★★★'.slice(0, d) + ' ' + esc(short[d - 1]) + '</h3>';
+      var head = '<h3 class="kp-label">' + esc(T.tabTime || '') + esc(seasonHead()) + ' · ' + esc((T.lenGoals || '{n}').replace('{n}', len)) + ' · ' + '★★★'.slice(0, d) + ' ' + esc(short[d - 1]) + '</h3>';
       box.innerHTML = head + '<p class="kpong-note">…</p>';
-      fetch('/api/pong/top?kind=time&d=' + d + '&len=' + len, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
+      fetch('/api/pong/top?kind=time&d=' + d + '&len=' + len + seasonQ(), { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
         if (seq !== boardSeq) return;
         signedIn = !!j.signedIn; csrf = j.csrf || null;
         var rows = (j.top || []).map(function (r) {
-          return '<li class="' + (r.me ? 'me' : '') + '"><span class="kpong-place">' + r.place + '.</span>' +
+          return '<li class="' + (r.me ? 'me' : '') + medal(r.place) + '"><span class="kpong-place">' + r.place + '.</span>' +
             (r.frame ? '<span class="av-frame f-' + esc(r.frame) + '">' : '') + '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' + (r.frame ? '</span>' : '') +
             '<span class="kpong-name">' + esc(r.name) + markIcon(r.mark) + ' <small class="kp-row-meta">' + len + ':' + r.kevin + '</small></span>' +
             '<span class="kpong-time">' + time(r.ms) + '</span></li>';
