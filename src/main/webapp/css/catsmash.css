@@ -427,20 +427,25 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   .kpong .kpong-score { display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .kpong .kpong-kev { margin-left: 0; }
 }
-/* ⚙ nastavení: mosazný knoflík místo šroubku v pravém horním rohu rámu stroje (mimo hřiště a daleko od Kevina;
-   vidět i na mobilu, kde se kraje rámu ořezávají); 40 px, ať se na něj dá ťuknout */
+/* MENU: kovové tlačítko uprostřed horní hrany automatu, hned pod štěrbinou s Kevinem (vidět na PC i telefonu),
+   zapuštěné do rámu; kov podle automatu (--menu-tint z setSkin, klasický = zlato) */
+.kpong-frame { --menu-tint: #e6b730; }                    /* (barvu automatu přepíše setSkin na .kpong-frame) */
 .kpong-set {
-  position: absolute; left: calc(652px * var(--u) - 20px); top: calc(140px * var(--u) - 20px); z-index: 6;
-  width: 40px; height: 40px; padding: 0; border-radius: 50%;
-  outline: calc(3px * var(--u)) solid rgba(26, 25, 23, .9); outline-offset: 0;
-  border: 0; color: #3a2606; font-size: 1.1rem; cursor: pointer;
-  background: radial-gradient(circle at 35% 30%, #f6dc8c, #c99a35 55%, #7a5512);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .8), inset 0 -2px 3px rgba(0, 0, 0, .4);
+  position: absolute; left: calc(384px * var(--u) - 48px); top: calc(162px * var(--u) - 17px); z-index: 6;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 96px; height: 34px; padding: 0;
+  border-radius: 99px; border: 0; cursor: pointer; color: #1a1208;
+  font-family: var(--font-display); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--menu-tint) 45%, #fff) 0%, var(--menu-tint) 45%, color-mix(in srgb, var(--menu-tint) 55%, #000) 100%);
+  box-shadow: 0 0 0 3px rgba(16, 13, 9, .95), 0 0 0 4.5px color-mix(in srgb, var(--menu-tint) 45%, #000), 0 3px 8px rgba(0, 0, 0, .7),
+    inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -2px 3px rgba(0, 0, 0, .35);
 }
-.kpong-set:hover, .kpong-set:focus-visible, .kpong-set[aria-expanded="true"] { color: #000; box-shadow: 0 0 0 3px rgba(255, 210, 63, .45), 0 2px 6px rgba(0, 0, 0, .8); }
-/* ⚙ musí být vidět: po otevření hry třikrát zapulzuje */
+.kpong-set i { font-size: .9rem; }
+.kpong-set:hover, .kpong-set:focus-visible, .kpong-set[aria-expanded="true"] { filter: brightness(1.12);
+  box-shadow: 0 0 0 3px rgba(16, 13, 9, .95), 0 0 0 4.5px color-mix(in srgb, var(--menu-tint) 45%, #000), 0 0 14px color-mix(in srgb, var(--menu-tint) 70%, transparent); }
+.kpong-set:active { transform: translateY(1px); }
+/* MENU musí být vidět: po otevření hry třikrát jemně zazáří */
 .kpong-set { animation: kp-set-hint 1.4s ease-in-out .8s 3; }
-@keyframes kp-set-hint { 50% { box-shadow: 0 0 0 7px rgba(255, 210, 63, .28), 0 0 18px rgba(255, 210, 63, .6); transform: scale(1.08); } }
+@keyframes kp-set-hint { 50% { filter: brightness(1.25) drop-shadow(0 0 8px color-mix(in srgb, var(--menu-tint) 80%, transparent)); } }
 @media (prefers-reduced-motion: reduce) { .kpong-set { animation: none; } }
 /* karta nastavení: nahoře, menší – pod ní je vidět hrací plocha s vybraným pozadím */
 .kpong-settings {
@@ -460,7 +465,9 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 }
 .kp-fullbtn:hover, .kp-fullbtn:focus-visible { border-color: var(--accent); color: var(--accent); }
 .kpong-settings .kpong-play { align-self: center; min-width: 60%; }
-.kpong-settings .kp-restart { align-self: center; min-width: 60%; padding: 0 16px; }   /* Začít znovu: tiše pod Pokračovat */
+/* menu hry: tlačítka pod sebou */
+.kp-menu-card .kp-sc-box { gap: 8px; }
+.kp-menu-card .kp-sc-box > button { width: 100%; min-height: 46px; }
 /* nastavení: záložky Vzhled / Zvuk / Ovládání */
 .kp-tabs {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 14px;
@@ -957,7 +964,6 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
 .kpong.kp-replay .kp-bigscore { opacity: 0; transition: opacity .3s; }   /* během záznamu gólu jen záznam */
-.kpong-machine.phone .kpong-set { left: calc(604px * var(--u) - 20px); }
 @media (prefers-reduced-motion: reduce) { .kp-bigscore b.pop { animation: none; } }
 .kpong:has(.kpong-machine.phone) .kpong-top { justify-content: flex-end; }   /* ✕ zůstane vpravo, i když skóre není vidět */
 

@@ -62,7 +62,7 @@
       '    <i class="kpong-slot" aria-hidden="true"></i>' +
       '    <div class="kpong-smoke" aria-hidden="true">' + [0, 1, 2, 3, 4, 5].map(function (k) { return '<i style="--k:' + k + '"></i>'; }).join('') + '</div>' +
       '    <i class="kpong-spk" data-side="l" aria-hidden="true"></i><i class="kpong-spk" data-side="r" aria-hidden="true"></i>' +
-      '    <button type="button" class="kpong-set" aria-label="' + esc(T.settings || 'Settings') + '" aria-haspopup="dialog"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>' +
+      '    <button type="button" class="kpong-set" aria-label="' + esc(T.menuBtn || 'Menu') + '" aria-haspopup="dialog"><i class="fa-solid fa-bars" aria-hidden="true"></i><span>' + esc(T.menuBtn || 'Menu') + '</span></button>' +
       '    <canvas class="kpong-kevin" aria-hidden="true"></canvas>' +
       '    <div class="kpong-skin" hidden aria-hidden="true"></div>' +
       '    <div class="kp-gauge" aria-hidden="true"><i></i><b>E</b></div>' +
@@ -289,7 +289,7 @@
       return '<svg class="kp-burst" viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden="true"><polygon points="' + pts.join(' ') + '"/></svg>';
     }
     function comic(side, kind, text, ms) {
-      if ((setCard || item || supportEl || looking) && kind === 'say') return;   // nastavení, náhled, podpora nebo prohlídka: Kevin mlčí, ať nic nepřekrývá
+      if ((setCard || item || supportEl || looking || menuEl) && kind === 'say') return;   // nastavení, náhled, podpora nebo prohlídka: Kevin mlčí, ať nic nepřekrývá
       var spk = root.querySelector('.kpong-spk[data-side="' + side + '"]');
       if (!spk || !text) return;
       if (comics[side]) comics[side].remove();
@@ -503,6 +503,7 @@
     function setSkin() {
       var id = curPad(), sk = atmoOn && STROJE && id && STROJE[id];
       frameEl.classList.toggle('themed', !!sk);
+      frameEl.style.setProperty('--menu-tint', sk && SKINS[skin] && SKINS[skin].rim ? SKINS[skin].rim : '#e6b730');   // kov tlačítka MENU podle automatu
       skinEl.hidden = !sk;
       if (!sk) return;
       skinEl.style.setProperty('--skin', 'url("/kevin/pong/stroje/' + id + '.webp' + ver + '")');
@@ -3257,6 +3258,8 @@
       if (replay && e.type === 'keydown' && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); return stopReplay(); }
       if (e.key === 'Escape' && Date.now() - lockLostAt < 400) return;   // Esc jen uvolnil myš – hru nezavírat
       if (e.key === 'Escape' && supportEl) return closeSupport();
+      if (e.key === 'Escape' && menuEl) return closeMenu(true);
+      if (menuEl) return;                                          // v menu hry klávesy nehrají
       if (e.key === 'Escape') return item ? closeItem() : looking ? closeLook() : setCard ? closeSettings() : close();
       if (item && e.type === 'keydown' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); return stepItem(e.key === 'ArrowLeft' ? -1 : 1); }
       if (item) return;                                            // v náhledu předmětu klávesy nehrají (šipky listují)
@@ -3413,8 +3416,7 @@
         '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secTouch + secLayout + secKeys + checks(btnLock) + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-screen" aria-labelledby="kp-tab-screen" data-pane="screen"' + (tab === 'screen' ? '' : ' hidden') + '>' + secDetail + checks(btnFull) + '</div>' +
         '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>' +
-        // rozehraný zápas jde zahodit a začít znovu (nic se nezapíše – výhry se jen sčítají, série nejsou, takže to nic nezvýhodní)
-        (setPausedGame ? '<button type="button" class="kp-fullbtn kp-restart"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> ' + esc(T.restart || '') + '</button>' : '');
+        '';                                              // (Začít znovu je v menu hry)
       root.appendChild(setCard);
       setBtn.setAttribute('aria-expanded', 'true');
       setCard.querySelectorAll('.kp-tabs [data-tab]').forEach(function (b) {
@@ -3616,7 +3618,66 @@
       if (setPausedGame) askToResume();
       setPausedGame = false;
     }
-    setBtn.addEventListener('click', openSettings);
+    // ---------- menu hry (tlačítko MENU na automatu) ----------
+    // Během zápasu hru pozastaví: Pokračovat, Začít znovu, Zpět do menu (změnit obtížnost / délku – rozehraný zápas
+    // se nezapíše), Nastavení, Prohlídka automatu (telefon), Ukončit hru. V menu hry jen Nastavení, Prohlídka, Ukončit.
+    var menuEl = null, menuPaused = false;
+    function openMenu() {
+      if (menuEl) return closeMenu(true);
+      if (setCard) return closeSettings();
+      if (mosq.active || replay) return;
+      releaseMouse();
+      var inGame = running && !panelShown();
+      menuPaused = running && !paused;
+      if (menuPaused) paused = true;
+      Object.keys(comics).forEach(function (k) { if (comics[k]) { comics[k].remove(); comics[k] = null; } });
+      var phoneNow = machine.classList.contains('phone');
+      var items = (inGame ? [['resume', 'fa-play', T.resume], ['restart', 'fa-rotate-right', T.restart], ['back', 'fa-list', T.menuBack]] : [])
+        .concat([['settings', 'fa-gear', T.settings]], phoneNow ? [['look', 'fa-magnifying-glass', T.lookBtn]] : [], [['quit', 'fa-xmark', T.close]]);
+      menuEl = document.createElement('div');
+      menuEl.className = 'kp-support-card kp-menu-card';
+      menuEl.setAttribute('role', 'dialog'); menuEl.setAttribute('aria-label', T.menuTitle || '');
+      menuEl.innerHTML = '<div class="kp-sc-box"><h3><i class="fa-solid fa-pause" aria-hidden="true"></i> ' + esc(inGame ? T.menuTitle || '' : T.menuBtn || '') + '</h3>' +
+        items.map(function (x, n) {
+          return '<button type="button" class="' + (n === 0 && inGame ? 'kpong-play btn-primary' : 'kp-fullbtn') + ' kp-menu-' + x[0] + '" data-m="' + x[0] + '"><i class="fa-solid ' + x[1] + '" aria-hidden="true"></i> ' + esc(x[2] || '') + '</button>';
+        }).join('') + '</div>';
+      root.appendChild(menuEl);
+      setBtn.setAttribute('aria-expanded', 'true');
+      menuEl.addEventListener('click', function (e) {
+        if (e.target === menuEl) return closeMenu(true);
+        var b = e.target.closest('[data-m]');
+        if (!b) return;
+        var m = b.dataset.m;
+        if (m === 'resume') return closeMenu(true);
+        closeMenu(false);
+        if (m === 'restart') { menuPaused = false; return restartMatch(); }
+        if (m === 'back') return toMenu();
+        if (m === 'quit') return close();
+        // nastavení a prohlídka si hru pozastaví samy a po zavření se zeptají na pokračování
+        if (paused && menuPaused) paused = false;
+        menuPaused = false;
+        if (m === 'settings') openSettings(); else if (m === 'look') openLook();
+      });
+      menuEl.querySelector('[data-m]').focus({ preventScroll: true });
+    }
+    function closeMenu(resume) {
+      if (!menuEl) return;
+      menuEl.remove(); menuEl = null;
+      setBtn.setAttribute('aria-expanded', 'false');
+      if (resume && menuPaused) askToResume();
+      if (resume) menuPaused = false;
+    }
+    function panelShown() { return !panel.hidden; }
+    // Zpět do menu: rozehraný zápas zahodit (nic se nezapíše) a ukázat úvodní menu (obtížnost, délka…)
+    function toMenu() {
+      running = false; paused = false; awaitStart = false; menuPaused = false;
+      stick.active = null; powers = {}; player.w = PAD_W; hitStop = 0;
+      root.classList.remove('kp-bullet', 'final', 'hot', 'stick-armed');
+      you = 0; kev = 0; youEl.textContent = '0'; kevEl.textContent = '0'; bigScore();
+      if (K) { K.hold(null); K.look(0, 0); }
+      startScreen();
+    }
+    setBtn.addEventListener('click', openMenu);
     document.addEventListener('fullscreenchange', onFull);
     document.addEventListener('webkitfullscreenchange', onFull);
 
