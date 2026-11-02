@@ -123,7 +123,7 @@
       frame.style.top = -v.y0 * u + 'px';
       var dpr = Math.min(2, window.devicePixelRatio || 1);
       mechEls.forEach(function (c) {
-        var w = c.dataset.win === 'top' ? WIN_TOP : WIN_BOT;
+        var w = MECH ? MECH[c.dataset.win].win : c.dataset.win === 'top' ? WIN_TOP : WIN_BOT;
         c.width = Math.round(w[2] * u * dpr); c.height = Math.round(w[3] * u * dpr);
       });
     }
@@ -521,6 +521,7 @@
       frameEl.classList.toggle('themed', !!sk);
       frameEl.style.setProperty('--menu-tint', sk && SKINS[skin] && SKINS[skin].rim ? SKINS[skin].rim : '#e6b730');   // kov tlačítka MENU podle automatu
       skinEl.hidden = !sk;
+      applyWins(sk ? id : null);
       if (!sk) return;
       skinEl.style.setProperty('--skin', 'url("/kevin/pong/stroje/' + id + '.webp' + ver + '")');
       skinEl.dataset.pad = id;
@@ -2199,6 +2200,33 @@
         back: [{ img: 2, x: 190, y: 1102, r: 80, sign: 1, a: 0 }, { img: 0, x: 420, y: 1096, r: 92, sign: -1, a: 0 }, { img: 1, x: 640, y: 1108, r: 80, sign: 1, a: 0 }],
         v: 0, dir: 1 }
     };
+    // okénka s koly přesně do průhledných okének vybraného automatu (bez automatu = původní rám)
+    // kolečka se přeskládají do okénka: střed okénka, celá šířka, ve vyšším okénku větší (nejvýš o 35 %)
+    var MECH_DEF = {
+      top: { sizes: [30, 40, 24, 40], yA: 224, yB: 238, x0: 150, x1: 540, back: MECH.top.back.map(function (g) { return Object.assign({}, g); }) },
+      bot: { sizes: [42, 56, 32, 56], yA: 1130, yB: 1150, x0: 160, x1: 545, back: MECH.bot.back.map(function (g) { return Object.assign({}, g); }) }
+    };
+    function layoutMech(k, w, def) {
+      var d = MECH_DEF[k], s = clamp(w[3] / def[3], 1, 1.35), dy = (w[1] + w[3] / 2) - (def[1] + def[3] / 2), kx = w[2] / def[2];
+      MECH[k].front = chain(w, d.sizes.map(function (r) { return r * s; }), d.yA + dy, d.yB + dy,
+        w[0] + (d.x0 - def[0]) * kx, w[0] + (d.x1 - def[0]) * kx);
+      MECH[k].back = d.back.map(function (g) { return { img: g.img, x: w[0] + (g.x - def[0]) * kx, y: g.y + dy, r: g.r * s, sign: g.sign, a: g.a }; });
+    }
+    var winMachine = null;
+    function applyWins(id) {
+      winMachine = id;
+      if (!MECH) return;                                   // (setSkin může běžet dřív, než je mechanika připravená)
+      var mw = id && D.MECH_WIN[id];
+      [['top', WIN_TOP], ['bot', WIN_BOT]].forEach(function (x, n) {
+        var w = mw ? mw[n] : x[1], c = root.querySelector('.kpong-mech[data-win="' + x[0] + '"]');
+        MECH[x[0]].win = w;
+        layoutMech(x[0], w, x[1]);
+        if (c) { c.style.setProperty('--wx', w[0]); c.style.setProperty('--wy', w[1]); c.style.setProperty('--ww', w[2]); c.style.setProperty('--wh', w[3]); }
+      });
+      fit();
+      placeGauge();
+    }
+    applyWins(winMachine);
     // manometr nabití superútoku sedí přímo na velkém kole vlevo v dolním okénku (druhé v řetězu): stejný střed,
     // průměr 84 % kola = kolem dokola koukají zuby, které se pod ním točí
     // (na telefonu je spodní okénko za okrajem – manometr pak sedí na velkém kole v horním okénku)

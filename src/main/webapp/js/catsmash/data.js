@@ -10,6 +10,22 @@
   // Kevinova kola koukají shora ze stroje: spodek je uvnitř (ořízne ho štěrbina v horní hraně rámu, y = TOP_SLOT)
   var TOP_SLOT = 124, GEARS_KEVIN = [[1, 290.5, 122, 46], [2, 384, 118, 58], [3, 477.5, 122, 46]];
   // okénka s živou mechanikou [x, y, šířka, výška] – nahoře ji pohání Kevinův běh, dole hráčova pálka
+  // průhledná okénka (horní, dolní) v rámech automatů podle pálky – změřeno z kevin/pong/stroje/*.webp (x, y, šířka, výška)
+  var MECH_WIN = { cip: [[132, 194, 506, 78], [126, 1072, 516, 134]],
+    ekvalizer: [[132, 194, 506, 72], [126, 1076, 516, 130]],
+    ganja: [[130, 194, 508, 74], [124, 1076, 520, 148]],
+    graffiti: [[128, 194, 510, 80], [126, 1070, 516, 136]],
+    jadeit: [[132, 194, 506, 78], [126, 1072, 516, 134]],
+    kola: [[130, 194, 508, 78], [126, 1076, 516, 130]],
+    lava: [[128, 190, 510, 82], [126, 1076, 516, 154]],
+    led: [[132, 194, 506, 80], [126, 1070, 516, 136]],
+    mince: [[130, 194, 508, 80], [126, 1072, 516, 134]],
+    neon: [[130, 194, 508, 76], [120, 1076, 526, 146]],
+    perly: [[106, 172, 554, 94], [100, 1076, 566, 154]],
+    plys: [[130, 194, 508, 78], [124, 1076, 522, 130]],
+    retez: [[106, 166, 558, 100], [96, 1076, 576, 180]],
+    skelosquad: [[132, 194, 506, 72], [126, 1070, 516, 136]],
+    vetev: [[130, 194, 508, 80], [124, 1072, 520, 134]] };
   var WIN_TOP = [128, 191, 513, 79], WIN_BOT = [123, 1073, 523, 136];
   var BGS = ['tma', 'mesto', 'zapad', 'les', 'vesmir', 'zare', 'ganja', 'sopka', 'poklad', 'kyber', 'podmori', 'podium', 'klenotnice', 'tovarna', 'plys', 'skelosquad'];
   // watch = jakou část hřiště (od sebe) Kevin sleduje, err = chyba odhadu (díl šířky), bounceErr = o kolik víc
@@ -160,5 +176,5 @@
     calm: ['#eadcff', '#7a46d0', 'rgba(190, 140, 255, .9)']
   };
 
-  C.data = { W: W, H: H, PAD_W: PAD_W, PAD_H: PAD_H, BALL_R: BALL_R, WIN: WIN, PLAYER_Y: PLAYER_Y, KEVIN_Y: KEVIN_Y, FRAME_W: FRAME_W, FRAME_H: FRAME_H, GLASS: GLASS, TOP_SLOT: TOP_SLOT, GEARS_KEVIN: GEARS_KEVIN, WIN_TOP: WIN_TOP, WIN_BOT: WIN_BOT, BGS: BGS, LEVELS: LEVELS, SHOT: SHOT, SHOT_IDEAL: SHOT_IDEAL, SHOT_SUPER: SHOT_SUPER, LIFT: LIFT, BADGE_ICON: BADGE_ICON, CLAIMABLE: CLAIMABLE, LOOKS: LOOKS, BG_BADGE: BG_BADGE, BG_POS: BG_POS, MOOD: MOOD, MAT: MAT, FLIGHT: FLIGHT, BALL_FLIGHT: BALL_FLIGHT, REACT: REACT, BALL_KINDS: BALL_KINDS, TALK: TALK, RARITY: RARITY, RANK: RANK, FRAMES: FRAMES, BADGE_GROUPS: BADGE_GROUPS, POWER_COL: POWER_COL };
+  C.data = { W: W, H: H, PAD_W: PAD_W, PAD_H: PAD_H, BALL_R: BALL_R, WIN: WIN, PLAYER_Y: PLAYER_Y, KEVIN_Y: KEVIN_Y, FRAME_W: FRAME_W, FRAME_H: FRAME_H, GLASS: GLASS, TOP_SLOT: TOP_SLOT, GEARS_KEVIN: GEARS_KEVIN, WIN_TOP: WIN_TOP, WIN_BOT: WIN_BOT, MECH_WIN: MECH_WIN, BGS: BGS, LEVELS: LEVELS, SHOT: SHOT, SHOT_IDEAL: SHOT_IDEAL, SHOT_SUPER: SHOT_SUPER, LIFT: LIFT, BADGE_ICON: BADGE_ICON, CLAIMABLE: CLAIMABLE, LOOKS: LOOKS, BG_BADGE: BG_BADGE, BG_POS: BG_POS, MOOD: MOOD, MAT: MAT, FLIGHT: FLIGHT, BALL_FLIGHT: BALL_FLIGHT, REACT: REACT, BALL_KINDS: BALL_KINDS, TALK: TALK, RARITY: RARITY, RANK: RANK, FRAMES: FRAMES, BADGE_GROUPS: BADGE_GROUPS, POWER_COL: POWER_COL };
 })();
