@@ -170,9 +170,10 @@
         </div>
 <% } %>
         <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
-        <a class="side-link game-card-board" href="/?kevin=pong&amp;view=top" data-play-game="top"><i class="fa-solid fa-trophy" aria-hidden="true"></i> <%= t.getProperty("home.game.board") %></a>
+        <a class="side-link game-card-board" href="/?kevin=pong&amp;view=top" data-pong-board><i class="fa-solid fa-trophy" aria-hidden="true"></i> <%= t.getProperty("home.game.board") %></a>
         <p class="game-credit"><%= t.getProperty("home.game.credit") %></p>
       </div>
+<%@ include file="/includes/pong-board.jspf" %>
 
 <%@ include file="/includes/feedback-card.jspf" %>
 
