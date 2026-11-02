@@ -1055,3 +1055,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-tut-text { font-family: var(--font-text); font-size: var(--fs-text); color: #f3ead6; line-height: 1.35; }
 .kp-tut-skip { font-size: var(--fs-small); min-height: 32px; }
 .kp-how .kp-tut-again { width: 100%; }
+
+/* vítězná oslava (legendární odznak) přes hřiště i konec zápasu, nekliká se na ni */
+.kp-celeb { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+.kp-celebs [aria-disabled="true"] { opacity: .45; }

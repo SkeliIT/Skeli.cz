@@ -2420,7 +2420,8 @@
         stickGoals: mt.stickGoals, streakPts: mt.streakPts, rally: mt.maxRally, screws: mt.screws }).catch(function () { /* skóre se neuložilo */ });
       // nejdřív zpomalený záznam vítězného gólu, pak konec zápasu (výsledek ze serveru mezitím dorazí)
       var replayDone = false, result;
-      function showEnd() { if (replayDone && result !== undefined) endScreen(playerWon, ms, result, fresh); }
+      (fresh || []).forEach(function (k) { if (CELEBS[k]) store.set('kevinPongCelebLast', k); });   // automaticky = za poslední získaný
+      function showEnd() { if (replayDone && result !== undefined) { endScreen(playerWon, ms, result, fresh); if (playerWon) celebrate(); } }
       startReplay(function () { replayDone = true; showEnd(); }, playerWon);
       send.then(function (res) {
         if (newBest || (res && res.ok && res.best === ms)) setTimeout(function () { quip('rekord', 1, null, 3600, true); }, 4400);
@@ -3500,7 +3501,7 @@
             '<i class="fa-solid ' + x[1] + '" aria-hidden="true"></i><span>' + esc(x[2] || x[0]) + '</span></button>';
         }).join('') + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-look" aria-labelledby="kp-tab-look" data-pane="look"' + (tab === 'look' ? '' : ' hidden') + '>' +
-        '<canvas class="kp-preview" width="600" height="200" aria-hidden="true"></canvas>' + secSkin + secBall + secBg + checks(btnAtmo) + '<p class="kp-bgname">' + esc(T.atmoHint || '') + '</p></div>' +
+        '<canvas class="kp-preview" width="600" height="200" aria-hidden="true"></canvas>' + secSkin + secBall + secBg + secCeleb() + checks(btnAtmo) + '<p class="kp-bgname">' + esc(T.atmoHint || '') + '</p></div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-sound" aria-labelledby="kp-tab-sound" data-pane="sound"' + (tab === 'sound' ? '' : ' hidden') + '>' + secSound + checks(btnVib) + secTalk + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secTouch + secLayout + secKeys + checks(btnAim + btnLock) + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-screen" aria-labelledby="kp-tab-screen" data-pane="screen"' + (tab === 'screen' ? '' : ' hidden') + '>' + secDetail + checks(btnFull) + '</div>' +
@@ -3585,6 +3586,15 @@
       if (keysEl) keysEl.addEventListener('input', function () {
         keySpeed = +keysEl.value; store.set('kevinPongKeys', String(keySpeed));
         setCard.querySelector('.kp-keysval').textContent = Math.round(keySpeed * 100) + ' %';
+      });
+      setCard.querySelectorAll('[data-celeb]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var k = b.dataset.celeb;
+          if (CELEBS[k] && !hasBadge(k)) { setCard.querySelector('.kp-celebhint').textContent = lockText(k); return; }
+          celebPick = k; store.set('kevinPongCeleb', k);
+          setCard.querySelectorAll('[data-celeb]').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
+          setCard.querySelector('.kp-celebhint').textContent = T.celebHint || '';
+        });
       });
       setCard.querySelectorAll('[data-talk]').forEach(function (b) {
         b.addEventListener('click', function () {
@@ -3701,6 +3711,98 @@
     }, true);
     root.querySelector('.kpong-look').addEventListener('click', function () { if (looking) closeLook(); else openLook(); });
     lookUi.querySelector('.kp-look-back').addEventListener('click', closeLook);
+    // ---------- vítězné oslavy (legendární odznaky) ----------
+    // Po výhře přes hřiště 3 s efekt podle odznaku: 👑 padající korunky, ⚡ blesk do automatu, 💀 Kevinova pálka se
+    // rozpadne, 🎯 zásah terče, 🔥 ohnivý fénix. Výběr v ⚙ Vzhled (kevinPongCeleb): auto = za poslední získaný
+    // (kevinPongCelebLast), off = vypnuto. Vidí ji jen hráč; omezený pohyb = bez oslavy.
+    var CELEBS = { hwins5: 'crown', hfast: 'bolt', hclean: 'shatter', hsniper: 'target', hcomeback: 'phoenix' };
+    var celebPick = store.get('kevinPongCeleb') || 'auto';
+    function secCeleb() {
+      var keys = Object.keys(CELEBS), opts = [['auto', T.celebAuto], ['off', T.celebOff]].concat(keys.map(function (k) { return [k, (T.badgeNames || {})[k] || k]; }));
+      return '<section class="kp-sec"><h3 class="kp-label">' + esc(T.celebTitle || '') + '</h3><div class="kp-talk kp-celebs" role="radiogroup" aria-label="' + esc(T.celebTitle || '') + '">' +
+        opts.map(function (o) {
+          var locked = CELEBS[o[0]] && !hasBadge(o[0]);
+          return '<button type="button" role="radio" data-celeb="' + o[0] + '" aria-checked="' + (o[0] === celebPick) + '"' + (locked ? ' aria-disabled="true"' : '') + '>' +
+            (CELEBS[o[0]] ? '<i class="fa-solid ' + BADGE_ICON[o[0]] + '" aria-hidden="true"></i> ' : '') + esc(o[1] || '') + (locked ? ' <i class="fa-solid fa-lock" aria-hidden="true"></i>' : '') + '</button>';
+        }).join('') + '</div><p class="kp-bgname kp-celebhint">' + esc(T.celebHint || '') + '</p></section>';
+    }
+    function celebKind() {
+      if (celebPick === 'off') return null;
+      if (CELEBS[celebPick] && hasBadge(celebPick)) return CELEBS[celebPick];
+      var last = store.get('kevinPongCelebLast');
+      if (last && CELEBS[last] && hasBadge(last)) return CELEBS[last];
+      var own = Object.keys(CELEBS).filter(function (k) { return hasBadge(k); });
+      return own.length ? CELEBS[own[own.length - 1]] : null;
+    }
+    function celebrate(force) {
+      var kind = force || celebKind();
+      if (!kind || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var cv = document.createElement('canvas');
+      cv.className = 'kp-celeb'; cv.width = W; cv.height = H;
+      field.appendChild(cv);
+      var g = cv.getContext('2d'), t0 = performance.now(), parts = [], DUR = 3200;
+      function P(o) { parts.push(o); }
+      // počáteční částice podle druhu
+      var i;
+      if (kind === 'crown') for (i = 0; i < 26; i++) P({ x: Math.random() * W, y: -40 - Math.random() * 500, vx: (Math.random() - 0.5) * 40, vy: 220 + Math.random() * 180, a: Math.random() * 6, va: (Math.random() - 0.5) * 3, s: 16 + Math.random() * 16 });
+      if (kind === 'shatter') for (i = 0; i < 34; i++) { var ang = Math.random() * Math.PI * 2, sp = 120 + Math.random() * 380; P({ x: kevin.x + (Math.random() - 0.5) * PAD_W, y: KEVIN_Y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 120, a: Math.random() * 6, va: (Math.random() - 0.5) * 10, s: 6 + Math.random() * 14 }); }
+      if (kind === 'phoenix') for (i = 0; i < 160; i++) P({ x: W / 2 + (Math.random() - 0.5) * W * 0.9, y: H + Math.random() * 300, vx: 0, vy: -(260 + Math.random() * 380), s: 4 + Math.random() * 10, life: Math.random() });
+      var bolts = kind === 'bolt' ? [0, 650, 1300].map(function (d) { return { at: d, x: W * (0.3 + Math.random() * 0.4), path: null }; }) : [];
+      function crown(x, y, s, a) {
+        g.save(); g.translate(x, y); g.rotate(a);
+        var gr = g.createLinearGradient(0, -s, 0, s); gr.addColorStop(0, '#fff1a8'); gr.addColorStop(0.5, '#e6b730'); gr.addColorStop(1, '#8f6600');
+        g.fillStyle = gr; g.strokeStyle = '#5a3d00'; g.lineWidth = 1.5;
+        g.beginPath(); g.moveTo(-s, s * 0.6); g.lineTo(-s, -s * 0.3); g.lineTo(-s * 0.5, s * 0.1); g.lineTo(0, -s * 0.7); g.lineTo(s * 0.5, s * 0.1); g.lineTo(s, -s * 0.3); g.lineTo(s, s * 0.6); g.closePath(); g.fill(); g.stroke();
+        g.fillStyle = '#ff4f6d'; g.beginPath(); g.arc(0, s * 0.25, s * 0.14, 0, 7); g.fill();
+        g.restore();
+      }
+      function zig(x) { var pts = [[x, 0]], y = 0; while (y < H * 0.62) { y += 30 + Math.random() * 40; pts.push([x += (Math.random() - 0.5) * 70, y]); } return pts; }
+      var last = t0;
+      (function tick(now) {
+        var t = now - t0, dt = Math.min(0.05, (now - last) / 1000); last = now;
+        if (t > DUR || !cv.isConnected) { cv.remove(); return; }
+        g.clearRect(0, 0, W, H);
+        var fade = t > DUR - 600 ? (DUR - t) / 600 : 1;
+        g.globalAlpha = fade;
+        if (kind === 'crown') parts.forEach(function (p) { p.x += p.vx * dt; p.y += p.vy * dt; p.a += p.va * dt; crown(p.x, p.y, p.s, p.a); });
+        if (kind === 'shatter') {
+          parts.forEach(function (p) { p.vy += 900 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.a += p.va * dt;
+            g.save(); g.translate(p.x, p.y); g.rotate(p.a); g.fillStyle = '#e6b730'; g.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); g.restore(); });
+          if (t < 300) { g.fillStyle = 'rgba(255, 240, 200,' + (1 - t / 300) * 0.7 + ')'; g.beginPath(); g.arc(kevin.x, KEVIN_Y, 40 + t / 2, 0, 7); g.fill(); }
+        }
+        if (kind === 'bolt') bolts.forEach(function (b) {
+          var age = t - b.at; if (age < 0 || age > 450) return;
+          if (!b.path) b.path = zig(b.x);
+          var a = 1 - age / 450;
+          g.fillStyle = 'rgba(200, 230, 255,' + a * 0.35 + ')'; g.fillRect(0, 0, W, H);
+          g.strokeStyle = 'rgba(255, 255, 255,' + a + ')'; g.lineWidth = 6; g.shadowColor = '#9fd6ff'; g.shadowBlur = 28;
+          g.beginPath(); b.path.forEach(function (q, n) { if (n) g.lineTo(q[0], q[1]); else g.moveTo(q[0], q[1]); }); g.stroke(); g.shadowBlur = 0;
+        });
+        if (kind === 'target') {
+          var k = Math.min(1, t / 900), cxp = W / 2, cyp = H * 0.42;
+          [['#ffffff', 150], ['#e64545', 118], ['#ffffff', 86], ['#e64545', 54], ['#ffd23f', 24]].forEach(function (r) {
+            g.fillStyle = r[0]; g.beginPath(); g.arc(cxp, cyp, r[1] * k, 0, 7); g.fill(); });
+          if (t > 900) {                                            // zásah: šipka a zlaté jiskry
+            var hit = Math.min(1, (t - 900) / 200);
+            g.strokeStyle = '#2a1a00'; g.lineWidth = 8; g.beginPath(); g.moveTo(cxp + 300 * (1 - hit), cyp - 300 * (1 - hit)); g.lineTo(cxp + 300 * (1 - hit) + 90, cyp - 300 * (1 - hit) - 90); g.stroke();
+            if (hit >= 1 && !parts.length) for (i = 0; i < 40; i++) { var an = Math.random() * 7, s2 = 150 + Math.random() * 300; P({ x: cxp, y: cyp, vx: Math.cos(an) * s2, vy: Math.sin(an) * s2, s: 3 + Math.random() * 4 }); }
+          }
+          parts.forEach(function (p) { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.97; p.vy *= 0.97; g.fillStyle = '#ffd23f'; g.beginPath(); g.arc(p.x, p.y, p.s, 0, 7); g.fill(); });
+        }
+        if (kind === 'phoenix') {
+          parts.forEach(function (p) { p.y += p.vy * dt; p.x += Math.sin((p.y + p.life * 900) / 60) * 40 * dt; if (p.y < -20) { p.y = H + 20; }
+            var hgt = 1 - p.y / H, c = hgt > 0.7 ? '255, 240, 160' : hgt > 0.4 ? '255, 160, 40' : '230, 70, 20';
+            g.fillStyle = 'rgba(' + c + ',' + (0.35 + 0.5 * hgt) + ')'; g.beginPath(); g.arc(p.x, p.y, p.s * (1 - hgt * 0.5), 0, 7); g.fill(); });
+          var wing = Math.sin(t / 160) * 0.5 + 0.5, bx = W / 2, by = H * 0.4 - Math.min(1, t / 1600) * 140;   // pták: tělo a mávající křídla
+          g.strokeStyle = 'rgba(255, 210, 90, .95)'; g.lineWidth = 7; g.shadowColor = '#ff8a2a'; g.shadowBlur = 30; g.lineCap = 'round';
+          [-1, 1].forEach(function (sd) { g.beginPath(); g.moveTo(bx, by); g.quadraticCurveTo(bx + sd * 110, by - 80 - wing * 70, bx + sd * 210, by - 20 - wing * 110); g.stroke(); });
+          g.beginPath(); g.moveTo(bx, by - 30); g.lineTo(bx, by + 90); g.stroke(); g.shadowBlur = 0;
+        }
+        g.globalAlpha = 1;
+        requestAnimationFrame(tick);
+      })(t0);
+    }
+    if (TRY_HOST) window.__kpCeleb = function (k) { celebrate(k); };   // test: přehrát oslavu
     function closeSettings() {
       if (!setCard) return;
       setCard.remove(); setCard = null;
