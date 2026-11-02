@@ -2361,9 +2361,9 @@
     }
 
     // ---------- obrazovky (start, konec) a tabulka ----------
-    // Kevinova hlava v přepínači obtížnosti: vlastní obrázek, až bude (KEV_HEADS), jinak dnešní medailon (přibarví CSS)
-    var KEV_HEADS = { 1: null, 2: 'kevin', 3: null };
-    function kevinHead(d) { return '/kevin/pong/menu/' + (KEV_HEADS[d] || 'kevin') + '.webp' + ver; }
+    // Kevinova hlava v přepínači obtížnosti: Lehká = s dudlíkem, Normální = v pohodě, Naštvaný = vzteklý
+    // (kevin/pong/menu/kevin-1..3.webp, tools/catsmash-kevin-hlavy.py – stejné kolečko a šedé pozadí, kroužek kreslí CSS)
+    function kevinHead(d) { return '/kevin/pong/menu/kevin-' + d + '.webp' + ver; }
     // pozvánka k účtu pro nepřihlášené (výsledky v tabulce, odemykání, odznaky, ozdoby profilu); po přihlášení zpět ke hře
     function guestCard() {
       return guest() && T.guest ? '<div class="kp-guest"><p>' + esc(T.guest) + '</p><p class="kp-guest-btns">' +

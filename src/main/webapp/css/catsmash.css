@@ -901,10 +901,11 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-main .kp-logo img { width: min(66cqi, 320px); }
 /* hlava nad jménem (na telefonu by se vedle sebe nevešly) */
 .kp-seg .kpong-level { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: clamp(44px, 15cqi, 60px); padding: 3px 1px; font-size: clamp(.48rem, 2.8cqi, .72rem); }
-.kp-kevhead { flex: none; width: clamp(22px, 8.6cqi, 38px); height: auto; aspect-ratio: 1; border-radius: 50%; object-fit: cover; transition: filter .3s, box-shadow .3s; }
-.kpong-level[data-d="1"] .kp-kevhead[src*="/kevin.webp"] { filter: saturate(.55) brightness(.85); }   /* ospalý, dokud nemá vlastní obrázek */
-.kpong-level[data-d="3"] .kp-kevhead[src*="/kevin.webp"] { filter: sepia(.35) saturate(1.8) hue-rotate(-18deg) contrast(1.1); }   /* naštvaný */
-.kpong-level[aria-checked="true"] .kp-kevhead { box-shadow: 0 0 0 2px #2a1a00, 0 0 0 3.5px #fff3c4; }
+/* zlatý kroužek kolem každé hlavy; nevybraní Kevinové trochu ztlumení */
+.kp-kevhead { flex: none; width: clamp(24px, 9cqi, 40px); height: auto; aspect-ratio: 1; border-radius: 50%; object-fit: cover;
+  box-shadow: 0 0 0 1.5px #b8862b, 0 2px 6px rgba(0, 0, 0, .5); transition: filter .3s, box-shadow .3s, transform .3s; }
+.kpong-level[aria-checked="false"] .kp-kevhead { filter: saturate(.75) brightness(.85); }
+.kpong-level[aria-checked="true"] .kp-kevhead { box-shadow: 0 0 0 2px #2a1a00, 0 0 0 3.5px #fff3c4, 0 0 10px rgba(255, 220, 120, .6); transform: scale(1.08); }
 .kp-main .kp-desc { margin: -4px 0 0; }
 .kp-main .kpong-play { width: 100%; min-height: clamp(44px, 14cqi, 60px); font-size: clamp(1rem, 5cqi, 1.4rem); }
 .kp-main .kp-tile small { display: none; }
