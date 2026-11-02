@@ -41,7 +41,11 @@
         (function () {
           var box = document.querySelector('input[name="remember"]'), g = document.querySelector('.oauth-btn');
           if (!box || !g) return;
-          function sync() { g.href = g.href.replace(/([?&])remember=1&?/, '$1').replace(/[?&]$/, '') + (box.checked ? (g.href.indexOf('?') < 0 ? '?' : '&') + 'remember=1' : ''); }
+          // nejdřív odkaz bez remember, teprve pak rozhodnout ? nebo & (dřív se ptalo starého odkazu → „/auth/google&remember=1“ = 404)
+          function sync() {
+            var base = g.href.replace(/([?&])remember=1&?/, '$1').replace(/[?&]$/, '');
+            g.href = base + (box.checked ? (base.indexOf('?') < 0 ? '?' : '&') + 'remember=1' : '');
+          }
           box.addEventListener('change', sync); sync();
         })();
       </script>
