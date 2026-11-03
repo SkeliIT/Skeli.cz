@@ -10,7 +10,7 @@
     if (reduced) return;
     root.querySelectorAll('.hero-particles:not([data-done])').forEach(function (box) {
       box.dataset.done = '1';
-      var count = window.innerWidth < 700 ? 18 : 34;
+      var count = window.innerWidth < 700 ? 22 : 42;
       for (var i = 0; i < count; i++) {
         var s = document.createElement('span');
         s.style.left = (Math.random() * 100) + '%';
@@ -26,7 +26,7 @@
   // poryv větru: jiskry (a ve světlém režimu sníh) u myši nebo prstu odletí ve směru pohybu, pak se pomalu vrátí
   // do své dráhy. Letí dál svou animací z CSS (transform), vítr k tomu přičítá vlastní posun (translate).
   // Smyčka běží, jen když se něco hýbe; rychlejší švihnutí = silnější poryv.
-  var WIND = { REACH: 170, PUSH: 900, MAX_SPEED: 2.5, MAX_V: 1000, DRAG: 2.4, BACK: 0.35 };
+  var WIND = { REACH: 170, PUSH: 480, MAX_SPEED: 2.5, MAX_V: 500, EASE: 7, DRAG: 1.8, BACK: 0.35 };
   var gust = null, windRaf = 0, windLast = 0, lastX = null, lastY = 0, lastT = 0, windParts = [], windBox = null;
   function windMove(x, y) {
     var t = performance.now(), dt = t - lastT, x0 = lastX, y0 = lastY;
@@ -38,7 +38,7 @@
     if (!box) return;
     if (box !== windBox) {
       windBox = box;
-      windParts = [].map.call(box.children, function (el) { return { el: el, x: 0, y: 0, vx: 0, vy: 0, swirl: Math.random() - 0.5 }; });
+      windParts = [].map.call(box.children, function (el) { return { el: el, x: 0, y: 0, vx: 0, vy: 0, gx: 0, gy: 0, swirl: Math.random() - 0.5 }; });
     }
     var speed = Math.min(WIND.MAX_SPEED, Math.hypot(x - x0, y - y0) / dt);
     // víc pohybů do jednoho snímku: platí poslední úsek, síla ta největší
@@ -55,10 +55,8 @@
       var d = Math.hypot(cx - (g.x0 + dx * k), cy - (g.y0 + dy * k));
       if (d >= reach) return;
       var force = Math.pow(1 - d / reach, 2) * g.speed * WIND.PUSH;
-      p.vx += (nx - ny * p.swirl) * force;               // swirl = každá jiskra se stočí trochu jinam, jako ve vzduchu
-      p.vy += (ny + nx * p.swirl) * force;
-      var v = Math.hypot(p.vx, p.vy);                    // ani divoké mávání je nerozstřelí přes celou obrazovku
-      if (v > WIND.MAX_V) { p.vx *= WIND.MAX_V / v; p.vy *= WIND.MAX_V / v; }
+      p.gx += (nx - ny * p.swirl) * force;               // swirl = každá jiskra se stočí trochu jinam, jako ve vzduchu
+      p.gy += (ny + nx * p.swirl) * force;
     });
   }
   function windTick(now) {
@@ -67,15 +65,20 @@
     windLast = now;
     if (!windBox || !windBox.isConnected) { windBox = null; windParts = []; gust = null; return; }
     if (gust) { blow(gust); gust = null; }
-    var drag = Math.exp(-WIND.DRAG * dt), back = Math.exp(-WIND.BACK * dt);
+    var drag = Math.exp(-WIND.DRAG * dt), back = Math.exp(-WIND.BACK * dt), take = 1 - Math.exp(-WIND.EASE * dt);
     windParts.forEach(function (p) {
+      // poryv se do rychlosti přelévá postupně: jiskra se rozjede plynule, ne skokem
+      p.vx += p.gx * take; p.vy += p.gy * take;
+      p.gx -= p.gx * take; p.gy -= p.gy * take;
       p.vx *= drag; p.vy *= drag;
+      var v = Math.hypot(p.vx, p.vy);                    // ani divoké mávání je nerozstřelí přes celou obrazovku
+      if (v > WIND.MAX_V) { p.vx *= WIND.MAX_V / v; p.vy *= WIND.MAX_V / v; p.gx = p.gy = 0; }
       p.x = (p.x + p.vx * dt) * back; p.y = (p.y + p.vy * dt) * back;
-      if (Math.abs(p.vx) + Math.abs(p.vy) > 2 || Math.abs(p.x) + Math.abs(p.y) > 1) {
+      if (Math.abs(p.gx) + Math.abs(p.gy) + Math.abs(p.vx) + Math.abs(p.vy) > 2 || Math.abs(p.x) + Math.abs(p.y) > 1) {
         moving = true;
         p.el.style.translate = p.x.toFixed(1) + 'px ' + p.y.toFixed(1) + 'px';
       } else if (p.el.style.translate) {
-        p.x = p.y = p.vx = p.vy = 0;
+        p.x = p.y = p.vx = p.vy = p.gx = p.gy = 0;
         p.el.style.translate = '';
       }
     });
