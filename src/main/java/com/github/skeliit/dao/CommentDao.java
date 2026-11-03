@@ -4,6 +4,7 @@ import com.github.skeliit.Db;
 import com.github.skeliit.WebUtils;
 import com.github.skeliit.model.PongBadges;
 import com.github.skeliit.model.CommentItem;
+import com.github.skeliit.service.PongChampions;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,7 +62,7 @@ public class CommentDao {
     /** All comments on a lyric or clip: top-level ones sorted, each with its replies oldest first. */
     public List<CommentItem> threads(Kind k, String target, Viewer viewer, Sort sort) throws SQLException {
         String sql = "SELECT c.id, c.parent_id, c.user_id, c.content, c.created_at, c.updated_at, c.pinned_at, c.hearted_at, "
-                + "u.username, u.avatar_url, u.role, u.is_artist, u.pong_title, u.pong_frame, u.pong_mark, "
+                + "u.username, u.avatar_url, u.role, u.is_artist, u.pong_title, u.pong_frame, u.pong_mark, u.pong_champ, "
                 + "COALESCE(SUM(v.vote = 1), 0) AS up, COALESCE(SUM(v.vote = -1), 0) AS down, "
                 + "COALESCE(MAX(CASE WHEN v.user_id = ? THEN v.vote END), 0) AS my "
                 + "FROM " + k.table + " c LEFT JOIN users u ON u.id = c.user_id "
@@ -96,7 +97,7 @@ public class CommentDao {
             it.titleTier = PongBadges.tier(title);
         }
         String frame = gone ? null : rs.getString("pong_frame");
-        if (PongBadges.isFrame(frame)) it.frame = frame;
+        if (!gone) it.frame = PongChampions.frame(it.userId, frame, rs.getBoolean("pong_champ"));   // šampion má přednost
         String mark = gone ? null : rs.getString("pong_mark");           // legendární znak – jen když ho autor zapnul
         if (PongBadges.isMark(mark)) { it.mark = mark; it.markIcon = PongBadges.icon(mark); }
         it.content = rs.getString("content");

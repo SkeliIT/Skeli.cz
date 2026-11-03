@@ -80,7 +80,8 @@ public class PongServlet extends HttpServlet {
                         .append(",\"ms\":").append(r.durationMs).append(",\"kevin\":").append(r.kevinGoals).append(",\"me\":").append(r.me)
                         .append(",\"title\":").append(titleJson(req, r.title))
                         .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"")
-                        .append(",\"mark\":").append(r.mark == null ? "null" : "\"" + r.mark + "\"").append('}');
+                        .append(",\"mark\":").append(r.mark == null ? "null" : "\"" + r.mark + "\"")
+                        .append(",\"pub\":").append(r.pub).append('}');
             }
             b.append("],\"me\":");
             b.append(mine == null ? "null" : "{\"place\":" + mine.place + ",\"ms\":" + mine.durationMs + "}");
@@ -259,7 +260,8 @@ public class PongServlet extends HttpServlet {
                         .append(",\"score\":").append(r.score).append(",\"d\":").append(r.difficulty)
                         .append(",\"you\":").append(r.you).append(",\"kevin\":").append(r.kevin).append(",\"me\":").append(r.me)
                         .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"")
-                        .append(",\"mark\":").append(r.mark == null ? "null" : "\"" + r.mark + "\"").append('}');
+                        .append(",\"mark\":").append(r.mark == null ? "null" : "\"" + r.mark + "\"")
+                        .append(",\"pub\":").append(r.pub).append('}');
             }
             b.append("],\"me\":").append(mine == null ? "null" : "{\"place\":" + mine.place + ",\"score\":" + mine.score + "}");
             json(resp, b.append('}').toString());

@@ -1,0 +1,9 @@
+Animace vítězných oslav CatSmash – LottieFiles, licence Lottie Simple License (https://lottiefiles.com/page/license)
+koruna.json      Twinkle crown      https://lottiefiles.com/free-animation/twinkle-crown-eqTd2xXkUS
+blesk1.json      Lightning VFX      https://lottiefiles.com/free-animation/lightning-vfx-dmRWpkG6Ql
+blesk2.json      Lightning (neon)   https://lottiefiles.com/free-animation/lightningneon-1AWffHqTwv
+vybuch.json      Cartoon explosion  https://lottiefiles.com/free-animation/cartoon-explosion-sYPNbqTOdd
+ohnostroj1.json  Fireworks          https://lottiefiles.com/free-animation/fireworks-DLrOyBerCR
+ohnostroj2.json  Fireworks          https://lottiefiles.com/free-animation/fireworks-Qa0DxeLqfw
+ohnostroj3.json  Fire works         https://lottiefiles.com/free-animation/fire-works-cHZLOVFrXn
+Přehrávač: lottie-web 5.12.2 (MIT), js/vendor/lottie_light.min.js

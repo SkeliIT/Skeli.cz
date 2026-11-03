@@ -129,4 +129,39 @@ public class UserDao {
         out.sort(java.util.Comparator.comparing((UserComment u) -> u.createdAt, java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())));
         return out.size() > 100 ? new ArrayList<>(out.subList(0, 100)) : out;
     }
+
+    /** Id hráče s veřejným profilem podle jména (/hrac/jméno); null = neexistuje, je smazaný nebo profil skryl. */
+    public Integer publicPlayerId(String username) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT id FROM users WHERE username = ? AND profile_public = 1 AND role <> 'DELETED'")) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getInt(1) : null; }
+        }
+    }
+
+    /** Fotka hráče (bezpečná adresa) nebo výchozí obrázek. */
+    public String avatar(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT avatar_url FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return com.github.skeliit.WebUtils.safeUrl(rs.next() ? rs.getString(1) : null, "/img/avatar-default.svg");
+            }
+        }
+    }
+
+    /** Ukazovat můj profil přihlášeným (users.profile_public)? */
+    public boolean profilePublic(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT profile_public FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return !rs.next() || rs.getBoolean(1); }
+        }
+    }
+
+    public void setProfilePublic(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET profile_public = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
 }

@@ -1,0 +1,56 @@
+<%-- Tabulka rekordů CatSmash na webu (varianta C: Kevin drží ceduli). Otevře ji odkaz [data-pong-board] bez načítání
+     hry; data z /api/pong/top, vykresluje js/pong-board.js. Texty jsou tady (5 jazyků), skript je jen čte. --%>
+<%
+  String pbMonth = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague")).getMonth()
+      .getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, java.util.Locale.forLanguageTag(cur));
+  pbMonth = pbMonth.substring(0, 1).toUpperCase() + pbMonth.substring(1);
+%>
+<template id="pongBoardTpl"
+  data-points="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pb.points")) %>"
+  data-mine="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pb.mine")) %>"
+  data-need="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pb.need")) %>"
+  data-goals="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("home.game.goals")) %>"
+  data-levels="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pb.levels")) %>"
+  data-empty="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pb.empty")) %>"
+  data-error="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pb.error")) %>"
+  data-lang="<%= com.github.skeliit.WebUtils.escapeHtml(cur) %>">
+  <div class="pb" role="dialog" aria-modal="true" aria-labelledby="pbTitle">
+    <div class="pb-win">
+      <button type="button" class="pb-x" data-pb-close aria-label="<%= t.getProperty("pb.close") %>"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <div class="pb-top" aria-hidden="true">
+        <img class="pb-kevin" src="/kevin/pong/menu/kevin-2.webp" alt="" width="132" height="132">
+        <span class="pb-paw l"></span><span class="pb-paw r"></span>
+      </div>
+      <div class="pb-board">
+        <i class="pb-nail a"></i><i class="pb-nail b"></i><i class="pb-nail c"></i><i class="pb-nail d"></i>
+        <div class="pb-glass">
+          <h2 id="pbTitle"><%= t.getProperty("home.game.board") %></h2>
+          <p class="pb-sub" aria-live="polite"></p>
+          <div class="pb-seg" role="radiogroup" data-g="kind" aria-label="<%= t.getProperty("home.game.board") %>">
+            <button type="button" role="radio" data-v="score"><i class="fa-solid fa-star" aria-hidden="true"></i> <%= t.getProperty("pb.score") %></button>
+            <button type="button" role="radio" data-v="time"><i class="fa-solid fa-stopwatch" aria-hidden="true"></i> <%= t.getProperty("pb.time") %></button>
+          </div>
+          <div class="pb-row2">
+            <div class="pb-seg small" role="radiogroup" data-g="season" aria-label="<%= t.getProperty("pb.season") %>">
+              <button type="button" role="radio" data-v="all"><i class="fa-solid fa-infinity" aria-hidden="true"></i> <%= t.getProperty("pb.forever") %></button>
+              <button type="button" role="radio" data-v="month"><%= com.github.skeliit.WebUtils.escapeHtml(pbMonth) %></button>
+            </div>
+            <div class="pb-seg small" role="radiogroup" data-g="len" aria-label="<%= t.getProperty("pb.length") %>">
+              <button type="button" role="radio" data-v="10">10</button><button type="button" role="radio" data-v="20">20</button><button type="button" role="radio" data-v="30">30</button>
+            </div>
+          </div>
+          <div class="pb-heads" role="radiogroup" data-g="d" aria-label="<%= t.getProperty("pb.level") %>">
+            <button type="button" role="radio" data-v="1"><img src="/kevin/pong/menu/kevin-1.webp" alt="" width="48" height="48"><span></span></button>
+            <button type="button" role="radio" data-v="2"><img src="/kevin/pong/menu/kevin-2.webp" alt="" width="48" height="48"><span></span></button>
+            <button type="button" role="radio" data-v="3"><img src="/kevin/pong/menu/kevin-3.webp" alt="" width="48" height="48"><span></span></button>
+          </div>
+          <ol class="pb-list"></ol>
+          <p class="pb-mine"></p>
+          <p class="pb-guest" hidden><a href="/login.jsp?next=%2F"><%= t.getProperty("pb.login") %></a> <%= t.getProperty("pb.guest") %></p>
+          <a class="pb-play" href="/?kevin=pong" data-play-game data-pb-close><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("pb.play") %></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script src="/js/pong-board.js?v=<%= assetVersion %>" defer></script>

@@ -6,6 +6,7 @@ import com.github.skeliit.model.PongProfile;
 import com.github.skeliit.model.PongRank;
 import com.github.skeliit.model.PongScore;
 import com.github.skeliit.model.PongScoreRank;
+import com.github.skeliit.service.PongChampions;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,6 +43,7 @@ public class PongDao {
             ps.setInt(5, p.you); ps.setInt(6, p.kevin); ps.setInt(7, p.ms);
             ps.executeUpdate();
         }
+        PongChampions.invalidate();                      // pořadí šampionů se mohlo změnit
     }
 
     /** Tabulka podle délky zápasu: každý hráč jednou se svým nejlepším skóre (při shodě kdo dřív). */
@@ -59,7 +61,7 @@ public class PongDao {
         List<PongScoreRank> out = new ArrayList<>();
         Timestamp t = since(from);
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT u.id, u.username, u.avatar_url, u.pong_frame, s.score, s.difficulty, s.you, s.kevin, u.pong_mark "
+                "SELECT u.id, u.username, u.avatar_url, u.pong_frame, s.score, s.difficulty, s.you, s.kevin, u.pong_mark, u.pong_champ, u.profile_public "
                         + "FROM pong_scores s JOIN users u ON u.id = s.user_id "
                         + "WHERE s.match_len = ? AND s.difficulty = ? AND s.created_at >= ? AND s.id = (SELECT s2.id FROM pong_scores s2 WHERE s2.user_id = s.user_id "
                         + "  AND s2.match_len = ? AND s2.difficulty = ? AND s2.created_at >= ? ORDER BY s2.score DESC, s2.id LIMIT 1) "
@@ -70,7 +72,8 @@ public class PongDao {
                 while (rs.next()) {
                     PongScoreRank r = new PongScoreRank();
                     r.place = ++place; r.username = rs.getString(2); r.avatarUrl = rs.getString(3);
-                    r.frame = PongBadges.isFrame(rs.getString(4)) ? rs.getString(4) : null;
+                    r.frame = PongChampions.frame(rs.getInt(1), rs.getString(4), rs.getBoolean(10));
+                    r.pub = rs.getBoolean(11);
                     r.mark = PongBadges.isMark(rs.getString(9)) ? rs.getString(9) : null;
                     r.score = rs.getInt(5); r.difficulty = rs.getInt(6); r.you = rs.getInt(7); r.kevin = rs.getInt(8);
                     r.me = meId != null && meId == rs.getInt(1);
@@ -89,7 +92,7 @@ public class PongDao {
         List<PongScoreRank> out = new ArrayList<>();
         Timestamp t = since(from);
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT u.username, u.avatar_url, u.pong_frame, u.pong_mark, s.score, s.difficulty, s.match_len "
+                "SELECT u.username, u.avatar_url, u.pong_frame, u.pong_mark, s.score, s.difficulty, s.match_len, u.id, u.pong_champ, u.profile_public "
                         + "FROM pong_scores s JOIN users u ON u.id = s.user_id "
                         + "WHERE s.created_at >= ? AND u.role <> 'DELETED' AND s.id = (SELECT s2.id FROM pong_scores s2 "
                         + "  WHERE s2.user_id = s.user_id AND s2.created_at >= ? ORDER BY s2.score DESC, s2.id LIMIT 1) "
@@ -100,12 +103,28 @@ public class PongDao {
                 while (rs.next()) {
                     PongScoreRank r = new PongScoreRank();
                     r.place = ++place; r.username = rs.getString(1); r.avatarUrl = rs.getString(2);
-                    r.frame = PongBadges.isFrame(rs.getString(3)) ? rs.getString(3) : null;
+                    r.frame = PongChampions.frame(rs.getInt(8), rs.getString(3), rs.getBoolean(9));
+                    r.pub = rs.getBoolean(10);
                     r.mark = PongBadges.isMark(rs.getString(4)) ? rs.getString(4) : null;
                     r.score = rs.getInt(5); r.difficulty = rs.getInt(6); r.len = rs.getInt(7);
                     out.add(r);
                 }
             }
+        }
+        return out;
+    }
+
+    /** Id šampionů ve stejném pořadí jako champions() – pro rámeček šampiona (service/PongChampions). */
+    public List<Integer> championIds(int limit, java.time.LocalDateTime from) throws SQLException {
+        List<Integer> out = new ArrayList<>();
+        Timestamp t = since(from);
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT s.user_id FROM pong_scores s JOIN users u ON u.id = s.user_id "
+                        + "WHERE s.created_at >= ? AND u.role <> 'DELETED' AND s.id = (SELECT s2.id FROM pong_scores s2 "
+                        + "  WHERE s2.user_id = s.user_id AND s2.created_at >= ? ORDER BY s2.score DESC, s2.id LIMIT 1) "
+                        + "ORDER BY s.score DESC, s.id LIMIT ?")) {
+            ps.setTimestamp(1, t); ps.setTimestamp(2, t); ps.setInt(3, limit);
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) out.add(rs.getInt(1)); }
         }
         return out;
     }
@@ -173,7 +192,7 @@ public class PongDao {
         List<PongRank> out = new ArrayList<>();
         Timestamp t = since(from);
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT u.id, u.username, u.avatar_url, b.best, u.pong_title, u.pong_frame, u.pong_mark, "
+                "SELECT u.id, u.username, u.avatar_url, b.best, u.pong_title, u.pong_frame, u.pong_mark, u.pong_champ, u.profile_public, "
                         + " (SELECT r2.kevin_goals FROM pong_results r2 WHERE r2.user_id = b.user_id AND r2.difficulty = ? AND r2.match_len = ? AND r2.created_at >= ? AND r2.duration_ms = b.best ORDER BY r2.id LIMIT 1) "
                         + "FROM (SELECT user_id, MIN(duration_ms) AS best, MIN(created_at) AS first_at FROM pong_results WHERE difficulty = ? AND match_len = ? AND created_at >= ? GROUP BY user_id) b "
                         + "JOIN users u ON u.id = b.user_id ORDER BY b.best, b.first_at LIMIT ?")) {
@@ -188,9 +207,10 @@ public class PongDao {
                 int place = 0;
                 while (rs.next()) {
                     place++;
-                    PongRank r = new PongRank(place, rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(8), meId != null && meId == rs.getInt(1));
+                    PongRank r = new PongRank(place, rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(10), meId != null && meId == rs.getInt(1));
                     r.title = PongBadges.TITLES_ON && PongBadges.exists(rs.getString(5)) ? rs.getString(5) : null;
-                    r.frame = PongBadges.isFrame(rs.getString(6)) ? rs.getString(6) : null;
+                    r.frame = PongChampions.frame(rs.getInt(1), rs.getString(6), rs.getBoolean(8));
+                    r.pub = rs.getBoolean(9);
                     r.mark = PongBadges.isMark(rs.getString(7)) ? rs.getString(7) : null;
                     out.add(r);
                 }
@@ -301,6 +321,9 @@ public class PongDao {
         if (p.title != null && !p.has(p.title)) p.title = null;
         p.frame = frame(userId);
         if (p.frame != null && !p.has(p.frame)) p.frame = null;
+        p.champPlace = PongChampions.place(userId);
+        p.champOn = champOn(userId);
+        p.shownFrame = p.champOn && p.champPlace != null ? "champ" + p.champPlace : p.frame;
         p.mark = mark(userId);
         if (p.mark != null && !p.has(p.mark)) p.mark = null;
         return p;
@@ -371,6 +394,22 @@ public class PongDao {
     public void setMark(int userId, String key) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET pong_mark = ? WHERE id = ?")) {
             ps.setString(1, key);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Ukazovat rámeček šampiona (users.pong_champ)? */
+    public boolean champOn(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT pong_champ FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return !rs.next() || rs.getBoolean(1); }
+        }
+    }
+
+    public void setChampOn(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET pong_champ = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
             ps.setInt(2, userId);
             ps.executeUpdate();
         }

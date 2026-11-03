@@ -1,47 +1,47 @@
 [
   {
     "d": "2026-11-03",
+    "href": "/nastaveni.jsp#soukromi",
+    "cs": "Klikni v tabulce rekordů na jméno a uvidíš profil hráče – jeho odznaky a rekordy. Co ukazuješ ty, si nastavíš v Soukromí, všechno jde vypnout.",
+    "en": "Click a name in the leaderboard to see that player’s profile – badges and records. What you show is up to you in Privacy; everything can be switched off.",
+    "de": "Klick in der Bestenliste auf einen Namen und du siehst das Spielerprofil – Abzeichen und Rekorde. Was du zeigst, stellst du unter Privatsphäre ein; alles lässt sich ausschalten.",
+    "uk": "Натисни ім’я в таблиці рекордів – і побачиш профіль гравця: значки й рекорди. Що показуєш ти, налаштуєш у Приватності, усе можна вимкнути.",
+    "vi": "Bấm vào tên trong bảng kỷ lục để xem hồ sơ người chơi – huy hiệu và kỷ lục. Bạn hiển thị gì thì chỉnh trong Quyền riêng tư; mọi thứ đều tắt được."
+  },
+  {
+    "d": "2026-11-03",
+    "href": "/?kevin=pong",
+    "cs": "První tři hráči měsíce v CatSmash teď mají kolem fotky zlatý, stříbrný nebo bronzový věnec. Kdo ho nechce, vypne si ho v Nastavení.",
+    "en": "The top three CatSmash players of the month now get a gold, silver or bronze wreath round their photo. Don’t want it? Switch it off in Settings.",
+    "de": "Die besten drei CatSmash-Spieler des Monats haben jetzt einen goldenen, silbernen oder bronzenen Kranz um ihr Foto. Wer ihn nicht will, schaltet ihn in den Einstellungen aus.",
+    "uk": "Трійка найкращих гравців місяця в CatSmash тепер має золотий, срібний або бронзовий вінок навколо фото. Не хочеш – вимкни в Налаштуваннях.",
+    "vi": "Ba người chơi CatSmash giỏi nhất tháng giờ có vòng nguyệt quế vàng, bạc hoặc đồng quanh ảnh. Không muốn thì tắt trong Cài đặt."
+  },
+  {
+    "d": "2026-11-03",
+    "href": "/?kevin=pong",
+    "cs": "V CatSmash teď každá série perfektních ran dostane kovovou cedulku – bronz, stříbro, zlato a od pěti v řadě hoří.",
+    "en": "In CatSmash every streak of perfect shots now gets a metal plate – bronze, silver, gold, and from five in a row it burns.",
+    "de": "In CatSmash bekommt jetzt jede Serie perfekter Schüsse ein Metallschild – Bronze, Silber, Gold, und ab fünf in Folge brennt es.",
+    "uk": "У CatSmash кожна серія ідеальних ударів тепер отримує металеву табличку – бронза, срібло, золото, а від п’яти поспіль вона горить.",
+    "vi": "Trong CatSmash, mỗi chuỗi cú đánh hoàn hảo giờ có một tấm biển kim loại – đồng, bạc, vàng, và từ năm cú liên tiếp thì nó bốc cháy."
+  },
+  {
+    "d": "2026-11-03",
+    "href": "/",
+    "cs": "Tabulka rekordů CatSmash se teď na úvodu otevře hned – drží ji Kevin. A kdo vyhraje, dostane opravdový ohňostroj.",
+    "en": "The CatSmash leaderboard now opens right on the home page – Kevin holds it. And every win gets real fireworks.",
+    "de": "Die CatSmash-Bestenliste öffnet sich jetzt direkt auf der Startseite – Kevin hält sie. Und jeder Sieg bekommt ein echtes Feuerwerk.",
+    "uk": "Таблиця рекордів CatSmash тепер відкривається просто на головній – її тримає Кевін. А кожна перемога отримує справжній феєрверк.",
+    "vi": "Bảng kỷ lục CatSmash giờ mở ngay trên trang chủ – Kevin cầm nó. Và mỗi chiến thắng đều có pháo hoa thật."
+  },
+  {
+    "d": "2026-11-03",
     "href": "/?kevin=pong",
     "cs": "CatSmash má nové odměny: čím vzácnější odznak, tím hezčí pálka, míček nebo pozadí. Odznaky začínají všem znovu od nuly – kdo je vybojuje první?",
     "en": "CatSmash has new rewards: the rarer the badge, the finer the paddle, ball or background. Badges start from zero for everyone – who wins them first?",
     "de": "CatSmash hat neue Belohnungen: je seltener das Abzeichen, desto edler Schläger, Ball oder Hintergrund. Abzeichen starten für alle bei null – wer holt sie zuerst?",
     "uk": "У CatSmash нові нагороди: що рідший значок, то гарніша ракетка, м’ячик чи фон. Значки для всіх починаються з нуля – хто здобуде їх першим?",
     "vi": "CatSmash có phần thưởng mới: huy hiệu càng hiếm thì vợt, bóng hay hình nền càng đẹp. Huy hiệu của mọi người bắt đầu lại từ đầu – ai giành được trước?"
-  },
-  {
-    "d": "2026-11-02",
-    "href": "/?kevin=pong",
-    "cs": "CatSmash má v menu nový Vzhled: pálky, míčky, pozadí a vítězné oslavy vybíráš ze seznamu se zvětšeným náhledem a každou oslavu si můžeš přehrát.",
-    "en": "CatSmash has a new Look page in the menu: pick paddles, balls, backgrounds and victory celebrations from a list with a bigger preview, and play any celebration.",
-    "de": "CatSmash hat im Menü ein neues Aussehen: Schläger, Bälle, Hintergründe und Siegesfeiern wählst du aus einer Liste mit großer Vorschau, und jede Feier kannst du abspielen.",
-    "uk": "У меню CatSmash новий Вигляд: ракетки, м’ячики, фони й переможні святкування обираєш зі списку зі збільшеним переглядом, а кожне святкування можна програти.",
-    "vi": "CatSmash có mục Giao diện mới trong menu: chọn vợt, bóng, hình nền và màn ăn mừng từ danh sách có ảnh xem trước lớn, và có thể xem thử mọi màn ăn mừng."
-  },
-  {
-    "d": "2026-11-02",
-    "href": "/",
-    "cs": "Na úvodní stránce teď u CatSmashe svítí první tři šampioni měsíce. Každý měsíc nová šance dostat se tam.",
-    "en": "The home page now shows the top three CatSmash champions of the month. Every month is a new chance to get there.",
-    "de": "Auf der Startseite stehen jetzt die drei CatSmash-Champions des Monats. Jeden Monat eine neue Chance.",
-    "uk": "На головній сторінці тепер світяться три чемпіони CatSmash за місяць. Щомісяця новий шанс туди потрапити.",
-    "vi": "Trang chủ giờ hiện ba nhà vô địch CatSmash của tháng. Mỗi tháng là một cơ hội mới."
-  },
-  {
-    "d": "2026-11-02",
-    "href": "/?kevin=pong",
-    "cs": "CatSmash má nové menu a na telefonu je hřiště mnohem větší. Skóre svítí přímo ve skle a lupou si můžeš celý automat prohlédnout a naklánět prstem.",
-    "en": "CatSmash has a new menu and on phones the court is much bigger. The score glows right in the glass, and with the magnifier you can look at the whole machine and tilt it with your finger.",
-    "de": "CatSmash hat ein neues Menü und auf dem Handy ist das Spielfeld viel größer. Der Spielstand leuchtet direkt im Glas, und mit der Lupe kannst du den ganzen Automaten ansehen und mit dem Finger kippen.",
-    "uk": "У CatSmash нове меню, а на телефоні поле набагато більше. Рахунок світиться просто в склі, а лупою можна оглянути весь автомат і нахиляти його пальцем.",
-    "vi": "CatSmash có menu mới và trên điện thoại sân chơi lớn hơn nhiều. Tỉ số sáng ngay trong kính, và với kính lúp bạn có thể xem cả máy và nghiêng nó bằng ngón tay."
-  },
-  {
-    "d": "2026-11-02",
-    "href": "/?kevin=pong",
-    "cs": "V CatSmashi je zpátky tabulka času: kdo mě porazí nejrychleji, je první. Hraje se na 10, 20 nebo 30 gólů, bonusy ze součástek platí naráz a superstřela letí opravdu nejrychleji. Prohra se do tabulky nepočítá.",
-    "en": "The time table is back in CatSmash: whoever beats me fastest is number one. Play to 10, 20 or 30 goals, power-ups from the parts now stack and the super shot really flies at top speed. A loss doesn’t go on the table.",
-    "de": "In CatSmash ist die Zeittabelle zurück: Wer mich am schnellsten schlägt, ist Erster. Gespielt wird bis 10, 20 oder 30 Tore, Boni aus den Teilen gelten gleichzeitig und der Superschuss fliegt wirklich am schnellsten. Niederlagen zählen nicht für die Tabelle.",
-    "uk": "У CatSmash повернулася таблиця часу: хто переможе мене найшвидше, той перший. Граємо до 10, 20 або 30 голів, бонуси з деталей діють одночасно, а суперудар летить справді найшвидше. Поразка до таблиці не йде.",
-    "vi": "Bảng thời gian đã trở lại trong CatSmash: ai thắng tôi nhanh nhất sẽ đứng đầu. Chơi tới 10, 20 hoặc 30 bàn, các phần thưởng từ linh kiện giờ cộng dồn và siêu cú đánh bay nhanh nhất thật sự. Thua thì không được vào bảng."
   }
 ]
