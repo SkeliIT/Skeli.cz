@@ -469,6 +469,17 @@
     ]
   },
   "admin": {
+    "fresh": {
+      "lead": ["Báo cáo từ lần trước:", "{name}, ở đây có chuyện mới. Từ lần trước:", "Tôi đã canh chừng. Từ ổ của tôi, nhưng vẫn canh. Từ lần trước:", "{name}, tôi có tin mới. Từ lần trước:"],
+      "leadWeek": ["Báo cáo tuần vừa qua:", "{name}, đây là tuần vừa qua:"],
+      "users": ["{n} người dùng mới ({t})", "{n} người dùng mới"],
+      "comments": ["{n} bình luận mới", "{n} bình luận mới"],
+      "problems": ["{n} lỗi được báo trên web", "{n} lỗi được báo trên web"],
+      "feedback": ["{n} đánh giá web mới", "{n} đánh giá web mới"],
+      "help": ["{n} đề nghị giúp lời bài hát", "{n} đề nghị giúp lời bài hát"],
+      "subscribers": ["{n} người đăng ký tin mới", "{n} người đăng ký tin mới"],
+      "toUsers": "Xem người dùng", "toComments": "Xem bình luận", "toProblems": "Xem báo lỗi", "toFeedback": "Xem đánh giá", "toHelp": "Xem lời bài hát", "toSubscribers": "Xem người đăng ký"
+    },
     "hello": [
       "Còn vài việc dang dở. Tôi sẽ bắt đầu với việc dễ nhất. Ví dụ nghỉ ăn.",
       "Báo cáo: có việc cần bạn chú ý. Lần này không phải bát của tôi.",

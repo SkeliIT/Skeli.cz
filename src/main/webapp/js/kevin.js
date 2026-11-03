@@ -186,6 +186,7 @@
     clearTimeout(hideTimer);
     text.textContent = msg;
     remember(msg);
+    if (opts.onShow) opts.onShow();
     currentGo = opts.go || null;
     bubble.classList.toggle('has-go', !!currentGo);
     link.hidden = !opts.href;
@@ -684,10 +685,44 @@
     return box;
   }
 
-  // 7) admin pages: the site's to-dos
-  function adminStatus() {
-    getJson('/admin/kevin').then(function (s) {
+  // 7) stránky adminu: co je nového od minula (noví lidé, komentáře, nahlášené problémy…), jinak co čeká na vyřízení.
+  // auto = sám po příchodu do adminu; „od minula“ se posune, až když hlášení opravdu vidí (opts.onShow): když čeká
+  // jen za zlatou tečkou na tlapce a admin přejde jinam, řekne ho na další stránce znovu.
+  function adminStatus(auto) {
+    var known = session.get('kevinAdminSince') || store.get('kevinAdminSeen') || '';
+    getJson('/admin/kevin' + (known ? '?since=' + encodeURIComponent(known) : '')).then(function (s) {
       if (!s) return;
+      var A = L.admin, F = A.fresh, f = s.fresh || {}, news = [], first = null;
+      function add(n, forms, go, label, name) {
+        if (!n) return;
+        news.push(say(forms, n, name));
+        if (!first) first = [go, label];
+      }
+      function heard() {
+        session.set('kevinAdmin', '1');
+        if (s.now) {
+          session.set('kevinAdminSince', known || String(s.now - 7 * 864e5));   // menu pak zopakuje totéž hlášení
+          store.set('kevinAdminSeen', String(s.now));
+        }
+      }
+      add(f.problems, F.problems, '/admin/feedback', F.toProblems);
+      add(f.users, F.users, '/admin_users.jsp', F.toUsers, f.newUser);
+      add(f.comments, F.comments, '/admin/comments', F.toComments);
+      add(f.feedback, F.feedback, '/admin/feedback', F.toFeedback);
+      add(f.help, F.help, '/admin/lyrics', F.toHelp);
+      add(f.subscribers, F.subscribers, '/admin/newsletter', F.toSubscribers);
+      if (news.length) {
+        if (s.reports) news.push(say(A.reports, s.reports));
+        // klik v menu („co čeká“): k novinkám i nevyřízené věci; sám po příchodu jen to důležité
+        if (!auto && s.clipsWithoutSong) news.push(say(A.clips, s.clipsWithoutSong, s.newestClipWithoutSong || ''));
+        if (!auto && s.songsWithoutLyrics) news.push(say(A.lyrics, s.songsWithoutLyrics));
+        news[0] = news[0].charAt(0).toUpperCase() + news[0].slice(1);
+        var leads = (known ? F.lead : F.leadWeek).filter(function (l) { return s.name || l.indexOf('{name}') < 0; });
+        var msg = pick(leads).replace('{name}', s.name || '') + ' ' + news.join(', ') + '.';
+        var opts = { pose: 'point', href: first[0], linkText: first[1], ms: 18000, onShow: heard };
+        return auto ? onOwn(msg, opts, false, 1) : show(msg, opts);
+      }
+      heard();                                           // nic nového: další hlášení počítá od teď
       var parts = [], href = null, linkText = null;
       if (s.reports) { parts.push(say(L.admin.reports, s.reports)); href = '/admin/comments#reports'; linkText = L.admin.toReports; }
       if (s.clipsWithoutSong) parts.push(say(L.admin.clips, s.clipsWithoutSong, s.newestClipWithoutSong || ''));
@@ -846,11 +881,8 @@
   }
   function greet() {
     if (adminPage) {
-      // the admin dashboard: the to-do list once per visit
-      if (/^\/admin(\.jsp)?$/.test(location.pathname) && !session.get('kevinAdmin')) {
-        session.set('kevinAdmin', '1');
-        setTimeout(function () { if (!acted) adminStatus(); }, 900);
-      }
+      // kdekoli v adminu: novinky od minula, jednou za návštěvu (příznak nastaví adminStatus, až je opravdu řekne)
+      if (!session.get('kevinAdmin')) setTimeout(function () { if (!acted) adminStatus(true); }, 900);
       return;
     }
     // something the visitor has just done (signed in, saved a password…) beats any greeting

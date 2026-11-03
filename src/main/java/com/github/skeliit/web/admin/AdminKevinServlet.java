@@ -20,8 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Kevin's to-do list for the admin (only behind AdminFilter, /admin/*):
- * {@code {"reports": 2, "clipsWithoutSong": 4, "newestClipWithoutSong": "title or null", "songsWithoutLyrics": 5}}.
+ * Kevinovo hlášení pro admina (jen za AdminFilter, /admin/*): co je nového a co čeká na vyřízení:
+ * {@code {"now": ms, "fresh": {"users": 1, "newUser": "jméno", "comments": 1, ...}, "reports": 2, "clipsWithoutSong": 4,
+ * "newestClipWithoutSong": "název nebo null", "songsWithoutLyrics": 5}}.
  */
 @WebServlet(name = "AdminKevinServlet", urlPatterns = {"/admin/kevin"})
 public class AdminKevinServlet extends HttpServlet {
@@ -33,7 +34,12 @@ public class AdminKevinServlet extends HttpServlet {
         // Kevin greets the admin by name (Skeli and his brother are both admins)
         HttpSession session = req.getSession(false);
         out.put("name", session == null ? null : session.getAttribute("username"));
+        // co je nového od poslední návštěvy (?since= čas v ms z prohlížeče), bez něj za poslední týden, nejvýš 60 dní zpět
+        long now = System.currentTimeMillis();
+        out.put("now", now);
+        int self = session != null && session.getAttribute("userId") instanceof Integer id ? id : 0;
         try (Connection conn = Db.get()) {
+            out.put("fresh", new com.github.skeliit.dao.AdminDao().freshSince(sinceMs(req.getParameter("since"), now), self));
             // one report per comment, however many people reported it
             out.put("reports", count(conn, "SELECT COUNT(*) FROM (SELECT DISTINCT kind, comment_id FROM comment_reports) r"));
             out.put("clipsWithoutSong", count(conn, "SELECT COUNT(*) FROM videos WHERE song_id IS NULL AND no_song_ok_at IS NULL"));
@@ -54,6 +60,15 @@ public class AdminKevinServlet extends HttpServlet {
         resp.setContentType("application/json;charset=UTF-8");
         resp.setHeader("Cache-Control", "no-store");
         JSON.writeValue(resp.getOutputStream(), out);
+    }
+
+    /** Čas z adresy; neplatný nebo žádný = týden zpět, nikdy víc než 60 dní zpět ani do budoucna. */
+    static long sinceMs(String param, long now) {
+        long day = 24 * 60 * 60 * 1000L, since = now - 7 * day;
+        if (param != null) {
+            try { since = Long.parseLong(param.trim()); } catch (NumberFormatException e) { /* zůstane týden */ }
+        }
+        return Math.max(now - 60 * day, Math.min(now, since));
     }
 
     private static int count(Connection conn, String sql) throws SQLException {

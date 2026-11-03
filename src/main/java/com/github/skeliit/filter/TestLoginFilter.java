@@ -67,9 +67,18 @@ public class TestLoginFilter implements Filter {
         String path = req.getRequestURI();
         if ("/test-login".equals(path)) {
             String token = req.getParameter("token");
-            if (token == null || !same(cookieValue, Tokens.hash(token))) { resp.sendError(404); return; }
-            resp.addCookie(cookie(req, new String(cookieValue, StandardCharsets.UTF_8), YEAR));
-            resp.sendRedirect("/index.jsp");               // pryč z adresy s klíčem
+            if (token != null && same(cookieValue, Tokens.hash(token))) {
+                // přihlásit hned a napevno: staré sezení v prohlížeči nesmí překážet
+                HttpSession old = req.getSession(false);
+                if (old != null) old.invalidate();
+                try { signIn(req); } catch (SQLException e) { throw new ServletException(e); }
+                resp.addCookie(cookie(req, new String(cookieValue, StandardCharsets.UTF_8), YEAR));
+                resp.sendRedirect("/test-login?stav=1");   // pryč z adresy s klíčem, výsledek je vidět
+                return;
+            }
+            // stránka s výsledkem jen pro prohlížeč s cookie, ostatním 404 jako by tu nic nebylo
+            if (req.getParameter("stav") != null && same(cookieValue, cookieOf(req))) { status(req, resp); return; }
+            resp.sendError(404);
             return;
         }
         if (same(cookieValue, cookieOf(req))) {
@@ -85,13 +94,34 @@ public class TestLoginFilter implements Filter {
     /** Přihlásí, když nikdo přihlášený není; adminovi obnoví čas přihlášení (jinak by ho AdminFilter po 12 h vyhodil). */
     private void keepSignedIn(HttpServletRequest req) throws SQLException {
         HttpSession session = req.getSession(false);
-        if (session != null && session.getAttribute("userId") != null) {
+        if (session != null && session.getAttribute("userId") != null && session.getAttribute("username") != null) {
             if (session.getAttribute("testLogin") != null) session.setAttribute("signedInAt", System.currentTimeMillis());
             return;                                         // kdo se přihlásil jinak (jiným účtem), tomu se nic nemění
         }
+        signIn(req);
+    }
+
+    private void signIn(HttpServletRequest req) throws SQLException {
         UserDao.SignInInfo u = new UserDao().signInInfo(username);
         if (u == null) return;
         LoginServlet.signIn(req, u.id, u.username, u.role, u.avatar, true).setAttribute("testLogin", Boolean.TRUE);
+    }
+
+    /** Krátká stránka pro majitele: co prohlížeč poslal a jestli je přihlášený (jen názvy cookies, ne hodnoty). */
+    private void status(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        try { keepSignedIn(req); } catch (SQLException e) { throw new ServletException(e); }
+        HttpSession s = req.getSession(false);
+        Object user = s == null ? null : s.getAttribute("username"), role = s == null ? null : s.getAttribute("role");
+        StringBuilder names = new StringBuilder();
+        if (req.getCookies() != null) for (Cookie c : req.getCookies()) names.append(c.getName()).append(' ');
+        resp.setContentType("text/html;charset=UTF-8");
+        resp.setHeader("Cache-Control", "no-store");
+        resp.getWriter().write("<!DOCTYPE html><meta charset=utf-8><meta name=viewport content='width=device-width'><title>Přihlášení na testu</title>"
+                + "<body style='font:18px sans-serif;background:#111;color:#eee;padding:24px'>"
+                + "<h1 style='color:#ffd23f'>" + (user != null ? "Přihlášeno" : "Nepřihlášeno") + "</h1>"
+                + "<p>Účet: " + WebUtils.escapeHtml(String.valueOf(user)) + " · role: " + WebUtils.escapeHtml(String.valueOf(role)) + "</p>"
+                + "<p>Cookies v prohlížeči: " + WebUtils.escapeHtml(names.toString()) + "</p>"
+                + "<p><a style='color:#ffd23f' href='/index.jsp'>Pokračovat na web</a> · <a style='color:#ffd23f' href='/uzivatel.jsp'>Můj profil</a> · <a style='color:#ffd23f' href='/admin.jsp'>Admin</a></p>");
     }
 
     private static String cookieOf(HttpServletRequest req) {

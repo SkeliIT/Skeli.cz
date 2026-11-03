@@ -469,6 +469,17 @@
     ]
   },
   "admin": {
+    "fresh": {
+      "lead": ["Report since last time:", "{name}, things have been stirring. Since last time:", "I kept watch. From my bed, but I kept watch. Since last time:", "{name}, I've got news. Since last time:"],
+      "leadWeek": ["Report for the past week:", "{name}, here's the past week:"],
+      "users": ["{n} new user ({t})", "{n} new users"],
+      "comments": ["{n} new comment", "{n} new comments"],
+      "problems": ["{n} problem reported on the site", "{n} problems reported on the site"],
+      "feedback": ["{n} new site rating", "{n} new site ratings"],
+      "help": ["{n} offer of help with lyrics", "{n} offers of help with lyrics"],
+      "subscribers": ["{n} new newsletter subscriber", "{n} new newsletter subscribers"],
+      "toUsers": "Show users", "toComments": "Show comments", "toProblems": "Show reports", "toFeedback": "Show ratings", "toHelp": "Show lyrics", "toSubscribers": "Show subscribers"
+    },
     "hello": [
       "A few loose ends here. I'd start with the easiest one. Like a food break.",
       "Status report: something needs your attention. For once it's not my bowl.",
