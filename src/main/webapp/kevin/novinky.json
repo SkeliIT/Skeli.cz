@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-11-03",
+    "href": "/nastaveni.jsp#soukromi",
+    "cs": "Klikni v tabulce rekordů na jméno a uvidíš profil hráče – jeho odznaky a rekordy. Co ukazuješ ty, si nastavíš v Soukromí, všechno jde vypnout.",
+    "en": "Click a name in the leaderboard to see that player’s profile – badges and records. What you show is up to you in Privacy; everything can be switched off.",
+    "de": "Klick in der Bestenliste auf einen Namen und du siehst das Spielerprofil – Abzeichen und Rekorde. Was du zeigst, stellst du unter Privatsphäre ein; alles lässt sich ausschalten.",
+    "uk": "Натисни ім’я в таблиці рекордів – і побачиш профіль гравця: значки й рекорди. Що показуєш ти, налаштуєш у Приватності, усе можна вимкнути.",
+    "vi": "Bấm vào tên trong bảng kỷ lục để xem hồ sơ người chơi – huy hiệu và kỷ lục. Bạn hiển thị gì thì chỉnh trong Quyền riêng tư; mọi thứ đều tắt được."
+  },
+  {
+    "d": "2026-11-03",
     "href": "/?kevin=pong",
     "cs": "První tři hráči měsíce v CatSmash teď mají kolem fotky zlatý, stříbrný nebo bronzový věnec. Kdo ho nechce, vypne si ho v Nastavení.",
     "en": "The top three CatSmash players of the month now get a gold, silver or bronze wreath round their photo. Don’t want it? Switch it off in Settings.",
@@ -34,14 +43,5 @@
     "de": "CatSmash hat neue Belohnungen: je seltener das Abzeichen, desto edler Schläger, Ball oder Hintergrund. Abzeichen starten für alle bei null – wer holt sie zuerst?",
     "uk": "У CatSmash нові нагороди: що рідший значок, то гарніша ракетка, м’ячик чи фон. Значки для всіх починаються з нуля – хто здобуде їх першим?",
     "vi": "CatSmash có phần thưởng mới: huy hiệu càng hiếm thì vợt, bóng hay hình nền càng đẹp. Huy hiệu của mọi người bắt đầu lại từ đầu – ai giành được trước?"
-  },
-  {
-    "d": "2026-11-02",
-    "href": "/?kevin=pong",
-    "cs": "CatSmash má v menu nový Vzhled: pálky, míčky, pozadí a vítězné oslavy vybíráš ze seznamu se zvětšeným náhledem a každou oslavu si můžeš přehrát.",
-    "en": "CatSmash has a new Look page in the menu: pick paddles, balls, backgrounds and victory celebrations from a list with a bigger preview, and play any celebration.",
-    "de": "CatSmash hat im Menü ein neues Aussehen: Schläger, Bälle, Hintergründe und Siegesfeiern wählst du aus einer Liste mit großer Vorschau, und jede Feier kannst du abspielen.",
-    "uk": "У меню CatSmash новий Вигляд: ракетки, м’ячики, фони й переможні святкування обираєш зі списку зі збільшеним переглядом, а кожне святкування можна програти.",
-    "vi": "CatSmash có mục Giao diện mới trong menu: chọn vợt, bóng, hình nền và màn ăn mừng từ danh sách có ảnh xem trước lớn, và có thể xem thử mọi màn ăn mừng."
   }
 ]

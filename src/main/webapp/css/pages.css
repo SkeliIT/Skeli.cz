@@ -2136,3 +2136,55 @@ html.pb-open { overflow: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .pb, .pb-win { animation: none; } }
 html.pb-open #sp-min, html.pb-open #sp-bar { visibility: hidden; }
+
+/* jména v tabulkách CatSmash a mezi šampiony = odkaz na veřejný profil hráče (/hrac/jméno) – nenápadný, zlatý při najetí */
+.game-champs .champ-name a, .pb-nm a.pb-prof { color: inherit; text-decoration: none; }
+.game-champs .champ-name a:hover, .game-champs .champ-name a:focus-visible, .pb-nm a.pb-prof:hover, .pb-nm a.pb-prof:focus-visible { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+/* veřejný profil hráče: fotka není odkaz (cizí profil), legendární znak u jména */
+.player-page .acct-photo { cursor: default; }
+.acct-mark { margin-left: 6px; font-size: .7em; color: var(--accent); vertical-align: middle; }
+
+/* Nastavení → Soukromí: karta „Co o mně vidí ostatní“ (všechno dobrovolné). Nahoře náhled, pod ním řádky
+   ikona | popis | přepínač; řádky s výběrem (rámeček, znak) mají výběr pod popisem přes celou šířku. */
+.vis-form { display: grid; gap: 10px; margin-bottom: 18px; padding: 16px; border-radius: var(--radius); background: rgba(255, 210, 63, .05); border: 1px solid rgba(255, 210, 63, .22); }
+body.light .vis-form { background: rgba(163, 123, 0, .05); border-color: rgba(163, 123, 0, .25); }
+.vis-head { margin: 0; font-size: var(--fs-h4); }
+.vis-head i { color: var(--accent); margin-right: 4px; }
+.vis-form > .acct-dim { margin: 0; font-family: var(--font-text); font-size: var(--fs-text); }
+.vis-preview { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 14px; border-radius: 14px; background: rgba(0, 0, 0, .28); }
+body.light .vis-preview { background: rgba(0, 0, 0, .05); }
+.vis-preview-label { font-size: var(--fs-small); color: var(--text-dim); }
+.vis-person { display: inline-flex; align-items: center; gap: 18px; min-height: 76px; padding: 0 10px; transition: opacity .2s; }
+.vis-person .av-frame { font-size: 48px; }
+.vis-person img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; display: block; }
+.vis-person b { font-size: var(--fs-card); }
+.vis-mark { color: var(--accent); margin-left: -10px; }
+.vis-form.vis-hidden .vis-person { opacity: .45; }
+.vis-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.vis-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; padding: 14px 0; border-top: 1px solid rgba(255, 255, 255, .08); }
+body.light .vis-row { border-top-color: rgba(0, 0, 0, .08); }
+.vis-ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 210, 63, .12); color: var(--accent); align-self: start; }
+.vis-text { display: grid; gap: 3px; min-width: 0; }
+.vis-text b { font-size: var(--fs-card); font-weight: 400; }
+.vis-text small { font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); line-height: 1.35; }
+.vis-text small.vis-state.on { color: var(--accent); }
+.vis-link { justify-self: start; font-size: var(--fs-small); color: var(--accent); text-decoration: none; }
+.vis-link:hover, .vis-link:focus-visible { text-decoration: underline; }
+/* výběr (rámeček, znak) nebo „zatím zamčeno“ pod popisem přes celou šířku */
+.vis-pick select, .vis-pick .vis-empty { grid-column: 2 / -1; }
+.vis-pick select { width: 100%; min-height: 44px; }
+.vis-empty { font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
+/* přepínač: velký na dotyk (52 × 30), zlatý když je zapnutý */
+.vis-switch { position: relative; display: inline-block; width: 52px; height: 30px; flex: none; cursor: pointer; }
+.vis-switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
+.vis-switch span { position: absolute; inset: 0; border-radius: 99px; background: rgba(255, 255, 255, .16); transition: background .2s; }
+.vis-switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .5); transition: translate .2s; }
+.vis-switch input:checked + span { background: var(--accent); }
+.vis-switch input:checked + span::after { translate: 22px 0; background: var(--accent-ink); }
+.vis-switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 3px; }
+body.light .vis-switch span { background: rgba(0, 0, 0, .18); }
+.vis-actions { display: flex; justify-content: flex-end; }
+@media (max-width: 600px) { .vis-actions .btn-primary { width: 100%; justify-content: center; } }
+@media (prefers-reduced-motion: reduce) { .vis-switch span, .vis-switch span::after { transition: none; } }
+/* velký věnec šampiona na profilu: na telefonu menší, aby nezasahoval do jména */
+@media (max-width: 600px) { .acct-photo.av-frame.f-champ1, .acct-photo.av-frame.f-champ2, .acct-photo.av-frame.f-champ3 { --cs: 1.5; } }

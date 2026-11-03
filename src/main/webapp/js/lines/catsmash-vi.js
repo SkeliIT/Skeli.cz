@@ -366,6 +366,7 @@ window.KEVIN_LINES.vi.pong = {
   "tutHint": "Đừng lo, bàn thắng bây giờ không tính. Hãy để ý vòng tròn cạnh vợt.",
   "tutDone": "XONG HƯỚNG DẪN",
   "tutGo": "Rồi, giờ chơi thật. Từ số không. Bắt đầu!",
+  "tutEnd": "Xong phần hướng dẫn. Khi muốn chơi thật, bấm Chơi. Tớ sẽ đợi… chắc vậy.",
   "tutSkip": "Bỏ qua hướng dẫn",
   "tutAgain": "Xem lại hướng dẫn",
   "timing": {"early":"sớm quá","late":"muộn quá"},

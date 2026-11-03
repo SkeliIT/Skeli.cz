@@ -366,6 +366,7 @@ window.KEVIN_LINES.cs.pong = {
   "tutHint": "Neboj, góly se teď nepočítají. Sleduj ten kroužek u pálky.",
   "tutDone": "VÝUKA HOTOVÁ",
   "tutGo": "Tak, a teď naostro. Od nuly. Jdeme!",
+  "tutEnd": "Výuka hotová. Až budeš chtít naostro, dej Hrát. Já počkám… asi.",
   "tutSkip": "Přeskočit výuku",
   "tutAgain": "Zopakovat výuku",
   "timing": {"early":"brzo","late":"pozdě"},

@@ -26,21 +26,21 @@ class PongMarkIT extends UiTestSupport {
         assertNull(queryString("SELECT pong_mark FROM users WHERE id=?", id));
         assertTrue(fetch(js, "/api/pong/top?len=10&d=3").contains("\"mark\":null"), "bez znaku v tabulce");
 
-        // zapnout v Nastavení → Profil
-        driver.get(BASE_URL + "/nastaveni.jsp");
+        // zapnout v Nastavení → Soukromí → Co o mně vidí ostatní
+        driver.get(BASE_URL + "/nastaveni.jsp#soukromi");
         Select sel = new Select(driver.findElement(By.id("pongMark")));
         assertEquals("", sel.getFirstSelectedOption().getAttribute("value"), "výchozí volba = Neukazovat");
         sel.selectByValue("hsniper");
-        submit(By.cssSelector(".pong-mark-form button[type=submit]"));
-        assertTrue(driver.getCurrentUrl().contains("pongMark=1"), "uloženo: " + driver.getCurrentUrl());
+        submit(By.cssSelector(".vis-form button[type=submit]"));
+        assertTrue(driver.getCurrentUrl().contains("vis=1"), "uloženo: " + driver.getCurrentUrl());
         assertEquals("hsniper", queryString("SELECT pong_mark FROM users WHERE id=?", id));
         assertTrue(fetch(js, "/api/pong/top?len=10&d=3").contains("\"mark\":\"hsniper\""), "znak v tabulce");
         assertTrue(fetch(js, "/api/comments?kind=lyric&target=" + lyric).contains("\"mark\":\"hsniper\""), "znak u komentáře");
 
         // vypnout = zmizí
-        driver.get(BASE_URL + "/nastaveni.jsp");
+        driver.get(BASE_URL + "/nastaveni.jsp#soukromi");
         new Select(driver.findElement(By.id("pongMark"))).selectByValue("");
-        submit(By.cssSelector(".pong-mark-form button[type=submit]"));
+        submit(By.cssSelector(".vis-form button[type=submit]"));
         assertNull(queryString("SELECT pong_mark FROM users WHERE id=?", id));
         assertFalse(fetch(js, "/api/comments?kind=lyric&target=" + lyric).contains("\"mark\":\"hsniper\""), "vypnutý znak zmizel");
     }

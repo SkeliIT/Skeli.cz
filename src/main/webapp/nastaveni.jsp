@@ -24,6 +24,7 @@
     PongProfile pong = new PongProfile();
     String[] showcase = { null, null, null, null, "brush" };
     java.util.List<String[]> songChoices = new java.util.ArrayList<>();
+    boolean profilePublic = true;
     try {
       UserDao users = new UserDao();          // dao/UserDao
       UserProfile p = users.profile(uid);     // nothing saved yet = null
@@ -32,6 +33,7 @@
         if (p.lang != null) prefLang = p.lang;
       }
       me = users.summary(uid);
+      profilePublic = users.profilePublic(uid);
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
       showcase = new com.github.skeliit.dao.UserDao().showcase(uid);   // oblíbený song a moto
@@ -135,7 +137,6 @@
             <option value="vi" <%= "vi".equals(prefLang) ? "selected" : "" %>>Tiếng Việt</option>
           </select>
         </label>
-        <label class="checkbox-label"><input type="checkbox" name="public_profile" value="1"> <%= t.getProperty("settings.public") %></label>
         <div class="form-actions wide"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> <%= t.getProperty("common.save") %></button></div>
       </form>
     </div>
@@ -162,65 +163,6 @@
       <% } %>
     </form>
     <% } %>
-    <%-- rámeček šampiona: první tři ze Šampionů měsíce (service/PongChampions) – má přednost, jde vypnout --%>
-    <form class="pong-title-form pong-champ-form" method="post" action="/api/pong/champ">
-      <input type="hidden" name="csrf" value="${csrf}">
-      <input type="hidden" name="back" value="account">
-      <label for="pongChamp"><b><%= t.getProperty("pong.champ.title") %></b> <span class="acct-dim"><%= t.getProperty("pong.champ.lead") %></span></label>
-      <% if ("1".equals(request.getParameter("pongChamp"))) { %><p class="pong-title-msg ok" role="status"><%= t.getProperty("pong.champ.saved") %></p><% } %>
-      <p class="acct-dim"><%= pong.champPlace != null ? t.getProperty("pong.champ.now").replace("{n}", String.valueOf(pong.champPlace)) : t.getProperty("pong.champ.not") %></p>
-      <div class="pong-title-row">
-        <select id="pongChamp" name="on">
-          <option value="1"<%= pong.champOn ? " selected" : "" %>><%= t.getProperty("pong.champ.on") %></option>
-          <option value="0"<%= pong.champOn ? "" : " selected" %>><%= t.getProperty("pong.champ.off") %></option>
-        </select>
-        <button type="submit" class="btn-primary"><%= t.getProperty("pong.title.save") %></button>
-      </div>
-    </form>
-    <%-- rámeček kolem fotky: jen z odznaků PongBadges.FRAMES (ukazuje se v komentářích, v tabulce a tady na profilu) --%>
-    <form class="pong-title-form pong-frame-form" method="post" action="/api/pong/frame">
-      <input type="hidden" name="csrf" value="${csrf}">
-      <input type="hidden" name="back" value="account">
-      <label for="pongFrame"><b><%= t.getProperty("pong.frame.title") %></b> <span class="acct-dim"><%= t.getProperty("pong.frame.lead") %></span></label>
-      <% if ("1".equals(request.getParameter("pongFrame"))) { %><p class="pong-title-msg ok" role="status"><%= t.getProperty("pong.frame.saved") %></p><% } %>
-      <% if ("0".equals(request.getParameter("pongFrame"))) { %><p class="pong-title-msg" role="alert"><%= t.getProperty("pong.title.failed") %></p><% } %>
-      <% boolean anyFrame = false; for (PongProfile.Badge b : pong.badges) if (b.earned && com.github.skeliit.model.PongBadges.isFrame(b.key)) anyFrame = true; %>
-      <% if (!anyFrame) { %>
-        <p class="acct-dim"><%= t.getProperty("pong.frame.empty") %></p>
-      <% } else { %>
-      <div class="pong-title-row">
-        <select id="pongFrame" name="f">
-          <option value=""><%= t.getProperty("pong.frame.none") %></option>
-          <% for (PongProfile.Badge b : pong.badges) { if (!b.earned || !com.github.skeliit.model.PongBadges.isFrame(b.key)) continue; %>
-          <option value="<%= b.key %>"<%= b.key.equals(pong.frame) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("pong.frame." + b.key)) %></option>
-          <% } %>
-        </select>
-        <button type="submit" class="btn-primary"><%= t.getProperty("pong.title.save") %></button>
-      </div>
-      <% } %>
-    </form>
-    <%-- legendární znak u jména (odznaky za nejtěžší obtížnost): dobrovolný, výchozí Neukazovat --%>
-    <form class="pong-title-form pong-mark-form" method="post" action="/api/pong/mark">
-      <input type="hidden" name="csrf" value="${csrf}">
-      <input type="hidden" name="back" value="account">
-      <label for="pongMark"><b><%= t.getProperty("pong.mark.title") %></b> <span class="acct-dim"><%= t.getProperty("pong.mark.lead") %></span></label>
-      <% if ("1".equals(request.getParameter("pongMark"))) { %><p class="pong-title-msg ok" role="status"><%= t.getProperty("pong.mark.saved") %></p><% } %>
-      <% if ("0".equals(request.getParameter("pongMark"))) { %><p class="pong-title-msg" role="alert"><%= t.getProperty("pong.title.failed") %></p><% } %>
-      <% boolean anyMark = false; for (PongProfile.Badge b : pong.badges) if (b.earned && com.github.skeliit.model.PongBadges.isMark(b.key)) anyMark = true; %>
-      <% if (!anyMark) { %>
-        <p class="acct-dim"><%= t.getProperty("pong.mark.empty") %></p>
-      <% } else { %>
-      <div class="pong-title-row">
-        <select id="pongMark" name="m">
-          <option value=""><%= t.getProperty("pong.mark.none") %></option>
-          <% for (PongProfile.Badge b : pong.badges) { if (!b.earned || !com.github.skeliit.model.PongBadges.isMark(b.key)) continue; %>
-          <option value="<%= b.key %>"<%= b.key.equals(pong.mark) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("pong.badge." + b.key)) %></option>
-          <% } %>
-        </select>
-        <button type="submit" class="btn-primary"><%= t.getProperty("pong.title.save") %></button>
-      </div>
-      <% } %>
-    </form>
   </section>
 
   <%-- Security: password and the devices you are signed in on --%>
@@ -324,6 +266,89 @@
       <h3><i class="fa-solid fa-user-lock"></i> <%= t.getProperty("account.tab.privacy") %></h3>
       <p><%= t.getProperty("account.privacyLead") %></p>
     </header>
+    <%-- Co o mně vidí ostatní: všechno, čím se hráč ukazuje ostatním, na jednom místě a dobrovolně
+         (web/profile/ProfileVisibilityServlet). Nahoře živý náhled – mění se hned při přepínání, uloží se tlačítkem. --%>
+    <% boolean anyFrame = false, anyMark = false;
+       for (PongProfile.Badge b : pong.badges) { if (!b.earned) continue;
+         if (com.github.skeliit.model.PongBadges.isFrame(b.key)) anyFrame = true;
+         if (com.github.skeliit.model.PongBadges.isMark(b.key)) anyMark = true; }
+       String visName = me != null ? me.username : (String) session.getAttribute("username"); %>
+    <form class="vis-form<%= profilePublic ? "" : " vis-hidden" %>" id="viditelnost" method="post" action="/profile/visibility"
+          data-champ="<%= pong.champPlace != null ? pong.champPlace : "" %>" data-frame="<%= pong.frame != null ? pong.frame : "" %>">
+      <input type="hidden" name="csrf" value="${csrf}">
+      <h4 class="vis-head"><i class="fa-solid fa-eye" aria-hidden="true"></i> <%= t.getProperty("vis.title") %></h4>
+      <p class="acct-dim"><%= t.getProperty("vis.lead") %></p>
+      <% if ("1".equals(request.getParameter("vis"))) { %><p class="pong-title-msg ok" role="status"><%= t.getProperty("vis.saved") %></p><% } %>
+      <% if ("0".equals(request.getParameter("vis"))) { %><p class="pong-title-msg" role="alert"><%= t.getProperty("pong.title.failed") %></p><% } %>
+      <div class="vis-preview" aria-hidden="true">
+        <span class="vis-preview-label"><%= t.getProperty("vis.preview") %></span>
+        <span class="vis-person">
+          <span class="av-frame<%= pong.shownFrame != null ? " f-" + pong.shownFrame : "" %>" data-vis-av><img src="<%= WebUtils.escapeHtml(avatarUrl) %>" alt="" width="48" height="48"></span>
+          <b><%= WebUtils.escapeHtml(visName) %></b>
+          <i class="fa-solid vis-mark <%= pong.mark != null ? com.github.skeliit.model.PongBadges.icon(pong.mark) : "" %>" data-vis-mark<%= pong.mark == null ? " hidden" : "" %>></i>
+        </span>
+      </div>
+      <ul class="vis-list">
+        <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visPubT"><%= t.getProperty("settings.public") %></b><small><%= t.getProperty("profile.public.lead") %></small>
+            <% if (profilePublic && visName != null) { %><a class="vis-link" href="/hrac/<%= java.net.URLEncoder.encode(visName, "UTF-8").replace("+", "%20") %>?nahled=1"><%= t.getProperty("profile.public.preview") %> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a><% } %></span>
+          <label class="vis-switch"><input type="checkbox" name="pub" value="1" aria-labelledby="visPubT"<%= profilePublic ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-crown" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visChampT"><%= t.getProperty("pong.champ.title") %></b><small><%= t.getProperty("pong.champ.lead") %></small>
+            <small class="vis-state<%= pong.champPlace != null ? " on" : "" %>"><%= pong.champPlace != null ? t.getProperty("pong.champ.now").replace("{n}", String.valueOf(pong.champPlace)) : t.getProperty("pong.champ.not") %></small></span>
+          <label class="vis-switch"><input type="checkbox" name="champ" value="1" aria-labelledby="visChampT"<%= pong.champOn ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row vis-pick">
+          <span class="vis-ico"><i class="fa-regular fa-circle" aria-hidden="true"></i></span>
+          <span class="vis-text"><b><label for="pongFrame"><%= t.getProperty("pong.frame.title") %></label></b><small><%= t.getProperty("pong.frame.lead") %></small></span>
+          <% if (!anyFrame) { %>
+          <small class="vis-empty"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= t.getProperty("pong.frame.empty") %></small>
+          <% } else { %>
+          <select id="pongFrame" name="f">
+            <option value=""><%= t.getProperty("pong.frame.none") %></option>
+            <% for (PongProfile.Badge b : pong.badges) { if (!b.earned || !com.github.skeliit.model.PongBadges.isFrame(b.key)) continue; %>
+            <option value="<%= b.key %>"<%= b.key.equals(pong.frame) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("pong.frame." + b.key)) %></option>
+            <% } %>
+          </select>
+          <% } %>
+        </li>
+        <li class="vis-row vis-pick">
+          <span class="vis-ico"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+          <span class="vis-text"><b><label for="pongMark"><%= t.getProperty("pong.mark.title") %></label></b><small><%= t.getProperty("pong.mark.lead") %></small></span>
+          <% if (!anyMark) { %>
+          <small class="vis-empty"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= t.getProperty("pong.mark.empty") %></small>
+          <% } else { %>
+          <select id="pongMark" name="m">
+            <option value=""><%= t.getProperty("pong.mark.none") %></option>
+            <% for (PongProfile.Badge b : pong.badges) { if (!b.earned || !com.github.skeliit.model.PongBadges.isMark(b.key)) continue; %>
+            <option value="<%= b.key %>" data-icon="<%= com.github.skeliit.model.PongBadges.icon(b.key) %>"<%= b.key.equals(pong.mark) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("pong.badge." + b.key)) %></option>
+            <% } %>
+          </select>
+          <% } %>
+        </li>
+      </ul>
+      <div class="vis-actions"><button type="submit" class="btn-primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> <%= t.getProperty("common.save") %></button></div>
+    </form>
+    <script>
+      // živý náhled karty „Co o mně vidí ostatní“: rámeček (šampion má přednost), znak u jména, ztlumení skrytého profilu
+      (function () {
+        if (window.__visPreview) return;
+        window.__visPreview = true;
+        document.addEventListener('change', function (e) {
+          var form = e.target.closest && e.target.closest('.vis-form');
+          if (!form) return;
+          var av = form.querySelector('[data-vis-av]'), champ = form.querySelector('[name=champ]'), fr = form.querySelector('[name=f]'),
+            mk = form.querySelector('[name=m]'), mi = form.querySelector('[data-vis-mark]'), pub = form.querySelector('[name=pub]'), place = form.dataset.champ;
+          var cls = champ && champ.checked && place ? 'champ' + place : (fr ? fr.value : form.dataset.frame);
+          av.className = 'av-frame' + (cls ? ' f-' + cls : '');
+          if (mk && mi) { var op = mk.options[mk.selectedIndex], ic = op && op.getAttribute('data-icon'); mi.className = 'fa-solid vis-mark ' + (ic || ''); mi.hidden = !ic; }
+          form.classList.toggle('vis-hidden', !!pub && !pub.checked);
+        });
+      })();
+    </script>
     <div class="acct-cols">
       <div class="settings-form acct-block">
         <h4><%= t.getProperty("settings.export") %></h4>

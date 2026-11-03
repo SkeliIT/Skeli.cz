@@ -162,7 +162,7 @@
             <li class="p<%= r.place %>">
               <span class="champ-place"><%= r.place %>.</span>
               <% if (r.frame != null) { %><span class="av-frame f-<%= com.github.skeliit.WebUtils.escapeHtml(r.frame) %>"><% } %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(com.github.skeliit.WebUtils.safeUrl(r.avatarUrl, "/img/avatar-default.svg")) %>" alt="" width="26" height="26" loading="lazy"><% if (r.frame != null) { %></span><% } %>
-              <span class="champ-who"><span class="champ-name"><%= com.github.skeliit.WebUtils.escapeHtml(r.username) %><% if (r.mark != null) { %> <i class="fa-solid <%= r.getMarkIcon() %> champ-mark" aria-hidden="true"></i><% } %></span>
+              <span class="champ-who"><span class="champ-name"><% if (r.pub) { %><a href="/hrac/<%= java.net.URLEncoder.encode(r.username, "UTF-8").replace("+", "%20") %>"><% } %><%= com.github.skeliit.WebUtils.escapeHtml(r.username) %><% if (r.pub) { %></a><% } %><% if (r.mark != null) { %> <i class="fa-solid <%= r.getMarkIcon() %> champ-mark" aria-hidden="true"></i><% } %></span>
                 <small><b><%= champNum.format(r.score) %></b> <%= "★★★".substring(0, Math.max(1, Math.min(3, r.difficulty))) %> · <%= t.getProperty("home.game.goals").replace("{n}", String.valueOf(r.len)) %></small></span>
             </li>
           <% } %>

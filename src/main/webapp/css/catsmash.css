@@ -1224,3 +1224,6 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 /* ukázka vítězné oslavy: nastavení a menu na chvíli zmizí */
 .kp-peeking .kpong-settings, .kp-peeking .kp-menu-card, .kp-peeking .kp-picker, .kp-peeking .kpong-panel { opacity: 0; pointer-events: none; transition: opacity .25s; }
 .kp-tabs[hidden] { display: none; }
+/* jméno v tabulce = odkaz na veřejný profil hráče */
+.kpong-name a.kp-prof { color: inherit; text-decoration: none; }
+.kpong-name a.kp-prof:hover, .kpong-name a.kp-prof:focus-visible { color: #ffd23f; text-decoration: underline; text-underline-offset: 3px; }

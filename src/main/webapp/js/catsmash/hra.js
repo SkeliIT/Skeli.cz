@@ -2155,7 +2155,8 @@
 
     // ---------- výuka (první zápas): Kevin trenér ----------
     // 1. posuň pálkou, 2. odstřel podle terčíku (stačí dobrý nebo perfektní), 3. superútok (E / magnet).
-    // Během výuky se góly nepočítají (hopík se jen znovu podá), na konci se začne naostro od 0:0.
+    // Během výuky se góly nepočítají (hopík se jen znovu podá). Hotová výuka = „VÝUKA HOTOVÁ“ a návrat do menu
+    // (nic se nedohrává ani neukládá); „Přeskočit výuku“ = rovnou nový zápas naostro (čas výhry se počítá od začátku).
     // Hotová výuka = localStorage kevinPongTut; znovu ji pustí „Zopakovat výuku“ v Jak se hraje.
     var tut = null, tutEl = root.querySelector('.kp-tut');
     function tutStart() {
@@ -2174,14 +2175,16 @@
       if (tut.step > 1) say(pick(T.tutGood || ['👍']), 2200);
       tut.x0 = player.x;
     }
-    function tutDone() {
+    function tutDone(skipped) {
       tut = null; tutEl.hidden = true;
       store.set('kevinPongTut', '1');
-      you = 0; kev = 0; youEl.textContent = '0'; kevEl.textContent = '0'; bigScore();
-      comic('l', 'burst good', T.tutDone || '', 2200);
-      say(T.tutGo || '', 3000);
+      if (skipped) { begin(); return; }
+      running = false; ball.vx = ball.vy = 0;          // hopík se zastaví, zápas z výuky se nedohrává
+      comic('l', 'burst good', T.tutDone || '', 1800);
+      say(T.tutEnd || T.tutGo || '', 3000);
+      setTimeout(function () { if (!running) toMenu(); }, 1900);
     }
-    tutEl.querySelector('.kp-tut-skip').addEventListener('click', function () { if (tut) tutDone(); });
+    tutEl.querySelector('.kp-tut-skip').addEventListener('click', function () { if (tut) tutDone(true); });
     // krok 1: pálka popojela; krok 2: odstřel (v boost), krok 3: superútok (stickFire)
     function tutTick() { if (tut && tut.step === 1 && Math.abs(player.x - tut.x0) > 140) tutNext(); }
     function goal(byPlayer) {
@@ -2944,7 +2947,7 @@
         var rows = (j.top || []).map(function (r) {
           return '<li class="' + (r.me ? 'me' : '') + medal(r.place) + '"><span class="kpong-place">' + r.place + '.</span>' +
             (r.frame ? '<span class="av-frame f-' + esc(r.frame) + '">' : '') + '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' + (r.frame ? '</span>' : '') +
-            '<span class="kpong-name">' + esc(r.name) + markIcon(r.mark) + ' <small class="kp-row-meta">' + r.you + ':' + r.kevin + '</small></span>' +
+            '<span class="kpong-name">' + profName(r) + markIcon(r.mark) + ' <small class="kp-row-meta">' + r.you + ':' + r.kevin + '</small></span>' +
             '<span class="kpong-time">' + r.score + '</span></li>';
         }).join('');
         var mine = j.me ? '<p class="kpong-note">' + esc((T.yourScore || '').replace('{place}', j.me.place).replace('{score}', j.me.score)) + '</p>' : '';
@@ -2973,7 +2976,7 @@
         var rows = (j.top || []).map(function (r) {
           return '<li class="' + (r.me ? 'me' : '') + medal(r.place) + '"><span class="kpong-place">' + r.place + '.</span>' +
             (r.frame ? '<span class="av-frame f-' + esc(r.frame) + '">' : '') + '<img src="' + esc(r.avatar || '/img/avatar-default.svg') + '" alt="" width="24" height="24" loading="lazy">' + (r.frame ? '</span>' : '') +
-            '<span class="kpong-name">' + esc(r.name) + markIcon(r.mark) + ' <small class="kp-row-meta">' + len + ':' + r.kevin + '</small></span>' +
+            '<span class="kpong-name">' + profName(r) + markIcon(r.mark) + ' <small class="kp-row-meta">' + len + ':' + r.kevin + '</small></span>' +
             '<span class="kpong-time">' + time(r.ms) + '</span></li>';
         }).join('');
         var mine = j.me ? '<p class="kpong-note">' + esc((T.yourBest || '').replace('{place}', j.me.place).replace('{time}', time(j.me.ms))) + '</p>' : '';
@@ -4031,7 +4034,16 @@
       });
     }
     if (TRY_HOST) window.__kpCeleb = function (k) { celebrate(k); };   // test: přehrát oslavu
+    // jméno v tabulce = odkaz na veřejný profil (/hrac/jméno), jen když ho hráč nemá skrytý; profil se otevře
+    // normálním načtením stránky, aby hra nezůstala navrchu (PJAX by vyměnil jen obsah pod ní)
+    function profName(r) { return r.pub ? '<a class="kp-prof" href="/hrac/' + encodeURIComponent(r.name) + '">' + esc(r.name) + '</a>' : esc(r.name); }
+    root.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a.kp-prof');
+      if (!a) return;
+      e.preventDefault(); location.href = a.href;
+    });
     if (TRY_HOST) window.__kpStreak = function (n) { if (n) streakPop(n); else streakEnd(true); };   // test: cedulka série (0 = rozlomit)
+    if (TRY_HOST) window.__kpTutEnd = function () { if (tut) tutDone(); };   // test: dokončit výuku
     function closeSettings() {
       if (!setCard) return;
       closePicker();

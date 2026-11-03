@@ -366,6 +366,7 @@ window.KEVIN_LINES.de.pong = {
   "tutHint": "Keine Sorge, Tore zählen jetzt nicht. Achte auf den Ring am Schläger.",
   "tutDone": "TRAINING FERTIG",
   "tutGo": "So, jetzt im Ernst. Von null. Los!",
+  "tutEnd": "Training fertig. Wenn du es ernst meinst, drück Spielen. Ich warte… wahrscheinlich.",
   "tutSkip": "Training überspringen",
   "tutAgain": "Training wiederholen",
   "timing": {"early":"zu früh","late":"zu spät"},

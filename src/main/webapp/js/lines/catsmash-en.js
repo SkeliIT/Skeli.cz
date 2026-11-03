@@ -366,6 +366,7 @@ window.KEVIN_LINES.en.pong = {
   "tutHint": "Relax, goals don’t count right now. Watch the ring by your paddle.",
   "tutDone": "TRAINING DONE",
   "tutGo": "Right, now for real. From zero. Let’s go!",
+  "tutEnd": "Training done. When you want the real thing, hit Play. I’ll wait… probably.",
   "tutSkip": "Skip training",
   "tutAgain": "Repeat the training",
   "timing": {"early":"too early","late":"too late"},

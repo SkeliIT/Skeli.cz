@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.82.0";
+  String assetVersion = "6.83.0";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -52,7 +52,7 @@
       ? com.github.skeliit.web.site.SeoServlet.publicPage(String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI())) : null;
   if (headPublicPage != null) headUrl = siteBase + com.github.skeliit.web.site.SeoServlet.langUrl(headPublicPage, cur);
   // error pages (404/500) must not end up in search results
-  boolean headIsError = request.getAttribute("jakarta.servlet.error.status_code") != null;
+  boolean headIsError = request.getAttribute("jakarta.servlet.error.status_code") != null || request.getAttribute("pageNoIndex") != null;   // (i profily hráčů)
   // link preview image/type: a page may set its own (a lyric page uses its video thumbnail)
   String headImage = (String) request.getAttribute("pageImage");
   String headType = request.getAttribute("pageType") != null ? (String) request.getAttribute("pageType") : "website";
