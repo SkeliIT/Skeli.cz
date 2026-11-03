@@ -23,6 +23,71 @@
     });
   }
 
+  // poryv větru: jiskry (a ve světlém režimu sníh) u myši nebo prstu odletí ve směru pohybu, pak se pomalu vrátí
+  // do své dráhy. Letí dál svou animací z CSS (transform), vítr k tomu přičítá vlastní posun (translate).
+  // Smyčka běží, jen když se něco hýbe; rychlejší švihnutí = silnější poryv.
+  var WIND = { REACH: 170, PUSH: 900, MAX_SPEED: 2.5, MAX_V: 1000, DRAG: 2.4, BACK: 0.35 };
+  var gust = null, windRaf = 0, windLast = 0, lastX = null, lastY = 0, lastT = 0, windParts = [], windBox = null;
+  function windMove(x, y) {
+    var t = performance.now(), dt = t - lastT, x0 = lastX, y0 = lastY;
+    lastX = x; lastY = y; lastT = t;
+    if (x0 === null || dt > 150 || dt <= 0) return;      // první dotyk nebo dlouhá pauza: žádný poryv
+    if (x === x0 && y === y0) return;
+    if (document.documentElement.classList.contains('kpong-open')) return;
+    var box = document.querySelector('.hero-particles');
+    if (!box) return;
+    if (box !== windBox) {
+      windBox = box;
+      windParts = [].map.call(box.children, function (el) { return { el: el, x: 0, y: 0, vx: 0, vy: 0, swirl: Math.random() - 0.5 }; });
+    }
+    var speed = Math.min(WIND.MAX_SPEED, Math.hypot(x - x0, y - y0) / dt);
+    // víc pohybů do jednoho snímku: platí poslední úsek, síla ta největší
+    gust = { x0: x0, y0: y0, x1: x, y1: y, speed: gust ? Math.max(gust.speed, speed) : speed };
+    if (!windRaf) { windLast = t; windRaf = requestAnimationFrame(windTick); }
+  }
+  function blow(g) {
+    var dx = g.x1 - g.x0, dy = g.y1 - g.y0, len = Math.hypot(dx, dy) || 1, nx = dx / len, ny = dy / len;
+    var reach = window.innerWidth < 700 ? WIND.REACH * 0.8 : WIND.REACH;
+    windParts.forEach(function (p) {
+      var r = p.el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      // vzdálenost jiskry od úseku, kudy prst nebo myš jely
+      var k = Math.max(0, Math.min(1, ((cx - g.x0) * dx + (cy - g.y0) * dy) / (len * len)));
+      var d = Math.hypot(cx - (g.x0 + dx * k), cy - (g.y0 + dy * k));
+      if (d >= reach) return;
+      var force = Math.pow(1 - d / reach, 2) * g.speed * WIND.PUSH;
+      p.vx += (nx - ny * p.swirl) * force;               // swirl = každá jiskra se stočí trochu jinam, jako ve vzduchu
+      p.vy += (ny + nx * p.swirl) * force;
+      var v = Math.hypot(p.vx, p.vy);                    // ani divoké mávání je nerozstřelí přes celou obrazovku
+      if (v > WIND.MAX_V) { p.vx *= WIND.MAX_V / v; p.vy *= WIND.MAX_V / v; }
+    });
+  }
+  function windTick(now) {
+    windRaf = 0;
+    var dt = Math.min(0.05, (now - windLast) / 1000), moving = false;
+    windLast = now;
+    if (!windBox || !windBox.isConnected) { windBox = null; windParts = []; gust = null; return; }
+    if (gust) { blow(gust); gust = null; }
+    var drag = Math.exp(-WIND.DRAG * dt), back = Math.exp(-WIND.BACK * dt);
+    windParts.forEach(function (p) {
+      p.vx *= drag; p.vy *= drag;
+      p.x = (p.x + p.vx * dt) * back; p.y = (p.y + p.vy * dt) * back;
+      if (Math.abs(p.vx) + Math.abs(p.vy) > 2 || Math.abs(p.x) + Math.abs(p.y) > 1) {
+        moving = true;
+        p.el.style.translate = p.x.toFixed(1) + 'px ' + p.y.toFixed(1) + 'px';
+      } else if (p.el.style.translate) {
+        p.x = p.y = p.vx = p.vy = 0;
+        p.el.style.translate = '';
+      }
+    });
+    if (moving) windRaf = requestAnimationFrame(windTick);
+  }
+  if (!reduced) {
+    // myš; prst přes touchmove, ten chodí i během posouvání stránky
+    window.addEventListener('pointermove', function (e) { if (e.pointerType !== 'touch') windMove(e.clientX, e.clientY); }, { passive: true });
+    window.addEventListener('touchmove', function (e) { var t = e.touches[0]; if (t) windMove(t.clientX, t.clientY); }, { passive: true });
+    window.addEventListener('touchend', function () { lastX = null; }, { passive: true });
+  }
+
   // the marquee scrolls by half its width, so its content is doubled to loop seamlessly
   function marquee(root) {
     root.querySelectorAll('.marquee-track:not([data-done])').forEach(function (track) {

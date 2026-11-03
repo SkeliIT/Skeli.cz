@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-11-03",
+    "href": "/",
+    "cs": "Zkus na úvodu švihnout myší nebo prstem přes jiskry. Odfoukneš je jako poryv větru a ve světlém režimu zase sníh.",
+    "en": "On the home page, swipe your mouse or finger through the embers. You’ll blow them away like a gust of wind, and in light mode the snow too.",
+    "de": "Wisch auf der Startseite mit Maus oder Finger durch die Funken. Du bläst sie weg wie ein Windstoß, im hellen Modus auch den Schnee.",
+    "uk": "На головній проведи мишею або пальцем крізь іскри. Здуєш їх, мов порив вітру, а у світлому режимі ще й сніг.",
+    "vi": "Ở trang chủ, hãy lướt chuột hoặc ngón tay qua những tia lửa. Bạn sẽ thổi bay chúng như một cơn gió, và cả tuyết ở chế độ sáng."
+  },
+  {
+    "d": "2026-11-03",
     "href": "/?kevin=pong",
     "cs": "CatSmash na telefonu je plynulejší a hřiště je až nahoře. Pod ním máš místo pro prst, takže pálku i míček pořád vidíš.",
     "en": "CatSmash on a phone runs smoother and the court now sits right at the top. There’s room for your finger below it, so you can always see the paddle and the ball.",
@@ -34,14 +43,5 @@
     "de": "In CatSmash bekommt jetzt jede Serie perfekter Schüsse ein Metallschild – Bronze, Silber, Gold, und ab fünf in Folge brennt es.",
     "uk": "У CatSmash кожна серія ідеальних ударів тепер отримує металеву табличку – бронза, срібло, золото, а від п’яти поспіль вона горить.",
     "vi": "Trong CatSmash, mỗi chuỗi cú đánh hoàn hảo giờ có một tấm biển kim loại – đồng, bạc, vàng, và từ năm cú liên tiếp thì nó bốc cháy."
-  },
-  {
-    "d": "2026-11-03",
-    "href": "/",
-    "cs": "Tabulka rekordů CatSmash se teď na úvodu otevře hned – drží ji Kevin. A kdo vyhraje, dostane opravdový ohňostroj.",
-    "en": "The CatSmash leaderboard now opens right on the home page – Kevin holds it. And every win gets real fireworks.",
-    "de": "Die CatSmash-Bestenliste öffnet sich jetzt direkt auf der Startseite – Kevin hält sie. Und jeder Sieg bekommt ein echtes Feuerwerk.",
-    "uk": "Таблиця рекордів CatSmash тепер відкривається просто на головній – її тримає Кевін. А кожна перемога отримує справжній феєрверк.",
-    "vi": "Bảng kỷ lục CatSmash giờ mở ngay trên trang chủ – Kevin cầm nó. Và mỗi chiến thắng đều có pháo hoa thật."
   }
 ]
