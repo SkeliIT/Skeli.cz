@@ -182,6 +182,7 @@
     // jen na testu/localhost: stav míčku a superútoku pro automatické testy (TmpStickIT)
     if (TRY_HOST) window.__kpSet = function (y, k) { you = y; kev = k; youEl.textContent = y; kevEl.textContent = k; bigScore(); };
     if (TRY_HOST) window.__kpSay = function (t) { say(t); };   // test: Kevinova bublina na vyzkoušení
+    if (TRY_HOST) window.__kpLayout = function () { openLayout(); };   // test: rozložení tlačítek
     if (TRY_HOST) window.__kpLen = function () { return WIN; };   // test: skóre těsně před koncem zápasu
     if (TRY_HOST) window.__kpHold = function (ms) { if (stick.active) stick.active.end += ms; };   // test: delší míření kvůli snímku
     if (TRY_HOST) window.__kpBall = function () { return { x: Math.round(ball.x), y: Math.round(ball.y), vy: Math.round(ball.vy), W: W, stick: { charges: stick.charges, pts: stick.pts, armed: stick.armed, active: !!stick.active }, screw: screw && screw.kind }; };
@@ -1553,7 +1554,7 @@
         g.style.setProperty('--charge', full ? 1 : Math.min(1, stick.pts / STICK_PTS).toFixed(3));
         g.classList.toggle('ready', full); g.classList.toggle('armed', stick.armed);
       }
-      if (btn) { btn.classList.toggle('ready', full); btn.classList.toggle('armed', stick.armed); btn.disabled = !full && !stick.armed && !stick.active; }
+      if (btn) { btn.classList.toggle('ready', full); btn.classList.toggle('armed', stick.armed); btn.disabled = !layoutMode && !full && !stick.armed && !stick.active; }   // při úpravě rozložení jde přesunout, i když není nabitý
     }
     function stickReset() {
       stick = { charges: 1, pts: 0, armed: false, active: null, streak: 0 };
@@ -3409,9 +3410,10 @@
     // Tlačítko ⚡ plave nad strojem (--sx/--sy v % okna, kevinPongShotPos). Plocha pro pálku (kevinPongZone, % okna)
     // je volitelná: funguje jako posuvník – přes celou její šířku jede pálka přes celé hřiště (stačí malá u palce);
     // bez ní vede pálku prst kdekoli na stroji jako dřív. Přesouvat jde jen v režimu „Upravit rozložení“.
-    var shotPos = null, zone = null, layoutMode = false, zoneMover = null;
+    var shotPos = null, stickPos = null, zone = null, layoutMode = false, zoneMover = null;   // ⚡ i magnet mají každý svoje místo
     function zoneDef() { return phoneView ? { x: 4, y: strip.top + 1, w: 92, h: Math.max(8, strip.h - 2) } : { x: 6, y: 74, w: 88, h: 20 }; }
     try { shotPos = JSON.parse(store.get('kevinPongShotPos') || 'null'); } catch (e) { shotPos = null; }
+    try { stickPos = JSON.parse(store.get('kevinPongStickPos') || 'null'); } catch (e) { stickPos = null; }
     try { zone = JSON.parse(store.get('kevinPongZone') || 'null'); } catch (e) { zone = null; }
     // 3. 11. 2026 sklo na telefonu šlo nahoru: dřív uložené rozmístění by leželo přes hřiště (jednou smazat)
     if (phoneView && store.get('kevinPongLayoutEra') !== '2') {
@@ -3424,13 +3426,16 @@
     var layoutBar = document.createElement('div');
     layoutBar.className = 'kp-layout-bar';
     padEl.appendChild(layoutBar);
-    // telefon: odstřel v pruhu pod sklem vlevo, magnet na opačném konci pruhu (u prostředka vedle odstřelu)
+    // výchozí místa: na telefonu odstřel vlevo a magnet vpravo v pruhu pod sklem, jinde magnet nad odstřelem.
+    // Hráč si každé tlačítko přesune zvlášť (⚙ Ovládání → Upravit rozložení), jedno s druhým nehne.
     function defShot() { return phoneView ? { x: 11, y: strip.top + strip.h / 2 } : { x: 12, y: 58 }; }
+    function defStick() { return phoneView ? { x: 89, y: strip.top + strip.h / 2 } : { x: 12, y: 58 - 82 / innerHeight * 100 }; }
     function placeShot() {
-      var p = shotPos || defShot(), sx = clamp(p.x, 6, 94);
-      padEl.style.setProperty('--sx', sx);
+      var p = shotPos || defShot(), m = stickPos || defStick();
+      padEl.style.setProperty('--sx', clamp(p.x, 6, 94));
       padEl.style.setProperty('--sy', clamp(p.y, 8, 94));
-      padEl.style.setProperty('--mx', Math.abs(sx - 50) < 16 ? sx + 22 : 100 - sx);
+      padEl.style.setProperty('--mx', clamp(m.x, 6, 94));
+      padEl.style.setProperty('--my', clamp(m.y, 8, 94));
     }
     function placeZone() {
       var z = zone || zoneDef();
@@ -3442,7 +3447,8 @@
     root.addEventListener('pointerdown', function (e) { if (replay) { e.preventDefault(); e.stopPropagation(); stopReplay(); } }, true);
     root.querySelector('.kpong-stickbtn').addEventListener('pointerdown', function (e) {
       e.preventDefault(); e.stopPropagation();
-      if (!layoutMode) useStick();
+      if (layoutMode) return dragLayout(e, 'stick');
+      useStick();
     });
     shotBtn.addEventListener('pointerdown', function (e) {
       e.preventDefault(); e.stopPropagation();
@@ -3467,12 +3473,13 @@
     // přetahování v režimu úprav: tlačítko, celá plocha, nebo roh plochy (velikost)
     function dragLayout(e, what) {
       e.preventDefault(); e.stopPropagation();
-      var id = e.pointerId, sx = e.clientX, sy = e.clientY, z0 = Object.assign({}, zone || zoneDef()), p0 = Object.assign({}, shotPos || defShot());
+      var id = e.pointerId, sx = e.clientX, sy = e.clientY, z0 = Object.assign({}, zone || zoneDef()), p0 = Object.assign({}, shotPos || defShot()), m0 = Object.assign({}, stickPos || defStick());
       function move(ev) {
         if (ev.pointerId !== id) return;
         ev.preventDefault();
         var dx = (ev.clientX - sx) / innerWidth * 100, dy = (ev.clientY - sy) / innerHeight * 100;
         if (what === 'shot') { shotPos = { x: clamp(p0.x + dx, 6, 94), y: clamp(p0.y + dy, 8, 94) }; placeShot(); return; }
+        if (what === 'stick') { stickPos = { x: clamp(m0.x + dx, 6, 94), y: clamp(m0.y + dy, 8, 94) }; placeShot(); return; }
         if (what === 'size') zone = { x: z0.x, y: z0.y, w: clamp(z0.w + dx, 20, 100 - z0.x), h: clamp(z0.h + dy, 8, 100 - z0.y) };
         else zone = { x: clamp(z0.x + dx, 0, 100 - z0.w), y: clamp(z0.y + dy, 0, 100 - z0.h), w: z0.w, h: z0.h };
         placeZone();
@@ -3487,18 +3494,21 @@
       layoutMode = true;
       if (running && !paused) paused = true;
       root.classList.add('kp-layout');
+      gauge();                                           // magnet teď jde chytit, i když není nabitý
       zoneEl.querySelector('.kp-zone-name').textContent = T.zoneLabel || '';
       layoutBar.innerHTML = '<p>' + esc(T.layoutHelp || '') + '</p><div class="kp-row">' +
         '<button type="button" class="kp-fullbtn" data-l="reset"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> ' + esc(T.layoutReset || '') + '</button>' +
         '<button type="button" class="btn-primary" data-l="done"><i class="fa-solid fa-check" aria-hidden="true"></i> ' + esc(T.layoutDone || '') + '</button></div>';
-      layoutBar.querySelector('[data-l="reset"]').addEventListener('click', function () { shotPos = null; zone = null; placeShot(); placeZone(); });
+      layoutBar.querySelector('[data-l="reset"]').addEventListener('click', function () { shotPos = null; stickPos = null; zone = null; placeShot(); placeZone(); });
       layoutBar.querySelector('[data-l="done"]').addEventListener('click', closeLayout);
       placeZone();
     }
     function closeLayout() {
       layoutMode = false;
       root.classList.remove('kp-layout');
+      gauge();
       store.set('kevinPongShotPos', shotPos ? JSON.stringify(shotPos) : '');
+      store.set('kevinPongStickPos', stickPos ? JSON.stringify(stickPos) : '');
       store.set('kevinPongZone', zone ? JSON.stringify(zone) : '');
       placeZone();
       if (running && paused) { paused = false; askToResume(); }

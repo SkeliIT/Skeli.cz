@@ -1162,6 +1162,19 @@
   // hooks from the rest of the site
   window.addEventListener('kevin', function (e) {
     var d = e.detail || {};
+    // tajné fotky na O mně (js/effects.js): okno s fotkou = zjeví se nad ním a okomentuje ji, zavřené okno = zase pryč
+    if (d.photos !== undefined) {
+      if (!d.photos) {
+        root.classList.remove('over-lightbox');
+        if (!bubble.hidden) hideBubble('idle');
+        return;
+      }
+      if (root.hidden && !canPop()) return;              // kdo si Kevina zavřel, tomu nevyskakuje
+      acted = true;
+      root.classList.add('over-lightbox');
+      if (root.hidden) popOut();
+      return show(L.photos[d.photos] || '', { pose: 'cool' });   // ke každé fotce jedna hláška, čas podle délky textu
+    }
     if (root.hidden && !canPop()) return;
     if (d.pw && L.pw[d.pw]) {
       lastAuto = 0;   // the visitor is typing: answering is fine

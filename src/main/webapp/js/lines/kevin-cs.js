@@ -470,6 +470,13 @@
       "Nic čerstvýho, jen poslední novinka z dílny:"
     ]
   },
+  "photos": {
+    "1": "Jo jo, to jsem já! Pěknej kocour, co? Ta packa je na pamlsek, platí se předem.",
+    "2": "It is Godzilla! Domečky, utíkejte.",
+    "3": "Tohle byl obyčejnej RAW. Andy si s tím v Affinity pořádně vyhrála a koukej: filmová hvězda. Dobrá práce, Andy. Ten model za tím měl ale taky svůj podíl.",
+    "4": "Takhle ze mě vznikal kocour z webu. Z fotky přes náčrt až po mikinu. Honorář zatím nedorazil.",
+    "5": "Zepředu, z boku i zezadu. Hledej chybu, klidně. Nenajdeš."
+  },
   "admin": {
     "fresh": {
       "lead": ["Hlášení od minula:", "{name}, něco se tu šustlo. Od minula:", "Hlídal jsem to tu. Z pelíšku, ale hlídal. Od minula:", "{name}, mám novinky. Od minula:"],

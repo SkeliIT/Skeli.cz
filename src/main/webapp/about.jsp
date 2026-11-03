@@ -37,7 +37,13 @@
         <p><%= t.getProperty("about.web.text") %></p>
         <h3 class="about-squad-title"><%= t.getProperty("about.squad.title") %></h3>
         <p><%= t.getProperty("about.squad.p1") %></p>
-        <p><%= t.getProperty("about.squad.p2") %></p>
+        <%-- tajný kousek pro zvědavé: slovo Kevin nevypadá jako odkaz, klik otevře okno s fotkami (js/effects.js) a Kevin se
+             k tomu zjeví s hláškou ke každé fotce (L.photos v js/lines/kevin-*.js, klíč = číslo fotky). --%>
+        <% String kevinAlt = t.getProperty("about.kevin.alt"); %>
+        <p><%= t.getProperty("about.squad.p2")
+               .replace("{kevin}", "<a class=\"kevin-secret\" href=\"/img/kevin-foto/1-lg.webp\" data-lightbox=\"kevin\" data-kevin-say=\"1\" data-alt=\"" + kevinAlt + "\">")
+               .replace("{/kevin}", "</a>") %></p>
+        <% for (int kf = 2; kf <= 5; kf++) { %><a hidden href="/img/kevin-foto/<%= kf %>-lg.webp" data-lightbox="kevin" data-kevin-say="<%= kf %>" data-alt="<%= kevinAlt %>"></a><% } %>
         <p><%= t.getProperty("about.squad.p3") %></p>
         <p class="about-outro"><%= t.getProperty("about.outro") %></p>
         <div class="about-signature"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only"><%= t.getProperty("about.signature") %></span></div>

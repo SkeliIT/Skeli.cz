@@ -468,6 +468,13 @@
       "Chưa có gì mới, chỉ có tin mới nhất từ xưởng:"
     ]
   },
+  "photos": {
+    "1": "Đúng rồi, là tôi đây! Mèo đẹp trai nhỉ? Cái chân này để xin đồ ăn, trả tiền trước nhé.",
+    "2": "It is Godzilla! Chạy đi, mấy ngôi nhà nhỏ.",
+    "3": "Đây chỉ là một file RAW bình thường. Andy đã chăm chút nó trong Affinity, và xem này: ngôi sao điện ảnh. Giỏi lắm, Andy. Nhưng người mẫu cũng có công đấy.",
+    "4": "Đây là cách tôi trở thành chú mèo trên web. Từ ảnh đến bản phác thảo rồi đến áo hoodie. Tiền cát-xê vẫn chưa thấy.",
+    "5": "Từ trước, từ bên và từ sau. Cứ tìm lỗi đi. Không có đâu."
+  },
   "admin": {
     "fresh": {
       "lead": ["Báo cáo từ lần trước:", "{name}, ở đây có chuyện mới. Từ lần trước:", "Tôi đã canh chừng. Từ ổ của tôi, nhưng vẫn canh. Từ lần trước:", "{name}, tôi có tin mới. Từ lần trước:"],

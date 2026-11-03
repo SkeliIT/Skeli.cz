@@ -267,10 +267,13 @@
     var a = lbItems[lbIndex];
     var img = lb.querySelector('img');
     img.src = window.innerWidth < 900 ? a.href.replace('-lg.', '-md.') : a.href;
-    img.alt = (a.querySelector('img') || {}).alt || '';
+    img.alt = (a.querySelector('img') || {}).alt || a.dataset.alt || '';
+    // tajné fotky Kevina: u každé fotky se ozve (js/kevin.js)
+    if (a.dataset.kevinSay) window.dispatchEvent(new CustomEvent('kevin', { detail: { photos: a.dataset.kevinSay } }));
   }
   function lightboxClose() {
     lb.classList.remove('open');
+    if (lbItems[lbIndex] && lbItems[lbIndex].dataset.kevinSay) window.dispatchEvent(new CustomEvent('kevin', { detail: { photos: '' } }));
     document.documentElement.style.overflow = '';
     if (lbItems[lbIndex]) lbItems[lbIndex].focus();
   }

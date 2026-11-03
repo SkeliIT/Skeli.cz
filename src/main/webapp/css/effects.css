@@ -1397,3 +1397,9 @@ body.light .kevin-bubble:has(.kevin-extra:not([hidden])) { --glass: rgba(255, 25
   0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 80%, transparent); }
   100% { box-shadow: 0 0 0 18px transparent; }
 }
+/* Kevin u tajných fotek na O mně: nad oknem s fotkou, v levém dolním rohu */
+.kevin.over-lightbox { z-index: 20001; top: auto !important; right: auto !important; bottom: 8px !important; left: 10px !important; }
+.kevin.over-lightbox .kevin-tools { display: none; }
+/* bublina nad ním, ne vedle (ta vedle by v levém rohu skončila za okrajem obrazovky) */
+.kevin.over-lightbox .kevin-bubble { left: 10px; right: auto; top: auto; bottom: calc(100% - 6px); max-width: min(320px, calc(100vw - 40px)); border-radius: 18px 18px 18px 6px; }
+.kevin.over-lightbox .kevin-bubble::after { left: 22px; right: auto; top: auto; bottom: -7px; transform: rotate(45deg); }

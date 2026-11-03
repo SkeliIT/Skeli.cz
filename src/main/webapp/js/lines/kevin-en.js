@@ -468,6 +468,13 @@
       "Nothing fresh, just the latest from the workshop:"
     ]
   },
+  "photos": {
+    "1": "Yep, that's me! Handsome cat, right? The paw is for treats, payment up front.",
+    "2": "It is Godzilla! Run, little houses.",
+    "3": "This was a plain RAW file. Andy really worked on it in Affinity, and look: movie star. Good job, Andy. The model deserves some credit too, though.",
+    "4": "This is how I became the cat on the site. From photo to sketch to hoodie. The fee hasn't arrived yet.",
+    "5": "From the front, the side and the back. Go on, find a flaw. You won't."
+  },
   "admin": {
     "fresh": {
       "lead": ["Report since last time:", "{name}, things have been stirring. Since last time:", "I kept watch. From my bed, but I kept watch. Since last time:", "{name}, I've got news. Since last time:"],

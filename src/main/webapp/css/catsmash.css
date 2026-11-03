@@ -139,7 +139,8 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
     display: block; position: absolute; right: -10px; bottom: -10px; width: 32px; height: 32px; border-radius: 50%;
     background: var(--accent); box-shadow: 0 2px 6px rgba(0, 0, 0, .6);
   }
-  .kpong.kp-layout .kpong-shot { outline: 2px dashed #fff; outline-offset: 4px; }
+  .kpong.kp-layout .kpong-shot, .kpong.kp-layout .kpong-stickbtn { outline: 2px dashed #fff; outline-offset: 4px; }
+  .kpong.kp-layout .kpong-stickbtn { opacity: 1; cursor: grab; }
   /* lišta režimu úprav: nápověda, Výchozí rozložení, Hotovo */
   .kp-layout-bar { display: none; }
   .kpong.kp-layout .kp-layout-bar {
@@ -849,8 +850,8 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 @keyframes kp-jolt { 25% { translate: -3px 1px; } 50% { translate: 3px -1px; } 75% { translate: -1px 0; } }
 /* tlačítko s magnetem na telefonu: nad tlačítkem odstřelu */
 .kpong-stickbtn {
-  position: absolute; left: calc(var(--sx, 12) * 1vw); top: calc(var(--sy, 58) * 1dvh - 82px); transform: translate(-50%, -50%);
-  pointer-events: auto; width: 54px; height: 54px; padding: 0; border-radius: 50%; display: grid; place-items: center;
+  position: absolute; left: calc(var(--mx, 12) * 1vw); top: calc(var(--my, 46) * 1dvh); transform: translate(-50%, -50%);
+  pointer-events: auto; touch-action: none; width: 54px; height: 54px; padding: 0; border-radius: 50%; display: grid; place-items: center;
   color: #ffd23f; font-size: 1.3rem; background: rgba(20, 17, 12, .85); border: 2px solid #b8862b; box-shadow: 0 4px 14px rgba(0, 0, 0, .55);
 }
 .kpong-stickbtn:disabled { opacity: .45; }
@@ -1028,7 +1029,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 /* odstřel a magnet v pruhu pod sklem, na opačných koncích */
 @media (pointer: coarse) {
   .kpong.kp-phone .kpong-shot { width: 64px; height: 64px; }
-  .kpong.kp-phone .kpong-stickbtn { left: calc(var(--mx, 89) * 1vw); top: calc(var(--sy, 58) * 1dvh); width: 50px; height: 50px; }
+  .kpong.kp-phone .kpong-stickbtn { width: 50px; height: 50px; }
 }
 /* jen test/localhost, adresa s #fps: počítadlo plynulosti */
 .kp-fps { position: fixed; right: 4px; top: 4px; z-index: 3020; padding: 2px 6px; pointer-events: none; font: 11px/1.3 monospace; color: #7dff9a; background: rgba(0, 0, 0, .75); }

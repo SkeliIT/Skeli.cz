@@ -54,7 +54,7 @@ window.KEVIN_LINES.cs.pong = {
   "shotMoveHint": "Podrž tlačítko a přesuň ho, kam ti sedí.",
   "layoutBtn": "Upravit rozložení ovládání",
   "layoutTip": "Tlačítko odstřelu i plochu pro řízení pálky si můžeš dát, kam ti to sedí.",
-  "layoutHelp": "Přetáhni tlačítko ⚡ a plochu pro pálku, kam chceš. Plochu zvětšíš za pravý dolní roh.",
+  "layoutHelp": "Přetáhni tlačítka ⚡ a magnet a plochu pro pálku, kam chceš, každé zvlášť. Plochu zvětšíš za pravý dolní roh.",
   "layoutDone": "Hotovo",
   "layoutReset": "Výchozí rozložení",
   "zoneLabel": "Plocha pro pálku",
