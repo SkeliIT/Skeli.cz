@@ -469,6 +469,7 @@
     ]
   },
   "photos": {
+    "hint": "Klick nicht auf meinen Namen. Im Ernst. Da sind private Fotos drin.",
     "1": "Ja ja, das bin ich! Schöner Kater, oder? Die Pfote ist für Leckerlis, Bezahlung im Voraus.",
     "2": "It is Godzilla! Lauft, kleine Häuser.",
     "3": "Das war eine ganz normale RAW-Datei. Andy hat sich in Affinity richtig Mühe gegeben, und schau: ein Filmstar. Gute Arbeit, Andy. Das Model hat aber auch seinen Anteil.",

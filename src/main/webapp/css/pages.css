@@ -2190,5 +2190,20 @@ body.light .vis-switch span { background: rgba(0, 0, 0, .18); }
 .vis-actions { display: flex; justify-content: flex-end; }
 @media (max-width: 600px) { .vis-actions .btn-primary { width: 100%; justify-content: center; } }
 @media (prefers-reduced-motion: reduce) { .vis-switch span, .vis-switch span::after { transition: none; } }
-/* O mně: tajný odkaz na fotky Kevina, vypadá jako obyčejný text (jen pro zvědavé) */
-.about-text a.kevin-secret, body.light .about-text a.kevin-secret { color: inherit; text-decoration: none; border: 0; background: none; font: inherit; }
+/* O mně: tajný odkaz na fotky Kevina. Zlaté slovo, přes které občas přejede lesk (jako přes medaile), bez podtržení;
+   kocour za větou se občas zavrtí a jde taky kliknout. Ve světlém režimu tmavší zlato, lesk světlejší zlatou. */
+.about-text a.kevin-secret {
+  --shine: #fff6c9;
+  color: var(--accent); text-decoration: none; border: 0; font: inherit; font-weight: 600;
+  background: linear-gradient(100deg, var(--accent) 42%, var(--shine) 50%, var(--accent) 58%) 100% 0 / 300% 100% no-repeat;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  animation: kevin-secret-shine 6s ease-in-out infinite;
+}
+body.light .about-text a.kevin-secret { --shine: #e6b730; }
+@keyframes kevin-secret-shine { 0%, 70% { background-position: 100% 0; } 92%, 100% { background-position: 0 0; } }
+.kevin-cat {
+  display: inline-block; padding: 8px; margin: -8px; border: 0; background: none; color: inherit; font: inherit; line-height: 1; cursor: pointer;
+  transform-origin: 50% 80%; animation: kevin-cat-wiggle 8s ease-in-out infinite;
+}
+@keyframes kevin-cat-wiggle { 0%, 84%, 100% { transform: rotate(0); } 87% { transform: rotate(-14deg); } 90% { transform: rotate(12deg); } 93% { transform: rotate(-8deg); } 96% { transform: rotate(5deg); } }
+@media (prefers-reduced-motion: reduce) { .about-text a.kevin-secret, .kevin-cat { animation: none; } }

@@ -471,6 +471,7 @@
     ]
   },
   "photos": {
+    "hint": "Neklikej na moje jméno. Vážně. Jsou tam soukromý fotky.",
     "1": "Jo jo, to jsem já! Pěknej kocour, co? Ta packa je na pamlsek, platí se předem.",
     "2": "It is Godzilla! Domečky, utíkejte.",
     "3": "Tohle byl obyčejnej RAW. Andy si s tím v Affinity pořádně vyhrála a koukej: filmová hvězda. Dobrá práce, Andy. Ten model za tím měl ale taky svůj podíl.",

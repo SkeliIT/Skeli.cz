@@ -278,6 +278,13 @@
     if (lbItems[lbIndex]) lbItems[lbIndex].focus();
   }
   document.addEventListener('click', function (e) {
+    // tlačítko, které otevře skupinu fotek odjinud (kocour za větou na O mně)
+    var opener = e.target.closest('[data-lightbox-open]');
+    if (opener) {
+      var firstOne = document.querySelector('a[data-lightbox="' + opener.dataset.lightboxOpen + '"]');
+      if (firstOne) firstOne.click();
+      return;
+    }
     var a = e.target.closest('a[data-lightbox]');
     if (!a) return;
     e.preventDefault();

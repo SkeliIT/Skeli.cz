@@ -469,6 +469,7 @@
     ]
   },
   "photos": {
+    "hint": "Don't click my name. Seriously. There are private photos in there.",
     "1": "Yep, that's me! Handsome cat, right? The paw is for treats, payment up front.",
     "2": "It is Godzilla! Run, little houses.",
     "3": "This was a plain RAW file. Andy really worked on it in Affinity, and look: movie star. Good job, Andy. The model deserves some credit too, though.",

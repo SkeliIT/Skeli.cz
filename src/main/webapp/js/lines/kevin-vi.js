@@ -469,6 +469,7 @@
     ]
   },
   "photos": {
+    "hint": "Đừng bấm vào tên tôi. Thật đấy. Trong đó có ảnh riêng tư.",
     "1": "Đúng rồi, là tôi đây! Mèo đẹp trai nhỉ? Cái chân này để xin đồ ăn, trả tiền trước nhé.",
     "2": "It is Godzilla! Chạy đi, mấy ngôi nhà nhỏ.",
     "3": "Đây chỉ là một file RAW bình thường. Andy đã chăm chút nó trong Affinity, và xem này: ngôi sao điện ảnh. Giỏi lắm, Andy. Nhưng người mẫu cũng có công đấy.",

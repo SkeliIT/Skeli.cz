@@ -1042,6 +1042,7 @@
     else ensureModel();          // a page without the header bar: he stands there from the start
     wake();
     greet();
+    watchSecret();
     if (!adminPage) { scheduleTip(); loadWalk(function () { W.schedule(); }); }
     // ukázka kousku hned: adresa ?kevin=drop | sit | run | walk | all (všechno najednou; dokola na /kevin-ukazka.jsp) (na zkoušku, jinak chodí sám jednou za čas)
     var show = new URLSearchParams(location.search).get('kevin');
@@ -1171,6 +1172,7 @@
       }
       if (root.hidden && !canPop()) return;              // kdo si Kevina zavřel, tomu nevyskakuje
       acted = true;
+      store.set('kevinSecretSeen', '1');                 // tajemství objeveno: nápověda už není potřeba
       root.classList.add('over-lightbox');
       if (root.hidden) popOut();
       return show(L.photos[d.photos] || '', { pose: 'cool' });   // ke každé fotce jedna hláška, čas podle délky textu
@@ -1204,7 +1206,27 @@
       auto(L.tips[ti], 'point', 1, true, TIP_GO[ti]);
     }
   });
-  document.addEventListener('pjax:done', function () { autoCount = 0; greet(); });
+  document.addEventListener('pjax:done', function () { autoCount = 0; greet(); watchSecret(); });
+
+  // O mně: kdo se chvíli dívá na větu o Kevinovi a fotky ještě neviděl, tomu jednou za návštěvu naznačí, ať neklika
+  var secretWatch = null, secretTimer = 0;
+  function watchSecret() {
+    clearTimeout(secretTimer);
+    if (secretWatch) { secretWatch.disconnect(); secretWatch = null; }
+    var word = document.querySelector('.kevin-secret');
+    if (!word || !window.IntersectionObserver || !L.photos || !L.photos.hint || session.get('kevinSecretHint') || store.get('kevinSecretSeen')) return;
+    secretWatch = new IntersectionObserver(function (seen) {
+      clearTimeout(secretTimer);
+      if (!seen[0].isIntersecting) return;
+      secretTimer = setTimeout(function () {
+        if (secretWatch) { secretWatch.disconnect(); secretWatch = null; }
+        session.set('kevinSecretHint', '1');
+        lastAuto = Date.now();
+        onOwn(L.photos.hint, { pose: 'point', after: 'idle' }, false, 1);
+      }, 2500);
+    }, { threshold: 1 });
+    secretWatch.observe(word);
+  }
 
   // first the cookie bar is answered, then Kevin comes (they share the corner)
   function begin() { setTimeout(start, 1200); }
