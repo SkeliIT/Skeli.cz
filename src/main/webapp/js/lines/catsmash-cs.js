@@ -383,6 +383,8 @@ window.KEVIN_LINES.cs.pong = {
   "replayKevin": "KEVIN TO ROZHODL",
   "replayGoal": "GÓL!",
   "stickReady": "SUPERÚTOK NABITÝ!",
+  "streakLabel": "SÉRIE",
+  "streakBroken": "SÉRIE PŘERUŠENA",
   "stickGo": "SUPERÚTOK!",
   "stickBtn": "Superútok – přilepit míček",
   "tileSub": {"how":"Pravidla a ovládání","badges":"Sbírej a ukaž, co umíš","top":"Jak si stojíš mezi ostatními"},

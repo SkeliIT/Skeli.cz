@@ -383,6 +383,8 @@ window.KEVIN_LINES.uk.pong = {
   "replayKevin": "КЕВІН ВИРІШИВ МАТЧ",
   "replayGoal": "ГОЛ!",
   "stickReady": "СУПЕРУДАР ЗАРЯДЖЕНО!",
+  "streakLabel": "СЕРІЯ",
+  "streakBroken": "СЕРІЮ ПЕРЕРВАНО",
   "stickGo": "СУПЕРУДАР!",
   "stickBtn": "Суперудар – приліпити м’ячик",
   "tileSub": {"how":"Правила й керування","badges":"Збирай і покажи, що вмієш","top":"Де ти серед інших"},

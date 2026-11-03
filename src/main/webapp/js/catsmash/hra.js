@@ -70,7 +70,8 @@
       '      <div class="kpong-bg" aria-hidden="true"></div><canvas class="kpong-bgfx" aria-hidden="true"></canvas>' +
       // telefon: skóre jako velká průhledná čísla ve skle (Kevin nahoře, ty dole) – pod míčkem, nic nezakrývají
       '      <div class="kp-bigscore" aria-hidden="true"><b data-s="kev">0</b><b data-s="you">0</b></div>' +
-      '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas><span class="kp-streak" aria-hidden="true"></span>' +
+      '      <canvas class="kpong-court" width="600" height="900" aria-hidden="true"></canvas><span class="kp-streak" aria-hidden="true"><b class="kp-st-n"><small>×</small><span>2</span></b>' +
+      '<span class="kp-st-l">' + esc(T.streakLabel || 'SÉRIE') + '</span><i class="kp-st-fire"><i></i><i></i><i></i><i></i></i></span>' +
       '      <div class="kp-replay-ui" aria-hidden="true"><span class="kp-rp-tag">● REPLAY</span><b class="kp-rp-title"></b><b class="kp-rp-goal"></b><span class="kp-rp-skip">' + esc(T.replaySkip || '') + '</span></div>' +
       '      <div class="kpong-panel"></div>' +
       '      <div class="kp-tut" hidden><p class="kp-tut-step"></p><p class="kp-tut-text"></p><button type="button" class="kp-link kp-tut-skip"></button></div>' +
@@ -1533,14 +1534,72 @@
     }
     function stickReset() {
       stick = { charges: 1, pts: 0, armed: false, active: null, streak: 0 };
+      streakEnd(false);
       root.classList.remove('kp-bullet', 'stick-armed');
       gauge();
     }
+    // série perfektních odstřelů: kovová cedulka vlevo dole ve skle (2× bronz, 3× stříbro, 4× zlato, od 5× hoří),
+    // dopadne s rázovou vlnou a zlatá jiskra doletí po oblouku do ukazatele nabití; přerušená série cedulku rozlomí
+    // (schválený náhled work/skeli-navrh/catsmash-serie)
+    var ST_COL = ['#e09a5a', '#e6ebf2', '#ffd23f', '#ff7a1a'];
     function streakPop(n) {
-      var el = root.querySelector('.kp-streak');
-      if (!el) return;
-      el.textContent = n + '×' + (n >= 5 ? ' :O' : n >= 4 ? '!!' : n >= 3 ? '!' : '');
-      el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+      var el = root.querySelector('.kp-streak'), field = root.querySelector('.kpong-field');
+      if (!el || !field) return;
+      var col = ST_COL[Math.min(5, n) - 2], still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      el.querySelector('.kp-st-n span').textContent = n;
+      el.className = 'kp-streak t' + Math.min(5, n);
+      void el.offsetWidth; el.classList.add('in');
+      tone(440 * Math.pow(2, Math.min(n - 2, 8) * 2 / 12), 0.35, 'triangle', 0.2, 660 * Math.pow(2, Math.min(n - 2, 8) * 2 / 12));
+      if (n >= 4) {                                     // od 4× se automat otřese
+        vibe(n >= 5 ? [18, 40, 18] : 15);
+        var m = root.querySelector('.kpong-machine');
+        if (m && !still) { m.classList.remove('kp-jolt'); void m.offsetWidth; m.classList.add('kp-jolt'); }
+      }
+      if (still) return;
+      // rázová vlna kolem cedulky (v souřadnicích skla) – střed z rozměrů bez animace (cedulka právě dopadá zvětšená)
+      var f = field.getBoundingClientRect(), cx = el.offsetLeft + el.offsetWidth / 2, cy = el.offsetTop + el.offsetHeight / 2;
+      var ring = document.createElement('i');
+      ring.className = 'kp-st-ring'; ring.style.left = cx + 'px'; ring.style.top = cy + 'px'; ring.style.setProperty('--c', col);
+      field.appendChild(ring); setTimeout(function () { ring.remove(); }, 650);
+      // jiskra: z cedulky obloukem do ukazatele nabití (ten je v rámu pod sklem) – v souřadnicích celé hry
+      var g = root.querySelector('.kp-gauge'), r = root.getBoundingClientRect();
+      if (!g || !g.offsetWidth) return;
+      var gr = g.getBoundingClientRect(), x0 = f.left - r.left + cx, y0 = f.top - r.top + cy - el.offsetHeight * 0.2,
+        x1 = gr.left - r.left + gr.width / 2, y1 = gr.top - r.top + gr.height / 2, qx = (x0 + x1) / 2 + 40, qy = Math.min(y0, y1) - 70, kf = [];
+      for (var k = 0; k <= 14; k++) {
+        var t = k / 14, u = 1 - t;
+        kf.push({ transform: 'translate(' + (u * u * x0 + 2 * u * t * qx + t * t * x1).toFixed(1) + 'px,' + (u * u * y0 + 2 * u * t * qy + t * t * y1).toFixed(1) + 'px)' });
+      }
+      var sp = document.createElement('i');
+      sp.className = 'kp-st-spark'; sp.style.setProperty('--c', col);
+      root.appendChild(sp);
+      var an = sp.animate(kf, { duration: 550, easing: 'ease-in' });
+      an.onfinish = an.oncancel = function () {
+        sp.remove();
+        g.classList.remove('hit'); void g.offsetWidth; g.classList.add('hit');
+        setTimeout(function () { g.classList.remove('hit'); }, 320);
+      };
+    }
+    function streakEnd(broken) {                      // konec série: rozlomená cedulka (broken) nebo jen tiché zmizení
+      var el = root.querySelector('.kp-streak'), field = root.querySelector('.kpong-field');
+      if (!el || !/\bt\d/.test(el.className)) return;
+      if (broken && field && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        var x = el.offsetLeft, y = el.offsetTop, w = el.offsetWidth, h = el.offsetHeight, cls = el.className.replace(/\b(in|hold)\b/g, '');
+        ['l', 'r'].forEach(function (side) {
+          var half = document.createElement('div'), c = el.cloneNode(true);
+          half.className = 'kp-st-half ' + side;
+          half.style.cssText = 'left:' + (x + (side === 'r' ? w / 2 : 0)) + 'px;top:' + y + 'px;width:' + w / 2 + 'px;height:' + h + 'px';
+          c.className = cls; c.style.cssText = 'position:static;opacity:1;width:' + w + 'px;margin-left:' + (side === 'r' ? -w / 2 : 0) + 'px';
+          half.appendChild(c); field.appendChild(half);
+          setTimeout(function () { half.remove(); }, 1050);
+        });
+        var b = document.createElement('div');
+        b.className = 'kp-st-broke'; b.textContent = T.streakBroken || 'SÉRIE PŘERUŠENA';
+        b.style.left = x + 'px'; b.style.top = (y + h + 4) + 'px';
+        field.appendChild(b); setTimeout(function () { b.remove(); }, 1400);
+        tone(220, 0.25, 'sawtooth', 0.08, 110);
+      }
+      el.className = 'kp-streak';
     }
     function stickPerfect() {                         // perfektní odpal hráče: série a body do nabití
       stick.streak++;
@@ -1561,7 +1620,7 @@
     }
     function stickBreak(lostPoint) {
       if (stick.streak >= 3) quip('serie_prerusena', 0.6);
-      if (stick.streak >= 2) mt.streakPts += 10 * stick.streak;   // série do skóre: 10 × délka
+      if (stick.streak >= 2) { mt.streakPts += 10 * stick.streak; streakEnd(true); }   // série do skóre: 10 × délka
       stick.streak = 0; if (lostPoint) stick.pts /= 2; gauge();
     }
     // E / tlačítko s magnetem: připravit (další míček se přilepí), znovu = zrušit; během míření = vystřelit
@@ -2454,6 +2513,7 @@
       var newBest = playerWon && best && ms < best;               // nepřihlášený: rekord v prohlížeči
       var send = playerWon && signedIn ? post('/api/pong/win', { d: level, ms: ms, kevin: kev }) : Promise.resolve(null);
       if (stick.streak >= 2) { mt.streakPts += 10 * stick.streak; stick.streak = 0; }   // rozběhnutá série se taky počítá
+      streakEnd(false);
       lastScore = scoreOf(ms, playerWon);
       var scoreKey = ptsKey(WIN, level), scoreBest = +(store.get(scoreKey) || 0);   // (nový klíč: dřív jiné bodování a i prohry)
       lastScore.rec = playerWon && lastScore.total > scoreBest && lastScore.total > 0;   // prohra je prohra – ani rekord, ani tabulka
@@ -3971,6 +4031,7 @@
       });
     }
     if (TRY_HOST) window.__kpCeleb = function (k) { celebrate(k); };   // test: přehrát oslavu
+    if (TRY_HOST) window.__kpStreak = function (n) { if (n) streakPop(n); else streakEnd(true); };   // test: cedulka série (0 = rozlomit)
     function closeSettings() {
       if (!setCard) return;
       closePicker();

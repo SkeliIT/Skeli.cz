@@ -383,6 +383,8 @@ window.KEVIN_LINES.en.pong = {
   "replayKevin": "KEVIN SEALED IT",
   "replayGoal": "GOAL!",
   "stickReady": "SUPER SHOT READY!",
+  "streakLabel": "STREAK",
+  "streakBroken": "STREAK BROKEN",
   "stickGo": "SUPER SHOT!",
   "stickBtn": "Super shot – stick the ball",
   "tileSub": {"how":"Rules and controls","badges":"Collect them, show your skills","top":"See where you stand"},

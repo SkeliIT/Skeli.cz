@@ -383,6 +383,8 @@ window.KEVIN_LINES.de.pong = {
   "replayKevin": "KEVIN HAT ES ENTSCHIEDEN",
   "replayGoal": "TOR!",
   "stickReady": "SUPERSCHUSS BEREIT!",
+  "streakLabel": "SERIE",
+  "streakBroken": "SERIE GERISSEN",
   "stickGo": "SUPERSCHUSS!",
   "stickBtn": "Superschuss – Ball festhalten",
   "tileSub": {"how":"Regeln und Steuerung","badges":"Sammle sie und zeig, was du kannst","top":"Wo du im Vergleich stehst"},

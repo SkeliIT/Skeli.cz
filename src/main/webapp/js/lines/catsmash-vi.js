@@ -383,6 +383,8 @@ window.KEVIN_LINES.vi.pong = {
   "replayKevin": "KEVIN ĐÃ QUYẾT ĐỊNH",
   "replayGoal": "VÀO!",
   "stickReady": "SIÊU CÚ ĐÁNH SẴN SÀNG!",
+  "streakLabel": "CHUỖI",
+  "streakBroken": "ĐỨT CHUỖI",
   "stickGo": "SIÊU CÚ ĐÁNH!",
   "stickBtn": "Siêu cú đánh – dính bóng",
   "tileSub": {"how":"Luật chơi và điều khiển","badges":"Sưu tầm và khoe tài","top":"Xem bạn đứng thứ mấy"},

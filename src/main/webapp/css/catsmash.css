@@ -795,11 +795,59 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-gauge.armed { border-color: #fff1a8; }
 @keyframes kp-gauge-ready { 50% { box-shadow: inset 0 0 calc(10px * var(--u)) #000, 0 0 calc(22px * var(--u)) rgba(255, 200, 60, .95); } }
 @media (pointer: coarse) { .kp-gauge b { display: none; } }
-/* série perfektních: 2× 3×! 4×!! 5× :O */
-.kp-streak { position: absolute; left: 50%; top: 40%; translate: -50% -50%; z-index: 3; pointer-events: none; opacity: 0;
-  font-size: clamp(1.6rem, 9cqi, 3rem); color: #ffd23f; text-shadow: 0 0 14px rgba(255, 170, 30, .9), 0 3px 0 #6b4a00; white-space: nowrap; }
-.kp-streak.pop { animation: kp-streak 1s cubic-bezier(.2, 1.4, .4, 1) forwards; }
-@keyframes kp-streak { 0% { opacity: 0; scale: .4; } 25% { opacity: 1; scale: 1.15; } 70% { opacity: 1; scale: 1; } 100% { opacity: 0; scale: 1; translate: -50% -90%; } }
+/* série perfektních odstřelů: kovová cedulka vlevo dole ve skle (t2 bronz, t3 stříbro, t4 zlato, t5 = 5× a víc v plamenech);
+   velikosti v pixelech obrázku automatu (× --u), aby seděla k automatu na PC i na telefonu */
+.kp-streak { position: absolute; left: 3%; bottom: 17%; z-index: 3; display: grid; justify-items: center; pointer-events: none; opacity: 0;
+  padding: calc(7px * var(--u)) calc(16px * var(--u)) calc(8px * var(--u)); border-radius: calc(14px * var(--u)); transform-origin: 30% 80%;
+  --m1: #f6d29a; --m2: #b06a2a; --m3: #5a2e0c; --ink: #2a1300; --glow: rgba(255, 150, 60, 0);
+  background: linear-gradient(160deg, var(--m1), var(--m2) 45%, var(--m3) 70%, var(--m2));
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -3px 0 rgba(0, 0, 0, .35), 0 8px 18px rgba(0, 0, 0, .6), 0 0 22px var(--glow); }
+.kp-streak::before, .kp-streak::after { content: ""; position: absolute; top: 50%; width: calc(7px * var(--u)); aspect-ratio: 1; translate: 0 -50%; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--m3)); }
+.kp-streak::before { left: calc(5px * var(--u)); }
+.kp-streak::after { right: calc(5px * var(--u)); }
+.kp-st-n { font: 400 max(20px, calc(46px * var(--u)))/1 var(--font-display); color: var(--ink); text-shadow: 0 1px 0 rgba(255, 255, 255, .45); letter-spacing: .02em; }
+.kp-st-n small { font-size: .55em; margin-right: 1px; }
+.kp-st-l { font: 400 max(9px, calc(13px * var(--u)))/1 var(--font-display); letter-spacing: .18em; color: var(--ink); opacity: .8; white-space: nowrap; }
+.kp-streak.t3 { --m1: #fff; --m2: #b9c0c9; --m3: #5d636b; --ink: #1b1f24; }
+.kp-streak.t4 { --m1: #fff3b0; --m2: #e6b730; --m3: #7a5500; --ink: #2a1a00; --glow: rgba(255, 200, 60, .55); }
+.kp-streak.t5 { --m1: #fff3b0; --m2: #ffb02e; --m3: #9a3a00; --ink: #2a0d00; --glow: rgba(255, 120, 30, .9); }
+.kp-streak.in { animation: kp-st-slam .55s cubic-bezier(.2, 1.6, .35, 1) forwards, kp-st-idle 1.6s .55s ease-in-out infinite alternate; }
+.kp-streak.t5.in { animation: kp-st-slam .55s cubic-bezier(.2, 1.6, .35, 1) forwards, kp-st-idle 1.6s .55s ease-in-out infinite alternate, kp-st-burn .5s steps(2) infinite; }
+@keyframes kp-st-slam { 0% { opacity: 0; scale: 2.1; rotate: -14deg; } 60% { opacity: 1; scale: .92; rotate: 3deg; } 100% { opacity: 1; scale: 1; rotate: 0deg; } }
+@keyframes kp-st-idle { from { opacity: 1; } to { opacity: 1; translate: 0 -2px; } }
+@keyframes kp-st-burn { 50% { box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -3px 0 rgba(0, 0, 0, .35), 0 8px 18px rgba(0, 0, 0, .6), 0 0 30px rgba(255, 90, 20, .95); } }
+/* plamínky nad cedulkou od 5× */
+.kp-st-fire { display: none; position: absolute; left: 10%; right: 10%; bottom: 88%; height: 70%; }
+.kp-streak.t5 .kp-st-fire { display: block; }
+.kp-st-fire i { position: absolute; bottom: 0; width: 22%; aspect-ratio: 1 / 1.6; border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+  background: radial-gradient(circle at 50% 75%, #fff3b0, #ffb02e 35%, rgba(255, 90, 20, .7) 60%, transparent 72%); filter: blur(.5px);
+  transform-origin: 50% 100%; animation: kp-st-flame .7s ease-in infinite; }
+.kp-st-fire i:nth-child(1) { left: 2%; animation-delay: -.2s; }
+.kp-st-fire i:nth-child(2) { left: 27%; animation-delay: -.5s; animation-duration: .6s; }
+.kp-st-fire i:nth-child(3) { left: 52%; animation-delay: -.1s; animation-duration: .8s; }
+.kp-st-fire i:nth-child(4) { left: 76%; animation-delay: -.35s; }
+@keyframes kp-st-flame { 0% { scale: .5 .4; opacity: 0; } 30% { opacity: 1; } 100% { scale: .9 1.15; translate: 0 -60%; opacity: 0; } }
+/* rázová vlna, jiskra do ukazatele, rozlomení */
+.kp-st-ring { position: absolute; z-index: 3; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 3px solid var(--c, #ffd23f); pointer-events: none;
+  animation: kp-st-ring .6s ease-out forwards; }
+@keyframes kp-st-ring { to { scale: 9; opacity: 0; border-width: 1px; } }
+.kp-st-spark { position: absolute; left: -5px; top: -5px; z-index: 6; width: 10px; height: 10px; border-radius: 50%; pointer-events: none;
+  background: #fff8d0; box-shadow: 0 0 6px 2px var(--c), 0 0 16px 6px var(--c); }
+.kp-gauge.hit { box-shadow: inset 0 0 calc(10px * var(--u)) #000, 0 0 calc(26px * var(--u)) calc(6px * var(--u)) rgba(255, 200, 60, .85); border-color: #ffd23f; }
+.kp-st-half { position: absolute; z-index: 3; overflow: hidden; pointer-events: none; }
+.kp-st-half.l { clip-path: polygon(0 0, 100% 0, 70% 45%, 100% 60%, 85% 100%, 0 100%); animation: kp-st-fall-l 1s cubic-bezier(.5, 0, .9, .5) forwards; }
+.kp-st-half.r { clip-path: polygon(0 0, 100% 0, 100% 100%, -15% 100%, 0 60%, -30% 45%); animation: kp-st-fall-r 1s cubic-bezier(.5, 0, .9, .5) forwards; }
+.kp-st-half .kp-streak { animation: none; }
+@keyframes kp-st-fall-l { to { translate: -30px 160px; rotate: -38deg; opacity: 0; } }
+@keyframes kp-st-fall-r { to { translate: 30px 170px; rotate: 34deg; opacity: 0; } }
+.kp-st-broke { position: absolute; z-index: 3; pointer-events: none; white-space: nowrap; font: 400 max(10px, calc(13px * var(--u))) var(--font-display); letter-spacing: .1em;
+  color: #ffb0a8; text-shadow: 0 0 6px #000, 0 1px 2px #000, 0 0 14px rgba(255, 60, 40, .6); animation: kp-st-broke 1.4s ease-out forwards; }
+@keyframes kp-st-broke { to { opacity: 0; translate: 0 -14px; } }
+.kpong.kp-replay .kp-streak { visibility: hidden; }
+/* lehčí otřes automatu od 4× (velký kp-quake je pro vítěznou oslavu) */
+.kpong-machine.kp-jolt { animation: kp-jolt .3s cubic-bezier(.36, .07, .19, .97); }
+@keyframes kp-jolt { 25% { translate: -3px 1px; } 50% { translate: 3px -1px; } 75% { translate: -1px 0; } }
 /* tlačítko s magnetem na telefonu: nad tlačítkem odstřelu */
 .kpong-stickbtn {
   position: absolute; left: calc(var(--sx, 12) * 1vw); top: calc(var(--sy, 58) * 1dvh - 82px); transform: translate(-50%, -50%);
@@ -809,7 +857,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong-stickbtn:disabled { opacity: .45; }
 .kpong-stickbtn.ready { border-color: #ffd23f; animation: kp-gauge-ready 1.2s ease-in-out infinite; }
 .kpong-stickbtn.armed { background: radial-gradient(circle at 35% 30%, #fff1a8, var(--accent) 45%, #8a6400); color: #1a1405; }
-@media (prefers-reduced-motion: reduce) { .kp-gauge.ready, .kpong-stickbtn.ready, .kp-streak.pop { animation: none; } .kp-streak.pop { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .kp-gauge.ready, .kpong-stickbtn.ready, .kp-streak.in, .kp-streak.t5.in, .kp-st-fire i { animation: none; } .kp-streak.in { opacity: 1; } }
 /* tvrdá rána do Kevinovy pálky otřese strojem */
 .kpong.kp-shake .kpong-machine { animation: kp-shake .28s ease-out; }
 @keyframes kp-shake { 20% { translate: calc(-4px * var(--u)) calc(2px * var(--u)); } 45% { translate: calc(4px * var(--u)) calc(-2px * var(--u)); } 70% { translate: calc(-2px * var(--u)) 0; } }
