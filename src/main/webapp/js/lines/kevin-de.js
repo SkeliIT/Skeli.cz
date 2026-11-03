@@ -468,7 +468,26 @@
       "Nichts Frisches, nur das Neueste aus der Werkstatt:"
     ]
   },
+  "photos": {
+    "hint": "Klick nicht auf meinen Namen. Im Ernst. Da sind private Fotos drin.",
+    "1": "Ja ja, das bin ich! Schöner Kater, oder? Die Pfote ist für Leckerlis, Bezahlung im Voraus.",
+    "2": "It is Godzilla! Lauft, kleine Häuser.",
+    "3": "Das war eine ganz normale RAW-Datei. Andy hat sich in Affinity richtig Mühe gegeben, und schau: ein Filmstar. Gute Arbeit, Andy. Das Model hat aber auch seinen Anteil.",
+    "4": "So wurde ich zum Kater auf der Website. Vom Foto über die Skizze bis zum Hoodie. Das Honorar ist noch nicht da.",
+    "5": "Von vorn, von der Seite und von hinten. Such ruhig einen Fehler. Du findest keinen."
+  },
   "admin": {
+    "fresh": {
+      "lead": ["Bericht seit dem letzten Mal:", "{name}, hier hat sich was getan. Seit dem letzten Mal:", "Ich habe aufgepasst. Vom Körbchen aus, aber aufgepasst. Seit dem letzten Mal:", "{name}, ich habe Neuigkeiten. Seit dem letzten Mal:"],
+      "leadWeek": ["Bericht der letzten Woche:", "{name}, das war die letzte Woche:"],
+      "users": ["{n} neuer Nutzer ({t})", "{n} neue Nutzer"],
+      "comments": ["{n} neuer Kommentar", "{n} neue Kommentare"],
+      "problems": ["{n} gemeldetes Problem auf der Website", "{n} gemeldete Probleme auf der Website"],
+      "feedback": ["{n} neue Website-Bewertung", "{n} neue Website-Bewertungen"],
+      "help": ["{n} Hilfsangebot zum Text", "{n} Hilfsangebote zu Texten"],
+      "subscribers": ["{n} neuer Newsletter-Abonnent", "{n} neue Newsletter-Abonnenten"],
+      "toUsers": "Nutzer zeigen", "toComments": "Kommentare zeigen", "toProblems": "Meldungen zeigen", "toFeedback": "Bewertungen zeigen", "toHelp": "Texte zeigen", "toSubscribers": "Abonnenten zeigen"
+    },
     "hello": [
       "Hier ist noch einiges offen. Ich würd mit dem Einfachsten anfangen. Einer Essenspause zum Beispiel.",
       "Statusmeldung: Etwas braucht deine Aufmerksamkeit. Diesmal nicht mein Napf.",

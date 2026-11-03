@@ -470,7 +470,26 @@
       "Nic čerstvýho, jen poslední novinka z dílny:"
     ]
   },
+  "photos": {
+    "hint": "Neklikej na moje jméno. Vážně. Jsou tam soukromý fotky.",
+    "1": "Jo jo, to jsem já! Pěknej kocour, co? Ta packa je na pamlsek, platí se předem.",
+    "2": "It is Godzilla! Domečky, utíkejte.",
+    "3": "Tohle byl obyčejnej RAW. Andy si s tím v Affinity pořádně vyhrála a koukej: filmová hvězda. Dobrá práce, Andy. Ten model za tím měl ale taky svůj podíl.",
+    "4": "Takhle ze mě vznikal kocour z webu. Z fotky přes náčrt až po mikinu. Honorář zatím nedorazil.",
+    "5": "Zepředu, z boku i zezadu. Hledej chybu, klidně. Nenajdeš."
+  },
   "admin": {
+    "fresh": {
+      "lead": ["Hlášení od minula:", "{name}, něco se tu šustlo. Od minula:", "Hlídal jsem to tu. Z pelíšku, ale hlídal. Od minula:", "{name}, mám novinky. Od minula:"],
+      "leadWeek": ["Hlášení za poslední týden:", "{name}, tady je poslední týden:"],
+      "users": ["přibyl {n} nový uživatel ({t})", "přibyli {n} noví uživatelé", "přibylo {n} nových uživatelů"],
+      "comments": ["{n} nový komentář", "{n} nové komentáře", "{n} nových komentářů"],
+      "problems": ["{n} nahlášený problém na webu", "{n} nahlášené problémy na webu", "{n} nahlášených problémů na webu"],
+      "feedback": ["{n} nové hodnocení webu", "{n} nová hodnocení webu", "{n} nových hodnocení webu"],
+      "help": ["{n} nabídka pomoci s textem", "{n} nabídky pomoci s textem", "{n} nabídek pomoci s textem"],
+      "subscribers": ["{n} nový odběratel novinek", "{n} noví odběratelé novinek", "{n} nových odběratelů novinek"],
+      "toUsers": "Ukaž uživatele", "toComments": "Ukaž komentáře", "toProblems": "Ukaž hlášení", "toFeedback": "Ukaž hodnocení", "toHelp": "Ukaž texty", "toSubscribers": "Ukaž odběratele"
+    },
     "hello": [
       "Máme tu pár nedodělků. Já bych začal tím nejjednodušším. Třeba pauzou na jídlo.",
       "Hlásím stav: něco potřebuje tvoji pozornost. Tentokrát to není moje miska.",

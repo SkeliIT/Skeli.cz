@@ -186,6 +186,7 @@
     clearTimeout(hideTimer);
     text.textContent = msg;
     remember(msg);
+    if (opts.onShow) opts.onShow();
     currentGo = opts.go || null;
     bubble.classList.toggle('has-go', !!currentGo);
     link.hidden = !opts.href;
@@ -465,7 +466,9 @@
   // CatSmash: hra přes celou obrazovku (složka js/catsmash/ se načte až teď); Kevin v rohu se zatím schová
   function pong(view) {
     hideBubble('idle');
-    var opts = { version: version, view: view === 'top' ? 'top' : null };
+    // Kevin v rohu je během hry schovaný: jeho 3D model se nekreslí (hra má vlastního)
+    model().setPaused(true);
+    var opts = { version: version, view: view === 'top' ? 'top' : null, onClose: function () { model().setPaused(root.hidden); } };
     var go = function () {
       var css = document.querySelector('link[data-catsmash]');
       if (!css || css.sheet) return window.KevinPong.open(opts);
@@ -682,10 +685,44 @@
     return box;
   }
 
-  // 7) admin pages: the site's to-dos
-  function adminStatus() {
-    getJson('/admin/kevin').then(function (s) {
+  // 7) stránky adminu: co je nového od minula (noví lidé, komentáře, nahlášené problémy…), jinak co čeká na vyřízení.
+  // auto = sám po příchodu do adminu; „od minula“ se posune, až když hlášení opravdu vidí (opts.onShow): když čeká
+  // jen za zlatou tečkou na tlapce a admin přejde jinam, řekne ho na další stránce znovu.
+  function adminStatus(auto) {
+    var known = session.get('kevinAdminSince') || store.get('kevinAdminSeen') || '';
+    getJson('/admin/kevin' + (known ? '?since=' + encodeURIComponent(known) : '')).then(function (s) {
       if (!s) return;
+      var A = L.admin, F = A.fresh, f = s.fresh || {}, news = [], first = null;
+      function add(n, forms, go, label, name) {
+        if (!n) return;
+        news.push(say(forms, n, name));
+        if (!first) first = [go, label];
+      }
+      function heard() {
+        session.set('kevinAdmin', '1');
+        if (s.now) {
+          session.set('kevinAdminSince', known || String(s.now - 7 * 864e5));   // menu pak zopakuje totéž hlášení
+          store.set('kevinAdminSeen', String(s.now));
+        }
+      }
+      add(f.problems, F.problems, '/admin/feedback', F.toProblems);
+      add(f.users, F.users, '/admin_users.jsp', F.toUsers, f.newUser);
+      add(f.comments, F.comments, '/admin/comments', F.toComments);
+      add(f.feedback, F.feedback, '/admin/feedback', F.toFeedback);
+      add(f.help, F.help, '/admin/lyrics', F.toHelp);
+      add(f.subscribers, F.subscribers, '/admin/newsletter', F.toSubscribers);
+      if (news.length) {
+        if (s.reports) news.push(say(A.reports, s.reports));
+        // klik v menu („co čeká“): k novinkám i nevyřízené věci; sám po příchodu jen to důležité
+        if (!auto && s.clipsWithoutSong) news.push(say(A.clips, s.clipsWithoutSong, s.newestClipWithoutSong || ''));
+        if (!auto && s.songsWithoutLyrics) news.push(say(A.lyrics, s.songsWithoutLyrics));
+        news[0] = news[0].charAt(0).toUpperCase() + news[0].slice(1);
+        var leads = (known ? F.lead : F.leadWeek).filter(function (l) { return s.name || l.indexOf('{name}') < 0; });
+        var msg = pick(leads).replace('{name}', s.name || '') + ' ' + news.join(', ') + '.';
+        var opts = { pose: 'point', href: first[0], linkText: first[1], ms: 18000, onShow: heard };
+        return auto ? onOwn(msg, opts, false, 1) : show(msg, opts);
+      }
+      heard();                                           // nic nového: další hlášení počítá od teď
       var parts = [], href = null, linkText = null;
       if (s.reports) { parts.push(say(L.admin.reports, s.reports)); href = '/admin/comments#reports'; linkText = L.admin.toReports; }
       if (s.clipsWithoutSong) parts.push(say(L.admin.clips, s.clipsWithoutSong, s.newestClipWithoutSong || ''));
@@ -844,11 +881,8 @@
   }
   function greet() {
     if (adminPage) {
-      // the admin dashboard: the to-do list once per visit
-      if (/^\/admin(\.jsp)?$/.test(location.pathname) && !session.get('kevinAdmin')) {
-        session.set('kevinAdmin', '1');
-        setTimeout(function () { if (!acted) adminStatus(); }, 900);
-      }
+      // kdekoli v adminu: novinky od minula, jednou za návštěvu (příznak nastaví adminStatus, až je opravdu řekne)
+      if (!session.get('kevinAdmin')) setTimeout(function () { if (!acted) adminStatus(true); }, 900);
       return;
     }
     // something the visitor has just done (signed in, saved a password…) beats any greeting
@@ -1008,6 +1042,7 @@
     else ensureModel();          // a page without the header bar: he stands there from the start
     wake();
     greet();
+    watchSecret();
     if (!adminPage) { scheduleTip(); loadWalk(function () { W.schedule(); }); }
     // ukázka kousku hned: adresa ?kevin=drop | sit | run | walk | all (všechno najednou; dokola na /kevin-ukazka.jsp) (na zkoušku, jinak chodí sám jednou za čas)
     var show = new URLSearchParams(location.search).get('kevin');
@@ -1128,6 +1163,20 @@
   // hooks from the rest of the site
   window.addEventListener('kevin', function (e) {
     var d = e.detail || {};
+    // tajné fotky na O mně (js/effects.js): okno s fotkou = zjeví se nad ním a okomentuje ji, zavřené okno = zase pryč
+    if (d.photos !== undefined) {
+      if (!d.photos) {
+        root.classList.remove('over-lightbox');
+        if (!bubble.hidden) hideBubble('idle');
+        return;
+      }
+      if (root.hidden && !canPop()) return;              // kdo si Kevina zavřel, tomu nevyskakuje
+      acted = true;
+      store.set('kevinSecretSeen', '1');                 // tajemství objeveno: nápověda už není potřeba
+      root.classList.add('over-lightbox');
+      if (root.hidden) popOut();
+      return show(L.photos[d.photos] || '', { pose: 'cool' });   // ke každé fotce jedna hláška, čas podle délky textu
+    }
     if (root.hidden && !canPop()) return;
     if (d.pw && L.pw[d.pw]) {
       lastAuto = 0;   // the visitor is typing: answering is fine
@@ -1157,7 +1206,27 @@
       auto(L.tips[ti], 'point', 1, true, TIP_GO[ti]);
     }
   });
-  document.addEventListener('pjax:done', function () { autoCount = 0; greet(); });
+  document.addEventListener('pjax:done', function () { autoCount = 0; greet(); watchSecret(); });
+
+  // O mně: kdo se chvíli dívá na větu o Kevinovi a fotky ještě neviděl, tomu jednou za návštěvu naznačí, ať neklika
+  var secretWatch = null, secretTimer = 0;
+  function watchSecret() {
+    clearTimeout(secretTimer);
+    if (secretWatch) { secretWatch.disconnect(); secretWatch = null; }
+    var word = document.querySelector('.kevin-secret');
+    if (!word || !window.IntersectionObserver || !L.photos || !L.photos.hint || session.get('kevinSecretHint') || store.get('kevinSecretSeen')) return;
+    secretWatch = new IntersectionObserver(function (seen) {
+      clearTimeout(secretTimer);
+      if (!seen[0].isIntersecting) return;
+      secretTimer = setTimeout(function () {
+        if (secretWatch) { secretWatch.disconnect(); secretWatch = null; }
+        session.set('kevinSecretHint', '1');
+        lastAuto = Date.now();
+        onOwn(L.photos.hint, { pose: 'point', after: 'idle' }, false, 1);
+      }, 2500);
+    }, { threshold: 1 });
+    secretWatch.observe(word);
+  }
 
   // first the cookie bar is answered, then Kevin comes (they share the corner)
   function begin() { setTimeout(start, 1200); }

@@ -468,7 +468,26 @@
       "Chưa có gì mới, chỉ có tin mới nhất từ xưởng:"
     ]
   },
+  "photos": {
+    "hint": "Đừng bấm vào tên tôi. Thật đấy. Trong đó có ảnh riêng tư.",
+    "1": "Đúng rồi, là tôi đây! Mèo đẹp trai nhỉ? Cái chân này để xin đồ ăn, trả tiền trước nhé.",
+    "2": "It is Godzilla! Chạy đi, mấy ngôi nhà nhỏ.",
+    "3": "Đây chỉ là một file RAW bình thường. Andy đã chăm chút nó trong Affinity, và xem này: ngôi sao điện ảnh. Giỏi lắm, Andy. Nhưng người mẫu cũng có công đấy.",
+    "4": "Đây là cách tôi trở thành chú mèo trên web. Từ ảnh đến bản phác thảo rồi đến áo hoodie. Tiền cát-xê vẫn chưa thấy.",
+    "5": "Từ trước, từ bên và từ sau. Cứ tìm lỗi đi. Không có đâu."
+  },
   "admin": {
+    "fresh": {
+      "lead": ["Báo cáo từ lần trước:", "{name}, ở đây có chuyện mới. Từ lần trước:", "Tôi đã canh chừng. Từ ổ của tôi, nhưng vẫn canh. Từ lần trước:", "{name}, tôi có tin mới. Từ lần trước:"],
+      "leadWeek": ["Báo cáo tuần vừa qua:", "{name}, đây là tuần vừa qua:"],
+      "users": ["{n} người dùng mới ({t})", "{n} người dùng mới"],
+      "comments": ["{n} bình luận mới", "{n} bình luận mới"],
+      "problems": ["{n} lỗi được báo trên web", "{n} lỗi được báo trên web"],
+      "feedback": ["{n} đánh giá web mới", "{n} đánh giá web mới"],
+      "help": ["{n} đề nghị giúp lời bài hát", "{n} đề nghị giúp lời bài hát"],
+      "subscribers": ["{n} người đăng ký tin mới", "{n} người đăng ký tin mới"],
+      "toUsers": "Xem người dùng", "toComments": "Xem bình luận", "toProblems": "Xem báo lỗi", "toFeedback": "Xem đánh giá", "toHelp": "Xem lời bài hát", "toSubscribers": "Xem người đăng ký"
+    },
     "hello": [
       "Còn vài việc dang dở. Tôi sẽ bắt đầu với việc dễ nhất. Ví dụ nghỉ ăn.",
       "Báo cáo: có việc cần bạn chú ý. Lần này không phải bát của tôi.",

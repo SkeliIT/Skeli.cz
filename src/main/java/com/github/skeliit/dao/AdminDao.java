@@ -20,6 +20,41 @@ import java.util.Map;
 public class AdminDao {
 
     /** songs, clips, lyrics, comments, users, subscribers, reports, clipsWithoutSong, songsWithoutLyrics, newFeedback */
+    /**
+     * Co se stalo od daného času (Kevin to hlásí adminovi): noví uživatelé (u jediného i jméno, klíč newUser), komentáře
+     * u textů i klipů, nahlášené problémy, hodnocení webu, nabídky pomoci s textem a potvrzení odběratelé.
+     * Co udělal sám admin (selfId), se nepočítá. Porovnává se přes FROM_UNIXTIME, aby nevadilo časové pásmo.
+     */
+    public Map<String, Object> freshSince(long sinceMs, int selfId) throws SQLException {
+        long s = sinceMs / 1000;
+        Map<String, Object> out = new java.util.LinkedHashMap<>();
+        try (Connection c = Db.get()) {
+            int users = freshCount(c, "SELECT COUNT(*) FROM users WHERE role <> 'DELETED' AND created_at >= FROM_UNIXTIME(?) AND id <> ?", s, selfId);
+            out.put("users", users);
+            if (users == 1) {
+                try (PreparedStatement ps = c.prepareStatement("SELECT username FROM users WHERE role <> 'DELETED' AND created_at >= FROM_UNIXTIME(?) AND id <> ? LIMIT 1")) {
+                    ps.setLong(1, s);
+                    ps.setInt(2, selfId);
+                    try (ResultSet rs = ps.executeQuery()) { if (rs.next()) out.put("newUser", rs.getString(1)); }
+                }
+            }
+            out.put("comments", freshCount(c, "SELECT (SELECT COUNT(*) FROM comments WHERE created_at >= FROM_UNIXTIME(?) AND user_id <> ?)"
+                    + " + (SELECT COUNT(*) FROM video_comments WHERE created_at >= FROM_UNIXTIME(?) AND user_id <> ?)", s, selfId, s, selfId));
+            out.put("problems", freshCount(c, "SELECT COUNT(*) FROM site_reports WHERE created_at >= FROM_UNIXTIME(?)", s));
+            out.put("feedback", freshCount(c, "SELECT COUNT(*) FROM site_feedback WHERE COALESCE(updated_at, created_at) >= FROM_UNIXTIME(?) AND user_id <> ?", s, selfId));
+            out.put("help", freshCount(c, "SELECT COUNT(*) FROM lyric_help WHERE created_at >= FROM_UNIXTIME(?)", s));
+            out.put("subscribers", freshCount(c, "SELECT COUNT(*) FROM newsletter_emails WHERE confirmed_at >= FROM_UNIXTIME(?)", s));
+        }
+        return out;
+    }
+
+    private static int freshCount(Connection c, String sql, long... args) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            for (int i = 0; i < args.length; i++) ps.setLong(i + 1, args[i]);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getInt(1) : 0; }
+        }
+    }
+
     public Map<String, Integer> stats() throws SQLException {
         String sql = "SELECT "
                 + "(SELECT COUNT(*) FROM songs) AS songs, "

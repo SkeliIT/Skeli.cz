@@ -1,6 +1,24 @@
 [
   {
     "d": "2026-11-03",
+    "href": "/",
+    "cs": "Zkus na úvodu švihnout myší nebo prstem přes jiskry. Odfoukneš je jako poryv větru a ve světlém režimu zase sníh.",
+    "en": "On the home page, swipe your mouse or finger through the embers. You’ll blow them away like a gust of wind, and in light mode the snow too.",
+    "de": "Wisch auf der Startseite mit Maus oder Finger durch die Funken. Du bläst sie weg wie ein Windstoß, im hellen Modus auch den Schnee.",
+    "uk": "На головній проведи мишею або пальцем крізь іскри. Здуєш їх, мов порив вітру, а у світлому режимі ще й сніг.",
+    "vi": "Ở trang chủ, hãy lướt chuột hoặc ngón tay qua những tia lửa. Bạn sẽ thổi bay chúng như một cơn gió, và cả tuyết ở chế độ sáng."
+  },
+  {
+    "d": "2026-11-03",
+    "href": "/?kevin=pong",
+    "cs": "CatSmash na telefonu je plynulejší a hřiště je až nahoře. Pod ním máš místo pro prst, takže pálku i míček pořád vidíš.",
+    "en": "CatSmash on a phone runs smoother and the court now sits right at the top. There’s room for your finger below it, so you can always see the paddle and the ball.",
+    "de": "CatSmash läuft auf dem Handy flüssiger und das Spielfeld sitzt jetzt ganz oben. Darunter ist Platz für deinen Finger, so siehst du Schläger und Ball immer.",
+    "uk": "CatSmash на телефоні тепер плавніший, а поле розташоване вгорі. Під ним є місце для пальця, тож ракетку й м’ячик видно завжди.",
+    "vi": "CatSmash trên điện thoại giờ mượt hơn và sân chơi nằm sát phía trên. Bên dưới có chỗ cho ngón tay, nên bạn luôn thấy vợt và bóng."
+  },
+  {
+    "d": "2026-11-03",
     "href": "/nastaveni.jsp#soukromi",
     "cs": "Klikni v tabulce rekordů na jméno a uvidíš profil hráče – jeho odznaky a rekordy. Co ukazuješ ty, si nastavíš v Soukromí, všechno jde vypnout.",
     "en": "Click a name in the leaderboard to see that player’s profile – badges and records. What you show is up to you in Privacy; everything can be switched off.",
@@ -25,23 +43,5 @@
     "de": "In CatSmash bekommt jetzt jede Serie perfekter Schüsse ein Metallschild – Bronze, Silber, Gold, und ab fünf in Folge brennt es.",
     "uk": "У CatSmash кожна серія ідеальних ударів тепер отримує металеву табличку – бронза, срібло, золото, а від п’яти поспіль вона горить.",
     "vi": "Trong CatSmash, mỗi chuỗi cú đánh hoàn hảo giờ có một tấm biển kim loại – đồng, bạc, vàng, và từ năm cú liên tiếp thì nó bốc cháy."
-  },
-  {
-    "d": "2026-11-03",
-    "href": "/",
-    "cs": "Tabulka rekordů CatSmash se teď na úvodu otevře hned – drží ji Kevin. A kdo vyhraje, dostane opravdový ohňostroj.",
-    "en": "The CatSmash leaderboard now opens right on the home page – Kevin holds it. And every win gets real fireworks.",
-    "de": "Die CatSmash-Bestenliste öffnet sich jetzt direkt auf der Startseite – Kevin hält sie. Und jeder Sieg bekommt ein echtes Feuerwerk.",
-    "uk": "Таблиця рекордів CatSmash тепер відкривається просто на головній – її тримає Кевін. А кожна перемога отримує справжній феєрверк.",
-    "vi": "Bảng kỷ lục CatSmash giờ mở ngay trên trang chủ – Kevin cầm nó. Và mỗi chiến thắng đều có pháo hoa thật."
-  },
-  {
-    "d": "2026-11-03",
-    "href": "/?kevin=pong",
-    "cs": "CatSmash má nové odměny: čím vzácnější odznak, tím hezčí pálka, míček nebo pozadí. Odznaky začínají všem znovu od nuly – kdo je vybojuje první?",
-    "en": "CatSmash has new rewards: the rarer the badge, the finer the paddle, ball or background. Badges start from zero for everyone – who wins them first?",
-    "de": "CatSmash hat neue Belohnungen: je seltener das Abzeichen, desto edler Schläger, Ball oder Hintergrund. Abzeichen starten für alle bei null – wer holt sie zuerst?",
-    "uk": "У CatSmash нові нагороди: що рідший значок, то гарніша ракетка, м’ячик чи фон. Значки для всіх починаються з нуля – хто здобуде їх першим?",
-    "vi": "CatSmash có phần thưởng mới: huy hiệu càng hiếm thì vợt, bóng hay hình nền càng đẹp. Huy hiệu của mọi người bắt đầu lại từ đầu – ai giành được trước?"
   }
 ]

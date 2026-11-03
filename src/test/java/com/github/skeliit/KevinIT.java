@@ -112,7 +112,7 @@ class KevinIT extends UiTestSupport {
         assertEquals(200, httpStatus("/admin/kevin"), "admin");
         openWithKevin("/admin.jsp", "");
         String said = heard();
-        assertTrue(said.matches("(?s).*(na kontrolu|přiřazenou skladbu|chybí text|Všechno je vyřízené|Kontrola hotová).*"), "admin status, got: " + said);
+        assertTrue(said.matches("(?s).*(Hlášení|Od minula|od minula|poslední týden|na kontrolu|přiřazenou skladbu|chybí text|Všechno je vyřízené|Kontrola hotová).*"), "admin status, got: " + said);
         assertFalse(said.contains("Šéf") || said.contains("{name}"), "never 'boss', the name filled in: " + said);
     }
 

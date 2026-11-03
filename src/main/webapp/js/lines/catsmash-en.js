@@ -54,7 +54,7 @@ window.KEVIN_LINES.en.pong = {
   "shotMoveHint": "Hold the button and drag it wherever it suits you.",
   "layoutBtn": "Edit control layout",
   "layoutTip": "You can put the power shot button and the paddle area wherever suits you.",
-  "layoutHelp": "Drag the ⚡ button and the paddle area wherever you like. Resize the area by its bottom-right corner.",
+  "layoutHelp": "Drag the ⚡ and magnet buttons and the paddle area wherever you like, each on its own. Resize the area by its bottom-right corner.",
   "layoutDone": "Done",
   "layoutReset": "Default layout",
   "zoneLabel": "Paddle area",

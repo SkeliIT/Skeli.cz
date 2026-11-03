@@ -54,7 +54,7 @@ window.KEVIN_LINES.vi.pong = {
   "shotMoveHint": "Giữ nút và kéo đến chỗ bạn thấy tiện.",
   "layoutBtn": "Sắp xếp nút điều khiển",
   "layoutTip": "Bạn có thể đặt nút bắn và vùng điều khiển vợt ở bất cứ đâu bạn thấy tiện.",
-  "layoutHelp": "Kéo nút ⚡ và vùng điều khiển vợt đến nơi bạn muốn. Phóng to vùng bằng góc dưới bên phải.",
+  "layoutHelp": "Kéo nút ⚡, nút nam châm và vùng điều khiển vợt đến nơi bạn muốn, từng cái riêng. Phóng to vùng bằng góc dưới bên phải.",
   "layoutDone": "Xong",
   "layoutReset": "Bố cục mặc định",
   "zoneLabel": "Vùng điều khiển vợt",

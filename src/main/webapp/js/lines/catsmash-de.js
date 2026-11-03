@@ -54,7 +54,7 @@ window.KEVIN_LINES.de.pong = {
   "shotMoveHint": "Halte die Taste gedrückt und schiebe sie, wohin du willst.",
   "layoutBtn": "Steuerung anordnen",
   "layoutTip": "Die Schuss-Taste und die Fläche für den Schläger kannst du hinlegen, wo es dir passt.",
-  "layoutHelp": "Zieh die ⚡-Taste und die Schläger-Fläche, wohin du willst. Die Fläche vergrößerst du an der rechten unteren Ecke.",
+  "layoutHelp": "Zieh die ⚡-Taste, die Magnet-Taste und die Schläger-Fläche, wohin du willst, jede für sich. Die Fläche vergrößerst du an der rechten unteren Ecke.",
   "layoutDone": "Fertig",
   "layoutReset": "Standard-Anordnung",
   "zoneLabel": "Schläger-Fläche",

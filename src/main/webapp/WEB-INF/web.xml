@@ -59,6 +59,15 @@
         <filter-name>SessionValidityFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+    <!-- jen testovací web s klíčem TEST_LOGIN_TOKEN: prohlížeč s tajnou cookie je přihlášený (na www je vypnutý) -->
+    <filter>
+        <filter-name>TestLoginFilter</filter-name>
+        <filter-class>com.github.skeliit.filter.TestLoginFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>TestLoginFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <filter>
         <filter-name>AdminFilter</filter-name>
         <filter-class>com.github.skeliit.filter.AdminFilter</filter-class>

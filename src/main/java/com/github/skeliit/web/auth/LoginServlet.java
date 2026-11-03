@@ -115,7 +115,7 @@ public class LoginServlet extends HttpServlet {
     }
 
     /** Puts the user into the session; shared by sign-in and registration (a new account is signed in right away). */
-    static HttpSession signIn(HttpServletRequest req, int uid, String username, String role, String avatar, boolean emailVerified) {
+    public static HttpSession signIn(HttpServletRequest req, int uid, String username, String role, String avatar, boolean emailVerified) {
         HttpSession session = req.getSession(true);
         // Prevent session fixation: issue a new session ID after authentication
         req.changeSessionId();
