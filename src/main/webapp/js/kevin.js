@@ -465,7 +465,9 @@
   // CatSmash: hra přes celou obrazovku (složka js/catsmash/ se načte až teď); Kevin v rohu se zatím schová
   function pong(view) {
     hideBubble('idle');
-    var opts = { version: version, view: view === 'top' ? 'top' : null };
+    // Kevin v rohu je během hry schovaný: jeho 3D model se nekreslí (hra má vlastního)
+    model().setPaused(true);
+    var opts = { version: version, view: view === 'top' ? 'top' : null, onClose: function () { model().setPaused(root.hidden); } };
     var go = function () {
       var css = document.querySelector('link[data-catsmash]');
       if (!css || css.sheet) return window.KevinPong.open(opts);

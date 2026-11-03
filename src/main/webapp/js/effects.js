@@ -106,7 +106,7 @@
       try { sessionStorage.setItem(SLIDE_KEY, JSON.stringify({ step: step, at: Date.now(), theme: theme() })); } catch (e) { }
     }
     function next() {
-      if (document.hidden) return;
+      if (document.hidden || document.documentElement.classList.contains('kpong-open')) return;   // pod hrou se fotky nestřídají
       step = (step + 1) % (box.children.length + 1);
       save();
       show(false);

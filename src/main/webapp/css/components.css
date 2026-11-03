@@ -1093,18 +1093,39 @@ body.light .card-gold {
   background: radial-gradient(circle at 20% 80%, #ffd36b .03em, transparent .045em), radial-gradient(circle at 50% 60%, #ffb02e .035em, transparent .05em), radial-gradient(circle at 80% 85%, #ff6a00 .03em, transparent .045em);
   animation: av-rise 1.6s ease-out infinite;
 }
-/* Šampioni měsíce (service/PongChampions, mají přednost před vybraným rámečkem): zlatý / stříbrný / bronzový kovový
-   věnec s medailí z Gemini (tools/catsmash-champ-frames.py → img/frames/champ1–3.webp). Otvor uprostřed je 55 % obrázku,
-   rámeček je 1,55× fotka (kov lehce překryje okraj fotky, ale nezasahuje do textu vedle), na profilu 1,7×. */
-.av-frame.f-champ1, .av-frame.f-champ2, .av-frame.f-champ3 { --cs: 1.55; }
-.acct-photo.av-frame.f-champ1, .acct-photo.av-frame.f-champ2, .acct-photo.av-frame.f-champ3 { --cs: 1.7; }
+/* Šampioni měsíce (service/PongChampions, mají přednost před vybraným rámečkem): zlatý / stříbrný / bronzový tenký
+   prsten s medailí z Gemini (tools/catsmash-champ-frames.py → img/frames/champ1–3.webp). Otvor uprostřed je 68 % obrázku,
+   při 1,42× fotky tedy lem prstenu leží těsně na jejím okraji. */
+.av-frame.f-champ1, .av-frame.f-champ2, .av-frame.f-champ3 { --cs: 1.42; }
+/* lesk: jednou za 7 s přejede přes kov pruh světla a na konci blýskne medaile; maska = jen kov, fotka se ho netkne */
+@property --champ-glint { syntax: "<number>"; inherits: false; initial-value: 0; }
+.av-frame.f-champ1::after, .av-frame.f-champ2::after, .av-frame.f-champ3::after {
+  content: ""; position: absolute; inset: calc((1 - var(--cs)) * .5em); z-index: 2; border-radius: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 95.2%, rgba(255, 255, 240, var(--champ-glint)) 0, transparent 3.5%),
+    linear-gradient(115deg, transparent 44%, rgba(255, 250, 225, .9) 50%, transparent 56%) 100% 100% / 300% 300% no-repeat;
+  -webkit-mask: var(--champ-img) center / contain no-repeat; mask: var(--champ-img) center / contain no-repeat;
+  animation: champ-shine 7s ease-in-out infinite;
+}
+.av-frame.f-champ1 { --champ-img: url(/img/frames/champ1.webp); }
+.av-frame.f-champ2 { --champ-img: url(/img/frames/champ2.webp); }
+.av-frame.f-champ3 { --champ-img: url(/img/frames/champ3.webp); }
+@keyframes champ-shine {
+  0%, 62% { background-position: 0 0, 100% 100%; --champ-glint: 0; }
+  86% { background-position: 0 0, 0 0; --champ-glint: 0; }
+  91% { background-position: 0 0, 0 0; --champ-glint: 1; }
+  97%, 100% { background-position: 0 0, 0 0; --champ-glint: 0; }
+}
+/* ve hře (tabulky) a při omezeném pohybu bez lesku */
+.kpong .av-frame.f-champ1::after, .kpong .av-frame.f-champ2::after, .kpong .av-frame.f-champ3::after { animation: none; background: none; }
+@media (prefers-reduced-motion: reduce) {
+  .av-frame.f-champ1::after, .av-frame.f-champ2::after, .av-frame.f-champ3::after { animation: none; background: none; }
+}
 .av-frame.f-champ1::before, .av-frame.f-champ2::before, .av-frame.f-champ3::before {
   inset: calc((1 - var(--cs)) * .5em); padding: 0; border-radius: 0; z-index: 1; -webkit-mask: none; mask: none;
   background: center / contain no-repeat; filter: drop-shadow(0 .03em .06em rgba(0, 0, 0, .6));
 }
-.av-frame.f-champ1::before { background-image: url(/img/frames/champ1.webp); }
-.av-frame.f-champ2::before { background-image: url(/img/frames/champ2.webp); }
-.av-frame.f-champ3::before { background-image: url(/img/frames/champ3.webp); }
+.av-frame.f-champ1::before, .av-frame.f-champ2::before, .av-frame.f-champ3::before { background-image: var(--champ-img); }
 .av-frame.f-champ1 { box-shadow: 0 0 .3em rgba(255, 210, 63, .45); }
 .cmt-reply .av-frame { font-size: 30px; }
 @keyframes nav-shine { 0%, 55% { background-position: -100% 0; } 85%, 100% { background-position: 200% 0; } }

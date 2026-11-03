@@ -84,7 +84,9 @@
       '<p class="sr-only kpong-live" aria-live="polite"></p>';   // úvod a konec (.kpong-panel) leží přímo na skle hřiště
     document.body.appendChild(root);
     document.documentElement.classList.add('kpong-open');
-    var court = root.querySelector('.kpong-court'), cx = court.getContext('2d');
+    // web pod hrou se po doběhnutí náběhu hry úplně přestane kreslit (šetří grafiku, hra neškube)
+    var underTimer = setTimeout(function () { document.documentElement.classList.add('kpong-under'); }, 300);
+    var court =root.querySelector('.kpong-court'), cx = court.getContext('2d');
     var field = root.querySelector('.kpong-field'), panel = root.querySelector('.kpong-panel');
     var liveEl = root.querySelector('.kpong-live'), youEl = root.querySelector('.kpong-you'), kevEl = root.querySelector('.kpong-kev');
     var kevCanvas = root.querySelector('.kpong-kevin');
@@ -105,18 +107,32 @@
       var availW = innerWidth - 16 - (landscape ? topBar.offsetWidth + padW + 24 : 0);
       // skóre a křížek leží přes volné místo nad strojem (vedle Kevina), na výšku tedy nezabírají řádek
       var availH = innerHeight - 16 - (landscape ? 0 : (padH ? padH + 8 : 0)) - (looking ? 96 : 0);   // prohlídka: místo pro „Zpět ke hře“
-      // telefon na výšku: automat přiblížený – nahoře celá horní strana s Kevinem, boky a spodek za okraji
-      // telefonu (z rámu jen tenký lem kolem skla), hřiště přes celou šířku
+      // telefon na výšku: sklo úplně nahoře přes celou šířku, pod ním pruh pro prst se spodním okénkem stroje
+      // (prst pálku ani míček nezakrývá). Kevin stojí ve skle za svou pálkou (viz níž), horní část stroje je mimo.
       var phone = !landscape && innerWidth <= 600 && !looking;   // při prohlídce celý automat
-      if (phone) availW = innerWidth;
       var all = { x0: 0, x1: FRAME_W, y0: -110, y1: FRAME_H };    // nad rámem místo pro Kevina
-      var cut = phone ? { x0: GLASS.x - 16, x1: GLASS.x + GLASS.w + 16, y0: -110, y1: GLASS.y + GLASS.h + 16 }
-        : { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1300 };
+      var cut = { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1300 };
+      root.classList.toggle('kp-phone', phone);
+      if (phone) {
+        var safeTop = parseFloat(getComputedStyle(root).paddingTop) || 0, screenH = innerHeight - safeTop;
+        var uP = Math.min(innerWidth / (GLASS.w + 2 * PHONE_RIM_X), (screenH - PHONE_FINGER) / (GLASS.h + PHONE_RIM_Y));
+        var midX = GLASS.x + GLASS.w / 2, y0 = GLASS.y - PHONE_RIM_Y;
+        cut = { x0: midX - innerWidth / uP / 2, x1: midX + innerWidth / uP / 2, y0: y0, y1: y0 + screenH / uP };
+        availW = innerWidth; availH = screenH;
+        // pruh pod sklem v % okna: tady je tlačítko odstřelu a volitelná plocha pro pálku
+        var stripTop = safeTop + (GLASS.y + GLASS.h - y0) * uP;
+        strip = { top: stripTop / innerHeight * 100, h: (innerHeight - stripTop) / innerHeight * 100 };
+      }
       var uAll = Math.min(availW / FRAME_W, availH / FRAME_H), uCut = Math.min(availW / (cut.x1 - cut.x0), availH / (cut.y1 - cut.y0));
       var v = !looking && (phone || uCut > uAll * 1.12) ? cut : all, u = v === cut ? uCut : uAll;   // prohlídka = vždy celý automat
       machine.classList.toggle('cut', v === cut);
       machine.classList.toggle('phone', phone);
-      gaugeTop = phone; if (typeof placeGauge === 'function') placeGauge();
+      phoneView = phone;
+      // Kevin na telefonu pod plátnem hřiště: míček a pálky letí vždycky před ním, nic nezakryje
+      if (phone && kevCanvas.parentNode !== field) field.insertBefore(kevCanvas, court);
+      else if (!phone && kevCanvas.parentNode !== frame) frame.insertBefore(kevCanvas, root.querySelector('.kpong-skin'));
+      placeShot();
+      placeGauge();
       machine.style.width = Math.floor((v.x1 - v.x0) * u) + 'px';
       machine.style.height = Math.floor((v.y1 - v.y0) * u) + 'px';
       frame.style.setProperty('--u', u);
@@ -128,7 +144,9 @@
         c.width = Math.round(w[2] * u * dpr); c.height = Math.round(w[3] * u * dpr);
       });
     }
-    var mechEls = [].slice.call(root.querySelectorAll('.kpong-mech')), gaugeTop = false, looking = false;
+    var mechEls = [].slice.call(root.querySelectorAll('.kpong-mech')), phoneView = false, looking = false;
+    // telefon: kolik obrázkových pixelů rámu nechat kolem skla a kolik px pod sklem nejméně nechat pro prst
+    var PHONE_RIM_X = 14, PHONE_RIM_Y = 8, PHONE_FINGER = 96, strip = { top: 74, h: 20 };
     fit();
     addEventListener('resize', fit);
 
@@ -163,6 +181,7 @@
     if (TRY_HOST) window.__kpPlayer = function () { return { x: Math.round(player.x), target: Math.round(player.target) }; };
     // jen na testu/localhost: stav míčku a superútoku pro automatické testy (TmpStickIT)
     if (TRY_HOST) window.__kpSet = function (y, k) { you = y; kev = k; youEl.textContent = y; kevEl.textContent = k; bigScore(); };
+    if (TRY_HOST) window.__kpSay = function (t) { say(t); };   // test: Kevinova bublina na vyzkoušení
     if (TRY_HOST) window.__kpLen = function () { return WIN; };   // test: skóre těsně před koncem zápasu
     if (TRY_HOST) window.__kpHold = function (ms) { if (stick.active) stick.active.end += ms; };   // test: delší míření kvůli snímku
     if (TRY_HOST) window.__kpBall = function () { return { x: Math.round(ball.x), y: Math.round(ball.y), vy: Math.round(ball.vy), W: W, stick: { charges: stick.charges, pts: stick.pts, armed: stick.armed, active: !!stick.active }, screw: screw && screw.kind }; };
@@ -213,7 +232,7 @@
       seedFx();
     }
     function fxSize() {
-      var dpr = Math.min(1.5, window.devicePixelRatio || 1);
+      var dpr = phoneView ? 1 : Math.min(1.5, window.devicePixelRatio || 1);   // telefon: déšť a sníh stačí v nižším rozlišení
       fxW = Math.max(1, field.clientWidth); fxH = Math.max(1, field.clientHeight);
       fx.width = Math.round(fxW * dpr); fx.height = Math.round(fxH * dpr);
       fxc.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -323,16 +342,20 @@
           room = kr.left + kr.width * 0.36;
         }
         el.style.maxWidth = Math.round(Math.min(room - 16, 300)) + 'px';
+      } else if (phoneView && kind === 'say' && panel.hidden) {
+        // telefon při hře: Kevinova bublina ve skle pod ním, ale pod plátnem hřiště – míček letí před ní
+        el.className = 'kp-comic say in-glass';
       } else {
-        // telefon: nic přes hřiště – Kevinova bublina v horním okénku pod ním (špička k němu), nápis odstřelu
-        // v dolním okénku u pálky hráče
-        var win = root.querySelector('.kpong-mech[data-win="' + (kind === 'say' ? 'top' : 'bot') + '"]').getBoundingClientRect();
+        // telefon: nápis odstřelu v dolním okénku pod sklem; Kevinova bublina nad menu tamtéž (sklo zabírá menu),
+        // úzké okno na PC má Kevinovu bublinu v horním okénku pod ním (špička k němu)
+        var winName = kind === 'say' && !phoneView ? 'top' : 'bot';
+        var win = root.querySelector('.kpong-mech[data-win="' + winName + '"]').getBoundingClientRect();
         el.className = 'kp-comic ' + kind + (kind === 'say' ? ' top' : ' bottom');
         el.style.left = Math.round(win.left + win.width / 2) + 'px';
-        el.style.top = Math.round(win.top + win.height / 2) + 'px';
+        el.style.top = Math.round(Math.min(win.top + win.height / 2, innerHeight - 34)) + 'px';
         el.style.maxWidth = Math.round(win.width + 16) + 'px';
       }
-      root.appendChild(el);
+      if (el.classList.contains('in-glass')) field.insertBefore(el, court); else root.appendChild(el);
       comics[side] = el;
       spk.classList.remove('boom'); void spk.offsetWidth; spk.classList.add(kind === 'say' ? 'talk' : 'boom');
       liveEl.textContent = text;
@@ -1770,7 +1793,7 @@
     }
     function mosquito() {
       mosq.done = true;
-      if (Math.random() >= MOSQUITO_CHANCE) return;
+      if (phoneView || Math.random() >= MOSQUITO_CHANCE) return;   // telefon: horní hrana stroje, kde se honí, není vidět
       mosq.active = true;
       var M = T.mosquito || {};
       var el = document.createElement('div');
@@ -1889,10 +1912,27 @@
       }
     }
 
+    // jen test/localhost: #fps = počítadlo plynulosti přímo ve hře (na opravdovém telefonu se to jinak změřit nedá).
+    // snímky za sekundu · nejhorší snímek · čas kódu na snímek · úroveň ubírání ozdob
+    var fpsEl = null, fpsN = 0, fpsAt = 0, fpsWorst = 0, fpsJs = 0;
+    if (TRY_HOST && /\bfps\b/.test(location.hash)) {
+      fpsEl = document.createElement('div');
+      fpsEl.className = 'kp-fps';
+      root.appendChild(fpsEl);
+    }
+    function fpsTick(ms, now) {
+      var t0 = performance.now();
+      queueMicrotask(function () { fpsJs += performance.now() - t0; });   // proběhne hned po celém snímku
+      fpsN++; if (ms > fpsWorst) fpsWorst = ms;
+      if (now - fpsAt < 1000) return;
+      fpsEl.textContent = Math.round(fpsN * 1000 / (now - fpsAt)) + ' fps · max ' + Math.round(fpsWorst) + ' ms · JS ' + (fpsJs / fpsN).toFixed(1) + ' ms · fx ' + lowFx;
+      fpsAt = now; fpsN = 0; fpsWorst = 0; fpsJs = 0;
+    }
     function step(now) {
       raf = requestAnimationFrame(step);
       var real = last ? now - last : 0, dt = Math.min(0.034, real / 1000); last = now;
       if (running && !paused && !awaitStart && real > 0 && real < 250) watchSmooth(real, now);
+      if (fpsEl) fpsTick(real, now);
       if (running && (paused || awaitStart)) {
         pausedMs += real;
         if (hotUntil > now) hotUntil += real;
@@ -2291,7 +2331,6 @@
     applyWins(winMachine);
     // manometr nabití superútoku sedí přímo na velkém kole vlevo v dolním okénku (druhé v řetězu): stejný střed,
     // průměr 84 % kola = kolem dokola koukají zuby, které se pod ním točí
-    // (na telefonu je spodní okénko za okrajem – manometr pak sedí na velkém kole v horním okénku)
     // velká čísla skóre ve skle (telefon): přepíše obě, kdo dal gól, ten se na chvíli rozsvítí
     function bigScore(who) {
       var b = root.querySelectorAll('.kp-bigscore b');
@@ -2301,18 +2340,21 @@
     }
     function placeGauge() {
       if (!MECH) return;                                  // (fit() běží dřív, než je mechanika připravená)
-      var g = (gaugeTop ? MECH.top : MECH.bot).front[1], el = root.querySelector('.kp-gauge');
+      // telefon: na velkém kole uprostřed a menší, vlevo je tlačítko odstřelu a nižší pruh by ho uřízl
+      var g = MECH.bot.front[phoneView ? 3 : 1] || MECH.bot.front[1], el = root.querySelector('.kp-gauge');
       if (!g || !el) return;
       el.style.setProperty('--gx', g.x.toFixed(1));
       el.style.setProperty('--gy', g.y.toFixed(1));
-      el.style.setProperty('--gd', (2 * g.r * 0.84).toFixed(1));
+      el.style.setProperty('--gd', (2 * g.r * (phoneView ? 0.7 : 0.84)).toFixed(1));
     }
     placeGauge();
-    var mechWant = { top: 0, bot: 0 }, mechLast = 0;
+    var mechWant = { top: 0, bot: 0 }, mechLast = 0, mechOdd = false;
     function mechTick(now) {
       var dt = mechLast ? Math.min(0.05, (now - mechLast) / 1000) : 0;
       mechLast = now;
+      mechOdd = !mechOdd;
       mechEls.forEach(function (c) {
+        if (phoneView && c.dataset.win === 'top') return;  // telefon: horní okénko není vidět, nekreslí se
         var m = MECH[c.dataset.win], want = running && !paused ? mechWant[c.dataset.win] : 0;
         if (Math.abs(want) > 1) m.dir = want > 0 ? 1 : -1;
         var target = Math.abs(want) + 9 + (running && rally >= 8 ? Math.min(rally, 30) * 5 : 0);   // 9 px/s = klidné tikání, dlouhá výměna kola roztočí
@@ -2321,7 +2363,7 @@
         if (Math.abs(want) > 20) { m.acc = (m.acc || 0) + Math.abs(step); if (m.acc > 28) { m.acc = 0; sfx.click(); } }
         m.front.forEach(function (g) { g.a += g.sign * step / g.r; });
         m.back.forEach(function (g) { g.a += g.sign * step * 0.45 / g.r; });
-        drawMech(m, c);
+        if (!phoneView || mechOdd) drawMech(m, c);         // telefon: kolečkům stačí každý druhý snímek
       });
     }
     function drawMech(m, c) {
@@ -3368,9 +3410,13 @@
     // je volitelná: funguje jako posuvník – přes celou její šířku jede pálka přes celé hřiště (stačí malá u palce);
     // bez ní vede pálku prst kdekoli na stroji jako dřív. Přesouvat jde jen v režimu „Upravit rozložení“.
     var shotPos = null, zone = null, layoutMode = false, zoneMover = null;
-    var ZONE_DEF = { x: 6, y: 74, w: 88, h: 20 };
+    function zoneDef() { return phoneView ? { x: 4, y: strip.top + 1, w: 92, h: Math.max(8, strip.h - 2) } : { x: 6, y: 74, w: 88, h: 20 }; }
     try { shotPos = JSON.parse(store.get('kevinPongShotPos') || 'null'); } catch (e) { shotPos = null; }
     try { zone = JSON.parse(store.get('kevinPongZone') || 'null'); } catch (e) { zone = null; }
+    // 3. 11. 2026 sklo na telefonu šlo nahoru: dřív uložené rozmístění by leželo přes hřiště (jednou smazat)
+    if (phoneView && store.get('kevinPongLayoutEra') !== '2') {
+      shotPos = null; zone = null; store.set('kevinPongShotPos', ''); store.set('kevinPongZone', ''); store.set('kevinPongLayoutEra', '2');
+    }
     var zoneEl = document.createElement('div');
     zoneEl.className = 'kpong-zone';
     zoneEl.innerHTML = '<i class="fa-solid fa-left-right" aria-hidden="true"></i><span class="kp-zone-name"></span><span class="kp-zone-grip" aria-hidden="true"></span>';
@@ -3378,14 +3424,16 @@
     var layoutBar = document.createElement('div');
     layoutBar.className = 'kp-layout-bar';
     padEl.appendChild(layoutBar);
-    function defShot() { return { x: 12, y: 58 }; }
+    // telefon: odstřel v pruhu pod sklem vlevo, magnet na opačném konci pruhu (u prostředka vedle odstřelu)
+    function defShot() { return phoneView ? { x: 11, y: strip.top + strip.h / 2 } : { x: 12, y: 58 }; }
     function placeShot() {
-      var p = shotPos || defShot();
-      shotBtn.style.setProperty('--sx', clamp(p.x, 6, 94));
-      shotBtn.style.setProperty('--sy', clamp(p.y, 8, 94));
+      var p = shotPos || defShot(), sx = clamp(p.x, 6, 94);
+      padEl.style.setProperty('--sx', sx);
+      padEl.style.setProperty('--sy', clamp(p.y, 8, 94));
+      padEl.style.setProperty('--mx', Math.abs(sx - 50) < 16 ? sx + 22 : 100 - sx);
     }
     function placeZone() {
-      var z = zone || ZONE_DEF;
+      var z = zone || zoneDef();
       zoneEl.hidden = !zone && !layoutMode;
       zoneEl.style.cssText = '--zx:' + z.x + ';--zy:' + z.y + ';--zw:' + z.w + ';--zh:' + z.h;
     }
@@ -3419,7 +3467,7 @@
     // přetahování v režimu úprav: tlačítko, celá plocha, nebo roh plochy (velikost)
     function dragLayout(e, what) {
       e.preventDefault(); e.stopPropagation();
-      var id = e.pointerId, sx = e.clientX, sy = e.clientY, z0 = Object.assign({}, zone || ZONE_DEF), p0 = Object.assign({}, shotPos || defShot());
+      var id = e.pointerId, sx = e.clientX, sy = e.clientY, z0 = Object.assign({}, zone || zoneDef()), p0 = Object.assign({}, shotPos || defShot());
       function move(ev) {
         if (ev.pointerId !== id) return;
         ev.preventDefault();
@@ -4131,7 +4179,8 @@
       Object.keys(comicTimers).forEach(function (k) { clearTimeout(comicTimers[k]); });
       if (K && K.dispose) K.dispose();
       root.remove();
-      document.documentElement.classList.remove('kpong-open');
+      clearTimeout(underTimer);
+      document.documentElement.classList.remove('kpong-open', 'kpong-under');
       window.KevinPong.isOpen = false;
       if (opts.onClose) opts.onClose();
     }
@@ -4144,7 +4193,7 @@
     // ---------- plynulost: když počítač nestíhá (dlouhé snímky), hra sama ubere ozdoby ----------
     // lowFx 1 = bez stínů a záře na hřišti, bez života v pozadí, méně částic; 2 = navíc bez atmosféry pálky;
     // 3 (jen ručně „Nízké“) = navíc bez stopy letu a velkých efektů odstřelu, Kevin méně ostrý
-    var lowFx = 0, frameAvg = 16.7, lowFxAt = 0;
+    var lowFx = 0, frameAvg = 16.7, lowFxAt = 0, lateShare = 0;
     // volba v ⚙ Ovládání → Detaily (localStorage kevinPongDetail): auto = hra ubírá sama, jinak pevně
     var DETAIL_KEYS = ['auto', 'high', 'mid', 'low'], DETAIL_FX = { auto: 0, high: 0, mid: 1, low: 3 };
     var detail = DETAIL_KEYS.indexOf(store.get('kevinPongDetail')) >= 0 ? store.get('kevinPongDetail') : 'auto';
@@ -4168,8 +4217,10 @@
     function watchSmooth(ms, now) {
       if (detail !== 'auto') return;
       frameAvg = frameAvg * 0.95 + ms * 0.05;
-      if (frameAvg > 25 && lowFx < 2 && now - lowFxAt > 3000 && now - started > 4000) {
-        lowFx++; lowFxAt = now; frameAvg = 18;
+      // škubání poznat i podle zpožděných snímků (průměr může být v pořádku, oko ale každý zpožděný snímek vidí)
+      lateShare = lateShare * 0.98 + (ms > 24 ? 0.02 : 0);
+      if ((frameAvg > 25 || lateShare > 0.12) && lowFx < 2 && now - lowFxAt > 3000 && now - started > 4000) {
+        lowFx++; lowFxAt = now; frameAvg = 18; lateShare = 0;
         if (lowFx === 1) { noShadows(true); if (fx) fxc.clearRect(0, 0, fx.width, fx.height); }
       }
     }
