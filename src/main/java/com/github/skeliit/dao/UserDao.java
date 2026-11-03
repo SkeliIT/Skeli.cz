@@ -16,6 +16,24 @@ import java.util.List;
 
 /** A signed-in user's own data: the settings they filled in, their comments and a few numbers. */
 public class UserDao {
+    /** Co potřebuje přihlášení bez hesla (jen testovací web, filter/TestLoginFilter). */
+    public static final class SignInInfo {
+        public final int id;
+        public final String username, role, avatar;
+        SignInInfo(int id, String username, String role, String avatar) { this.id = id; this.username = username; this.role = role; this.avatar = avatar; }
+    }
+
+    /** Účet podle jména; smazaný účet se nepřihlásí nikdy. */
+    public SignInInfo signInInfo(String username) throws SQLException {
+        try (Connection c = Db.get();
+             PreparedStatement ps = c.prepareStatement("SELECT id, username, role, avatar_url FROM users WHERE username = ? AND role <> 'DELETED'")) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? new SignInInfo(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4)) : null;
+            }
+        }
+    }
+
 
     /** Písma mota na profilu (CSS třída motto-<klíč>). */
     public static final java.util.List<String> MOTTO_FONTS = java.util.List.of("brush", "modern", "clean");
