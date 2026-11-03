@@ -162,6 +162,21 @@
       <% } %>
     </form>
     <% } %>
+    <%-- rámeček šampiona: první tři ze Šampionů měsíce (service/PongChampions) – má přednost, jde vypnout --%>
+    <form class="pong-title-form pong-champ-form" method="post" action="/api/pong/champ">
+      <input type="hidden" name="csrf" value="${csrf}">
+      <input type="hidden" name="back" value="account">
+      <label for="pongChamp"><b><%= t.getProperty("pong.champ.title") %></b> <span class="acct-dim"><%= t.getProperty("pong.champ.lead") %></span></label>
+      <% if ("1".equals(request.getParameter("pongChamp"))) { %><p class="pong-title-msg ok" role="status"><%= t.getProperty("pong.champ.saved") %></p><% } %>
+      <p class="acct-dim"><%= pong.champPlace != null ? t.getProperty("pong.champ.now").replace("{n}", String.valueOf(pong.champPlace)) : t.getProperty("pong.champ.not") %></p>
+      <div class="pong-title-row">
+        <select id="pongChamp" name="on">
+          <option value="1"<%= pong.champOn ? " selected" : "" %>><%= t.getProperty("pong.champ.on") %></option>
+          <option value="0"<%= pong.champOn ? "" : " selected" %>><%= t.getProperty("pong.champ.off") %></option>
+        </select>
+        <button type="submit" class="btn-primary"><%= t.getProperty("pong.title.save") %></button>
+      </div>
+    </form>
     <%-- rámeček kolem fotky: jen z odznaků PongBadges.FRAMES (ukazuje se v komentářích, v tabulce a tady na profilu) --%>
     <form class="pong-title-form pong-frame-form" method="post" action="/api/pong/frame">
       <input type="hidden" name="csrf" value="${csrf}">

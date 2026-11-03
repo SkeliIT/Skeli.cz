@@ -43,7 +43,7 @@
   <section class="acct-card acct-hero">
     <%-- úpravy profilu a celé nastavení jsou na samostatné stránce (nastaveni.jsp) --%>
     <a class="acct-edit" href="/nastaveni.jsp"><i class="fa-solid fa-gear" aria-hidden="true"></i> <%= t.getProperty("account.edit") %></a>
-    <a class="acct-photo<%= pong.frame != null ? " av-frame f-" + pong.frame : "" %>" href="/nastaveni.jsp#profil" title="<%= t.getProperty("account.changePhoto") %>">
+    <a class="acct-photo<%= pong.shownFrame != null ? " av-frame f-" + pong.shownFrame : "" %>" href="/nastaveni.jsp#profil" title="<%= t.getProperty("account.changePhoto") %>">
       <img class="acct-avatar" src="<%= WebUtils.escapeHtml(avatarUrl) %>" alt="">
       <span class="acct-photo-edit" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
       <span class="sr-only"><%= t.getProperty("account.changePhoto") %></span>
