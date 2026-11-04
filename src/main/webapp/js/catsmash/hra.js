@@ -2485,24 +2485,27 @@ t    }
       // píst: čep na horním paprsku posledního kola řetězu (kolo má 6 paprsků, obrázek je natočený o k.a – čep se
       // točí s paprskem, nikdy nevisí v díře), ojnice k pístu ve válci vpravo. Válec je přesně tak dlouhý, kolik
       // píst ujede (+ kostička), a ojnice se zkrátí, aby se celý vešel do okénka.
-      var k = m.front[m.front.length - 1], pr = k.r * 0.45, ang = k.a - Math.PI / 2, pin = [k.x + Math.cos(ang) * pr, k.y + Math.sin(ang) * pr];
+      var k = m.front[m.front.length - 1], pr = k.r * (wheels ? 0.76 : 0.45), ang = k.a - Math.PI / 2, pin = [k.x + Math.cos(ang) * pr, k.y + Math.sin(ang) * pr];
       // tematický píst jezdí celý; aby se vešel, je táhlo o kus jeho délky kratší
       var pistH = wheels ? Math.min(m.win[3] * 0.42, 36) : 0, pistW = wheels ? pistH * wheels.piston.naturalWidth / wheels.piston.naturalHeight : 0;
       var winR = m.win[0] + m.win[2] - 8, L = Math.max(pr * 1.6, Math.min(k.r * 1.9, winR - 18 - k.x - pr - pistW * 0.45)), cyl = Math.min(k.y, m.win[1] + m.win[3] - 12);   // válec se vždy vejde do okénka (telefon: kola koukají jen vrškem)
       var px = pin[0] + Math.sqrt(Math.max(0, L * L - (cyl - pin[1]) * (cyl - pin[1])));
       var lo = k.x - pr + Math.sqrt(L * L - pr * pr), hi = k.x + pr + L;     // krajní polohy pístu
-      if (wheels) {
-        g2.drawImage(wheels.piston, px - pistH * 0.2, cyl - pistH / 2, pistW, pistH);
-      } else {
+      if (!wheels) {
         g2.fillStyle = '#0f0e12'; g2.strokeStyle = 'rgba(230,183,48,.55)'; g2.lineWidth = 2;
         g2.beginPath(); g2.rect(lo - 6, cyl - 9, hi - lo + 22, 18); g2.fill(); g2.stroke();
       }
       m.front.forEach(draw1);
-      if (wheels) {                                       // táhlo z obrázku: oka na koncích sedí na čepu a na pístu
+      if (wheels) {                                       // píst a táhlo leží nad koly; oka táhla sedí na čepech
+        g2.drawImage(wheels.piston, px - pistH * 0.22, cyl - pistH / 2, pistW, pistH);
         var ri = wheels.rod, eye = ri.naturalHeight / 2, rk = L / Math.max(1, ri.naturalWidth - ri.naturalHeight);
         g2.save(); g2.translate(pin[0], pin[1]); g2.rotate(Math.atan2(cyl - pin[1], px - pin[0]));
         g2.drawImage(ri, -eye * rk, -eye * rk, ri.naturalWidth * rk, ri.naturalHeight * rk);
         g2.restore();
+        [pin, [px, cyl]].forEach(function (q) {           // čepy držící táhlo
+          g2.fillStyle = '#17140e'; g2.beginPath(); g2.arc(q[0], q[1], 3.6, 0, 7); g2.fill();
+          g2.fillStyle = '#d8d3c4'; g2.beginPath(); g2.arc(q[0] - 0.4, q[1] - 0.4, 2.2, 0, 7); g2.fill();
+        });
       } else {
         var rod = g2.createLinearGradient(pin[0], pin[1] - 3, pin[0], pin[1] + 3);
         rod.addColorStop(0, '#f3d27a'); rod.addColorStop(1, '#8f6600');
