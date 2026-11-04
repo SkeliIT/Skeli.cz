@@ -95,7 +95,7 @@ public class NotificationsIT extends UiTestSupport {
             WebElement list = driver.findElement(By.id("komentare"));
             assertTrue(list.getText().contains(lyricText));
             assertTrue(list.getText().contains(clipText));
-            assertEquals("2", driver.findElement(By.cssSelector(".acct-stats li strong")).getText());
+            assertEquals("2", driver.findElement(By.cssSelector(".pt-comments .pt-big")).getText());
         } finally {
             update("DELETE FROM video_comments WHERE user_id=?", id);
         }

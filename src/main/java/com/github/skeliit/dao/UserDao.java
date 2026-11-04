@@ -53,7 +53,7 @@ public class UserDao {
                 String name = rs.getString(2), motto = rs.getString(3), yt = rs.getString(5), font = rs.getString(6);
                 String thumb = yt != null ? "/yt-thumb/" + yt + "/mqdefault.jpg" : rs.getString(4);
                 return new String[] { name != null ? rs.getString(1) : null, name, motto != null && !motto.isBlank() ? motto : null,
-                        name != null ? thumb : null, MOTTO_FONTS.contains(font) ? font : "brush" };
+                        name != null ? thumb : null, font != null && MOTTO_FONTS.contains(font) ? font : "brush" };   // Set.of(...).contains(null) by spadlo
             }
         }
     }

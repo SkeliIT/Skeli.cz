@@ -54,6 +54,20 @@ public final class PongBadges {
             "marathon", "comeback", "clean", "wins50", "angry", "wardrobe", "wins100", "hsniper", "hcomeback", "hclean", "hfast",
             "hwins5", "skelosquad");
 
+    /** Vzácnost odznaku (barva): c běžný, u neobvyklý, r vzácný, e epický, l legendární; stejná jako RARITY v js/catsmash/data.js. */
+    public static final Map<String, String> RARITY = new LinkedHashMap<>();
+    static {
+        for (String k : java.util.List.of("first", "easy", "normal", "tinker", "loyal")) RARITY.put(k, "c");
+        for (String k : java.util.List.of("streak", "night", "sniper", "overheat", "close", "fast")) RARITY.put(k, "u");
+        for (String k : java.util.List.of("marathon", "comeback", "super", "yarn", "wins50", "clean")) RARITY.put(k, "r");
+        for (String k : java.util.List.of("angry", "wins100", "wardrobe")) RARITY.put(k, "e");
+        for (String k : java.util.List.of("hwins5", "hfast", "hclean", "hsniper", "hcomeback", "skelosquad")) RARITY.put(k, "l");
+    }
+
+    public static String rarity(String key) {
+        return RARITY.getOrDefault(key, "c");
+    }
+
     /** Odznaky, které hlásí prohlížeč (stalo se to uvnitř zápasu, server to nevidí). */
     public static final Set<String> CLAIMABLE = Set.of(
             "sniper", "super", "tinker", "yarn", "overheat", "comeback", "marathon", "night", "loyal", "hsniper", "hcomeback");

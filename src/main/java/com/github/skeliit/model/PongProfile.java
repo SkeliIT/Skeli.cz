@@ -25,6 +25,10 @@ public class PongProfile {
     public boolean champOn = true;
     public String mark;               // legendární znak u jména (jen když ho hráč zapnul a má odznak)
     public final List<Badge> badges = new ArrayList<>();
+    /** Nejbližší odznak za počet výher (klíč, kolik výher má a kolik je potřeba); null = všechny za výhry získal. */
+    public String nextBadge;
+    public int nextHave;
+    public int nextNeed;
 
     /** Jeden odznak: klíč textů pong.badge.{key} a pong.badge.{key}.how, ikona Font Awesome, získaný? */
     public static class Badge {
@@ -46,6 +50,20 @@ public class PongProfile {
     /** Seřadí odznaky pro výpis: získané nahoře, chybějící pod nimi, v obou částech od nejběžnějšího po nejvzácnější. */
     public void sortBadges() {
         badges.sort(Comparator.comparing((Badge b) -> !b.earned).thenComparingInt(b -> PongBadges.RANK.indexOf(b.key)));
+    }
+
+    /** Spočítá nejbližší odznak za výhry: první, 3, 10, 50 a 100 výher. */
+    public void findNextBadge(int winsCounted) {
+        String[] keys = { "first", "easy", "streak", "wins50", "wins100" };
+        int[] need = { 1, 3, 10, 50, 100 };
+        for (int i = 0; i < keys.length; i++) {
+            if (winsCounted < need[i]) {
+                nextBadge = keys[i];
+                nextHave = winsCounted;
+                nextNeed = need[i];
+                return;
+            }
+        }
     }
 
     public boolean has(String key) {

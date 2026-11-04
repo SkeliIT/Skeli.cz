@@ -3,7 +3,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%-- Můj profil: vitrína – fotka, moto, oblíbený song, čísla, komentáře a CatSmash (časy, odznaky).
      Úpravy profilu, heslo, dvoufázové ověření, export a smazání účtu jsou v Nastavení (nastaveni.jsp). --%>
-<main class="account-page">
+<main class="account-page profile-page">
   <% if (session.getAttribute("user_id") == null) { %>
   <%-- signed out (e.g. the sign-in expired): no forms, just a way back in --%>
   <div class="settings-wrap">
@@ -39,79 +39,106 @@
 
   %>
 
-  <%-- who you are: photo (click = choose a new one), name, since when, numbers --%>
-  <section class="acct-card acct-hero">
+  <div class="pt-grid">
+  <%-- kdo jsi: fotka (klik = změnit), jméno, od kdy, moto --%>
+  <section class="pt pt-hero">
+    <div class="pt-photo" aria-hidden="true"></div>
     <%-- úpravy profilu a celé nastavení jsou na samostatné stránce (nastaveni.jsp) --%>
-    <a class="acct-edit" href="/nastaveni.jsp"><i class="fa-solid fa-gear" aria-hidden="true"></i> <%= t.getProperty("account.edit") %></a>
-    <a class="acct-photo<%= pong.shownFrame != null ? " av-frame f-" + pong.shownFrame : "" %>" href="/nastaveni.jsp#profil" title="<%= t.getProperty("account.changePhoto") %>">
-      <img class="acct-avatar" src="<%= WebUtils.escapeHtml(avatarUrl) %>" alt="">
-      <span class="acct-photo-edit" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
-      <span class="sr-only"><%= t.getProperty("account.changePhoto") %></span>
-    </a>
-    <%-- moto: zlatý podpis vybraným písmem, lehce přes spodek fotky --%>
-    <% if (showcase[2] != null) { %><p class="acct-motto motto-<%= showcase[4] %>">„<%= WebUtils.escapeHtml(showcase[2]) %>“</p><% } %>
-    <div class="acct-who">
-      <h2 class="acct-name"><%= WebUtils.escapeHtml(shownName) %>
-        <% if (me != null && me.artist) { %><span class="acct-badge artist"><i class="fa-solid fa-circle-check"></i> <%= t.getProperty("cmt.artist") %></span><% } %>
-        <% if (me != null && me.admin) { %><span class="acct-badge">★ Admin</span><% } %>
-      </h2>
-      <% if (com.github.skeliit.model.PongBadges.TITLES_ON && pong.title != null) { %><p class="acct-title"><i class="fa-solid fa-crown" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pong.badge." + pong.title)) %></p><% } %>
-      <p class="acct-meta">
-        <% if (me != null) { %>@<%= WebUtils.escapeHtml(me.username) %><% } %>
-        <% if (me != null && me.memberSince != null) { %> · <%= WebUtils.escapeHtml(t.getProperty("account.memberSince").replace("{0}",
-             java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.LONG).withLocale(java.util.Locale.forLanguageTag(cur)).format(me.memberSince.toLocalDateTime()))) %><% } %>
-      </p>
+    <a class="pt-gear" href="/nastaveni.jsp" aria-label="<%= t.getProperty("account.edit") %>"><i class="fa-solid fa-gear" aria-hidden="true"></i> <span><%= t.getProperty("account.edit") %></span></a>
+    <div class="pt-in">
+      <div class="pt-who">
+        <a class="acct-photo<%= pong.shownFrame != null ? " av-frame f-" + pong.shownFrame : "" %>" href="/nastaveni.jsp#profil" title="<%= t.getProperty("account.changePhoto") %>">
+          <img class="acct-avatar" src="<%= WebUtils.escapeHtml(avatarUrl) %>" alt="">
+          <span class="acct-photo-edit" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
+          <span class="sr-only"><%= t.getProperty("account.changePhoto") %></span>
+        </a>
+        <div class="pt-who-text">
+          <h2 class="acct-name"><%= WebUtils.escapeHtml(shownName) %>
+            <% if (me != null && me.artist) { %><span class="acct-badge artist"><i class="fa-solid fa-circle-check"></i> <%= t.getProperty("cmt.artist") %></span><% } %>
+            <% if (me != null && me.admin) { %><span class="acct-badge">★ Admin</span><% } %>
+          </h2>
+          <% if (com.github.skeliit.model.PongBadges.TITLES_ON && pong.title != null) { %><p class="acct-title"><i class="fa-solid fa-crown" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pong.badge." + pong.title)) %></p><% } %>
+          <p class="acct-meta">
+            <% if (me != null) { %>@<%= WebUtils.escapeHtml(me.username) %><% } %>
+            <% if (me != null && me.memberSince != null) { %> · <%= WebUtils.escapeHtml(t.getProperty("account.memberSince").replace("{0}",
+                 java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.LONG).withLocale(java.util.Locale.forLanguageTag(cur)).format(me.memberSince.toLocalDateTime()))) %><% } %>
+          </p>
+          <%-- moto: zlatý podpis vybraným písmem --%>
+          <% if (showcase[2] != null) { %><p class="acct-motto motto-<%= showcase[4] %>">„<%= WebUtils.escapeHtml(showcase[2]) %>“</p><% } %>
+        </div>
+      </div>
       <% if (bio != null && !bio.isBlank()) { %><p class="acct-bio"><%= WebUtils.escapeHtml(bio) %></p><% } %>
-      <%-- jako v návrhu od Gemini: zlatý ukazatel (odznaky místo XP) a štítky získaných odznaků --%>
-      <% int earned = pong.earnedCount(), allBadges = Math.max(1, pong.badges.size()); %>
-      <a class="acct-progress" href="#pong" aria-label="<%= t.getProperty("pong.badges.title") %> <%= earned %>/<%= pong.badges.size() %>">
-        <span class="acct-progress-bar" style="--p:<%= earned * 100 / allBadges %>%"><i></i></span>
-        <span class="acct-progress-n"><i class="fa-solid fa-medal" aria-hidden="true"></i> <%= earned %>/<%= pong.badges.size() %></span>
-      </a>
-      <%-- výstavka: jen co si hráč vyplnil --%>
-      <% if (showcase[0] != null) { %>
-      <a class="acct-fav" href="<%= com.github.skeliit.I18n.songPath(request, showcase[0], 0) %>">
-        <% if (showcase[3] != null) { %><img src="<%= WebUtils.escapeHtml(showcase[3]) %>" alt="" width="96" height="54" loading="lazy"><% } %>
-        <span><small><i class="fa-solid fa-heart" aria-hidden="true"></i> <%= t.getProperty("profile.favSong") %></small><b><%= WebUtils.escapeHtml(showcase[1]) %></b></span>
-        <i class="fa-solid fa-play acct-fav-play" aria-hidden="true"></i>
-      </a>
-      <% } %>
-      <% if (earned > 0) { %><ul class="acct-chips">
-        <% int shown = 0; for (PongProfile.Badge b : pong.badges) { if (!b.earned || shown >= 3) continue; shown++; %>
-        <li><i class="fa-solid <%= b.icon %>" aria-hidden="true"></i> <%= t.getProperty("pong.badge." + b.key) %></li>
-        <% } %>
-      </ul><% } %>
     </div>
-    <ul class="acct-stats">
-      <li><strong><%= me != null ? me.comments : 0 %></strong><span><%= t.getProperty("account.stats.comments") %></span></li>
-      <li><strong><%= me != null ? me.likes : 0 %></strong><span><i class="fa-solid fa-thumbs-up"></i> <%= t.getProperty("account.stats.likes") %></span></li>
-      <li><strong><%= me != null ? me.hearts : 0 %></strong><span><i class="fa-solid fa-heart"></i> <%= t.getProperty("account.stats.hearts") %></span></li>
-      <% Integer bestAll = null; for (Integer b : pong.bestMs) if (b != null && (bestAll == null || b < bestAll)) bestAll = b; %>
-      <li><strong><%= pong.wins %></strong><span><i class="fa-solid fa-trophy"></i> <%= t.getProperty("account.stats.wins") %></span></li>
-      <li><strong><%= bestAll == null ? "–" : PongProfile.time(bestAll) %></strong><span><i class="fa-solid fa-stopwatch"></i> <%= t.getProperty("account.stats.best") %></span></li>
-    </ul>
   </section>
 
-  <%-- CatSmash: nejlepší výhra a místo na každé obtížnosti, odznaky (počítá je server z uložených výher) --%>
-  <section class="acct-card" id="pong">
+  <%-- čísla: každé vede na to, čeho se týká --%>
+  <% Integer bestAll = null; for (Integer b : pong.bestMs) if (b != null && (bestAll == null || b < bestAll)) bestAll = b; %>
+  <a class="pt pt-stat pt-wins" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-trophy pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.wins") %></span><b class="pt-big"><%= pong.wins %></b></span></a>
+  <a class="pt pt-stat pt-best" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-stopwatch pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.best") %></span><b class="pt-big"><%= bestAll == null ? "–" : PongProfile.time(bestAll) %></b></span></a>
+  <a class="pt pt-stat pt-comments" href="#komentare" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-comments pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.comments") %></span><b class="pt-big"><%= me != null ? me.comments : 0 %></b></span></a>
+  <a class="pt pt-stat pt-hearts" href="#komentare" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-heart pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.hearts") %></span><b class="pt-big"><%= me != null ? me.hearts : 0 %></b></span></a>
+
+  <%-- vitrína odznaků: prstenec, nejbližší odznak za výhry a nejvzácnější získané --%>
+  <section class="pt pt-badges pt-two">
+    <div class="pt-in">
+      <div class="pt-badges-top">
+        <a class="pt-ring" href="#odznaky" style="--ring:<%= pong.badges.isEmpty() ? 0 : pong.earnedCount() * 100 / pong.badges.size() %>" aria-label="<%= t.getProperty("pong.badges.title") %> <%= pong.earnedCount() %>/<%= pong.badges.size() %>"><%= pong.earnedCount() %>/<%= pong.badges.size() %></a>
+        <div>
+          <span class="pt-label"><%= t.getProperty("pong.badges.title") %></span>
+          <% if (pong.nextBadge != null) { %>
+          <p class="pt-note"><%= WebUtils.escapeHtml(t.getProperty("profile.nextBadge").replace("{0}", t.getProperty("pong.badge." + pong.nextBadge))) %> · <b><%= t.getProperty("profile.nextWins").replace("{0}", String.valueOf(pong.nextHave)).replace("{1}", String.valueOf(pong.nextNeed)) %></b></p>
+          <% } %>
+        </div>
+      </div>
+      <% PongProfile railPong = pong; String railEmpty = "profile.noBadgesYet"; %>
+      <%@ include file="/includes/profile-rail.jspf" %>
+    </div>
+  </section>
+
+  <%-- oblíbený song: kdo ho nemá, dostane odkaz do nastavení --%>
+  <% if (showcase[0] != null) { %>
+  <a class="pt pt-song" href="<%= com.github.skeliit.I18n.songPath(request, showcase[0], 0) %>" data-tilt>
+    <% if (showcase[3] != null) { %><img class="pt-song-img" src="<%= WebUtils.escapeHtml(showcase[3]) %>" alt="" loading="lazy"><% } %>
+    <span class="pt-sheen"></span>
+    <span class="pt-in"><span class="pt-label"><i class="fa-solid fa-heart" aria-hidden="true"></i> <%= t.getProperty("profile.favSong") %></span><b class="pt-song-name"><%= WebUtils.escapeHtml(showcase[1]) %></b></span>
+    <span class="pt-song-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
+  </a>
+  <% } else { %>
+  <a class="pt pt-song pt-empty" href="/nastaveni.jsp#profil" data-tilt>
+    <span class="pt-sheen"></span><i class="fa-solid fa-music pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><i class="fa-solid fa-heart" aria-hidden="true"></i> <%= t.getProperty("profile.favSong") %></span><span class="pt-note"><%= t.getProperty("profile.favSong.pick") %></span></span>
+  </a>
+  <% } %>
+
+  <%-- poslední komentář a palce nahoru; všechny komentáře jsou níž --%>
+  <a class="pt pt-last" href="#komentare" data-tilt>
+    <span class="pt-sheen"></span>
+    <span class="pt-in">
+      <span class="pt-label"><%= t.getProperty("profile.lastComment") %></span>
+      <% if (myComments.isEmpty()) { %>
+      <span class="pt-note"><%= t.getProperty("cmt.none") %></span>
+      <% } else { UserComment lastC = myComments.get(0); %>
+      <span class="pt-quote"><%= WebUtils.escapeHtml(lastC.content) %></span>
+      <span class="pt-note"><%= WebUtils.escapeHtml(t.getProperty(lastC.isLyric() ? "notif.onSong" : "notif.onClip").replace("{0}", lastC.placeName == null ? "" : lastC.placeName)) %></span>
+      <% } %>
+      <span class="pt-last-row"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i> <%= me != null ? me.likes : 0 %> · <%= t.getProperty("account.stats.likes") %></span>
+    </span>
+  </a>
+
+  <% PongProfile timesPong = pong; String timesPlay = "pong.profile.play"; %>
+  <%@ include file="/includes/profile-times.jspf" %>
+
+  <%-- všechny odznaky: získané nahoře, u každého jak ho získat a odměna ve hře --%>
+  <section class="pt pt-panel" id="odznaky">
+    <div class="pt-in">
     <header class="acct-card-head">
-      <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> <%= t.getProperty("account.tab.pong") %></h3>
+      <h3><i class="fa-solid fa-medal" aria-hidden="true"></i> <%= t.getProperty("pong.badges.title") %></h3>
       <p><%= t.getProperty("pong.profile.lead") %></p>
     </header>
-    <div class="pong-best">
-    <% for (int d = 1; d <= 3; d++) { %>
-      <div class="pong-best-item<%= pong.bestMs[d - 1] != null ? " on" : "" %>">
-        <span class="pong-best-level"><%= t.getProperty("pong.level." + d) %></span>
-        <% if (pong.bestMs[d - 1] != null) { %>
-          <b><%= PongProfile.time(pong.bestMs[d - 1]) %></b>
-          <% if (pong.place[d - 1] != null) { %><span class="acct-dim"><%= t.getProperty("pong.profile.place").replace("{0}", String.valueOf(pong.place[d - 1])) %></span><% } %>
-        <% } else { %>
-          <span class="acct-dim"><%= t.getProperty("pong.profile.notYet") %></span>
-        <% } %>
-      </div>
-    <% } %>
-    </div>
-    <%-- odznaky v rolovacím okně: získané nahoře, u každého jak ho získat a odměna ve hře --%>
     <div class="pong-badge-box">
       <div class="pong-badge-head">
         <b><%= t.getProperty("pong.badges.title") %></b>
@@ -145,11 +172,12 @@
       </ul>
       <% if (locked > 0) { %></details><% } %>
     </div>
-    <p class="pong-play-row"><a class="btn-primary" href="/?kevin=pong"><i class="fa-solid fa-play"></i> <%= t.getProperty("pong.profile.play") %></a></p>
+    </div>
   </section>
 
   <%-- Comments: everything you wrote under lyrics and clips; edit in place or delete --%>
-  <section class="acct-card" id="komentare">
+  <section class="pt pt-panel" id="komentare">
+    <div class="pt-in">
     <header class="acct-card-head">
       <h3><i class="fa-solid fa-comments"></i> <%= t.getProperty("account.tab.comments") %></h3>
       <p><%= t.getProperty("account.commentsLead") %></p>
@@ -196,7 +224,10 @@
     <% } %>
     <% if (myComments.size() > 3) { %></details><% } %>
     </div>
+  </div>
   </section>
+  </div>
+  <script src="/js/profile-tiles.js?v=<%= assetVersion %>"></script>
 
   <% } %>
 </main>

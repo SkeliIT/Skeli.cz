@@ -1,0 +1,21 @@
+<%-- Dlaždice s nejlepšími časy CatSmash na každé obtížnosti a tlačítkem do hry.
+     Před vložením nastavit: PongProfile timesPong, String timesPlay (klíč textu tlačítka). --%>
+<section class="pt pt-times" id="pong">
+  <div class="pt-in">
+    <span class="pt-label"><i class="fa-solid fa-table-tennis-paddle-ball" aria-hidden="true"></i> <%= t.getProperty("account.tab.pong") %></span>
+    <div class="pt-levels">
+    <% for (int d = 1; d <= 3; d++) { %>
+      <div class="pt-lv<%= timesPong.bestMs[d - 1] != null ? " on" : "" %>">
+        <span><%= t.getProperty("pong.level." + d) %></span>
+        <% if (timesPong.bestMs[d - 1] != null) { %>
+        <b><%= PongProfile.time(timesPong.bestMs[d - 1]) %></b>
+        <% if (timesPong.place[d - 1] != null) { %><small><%= t.getProperty("pong.profile.place").replace("{0}", String.valueOf(timesPong.place[d - 1])) %></small><% } %>
+        <% } else { %>
+        <b>&ndash;</b><small><%= t.getProperty("pong.profile.notYet") %></small>
+        <% } %>
+      </div>
+    <% } %>
+    </div>
+    <a class="btn-primary pt-play" href="/?kevin=pong"><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty(timesPlay) %></a>
+  </div>
+</section>

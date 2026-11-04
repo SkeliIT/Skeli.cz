@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +35,29 @@ class PongBadgeOrderTest {
     @Test
     void everyBadgeHasARank() {
         assertEquals(new HashSet<>(PongBadges.ICONS.keySet()), new HashSet<>(PongBadges.RANK));
+    }
+
+    @Test
+    void nextBadgeIsTheNearestWinsBadge() {
+        PongProfile p = new PongProfile();
+        p.findNextBadge(7);
+        assertEquals("streak", p.nextBadge);
+        assertEquals(7, p.nextHave);
+        assertEquals(10, p.nextNeed);
+        PongProfile done = new PongProfile();
+        done.findNextBadge(100);
+        assertEquals(null, done.nextBadge);
+    }
+
+    @Test
+    void gameUsesTheSameRarity() throws Exception {
+        String js = Files.readString(Path.of("src/main/webapp/js/catsmash/data.js"));
+        Matcher block = Pattern.compile("var RARITY = \\{(.*?)\\};", Pattern.DOTALL).matcher(js);
+        assertTrue(block.find(), "data.js nemá seznam RARITY");
+        Map<String, String> game = new HashMap<>();
+        Matcher pair = Pattern.compile("(\\w+): '(\\w)'").matcher(block.group(1));
+        while (pair.find()) game.put(pair.group(1), pair.group(2));
+        assertEquals(game, new HashMap<>(PongBadges.RARITY));
     }
 
     @Test
