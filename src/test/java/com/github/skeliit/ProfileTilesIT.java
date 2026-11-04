@@ -32,6 +32,7 @@ class ProfileTilesIT extends UiTestSupport {
             assertTrue(driver.findElement(By.id("pong")).isDisplayed());
             assertEquals("–", driver.findElement(By.cssSelector(".pt-lv b")).getText(), "pomlčka se nerozsype");
             assertTrue(driver.findElement(By.id("odznaky")).isDisplayed());
+            assertTrue(driver.findElement(By.cssSelector(".pt-play")).getAttribute("data-play-game") != null, "tlačítko otevře hru na místě");
             assertTrue(driver.findElement(By.id("komentare")).isDisplayed());
             assertTrue(driver.findElement(By.cssSelector(".pt-song.pt-empty")).getAttribute("href").endsWith("/nastaveni.jsp#profil"));
         } finally {

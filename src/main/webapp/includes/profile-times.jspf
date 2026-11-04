@@ -16,6 +16,6 @@
       </div>
     <% } %>
     </div>
-    <a class="btn-primary pt-play" href="/?kevin=pong"><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty(timesPlay) %></a>
+    <a class="btn-primary pt-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty(timesPlay) %></a>
   </div>
 </section>

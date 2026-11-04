@@ -353,6 +353,7 @@ window.KEVIN_LINES.vi.pong = {
   "champMonth": "VÔ ĐỊCH THÁNG",
   "victory": "CHIẾN THẮNG!",
   "celebTitle": "Ăn mừng chiến thắng",
+  "celebShort": "Ăn mừng",
   "celebAuto": "Tự động",
   "celebOff": "Tắt",
   "celebHint": "Dành cho huy hiệu huyền thoại ở độ khó cao nhất. Phát sau khi thắng, chỉ bạn thấy.",

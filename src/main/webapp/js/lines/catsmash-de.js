@@ -353,6 +353,7 @@ window.KEVIN_LINES.de.pong = {
   "champMonth": "CHAMPION DES MONATS",
   "victory": "SIEG!",
   "celebTitle": "Siegesfeier",
+  "celebShort": "Feier",
   "celebAuto": "Automatisch",
   "celebOff": "Aus",
   "celebHint": "Für die legendären Abzeichen der schwersten Stufe. Läuft nach einem Sieg, nur du siehst sie.",

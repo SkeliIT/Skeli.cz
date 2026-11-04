@@ -2,6 +2,15 @@
   {
     "d": "2026-11-04",
     "href": "/?kevin=pong",
+    "cs": "CatSmash se teď barví podle tvojí pálky: s ledovou je celá hra namodralá, s čipem zelená. A menu hry má nový vzhled, všechny věci vidíš naráz.",
+    "en": "CatSmash now takes its colours from your paddle: blue with the ice one, green with the chip. And the game menu has a new look, with everything in view at once.",
+    "de": "CatSmash richtet seine Farben jetzt nach deinem Schläger: mit dem Eisschläger bläulich, mit dem Chip grün. Und das Spielmenü sieht neu aus, du siehst alles auf einmal.",
+    "uk": "CatSmash тепер забарвлюється за твоєю ракеткою: із крижаною гра блакитна, із чипом зелена. А меню гри має новий вигляд, усе видно одразу.",
+    "vi": "CatSmash giờ đổi màu theo vợt của bạn: vợt băng thì cả trò chơi xanh nhạt, vợt chip thì xanh lá. Menu trò chơi cũng có diện mạo mới, mọi thứ hiện ra cùng lúc."
+  },
+  {
+    "d": "2026-11-04",
+    "href": "/?kevin=pong",
     "cs": "V CatSmash na telefonu zase běhám po velkém kole a tím hýbu svou pálkou. Pod hřištěm máš celé okénko s koly pro prst.",
     "en": "In CatSmash on a phone I’m back to running on a big wheel, and that’s what moves my paddle. Below the court, the whole gear window is yours for your finger.",
     "de": "In CatSmash auf dem Handy laufe ich wieder auf einem großen Rad und bewege so meinen Schläger. Unter dem Spielfeld gehört das ganze Zahnradfenster deinem Finger.",
@@ -34,14 +43,5 @@
     "de": "Klick in der Bestenliste auf einen Namen und du siehst das Spielerprofil – Abzeichen und Rekorde. Was du zeigst, stellst du unter Privatsphäre ein; alles lässt sich ausschalten.",
     "uk": "Натисни ім’я в таблиці рекордів – і побачиш профіль гравця: значки й рекорди. Що показуєш ти, налаштуєш у Приватності, усе можна вимкнути.",
     "vi": "Bấm vào tên trong bảng kỷ lục để xem hồ sơ người chơi – huy hiệu và kỷ lục. Bạn hiển thị gì thì chỉnh trong Quyền riêng tư; mọi thứ đều tắt được."
-  },
-  {
-    "d": "2026-11-03",
-    "href": "/?kevin=pong",
-    "cs": "První tři hráči měsíce v CatSmash teď mají kolem fotky zlatý, stříbrný nebo bronzový věnec. Kdo ho nechce, vypne si ho v Nastavení.",
-    "en": "The top three CatSmash players of the month now get a gold, silver or bronze wreath round their photo. Don’t want it? Switch it off in Settings.",
-    "de": "Die besten drei CatSmash-Spieler des Monats haben jetzt einen goldenen, silbernen oder bronzenen Kranz um ihr Foto. Wer ihn nicht will, schaltet ihn in den Einstellungen aus.",
-    "uk": "Трійка найкращих гравців місяця в CatSmash тепер має золотий, срібний або бронзовий вінок навколо фото. Не хочеш – вимкни в Налаштуваннях.",
-    "vi": "Ba người chơi CatSmash giỏi nhất tháng giờ có vòng nguyệt quế vàng, bạc hoặc đồng quanh ảnh. Không muốn thì tắt trong Cài đặt."
   }
 ]

@@ -545,10 +545,18 @@ t    }
     // (otvory jsou průhledné), dnešní automat ram.webp se pod ním schová. Vypínač = ⚙ „Atmosféra pálky“.
     var STROJE = null, skinEl = root.querySelector('.kpong-skin'), frameEl = root.querySelector('.kpong-frame');
     fetch('/kevin/pong/stroje/stroje.json' + ver).then(function (r) { return r.json(); }).then(function (j) { STROJE = j; setSkin(); }).catch(function () { /* bez automatů */ });
+    // barvy rozhraní hry podle pálky: ledová namodralá, čip zelený, láva oranžová…; všechno ve hře bere --accent
+    function themeOn(el, i) {
+      var c = SKINS[i].ui || SKINS[i].rim;
+      el.style.setProperty('--accent', c);
+      el.style.setProperty('--accent-soft', 'color-mix(in srgb, ' + c + ' 18%, transparent)');
+      el.style.setProperty('--accent-grad', 'linear-gradient(color-mix(in srgb, ' + c + ' 78%, #fff), ' + c + ' 55%, color-mix(in srgb, ' + c + ' 80%, #000))');
+    }
     function setSkin() {
       var id = curPad(), sk = atmoOn && STROJE && id && STROJE[id];
       frameEl.classList.toggle('themed', !!sk);
       frameEl.style.setProperty('--menu-tint', sk && SKINS[skin] && SKINS[skin].rim ? SKINS[skin].rim : '#e6b730');   // kov tlačítka MENU podle automatu
+      themeOn(root, atmoOn ? skin : 0);                    // celá hra v barvách vybrané pálky (vypnutá atmosféra = zlatá)
       skinEl.hidden = !sk;
       applyWins(sk ? id : null);
       if (!sk) return;
@@ -1450,14 +1458,14 @@ t    }
       { b: 'overheat', img: 'graffiti', pad: ['#3a3a40', '#111114'], rim: '#ff5fd2', glow: 'rgba(120, 220, 255, .9)', trail: '#ffcf3a' },
       { b: 'fast', img: 'jadeit', pad: ['#8fd6a8', '#2f7a4c'], rim: '#7fd6a0', glow: 'rgba(110, 210, 150, .9)', trail: '#6fcf97' },
       { b: 'close', img: 'mince', pad: ['#ffd76a', '#8a6400'], rim: '#ffd23f', glow: 'rgba(255, 200, 60, .95)', trail: '#d9a441' },
-      { b: 'streak', img: 'led', pad: ['#eef8ff', '#8fc6e8'], rim: '#cdeeff', glow: 'rgba(170, 225, 255, .95)', trail: '#bfe6ff' },
-      { b: 'yarn', img: 'cip', pad: ['#3a3330', '#0e0b0a'], rim: '#e6b730', glow: 'rgba(90, 255, 160, .8)', trail: '#59f0a0' },
+      { b: 'streak', img: 'led', ui: '#a9e4ff', pad: ['#eef8ff', '#8fc6e8'], rim: '#cdeeff', glow: 'rgba(170, 225, 255, .95)', trail: '#bfe6ff' },
+      { b: 'yarn', img: 'cip', ui: '#59f0a0', pad: ['#3a3330', '#0e0b0a'], rim: '#e6b730', glow: 'rgba(90, 255, 160, .8)', trail: '#59f0a0' },
       { b: 'super', img: 'perly', pad: ['#ffffff', '#d9cfe0'], rim: '#fff4fb', glow: 'rgba(255, 240, 250, .95)', trail: '#f3e6ff' },
       { b: 'marathon', img: 'ekvalizer', pad: ['#2a2a2a', '#050505'], rim: '#e6b730', glow: 'rgba(230, 183, 48, .9)', trail: '#e6b730' },
       { b: 'comeback', img: 'lava', pad: ['#5a5550', '#1c1a18'], rim: '#ff8a2a', glow: 'rgba(255, 110, 20, .95)', trail: '#ff6a1a' },
       { b: 'hwins5', img: 'retez', pad: ['#ffe27a', '#a67c00'], rim: '#ffd23f', glow: 'rgba(255, 210, 63, 1)', trail: '#e6b730' },
       { b: 'angry', img: 'neon', pad: ['#2a2a35', '#08080c'], rim: '#7df9ff', glow: 'rgba(200, 110, 255, .95)', trail: '#b46bff' },
-      { b: 'wins50', img: 'ganja', pad: ['#4f7a3a', '#1f3a17'], rim: '#ffd23f', glow: 'rgba(110, 210, 90, .9)', trail: '#7fd36b' },
+      { b: 'wins50', img: 'ganja', ui: '#8fdc6f', pad: ['#4f7a3a', '#1f3a17'], rim: '#ffd23f', glow: 'rgba(110, 210, 90, .9)', trail: '#7fd36b' },
       { b: 'wins100', img: 'kola', pad: ['#e0a36a', '#7a4320'], rim: '#e0a36a', glow: 'rgba(224, 150, 90, .9)', trail: '#c9844a' },
       { b: 'skelosquad', img: 'skelosquad', pad: ['#2a2418', '#000000'], rim: '#ffd23f', glow: 'rgba(255, 210, 63, 1)', trail: '#ffd23f' }   // nejvzácnější
     ];
@@ -1465,6 +1473,7 @@ t    }
     // (staré číselné kevinPongSkin / kevinPongBall patřily ke zrušeným barevným pálkám a míčkům → začne se od základu)
     var skin = Math.max(0, SKINS.map(function (s) { return s.id; }).indexOf(store.get('kevinPongPad')));
     if (!SKINS[skin] || !SKINS[skin].ok()) skin = 0;
+    themeOn(root, atmoOn ? skin : 0);                    // barvy podle pálky hned od otevření hry
     // míčky: hopík pro všechny, ostatní odemkne odznak; kreslí je drawBall
     var BALLS = [{ id: 'hopik' },
       // obrázkové míčky (kevin/pong/micky.json): od nejobyčejnějšího po nejhezčí
@@ -2914,9 +2923,7 @@ t    }
       if (kind === 'pad') { skin = i; store.set('kevinPongPad', SKINS[i].id); setSkin(); }
       else if (kind === 'ball') { ballType = i; store.set('kevinPongBallId', BALLS[i].id); }
       else { setBg(BGS[i]); store.set('kevinPongBg', BGS[i]); }
-      if (!setCard) return;
-      refreshSlot(kind);
-      if (kind !== 'bg') drawPreview();
+      refreshLook(kind);
     }
     function badgeOverview(progress) {
       var all = Object.keys(BADGE_ICON), got = all.filter(function (k) { return badges[k]; }).length;
@@ -3645,8 +3652,7 @@ t    }
       setCard.setAttribute('aria-label', T.settings || 'Settings');
       // nastavení ve čtyřech záložkách: Vzhled (náhled, pálky, míčky, pozadí, atmosféra pálky), Zvuk (hlasitost, vibrace,
       // Kevin mluví), Ovládání (jen pálka: prst / klávesnice / myš), Obraz (detaily, celá obrazovka)
-      // Vzhled: z každé skupiny jen vybraná položka; ostatní ve vyskakovacím seznamu (openPicker)
-      var secLook = '<section class="kp-sec kp-slots">' + SLOT_KINDS.map(slotHtml).join('') + '</section>';
+      var secLook = lookHtml();
       var secSound = '<section class="kp-sec"><h3 class="kp-label">' + esc(T.soundTitle || '') + '</h3><div class="kp-row">' +
         '<button type="button" class="kp-fullbtn kp-snd" aria-pressed="' + (vol > 0) + '"></button>' +
         '<input type="range" class="kp-vol" min="0.1" max="1" step="0.1" value="' + (vol || +(store.get('kevinPongVolLast') || 0.6)) + '" aria-label="' + esc(T.volume || '') + '"></div></section>';
@@ -3689,51 +3695,29 @@ t    }
             '<i class="fa-solid ' + x[1] + '" aria-hidden="true"></i><span>' + esc(x[2] || x[0]) + '</span></button>';
         }).join('') + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-look" aria-labelledby="kp-tab-look" data-pane="look"' + (tab === 'look' ? '' : ' hidden') + '>' +
-        '<canvas class="kp-preview" width="600" height="200" aria-hidden="true"></canvas>' + secLook + checks(btnAtmo) + '<p class="kp-bgname">' + esc(T.atmoHint || '') + '</p></div>' +
+        secLook + checks(btnAtmo) + '<p class="kp-bgname">' + esc(T.atmoHint || '') + '</p></div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-sound" aria-labelledby="kp-tab-sound" data-pane="sound"' + (tab === 'sound' ? '' : ' hidden') + '>' + secSound + checks(btnVib) + secTalk + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-controls" aria-labelledby="kp-tab-controls" data-pane="controls"' + (tab === 'controls' ? '' : ' hidden') + '>' + secTouch + secLayout + secKeys + checks(btnAim + btnLock) + '</div>' +
         '<div class="kp-pane" role="tabpanel" id="kp-pane-screen" aria-labelledby="kp-tab-screen" data-pane="screen"' + (tab === 'screen' ? '' : ' hidden') + '>' + secDetail + checks(btnFull) + '</div>' +
         '<button type="button" class="kpong-play btn-primary kp-resume"><i class="fa-solid fa-' + (setPausedGame ? 'play' : 'check') + '" aria-hidden="true"></i> ' + esc(setPausedGame ? T.resume || '' : T.done || '') + '</button>' +
         '';                                              // (Začít znovu je v menu hry)
+      setCard.insertAdjacentHTML('afterbegin', '<button type="button" class="kp-sheet-x" aria-label="' + esc(T.close || '') + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>');
       root.appendChild(setCard);
       setBtn.setAttribute('aria-expanded', 'true');
+      setCard.querySelector('.kp-sheet-x').addEventListener('click', closeSettings);
       setCard.querySelectorAll('.kp-tabs [data-tab]').forEach(function (b) {
         b.addEventListener('click', function () {
           var t = b.dataset.tab;
           store.set('kevinPongSetTab', t);
           setCard.querySelectorAll('.kp-tabs [data-tab]').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
           setCard.querySelectorAll('.kp-pane').forEach(function (p) { p.hidden = p.dataset.pane !== t; });
-          centerPicked();
         });
       });
-      // vybraná položka v každé řadě na střed (ať je hned vidět, co mám)
-      function centerPicked() {
-        setCard.querySelectorAll('.kp-strip').forEach(function (st) {
-          var on = st.querySelector('[aria-checked="true"]');
-          if (on && st.offsetParent) st.scrollLeft = on.offsetLeft - st.clientWidth / 2 + on.offsetWidth / 2;
-        });
-      }
-      centerPicked();
-      // sloty Vzhledu: klik / ťuknutí = seznam; myš: najetí otevře seznam vedle (jen když je vpravo místo)
-      setCard.addEventListener('click', function (e) {
-        var sl = e.target.closest('.kp-slot');
-        if (!sl) return;
-        if (picker && picker.slot === sl) { if (!picker.side) closePicker(); } else openPicker(sl, false);
-      });
-      setCard.addEventListener('pointerover', function (e) {
-        var sl = e.pointerType === 'mouse' && e.target.closest('.kp-slot');
-        if (sl) { if (picker) clearTimeout(picker.hide); openPicker(sl, true); }
-      });
-      setCard.addEventListener('pointerout', function (e) {
-        if (e.pointerType === 'mouse' && e.target.closest('.kp-slot') && picker && picker.side) pickerLater();
-      });
+      if (lookOnly) lookInit();
       var fb = setCard.querySelector('.kp-full');
       if (fb) fb.addEventListener('click', toggleFull);
-      // náhledy ve slotech (nakreslí se znovu, až se obrázky načtou)
-      paintThumbs(setCard);
+      // náhledy ve Vzhledu se nakreslí znovu, až se načtou obrázky
       onSprites.push(function () { if (setCard) paintThumbs(setCard); });
-      drawPreview();
-      onSprites.push(drawPreview);
       var snd = setCard.querySelector('.kp-snd'), volEl = setCard.querySelector('.kp-vol');
       function showSnd() {
         snd.setAttribute('aria-pressed', String(vol > 0)); volEl.disabled = !vol;
@@ -3794,21 +3778,6 @@ t    }
       var lb = setCard.querySelector('.kp-layout-btn');
       if (lb) lb.addEventListener('click', function () { closeSettings(); openLayout(); });
       setCard.querySelector('.kp-resume').focus({ preventScroll: true });
-    }
-    // velký náhled v nastavení: vybraná pálka a nad ní vybraný míček
-    function drawPreview() {
-      var c = setCard && setCard.querySelector('.kp-preview');
-      if (!c) return;
-      var keep = cx, sp = padSprite(skin);
-      cx = c.getContext('2d'); cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, c.width, c.height);
-      var k = c.width / (PAD_W * 2.4), vw = c.width / k, vh = c.height / k;
-      cx.scale(k, k);
-      if (sp) drawSpritePad(sp, vw / 2, vh * 0.5, PAD_W, null, true, skin);
-      else pad(vw / 2, vh * 0.5 + PAD_H / 2, SKINS[skin].pad[0], SKINS[skin].pad[1]);
-      var bx = vw / 2, by = vh * 0.24;
-      if (ballType > 0) drawBall(BALLS[ballType].id, bx, by, 0.4, 0);
-      else if (hopik.naturalWidth) cx.drawImage(hopik, bx - BALL_R, by - BALL_R, BALL_R * 2, BALL_R * 2);
-      cx = keep;
     }
     // Začít znovu: zavřít nastavení bez „pokračovat?“, uklidit rozehraný stav a nový zápas (čeká na ťuknutí jako na začátku)
     function restartMatch() {
@@ -3872,12 +3841,10 @@ t    }
     // (kevinPongCelebLast), off = vypnuto. Vidí ji jen hráč; omezený pohyb = bez oslavy.
     var CELEBS = { hwins5: 'crown', hfast: 'bolt', hclean: 'shatter', hsniper: 'target', hcomeback: 'phoenix' };
     var celebPick = store.get('kevinPongCeleb') || 'auto';
-    // ---------- výběr vzhledu v Nastavení ----------
-    // Z každé skupiny (pálka, míček, pozadí, oslava) je vidět jen vybraná položka (slot). Klik / ťuknutí na ni (myší
-    // stačí najet) otevře seznam se šipkami nahoru a dolů; najetí / ťuknutí na položku ukáže vedle zvětšený náhled.
-    // PC (vpravo je místo): seznam vyskočí vedle slotu, klik vybere a zavře. Telefon: seznam přes nastavení, náhled
-    // nahoře, ťuknutí na odemčenou položku ji rovnou vybere (seznam zůstane, zavírá se ✕). Oslavu jde přehrát i zamčenou.
-    var SLOT_KINDS = ['pad', 'ball', 'bg', 'celeb'], picker = null;
+    // ---------- Vzhled: jedna plocha ----------
+    // Nahoře živý náhled vybrané věci na zvoleném pozadí, pod ním kategorie a mřížka (odemčené nahoře, pak podle vzácnosti).
+    // Ťuknutí na odemčenou věc ji rovnou použije, na zamčenou ukáže, čím se odemkne. Prohlédnout = velký náhled přes celé okno.
+    var SLOT_KINDS = ['pad', 'ball', 'bg', 'celeb'], lookKind = 'pad', lookI = 0, lookLoop = 0;
     function celebOpts() { return ['auto', 'off'].concat(Object.keys(CELEBS)); }
     function slotCount(kind) { return kind === 'celeb' ? celebOpts().length : itemCount(kind); }
     function slotCur(kind) {
@@ -3899,22 +3866,6 @@ t    }
       if (kind === 'bg') return BGS[i] === 'tma' ? '<span class="kp-tbg tma"></span>' : '<span class="kp-tbg" style="background-image:url(/kevin/pong/pozadi-' + BGS[i] + '-mini.webp' + ver + ')"></span>';
       if (kind === 'celeb') { var k = celebOpts()[i]; return '<i class="fa-solid ' + (CELEBS[k] ? BADGE_ICON[k] : k === 'off' ? 'fa-ban' : 'fa-wand-magic-sparkles') + '" aria-hidden="true"></i>'; }
       return '<canvas data-k="' + kind + '" data-i="' + i + '"></canvas>';
-    }
-    function slotHtml(kind) {
-      var i = slotCur(kind), inf = slotInfo(kind, i);
-      return '<button type="button" class="kp-slot" data-slot="' + kind + '" aria-haspopup="listbox" aria-expanded="false">' +
-        '<span class="kp-tb ' + kind + '">' + thumbInner(kind, i) + '</span>' +
-        '<span class="kp-slot-txt"><small>' + esc(slotTitle(kind)) + ' <span class="kp-count">' + slotOwned(kind) + '/' + slotCount(kind) + '</span></small>' +
-        '<b>' + esc(inf.name || '') + '</b></span><i class="fa-solid fa-chevron-right kp-slot-arrow" aria-hidden="true"></i></button>';
-    }
-    function refreshSlot(kind) {
-      var old = setCard && setCard.querySelector('.kp-slot[data-slot="' + kind + '"]');
-      if (!old) return;
-      var tmp = document.createElement('div'); tmp.innerHTML = slotHtml(kind);
-      var nu = tmp.firstChild;
-      if (picker && picker.slot === old) { picker.slot = nu; nu.setAttribute('aria-expanded', 'true'); }
-      old.replaceWith(nu);
-      paintThumbs(nu);
     }
     // pálka / míček do plátna c; t = čas v sekundách (pálka se houpe, míček se točí), 0 = v klidu
     function paintObj(c, kind, i, t) {
@@ -3942,134 +3893,94 @@ t    }
     function paintThumbs(scope) {
       scope.querySelectorAll('.kp-tb canvas[data-k]').forEach(function (c) { fitCanvas(c); paintObj(c, c.dataset.k, +c.dataset.i, 0); });
     }
-    function closePicker() {
-      if (!picker) return;
-      cancelAnimationFrame(picker.raf); clearTimeout(picker.hide);
-      picker.el.remove(); picker.slot.setAttribute('aria-expanded', 'false');
-      picker = null;
+    function lookHtml() {
+      return '<section class="kp-sec kp-lookview"><div class="kp-stage" aria-live="polite"></div><div class="kp-chips">' + SLOT_KINDS.map(function (k) {
+        return '<button type="button" data-lk="' + k + '" aria-pressed="false">' + esc(k === 'celeb' ? T.celebShort || T.celebTitle : slotTitle(k)) + '</button>';
+      }).join('') + '</div><div class="kp-grid"></div></section>';
     }
-    // myš odjela ze slotu i ze seznamu → zavřít (s malou prodlevou, ať jde přejet mezerou mezi nimi)
-    function pickerLater() { if (picker) { clearTimeout(picker.hide); picker.hide = setTimeout(closePicker, 280); } }
-    function openPicker(slot, viaHover) {
-      if (picker && picker.slot === slot) return;
-      var kind = slot.dataset.slot, n = slotCount(kind), cur = slotCur(kind);
-      var r = slot.getBoundingClientRect(), rr = root.getBoundingClientRect();
-      var side = !coarse && rr.right - r.right >= 520;
-      if (viaHover && !side) return;                    // bez místa vpravo se seznam otvírá jen klikem
-      closePicker();
-      var el = document.createElement('div');
-      el.className = 'kp-picker ' + kind + (side ? ' side' : ' sheet');
-      el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', slotTitle(kind));
-      var rows = '', ord = itemOrder(kind);
-      ord.forEach(function (i) {
+    function lookInit() {
+      lookKind = 'pad'; lookI = slotCur('pad');
+      setCard.querySelector('.kp-chips').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-lk]');
+        if (b) lookShowKind(b.dataset.lk);
+      });
+      setCard.querySelector('.kp-grid').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-i]');
+        if (b) lookPick(+b.dataset.i, b);
+      });
+      lookShowKind('pad');
+    }
+    function lookShowKind(kind) {
+      lookKind = kind; lookI = slotCur(kind);
+      setCard.querySelectorAll('[data-lk]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lk === kind)); });
+      if (kind === 'ball') loadMicBig(function () { if (setCard && lookKind === 'ball') lookStage(lookI); });
+      lookGrid();
+      lookStage(lookI);
+      var on = setCard.querySelector('.kp-gi.on');
+      if (on) on.scrollIntoView({ block: 'nearest' });
+    }
+    function lookGrid() {
+      var grid = setCard.querySelector('.kp-grid'), kind = lookKind, cur = slotCur(kind), top = grid.scrollTop;
+      grid.className = 'kp-grid ' + kind;
+      grid.innerHTML = itemOrder(kind).map(function (i) {
         var inf = slotInfo(kind, i);
-        rows += '<li role="option" tabindex="-1" data-i="' + i + '" aria-selected="' + (i === cur) + '"' + (inf.ok ? '' : ' aria-disabled="true"') + rar(inf.b) + '>' +
-          '<span class="kp-tb ' + kind + '">' + thumbInner(kind, i) + '</span><span class="kp-pick-name">' + esc(inf.name || '') + '</span>' +
-          '<i class="fa-solid ' + (inf.ok ? 'fa-check kp-pick-on' : 'fa-lock') + '" aria-hidden="true"></i></li>';
-      });
-      el.innerHTML = '<div class="kp-pick-col">' +
-        (side ? '' : '<div class="kp-pick-head"><b>' + esc(slotTitle(kind)) + '</b><button type="button" class="kp-pick-x" aria-label="' + esc(T.close || '') + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>') +
-        '<button type="button" class="kp-pick-arrow up" aria-label="' + esc(T.itemPrev || '') + '"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>' +
-        '<ul class="kp-pick-list" role="listbox" aria-label="' + esc(slotTitle(kind)) + '">' + rows + '</ul>' +
-        '<button type="button" class="kp-pick-arrow down" aria-label="' + esc(T.itemNext || '') + '"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button></div>' +
-        '<div class="kp-pick-big" aria-live="polite"></div>';
-      root.appendChild(el);
-      picker = { el: el, slot: slot, kind: kind, side: side, i: -1, raf: 0, hide: 0 };
-      slot.setAttribute('aria-expanded', 'true');
-      if (kind === 'ball') loadMicBig(function () { if (picker && picker.el === el) paintThumbs(el); });
-      paintThumbs(el);
-      var list = el.querySelector('.kp-pick-list');
-      if (side) {                                        // vedle slotu, svisle podle něj (ale celý na obrazovce)
-        var top = r.top - rr.top + r.height / 2 - el.offsetHeight / 2;
-        el.style.left = (r.right - rr.left + 12) + 'px';
-        el.style.top = Math.max(8, Math.min(rr.height - el.offsetHeight - 8, top)) + 'px';
-        el.addEventListener('pointerenter', function () { clearTimeout(picker && picker.hide); });
-        el.addEventListener('pointerleave', pickerLater);
-      }
-      var on = list.querySelector('[aria-selected="true"]') || list.firstChild;
-      list.scrollTop = on.offsetTop - list.clientHeight / 2 + on.offsetHeight / 2;
-      showBig(+on.dataset.i);
-      var step = function () { return (list.firstChild && list.firstChild.offsetHeight + 4) || 52; };
-      el.querySelector('.kp-pick-arrow.up').addEventListener('click', function () { list.scrollBy({ top: -step() * 2, behavior: 'smooth' }); });
-      el.querySelector('.kp-pick-arrow.down').addEventListener('click', function () { list.scrollBy({ top: step() * 2, behavior: 'smooth' }); });
-      function arrows() {
-        el.querySelector('.kp-pick-arrow.up').disabled = list.scrollTop < 2;
-        el.querySelector('.kp-pick-arrow.down').disabled = list.scrollTop + list.clientHeight > list.scrollHeight - 2;
-      }
-      list.addEventListener('scroll', arrows, { passive: true }); arrows();
-      list.addEventListener('pointerover', function (e) {
-        var li = e.pointerType === 'mouse' && e.target.closest('li');
-        if (li && +li.dataset.i !== picker.i) showBig(+li.dataset.i);
-      });
-      list.addEventListener('click', function (e) { var li = e.target.closest('li'); if (li) choose(+li.dataset.i); });
-      // klávesnice: ↑ ↓ projíždí, Enter vybere, Esc zavře
-      el.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); var sl = picker.slot; closePicker(); sl.focus({ preventScroll: true }); return; }
-        if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown' && e.key !== 'Enter') return;
-        e.preventDefault(); e.stopPropagation();
-        if (e.key === 'Enter') return choose(picker.i);
-        var pos = ord.indexOf(picker.i), j = ord[Math.max(0, Math.min(n - 1, pos + (e.key === 'ArrowUp' ? -1 : 1)))];
-        showBig(j);
-        var li = list.querySelector('li[data-i="' + j + '"]'); li.focus({ preventScroll: true }); li.scrollIntoView({ block: 'nearest' });
-      });
-      var x = el.querySelector('.kp-pick-x');
-      if (x) x.addEventListener('click', function () { var sl = picker.slot; closePicker(); sl.focus({ preventScroll: true }); });
-      if (!viaHover) (list.querySelector('[aria-selected="true"]') || list.firstChild).focus({ preventScroll: true });
+        return '<button type="button" class="kp-gi ' + kind + (inf.ok ? '' : ' locked') + (i === cur ? ' on' : '') + (i === lookI ? ' hot' : '') + '" data-i="' + i + '"' + rar(inf.b) + '>' +
+          '<span class="kp-tb ' + kind + '">' + thumbInner(kind, i) + '</span><span class="kp-gi-name">' + esc(inf.name || '') + '</span></button>';
+      }).join('');
+      paintThumbs(grid);
+      grid.scrollTop = top;
     }
-    // zvětšený náhled položky vedle seznamu (na telefonu nad ním)
-    function showBig(i) {
-      if (!picker) return;
-      var el = picker.el, kind = picker.kind, inf = slotInfo(kind, i), big = el.querySelector('.kp-pick-big');
-      picker.i = i;
-      cancelAnimationFrame(picker.raf);
-      el.querySelectorAll('.kp-pick-list li').forEach(function (li) { li.classList.toggle('hot', +li.dataset.i === i); });
-      var art = kind === 'bg'
-        ? (BGS[i] === 'tma' ? '<div class="kp-big-bg tma"></div>' : '<img class="kp-big-bg" src="/kevin/pong/pozadi-' + BGS[i] + '.webp' + ver + '" alt="">')
-        : kind === 'celeb' ? '<span class="kp-big-celeb">' + thumbInner(kind, i) + '</span>'
-        : '<canvas class="kp-big-cv ' + kind + '"></canvas>';
-      var pr = !inf.ok && badgeProgress(inf.b), key = kind === 'celeb' ? celebOpts()[i] : null;
-      big.innerHTML = '<div class="kp-big-obj">' + art + (inf.ok ? '' : '<i class="fa-solid fa-lock kp-item-lockicon" aria-hidden="true"></i>') + '</div>' +
-        '<h3>' + esc(inf.name || '') + '</h3>' +
-        (inf.ok ? '' : '<p class="kp-item-lock"><i class="fa-solid fa-lock" aria-hidden="true"></i> ' + esc(lockText(inf.b)) + '</p>' +
-          (pr ? '<p class="kp-item-prog"><span>' + esc((T.progressUnits || {})[pr.unit] || '') + '</span><b>' + pr.have + ' / ' + pr.need + '</b><i style="--p:' + Math.round(pr.have / pr.need * 100) + '%"></i></p>' : '')) +
-        (key === 'auto' || key === 'off' ? '<p class="kp-bgname">' + esc(T.celebHint || '') + '</p>' : '') +
-        '<div class="kp-big-acts">' +
-        (key && CELEBS[key] ? '<button type="button" class="kp-fullbtn kp-big-play"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.pickPlay || '') + '</button>' : '') +
-        (kind !== 'celeb' ? '<button type="button" class="kp-fullbtn kp-big-look"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i> ' + esc(T.pickInspect || '') + '</button>' : '') +
-        (inf.on ? '<span class="kp-big-using"><i class="fa-solid fa-check" aria-hidden="true"></i> ' + esc(T.itemUsing || '') + '</span>' : '') + '</div>';
-      var play = big.querySelector('.kp-big-play');
-      if (play) play.addEventListener('click', function () { previewCeleb(key); });
-      var look = big.querySelector('.kp-big-look');
-      if (look) look.addEventListener('click', function () { closePicker(); openItem(kind, i); });
-      var cv = big.querySelector('.kp-big-cv');
-      if (cv) {
-        fitCanvas(cv);
-        var t0 = performance.now(), el0 = el;
-        (function tick(now) {
-          if (!picker || picker.el !== el0 || picker.i !== i) return;
-          paintObj(cv, kind, i, (now - t0) / 1000);
-          picker.raf = requestAnimationFrame(tick);
-        })(t0);
-      }
+    // živý náhled: pálka se houpe, míček se točí, pozadí je vidět celé; zamčená věc říká, čím se odemkne
+    function lookStage(i) {
+      cancelAnimationFrame(lookLoop);
+      lookI = i;
+      var stage = setCard.querySelector('.kp-stage'), kind = lookKind, inf = slotInfo(kind, i), key = kind === 'celeb' ? celebOpts()[i] : null;
+      var bg = kind === 'bg' ? BGS[i] : bgName, pr = !inf.ok && badgeProgress(inf.b);
+      stage.style.backgroundImage = bg === 'tma' ? '' : 'url(/kevin/pong/pozadi-' + bg + (kind === 'bg' ? '' : '-mini') + '.webp' + ver + ')';
+      stage.className = 'kp-stage ' + kind;
+      stage.innerHTML = (kind === 'pad' || kind === 'ball' ? '<canvas class="kp-stage-cv ' + kind + '"></canvas>' : kind === 'celeb' ? '<span class="kp-stage-celeb">' + thumbInner(kind, i) + '</span>' : '') +
+        '<div class="kp-stage-info"><b>' + (inf.ok ? '' : '<i class="fa-solid fa-lock" aria-hidden="true"></i> ') + esc(inf.name || '') + '</b>' +
+        (inf.ok ? (inf.on ? '<small><i class="fa-solid fa-check" aria-hidden="true"></i> ' + esc(T.itemUsing || '') + '</small>' : '')
+          : '<small>' + esc(lockText(inf.b)) + (pr ? ' · ' + pr.have + ' / ' + pr.need : '') + '</small>') +
+        (key === 'auto' || key === 'off' ? '<small>' + esc(T.celebHint || '') + '</small>' : '') + '</div>' +
+        (key && CELEBS[key] ? '<button type="button" class="kp-stage-btn" data-act="play" aria-label="' + esc(T.pickPlay || '') + '"><i class="fa-solid fa-play" aria-hidden="true"></i></button>' : '') +
+        (kind !== 'celeb' ? '<button type="button" class="kp-stage-btn" data-act="look" aria-label="' + esc(T.pickInspect || '') + '"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i></button>' : '');
+      var btn = stage.querySelector('[data-act]');
+      if (btn) btn.addEventListener('click', function () { if (btn.dataset.act === 'play') previewCeleb(key); else openItem(kind, i); });
+      themeOn(setCard, kind === 'pad' ? i : atmoOn ? skin : 0);   // pálka barví okno hned, i zamčená (ochutnávka)
+      var cv = stage.querySelector('.kp-stage-cv');
+      if (!cv) return;
+      fitCanvas(cv);
+      var t0 = performance.now();
+      (function tick(now) {
+        if (!setCard || !cv.isConnected) return;
+        paintObj(cv, kind, i, (now - t0) / 1000);
+        lookLoop = requestAnimationFrame(tick);
+      })(t0);
     }
-    function choose(i) {
-      if (!picker) return;
-      var kind = picker.kind, inf = slotInfo(kind, i), li = picker.el.querySelector('li[data-i="' + i + '"]');
-      showBig(i);
+    function lookPick(i, el) {
+      var inf = slotInfo(lookKind, i);
       if (!inf.ok) {                                      // zamčené: jen náhled, zatřese se
-        li.classList.remove('nope'); void li.offsetWidth; li.classList.add('nope');
+        setCard.querySelectorAll('.kp-gi.hot').forEach(function (x) { x.classList.remove('hot'); });
+        el.classList.add('hot');
+        lookStage(i);
+        el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope');
         return;
       }
-      if (kind === 'celeb') { celebPick = celebOpts()[i]; store.set('kevinPongCeleb', celebPick); refreshSlot('celeb'); }
-      else useItem(kind, i);
-      picker.el.querySelectorAll('.kp-pick-list li').forEach(function (x) { x.setAttribute('aria-selected', String(+x.dataset.i === i)); });
-      if (picker.side) { var sl = picker.slot; closePicker(); sl.focus({ preventScroll: true }); }
-      else showBig(i);
+      lookI = i;
+      if (lookKind === 'celeb') { celebPick = celebOpts()[i]; store.set('kevinPongCeleb', celebPick); refreshLook('celeb'); }
+      else useItem(lookKind, i);
+    }
+    // po použití věci (i z velkého náhledu) překreslit mřížku a náhled
+    function refreshLook(kind) {
+      if (!setCard || !setCard.querySelector('.kp-grid') || lookKind !== kind) return;
+      lookI = slotCur(kind);
+      lookGrid();
+      lookStage(lookI);
     }
     // ukázka oslavy: nastavení na chvíli zmizí, přes hřiště se přehraje oslava a nastavení se vrátí
     function previewCeleb(key) {
       if (!CELEBS[key]) return;
-      closePicker();
       root.classList.add('kp-peeking');
       celebrate(CELEBS[key]);
       setTimeout(function () { root.classList.remove('kp-peeking'); }, 3400);
@@ -4140,7 +4051,7 @@ t    }
     if (TRY_HOST) window.__kpTutEnd = function () { if (tut) tutDone(); };   // test: dokončit výuku
     function closeSettings() {
       if (!setCard) return;
-      closePicker();
+      cancelAnimationFrame(lookLoop);
       setCard.remove(); setCard = null;
       setBtn.setAttribute('aria-expanded', 'false');
       if (setPausedGame) askToResume();
@@ -4160,15 +4071,18 @@ t    }
       if (menuPaused) paused = true;
       Object.keys(comics).forEach(function (k) { if (comics[k]) { comics[k].remove(); comics[k] = null; } });
       var phoneNow = machine.classList.contains('phone');
-      var items = (inGame ? [['resume', 'fa-play', T.resume], ['restart', 'fa-rotate-right', T.restart], ['back', 'fa-list', T.menuBack]] : [])
-        .concat([['style', 'fa-palette', T.tabLook], ['settings', 'fa-gear', T.settings]], phoneNow ? [['look', 'fa-magnifying-glass', T.lookBtn]] : [], [['quit', 'fa-xmark', T.close]]);
+      function mBtn(m, cls, icon, text) { return '<button type="button" class="' + cls + ' kp-menu-' + m + '" data-m="' + m + '"><i class="fa-solid ' + icon + '" aria-hidden="true"></i> ' + esc(text || '') + '</button>'; }
+      var tiles = [mBtn('style', 'kp-mtile', 'fa-palette', T.tabLook), mBtn('settings', 'kp-mtile', 'fa-gear', T.settings)].concat(phoneNow ? [mBtn('look', 'kp-mtile', 'fa-magnifying-glass', T.lookBtn)] : []);
       menuEl = document.createElement('div');
       menuEl.className = 'kp-support-card kp-menu-card';
       menuEl.setAttribute('role', 'dialog'); menuEl.setAttribute('aria-label', T.menuTitle || '');
-      menuEl.innerHTML = '<div class="kp-sc-box"><h3><i class="fa-solid fa-pause" aria-hidden="true"></i> ' + esc(inGame ? T.menuTitle || '' : T.menuBtn || '') + '</h3>' +
-        items.map(function (x, n) {
-          return '<button type="button" class="' + (n === 0 && inGame ? 'kpong-play btn-primary' : 'kp-fullbtn') + ' kp-menu-' + x[0] + '" data-m="' + x[0] + '"><i class="fa-solid ' + x[1] + '" aria-hidden="true"></i> ' + esc(x[2] || '') + '</button>';
-        }).join('') + '</div>';
+      menuEl.innerHTML = '<div class="kp-sc-box"><button type="button" class="kp-sheet-x" data-m="resume" aria-label="' + esc(T.close || '') + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+        '<h3>' + esc(inGame ? T.menuTitle || '' : T.menuBtn || '') + '</h3>' +
+        (inGame ? '<p class="kp-mscore"><small>' + esc(T.you || '') + '</small><b>' + you + '</b><span>:</span><b>' + kev + '</b><small>Kevin</small></p>' +
+          mBtn('resume', 'kpong-play btn-primary', 'fa-play', T.resume) +
+          '<div class="kp-mtwo">' + mBtn('restart', 'kp-fullbtn', 'fa-rotate-right', T.restart) + mBtn('back', 'kp-fullbtn', 'fa-list', T.menuBack) + '</div>' : '') +
+        '<div class="kp-mtiles" style="--n:' + tiles.length + '">' + tiles.join('') + '</div>' +
+        mBtn('quit', 'kp-mquit', 'fa-right-from-bracket', T.close) + '</div>';
       root.appendChild(menuEl);
       setBtn.setAttribute('aria-expanded', 'true');
       menuEl.addEventListener('click', function (e) {
@@ -4186,7 +4100,7 @@ t    }
         menuPaused = false;
         if (m === 'settings') openSettings(); else if (m === 'style') openSettings('look'); else if (m === 'look') openLook();
       });
-      menuEl.querySelector('[data-m]').focus({ preventScroll: true });
+      menuEl.querySelector('.kp-sc-box > .kpong-play, .kp-mtile').focus({ preventScroll: true });
     }
     function closeMenu(resume) {
       if (!menuEl) return;

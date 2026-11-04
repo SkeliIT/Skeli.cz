@@ -353,6 +353,7 @@ window.KEVIN_LINES.cs.pong = {
   "champMonth": "ŠAMPION MĚSÍCE",
   "victory": "VÍTĚZSTVÍ!",
   "celebTitle": "Vítězná oslava",
+  "celebShort": "Oslava",
   "celebAuto": "Automaticky",
   "celebOff": "Vypnuto",
   "celebHint": "Za legendární odznaky z nejtěžší obtížnosti. Pustí se po výhře, vidíš ji jen ty.",

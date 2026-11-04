@@ -353,6 +353,7 @@ window.KEVIN_LINES.en.pong = {
   "champMonth": "CHAMPION OF THE MONTH",
   "victory": "VICTORY!",
   "celebTitle": "Victory celebration",
+  "celebShort": "Celebration",
   "celebAuto": "Automatic",
   "celebOff": "Off",
   "celebHint": "For the legendary badges from the hardest difficulty. Plays after a win, only you see it.",
