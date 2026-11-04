@@ -561,6 +561,7 @@ t    }
       themeOn(root, atmoOn ? skin : 0);                    // celá hra v barvách vybrané pálky (vypnutá atmosféra = zlatá)
       frameEl.style.setProperty('--menu-y', (sk && D.MENU_Y[id]) || 162);
       skinEl.hidden = !sk;
+      loadWheels(id);
       applyWins(sk ? id : null);
       if (!sk) return;
       skinEl.style.setProperty('--skin', 'url("/kevin/pong/stroje/' + id + '.webp' + ver + '")');
@@ -2327,6 +2328,30 @@ t    }
     // zubu posunutá), vzadu větší kola ztmavená do hloubky, vpravo píst s klikou, přes to sklo. Rychlost =
     // obvodová rychlost v px/s: nahoře podle Kevinova běhu, dole podle hráčovy pálky, v klidu stroj pomalu tiká.
     var gearImg = [1, 2, 3].map(function (i) { var im = new Image(); im.src = '/kevin/pong/kolo-' + i + '.webp' + ver; return im; });
+    // tematická kolečka automatu (kevin/pong/kolecka/, tools/catsmash-kolecka.py): načtou se jen pro vybraný automat;
+    // dokud nejsou načtená (nebo u klasického), kreslí se základní. Kola nad automatem, po kterých běží Kevin, se vymění taky.
+    var wheels = null, wheelsWant = null, wheelsCache = {};
+    function loadWheels(id) {
+      wheelsWant = id;
+      if (id === 'klasik') return useWheels(null);
+      if (wheelsCache[id]) return useWheels(wheelsCache[id]);
+      var names = ['1', '2', '3', 'rod', 'piston'], imgs = {}, left = names.length;
+      names.forEach(function (n) {
+        var im = new Image();
+        im.onload = function () {
+          imgs[n] = im;
+          if (--left === 0) { wheelsCache[id] = { id: id, g: [imgs['1'], imgs['2'], imgs['3']], rod: imgs.rod, piston: imgs.piston }; if (wheelsWant === id) useWheels(wheelsCache[id]); }
+        };
+        im.src = '/kevin/pong/kolecka/' + id + '-' + n + '.webp' + ver;
+      });
+      useWheels(null);
+    }
+    function useWheels(set) {
+      wheels = set;
+      root.querySelectorAll('[data-set="kevin"] .kpong-gear').forEach(function (el, i) {
+        el.src = set ? set.g[i === 1 ? 0 : 1].src : '/kevin/pong/kolo-' + D.GEARS_KEVIN[i][0] + '.webp' + ver;
+      });
+    }
     function chain(win, sizes, yA, yB, x0, xEnd) {
       var out = [], prev = null;
       for (var i = 0; ; i++) {
@@ -2446,8 +2471,11 @@ t    }
       var bg = g2.createLinearGradient(0, w[1], 0, w[1] + w[3]);
       bg.addColorStop(0, '#060508'); bg.addColorStop(1, '#141218');
       g2.fillStyle = bg; g2.fillRect(w[0], w[1], w[2], w[3]);
+      var bigR = 0;
+      m.front.forEach(function (g) { if (g.r > bigR) bigR = g.r; });
       function draw1(g) {
-        var im = gearImg[g.img];
+        // tematická kola: podle velikosti velké, střední, nebo malé
+        var im = wheels ? wheels.g[g.r >= bigR * 0.85 ? 0 : g.r >= bigR * 0.65 ? 1 : 2] : gearImg[g.img];
         if (!im.naturalWidth) return;
         g2.save(); g2.translate(g.x, g.y); g2.rotate(g.a); g2.drawImage(im, -g.r, -g.r, 2 * g.r, 2 * g.r); g2.restore();
       }
@@ -2458,18 +2486,31 @@ t    }
       // točí s paprskem, nikdy nevisí v díře), ojnice k pístu ve válci vpravo. Válec je přesně tak dlouhý, kolik
       // píst ujede (+ kostička), a ojnice se zkrátí, aby se celý vešel do okénka.
       var k = m.front[m.front.length - 1], pr = k.r * 0.45, ang = k.a - Math.PI / 2, pin = [k.x + Math.cos(ang) * pr, k.y + Math.sin(ang) * pr];
-      var winR = m.win[0] + m.win[2] - 8, L = Math.max(pr * 1.6, Math.min(k.r * 1.9, winR - 18 - k.x - pr)), cyl = Math.min(k.y, m.win[1] + m.win[3] - 12);   // válec se vždy vejde do okénka (telefon: kola koukají jen vrškem)
+      // tematický píst jezdí celý; aby se vešel, je táhlo o kus jeho délky kratší
+      var pistH = wheels ? Math.min(m.win[3] * 0.42, 36) : 0, pistW = wheels ? pistH * wheels.piston.naturalWidth / wheels.piston.naturalHeight : 0;
+      var winR = m.win[0] + m.win[2] - 8, L = Math.max(pr * 1.6, Math.min(k.r * 1.9, winR - 18 - k.x - pr - pistW * 0.45)), cyl = Math.min(k.y, m.win[1] + m.win[3] - 12);   // válec se vždy vejde do okénka (telefon: kola koukají jen vrškem)
       var px = pin[0] + Math.sqrt(Math.max(0, L * L - (cyl - pin[1]) * (cyl - pin[1])));
       var lo = k.x - pr + Math.sqrt(L * L - pr * pr), hi = k.x + pr + L;     // krajní polohy pístu
-      g2.fillStyle = '#0f0e12'; g2.strokeStyle = 'rgba(230,183,48,.55)'; g2.lineWidth = 2;
-      g2.beginPath(); g2.rect(lo - 6, cyl - 9, hi - lo + 22, 18); g2.fill(); g2.stroke();
+      if (wheels) {
+        g2.drawImage(wheels.piston, px - pistH * 0.2, cyl - pistH / 2, pistW, pistH);
+      } else {
+        g2.fillStyle = '#0f0e12'; g2.strokeStyle = 'rgba(230,183,48,.55)'; g2.lineWidth = 2;
+        g2.beginPath(); g2.rect(lo - 6, cyl - 9, hi - lo + 22, 18); g2.fill(); g2.stroke();
+      }
       m.front.forEach(draw1);
-      var rod = g2.createLinearGradient(pin[0], pin[1] - 3, pin[0], pin[1] + 3);
-      rod.addColorStop(0, '#f3d27a'); rod.addColorStop(1, '#8f6600');
-      g2.strokeStyle = rod; g2.lineWidth = 5; g2.lineCap = 'round';
-      g2.beginPath(); g2.moveTo(pin[0], pin[1]); g2.lineTo(px, cyl); g2.stroke();
-      g2.fillStyle = '#c99a12'; g2.beginPath(); g2.arc(pin[0], pin[1], 4, 0, 7); g2.fill();
-      g2.fillStyle = '#e6b730'; g2.fillRect(px - 2, cyl - 7, 14, 14);
+      if (wheels) {                                       // táhlo z obrázku: oka na koncích sedí na čepu a na pístu
+        var ri = wheels.rod, eye = ri.naturalHeight / 2, rk = L / Math.max(1, ri.naturalWidth - ri.naturalHeight);
+        g2.save(); g2.translate(pin[0], pin[1]); g2.rotate(Math.atan2(cyl - pin[1], px - pin[0]));
+        g2.drawImage(ri, -eye * rk, -eye * rk, ri.naturalWidth * rk, ri.naturalHeight * rk);
+        g2.restore();
+      } else {
+        var rod = g2.createLinearGradient(pin[0], pin[1] - 3, pin[0], pin[1] + 3);
+        rod.addColorStop(0, '#f3d27a'); rod.addColorStop(1, '#8f6600');
+        g2.strokeStyle = rod; g2.lineWidth = 5; g2.lineCap = 'round';
+        g2.beginPath(); g2.moveTo(pin[0], pin[1]); g2.lineTo(px, cyl); g2.stroke();
+        g2.fillStyle = '#c99a12'; g2.beginPath(); g2.arc(pin[0], pin[1], 4, 0, 7); g2.fill();
+        g2.fillStyle = '#e6b730'; g2.fillRect(px - 2, cyl - 7, 14, 14);
+      }
       // sklo: odlesk nahoře a stín u okrajů
       var gl = g2.createLinearGradient(0, w[1], 0, w[1] + w[3]);
       gl.addColorStop(0, 'rgba(255,255,255,.10)'); gl.addColorStop(0.35, 'rgba(255,255,255,0)'); gl.addColorStop(1, 'rgba(0,0,0,.35)');

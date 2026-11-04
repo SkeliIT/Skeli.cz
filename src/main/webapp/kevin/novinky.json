@@ -2,6 +2,15 @@
   {
     "d": "2026-11-04",
     "href": "/?kevin=pong",
+    "cs": "Každý automat v CatSmash má teď vlastní kolečka a táhla: ledová, lávová, plyšová… Vyber si pálku a mrkni dovnitř.",
+    "en": "Every CatSmash machine now has its own gears and rods: ice, lava, plush… Pick a paddle and take a look inside.",
+    "de": "Jeder CatSmash-Automat hat jetzt eigene Zahnräder und Stangen: aus Eis, Lava, Plüsch… Wähl einen Schläger und schau hinein.",
+    "uk": "Кожен автомат у CatSmash тепер має власні колеса й тяги: крижані, лавові, плюшеві… Обери ракетку й зазирни всередину.",
+    "vi": "Mỗi máy CatSmash giờ có bánh răng và thanh truyền riêng: băng, dung nham, nhung… Chọn một chiếc vợt và nhìn vào bên trong nhé."
+  },
+  {
+    "d": "2026-11-04",
+    "href": "/?kevin=pong",
     "cs": "CatSmash se teď barví podle tvojí pálky: s ledovou je celá hra namodralá, s čipem zelená. A menu hry má nový vzhled, všechny věci vidíš naráz.",
     "en": "CatSmash now takes its colours from your paddle: blue with the ice one, green with the chip. And the game menu has a new look, with everything in view at once.",
     "de": "CatSmash richtet seine Farben jetzt nach deinem Schläger: mit dem Eisschläger bläulich, mit dem Chip grün. Und das Spielmenü sieht neu aus, du siehst alles auf einmal.",
@@ -34,14 +43,5 @@
     "de": "Wisch auf der Startseite mit Maus oder Finger durch die Funken. Du bläst sie weg wie ein Windstoß, im hellen Modus auch den Schnee.",
     "uk": "На головній проведи мишею або пальцем крізь іскри. Здуєш їх, мов порив вітру, а у світлому режимі ще й сніг.",
     "vi": "Ở trang chủ, hãy lướt chuột hoặc ngón tay qua những tia lửa. Bạn sẽ thổi bay chúng như một cơn gió, và cả tuyết ở chế độ sáng."
-  },
-  {
-    "d": "2026-11-03",
-    "href": "/nastaveni.jsp#soukromi",
-    "cs": "Klikni v tabulce rekordů na jméno a uvidíš profil hráče – jeho odznaky a rekordy. Co ukazuješ ty, si nastavíš v Soukromí, všechno jde vypnout.",
-    "en": "Click a name in the leaderboard to see that player’s profile – badges and records. What you show is up to you in Privacy; everything can be switched off.",
-    "de": "Klick in der Bestenliste auf einen Namen und du siehst das Spielerprofil – Abzeichen und Rekorde. Was du zeigst, stellst du unter Privatsphäre ein; alles lässt sich ausschalten.",
-    "uk": "Натисни ім’я в таблиці рекордів – і побачиш профіль гравця: значки й рекорди. Що показуєш ти, налаштуєш у Приватності, усе можна вимкнути.",
-    "vi": "Bấm vào tên trong bảng kỷ lục để xem hồ sơ người chơi – huy hiệu và kỷ lục. Bạn hiển thị gì thì chỉnh trong Quyền riêng tư; mọi thứ đều tắt được."
   }
 ]
