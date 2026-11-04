@@ -1,6 +1,7 @@
 package com.github.skeliit.model;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -40,6 +41,11 @@ public class PongProfile {
 
     public void badge(String key, String icon, boolean earned) {
         badges.add(new Badge(key, icon, earned));
+    }
+
+    /** Seřadí odznaky pro výpis: získané nahoře, chybějící pod nimi, v obou částech od nejběžnějšího po nejvzácnější. */
+    public void sortBadges() {
+        badges.sort(Comparator.comparing((Badge b) -> !b.earned).thenComparingInt(b -> PongBadges.RANK.indexOf(b.key)));
     }
 
     public boolean has(String key) {

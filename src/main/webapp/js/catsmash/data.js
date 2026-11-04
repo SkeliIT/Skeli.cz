@@ -155,7 +155,6 @@
   // upovídanost: [násobek šance na hlášku, odstup mezi běžnými hláškami v ms]; mlčí = žádné komentáře
   // (scénka s komárem a otázky „pokračujem?“ mluví dál)
   var TALK = { more: [1.6, 3500], normal: [1, 6000], less: [0.4, 11000], mute: [0, 1e9] };
-  // přehled odznaků v menu hry: skupiny, u každého ikona, titul a ikonky odměn; ťuknutím se ukáže, jak ho získat
   // vzácnost odznaků (barva v nastavení a v přehledu): běžný, neobvyklý, vzácný, epický, legendární
   var RARITY = { first: 'c', easy: 'c', normal: 'c', tinker: 'c', loyal: 'c',
     streak: 'u', night: 'u', sniper: 'u', overheat: 'u', close: 'u', fast: 'u',
@@ -163,12 +162,10 @@
     angry: 'e', wins100: 'e', wardrobe: 'e',
     hwins5: 'l', hfast: 'l', hclean: 'l', hsniper: 'l', hcomeback: 'l', skelosquad: 'l' };
   // odznaky, které navíc odemknou rámeček kolem fotky (stejné jako PongBadges.FRAMES na serveru)
-  // pořadí odznaků od nejsnazšího po nejvzácnější (tak se řadí i pálky, míčky a pozadí v seznamech)
+  // pořadí odznaků od nejsnazšího po nejvzácnější (tak se řadí i pálky, míčky a pozadí v seznamech);
+  // stejný seznam je v PongBadges.RANK na serveru (hlídá PongBadgeOrderTest)
   var RANK = ['first', 'easy', 'tinker', 'loyal', 'normal', 'streak', 'night', 'close', 'overheat', 'sniper', 'fast', 'super', 'yarn', 'marathon', 'comeback', 'clean', 'wins50', 'angry', 'wardrobe', 'wins100', 'hsniper', 'hcomeback', 'hclean', 'hfast', 'hwins5', 'skelosquad'];
   var FRAMES = ['angry', 'wins100', 'wardrobe', 'hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback'];
-  var BADGE_GROUPS = [['first', 'easy', 'normal', 'angry', 'clean', 'close', 'fast', 'streak', 'wins50', 'wins100'],
-    ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'wardrobe'],
-    ['hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback', 'skelosquad']];
   // barvy pálky během vylepšení: velká pálka zelená, pomalý Kevin modrá, klidný hopík fialová
   var POWER_COL = {
     big: ['#c6ffd0', '#18a04e', 'rgba(90, 255, 140, .9)'],
@@ -176,5 +173,5 @@
     calm: ['#eadcff', '#7a46d0', 'rgba(190, 140, 255, .9)']
   };
 
-  C.data = { W: W, H: H, PAD_W: PAD_W, PAD_H: PAD_H, BALL_R: BALL_R, WIN: WIN, PLAYER_Y: PLAYER_Y, KEVIN_Y: KEVIN_Y, FRAME_W: FRAME_W, FRAME_H: FRAME_H, GLASS: GLASS, TOP_SLOT: TOP_SLOT, GEARS_KEVIN: GEARS_KEVIN, WIN_TOP: WIN_TOP, WIN_BOT: WIN_BOT, MECH_WIN: MECH_WIN, BGS: BGS, LEVELS: LEVELS, SHOT: SHOT, SHOT_IDEAL: SHOT_IDEAL, SHOT_SUPER: SHOT_SUPER, LIFT: LIFT, BADGE_ICON: BADGE_ICON, CLAIMABLE: CLAIMABLE, LOOKS: LOOKS, BG_BADGE: BG_BADGE, BG_POS: BG_POS, MOOD: MOOD, MAT: MAT, FLIGHT: FLIGHT, BALL_FLIGHT: BALL_FLIGHT, REACT: REACT, BALL_KINDS: BALL_KINDS, TALK: TALK, RARITY: RARITY, RANK: RANK, FRAMES: FRAMES, BADGE_GROUPS: BADGE_GROUPS, POWER_COL: POWER_COL };
+  C.data = { W: W, H: H, PAD_W: PAD_W, PAD_H: PAD_H, BALL_R: BALL_R, WIN: WIN, PLAYER_Y: PLAYER_Y, KEVIN_Y: KEVIN_Y, FRAME_W: FRAME_W, FRAME_H: FRAME_H, GLASS: GLASS, TOP_SLOT: TOP_SLOT, GEARS_KEVIN: GEARS_KEVIN, WIN_TOP: WIN_TOP, WIN_BOT: WIN_BOT, MECH_WIN: MECH_WIN, BGS: BGS, LEVELS: LEVELS, SHOT: SHOT, SHOT_IDEAL: SHOT_IDEAL, SHOT_SUPER: SHOT_SUPER, LIFT: LIFT, BADGE_ICON: BADGE_ICON, CLAIMABLE: CLAIMABLE, LOOKS: LOOKS, BG_BADGE: BG_BADGE, BG_POS: BG_POS, MOOD: MOOD, MAT: MAT, FLIGHT: FLIGHT, BALL_FLIGHT: BALL_FLIGHT, REACT: REACT, BALL_KINDS: BALL_KINDS, TALK: TALK, RARITY: RARITY, RANK: RANK, FRAMES: FRAMES, POWER_COL: POWER_COL };
 })();

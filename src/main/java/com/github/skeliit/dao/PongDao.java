@@ -318,6 +318,7 @@ public class PongDao {
         boolean all = true;
         for (String k : PongBadges.LOOKS) all &= p.has(k);
         p.badge("wardrobe", PongBadges.icon("wardrobe"), all);
+        p.sortBadges();
         if (p.title != null && !p.has(p.title)) p.title = null;
         p.frame = frame(userId);
         if (p.frame != null && !p.has(p.frame)) p.frame = null;

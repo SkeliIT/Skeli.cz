@@ -184,11 +184,8 @@ window.KEVIN_LINES.en.pong = {
   "badgesTitle": "Badges",
   "loading": "Starting the machine…",
   "badgesRule": "Only on Normal and Angry.",
-  "badgeGroups": [
-    "Wins",
-    "In-game tricks",
-    "Hardest only"
-  ],
+  "badgesGot": "Earned",
+  "badgesMissing": "Still to get",
   "badgeNoReward": "no reward yet",
   "rewards": {
     "first": "Twig paddle",

@@ -184,11 +184,8 @@ window.KEVIN_LINES.de.pong = {
   "badgesTitle": "Abzeichen",
   "loading": "Maschine startet…",
   "badgesRule": "Nur auf Normal und Wütend.",
-  "badgeGroups": [
-    "Siege",
-    "Kunststücke im Spiel",
-    "Nur auf der schwersten Stufe"
-  ],
+  "badgesGot": "Erhalten",
+  "badgesMissing": "Noch offen",
   "badgeNoReward": "noch ohne Belohnung",
   "rewards": {
     "first": "Schläger Zweig",

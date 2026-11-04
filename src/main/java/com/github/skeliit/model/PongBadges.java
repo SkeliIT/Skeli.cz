@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Odznaky hry CatSmash: klíč (texty pong.badge.{klíč}) → ikona Font Awesome, v pořadí, jak se ukazují na profilu.
+ * Odznaky hry CatSmash: klíč (texty pong.badge.{klíč}) → ikona Font Awesome; pořadí na profilu určuje RANK.
  * Část odznaků počítá server z uložených výher (pong_results), zbytek se děje uvnitř zápasu (odstřely, šroubky…)
  * a hlásí ho prohlížeč – ty jsou v CLAIMABLE a ukládají se do pong_badges.
  * Každý získaný odznak jde nosit jako titul u jména (users.pong_title), většina navíc odemkne věc ve hře
@@ -47,6 +47,12 @@ public final class PongBadges {
         ICONS.put("wardrobe", "fa-shirt");
         ICONS.put("skelosquad", "fa-gem");      // nejvzácnější: všech 5 odznaků za nejtěžší obtížnost
     }
+
+    /** Pořadí odznaků od nejsnazšího po nejvzácnější; stejný seznam je v js/catsmash/data.js (RANK), hlídá PongBadgeOrderTest. */
+    public static final java.util.List<String> RANK = java.util.List.of(
+            "first", "easy", "tinker", "loyal", "normal", "streak", "night", "close", "overheat", "sniper", "fast", "super", "yarn",
+            "marathon", "comeback", "clean", "wins50", "angry", "wardrobe", "wins100", "hsniper", "hcomeback", "hclean", "hfast",
+            "hwins5", "skelosquad");
 
     /** Odznaky, které hlásí prohlížeč (stalo se to uvnitř zápasu, server to nevidí). */
     public static final Set<String> CLAIMABLE = Set.of(

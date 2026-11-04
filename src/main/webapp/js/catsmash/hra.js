@@ -188,12 +188,17 @@
     if (TRY_HOST) window.__kpBall = function () { return { x: Math.round(ball.x), y: Math.round(ball.y), vy: Math.round(ball.vy), W: W, stick: { charges: stick.charges, pts: stick.pts, armed: stick.armed, active: !!stick.active }, screw: screw && screw.kind }; };
     function hasBadge(k) { return !k || PREVIEW_ALL || !!badges[k]; }
     function owns(kind, id, b) { return hasBadge(b); }
-    // pořadí položek v seznamech: zdarma první, pak podle vzácnosti odznaku
+    // pořadí položek v seznamech: odemčené nahoře, zamčené pod nimi; v obou částech zdarma první, pak podle vzácnosti odznaku
     function itemOrder(kind) {
-      var list = kind === 'pad' ? SKINS : kind === 'ball' ? BALLS : BGS, idx = list.map(function (x, i) { return i; });
-      function rk(i) { var b = kind === 'bg' ? BG_BADGE[list[i]] : list[i].b; return b ? D.RANK.indexOf(b) : -1; }
-      return idx.sort(function (a, c) { return rk(a) - rk(c) || a - c; });
-    }
+      var idx = [], locked = [], rk = [];
+      for (var i = 0, n = slotCount(kind); i < n; i++) {
+        var inf = slotInfo(kind, i);
+        idx.push(i);
+        locked[i] = inf.ok ? 0 : 1;
+        rk[i] = inf.b ? D.RANK.indexOf(inf.b) : -1;
+      }
+      return idx.sort(function (a, c) { return locked[a] - locked[c] || rk[a] - rk[c] || a - c; });
+t    }
     // přidá odznaky, vrátí ty opravdu nové (v pořadí BADGE_ICON)
     function addBadges(list) {
       var fresh = [];
@@ -2751,7 +2756,6 @@
     var RARITY = D.RARITY;
     function rar(k) { return k && RARITY[k] ? ' data-rar="' + RARITY[k] + '"' : ''; }
     var FRAMES = D.FRAMES;
-    var BADGE_GROUPS = D.BADGE_GROUPS;
     // obrázky odměny za odznak: pálka a míček (náhled kreslí drawGiftThumbs), pozadí, rámeček fotky; text odměny v title
     function giftPics(k, rw) {
       var h = '';
@@ -2890,16 +2894,19 @@
       var html = viewHead('odznaky', T.badgesTitle, ' <small class="kp-count">' + got + '/' + all.length + '</small>') + (progress || '') +
         '<div class="kp-bdg-bar" style="--p:' + Math.round(got / all.length * 100) + '%"><span></span></div>' +
         '<p class="kp-bdg-rule">' + esc(T.badgesRule || '') + '</p><div class="kp-bdg-list">';
-      BADGE_GROUPS.forEach(function (grp, gi) {
-        html += '<p class="kp-bdg-group' + (gi === 2 ? ' hard' : '') + '">' + esc((T.badgeGroups || [])[gi] || '') + '</p>';
-        grp.forEach(function (k) {
-          var on = !!badges[k], tier = { streak: ' bronze', wins50: ' silver', wins100: ' gold' }[k] || '';
+      // získané nahoře, chybějící pod nimi; v obou částech od nejběžnějšího po nejvzácnější (D.RANK)
+      [true, false].forEach(function (earned) {
+        var part = D.RANK.filter(function (k) { return !!badges[k] === earned; });
+        if (!part.length) return;
+        html += '<p class="kp-bdg-group">' + esc(earned ? T.badgesGot : T.badgesMissing) + ' (' + part.length + ')</p>';
+        part.forEach(function (k) {
+          var on = earned, hard = RARITY[k] === 'l', tier = { streak: ' bronze', wins50: ' silver', wins100: ' gold' }[k] || '';
           var gifts = (SKINS.some(function (x) { return x.b === k; }) ? '<i class="fa-solid fa-table-tennis-paddle-ball"></i>' : '') +
             (BALLS.some(function (x) { return x.b === k; }) ? '<i class="fa-solid fa-circle"></i>' : '') +
             (Object.keys(BG_BADGE).some(function (b) { return BG_BADGE[b] === k; }) ? '<i class="fa-regular fa-image"></i>' : '') +
             (FRAMES.indexOf(k) >= 0 ? '<i class="fa-regular fa-circle-user"></i>' : '');
           var rw = (T.rewards || {})[k];
-          html += '<details class="kp-bdg' + (on ? ' on' : '') + (gi === 2 ? ' hard' : '') + '"' + rar(k) + '><summary>' +
+          html += '<details class="kp-bdg' + (on ? ' on' : '') + (hard ? ' hard' : '') + '"' + rar(k) + '><summary>' +
             '<span class="kp-bdg-icon' + tier + '"><i class="fa-solid ' + (on ? BADGE_ICON[k] : 'fa-lock') + '" aria-hidden="true"></i></span>' +
             '<span class="kp-bdg-name"><b>' + esc((T.badgeNames || {})[k] || k) + '</b>' + (rw ? giftPics(k, rw) : '') + '</span>' +
             '<span class="kp-bdg-gifts" aria-hidden="true">' + gifts + '</span></summary>' +
@@ -3924,7 +3931,7 @@
       var el = document.createElement('div');
       el.className = 'kp-picker ' + kind + (side ? ' side' : ' sheet');
       el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', slotTitle(kind));
-      var rows = '', ord = kind === 'celeb' ? celebOpts().map(function (x, i) { return i; }) : itemOrder(kind);
+      var rows = '', ord = itemOrder(kind);
       ord.forEach(function (i) {
         var inf = slotInfo(kind, i);
         rows += '<li role="option" tabindex="-1" data-i="' + i + '" aria-selected="' + (i === cur) + '"' + (inf.ok ? '' : ' aria-disabled="true"') + rar(inf.b) + '>' +

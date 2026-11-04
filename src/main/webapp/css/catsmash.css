@@ -239,7 +239,6 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-bdg-rule { margin: 0; text-align: center; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
 .kp-bdg-list { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; text-align: left; }
 .kp-bdg-group { margin: 8px 0 2px; font-size: var(--fs-small); color: var(--accent); letter-spacing: .06em; }
-.kp-bdg-group.hard { color: #ff8a3c; }
 .kp-bdg { flex: none; border-radius: 10px; background: rgba(255, 255, 255, .04); }
 .kp-bdg summary { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 8px; cursor: pointer; list-style: none; }
 .kp-bdg summary::-webkit-details-marker { display: none; }

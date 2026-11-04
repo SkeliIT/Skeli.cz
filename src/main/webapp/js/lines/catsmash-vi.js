@@ -184,11 +184,8 @@ window.KEVIN_LINES.vi.pong = {
   "badgesTitle": "Huy hiệu",
   "loading": "Đang khởi động cỗ máy…",
   "badgesRule": "Chỉ ở mức Bình thường và Giận dữ.",
-  "badgeGroups": [
-    "Chiến thắng",
-    "Kỹ năng trong trận",
-    "Chỉ ở mức khó nhất"
-  ],
+  "badgesGot": "Đã đạt",
+  "badgesMissing": "Còn thiếu",
   "badgeNoReward": "chưa có phần thưởng",
   "rewards": {
     "first": "vợt Cành cây",

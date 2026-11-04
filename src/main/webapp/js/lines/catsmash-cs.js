@@ -184,11 +184,8 @@ window.KEVIN_LINES.cs.pong = {
   "badgesTitle": "Odznaky",
   "loading": "Startuju stroj…",
   "badgesRule": "Jen na Normální a Naštvaný.",
-  "badgeGroups": [
-    "Výhry",
-    "Kousky ve hře",
-    "Jen za nejtěžší"
-  ],
+  "badgesGot": "Získané",
+  "badgesMissing": "Ještě chybí",
   "badgeNoReward": "zatím bez odměny",
   "rewards": {
     "first": "pálka Větvička",

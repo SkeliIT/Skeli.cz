@@ -184,11 +184,8 @@ window.KEVIN_LINES.uk.pong = {
   "badgesTitle": "Значки",
   "loading": "Запускаю машину…",
   "badgesRule": "Лише на рівнях Нормальний і Злий.",
-  "badgeGroups": [
-    "Перемоги",
-    "Трюки в грі",
-    "Лише на найважчому"
-  ],
+  "badgesGot": "Отримані",
+  "badgesMissing": "Ще попереду",
   "badgeNoReward": "поки без нагороди",
   "rewards": {
     "first": "ракетка Гілочка",
