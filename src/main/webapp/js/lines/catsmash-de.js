@@ -59,6 +59,8 @@ window.KEVIN_LINES.de.pong = {
   "layoutReset": "Standard-Anordnung",
   "zoneLabel": "Schläger-Fläche",
   "atmo": "Automat und Effekte je nach Schläger",
+  "fullSet": "Ganzes Set ausrüsten",
+  "fullSetHint": "Der Schläger bringt auch seinen Ball und Hintergrund mit, wenn du sie freigeschaltet hast.",
   "atmoHint": "Der Automat zieht sich im Stil deines Schlägers an (Holz, Plüsch, Neon…) und auf dem Spielfeld gibt es kleine Effekte – fliegende Blätter, Funken, Schneeflocken. Ausschalten für den klassischen Automaten.",
   "lockMouse": "Maus im Spiel sperren",
   "tabLook": "Aussehen",
@@ -184,11 +186,8 @@ window.KEVIN_LINES.de.pong = {
   "badgesTitle": "Abzeichen",
   "loading": "Maschine startet…",
   "badgesRule": "Nur auf Normal und Wütend.",
-  "badgeGroups": [
-    "Siege",
-    "Kunststücke im Spiel",
-    "Nur auf der schwersten Stufe"
-  ],
+  "badgesGot": "Erhalten",
+  "badgesMissing": "Noch offen",
   "badgeNoReward": "noch ohne Belohnung",
   "rewards": {
     "first": "Schläger Zweig",
@@ -356,6 +355,7 @@ window.KEVIN_LINES.de.pong = {
   "champMonth": "CHAMPION DES MONATS",
   "victory": "SIEG!",
   "celebTitle": "Siegesfeier",
+  "celebShort": "Feier",
   "celebAuto": "Automatisch",
   "celebOff": "Aus",
   "celebHint": "Für die legendären Abzeichen der schwersten Stufe. Läuft nach einem Sieg, nur du siehst sie.",

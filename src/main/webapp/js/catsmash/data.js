@@ -11,21 +11,23 @@
   var TOP_SLOT = 124, GEARS_KEVIN = [[1, 290.5, 122, 46], [2, 384, 118, 58], [3, 477.5, 122, 46]];
   // okénka s živou mechanikou [x, y, šířka, výška] – nahoře ji pohání Kevinův běh, dole hráčova pálka
   // průhledná okénka (horní, dolní) v rámech automatů podle pálky – změřeno z kevin/pong/stroje/*.webp (x, y, šířka, výška)
-  var MECH_WIN = { cip: [[132, 194, 506, 78], [126, 1072, 516, 134]],
-    ekvalizer: [[132, 194, 506, 72], [126, 1076, 516, 130]],
-    ganja: [[130, 194, 508, 74], [124, 1076, 520, 148]],
-    graffiti: [[128, 194, 510, 80], [126, 1070, 516, 136]],
-    jadeit: [[132, 194, 506, 78], [126, 1072, 516, 134]],
-    kola: [[130, 194, 508, 78], [126, 1076, 516, 130]],
-    lava: [[128, 190, 510, 82], [126, 1076, 516, 154]],
-    led: [[132, 194, 506, 80], [126, 1070, 516, 136]],
-    mince: [[130, 194, 508, 80], [126, 1072, 516, 134]],
-    neon: [[130, 194, 508, 76], [120, 1076, 526, 146]],
-    perly: [[106, 172, 554, 94], [100, 1076, 566, 154]],
-    plys: [[130, 194, 508, 78], [124, 1076, 522, 130]],
-    retez: [[106, 166, 558, 100], [96, 1076, 576, 180]],
-    skelosquad: [[132, 194, 506, 72], [126, 1070, 516, 136]],
-    vetev: [[130, 194, 508, 80], [124, 1072, 520, 134]] };
+  var MECH_WIN = {
+    cip: [[127, 190, 515, 89], [122, 1066, 525, 144]],
+    ekvalizer: [[121, 191, 528, 85], [119, 1081, 530, 138]],
+    ganja: [[125, 191, 518, 84], [118, 1096, 532, 134]],
+    graffiti: [[123, 191, 520, 90], [121, 1065, 527, 145]],
+    jadeit: [[126, 190, 518, 88], [121, 1068, 525, 143]],
+    klasik: [[123, 186, 523, 89], [118, 1068, 533, 146]],
+    kola: [[124, 191, 520, 87], [120, 1075, 534, 146]],
+    lava: [[123, 186, 521, 93], [122, 1094, 523, 142]],
+    led: [[127, 190, 513, 89], [122, 1065, 524, 144]],
+    mince: [[125, 190, 518, 90], [122, 1067, 524, 144]],
+    neon: [[124, 188, 520, 88], [115, 1091, 538, 137]],
+    perly: [[102, 167, 565, 87], [95, 1088, 578, 148]],
+    plys: [[124, 191, 520, 88], [118, 1071, 533, 140]],
+    retez: [[99, 162, 570, 91], [98, 1105, 572, 156]],
+    skelosquad: [[123, 186, 523, 89], [122, 1065, 524, 144]],
+    vetev: [[125, 192, 518, 88], [118, 1067, 531, 143]] };
   var WIN_TOP = [128, 191, 513, 79], WIN_BOT = [123, 1073, 523, 136];
   var BGS = ['tma', 'mesto', 'zapad', 'les', 'vesmir', 'zare', 'ganja', 'sopka', 'poklad', 'kyber', 'podmori', 'podium', 'klenotnice', 'tovarna', 'plys', 'skelosquad'];
   // watch = jakou část hřiště (od sebe) Kevin sleduje, err = chyba odhadu (díl šířky), bounceErr = o kolik víc
@@ -54,7 +56,7 @@
   // pozadí patří k pálce: odemkne ho stejný odznak jako pálku (Noční město ke Graffiti je zdarma)
   var BG_BADGE = { zare: 'fast', zapad: 'normal', vesmir: 'clean', ganja: 'wins50', les: 'streak', sopka: 'comeback', poklad: 'wardrobe', kyber: 'sniper', podmori: 'night', podium: 'hsniper', klenotnice: 'hcomeback', tovarna: 'wins100', plys: 'tinker', skelosquad: 'skelosquad' };
   // výřez obrázku na hřiště (hřiště je na výšku, obrázky na šířku): kde je v obrázku to nejhezčí
-  var BG_POS = { mesto: '20%', zapad: '62%', les: '50%', vesmir: '28%', zare: '50%', ganja: '55%', sopka: '50%', poklad: '50%', kyber: '50%', podmori: '50%', podium: '50%', klenotnice: '50%', tovarna: '50%', plys: '50%', skelosquad: '50%' };
+  var BG_POS = { mesto: '20%', zapad: '62%', les: '50%', vesmir: '28%', zare: '50%', ganja: '55%', sopka: '50%', poklad: '50%', kyber: '50%', podmori: '50%', podium: '50%', klenotnice: '50%', tovarna: '50%', plys: '50%', skelosquad: '13%' };   // skelosquad: výřez se znakem na zdi a reproduktory
   var MOOD = { lazy: [0.85, 1.35], calm: [1, 1], try: [1.08, 0.8] };
   // Přívěsky pod pálkou se chovají podle materiálu (MAT podle id pálky):
   //  swing = tuhý kus, otáčí se celý kolem místa, kde visí (kov, dřevo, střapec);
@@ -62,6 +64,7 @@
   //  beads = tuhé korálky na šňůrce: korálky se jen posouvají, ohýbá se šňůrka;
   //  string = tuhý kus na provázku (klíček): provázek se kývá, klíček visí na jeho konci;
   //  leg = chlupatá nožička (dokreslená) a na ní tuhá tlapka – nožička se houpe, tlapka se neohýbá;
+  //  pendant = řetízek do V ukotvený na dvou místech, na něm tuhý přívěsek (kreslí se kódem, napíná se za přívěskem);
   //  rigid = nehýbe se vůbec (led, neon, ekvalizér, ozubená kola).
   // damp = tlumení (kov se houpe dlouho, láva skoro hned stojí), stiff = pružnost (větvička se vrací sama),
   // push = jak moc ho rozhoupe pohyb pálky (těžká láva málo, lehký plyš hodně)
@@ -70,7 +73,8 @@
     lava: { mode: 'sway', damp: 7, stiff: 6, push: 0.3, drip: 'lava', every: [900, 2600] },
     retez: { mode: 'swing', damp: 1.1, stiff: 0, push: 1 },
     ganja: { mode: 'swing', damp: 1.6, stiff: 8, push: 0.9 },
-    skelosquad: { mode: 'swing', damp: 1.2, stiff: 0, push: 1 },
+    // řetízek pevně na dvou místech pod lebkou uprostřed pálky, houpe se jen přívěsek; zlatá záře pod pálkou
+    skelosquad: { mode: 'pendant', damp: 1.2, stiff: 0, push: 1, noStrip: true, aura: 'rgba(255, 200, 70, ', center: 239, anchors: [189, 289], drop: 30, skull: [33, 22, 24, 33], scale: 1.4 },
     graffiti: { mode: 'sway', damp: 6, stiff: 10, push: 0.3, drip: 'paint', every: [1800, 4200] },
     plys: { mode: 'leg', damp: 2.4, stiff: 16, push: 0.8, leg: 28 },
     jadeit: { mode: 'swing', damp: 1.6, stiff: 0, push: 1 },
@@ -155,7 +159,6 @@
   // upovídanost: [násobek šance na hlášku, odstup mezi běžnými hláškami v ms]; mlčí = žádné komentáře
   // (scénka s komárem a otázky „pokračujem?“ mluví dál)
   var TALK = { more: [1.6, 3500], normal: [1, 6000], less: [0.4, 11000], mute: [0, 1e9] };
-  // přehled odznaků v menu hry: skupiny, u každého ikona, titul a ikonky odměn; ťuknutím se ukáže, jak ho získat
   // vzácnost odznaků (barva v nastavení a v přehledu): běžný, neobvyklý, vzácný, epický, legendární
   var RARITY = { first: 'c', easy: 'c', normal: 'c', tinker: 'c', loyal: 'c',
     streak: 'u', night: 'u', sniper: 'u', overheat: 'u', close: 'u', fast: 'u',
@@ -163,12 +166,10 @@
     angry: 'e', wins100: 'e', wardrobe: 'e',
     hwins5: 'l', hfast: 'l', hclean: 'l', hsniper: 'l', hcomeback: 'l', skelosquad: 'l' };
   // odznaky, které navíc odemknou rámeček kolem fotky (stejné jako PongBadges.FRAMES na serveru)
-  // pořadí odznaků od nejsnazšího po nejvzácnější (tak se řadí i pálky, míčky a pozadí v seznamech)
+  // pořadí odznaků od nejsnazšího po nejvzácnější (tak se řadí i pálky, míčky a pozadí v seznamech);
+  // stejný seznam je v PongBadges.RANK na serveru (hlídá PongBadgeOrderTest)
   var RANK = ['first', 'easy', 'tinker', 'loyal', 'normal', 'streak', 'night', 'close', 'overheat', 'sniper', 'fast', 'super', 'yarn', 'marathon', 'comeback', 'clean', 'wins50', 'angry', 'wardrobe', 'wins100', 'hsniper', 'hcomeback', 'hclean', 'hfast', 'hwins5', 'skelosquad'];
   var FRAMES = ['angry', 'wins100', 'wardrobe', 'hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback'];
-  var BADGE_GROUPS = [['first', 'easy', 'normal', 'angry', 'clean', 'close', 'fast', 'streak', 'wins50', 'wins100'],
-    ['sniper', 'super', 'tinker', 'yarn', 'overheat', 'comeback', 'marathon', 'night', 'loyal', 'wardrobe'],
-    ['hwins5', 'hfast', 'hclean', 'hsniper', 'hcomeback', 'skelosquad']];
   // barvy pálky během vylepšení: velká pálka zelená, pomalý Kevin modrá, klidný hopík fialová
   var POWER_COL = {
     big: ['#c6ffd0', '#18a04e', 'rgba(90, 255, 140, .9)'],
@@ -176,5 +177,11 @@
     calm: ['#eadcff', '#7a46d0', 'rgba(190, 140, 255, .9)']
   };
 
-  C.data = { W: W, H: H, PAD_W: PAD_W, PAD_H: PAD_H, BALL_R: BALL_R, WIN: WIN, PLAYER_Y: PLAYER_Y, KEVIN_Y: KEVIN_Y, FRAME_W: FRAME_W, FRAME_H: FRAME_H, GLASS: GLASS, TOP_SLOT: TOP_SLOT, GEARS_KEVIN: GEARS_KEVIN, WIN_TOP: WIN_TOP, WIN_BOT: WIN_BOT, MECH_WIN: MECH_WIN, BGS: BGS, LEVELS: LEVELS, SHOT: SHOT, SHOT_IDEAL: SHOT_IDEAL, SHOT_SUPER: SHOT_SUPER, LIFT: LIFT, BADGE_ICON: BADGE_ICON, CLAIMABLE: CLAIMABLE, LOOKS: LOOKS, BG_BADGE: BG_BADGE, BG_POS: BG_POS, MOOD: MOOD, MAT: MAT, FLIGHT: FLIGHT, BALL_FLIGHT: BALL_FLIGHT, REACT: REACT, BALL_KINDS: BALL_KINDS, TALK: TALK, RARITY: RARITY, RANK: RANK, FRAMES: FRAMES, BADGE_GROUPS: BADGE_GROUPS, POWER_COL: POWER_COL };
+  // kde na automatu je tlačítko MENU (výška v px obrázku), když by na obvyklém místě zakrylo logo
+  var MENU_Y = { skelosquad: 294 };
+  // celé sety: pálka → [míček, pozadí]; přepínač Vybavit celý set nasadí jen to, co má hráč odemčené
+  var SETS = { klasik: ['hopik', 'mesto'], vetev: ['kastan', 'les'], plys: ['plysak', 'plys'], graffiti: ['sprej', 'mesto'], jadeit: ['jadeitak', 'les'],
+    mince: ['tlapka', 'poklad'], led: ['ledovka', 'zare'], cip: ['procesor', 'kyber'], perly: ['perla', 'podmori'], ekvalizer: ['repro', 'podium'],
+    lava: ['lavak', 'sopka'], retez: ['tlapka', 'klenotnice'], neon: ['vir', 'vesmir'], ganja: ['jadeitak', 'ganja'], kola: ['hodinky', 'tovarna'], skelosquad: ['tlapka', 'skelosquad'] };
+  C.data = { MENU_Y: MENU_Y, SETS: SETS, W: W, H: H, PAD_W: PAD_W, PAD_H: PAD_H, BALL_R: BALL_R, WIN: WIN, PLAYER_Y: PLAYER_Y, KEVIN_Y: KEVIN_Y, FRAME_W: FRAME_W, FRAME_H: FRAME_H, GLASS: GLASS, TOP_SLOT: TOP_SLOT, GEARS_KEVIN: GEARS_KEVIN, WIN_TOP: WIN_TOP, WIN_BOT: WIN_BOT, MECH_WIN: MECH_WIN, BGS: BGS, LEVELS: LEVELS, SHOT: SHOT, SHOT_IDEAL: SHOT_IDEAL, SHOT_SUPER: SHOT_SUPER, LIFT: LIFT, BADGE_ICON: BADGE_ICON, CLAIMABLE: CLAIMABLE, LOOKS: LOOKS, BG_BADGE: BG_BADGE, BG_POS: BG_POS, MOOD: MOOD, MAT: MAT, FLIGHT: FLIGHT, BALL_FLIGHT: BALL_FLIGHT, REACT: REACT, BALL_KINDS: BALL_KINDS, TALK: TALK, RARITY: RARITY, RANK: RANK, FRAMES: FRAMES, POWER_COL: POWER_COL };
 })();

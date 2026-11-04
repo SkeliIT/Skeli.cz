@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Odznaky hry CatSmash: klíč (texty pong.badge.{klíč}) → ikona Font Awesome, v pořadí, jak se ukazují na profilu.
+ * Odznaky hry CatSmash: klíč (texty pong.badge.{klíč}) → ikona Font Awesome; pořadí na profilu určuje RANK.
  * Část odznaků počítá server z uložených výher (pong_results), zbytek se děje uvnitř zápasu (odstřely, šroubky…)
  * a hlásí ho prohlížeč – ty jsou v CLAIMABLE a ukládají se do pong_badges.
  * Každý získaný odznak jde nosit jako titul u jména (users.pong_title), většina navíc odemkne věc ve hře
@@ -46,6 +46,26 @@ public final class PongBadges {
         ICONS.put("hcomeback", "fa-fire-flame-curved");
         ICONS.put("wardrobe", "fa-shirt");
         ICONS.put("skelosquad", "fa-gem");      // nejvzácnější: všech 5 odznaků za nejtěžší obtížnost
+    }
+
+    /** Pořadí odznaků od nejsnazšího po nejvzácnější; stejný seznam je v js/catsmash/data.js (RANK), hlídá PongBadgeOrderTest. */
+    public static final java.util.List<String> RANK = java.util.List.of(
+            "first", "easy", "tinker", "loyal", "normal", "streak", "night", "close", "overheat", "sniper", "fast", "super", "yarn",
+            "marathon", "comeback", "clean", "wins50", "angry", "wardrobe", "wins100", "hsniper", "hcomeback", "hclean", "hfast",
+            "hwins5", "skelosquad");
+
+    /** Vzácnost odznaku (barva): c běžný, u neobvyklý, r vzácný, e epický, l legendární; stejná jako RARITY v js/catsmash/data.js. */
+    public static final Map<String, String> RARITY = new LinkedHashMap<>();
+    static {
+        for (String k : java.util.List.of("first", "easy", "normal", "tinker", "loyal")) RARITY.put(k, "c");
+        for (String k : java.util.List.of("streak", "night", "sniper", "overheat", "close", "fast")) RARITY.put(k, "u");
+        for (String k : java.util.List.of("marathon", "comeback", "super", "yarn", "wins50", "clean")) RARITY.put(k, "r");
+        for (String k : java.util.List.of("angry", "wins100", "wardrobe")) RARITY.put(k, "e");
+        for (String k : java.util.List.of("hwins5", "hfast", "hclean", "hsniper", "hcomeback", "skelosquad")) RARITY.put(k, "l");
+    }
+
+    public static String rarity(String key) {
+        return RARITY.getOrDefault(key, "c");
     }
 
     /** Odznaky, které hlásí prohlížeč (stalo se to uvnitř zápasu, server to nevidí). */

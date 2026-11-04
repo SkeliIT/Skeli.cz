@@ -1,0 +1,17 @@
+<%-- Vitrína odznaků na profilu: získané od nejvzácnějšího, nejvýš 6 (celý seznam je níž v #odznaky).
+     Před vložením nastavit: PongProfile railPong, String railEmpty (klíč textu, když ještě žádný nemá). --%>
+<% if (railPong.earnedCount() == 0) { %>
+<p class="pt-note"><%= t.getProperty(railEmpty) %></p>
+<% } else { %>
+<div class="pt-rail">
+  <% int railShown = 0;
+     for (int ri = railPong.badges.size() - 1; ri >= 0 && railShown < 6; ri--) {
+       PongProfile.Badge rb = railPong.badges.get(ri);
+       if (!rb.earned) continue;
+       railShown++; %>
+  <a class="pt-bdg" data-rar="<%= com.github.skeliit.model.PongBadges.rarity(rb.key) %>" href="#odznaky">
+    <i class="fa-solid <%= rb.icon %>" aria-hidden="true"></i><span><%= t.getProperty("pong.badge." + rb.key) %></span>
+  </a>
+  <% } %>
+</div>
+<% } %>

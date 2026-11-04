@@ -39,15 +39,15 @@ html.kpong-under body::before, html.kpong-under body > *:not(.kpong) { visibilit
   max-height: calc(var(--kp-h) - 60px);
   border-radius: 20px; overflow: hidden;
   background:
-    radial-gradient(ellipse at 50% 20%, rgba(230, 183, 48, .12), transparent 60%),
+    radial-gradient(ellipse at 50% 20%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%),
     linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .06));
-  border: 1px solid rgba(230, 183, 48, .35);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 1px rgba(255, 255, 255, .04);
   touch-action: none; user-select: none;
 }
 body.light .kpong-field { background: linear-gradient(180deg, rgba(255, 255, 255, .7), rgba(255, 255, 255, .45)); }
 .kpong-field.hit { animation: kpong-hit .18s ease-out; }
-@keyframes kpong-hit { 50% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 2px rgba(230, 183, 48, .6); } }
+@keyframes kpong-hit { 50% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 2px color-mix(in srgb, var(--accent) 60%, transparent); } }
 .kpong-court { position: absolute; inset: 0; width: 100%; height: 100%; }
 /* Kevin stojí za svou pálkou (pálka je u horního okraje, ve 19 % výšky hřiště) */
 .kpong-kevin {
@@ -105,7 +105,7 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
 /* odstřel: záblesk rámu hřiště (perfektní zlatý, super oranžový) */
 .kpong-field.shot { animation: kpong-shot .35s ease-out; }
 .kpong-field.shot-super { animation: kpong-shot-super .6s ease-out; }
-@keyframes kpong-shot { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 3px rgba(230, 183, 48, .9), inset 0 0 60px rgba(230, 183, 48, .25); } }
+@keyframes kpong-shot { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 3px color-mix(in srgb, var(--accent) 90%, transparent), inset 0 0 60px color-mix(in srgb, var(--accent) 25%, transparent); } }
 @keyframes kpong-shot-super { 30% { box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8), inset 0 0 0 4px rgba(255, 138, 30, .95), inset 0 0 90px rgba(255, 106, 0, .35); } }
 /* telefon a tablet: ⚡ Odstřel je kulaté tlačítko, které plave nad strojem (místo nezabírá, stroj je větší);
    podržením se dá přesunout, kam hráči sedí (--sx/--sy v % okna, js/catsmash/hra.js); pálku vede prst kdekoli
@@ -119,7 +119,7 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
     border: 2px solid #fff1a8;
     background: radial-gradient(circle at 35% 30%, #fff1a8, var(--accent) 45%, #8a6400);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, .55), 0 0 0 4px rgba(230, 183, 48, .25);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .55), 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent);
     color: var(--accent-ink); font-family: var(--font-display); font-size: .62rem; touch-action: none; opacity: .92;
   }
   .kpong-shot i { font-size: 1.4rem; }
@@ -127,13 +127,13 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
   /* plocha pro pálku (volitelná): nenápadný obrys při hře, v úpravách výrazný s rohem na změnu velikosti */
   .kpong-zone {
     position: absolute; left: calc(var(--zx) * 1vw); top: calc(var(--zy) * 1dvh); width: calc(var(--zw) * 1vw); height: calc(var(--zh) * 1dvh);
-    pointer-events: auto; touch-action: none; border-radius: 18px; border: 1px dashed rgba(230, 183, 48, .35);
-    display: flex; align-items: center; justify-content: center; gap: 8px; color: rgba(230, 183, 48, .4); font-size: var(--fs-small);
+    pointer-events: auto; touch-action: none; border-radius: 18px; border: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent);
+    display: flex; align-items: center; justify-content: center; gap: 8px; color: color-mix(in srgb, var(--accent) 40%, transparent); font-size: var(--fs-small);
   }
   .kpong-zone[hidden] { display: none; }
   .kpong-zone .kp-zone-name, .kpong-zone .kp-zone-grip { display: none; }
   .kpong.kp-layout .kpong-pad { visibility: visible !important; background: rgba(0, 0, 0, .45); pointer-events: auto; }
-  .kpong.kp-layout .kpong-zone { border: 2px dashed var(--accent); background: rgba(230, 183, 48, .14); color: var(--accent); }
+  .kpong.kp-layout .kpong-zone { border: 2px dashed var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
   .kpong.kp-layout .kpong-zone .kp-zone-name { display: inline; }
   .kpong.kp-layout .kpong-zone .kp-zone-grip {
     display: block; position: absolute; right: -10px; bottom: -10px; width: 32px; height: 32px; border-radius: 50%;
@@ -145,7 +145,7 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
   .kp-layout-bar { display: none; }
   .kpong.kp-layout .kp-layout-bar {
     display: grid; gap: 10px; position: absolute; left: 12px; right: 12px; top: 12px; padding: 14px; border-radius: 16px; pointer-events: auto;
-    background: rgba(12, 11, 10, .94); border: 1px solid rgba(230, 183, 48, .45); text-align: center;
+    background: rgba(12, 11, 10, .94); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); text-align: center;
   }
   .kp-layout-bar p { margin: 0; font-family: var(--font-text); font-size: var(--fs-card); color: var(--text); }
   .kp-layout-bar .kp-row { justify-content: center; flex-wrap: wrap; }
@@ -192,7 +192,7 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
   position: absolute; left: calc(226px * var(--u)); top: calc(112px * var(--u));
   width: calc(316px * var(--u)); height: calc(14px * var(--u)); border-radius: calc(7px * var(--u));
   background: linear-gradient(#060508, #1d1c22);
-  box-shadow: inset 0 calc(2px * var(--u)) calc(3px * var(--u)) #000, 0 calc(-1px * var(--u)) 0 rgba(230, 183, 48, .75), 0 calc(1px * var(--u)) 0 rgba(255, 255, 255, .08);
+  box-shadow: inset 0 calc(2px * var(--u)) calc(3px * var(--u)) #000, 0 calc(-1px * var(--u)) 0 color-mix(in srgb, var(--accent) 75%, transparent), 0 calc(1px * var(--u)) 0 rgba(255, 255, 255, .08);
 }
 .kpong-machine .kpong-kevin {
   left: calc(294px * var(--u)); top: calc(-102px * var(--u)); width: calc(180px * var(--u));
@@ -210,7 +210,7 @@ body.light .kpong-machine .kpong-field { background: none; }
   background: #070605;
   --text: #f4f4f5; --text-dim: rgba(244, 244, 245, .62);
   --panel: rgba(18, 18, 21, .74); --panel-strong: rgba(18, 18, 21, .94); --panel-border: rgba(255, 255, 255, .12);
-  --accent: #ffd23f; --accent-ink: #141414; --accent-soft: rgba(255, 210, 63, .12);
+  --accent: #ffd23f; --accent-ink: #141414; --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
   color: var(--text); color-scheme: dark;
 }
 /* úvod a konec hry přímo na skle hřiště (varianta B): bez krabice, sklo se jen ztmaví, velký zlatý nápis,
@@ -239,7 +239,6 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-bdg-rule { margin: 0; text-align: center; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
 .kp-bdg-list { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; text-align: left; }
 .kp-bdg-group { margin: 8px 0 2px; font-size: var(--fs-small); color: var(--accent); letter-spacing: .06em; }
-.kp-bdg-group.hard { color: #ff8a3c; }
 .kp-bdg { flex: none; border-radius: 10px; background: rgba(255, 255, 255, .04); }
 .kp-bdg summary { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 8px; cursor: pointer; list-style: none; }
 .kp-bdg summary::-webkit-details-marker { display: none; }
@@ -273,7 +272,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 }
 .kp-thumb {
   position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 99px;
-  background: linear-gradient(#ffd766, #e9a514); box-shadow: 0 2px 10px rgba(255, 178, 30, .4);
+  background: var(--accent-grad, linear-gradient(#ffd766, #e9a514)); box-shadow: 0 2px 10px color-mix(in srgb, var(--accent) 40%, transparent);
   translate: calc(var(--i, 1) * 100%) 0; transition: translate .3s cubic-bezier(.3, 1.4, .5, 1);
 }
 /* obtížnost i délka zápasu: text nad zlatým jezdcem (position: relative), nikdy širší než svůj díl */
@@ -286,7 +285,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-seg :is(.kpong-level, .kpong-len):focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
 .kp-desc { margin: 0 0 6px; font-family: var(--font-text); font-size: var(--fs-text); color: #c9bda6; }
 .kp-desc::first-letter { text-transform: uppercase; }
-.kpong-panel .kpong-play { width: 100%; min-height: 48px; border-radius: 99px; font-size: var(--fs-h4); box-shadow: 0 8px 24px rgba(255, 178, 30, .35); }
+.kpong-panel .kpong-play { width: 100%; min-height: 48px; border-radius: 99px; font-size: var(--fs-h4); box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent); }
 .kp-rec { margin: 4px 0 0; font-family: var(--font-text); font-size: var(--fs-text); color: #e8dcc5; }
 .kp-rec i { color: var(--accent); }
 .kp-rec b { font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
@@ -303,15 +302,15 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong-panel .kp-top .kpong-list li { grid-template-columns: 1.8em 22px 1fr auto; }
 .kpong-panel .kp-top .kpong-kgoals { display: none; }
 .kpong-panel .kpong-final { font-size: clamp(2rem, 16cqi, 3.4rem); }
-.kpong-panel .kpong-title { text-shadow: 0 0 18px rgba(230, 183, 48, .35); }
+.kpong-panel .kpong-title { text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent); }
 .kp-sec { width: 100%; display: grid; gap: 8px; }
 .kp-label {
   display: flex; align-items: center; gap: 10px; margin: 0;
   font-family: var(--font-display); font-weight: 400; font-size: var(--fs-small);
   letter-spacing: .14em; text-transform: uppercase; color: var(--accent);
 }
-.kp-label::before, .kp-label::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(230, 183, 48, .5)); }
-.kp-label::after { background: linear-gradient(90deg, rgba(230, 183, 48, .5), transparent); }
+.kp-label::before, .kp-label::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 50%, transparent)); }
+.kp-label::after { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 50%, transparent), transparent); }
 .kp-controls { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .kp-controls li {
   display: grid; justify-items: center; align-content: start; gap: 4px; padding: 9px 4px;
@@ -321,7 +320,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-controls b { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-small); color: var(--text); }
 .kp-controls span { font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); line-height: 1.3; }
 .kp-hint { margin: 0; text-align: center; font-family: var(--font-text); font-size: var(--fs-small); color: #ffc861; }
-.kpong-panel .kpong-board { margin: 0; padding: 10px; border-radius: 14px; background: rgba(0, 0, 0, .32); border: 1px solid rgba(230, 183, 48, .22); }
+.kpong-panel .kpong-board { margin: 0; padding: 10px; border-radius: 14px; background: rgba(0, 0, 0, .32); border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); }
 .kpong-panel .kpong-board .kpong-note { font-size: var(--fs-small); }
 /* přehřátí: kola žhnou podle --heat (0–1), přehřátá kouří a Kevin zpomalí */
 .kpong-gears[data-set="kevin"] .kpong-gear {
@@ -418,7 +417,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong .kpong-top > * { pointer-events: auto; }
 .kpong .kpong-score { display: contents; }
 .kpong .kpong-score i { display: none; }
-.kpong .kpong-score b { font-size: clamp(1.6rem, 7vw, 2.2rem); line-height: 1; text-shadow: 0 0 14px rgba(255, 210, 63, .45); }
+.kpong .kpong-score b { font-size: clamp(1.6rem, 7vw, 2.2rem); line-height: 1; text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 45%, transparent); }
 .kpong .kpong-who { font-size: var(--fs-small); }
 .kpong .kpong-kev { margin-left: auto; }
 .kpong .kpong-close { margin-left: 4px; }
@@ -431,7 +430,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
    zapuštěné do rámu; kov podle automatu (--menu-tint z setSkin, klasický = zlato) */
 .kpong-frame { --menu-tint: #e6b730; }                    /* (barvu automatu přepíše setSkin na .kpong-frame) */
 .kpong-set {
-  position: absolute; left: calc(384px * var(--u) - 48px); top: calc(162px * var(--u) - 17px); z-index: 6;
+  position: absolute; left: calc(384px * var(--u) - 48px); top: calc(var(--menu-y, 162) * var(--u) * 1px - 17px); z-index: 6;
   display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 96px; height: 34px; padding: 0;
   border-radius: 99px; border: 0; cursor: pointer; color: #1a1208;
   font-family: var(--font-display); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
@@ -452,9 +451,9 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   position: absolute; z-index: 6; left: 50%; top: 64px; transform: translateX(-50%);
   width: min(360px, calc(100vw - 24px)); max-height: calc(100dvh - 80px); overflow-y: auto;
   display: flex; flex-direction: column; gap: 12px; padding: 16px 16px 14px;
-  border-radius: 20px; border: 1px solid rgba(230, 183, 48, .45);
+  border-radius: 20px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
   background: linear-gradient(180deg, rgba(26, 24, 22, .95), rgba(12, 11, 10, .96));
-  box-shadow: 0 24px 60px -18px rgba(0, 0, 0, .9), 0 0 36px -12px rgba(230, 183, 48, .35);
+  box-shadow: 0 24px 60px -18px rgba(0, 0, 0, .9), 0 0 36px -12px color-mix(in srgb, var(--accent) 35%, transparent);
   animation: kp-pop .3s cubic-bezier(.2, 1.4, .4, 1) both; transform-origin: 50% 0;
 }
 .kpong-settings .kpong-title { margin: 0; text-align: center; font-size: var(--fs-h3); }
@@ -467,7 +466,6 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong-settings .kpong-play { align-self: center; min-width: 60%; }
 /* menu hry: tlačítka pod sebou */
 .kp-menu-card .kp-sc-box { gap: 8px; }
-.kp-menu-card .kp-sc-box > button { width: 100%; min-height: 46px; }
 /* nastavení: záložky Vzhled / Zvuk / Ovládání */
 .kp-tabs {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 14px;
@@ -478,14 +476,10 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   display: flex; align-items: center; justify-content: center; gap: 6px; font: inherit; font-size: var(--fs-small);
 }
 .kp-tabs button:hover, .kp-tabs button:focus-visible { color: var(--text); }
-.kp-tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1px rgba(230, 183, 48, .5); }
+.kp-tabs button[aria-selected="true"] { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 50%, transparent); }
 .kp-pane { display: grid; gap: 14px; }
 .kp-pane[hidden] { display: none; }
 /* velký náhled vybrané pálky a míčku */
-.kp-preview {
-  width: 100%; height: auto; aspect-ratio: 3 / 1; border-radius: 14px; border: 1px solid rgba(230, 183, 48, .25);
-  background: radial-gradient(ellipse at 50% 62%, rgba(230, 183, 48, .16), rgba(0, 0, 0, .35) 72%);
-}
 /* pálky, míčky a pozadí v jedné řadě na posouvání (do stran), okraje se rozplývají */
 .kp-bgs.kp-strip {
   flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; overscroll-behavior-x: contain;
@@ -503,7 +497,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   border: 2px solid rgba(255, 255, 255, .18);
   background: radial-gradient(circle, #111 0 26%, var(--rim) 27% 33%, transparent 34%), linear-gradient(var(--c1), var(--c2));
 }
-.kp-skin[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .3); }
+.kp-skin[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
 .kp-skin[aria-disabled="true"] { opacity: .4; }
 .kp-skin i { position: absolute; inset: 0; display: grid; place-items: center; font-size: .85rem; text-shadow: 0 1px 3px #000; }
 /* obrázková pálka: obdélníková dlaždice s náhledem (přívěsky jsou vidět) */
@@ -545,8 +539,8 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   border: 2px solid rgba(255, 255, 255, .18); background: #050403 center / cover no-repeat;
   box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .4);
 }
-.kp-bgopt[data-bg="tma"] { background: radial-gradient(circle, rgba(230, 183, 48, .45), #050403 70%); }
-.kp-bgopt[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .3); }
+.kp-bgopt[data-bg="tma"] { background: radial-gradient(circle, color-mix(in srgb, var(--accent) 45%, transparent), #050403 70%); }
+.kp-bgopt[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
 .kp-bgopt:hover, .kp-bgopt:focus-visible { border-color: var(--accent); }
 /* zamčené pozadí a míček (odemkne je odznak): ztmavené se zámkem, klik ukáže, který odznak */
 .kp-bgopt, .kp-ball { position: relative; color: #fff; }
@@ -557,7 +551,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   border: 2px solid rgba(255, 255, 255, .18); background: radial-gradient(circle, #2a241a, #050403 75%);
 }
 .kp-ball canvas { width: 100%; height: 100%; display: block; }
-.kp-ball[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .3); }
+.kp-ball[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
 .kp-ball:hover, .kp-ball:focus-visible { border-color: var(--accent); }
 /* konec zápasu: nové odznaky s odměnou */
 .kp-newbadges { width: 100%; display: grid; gap: 6px; justify-items: center; }
@@ -565,7 +559,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-newbadges ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; width: min(100%, 320px); max-height: 9.5em; overflow-y: auto; }
 .kp-newbadges li {
   display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: center; padding: 6px 10px; text-align: left;
-  border-radius: 12px; border: 1px solid rgba(255, 210, 63, .45); background: rgba(255, 210, 63, .08);
+  border-radius: 12px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 8%, transparent);
   animation: kp-badge-in .5s cubic-bezier(.2, 1.4, .4, 1) both;
 }
 .kp-newbadges li:nth-child(2) { animation-delay: .15s; }
@@ -611,7 +605,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 [data-rar="l"] { --rar: #ff9a2e; }
 .kp-skin[data-rar], .kp-ball[data-rar], .kp-bgopt[data-rar] { border-color: var(--rar); box-shadow: 0 0 10px -2px var(--rar); }
 .kp-skin[data-rar][aria-checked="true"], .kp-ball[data-rar][aria-checked="true"], .kp-bgopt[data-rar][aria-checked="true"] {
-  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .3), 0 0 12px -2px var(--rar);
+  border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent), 0 0 12px -2px var(--rar);
 }
 .kp-skin[data-rar="l"], .kp-ball[data-rar="l"], .kp-bgopt[data-rar="l"] { box-shadow: 0 0 14px 0 var(--rar); }
 .kp-bdg[data-rar] { box-shadow: inset 3px 0 0 var(--rar); }
@@ -624,8 +618,8 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-stick {
   position: fixed; z-index: 9; width: calc(var(--r, 64px) * 2 + 44px); height: 64px; pointer-events: none;
   transform: translate(-50%, -50%); border-radius: 999px;
-  border: 2px solid rgba(255, 210, 63, .45); background: rgba(10, 9, 8, .28);
-  box-shadow: inset 0 0 18px rgba(255, 210, 63, .12);
+  border: 2px solid color-mix(in srgb, var(--accent) 45%, transparent); background: rgba(10, 9, 8, .28);
+  box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 .kp-stick[hidden] { display: none; }
 .kp-stick-knob {
@@ -675,15 +669,15 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-newbadges li .kp-nb-icon { animation: kp-emblem .8s cubic-bezier(.2, 1.3, .4, 1) both; }
 .kp-newbadges li:nth-child(2) .kp-nb-icon { animation-delay: .15s; }
 .kp-newbadges li:nth-child(3) .kp-nb-icon { animation-delay: .3s; }
-@keyframes kp-emblem { from { transform: scale(2.6) rotate(-200deg); opacity: 0; } 60% { box-shadow: 0 0 22px rgba(255, 210, 63, .95); } }
+@keyframes kp-emblem { from { transform: scale(2.6) rotate(-200deg); opacity: 0; } 60% { box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 95%, transparent); } }
 .kp-newbadges li:is([data-rar="r"], [data-rar="e"], [data-rar="l"]) .kp-nb-icon { animation: kp-emblem .8s cubic-bezier(.2, 1.3, .4, 1) both, kp-rare-glow 1.6s ease-in-out .8s 3; }
-@keyframes kp-rare-glow { 50% { box-shadow: 0 0 0 3px rgba(255, 210, 63, .35), 0 0 26px rgba(255, 210, 63, .9); } }
+@keyframes kp-rare-glow { 50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent), 0 0 26px color-mix(in srgb, var(--accent) 90%, transparent); } }
 @media (prefers-reduced-motion: reduce) {
   .kp-newbadges li .kp-nb-icon { animation: none !important; }
 }
 /* tabulka: přepínač obtížností */
 .kp-boardtabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
-.kp-boardtabs button { font: inherit; font-size: var(--fs-small); color: #e8dcc5; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 210, 63, .35); border-radius: 99px; padding: 6px 12px; min-height: 32px; cursor: pointer; }
+.kp-boardtabs button { font: inherit; font-size: var(--fs-small); color: #e8dcc5; background: rgba(255, 255, 255, .06); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 99px; padding: 6px 12px; min-height: 32px; cursor: pointer; }
 .kp-boardtabs button[aria-pressed="true"] { background: var(--accent); color: #1a1405; border-color: var(--accent); }
 
 /* rozmazané pozadí podle nastavení kolem automatu (i na telefonu – po stranách přiblíženého automatu není tma) */
@@ -720,7 +714,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; margin-top: 4px; }
 .kp-tile {
   display: grid; justify-items: center; align-content: start; gap: 3px; min-width: 0; padding: 8px 4px 10px; cursor: pointer;
-  border-radius: 14px; border: 1px solid rgba(230, 183, 48, .35); background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .25));
+  border-radius: 14px; border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(0, 0, 0, .25));
   color: #f3ead6; font: inherit; text-align: center; transition: border-color .2s, transform .2s;
 }
 .kp-tile:hover, .kp-tile:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
@@ -736,7 +730,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-logo img { width: min(100%, 270px); }
 .kpong-panel .kp-main .kpong-lead.kp-rules { font-size: var(--fs-small); color: #bfb39c; margin: 2px 0 0; }
 /* nastavení hry: čtyři záložky (Vzhled, Zvuk, Ovládání, Obraz), ikona nad textem, ať se vejdou na každou šířku */
-.kp-tabs { grid-template-columns: repeat(4, 1fr); }
+.kp-tabs { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }   /* záložky vždy přes celou šířku, ať je jich kolik chce */
 .kp-tabs button { flex-direction: column; gap: 2px; min-height: 48px; min-width: 0; padding: 4px 2px; }
 .kp-tabs button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* přehled odznaků: odměna pod názvem hned vidět (i u nezískaných) */
@@ -920,8 +914,8 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   opacity: 0; animation: kp-score-row .35s ease-out forwards; animation-delay: calc(var(--i) * .12s + .3s);
 }
 .kp-score li b { font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
-.kp-score li.kp-score-mult { border-top: 1px solid rgba(230, 183, 48, .3); padding-top: 3px; }
-.kp-score-total { margin: 2px 0 0; padding: 6px 10px; border-radius: 10px; background: rgba(230, 183, 48, .12); border: 1px solid rgba(230, 183, 48, .45); align-items: baseline; }
+.kp-score li.kp-score-mult { border-top: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); padding-top: 3px; }
+.kp-score-total { margin: 2px 0 0; padding: 6px 10px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); align-items: baseline; }
 .kp-score-total span { font-size: var(--fs-card); color: #fff; }
 .kp-score-total b { font-family: var(--font-display); font-size: var(--fs-h3); color: #ffd23f; text-shadow: 0 0 12px rgba(255, 190, 60, .6); font-variant-numeric: tabular-nums; }
 .kp-score-rec { margin: 0; text-align: center; font-size: var(--fs-card); color: #ffd23f; opacity: 0; animation: kp-score-rec .6s cubic-bezier(.2, 1.4, .4, 1) forwards; animation-delay: calc(var(--i) * .12s + .4s); }
@@ -932,7 +926,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-support {
   display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; width: min(100%, 320px); margin: 8px auto 0;
   padding: 8px 12px; border-radius: 14px; text-decoration: none; text-align: left;
-  border: 1px solid rgba(255, 120, 150, .45); background: linear-gradient(135deg, rgba(255, 90, 130, .14), rgba(230, 183, 48, .1));
+  border: 1px solid rgba(255, 120, 150, .45); background: linear-gradient(135deg, rgba(255, 90, 130, .14), color-mix(in srgb, var(--accent) 10%, transparent));
 }
 .kp-support:hover, .kp-support:focus-visible { border-color: #ff7a9a; text-decoration: none; }
 .kp-support img { width: 40px; height: 40px; border-radius: 50%; }
@@ -975,7 +969,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-vhead { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: none; }
 .kp-vhead img { width: clamp(44px, 15cqi, 62px); height: auto; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .6)); }
 .kp-vhead h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(1rem, 6cqi, 1.35rem); color: var(--accent);
-  text-shadow: 0 0 18px rgba(230, 183, 48, .35); letter-spacing: .04em; }
+  text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent); letter-spacing: .04em; }
 .kp-vhead h2 .kp-count { font-size: .6em; }
 .kp-vgear { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; color: #2a1a00; font-size: 1.3rem;
   background: radial-gradient(circle at 40% 35%, #fff1a8, #e6b730 45%, #8f6600); box-shadow: 0 0 0 3px #3a2e1a, 0 0 0 5px #b8862b, 0 4px 10px rgba(0, 0, 0, .6); }
@@ -984,14 +978,14 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   font-family: var(--font-display); font-size: var(--fs-card); text-decoration: none; }
 .kpong-panel .kp-backto:hover { background: var(--accent); color: #2a1a00; }
 .kpong-panel .kp-backto:focus-visible { outline: 2px solid #fff3c4; outline-offset: 2px; }
-.kpong-settings { container-type: inline-size; border: 1.5px solid rgba(230, 183, 48, .55);
+.kpong-settings { container-type: inline-size; border: 1.5px solid color-mix(in srgb, var(--accent) 55%, transparent);
   background: radial-gradient(120% 70% at 50% 30%, rgba(30, 26, 20, .96), rgba(8, 7, 6, .97));
   box-shadow: 0 0 0 4px rgba(20, 16, 10, .9), 0 0 0 5.5px rgba(184, 134, 43, .55), 0 24px 60px -18px rgba(0, 0, 0, .9); }
 .kp-tabs { border-radius: 99px; padding: 4px; background: rgba(255, 255, 255, .07); border-color: rgba(255, 255, 255, .16); }
 .kp-tabs button { border-radius: 99px; font-family: var(--font-display); }
-.kp-tabs button[aria-selected="true"] { background: linear-gradient(#ffd766, #e9a514); color: #2a1a00; box-shadow: 0 2px 10px rgba(255, 178, 30, .4); }
+.kp-tabs button[aria-selected="true"] { background: var(--accent-grad, linear-gradient(#ffd766, #e9a514)); color: #2a1a00; box-shadow: 0 2px 10px color-mix(in srgb, var(--accent) 40%, transparent); }
 
-/* telefon na výšku (fit() → .kp-phone): sklo úplně nahoře přes celou šířku, pod ním pruh pro prst se spodním okénkem.
+/* telefon na výšku (fit() → .kp-phone, phoneTop()): nahoře okénko s Kevinem na malém kole, pod ním sklo, dole spodní okénko = místo pro prst.
    Masky a rozmazání na telefonu ne: přepočítávaly by se při každém snímku a hra by škubala. */
 .kpong.kp-phone { place-items: start center; padding-top: env(safe-area-inset-top); }
 .kpong-machine.cut.phone { -webkit-mask: none; mask: none; }
@@ -1000,32 +994,28 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   .kpong-machine.cut { -webkit-mask: none; mask: none; }
   .kpong-amb { display: none; }
 }
-/* horní část stroje je mimo obrazovku: kola a okénko se ani neskládají */
-.kpong.kp-phone .kpong-gears[data-set="kevin"], .kpong.kp-phone .kpong-slot, .kpong.kp-phone .kpong-mech[data-win="top"] { display: none; }
-/* Kevin stojí ve skle za svou pálkou, pod plátnem hřiště: míček i pálky letí před ním */
-.kpong.kp-phone .kpong-kevin {
-  left: 50%; top: calc(30px * var(--u)); width: calc(132px * var(--u)); margin-left: calc(-66px * var(--u)); z-index: auto;
-}
-/* jeho bublina ve skle: tmavé poloprůhledné sklo pod ním, také pod plátnem (míček ji přeletí, nezakryje) */
+/* kola nad štěrbinou nahoře se na telefonu neskládají: Kevin běží na kole v okénku (polohy počítá phoneTop) */
+.kpong.kp-phone .kpong-gears[data-set="kevin"], .kpong.kp-phone .kpong-slot { display: none; }
+.kpong.kp-phone .kpong-mech[data-win="top"] { z-index: 3; border-radius: 0 0 calc(12px * var(--u)) calc(12px * var(--u)); box-shadow: 0 calc(2px * var(--u)) calc(6px * var(--u)) rgba(0, 0, 0, .6); }
+.kpong.kp-phone .kpong-kevin { left: calc(var(--kx) * var(--u) * 1px); top: calc(var(--ky) * var(--u) * 1px); width: calc(var(--kw) * var(--u) * 1px); z-index: 4; }
+/* jeho bublina ve skle: tmavé poloprůhledné sklo pod jeho pálkou, pod plátnem hřiště (míček ji přeletí, nezakryje) */
 .kp-comic.say.in-glass {
-  position: absolute; z-index: auto; left: 50%; top: calc(172px * var(--u)); translate: -50% 0; width: max-content; max-width: 84%;
+  position: absolute; z-index: auto; left: 50%; top: calc(84px * var(--u)); translate: -50% 0; width: max-content; max-width: 84%;
   padding: 6px 12px; text-align: center; background: rgba(12, 10, 8, .74); color: #f6ecd0;
-  border: 1px solid rgba(255, 210, 63, .55); border-radius: 14px; box-shadow: none; font-size: 13px; transform-origin: 50% 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); border-radius: 14px; box-shadow: none; font-size: 13px; transform-origin: 50% 0;
 }
 .kp-comic.say.in-glass::after { display: none; }
-/* MENU: kulaté tlačítko v levém horním rohu skla, daleko od palce (při hře ho nejde omylem stisknout);
-   u otevřeného menu hry není potřeba */
+/* MENU: kulaté tlačítko vlevo v pruhu nad sklem, daleko od palce (při hře ho nejde omylem stisknout) */
 .kpong.kp-phone .kpong-set {
-  left: calc(146px * var(--u)); top: calc(322px * var(--u)); width: 40px; height: 40px; opacity: .72; animation: none;
+  left: calc(146px * var(--u)); top: calc(var(--my) * var(--u) * 1px); width: 40px; height: 40px; z-index: 5; animation: none;
 }
 .kpong.kp-phone .kpong-set span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.kpong.kp-phone:has(.kpong-panel:not([hidden])) .kpong-set { display: none; }
 /* při hře nahoře nic: křížek je v menu hry, vidět je jen u otevřeného panelu (nad ním), prohlídka je jen v menu hry */
 .kpong.kp-phone .kpong-top { display: none; justify-content: flex-end; z-index: 6; }
 .kpong.kp-phone:has(.kpong-panel:not([hidden])) .kpong-top { display: flex; }
 .kpong.kp-phone .kpong-top .kpong-look { display: none; }
-/* kouř z přehřátých kol: kola nejsou vidět, kouří se od horní hrany skla */
-.kpong.kp-phone .kpong-smoke { top: calc(322px * var(--u)); height: calc(50px * var(--u)); }
+/* kouř z přehřátých kol: stoupá z horního okénka */
+.kpong.kp-phone .kpong-smoke { top: calc(250px * var(--u)); height: calc(60px * var(--u)); z-index: 4; }
 /* odstřel a magnet v pruhu pod sklem, na opačných koncích */
 @media (pointer: coarse) {
   .kpong.kp-phone .kpong-shot { width: 64px; height: 64px; }
@@ -1073,8 +1063,8 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   padding: 56px 56px calc(20px + env(safe-area-inset-bottom)); background: rgba(0, 0, 0, .78); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   animation: kp-fade .2s ease-out; perspective: 900px; touch-action: pan-y; }
 .kp-item-x { position: absolute; top: calc(10px + env(safe-area-inset-top)); right: 10px; width: 44px; height: 44px; border-radius: 50%;
-  border: 1px solid rgba(230, 183, 48, .5); background: rgba(0, 0, 0, .4); color: var(--accent); font-size: 1.1rem; cursor: pointer; }
-.kp-item-nav { position: absolute; top: 42%; width: 44px; height: 64px; border-radius: 14px; border: 1px solid rgba(230, 183, 48, .45);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); background: rgba(0, 0, 0, .4); color: var(--accent); font-size: 1.1rem; cursor: pointer; }
+.kp-item-nav { position: absolute; top: 42%; width: 44px; height: 64px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
   background: rgba(0, 0, 0, .35); color: var(--accent); font-size: 1.2rem; cursor: pointer; }
 .kp-item-nav.prev { left: 6px; } .kp-item-nav.next { right: 6px; }
 .kp-item-nav:hover, .kp-item-nav:focus-visible, .kp-item-x:hover { background: var(--accent); color: #2a1a00; }
@@ -1087,7 +1077,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-item.pad .kp-item-cv { width: min(78vw, 320px); aspect-ratio: 2.2 / 1; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .6)); }
 .kp-item.ball .kp-item-cv { width: min(46vw, 170px); aspect-ratio: 1; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .6)); }
 .kp-item-bg { display: block; width: min(90vw, 640px); aspect-ratio: 1376 / 768; object-fit: contain; border-radius: 16px;
-  box-shadow: 0 0 0 2px rgba(230, 183, 48, .6), 0 18px 40px rgba(0, 0, 0, .7); }
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 60%, transparent), 0 18px 40px rgba(0, 0, 0, .7); }
 .kp-item-bg.tma { background: radial-gradient(circle at 50% 40%, #2a2620, #050505); }
 /* zamčené v plných barvách (ať je vidět, o co jde), jen malý zámek v rohu */
 .kp-item-lockicon { position: absolute; top: -6px; right: -6px; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
@@ -1095,7 +1085,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 /* text pod předmětem: kolikátý, název, Použít / jak získat */
 .kp-item-info { width: min(100%, 320px); display: grid; justify-items: center; gap: 8px; text-align: center; }
 .kp-item-count { margin: 0; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
-.kp-item-info h3 { margin: -4px 0 0; font-family: var(--font-display); font-weight: 400; font-size: var(--fs-h3); color: var(--accent); text-shadow: 0 0 16px rgba(230, 183, 48, .35); }
+.kp-item-info h3 { margin: -4px 0 0; font-family: var(--font-display); font-weight: 400; font-size: var(--fs-h3); color: var(--accent); text-shadow: 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent); }
 .kp-item-mach { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
 .kp-item-mach img { width: 30px; height: auto; border-radius: 4px; }
 .kp-item-use { min-width: 70%; }
@@ -1112,7 +1102,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-support-card { position: fixed; inset: 0; z-index: 9; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, .62);
   -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); animation: kp-fade .2s ease-out; }
 .kp-sc-box { position: relative; width: min(320px, 100%); display: grid; justify-items: center; gap: 10px; padding: 20px 18px 16px; text-align: center;
-  border-radius: 22px; border: 1.5px solid rgba(230, 183, 48, .6); background: radial-gradient(120% 70% at 50% 25%, rgba(34, 30, 22, .98), rgba(8, 7, 6, .98));
+  border-radius: 22px; border: 1.5px solid color-mix(in srgb, var(--accent) 60%, transparent); background: radial-gradient(120% 70% at 50% 25%, rgba(34, 30, 22, .98), rgba(8, 7, 6, .98));
   box-shadow: 0 0 0 4px rgba(20, 16, 10, .9), 0 0 0 5.5px rgba(184, 134, 43, .55), 0 30px 60px -20px rgba(0, 0, 0, .9);
   animation: kp-pop .3s cubic-bezier(.2, 1.4, .4, 1) both; }
 .kp-sc-box img { width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 2px #b8862b, 0 4px 12px rgba(0, 0, 0, .6); }
@@ -1124,11 +1114,11 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-sc-more { font-size: var(--fs-small); }
 
 /* legendární znak u jména v tabulce */
-.kp-mark { margin-left: 3px; font-size: .85em; color: var(--accent); filter: drop-shadow(0 0 4px rgba(230, 183, 48, .55)); }
+.kp-mark { margin-left: 3px; font-size: .85em; color: var(--accent); filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 55%, transparent)); }
 
 /* výuka v prvním zápase: panel nahoře ve skle (krok, co udělat, Přeskočit) – nad hřištěm, pod menu */
 .kp-tut { position: absolute; left: 6%; right: 6%; top: 11%; z-index: 3; display: grid; justify-items: center; gap: 4px; padding: 10px 14px 6px;
-  border-radius: 16px; border: 1.5px solid rgba(230, 183, 48, .65); background: rgba(10, 8, 5, .82); text-align: center; pointer-events: auto;
+  border-radius: 16px; border: 1.5px solid color-mix(in srgb, var(--accent) 65%, transparent); background: rgba(10, 8, 5, .82); text-align: center; pointer-events: auto;
   box-shadow: 0 8px 22px rgba(0, 0, 0, .6); }
 .kp-tut[hidden] { display: none; }
 .kp-tut.pop { animation: kp-pop .35s cubic-bezier(.2, 1.4, .4, 1) both; }
@@ -1172,20 +1162,9 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong-list li.p3 .kpong-place { color: #d08a4a; }
 .kpong-list li.p1 .kpong-place::before, .kpong-list li.p2 .kpong-place::before, .kpong-list li.p3 .kpong-place::before {
   content: "\f521"; font: 900 .6rem/1 "Font Awesome 6 Free"; position: absolute; left: 50%; top: -7px; translate: -50% 0; }
-.kpong-list li.p1 { background: linear-gradient(90deg, rgba(255, 210, 63, .14), transparent 70%); }
+.kpong-list li.p1 { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%); }
 
 /* ---------- Nastavení → Vzhled: jedna položka z každé skupiny (slot), ostatní ve vyskakovacím seznamu ---------- */
-.kp-slots { display: grid; gap: 8px; }
-.kp-slot { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 100%; min-height: 58px;
-  padding: 6px 12px 6px 6px; border-radius: 14px; border: 1px solid var(--panel-border); background: rgba(255, 255, 255, .05);
-  color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: border-color .15s, background .15s; }
-.kp-slot:hover, .kp-slot:focus-visible, .kp-slot[aria-expanded="true"] { border-color: var(--accent); background: rgba(230, 183, 48, .1); }
-.kp-slot-txt { display: grid; min-width: 0; line-height: 1.25; }
-.kp-slot-txt small { font-size: var(--fs-small); color: var(--text-dim); }
-.kp-slot-txt small .kp-count { margin-left: 2px; }
-.kp-slot-txt b { font-weight: 400; font-size: var(--fs-card); color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kp-slot-arrow { color: var(--text-dim); transition: transform .2s; }
-.kp-slot[aria-expanded="true"] .kp-slot-arrow { transform: translateX(3px); color: var(--accent); }
 /* malý obrázek (slot i seznam) */
 .kp-tb { display: grid; place-items: center; width: 64px; height: 44px; border-radius: 10px; background: rgba(0, 0, 0, .35); overflow: hidden; }
 .kp-tb canvas { width: 100%; height: 100%; display: block; }
@@ -1196,68 +1175,129 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-tbg.tma { background: radial-gradient(circle at 50% 40%, #2a2620, #050505); }
 
 /* vyskakovací seznam: PC vedle slotu (seznam | velký náhled), telefon přes nastavení (náhled nahoře) */
-.kp-picker { position: absolute; z-index: 8; display: flex; gap: 12px; animation: kp-fade .18s ease both; }
-.kp-pick-col, .kp-pick-big { border-radius: 18px; border: 1px solid rgba(230, 183, 48, .5);
-  background: linear-gradient(180deg, rgba(26, 24, 22, .97), rgba(12, 11, 10, .98)); box-shadow: 0 24px 60px -18px rgba(0, 0, 0, .9); }
-.kp-pick-col { display: flex; flex-direction: column; width: 230px; padding: 6px; }
-.kp-pick-arrow { display: grid; place-items: center; height: 34px; border: 0; border-radius: 10px; background: transparent; color: var(--accent); font-size: 1rem; cursor: pointer; }
-.kp-pick-arrow:hover:not(:disabled), .kp-pick-arrow:focus-visible { background: rgba(230, 183, 48, .14); }
-.kp-pick-arrow:disabled { opacity: .25; cursor: default; }
-.kp-pick-list { list-style: none; margin: 0; padding: 2px; display: grid; gap: 4px; max-height: calc(5 * 52px + 4 * 4px); overflow-y: auto;
-  scrollbar-width: none; overscroll-behavior: contain; scroll-snap-type: y proximity; }
-.kp-pick-list::-webkit-scrollbar { display: none; }
-.kp-pick-list li { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 52px; padding: 4px 10px 4px 4px;
-  border-radius: 12px; border: 1px solid transparent; cursor: pointer; scroll-snap-align: start; outline: none; }
-.kp-pick-list li.hot, .kp-pick-list li:focus-visible { background: rgba(255, 255, 255, .07); border-color: rgba(230, 183, 48, .4); }
-.kp-pick-list li[data-rar] .kp-tb { box-shadow: inset 0 0 0 1.5px var(--rar); }
-.kp-pick-list li[aria-disabled="true"] .kp-tb > * { filter: grayscale(.6) brightness(.75); }
-.kp-pick-list li > .fa-lock { color: var(--text-dim); font-size: .8rem; }
-.kp-pick-list li .kp-pick-on { visibility: hidden; color: var(--accent); }
-.kp-pick-list li[aria-selected="true"] { background: rgba(230, 183, 48, .14); border-color: var(--accent); }
-.kp-pick-list li[aria-selected="true"] .kp-pick-on { visibility: visible; }
-.kp-pick-list li.nope { animation: kp-nope .35s ease; }
 @keyframes kp-nope { 25% { translate: -5px 0; } 75% { translate: 5px 0; } }
-.kp-pick-name { font-size: var(--fs-card); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kp-pick-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 4px 10px; }
-.kp-pick-head b { font-weight: 400; color: var(--accent); }
-.kp-pick-x { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--panel-border); background: rgba(255, 255, 255, .06); color: var(--text); cursor: pointer; }
-.kp-pick-x:hover, .kp-pick-x:focus-visible { background: var(--accent); color: #2a1a00; }
 
 /* velký náhled: pálka, míček, pozadí nebo oslava */
-.kp-pick-big { width: 250px; padding: 16px 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
-.kp-big-obj { position: relative; display: grid; place-items: center; min-height: 120px; }
-.kp-big-cv.pad { width: 220px; aspect-ratio: 2.2 / 1; filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .6)); }
-.kp-big-cv.ball { width: 120px; aspect-ratio: 1; filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .6)); }
-.kp-big-bg { display: block; width: 220px; aspect-ratio: 1376 / 768; object-fit: contain; border-radius: 12px; box-shadow: 0 10px 24px rgba(0, 0, 0, .6); }
-.kp-big-bg.tma { background: radial-gradient(circle at 50% 40%, #2a2620, #050505); }
-.kp-big-celeb { display: grid; place-items: center; width: 110px; height: 110px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(230, 183, 48, .25), transparent 70%); }
-.kp-big-celeb i { font-size: 3.2rem; color: var(--accent); filter: drop-shadow(0 0 14px rgba(230, 183, 48, .6)); }
-.kp-pick-big h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: var(--fs-h4); color: var(--accent); }
-.kp-pick-big .kp-item-lockicon { width: 28px; height: 28px; }
-.kp-big-acts { display: grid; gap: 6px; width: 100%; }
-.kp-big-acts .kp-fullbtn { min-height: 40px; }
-.kp-big-using { font-size: var(--fs-small); color: var(--accent); }
 
-.kp-picker.side .kp-pick-big { align-self: center; }
 /* telefon / málo místa: seznam přes nastavení, náhled nahoře */
-.kp-picker.sheet { left: 50%; top: 64px; translate: -50% 0; width: min(360px, calc(100vw - 24px)); max-height: calc(100dvh - 80px);
-  flex-direction: column; gap: 8px; }
-.kp-picker.sheet .kp-pick-big { order: -1; width: auto; padding: 12px; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-.kp-picker.sheet .kp-big-obj { min-height: 0; }
-.kp-picker.sheet .kp-big-cv.pad { width: 170px; }
-.kp-picker.sheet .kp-big-cv.ball { width: 84px; }
-.kp-picker.sheet .kp-big-bg { width: 180px; }
-.kp-picker.sheet .kp-big-celeb { width: 76px; height: 76px; }
-.kp-picker.sheet .kp-big-celeb i { font-size: 2.3rem; }
-.kp-picker.sheet .kp-pick-big h3, .kp-picker.sheet .kp-pick-big > p, .kp-picker.sheet .kp-big-acts { flex-basis: 100%; }
-.kp-picker.sheet .kp-big-acts { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
-.kp-picker.sheet .kp-pick-col { width: auto; min-height: 0; }
-.kp-picker.sheet .kp-pick-list { max-height: min(calc(5 * 52px + 4 * 4px), calc(100dvh - 420px)); min-height: 110px; }
 
 /* ukázka vítězné oslavy: nastavení a menu na chvíli zmizí */
-.kp-peeking .kpong-settings, .kp-peeking .kp-menu-card, .kp-peeking .kp-picker, .kp-peeking .kpong-panel { opacity: 0; pointer-events: none; transition: opacity .25s; }
+.kp-peeking .kpong-settings, .kp-peeking .kp-menu-card, .kp-peeking .kpong-panel { opacity: 0; pointer-events: none; transition: opacity .25s; }
 .kp-tabs[hidden] { display: none; }
 /* jméno v tabulce = odkaz na veřejný profil hráče */
 .kpong-name a.kp-prof { color: inherit; text-decoration: none; }
 .kpong-name a.kp-prof:hover, .kpong-name a.kp-prof:focus-visible { color: #ffd23f; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- Menu ve hře, Nastavení a Vzhled: styl Sklo (jako profil), barvy podle pálky (--accent, themeOn v hra.js) ----------
+   Telefon: panel vyjede zespodu přes celou šířku, nad ním zůstane vidět hra. Počítač: stejný panel uprostřed.
+   Vždy jedna vrstva, žádné okno přes okno. Bez rozmazaného pozadí, aby to slabým telefonům neškubalo. */
+.kpong-settings, .kp-menu-card .kp-sc-box {
+  border: 0; border-radius: 26px 26px 0 0;
+  background: radial-gradient(120% 34% at 12% 0, color-mix(in srgb, var(--accent) 24%, transparent), transparent 66%), linear-gradient(180deg, rgba(20, 20, 24, .985), rgba(12, 12, 15, .97));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .26), 0 -18px 40px rgba(0, 0, 0, .55);
+  animation: kp-sheet-up .26s cubic-bezier(.2, .9, .3, 1) both;
+}
+@keyframes kp-sheet-up { from { translate: 0 40px; opacity: 0; } }
+.kpong-settings {
+  position: fixed; left: 0; right: 0; top: auto; bottom: 0; transform: none; width: 100%; max-height: 92dvh;
+  gap: 10px; padding: 16px 14px calc(14px + env(safe-area-inset-bottom));
+}
+.kp-menu-card { place-items: end center; padding: 0; -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(4, 4, 6, .5); }
+.kp-menu-card .kp-sc-box { width: 100%; gap: 10px; padding: 16px 14px calc(12px + env(safe-area-inset-bottom)); justify-items: stretch; }
+.kp-menu-card .kp-sc-box > h3 { margin: 0 44px; text-align: center; }
+@media (min-width: 601px) {
+  .kpong-settings { left: 50%; right: auto; top: 50%; bottom: auto; width: 460px; max-height: 92dvh; border-radius: 26px; translate: -50% -50%; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .26), 0 24px 60px rgba(0, 0, 0, .7); animation: none; }
+  .kp-menu-card { place-items: center; }
+  .kp-menu-card .kp-sc-box { width: 400px; border-radius: 26px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .26), 0 24px 60px rgba(0, 0, 0, .7); }
+}
+.kp-sheet-x { position: absolute; right: 10px; top: 10px; z-index: 2; width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 50%; color: var(--text); background: rgba(255, 255, 255, .09); cursor: pointer; }
+.kp-sheet-x:hover, .kp-sheet-x:focus-visible { background: var(--accent); color: #15120a; }
+.kpong-settings .kp-vgear { display: none; }
+.kpong-settings .kp-vhead { min-height: 32px; justify-content: center; }
+/* hlavní tlačítka, záložky a výběry v barvě pálky */
+.kpong .kpong-play, .kpong .btn-primary { background: var(--accent-grad, var(--accent)); color: #15120a; border: 0; }
+.kpong .kp-sc-box .kpong-play, .kpong-settings .kpong-play { width: 100%; min-height: 52px; border-radius: 99px; box-shadow: 0 0 24px -6px var(--accent); }
+.kpong-settings .kpong-play:focus-visible, .kp-sc-box .kpong-play:focus-visible { outline: 2px solid rgba(255, 255, 255, .75); outline-offset: 2px; }
+@media (pointer: coarse) { .kpong-settings .kpong-play:focus, .kp-sc-box .kpong-play:focus { outline: none; } }
+.kpong .kpong-score b, .kp-sc-box h3, .kp-vhead h2 { color: var(--accent); }
+.kpong .kpong-shot { background: radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--accent) 70%, #fff), var(--accent) 58%, color-mix(in srgb, var(--accent) 62%, #000)); color: #15120a; }
+.kpong .kpong-stickbtn { border-color: var(--accent); color: var(--accent); }
+.kp-tabs { border: 0; border-radius: 14px; padding: 4px; background: rgba(255, 255, 255, .06); }
+.kp-tabs button { border-radius: 11px; font-family: var(--font-text); font-size: var(--fs-card); }
+.kp-tabs button[aria-selected="true"] { background: var(--accent); color: #15120a; box-shadow: none; }
+/* menu ve hře: skóre, dvě tlačítka vedle sebe, dlaždice, tiché odejít */
+.kp-mscore { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 0; font-family: var(--font-display); font-size: 1.5rem; }
+.kp-mscore b { font-weight: 400; color: var(--accent); }
+.kp-mscore small { font-family: var(--font-text); font-size: var(--fs-small); color: var(--text-dim); }
+.kp-mtwo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kp-mtwo .kp-fullbtn { min-height: 46px; border: 0; border-radius: 16px; font-family: var(--font-text); }
+.kp-mtiles { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 8px; }
+.kp-mtile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 80px; padding: 8px 4px; border: 0; border-radius: 16px; background: rgba(255, 255, 255, .06); color: var(--text); font-family: var(--font-text); font-size: var(--fs-card); cursor: pointer; }
+.kp-mtile i { font-size: 1.35rem; color: var(--accent); }
+.kp-mtile:hover, .kp-mtile:focus-visible { background: var(--accent-soft); }
+.kp-mquit { justify-self: center; display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 14px; border: 0; background: none; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); cursor: pointer; }
+.kp-mquit:hover, .kp-mquit:focus-visible { color: var(--text); }
+/* Nastavení: čisté řádky místo rámečků */
+.kpong-settings .kp-label { justify-content: flex-start; margin: 2px 2px -2px; font-family: var(--font-text); font-size: var(--fs-small); letter-spacing: 0; color: var(--text-dim); text-transform: none; }
+.kpong-settings .kp-label::before, .kpong-settings .kp-label::after { display: none; }
+.kpong-settings .kp-bgname { text-align: left; margin: 0 2px; }
+.kpong-settings .kp-fullbtn { border: 0; border-radius: 16px; min-height: 50px; font-family: var(--font-text); font-size: var(--fs-text); font-weight: 400; background: rgba(255, 255, 255, .06); }
+.kpong-settings .kp-checks { flex-direction: column; flex-wrap: nowrap; }
+.kpong-settings .kp-checks .kp-fullbtn { flex: none; width: 100%; padding: 0 14px; }
+.kpong-settings .kp-fullbtn[aria-pressed] { color: var(--text); background: rgba(255, 255, 255, .06); }
+.kpong-settings .kp-fullbtn:hover, .kpong-settings .kp-fullbtn:focus-visible { color: var(--text); background: var(--accent-soft); }
+.kpong-settings .kp-fullbtn > i { color: var(--accent); }
+/* přepínač: řádek vlevo s popiskem, vpravo vypínač */
+.kpong-settings .kp-opt { justify-content: flex-start; gap: 12px; text-align: left; }
+.kpong-settings .kp-opt::after { content: ""; flex: none; margin-left: auto; width: 46px; height: 26px; border-radius: 99px; background: rgba(255, 255, 255, .18) radial-gradient(circle at 13px 13px, #fff 10px, transparent 10.5px); transition: background-color .15s; }
+.kpong-settings .kp-opt[aria-pressed="true"]::after { background: var(--accent) radial-gradient(circle at 33px 13px, #15120a 10px, transparent 10.5px); }
+/* výběr z více možností: jeden pruh, vybraná je v barvě pálky */
+.kpong-settings .kp-talk { gap: 3px; padding: 3px; border-radius: 14px; background: rgba(255, 255, 255, .06); }
+.kpong-settings .kp-talk button { min-height: 42px; border: 0; border-radius: 11px; background: none; }
+.kpong-settings .kp-talk button[aria-checked="true"] { background: var(--accent); color: #15120a; font-weight: 500; }
+.kpong-settings input[type=range] { accent-color: var(--accent); }
+/* Vzhled: náhled, kategorie, mřížka */
+.kp-lookview { gap: 8px; min-height: 0; }
+.kp-stage { position: relative; display: grid; place-items: center; height: 128px; overflow: hidden; border-radius: 18px; background: radial-gradient(circle at 50% 40%, #2a2620, #050505) center / cover no-repeat; }
+.kp-stage.bg { height: 150px; }
+.kp-stage::after { content: ""; position: absolute; inset: 40% 0 0; background: linear-gradient(transparent, rgba(0, 0, 0, .78)); pointer-events: none; }
+.kp-stage-cv { position: relative; z-index: 1; margin-bottom: 18px; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, .7)); }
+.kp-stage-cv.pad { width: min(68%, 250px); aspect-ratio: 2.6 / 1; }
+.kp-stage-cv.ball { width: 84px; height: 84px; }
+.kp-stage-celeb { position: relative; z-index: 1; margin-bottom: 18px; font-size: 3rem; color: var(--accent); filter: drop-shadow(0 0 14px var(--accent)); }
+.kp-stage-info { position: absolute; left: 12px; right: 56px; bottom: 8px; z-index: 2; display: grid; gap: 1px; text-align: left; line-height: 1.2; }
+.kp-stage-info b { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-card); color: #fff; text-shadow: 0 1px 6px #000; }
+.kp-stage-info small { font-family: var(--font-text); font-size: var(--fs-small); color: rgba(255, 255, 255, .86); text-shadow: 0 1px 4px #000; }
+.kp-stage-info small i { color: var(--accent); }
+.kp-stage-btn { position: absolute; right: 8px; bottom: 8px; z-index: 2; width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 50%; color: #fff; background: rgba(0, 0, 0, .58); cursor: pointer; }
+.kp-stage-btn:hover, .kp-stage-btn:focus-visible { background: var(--accent); color: #15120a; }
+.kp-chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+.kp-chips button { min-height: 42px; padding: 0 2px; border: 0; border-radius: 99px; background: rgba(255, 255, 255, .06); color: var(--text); font-family: var(--font-text); font-size: var(--fs-card); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kp-chips button[aria-pressed="true"] { background: var(--accent); color: #15120a; font-weight: 500; }
+.kpong-settings .kp-opt small { display: block; margin-top: 1px; font-size: var(--fs-small); font-weight: 300; color: var(--text-dim); line-height: 1.2; }
+.kp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; max-height: clamp(150px, calc(92dvh - 468px), 340px); padding: 2px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.kp-grid::-webkit-scrollbar { display: none; }
+.kp-grid.bg { max-height: clamp(150px, calc(92dvh - 490px), 340px); }
+/* nízký telefon: menší náhled, ať na mřížku zbude místo */
+@media (max-height: 720px) { .kp-stage { height: 96px; } .kp-stage.bg { height: 112px; } .kp-stage-cv.pad { width: min(58%, 200px); } .kp-stage-cv.ball { width: 60px; height: 60px; }
+  .kp-grid { max-height: clamp(150px, calc(92dvh - 436px), 340px); } .kp-grid.bg { max-height: clamp(150px, calc(92dvh - 452px), 340px); } }
+.kp-gi { --rar: var(--panel-border); position: relative; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 3px; height: 84px; padding: 6px 3px 5px; overflow: hidden; cursor: pointer;
+  border: 1.5px solid color-mix(in srgb, var(--rar) 70%, transparent); border-radius: 15px; background: radial-gradient(90% 80% at 50% 0, color-mix(in srgb, var(--rar) 22%, transparent), transparent), rgba(255, 255, 255, .03); color: var(--text); }
+.kp-gi .kp-tb { flex: 1; width: 100%; height: auto; min-height: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+.kp-gi .kp-tb.pad canvas { width: 92%; height: auto; aspect-ratio: 2.2 / 1; }
+.kp-gi .kp-tb.ball canvas { width: 42px; height: 42px; }
+.kp-gi-name { position: relative; z-index: 1; max-width: 100%; font-family: var(--font-text); font-size: var(--fs-small); line-height: 1.1; text-align: center; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+.kp-gi.bg { padding: 0; justify-content: flex-end; }
+.kp-gi.bg .kp-tb { position: absolute; inset: 0; }
+.kp-gi.bg .kp-gi-name { width: 100%; padding: 10px 3px 4px; background: linear-gradient(transparent, rgba(0, 0, 0, .85)); }
+.kp-gi.locked .kp-tb > *, .kp-gi.locked .kp-gi-name { filter: saturate(.35) brightness(.7); }
+.kp-gi.locked::after, .kp-gi.on::after { position: absolute; right: 6px; top: 4px; z-index: 2; font: 900 .72rem 'Font Awesome 6 Free'; }
+.kp-gi.locked::after { content: "\f023"; color: #fff; text-shadow: 0 1px 3px #000; }
+.kp-gi.on::after { content: "\f00c"; color: var(--accent); text-shadow: 0 1px 3px #000; }
+.kp-gi.hot { outline: 2px solid #fff; outline-offset: 1px; }
+.kp-gi.on { outline: 2px solid var(--accent); outline-offset: 1px; }
+.kp-gi.nope { animation: kp-nope .35s ease; }
+/* na telefonu se vysvětlivka k atmosféře nevejde: co dělá, říká už popisek přepínače */
+@media (max-width: 600px) { .kp-pane[data-pane="look"] > .kp-bgname { display: none; } }
+/* počítač: čtyři sloupce; pod mřížkou je navíc vysvětlivka k atmosféře */
+@media (min-width: 601px) { .kp-grid, .kp-grid.bg { grid-template-columns: repeat(4, minmax(0, 1fr)); max-height: clamp(150px, calc(92dvh - 544px), 340px); } }

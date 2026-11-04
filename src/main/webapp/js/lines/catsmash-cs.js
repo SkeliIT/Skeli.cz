@@ -59,6 +59,8 @@ window.KEVIN_LINES.cs.pong = {
   "layoutReset": "Výchozí rozložení",
   "zoneLabel": "Plocha pro pálku",
   "atmo": "Automat a efekty podle pálky",
+  "fullSet": "Vybavit celý set",
+  "fullSetHint": "Pálka si vezme i svůj míček a pozadí, pokud je máš odemčené.",
   "atmoHint": "Automat se převlékne do stylu vybrané pálky (dřevo, plyš, neon…) a na hřišti přibudou drobné efekty – poletující lístky, jiskry, vločky. Vypni, když chceš klasický automat.",
   "lockMouse": "Myš zamknout do hry",
   "tabLook": "Vzhled",
@@ -184,11 +186,8 @@ window.KEVIN_LINES.cs.pong = {
   "badgesTitle": "Odznaky",
   "loading": "Startuju stroj…",
   "badgesRule": "Jen na Normální a Naštvaný.",
-  "badgeGroups": [
-    "Výhry",
-    "Kousky ve hře",
-    "Jen za nejtěžší"
-  ],
+  "badgesGot": "Získané",
+  "badgesMissing": "Ještě chybí",
   "badgeNoReward": "zatím bez odměny",
   "rewards": {
     "first": "pálka Větvička",
@@ -356,6 +355,7 @@ window.KEVIN_LINES.cs.pong = {
   "champMonth": "ŠAMPION MĚSÍCE",
   "victory": "VÍTĚZSTVÍ!",
   "celebTitle": "Vítězná oslava",
+  "celebShort": "Oslava",
   "celebAuto": "Automaticky",
   "celebOff": "Vypnuto",
   "celebHint": "Za legendární odznaky z nejtěžší obtížnosti. Pustí se po výhře, vidíš ji jen ty.",

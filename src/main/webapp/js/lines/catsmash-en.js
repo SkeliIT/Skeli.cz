@@ -59,6 +59,8 @@ window.KEVIN_LINES.en.pong = {
   "layoutReset": "Default layout",
   "zoneLabel": "Paddle area",
   "atmo": "Machine and effects by paddle",
+  "fullSet": "Equip the whole set",
+  "fullSetHint": "The paddle brings its ball and background too, if you have them unlocked.",
   "atmoHint": "The machine dresses up in the style of your paddle (wood, plush, neon…) and small effects appear on the court – flying leaves, sparks, snowflakes. Turn off for the classic machine.",
   "lockMouse": "Lock the mouse in the game",
   "tabLook": "Look",
@@ -184,11 +186,8 @@ window.KEVIN_LINES.en.pong = {
   "badgesTitle": "Badges",
   "loading": "Starting the machine…",
   "badgesRule": "Only on Normal and Angry.",
-  "badgeGroups": [
-    "Wins",
-    "In-game tricks",
-    "Hardest only"
-  ],
+  "badgesGot": "Earned",
+  "badgesMissing": "Still to get",
   "badgeNoReward": "no reward yet",
   "rewards": {
     "first": "Twig paddle",
@@ -356,6 +355,7 @@ window.KEVIN_LINES.en.pong = {
   "champMonth": "CHAMPION OF THE MONTH",
   "victory": "VICTORY!",
   "celebTitle": "Victory celebration",
+  "celebShort": "Celebration",
   "celebAuto": "Automatic",
   "celebOff": "Off",
   "celebHint": "For the legendary badges from the hardest difficulty. Plays after a win, only you see it.",
