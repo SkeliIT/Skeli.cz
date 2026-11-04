@@ -314,7 +314,7 @@
     return null;
   }
   function startPeek(spot) {
-    if (peeking || !spot) return;
+    if (peeking || !spot || root.classList.contains('over-lightbox')) return;   // nad otevřenou fotkou nevykukuje
     peeking = true;
     root.style.setProperty('--peek-y', spot.y + 'px');
     root.style.setProperty('--peek-bubble-w', (spot.stack ? spot.stack - 24 : 236) + 'px');
@@ -1173,6 +1173,10 @@
       if (root.hidden && !canPop()) return;              // kdo si Kevina zavřel, tomu nevyskakuje
       acted = true;
       store.set('kevinSecretSeen', '1');                 // tajemství objeveno: nápověda už není potřeba
+      if (peeking) {                                     // vykukoval z okraje nakloněný: nad fotkou stojí rovně
+        peeking = false;
+        root.classList.remove('peek', 'peek-left', 'peek-right', 'peek-out', 'peek-stack');
+      }
       root.classList.add('over-lightbox');
       if (root.hidden) popOut();
       return show(L.photos[d.photos] || '', { pose: 'cool' });   // ke každé fotce jedna hláška, čas podle délky textu
