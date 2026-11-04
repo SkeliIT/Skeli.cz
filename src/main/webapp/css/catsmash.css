@@ -430,7 +430,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
    zapuštěné do rámu; kov podle automatu (--menu-tint z setSkin, klasický = zlato) */
 .kpong-frame { --menu-tint: #e6b730; }                    /* (barvu automatu přepíše setSkin na .kpong-frame) */
 .kpong-set {
-  position: absolute; left: calc(384px * var(--u) - 48px); top: calc(162px * var(--u) - 17px); z-index: 6;
+  position: absolute; left: calc(384px * var(--u) - 48px); top: calc(var(--menu-y, 162) * var(--u) * 1px - 17px); z-index: 6;
   display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 96px; height: 34px; padding: 0;
   border-radius: 99px; border: 0; cursor: pointer; color: #1a1208;
   font-family: var(--font-display); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
@@ -1276,9 +1276,13 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-chips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
 .kp-chips button { min-height: 42px; padding: 0 2px; border: 0; border-radius: 99px; background: rgba(255, 255, 255, .06); color: var(--text); font-family: var(--font-text); font-size: var(--fs-card); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .kp-chips button[aria-pressed="true"] { background: var(--accent); color: #15120a; font-weight: 500; }
-.kp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; max-height: clamp(150px, calc(92dvh - 404px), 340px); padding: 2px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.kpong-settings .kp-opt small { display: block; margin-top: 1px; font-size: var(--fs-small); font-weight: 300; color: var(--text-dim); line-height: 1.2; }
+.kp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; max-height: clamp(150px, calc(92dvh - 468px), 340px); padding: 2px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
 .kp-grid::-webkit-scrollbar { display: none; }
-.kp-grid.bg { max-height: clamp(150px, calc(92dvh - 426px), 340px); }
+.kp-grid.bg { max-height: clamp(150px, calc(92dvh - 490px), 340px); }
+/* nízký telefon: menší náhled, ať na mřížku zbude místo */
+@media (max-height: 720px) { .kp-stage { height: 96px; } .kp-stage.bg { height: 112px; } .kp-stage-cv.pad { width: min(58%, 200px); } .kp-stage-cv.ball { width: 60px; height: 60px; }
+  .kp-grid { max-height: clamp(150px, calc(92dvh - 436px), 340px); } .kp-grid.bg { max-height: clamp(150px, calc(92dvh - 452px), 340px); } }
 .kp-gi { --rar: var(--panel-border); position: relative; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 3px; height: 84px; padding: 6px 3px 5px; overflow: hidden; cursor: pointer;
   border: 1.5px solid color-mix(in srgb, var(--rar) 70%, transparent); border-radius: 15px; background: radial-gradient(90% 80% at 50% 0, color-mix(in srgb, var(--rar) 22%, transparent), transparent), rgba(255, 255, 255, .03); color: var(--text); }
 .kp-gi .kp-tb { flex: 1; width: 100%; height: auto; min-height: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
@@ -1298,4 +1302,4 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 /* na telefonu se vysvětlivka k atmosféře nevejde: co dělá, říká už popisek přepínače */
 @media (max-width: 600px) { .kp-pane[data-pane="look"] > .kp-bgname { display: none; } }
 /* počítač: čtyři sloupce; pod mřížkou je navíc vysvětlivka k atmosféře */
-@media (min-width: 601px) { .kp-grid, .kp-grid.bg { grid-template-columns: repeat(4, minmax(0, 1fr)); max-height: clamp(150px, calc(92dvh - 480px), 340px); } }
+@media (min-width: 601px) { .kp-grid, .kp-grid.bg { grid-template-columns: repeat(4, minmax(0, 1fr)); max-height: clamp(150px, calc(92dvh - 544px), 340px); } }

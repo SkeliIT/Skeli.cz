@@ -59,6 +59,8 @@ window.KEVIN_LINES.cs.pong = {
   "layoutReset": "Výchozí rozložení",
   "zoneLabel": "Plocha pro pálku",
   "atmo": "Automat a efekty podle pálky",
+  "fullSet": "Vybavit celý set",
+  "fullSetHint": "Pálka si vezme i svůj míček a pozadí, pokud je máš odemčené.",
   "atmoHint": "Automat se převlékne do stylu vybrané pálky (dřevo, plyš, neon…) a na hřišti přibudou drobné efekty – poletující lístky, jiskry, vločky. Vypni, když chceš klasický automat.",
   "lockMouse": "Myš zamknout do hry",
   "tabLook": "Vzhled",

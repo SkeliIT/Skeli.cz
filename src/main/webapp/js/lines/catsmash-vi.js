@@ -59,6 +59,8 @@ window.KEVIN_LINES.vi.pong = {
   "layoutReset": "Bố cục mặc định",
   "zoneLabel": "Vùng điều khiển vợt",
   "atmo": "Máy và hiệu ứng theo vợt",
+  "fullSet": "Trang bị cả bộ",
+  "fullSetHint": "Vợt sẽ mang theo cả bóng và nền của nó, nếu bạn đã mở khóa.",
   "atmoHint": "Máy sẽ đổi sang phong cách của cây vợt bạn chọn (gỗ, lông, neon…) và trên sân có thêm hiệu ứng nhỏ – lá bay, tia lửa, bông tuyết. Tắt nếu muốn máy cổ điển.",
   "lockMouse": "Khóa chuột trong trò chơi",
   "tabLook": "Giao diện",

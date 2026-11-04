@@ -3,7 +3,10 @@
 # i jinde. Obrázek se pak posune a natáhne tak, aby velké sklo sedělo přesně na sklo hřiště (GLASS), a uloží se
 # ve velikosti dnešního automatu 768×1376. Hra ho kreslí NAD hřištěm a okénky s koly (otvory jsou průhledné),
 # takže jeho okraje vždycky přikryjí, co je pod ním.
-# Výstup: src/main/webapp/kevin/pong/stroje/<pálka>.webp + stroje.json ({pálka: {top: bool}} – má horní okénko?)
+# Okénko se vyřízne podle obrázku: co přes něj vede (řetěz, lístky, tlapka), zůstane nad koly. Natvrdo se řízne jen tam,
+# kde Gemini okénko nenakreslilo (černé sklo, deska).
+# Výstup: src/main/webapp/kevin/pong/stroje/<pálka>.webp + stroje.json ({pálka: {top: bool, win: [horní, dolní]}});
+# okénka z win patří do MECH_WIN v js/catsmash/data.js (plátno s koly je o kousek větší než otvor, okraj je přikryje).
 #
 # Spuštění: python tools/catsmash-stroje.py <složka s obrázky> pálka=soubor [pálka=soubor …]
 import json
@@ -42,6 +45,31 @@ def center(r):
     return (int(r[1] + r[3] / 2), int(r[0] + r[2] / 2))
 
 
+def seeds_in(r):
+    # několik bodů přes okénko: řetěz nebo ozdoba může otvor rozdělit na víc částí
+    return [(int(r[1] + r[3] * fy), int(r[0] + r[2] * fx)) for fy in (0.3, 0.5, 0.7) for fx in (0.08, 0.2, 0.35, 0.5, 0.65, 0.8, 0.92)]
+
+
+# automaty, které mají růžovou ve výzdobě: okraje se nečistí
+KEEP_PINK = {'neon', 'graffiti'}
+WIN_MARGIN = 5
+
+
+def clean_fringe(out):
+    # fialový lem po vyříznutí z fialového pozadí: pixely u průhledných míst přebarví na tmavý kov
+    a = np.asarray(out).astype(np.int16)
+    r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
+    near = al < 20
+    for _ in range(4):
+        near = near | np.roll(near, 1, 0) | np.roll(near, -1, 0) | np.roll(near, 1, 1) | np.roll(near, -1, 1)
+    fr = near & (r > g + 14) & (b > g + 14)
+    a = a.copy()
+    val = np.minimum(np.minimum(r, b), g + 8)
+    a[..., 0] = np.where(fr, val, r)
+    a[..., 2] = np.where(fr, np.minimum(b, g), b)
+    return Image.fromarray(a.astype(np.uint8), 'RGBA')
+
+
 def bbox(mask):
     ys, xs = np.nonzero(mask)
     if not len(xs):
@@ -49,7 +77,7 @@ def bbox(mask):
     return (int(xs.min()), int(ys.min()), int(xs.max() - xs.min() + 1), int(ys.max() - ys.min() + 1))
 
 
-def cut(path):
+def cut(path, pad=''):
     im = Image.open(path).convert('RGB').resize((FW, FH), Image.LANCZOS)
     a = np.asarray(im).astype(np.float32)
     h, w, _ = a.shape
@@ -57,9 +85,10 @@ def cut(path):
     cand = d < 110
     border = [(y, 0) for y in range(h)] + [(y, w - 1) for y in range(h)] + [(0, x) for x in range(w)] + [(h - 1, x) for x in range(w)]
     glass = flood(cand, [center(GLASS)])
-    top = flood(cand, [center(WIN_TOP)])
-    bot = flood(cand, [center(WIN_BOT)])
-    bg = flood(cand, border) | glass | top | bot | (d < 45)
+    top = flood(cand, seeds_in(WIN_TOP))
+    bot = flood(cand, seeds_in(WIN_BOT))
+    # automaty bez růžové výzdoby: pryč i každá purpurová, která zbyla třeba v okách řetězu
+    bg = flood(cand, border) | glass | top | bot | (d < (45 if pad in KEEP_PINK else 110))
     near = bg.copy()
     for _ in range(2):
         near = near | np.roll(near, 1, 0) | np.roll(near, -1, 0) | np.roll(near, 1, 1) | np.roll(near, -1, 1)
@@ -82,16 +111,25 @@ def cut(path):
     # vnitřek skla vždycky průhledný (ozdoby nakreslené dovnitř skla, třeba sloupce ekvalizéru, by zakrývaly hřiště)
     hole = Image.new('L', (FW, FH), 255)
     ImageDraw.Draw(hole).rounded_rectangle((GLASS[0] + 5, GLASS[1] + 5, GLASS[0] + GLASS[2] - 5, GLASS[1] + GLASS[3] - 5), radius=12, fill=0)
-    # okénka s koly taky (Gemini je někdy nakreslí jako černé sklo nebo je zakryje deskou)
-    for x, y, w, h in (WIN_TOP, WIN_BOT):
-        ImageDraw.Draw(hole).rounded_rectangle((x + 3, y + 3, x + w - 3, y + h - 3), radius=8, fill=0)
+    # okénko, které v obrázku není (černé sklo, deska), se vyřízne natvrdo; nakreslené zůstává i s tím, co vede přes něj
+    own = [m.sum() > 0.5 * r[2] * r[3] for m, r in ((top, WIN_TOP), (bot, WIN_BOT))]
+    for r, mine in zip((WIN_TOP, WIN_BOT), own):
+        if not mine:
+            x, y, w, h = r
+            ImageDraw.Draw(hole).rounded_rectangle((x + 3, y + 3, x + w - 3, y + h - 3), radius=8, fill=0)
     a = out.getchannel('A')
     out.putalpha(Image.fromarray(np.minimum(np.asarray(a), np.asarray(hole))))
+    if pad not in KEEP_PINK:
+        out = clean_fringe(out)
     def moved(r):
         return None if r is None else (round(gx + (r[0] - g[0]) * sx), round(gy + (r[1] - g[1]) * sy), round(r[2] * sx), round(r[3] * sy))
     tb, bb = bbox(top), bbox(bot)
     has_top = tb is not None and tb[3] > 30
-    return out, has_top, moved(tb), moved(bb), (round(sx, 3), round(sy, 3))
+    win = []
+    for box, mine, rect in ((moved(tb), own[0], WIN_TOP), (moved(bb), own[1], WIN_BOT)):
+        x, y, w, h = box if mine else rect
+        win.append([x - WIN_MARGIN, y - WIN_MARGIN, w + 2 * WIN_MARGIN, h + 2 * WIN_MARGIN])
+    return out, has_top, win, own, (round(sx, 3), round(sy, 3))
 
 
 def main():
@@ -101,11 +139,10 @@ def main():
     meta = json.load(open(meta_path, encoding='utf-8')) if os.path.exists(meta_path) else {}
     for arg in sys.argv[2:]:
         pad, name = arg.split('=', 1)
-        img, has_top, tb, bb, sc = cut(os.path.join(src, name))
+        img, has_top, win, own, sc = cut(os.path.join(src, name), pad)
         img.save(os.path.join(OUT, pad + '.webp'), 'WEBP', quality=86, method=6)
-        meta[pad] = {'top': has_top}
-        print(pad, 'měřítko', sc, 'horní okénko', tb, '(má být', WIN_TOP, ') dolní', bb, '(má být', WIN_BOT, ')',
-              os.path.getsize(os.path.join(OUT, pad + '.webp')) // 1024, 'kB')
+        meta[pad] = {'top': has_top, 'win': win}
+        print(pad, 'měřítko', sc, 'okénka', win, 'z obrázku', own, os.path.getsize(os.path.join(OUT, pad + '.webp')) // 1024, 'kB')
     with open(meta_path, 'w', encoding='utf-8') as f:
         json.dump(meta, f, ensure_ascii=False, indent=1, sort_keys=True)
 
