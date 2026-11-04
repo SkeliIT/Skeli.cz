@@ -53,6 +53,9 @@ def seeds_in(r):
 # automaty, které mají růžovou ve výzdobě: okraje se nečistí
 KEEP_PINK = {'neon', 'graffiti'}
 WIN_MARGIN = 5
+# automaty, které okénko nakreslily jako černé sklo nebo panel: otvor přesně podle jejich rámu (x, y, šířka, výška v originále;
+# klíč 0 = horní okénko, 1 = dolní)
+FRAME_HOLES = {'ekvalizer': {0: (122, 196, 525, 75), 1: (120, 1090, 527, 129)}, 'kola': {1: (122, 1090, 530, 138)}}
 
 
 def clean_fringe(out):
@@ -113,23 +116,40 @@ def cut(path, pad=''):
     ImageDraw.Draw(hole).rounded_rectangle((GLASS[0] + 5, GLASS[1] + 5, GLASS[0] + GLASS[2] - 5, GLASS[1] + GLASS[3] - 5), radius=12, fill=0)
     # okénko, které v obrázku není (černé sklo, deska), se vyřízne natvrdo; nakreslené zůstává i s tím, co vede přes něj
     own = [m.sum() > 0.5 * r[2] * r[3] for m, r in ((top, WIN_TOP), (bot, WIN_BOT))]
-    for r, mine in zip((WIN_TOP, WIN_BOT), own):
+    def moved(r):
+        return None if r is None else (round(gx + (r[0] - g[0]) * sx), round(gy + (r[1] - g[1]) * sy), round(r[2] * sx), round(r[3] * sy))
+    forced = {}
+    for n, (r, mine) in enumerate(zip((WIN_TOP, WIN_BOT), own)):
         if not mine:
-            x, y, w, h = r
-            ImageDraw.Draw(hole).rounded_rectangle((x + 3, y + 3, x + w - 3, y + h - 3), radius=8, fill=0)
+            art = FRAME_HOLES.get(pad, {}).get(n)
+            x, y, w, h = moved(art) if art else (r[0] + 3, r[1] + 3, r[2] - 6, r[3] - 6)
+            forced[n] = (x, y, w, h)
+            ImageDraw.Draw(hole).rounded_rectangle((x, y, x + w, y + h), radius=8, fill=0)
     a = out.getchannel('A')
     out.putalpha(Image.fromarray(np.minimum(np.asarray(a), np.asarray(hole))))
     if pad not in KEEP_PINK:
         out = clean_fringe(out)
-    def moved(r):
-        return None if r is None else (round(gx + (r[0] - g[0]) * sx), round(gy + (r[1] - g[1]) * sy), round(r[2] * sx), round(r[3] * sy))
     tb, bb = bbox(top), bbox(bot)
     has_top = tb is not None and tb[3] > 30
     win = []
-    for box, mine, rect in ((moved(tb), own[0], WIN_TOP), (moved(bb), own[1], WIN_BOT)):
-        x, y, w, h = box if mine else rect
+    for n, box in enumerate((moved(tb), moved(bb))):
+        x, y, w, h = forced[n] if n in forced else box
         win.append([x - WIN_MARGIN, y - WIN_MARGIN, w + 2 * WIN_MARGIN, h + 2 * WIN_MARGIN])
     return out, has_top, win, own, (round(sx, 3), round(sy, 3))
+
+
+def klasik():
+    # klasický automat: rám kevin/pong/ram.webp s otvory, ať kolečka leží pod ním jako u ostatních
+    im = Image.open(os.path.join(OUT, '..', 'ram.webp')).convert('RGBA')
+    hole = Image.new('L', (FW, FH), 255)
+    d = ImageDraw.Draw(hole)
+    d.rounded_rectangle((GLASS[0] + 5, GLASS[1] + 5, GLASS[0] + GLASS[2] - 5, GLASS[1] + GLASS[3] - 5), radius=12, fill=0)
+    win = []
+    for x, y, w, h in (WIN_TOP, WIN_BOT):
+        d.rounded_rectangle((x + 2, y + 2, x + w - 2, y + h - 2), radius=9, fill=0)
+        win.append([x - WIN_MARGIN, y - WIN_MARGIN, w + 2 * WIN_MARGIN, h + 2 * WIN_MARGIN])
+    im.putalpha(Image.fromarray(np.minimum(np.asarray(im.getchannel('A')), np.asarray(hole))))
+    return im, True, win, [True, True], (1, 1)
 
 
 def main():
@@ -139,7 +159,7 @@ def main():
     meta = json.load(open(meta_path, encoding='utf-8')) if os.path.exists(meta_path) else {}
     for arg in sys.argv[2:]:
         pad, name = arg.split('=', 1)
-        img, has_top, win, own, sc = cut(os.path.join(src, name), pad)
+        img, has_top, win, own, sc = klasik() if pad == 'klasik' else cut(os.path.join(src, name), pad)
         img.save(os.path.join(OUT, pad + '.webp'), 'WEBP', quality=86, method=6)
         meta[pad] = {'top': has_top, 'win': win}
         print(pad, 'měřítko', sc, 'okénka', win, 'z obrázku', own, os.path.getsize(os.path.join(OUT, pad + '.webp')) // 1024, 'kB')

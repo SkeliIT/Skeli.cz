@@ -551,12 +551,13 @@ t    }
       var c = SKINS[i].ui || SKINS[i].rim;
       el.style.setProperty('--accent', c);
       el.style.setProperty('--accent-soft', 'color-mix(in srgb, ' + c + ' 18%, transparent)');
-      el.style.setProperty('--accent-grad', 'linear-gradient(color-mix(in srgb, ' + c + ' 78%, #fff), ' + c + ' 55%, color-mix(in srgb, ' + c + ' 80%, #000))');
+      el.style.setProperty('--accent-grad', SKINS[i].grad || 'linear-gradient(color-mix(in srgb, ' + c + ' 78%, #fff), ' + c + ' 55%, color-mix(in srgb, ' + c + ' 80%, #000))');
     }
     function setSkin() {
-      var id = curPad(), sk = atmoOn && STROJE && id && STROJE[id];
+      // klasický automat je taky vrstva (stroje/klasik.webp), ať kolečka leží pod ním; vypnutá atmosféra = klasický
+      var id = (atmoOn && curPad()) || 'klasik', sk = STROJE && STROJE[id];
       frameEl.classList.toggle('themed', !!sk);
-      frameEl.style.setProperty('--menu-tint', sk && SKINS[skin] && SKINS[skin].rim ? SKINS[skin].rim : '#e6b730');   // kov tlačítka MENU podle automatu
+      frameEl.style.setProperty('--menu-tint', atmoOn && SKINS[skin] ? SKINS[skin].ui || SKINS[skin].rim : '#e6b730');   // kov tlačítka MENU podle automatu
       themeOn(root, atmoOn ? skin : 0);                    // celá hra v barvách vybrané pálky (vypnutá atmosféra = zlatá)
       frameEl.style.setProperty('--menu-y', (sk && D.MENU_Y[id]) || 162);
       skinEl.hidden = !sk;
@@ -1484,7 +1485,7 @@ t    }
       // obrázkové pálky (img = klíč v kevin/pong/palky.json z tools/catsmash-sprites.py); pad = barvy pro záložní kreslení
       { b: 'first', img: 'vetev', pad: ['#c79a62', '#5a3a1c'], rim: '#8fd16a', glow: 'rgba(120, 200, 90, .9)', trail: '#9ccf6a' },
       { b: 'loyal', img: 'plys', pad: ['#ffffff', '#cfcfd6'], rim: '#ffc2cf', glow: 'rgba(255, 190, 205, .9)', trail: '#ffd6df' },
-      { b: 'overheat', img: 'graffiti', pad: ['#3a3a40', '#111114'], rim: '#ff5fd2', glow: 'rgba(120, 220, 255, .9)', trail: '#ffcf3a' },
+      { b: 'overheat', img: 'graffiti', ui: '#2be8e0', grad: 'linear-gradient(95deg, #22e6e0, #b6ff2e 52%, #ffe600)', pad: ['#3a3a40', '#111114'], rim: '#ff5fd2', glow: 'rgba(120, 220, 255, .9)', trail: '#ffcf3a' },
       { b: 'fast', img: 'jadeit', pad: ['#8fd6a8', '#2f7a4c'], rim: '#7fd6a0', glow: 'rgba(110, 210, 150, .9)', trail: '#6fcf97' },
       { b: 'close', img: 'mince', pad: ['#ffd76a', '#8a6400'], rim: '#ffd23f', glow: 'rgba(255, 200, 60, .95)', trail: '#d9a441' },
       { b: 'streak', img: 'led', ui: '#a9e4ff', pad: ['#eef8ff', '#8fc6e8'], rim: '#cdeeff', glow: 'rgba(170, 225, 255, .95)', trail: '#bfe6ff' },

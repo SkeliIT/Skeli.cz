@@ -1005,13 +1005,11 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); border-radius: 14px; box-shadow: none; font-size: 13px; transform-origin: 50% 0;
 }
 .kp-comic.say.in-glass::after { display: none; }
-/* MENU: kulaté tlačítko vlevo v pruhu nad sklem, daleko od palce (při hře ho nejde omylem stisknout);
-   u otevřeného menu hry není potřeba */
+/* MENU: kulaté tlačítko vlevo v pruhu nad sklem, daleko od palce (při hře ho nejde omylem stisknout) */
 .kpong.kp-phone .kpong-set {
   left: calc(146px * var(--u)); top: calc(var(--my) * var(--u) * 1px); width: 40px; height: 40px; z-index: 5; animation: none;
 }
 .kpong.kp-phone .kpong-set span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.kpong.kp-phone:has(.kpong-panel:not([hidden])) .kpong-set { display: none; }
 /* při hře nahoře nic: křížek je v menu hry, vidět je jen u otevřeného panelu (nad ním), prohlídka je jen v menu hry */
 .kpong.kp-phone .kpong-top { display: none; justify-content: flex-end; z-index: 6; }
 .kpong.kp-phone:has(.kpong-panel:not([hidden])) .kpong-top { display: flex; }
