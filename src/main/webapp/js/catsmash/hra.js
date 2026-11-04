@@ -145,7 +145,7 @@
     }
     var mechEls = [].slice.call(root.querySelectorAll('.kpong-mech')), phoneView = false, looking = false;
     // telefon: kolik obrázkových pixelů rámu nechat kolem skla a kolik px pod sklem nejméně nechat pro prst
-    var PHONE_RIM_X = 14, PHONE_TOP = 96, PHONE_OVER = 28, strip = { top: 74, h: 20 };
+    var PHONE_RIM_X = 14, PHONE_TOP = 90, PHONE_RIM_TOP = 8, strip = { top: 74, h: 20 };
     fit();
     addEventListener('resize', fit);
 
@@ -2342,23 +2342,23 @@ t    }
       layoutMech(k, w, k === 'top' ? WIN_TOP : WIN_BOT);
       winVarsOn(k, w);
     }
-    // telefon: horní okénko sahá od horního okraje obrazovky přes horní okraj skla (y0 až GLASS.y + PHONE_OVER), kde se nehraje.
-    // Kola jsou u jeho spodku, prostřední velké je přesně uprostřed: na něm běží Kevin. Točí se proti jeho běhu,
-    // takže vrch kola ujíždí pod nohama. Co okénku přebývá na výšku (vyšší telefon), dostane Kevin.
+    // telefon: horní okénko sahá od horního okraje obrazovky až těsně nad sklo (nic z hřiště nezakrývá, zůstane kousek zlatého rámu).
+    // Kola jsou u jeho spodku a koukají jen vrškem; Kevin běží na malém nižším kole uprostřed, mezi dvěma velkými.
+    // To se točí proti jeho běhu, takže vrch kola ujíždí pod nohama. Co okénku přebývá na výšku (vyšší telefon), dostane Kevin.
     function phoneTop(on, y0) {
       if (!MECH) return;                                  // (fit() běží dřív, než je mechanika připravená)
       if (!on) { if (phoneTopOn) { phoneTopOn = false; setWin('top'); } return; }
       phoneTopOn = true;
-      var base = machineWin('top'), bottom = GLASS.y + PHONE_OVER, w = [base[0], y0, base[2], bottom - y0];
-      var yA = bottom - 8, yB = bottom - 2, mid = GLASS.x + GLASS.w / 2, R = 40;
-      var all = chain(w, [R, 24, R, 30], yA, yB, 0, 1400), shift = mid - all[4].x;
+      var base = machineWin('top'), bottom = GLASS.y - PHONE_RIM_TOP, w = [base[0], y0, base[2], bottom - y0];
+      var yA = bottom - 2, yB = bottom + 6, mid = GLASS.x + GLASS.w / 2, R = 40, small = 24;
+      var all = chain(w, [R, small, R, 30], yA, yB, 0, 1400), shift = mid - all[5].x;   // [5] = malé kolo mezi dvěma velkými
       var right = w[0] + w[2] - 70;
       MECH.top.win = w;
-      MECH.top.front = all.map(function (g) { g.x += shift; g.sign = -g.sign; return g; }).filter(function (g) { return g.x > w[0] - g.r && g.x < right; });
+      MECH.top.front = all.map(function (g) { g.x += shift; return g; }).filter(function (g) { return g.x > w[0] - g.r && g.x < right; });
       MECH.top.back = MECH_DEF.top.back.map(function (g) { return { img: g.img, x: g.x, y: g.y + bottom - 270, r: g.r, sign: g.sign, a: g.a }; });
       winVarsOn('top', w);
       // Kevin: model zabírá asi 73 % šířky plátna a chodidla má 15 % výšky plátna nad jeho spodkem
-      var feet = yA - R, room = feet - y0 - 4, h = clamp(room, 52, 84), cw = h / 0.73, ch = cw * 180 / 160;
+      var feet = yB - small, room = feet - y0 - 4, h = clamp(room, 52, 84), cw = h / 0.73, ch = cw * 180 / 160;
       root.style.setProperty('--kx', (mid - cw / 2).toFixed(1));
       root.style.setProperty('--ky', (feet + ch * 0.15 - ch).toFixed(1));
       root.style.setProperty('--kw', cw.toFixed(1));
@@ -2419,7 +2419,7 @@ t    }
       // točí s paprskem, nikdy nevisí v díře), ojnice k pístu ve válci vpravo. Válec je přesně tak dlouhý, kolik
       // píst ujede (+ kostička), a ojnice se zkrátí, aby se celý vešel do okénka.
       var k = m.front[m.front.length - 1], pr = k.r * 0.45, ang = k.a - Math.PI / 2, pin = [k.x + Math.cos(ang) * pr, k.y + Math.sin(ang) * pr];
-      var winR = m.win[0] + m.win[2] - 8, L = Math.max(pr * 1.6, Math.min(k.r * 1.9, winR - 18 - k.x - pr)), cyl = k.y;
+      var winR = m.win[0] + m.win[2] - 8, L = Math.max(pr * 1.6, Math.min(k.r * 1.9, winR - 18 - k.x - pr)), cyl = Math.min(k.y, m.win[1] + m.win[3] - 12);   // válec se vždy vejde do okénka (telefon: kola koukají jen vrškem)
       var px = pin[0] + Math.sqrt(Math.max(0, L * L - (cyl - pin[1]) * (cyl - pin[1])));
       var lo = k.x - pr + Math.sqrt(L * L - pr * pr), hi = k.x + pr + L;     // krajní polohy pístu
       g2.fillStyle = '#0f0e12'; g2.strokeStyle = 'rgba(230,183,48,.55)'; g2.lineWidth = 2;

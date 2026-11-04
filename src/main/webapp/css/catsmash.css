@@ -990,7 +990,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-tabs button { border-radius: 99px; font-family: var(--font-display); }
 .kp-tabs button[aria-selected="true"] { background: linear-gradient(#ffd766, #e9a514); color: #2a1a00; box-shadow: 0 2px 10px rgba(255, 178, 30, .4); }
 
-/* telefon na výšku (fit() → .kp-phone, phoneTop()): nahoře okénko s Kevinem na velkém kole, pod ním sklo, dole spodní okénko = místo pro prst.
+/* telefon na výšku (fit() → .kp-phone, phoneTop()): nahoře okénko s Kevinem na malém kole, pod ním sklo, dole spodní okénko = místo pro prst.
    Masky a rozmazání na telefonu ne: přepočítávaly by se při každém snímku a hra by škubala. */
 .kpong.kp-phone { place-items: start center; padding-top: env(safe-area-inset-top); }
 .kpong-machine.cut.phone { -webkit-mask: none; mask: none; }
@@ -1001,10 +1001,8 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 }
 /* kola nad štěrbinou nahoře se na telefonu neskládají: Kevin běží na kole v okénku (polohy počítá phoneTop) */
 .kpong.kp-phone .kpong-gears[data-set="kevin"], .kpong.kp-phone .kpong-slot { display: none; }
-.kpong.kp-phone .kpong-mech[data-win="top"] { z-index: 3; border-radius: 0 0 calc(12px * var(--u)) calc(12px * var(--u)); box-shadow: 0 calc(3px * var(--u)) 0 #b8924a, 0 calc(6px * var(--u)) calc(8px * var(--u)) rgba(0, 0, 0, .6); }
+.kpong.kp-phone .kpong-mech[data-win="top"] { z-index: 3; border-radius: 0 0 calc(12px * var(--u)) calc(12px * var(--u)); box-shadow: 0 calc(2px * var(--u)) calc(6px * var(--u)) rgba(0, 0, 0, .6); }
 .kpong.kp-phone .kpong-kevin { left: calc(var(--kx) * var(--u) * 1px); top: calc(var(--ky) * var(--u) * 1px); width: calc(var(--kw) * var(--u) * 1px); z-index: 4; }
-/* otevřený panel (menu hry) leží na skle: okénko a Kevin ustoupí pod něj */
-.kpong.kp-phone:has(.kpong-panel:not([hidden])) .kpong-mech[data-win="top"], .kpong.kp-phone:has(.kpong-panel:not([hidden])) .kpong-kevin { z-index: auto; }
 /* jeho bublina ve skle: tmavé poloprůhledné sklo pod jeho pálkou, pod plátnem hřiště (míček ji přeletí, nezakryje) */
 .kp-comic.say.in-glass {
   position: absolute; z-index: auto; left: 50%; top: calc(84px * var(--u)); translate: -50% 0; width: max-content; max-width: 84%;
