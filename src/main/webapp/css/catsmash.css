@@ -990,7 +990,7 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-tabs button { border-radius: 99px; font-family: var(--font-display); }
 .kp-tabs button[aria-selected="true"] { background: linear-gradient(#ffd766, #e9a514); color: #2a1a00; box-shadow: 0 2px 10px rgba(255, 178, 30, .4); }
 
-/* telefon na výšku (fit() → .kp-phone): sklo úplně nahoře přes celou šířku, pod ním pruh pro prst se spodním okénkem.
+/* telefon na výšku (fit() → .kp-phone, phoneTop()): nahoře okénko s Kevinem na velkém kole, pod ním sklo, dole spodní okénko = místo pro prst.
    Masky a rozmazání na telefonu ne: přepočítávaly by se při každém snímku a hra by škubala. */
 .kpong.kp-phone { place-items: start center; padding-top: env(safe-area-inset-top); }
 .kpong-machine.cut.phone { -webkit-mask: none; mask: none; }
@@ -999,23 +999,23 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
   .kpong-machine.cut { -webkit-mask: none; mask: none; }
   .kpong-amb { display: none; }
 }
-/* horní část stroje je mimo obrazovku: kola a okénko se ani neskládají */
-.kpong.kp-phone .kpong-gears[data-set="kevin"], .kpong.kp-phone .kpong-slot, .kpong.kp-phone .kpong-mech[data-win="top"] { display: none; }
-/* Kevin stojí ve skle za svou pálkou, pod plátnem hřiště: míček i pálky letí před ním */
-.kpong.kp-phone .kpong-kevin {
-  left: 50%; top: calc(30px * var(--u)); width: calc(132px * var(--u)); margin-left: calc(-66px * var(--u)); z-index: auto;
-}
-/* jeho bublina ve skle: tmavé poloprůhledné sklo pod ním, také pod plátnem (míček ji přeletí, nezakryje) */
+/* kola nad štěrbinou nahoře se na telefonu neskládají: Kevin běží na kole v okénku (polohy počítá phoneTop) */
+.kpong.kp-phone .kpong-gears[data-set="kevin"], .kpong.kp-phone .kpong-slot { display: none; }
+.kpong.kp-phone .kpong-mech[data-win="top"] { z-index: 3; border-radius: 0 0 calc(12px * var(--u)) calc(12px * var(--u)); box-shadow: 0 calc(3px * var(--u)) 0 #b8924a, 0 calc(6px * var(--u)) calc(8px * var(--u)) rgba(0, 0, 0, .6); }
+.kpong.kp-phone .kpong-kevin { left: calc(var(--kx) * var(--u) * 1px); top: calc(var(--ky) * var(--u) * 1px); width: calc(var(--kw) * var(--u) * 1px); z-index: 4; }
+/* otevřený panel (menu hry) leží na skle: okénko a Kevin ustoupí pod něj */
+.kpong.kp-phone:has(.kpong-panel:not([hidden])) .kpong-mech[data-win="top"], .kpong.kp-phone:has(.kpong-panel:not([hidden])) .kpong-kevin { z-index: auto; }
+/* jeho bublina ve skle: tmavé poloprůhledné sklo pod jeho pálkou, pod plátnem hřiště (míček ji přeletí, nezakryje) */
 .kp-comic.say.in-glass {
-  position: absolute; z-index: auto; left: 50%; top: calc(172px * var(--u)); translate: -50% 0; width: max-content; max-width: 84%;
+  position: absolute; z-index: auto; left: 50%; top: calc(84px * var(--u)); translate: -50% 0; width: max-content; max-width: 84%;
   padding: 6px 12px; text-align: center; background: rgba(12, 10, 8, .74); color: #f6ecd0;
   border: 1px solid rgba(255, 210, 63, .55); border-radius: 14px; box-shadow: none; font-size: 13px; transform-origin: 50% 0;
 }
 .kp-comic.say.in-glass::after { display: none; }
-/* MENU: kulaté tlačítko v levém horním rohu skla, daleko od palce (při hře ho nejde omylem stisknout);
+/* MENU: kulaté tlačítko vlevo v pruhu nad sklem, daleko od palce (při hře ho nejde omylem stisknout);
    u otevřeného menu hry není potřeba */
 .kpong.kp-phone .kpong-set {
-  left: calc(146px * var(--u)); top: calc(322px * var(--u)); width: 40px; height: 40px; opacity: .72; animation: none;
+  left: calc(146px * var(--u)); top: calc(var(--my) * var(--u) * 1px); width: 40px; height: 40px; z-index: 5; animation: none;
 }
 .kpong.kp-phone .kpong-set span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .kpong.kp-phone:has(.kpong-panel:not([hidden])) .kpong-set { display: none; }
@@ -1023,8 +1023,8 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kpong.kp-phone .kpong-top { display: none; justify-content: flex-end; z-index: 6; }
 .kpong.kp-phone:has(.kpong-panel:not([hidden])) .kpong-top { display: flex; }
 .kpong.kp-phone .kpong-top .kpong-look { display: none; }
-/* kouř z přehřátých kol: kola nejsou vidět, kouří se od horní hrany skla */
-.kpong.kp-phone .kpong-smoke { top: calc(322px * var(--u)); height: calc(50px * var(--u)); }
+/* kouř z přehřátých kol: stoupá z horního okénka */
+.kpong.kp-phone .kpong-smoke { top: calc(250px * var(--u)); height: calc(60px * var(--u)); z-index: 4; }
 /* odstřel a magnet v pruhu pod sklem, na opačných koncích */
 @media (pointer: coarse) {
   .kpong.kp-phone .kpong-shot { width: 64px; height: 64px; }

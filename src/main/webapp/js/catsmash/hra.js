@@ -107,17 +107,18 @@
       var availW = innerWidth - 16 - (landscape ? topBar.offsetWidth + padW + 24 : 0);
       // skóre a křížek leží přes volné místo nad strojem (vedle Kevina), na výšku tedy nezabírají řádek
       var availH = innerHeight - 16 - (landscape ? 0 : (padH ? padH + 8 : 0)) - (looking ? 96 : 0);   // prohlídka: místo pro „Zpět ke hře“
-      // telefon na výšku: sklo úplně nahoře přes celou šířku, pod ním pruh pro prst se spodním okénkem stroje
-      // (prst pálku ani míček nezakrývá). Kevin stojí ve skle za svou pálkou (viz níž), horní část stroje je mimo.
+      // telefon na výšku: nahoře okénko s koly, na velkém z nich běží Kevin a hýbe svou pálkou; pod ním sklo a dole
+      // spodní okénko s koly, kterým obrazovka končí (rám pod ním není vidět). Okénko je místo pro prst.
       var phone = !landscape && innerWidth <= 600 && !looking;   // při prohlídce celý automat
       var all = { x0: 0, x1: FRAME_W, y0: -110, y1: FRAME_H };    // nad rámem místo pro Kevina
       var cut = { x0: GLASS.x - 62, x1: GLASS.x + GLASS.w + 62, y0: -110, y1: landscape ? 1070 : 1300 };
       root.classList.toggle('kp-phone', phone);
       if (phone) {
         var safeTop = parseFloat(getComputedStyle(root).paddingTop) || 0, screenH = innerHeight - safeTop;
-        var uP = Math.min(innerWidth / (GLASS.w + 2 * PHONE_RIM_X), (screenH - PHONE_FINGER) / (GLASS.h + PHONE_RIM_Y));
-        var midX = GLASS.x + GLASS.w / 2, y0 = GLASS.y - PHONE_RIM_Y;
-        cut = { x0: midX - innerWidth / uP / 2, x1: midX + innerWidth / uP / 2, y0: y0, y1: y0 + screenH / uP };
+        var botWin = MECH ? MECH.bot.win : WIN_BOT, bottomY = botWin[1] + botWin[3] + 4;
+        var uP = Math.min(innerWidth / (GLASS.w + 2 * PHONE_RIM_X), screenH / (PHONE_TOP + GLASS.h + bottomY - (GLASS.y + GLASS.h)));
+        var midX = GLASS.x + GLASS.w / 2, y0 = bottomY - screenH / uP;   // co zbude na výšku, připadne hornímu okénku
+        cut = { x0: midX - innerWidth / uP / 2, x1: midX + innerWidth / uP / 2, y0: y0, y1: bottomY };
         availW = innerWidth; availH = screenH;
         // pruh pod sklem v % okna: tady je tlačítko odstřelu a volitelná plocha pro pálku
         var stripTop = safeTop + (GLASS.y + GLASS.h - y0) * uP;
@@ -128,9 +129,7 @@
       machine.classList.toggle('cut', v === cut);
       machine.classList.toggle('phone', phone);
       phoneView = phone;
-      // Kevin na telefonu pod plátnem hřiště: míček a pálky letí vždycky před ním, nic nezakryje
-      if (phone && kevCanvas.parentNode !== field) field.insertBefore(kevCanvas, court);
-      else if (!phone && kevCanvas.parentNode !== frame) frame.insertBefore(kevCanvas, root.querySelector('.kpong-skin'));
+      phoneTop(phone, v.y0);
       placeShot();
       placeGauge();
       machine.style.width = Math.floor((v.x1 - v.x0) * u) + 'px';
@@ -146,7 +145,7 @@
     }
     var mechEls = [].slice.call(root.querySelectorAll('.kpong-mech')), phoneView = false, looking = false;
     // telefon: kolik obrázkových pixelů rámu nechat kolem skla a kolik px pod sklem nejméně nechat pro prst
-    var PHONE_RIM_X = 14, PHONE_RIM_Y = 8, PHONE_FINGER = 96, strip = { top: 74, h: 20 };
+    var PHONE_RIM_X = 14, PHONE_TOP = 96, PHONE_OVER = 28, strip = { top: 74, h: 20 };
     fit();
     addEventListener('resize', fit);
 
@@ -349,7 +348,7 @@ t    }
         }
         el.style.maxWidth = Math.round(Math.min(room - 16, 300)) + 'px';
       } else if (phoneView && kind === 'say' && panel.hidden) {
-        // telefon při hře: Kevinova bublina ve skle pod ním, ale pod plátnem hřiště – míček letí před ní
+        // telefon při hře: Kevinova bublina ve skle hned pod jeho pálkou, ale pod plátnem hřiště – míček letí před ní
         el.className = 'kp-comic say in-glass';
       } else {
         // telefon: nápis odstřelu v dolním okénku pod sklem; Kevinova bublina nad menu tamtéž (sklo zabírá menu),
@@ -1799,7 +1798,7 @@ t    }
     }
     function mosquito() {
       mosq.done = true;
-      if (phoneView || Math.random() >= MOSQUITO_CHANCE) return;   // telefon: horní hrana stroje, kde se honí, není vidět
+      if (phoneView || Math.random() >= MOSQUITO_CHANCE) return;   // telefon: na honičku po horní hraně stroje není v pruhu místo
       mosq.active = true;
       var M = T.mosquito || {};
       var el = document.createElement('div');
@@ -2320,19 +2319,50 @@ t    }
         w[0] + (d.x0 - def[0]) * kx, w[0] + (d.x1 - def[0]) * kx);
       MECH[k].back = d.back.map(function (g) { return { img: g.img, x: w[0] + (g.x - def[0]) * kx, y: g.y + dy, r: g.r * s, sign: g.sign, a: g.a }; });
     }
-    var winMachine = null;
+    var winMachine = null, phoneTopOn = false;
     function applyWins(id) {
       winMachine = id;
       if (!MECH) return;                                   // (setSkin může běžet dřív, než je mechanika připravená)
-      var mw = id && D.MECH_WIN[id];
-      [['top', WIN_TOP], ['bot', WIN_BOT]].forEach(function (x, n) {
-        var w = mw ? mw[n] : x[1], c = root.querySelector('.kpong-mech[data-win="' + x[0] + '"]');
-        MECH[x[0]].win = w;
-        layoutMech(x[0], w, x[1]);
-        if (c) { c.style.setProperty('--wx', w[0]); c.style.setProperty('--wy', w[1]); c.style.setProperty('--ww', w[2]); c.style.setProperty('--wh', w[3]); }
-      });
+      setWin('top');
+      setWin('bot');
       fit();
       placeGauge();
+    }
+    function winVarsOn(k, w) {
+      var c = root.querySelector('.kpong-mech[data-win="' + k + '"]');
+      if (c) { c.style.setProperty('--wx', w[0]); c.style.setProperty('--wy', w[1]); c.style.setProperty('--ww', w[2]); c.style.setProperty('--wh', w[3]); }
+    }
+    function machineWin(k) {
+      var mw = winMachine && D.MECH_WIN[winMachine];
+      return mw ? mw[k === 'top' ? 0 : 1] : k === 'top' ? WIN_TOP : WIN_BOT;
+    }
+    function setWin(k) {
+      var w = machineWin(k);
+      MECH[k].win = w;
+      layoutMech(k, w, k === 'top' ? WIN_TOP : WIN_BOT);
+      winVarsOn(k, w);
+    }
+    // telefon: horní okénko sahá od horního okraje obrazovky přes horní okraj skla (y0 až GLASS.y + PHONE_OVER), kde se nehraje.
+    // Kola jsou u jeho spodku, prostřední velké je přesně uprostřed: na něm běží Kevin. Točí se proti jeho běhu,
+    // takže vrch kola ujíždí pod nohama. Co okénku přebývá na výšku (vyšší telefon), dostane Kevin.
+    function phoneTop(on, y0) {
+      if (!MECH) return;                                  // (fit() běží dřív, než je mechanika připravená)
+      if (!on) { if (phoneTopOn) { phoneTopOn = false; setWin('top'); } return; }
+      phoneTopOn = true;
+      var base = machineWin('top'), bottom = GLASS.y + PHONE_OVER, w = [base[0], y0, base[2], bottom - y0];
+      var yA = bottom - 8, yB = bottom - 2, mid = GLASS.x + GLASS.w / 2, R = 40;
+      var all = chain(w, [R, 24, R, 30], yA, yB, 0, 1400), shift = mid - all[4].x;
+      var right = w[0] + w[2] - 70;
+      MECH.top.win = w;
+      MECH.top.front = all.map(function (g) { g.x += shift; g.sign = -g.sign; return g; }).filter(function (g) { return g.x > w[0] - g.r && g.x < right; });
+      MECH.top.back = MECH_DEF.top.back.map(function (g) { return { img: g.img, x: g.x, y: g.y + bottom - 270, r: g.r, sign: g.sign, a: g.a }; });
+      winVarsOn('top', w);
+      // Kevin: model zabírá asi 73 % šířky plátna a chodidla má 15 % výšky plátna nad jeho spodkem
+      var feet = yA - R, room = feet - y0 - 4, h = clamp(room, 52, 84), cw = h / 0.73, ch = cw * 180 / 160;
+      root.style.setProperty('--kx', (mid - cw / 2).toFixed(1));
+      root.style.setProperty('--ky', (feet + ch * 0.15 - ch).toFixed(1));
+      root.style.setProperty('--kw', cw.toFixed(1));
+      root.style.setProperty('--my', (y0 + 10).toFixed(1));
     }
     applyWins(winMachine);
     // manometr nabití superútoku sedí přímo na velkém kole vlevo v dolním okénku (druhé v řetězu): stejný střed,
@@ -2360,7 +2390,6 @@ t    }
       mechLast = now;
       mechOdd = !mechOdd;
       mechEls.forEach(function (c) {
-        if (phoneView && c.dataset.win === 'top') return;  // telefon: horní okénko není vidět, nekreslí se
         var m = MECH[c.dataset.win], want = running && !paused ? mechWant[c.dataset.win] : 0;
         if (Math.abs(want) > 1) m.dir = want > 0 ? 1 : -1;
         var target = Math.abs(want) + 9 + (running && rally >= 8 ? Math.min(rally, 30) * 5 : 0);   // 9 px/s = klidné tikání, dlouhá výměna kola roztočí
