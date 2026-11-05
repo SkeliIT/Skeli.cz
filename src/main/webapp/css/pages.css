@@ -2340,6 +2340,20 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
   .chat-list { max-height: calc(100dvh - var(--masthead-h) - var(--header-h) - 40px); }
 }
 
+/* Odznaky za život na webu a aktivita */
+.pt-sitebadges .pt-in, .pt-activity .pt-in { gap: 10px; }
+.pt-sitebadges .pt-show { margin: 0; }
+.pt-activity { --glow: #4ea3ff; }
+.pt-howto, .pt-feed { display: grid; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+.pt-howto li { display: flex; gap: 8px; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); }
+.pt-howto b { font-weight: 500; color: var(--text); }
+.pt-howto i { flex: none; margin-top: 3px; }
+.pt-feed { margin: 0; }
+.pt-feed li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: baseline; gap: 8px; font-family: var(--font-text); font-size: var(--fs-card); }
+.pt-feed i { color: var(--accent); text-align: center; }
+.pt-feed span { overflow-wrap: anywhere; }
+.pt-feed time { color: var(--text-dim); font-size: var(--fs-small); white-space: nowrap; }
+
 /* Vitrína: až 3 odznaky nahoře na profilu; barva podle vzácnosti (stejná jako ve hře) */
 .pt-show { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
 .pt-show-item { --rar: #9aa0a8; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 12px; border: 1px solid var(--rar); border-radius: 999px; background: color-mix(in srgb, var(--rar) 16%, transparent); font-size: var(--fs-small); }

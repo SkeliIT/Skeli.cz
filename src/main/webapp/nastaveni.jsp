@@ -25,7 +25,8 @@
     String[] showcase = { null, null, null, null, "brush" };
     java.util.List<String[]> songChoices = new java.util.ArrayList<>();
     boolean profilePublic = true, coverPublic = true, friendRequests = true;
-    boolean[] sharing = new boolean[7];   // {pár slov o sobě, město, písně se srdcem, přátelé, stav online, moje tvorba, profil i pro nepřihlášené}
+    boolean[] sharing = new boolean[8];   // {pár slov o sobě, město, písně se srdcem, přátelé, stav online, moje tvorba, profil i pro nepřihlášené, aktivita}
+    java.util.Set<String> siteEarned = java.util.Set.of();
     java.util.List<String> shownBadges = java.util.List.of();
     boolean chatOpen = true;
     String coverUrl = null;
@@ -43,6 +44,7 @@
       sharing = users.sharing(uid);
       shownBadges = users.showcaseBadges(uid);
       chatOpen = users.chatOpen(uid);
+      siteEarned = new com.github.skeliit.dao.SiteBadgeDao().sync(uid);
       coverUrl = users.cover(uid);
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
@@ -396,6 +398,11 @@
           <label class="vis-switch"><input type="checkbox" name="web" value="1" aria-labelledby="visWebT"<%= sharing[6] ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
         <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visActivityT"><%= t.getProperty("vis.activity.title") %></b><small><%= t.getProperty("vis.activity.lead") %></small></span>
+          <label class="vis-switch"><input type="checkbox" name="activity" value="1" aria-labelledby="visActivityT"<%= sharing[7] ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
           <span class="vis-ico"><i class="fa-solid fa-eye" aria-hidden="true"></i></span>
           <span class="vis-text"><b id="visOnlineT"><%= t.getProperty("vis.online.title") %></b><small><%= t.getProperty("vis.online.lead") %></small></span>
           <label class="vis-switch"><input type="checkbox" name="online" value="1" aria-labelledby="visOnlineT"<%= sharing[4] ? " checked" : "" %>><span aria-hidden="true"></span></label>
@@ -404,13 +411,16 @@
         <li class="vis-row vis-pick">
           <span class="vis-ico"><i class="fa-solid fa-medal" aria-hidden="true"></i></span>
           <span class="vis-text"><b><%= t.getProperty("vis.showcase.title") %></b><small><%= t.getProperty("vis.showcase.lead") %></small></span>
-          <% if (pong.earnedCount() == 0) { %>
+          <% if (pong.earnedCount() == 0 && siteEarned.isEmpty()) { %>
           <small class="vis-empty"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= t.getProperty("vis.showcase.empty") %></small>
           <% } else { %>
           <div class="vis-show-picks">
             <% for (int slot = 0; slot < 3; slot++) { String chosen = slot < shownBadges.size() ? shownBadges.get(slot) : ""; %>
             <select name="b<%= slot + 1 %>" aria-label="<%= t.getProperty("vis.showcase.title") %> <%= slot + 1 %>">
               <option value=""><%= t.getProperty("vis.showcase.none") %></option>
+              <% for (String siteKey : siteEarned) { %>
+              <option value="<%= siteKey %>"<%= siteKey.equals(chosen) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("site.badge." + siteKey)) %></option>
+              <% } %>
               <% for (PongProfile.Badge b : pong.badges) { if (!b.earned) continue; %>
               <option value="<%= b.key %>"<%= b.key.equals(chosen) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("pong.badge." + b.key)) %></option>
               <% } %>

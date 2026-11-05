@@ -29,6 +29,8 @@
     boolean profilePublic = true;
     java.util.List<String> shownBadges = java.util.List.of();
     java.util.List<com.github.skeliit.model.UserTrack> myTracks = java.util.List.of();
+    java.util.Set<String> siteEarned = java.util.Set.of();
+    java.util.List<com.github.skeliit.model.ActivityItem> activityList = java.util.List.of();
     String frQuery = request.getParameter("fq");
     if (frQuery != null) frQuery = frQuery.strip();
     try {
@@ -47,6 +49,8 @@
       profilePublic = users.profilePublic(uid);
       shownBadges = users.showcaseBadges(uid);
       myTracks = new com.github.skeliit.dao.UserTrackDao().list(uid, true);   // i skryté adminem: majitel musí vidět proč
+      siteEarned = new com.github.skeliit.dao.SiteBadgeDao().sync(uid);       // odznaky za život na webu (před aktivitou: nově získaný v ní hned je)
+      activityList = new com.github.skeliit.dao.ActivityDao().recent(uid, false, 8);
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
       showcase = new com.github.skeliit.dao.UserDao().showcase(uid);   // oblíbený song a moto
@@ -105,9 +109,12 @@
           <% if (showcase[2] != null) { %><p class="acct-motto motto-<%= showcase[4] %>">„<%= WebUtils.escapeHtml(showcase[2]) %>“</p><% } %>
         </div>
       </div>
-      <% PongProfile showPong = pong; %>
+      <%
+        java.util.Set<String> shownEarned = new java.util.HashSet<>(siteEarned);
+        for (PongProfile.Badge earnedBadge : pong.badges) if (earnedBadge.earned) shownEarned.add(earnedBadge.key);
+      %>
       <%@ include file="includes/profile-showcase.jspf" %>
-      <% if (!anyShown && pong.earnedCount() > 0) { %><a class="pt-show-add" href="/nastaveni.jsp#soukromi"><i class="fa-solid fa-medal" aria-hidden="true"></i> <%= t.getProperty("profile.showcase.pick") %></a><% } %>
+      <% if (!anyShown && !shownEarned.isEmpty()) { %><a class="pt-show-add" href="/nastaveni.jsp#soukromi"><i class="fa-solid fa-medal" aria-hidden="true"></i> <%= t.getProperty("profile.showcase.pick") %></a><% } %>
       <% if (bio != null && !bio.isBlank()) { %><p class="acct-bio"><%= WebUtils.escapeHtml(bio) %></p><% } %>
     </div>
   </section>
@@ -179,6 +186,9 @@
   <%@ include file="includes/profile-tracks.jspf" %>
   <% String likesTitle = "profile.likes.title"; boolean likesOwn = true; %>
   <%@ include file="includes/profile-likes.jspf" %>
+  <% boolean siteOwn = true; %>
+  <%@ include file="includes/profile-sitebadges.jspf" %>
+  <%@ include file="includes/profile-activity.jspf" %>
   <% if (myTracks.isEmpty()) { %><a class="pt-show-add pt-tracks-invite" href="/nastaveni.jsp#tvorba"><i class="fa-solid fa-music" aria-hidden="true"></i> <%= t.getProperty("profile.tracks.invite") %></a><% } %>
 
   </div>

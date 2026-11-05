@@ -1,0 +1,24 @@
+<%-- Aktivita na profilu. Předem nastavit activityList (List<ActivityItem>). Vkládaná šablona se nečte jako UTF-8: žádné české znaky přímo ve výstupu. --%>
+<% if (!activityList.isEmpty()) { %>
+<section class="pt pt-activity" id="aktivita">
+  <div class="pt-in">
+    <span class="pt-label"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> <%= t.getProperty("activity.title") %></span>
+    <ul class="pt-feed">
+      <% java.text.DateFormat activityDate = java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, java.util.Locale.forLanguageTag(cur));
+         for (com.github.skeliit.model.ActivityItem a : activityList) {
+           String arg = a.arg == null ? "" : a.arg;
+           String icon = "fa-comments";
+           if ("badge".equals(a.kind)) { icon = com.github.skeliit.model.SiteBadges.icon(arg); arg = t.getProperty(com.github.skeliit.model.SiteBadges.nameKey(arg), arg); }
+           else if ("win".equals(a.kind)) { icon = "fa-trophy"; int stars; try { stars = Integer.parseInt(arg); } catch (NumberFormatException e) { stars = 1; } arg = "★".repeat(Math.max(1, Math.min(3, stars))); }
+           else if ("track".equals(a.kind)) icon = "fa-music";
+           else if ("friend".equals(a.kind)) icon = "fa-user-group"; %>
+      <li>
+        <i class="fa-solid <%= icon %>" aria-hidden="true"></i>
+        <span><%= WebUtils.escapeHtml(t.getProperty("activity." + a.kind, "").replace("{0}", arg)) %></span>
+        <time><%= activityDate.format(a.at) %></time>
+      </li>
+      <% } %>
+    </ul>
+  </div>
+</section>
+<% } %>

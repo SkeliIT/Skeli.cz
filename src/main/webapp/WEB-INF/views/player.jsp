@@ -52,7 +52,11 @@
         @SuppressWarnings("unchecked")
         java.util.List<String> shownBadges = (java.util.List<String>) request.getAttribute("playerShownBadges");
         if (shownBadges == null) shownBadges = java.util.List.of();
-        PongProfile showPong = pp;
+        @SuppressWarnings("unchecked")
+        java.util.Set<String> siteEarned = (java.util.Set<String>) request.getAttribute("playerSiteEarned");
+        if (siteEarned == null) siteEarned = java.util.Set.of();
+        java.util.Set<String> shownEarned = new java.util.HashSet<>(siteEarned);
+        for (PongProfile.Badge earnedBadge : pp.badges) if (earnedBadge.earned) shownEarned.add(earnedBadge.key);
       %>
       <%@ include file="/includes/profile-showcase.jspf" %>
       <% String plBio = (String) request.getAttribute("playerBio"); if (plBio != null && !plBio.isBlank()) { %><p class="acct-bio"><%= WebUtils.escapeHtml(plBio) %></p><% } %>
@@ -124,6 +128,14 @@
     boolean likesOwn = false;
   %>
   <%@ include file="/includes/profile-likes.jspf" %>
+  <%
+    boolean siteOwn = false;
+    @SuppressWarnings("unchecked")
+    java.util.List<com.github.skeliit.model.ActivityItem> activityList = (java.util.List<com.github.skeliit.model.ActivityItem>) request.getAttribute("playerActivity");
+    if (activityList == null) activityList = java.util.List.of();
+  %>
+  <%@ include file="/includes/profile-sitebadges.jspf" %>
+  <%@ include file="/includes/profile-activity.jspf" %>
   <%
     @SuppressWarnings("unchecked")
     java.util.List<com.github.skeliit.model.Friend> plFriends = (java.util.List<com.github.skeliit.model.Friend>) request.getAttribute("playerFriends");

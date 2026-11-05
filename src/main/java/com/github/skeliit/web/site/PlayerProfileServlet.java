@@ -103,6 +103,8 @@ public class PlayerProfileServlet extends HttpServlet {
             if (sharing[3]) req.setAttribute("playerFriends", new com.github.skeliit.dao.FriendDao().friendsShownTo(id, me));
             req.setAttribute("playerOnline", sharing[4] && com.github.skeliit.service.OnlineUsers.isOnline(id));
             req.setAttribute("playerShownBadges", users.showcaseBadges(id));
+            req.setAttribute("playerSiteEarned", new com.github.skeliit.dao.SiteBadgeDao().sync(id));
+            if (sharing[7]) req.setAttribute("playerActivity", new com.github.skeliit.dao.ActivityDao().recent(id, true, 8));
             // skladby: ostatní jen když je majitel ukazuje; admin vždy a i skryté, kvůli nahlášením
             boolean admin = "ADMIN".equals(s.getAttribute("role"));
             if (sharing[5] || admin) req.setAttribute("playerTracks", new com.github.skeliit.dao.UserTrackDao().list(id, admin));

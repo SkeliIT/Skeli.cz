@@ -1,0 +1,25 @@
+<%-- Odznaky za život na webu. Předem nastavit siteEarned (Set<String>) a siteOwn (můj profil = i jak získat další).
+     Vkládaná šablona se nečte jako UTF-8: žádné české znaky přímo ve výstupu. --%>
+<% if (siteOwn || !siteEarned.isEmpty()) { %>
+<section class="pt pt-sitebadges" id="odznaky-webu">
+  <div class="pt-in">
+    <span class="pt-label"><i class="fa-solid fa-medal" aria-hidden="true"></i> <%= t.getProperty("site.badges.title") %></span>
+    <% if (!siteEarned.isEmpty()) { %>
+    <ul class="pt-show">
+      <% for (String key : siteEarned) { %>
+      <li class="pt-show-item" data-rar="<%= com.github.skeliit.model.SiteBadges.rarity(key) %>" title="<%= WebUtils.escapeHtml(t.getProperty("site.badge." + key + ".how")) %>"><i class="fa-solid <%= com.github.skeliit.model.SiteBadges.icon(key) %>" aria-hidden="true"></i> <span><%= t.getProperty("site.badge." + key) %></span></li>
+      <% } %>
+    </ul>
+    <% } %>
+    <% if (siteOwn && siteEarned.size() < com.github.skeliit.model.SiteBadges.ALL.size()) { %>
+    <details class="acct-more"><summary><%= t.getProperty("site.badges.more").replace("{0}", String.valueOf(com.github.skeliit.model.SiteBadges.ALL.size() - siteEarned.size())) %></summary>
+      <ul class="pt-howto">
+        <% for (String key : com.github.skeliit.model.SiteBadges.ALL.keySet()) { if (siteEarned.contains(key)) continue; %>
+        <li><i class="fa-solid fa-lock" aria-hidden="true"></i> <span><b><%= t.getProperty("site.badge." + key) %></b> <%= t.getProperty("site.badge." + key + ".how") %></span></li>
+        <% } %>
+      </ul>
+    </details>
+    <% } %>
+  </div>
+</section>
+<% } %>

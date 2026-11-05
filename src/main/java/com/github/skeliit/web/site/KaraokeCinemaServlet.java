@@ -76,6 +76,15 @@ public class KaraokeCinemaServlet extends HttpServlet {
         com.github.skeliit.service.VisitStats.countPlay(req, "karaoke", uuid);   // the admin's "what is played most"
         req.setAttribute("kinoJson", json);
         req.setAttribute("kinoTitle", title.title);
+        // odznak „Na pódiu“: přihlášený otevřel karaoke kino
+        jakarta.servlet.http.HttpSession visitor = req.getSession(false);
+        if (visitor != null && visitor.getAttribute("user_id") instanceof Integer me) {
+            try {
+                new com.github.skeliit.dao.SiteBadgeDao().award(me, "s_karaoke");
+            } catch (java.sql.SQLException e) {
+                req.getServletContext().log("Odznak karaoke", e);   // kvůli odznaku se kino nesmí rozbít
+            }
+        }
         req.getRequestDispatcher("/WEB-INF/views/kino.jsp").forward(req, resp);
     }
 

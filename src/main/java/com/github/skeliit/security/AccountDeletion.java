@@ -66,6 +66,7 @@ public final class AccountDeletion {
             run(c, "DELETE FROM user_reports WHERE reporter_id = ? OR reported_id = ?", userId, userId);
             run(c, "DELETE FROM friendships WHERE user_a = ? OR user_b = ?", userId, userId);
             run(c, "DELETE FROM user_blocks WHERE blocker_id = ? OR blocked_id = ?", userId, userId);
+            run(c, "DELETE FROM site_badges WHERE user_id = ?", userId);
             run(c, "DELETE FROM user_tracks WHERE user_id = ?", userId);
             run(c, "DELETE FROM chat_reports WHERE reporter_id = ? OR sender_id = ?", userId, userId);
             run(c, "DELETE FROM chat_hidden WHERE user_id = ? OR other_id = ?", userId, userId);

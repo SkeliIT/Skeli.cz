@@ -42,13 +42,14 @@ public class ProfileVisibilityServlet extends HttpServlet {
                 new UserDao().setCoverPublic(me, "1".equals(req.getParameter("cover")));
                 new UserDao().setFriendRequests(me, "1".equals(req.getParameter("friends")));
                 new UserDao().setSharing(me, "1".equals(req.getParameter("about")), "1".equals(req.getParameter("city")), "1".equals(req.getParameter("likes")),
-                        "1".equals(req.getParameter("friendsPublic")), "1".equals(req.getParameter("online")), "1".equals(req.getParameter("tracks")), "1".equals(req.getParameter("web")));
+                        "1".equals(req.getParameter("friendsPublic")), "1".equals(req.getParameter("online")), "1".equals(req.getParameter("tracks")), "1".equals(req.getParameter("web")), "1".equals(req.getParameter("activity")));
                 new UserDao().setChatOpen(me, "1".equals(req.getParameter("chat")));
                 // vitrína: jen získané odznaky, každý jednou, nejvýš tři
                 java.util.Set<String> shown = new java.util.LinkedHashSet<>();
+                java.util.Set<String> siteEarned = new com.github.skeliit.dao.SiteBadgeDao().sync(me);
                 for (String slot : new String[] { "b1", "b2", "b3" }) {
                     String key = req.getParameter(slot);
-                    if (key != null && earned.contains(key)) shown.add(key);
+                    if (key != null && (earned.contains(key) || siteEarned.contains(key))) shown.add(key);
                 }
                 if (req.getParameter("b1") != null) new UserDao().setShowcaseBadges(me, java.util.List.copyOf(shown));
                 pong.setChampOn(me, "1".equals(req.getParameter("champ")));
