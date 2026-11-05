@@ -117,7 +117,56 @@ body.light .main-nav a:hover { background: rgba(0, 0, 0, 0.05); }
 /* the current page is a filled gold pill */
 .main-nav a.active { opacity: 1; color: var(--accent-ink); background: var(--accent); }
 .main-nav a.active:hover { background: var(--accent); }
-.main-nav .nav-donate, .main-nav .nav-game { display: none; }
+/* položka s rozbalovací nabídkou */
+.nav-group { position: relative; display: flex; }
+.nav-group-title { display: none; }
+.nav-group-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 12px 8px 15px; border: 0; border-radius: 999px; background: transparent; color: var(--text);
+  font: inherit; font-size: 0.86rem; letter-spacing: 0.03em; white-space: nowrap; opacity: 0.8; cursor: pointer;
+  transition: opacity .2s, color .2s, background-color .2s;
+}
+.nav-group-btn:hover, .nav-group.open > .nav-group-btn { opacity: 1; background: rgba(255, 255, 255, 0.06); }
+body.light .nav-group-btn:hover, body.light .nav-group.open > .nav-group-btn { background: rgba(0, 0, 0, 0.05); }
+.nav-group.has-active > .nav-group-btn { opacity: 1; color: var(--accent-ink); background: var(--accent); }
+.nav-chev { font-size: .62em; transition: transform .2s; }
+.nav-group.open .nav-chev { transform: rotate(180deg); }
+.nav-sub {
+  display: none; position: absolute; top: calc(100% + 11px); left: 0; z-index: 1100;
+  gap: 2px; min-width: 260px; padding: 8px; border: 1px solid var(--panel-border); border-radius: 16px;
+  background: var(--panel-strong); box-shadow: var(--shadow);
+}
+.nav-sub::before { content: ""; position: absolute; left: 0; right: 0; top: -13px; height: 13px; }   /* myš nesmí mezerou nabídku zavřít */
+.nav-group.open > .nav-sub { display: grid; }
+@media (hover: hover) and (min-width: 1025px) {
+  .nav-group:hover:not(.just-used) > .nav-sub { display: grid; }
+  .nav-group:hover:not(.just-used) .nav-chev { transform: rotate(180deg); }
+}
+.main-nav .nav-sub a, .nav-soon { display: block; padding: 9px 12px; border-radius: 10px; white-space: normal; opacity: 1; }
+.main-nav .nav-sub a.active { color: var(--accent); background: var(--accent-soft); }
+.nav-sub-t { display: block; font-size: 0.82rem; }
+.nav-sub small { display: block; margin-top: 2px; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); letter-spacing: 0; }
+.nav-soon { opacity: .55; cursor: default; }
+.nav-soon em, .nav-sub .nav-badge {
+  display: inline-block; margin-left: 6px; padding: 0 7px; border: 1px solid var(--accent); border-radius: 999px;
+  color: var(--accent); font: 500 var(--fs-small)/1.5 var(--font-text); letter-spacing: 0; vertical-align: 1px;
+}
+.nav-sub .nav-badge i { display: none; }
+/* kolečko Vzhled a zvuk */
+.view-menu { position: relative; }
+.view-dropdown {
+  display: none; position: absolute; right: 0; top: calc(100% + 8px); z-index: 1100; min-width: 220px; padding: 6px;
+  border: 1px solid var(--panel-border); border-radius: 14px; background: var(--panel-strong); box-shadow: var(--shadow);
+}
+.view-menu.open .view-dropdown { display: grid; gap: 2px; }
+.view-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 6px 12px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--text); font: inherit; font-size: var(--fs-card); text-align: left; cursor: pointer;
+}
+.view-row:hover { background: rgba(255, 255, 255, 0.06); }
+body.light .view-row:hover { background: rgba(0, 0, 0, 0.05); }
+.view-row.active { color: var(--accent); }
+.view-row i { width: 18px; text-align: center; color: var(--accent); }
 
 .top-controls {
   display: flex;
@@ -127,9 +176,9 @@ body.light .main-nav a:hover { background: rgba(0, 0, 0, 0.05); }
 }
 /* inside the pill the round buttons need no frame of their own */
 .top-controls > .icon-btn,
-.top-controls > .lang-switch > .icon-btn:not([data-lang]),
-.top-controls > .donate-link { border-color: transparent; background: transparent; }
-body.light .top-controls > .icon-btn { background: transparent; }
+.top-controls > .view-menu > .icon-btn,
+.top-controls > .lang-switch > .icon-btn:not([data-lang]) { border-color: transparent; background: transparent; }
+body.light .top-controls > .icon-btn, body.light .top-controls > .view-menu > .icon-btn { background: transparent; }
 
 /* Round icon buttons in the header */
 .icon-btn {
@@ -151,7 +200,6 @@ body.light .top-controls > .icon-btn { background: transparent; }
 .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 body.light .icon-btn { background: rgba(255, 255, 255, 0.6); }
 
-.donate-link,
 .auth-link {
   display: inline-flex;
   align-items: center;
@@ -165,8 +213,7 @@ body.light .icon-btn { background: rgba(255, 255, 255, 0.6); }
   white-space: nowrap;
   transition: color .2s, background-color .2s, border-color .2s;
 }
-.donate-link:hover, .auth-link:hover { text-decoration: none; color: var(--accent); }
-.donate-link i { color: var(--red); }
+.auth-link:hover { text-decoration: none; color: var(--accent); }
 .auth-link.auth-primary { background: var(--accent); color: var(--accent-ink); }
 .auth-link.auth-primary:hover { color: var(--accent-ink); filter: brightness(1.08); }
 
@@ -274,19 +321,17 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
 /* Header: longer words (German, Vietnamese) need tighter spacing before the labels go */
 @media (max-width: 1440px) {
   .header-inner { gap: 12px; }
-  .main-nav a { padding: 8px 8px; }
+  .main-nav a, .nav-group-btn { padding: 8px 8px; }
 }
 /* six menu items (Karaoke) in German still fit under the sign on a small laptop */
 @media (max-width: 1180px) {
   .header-inner { gap: 10px; }
-  .main-nav a { padding: 8px 6px; font-size: 0.8rem; letter-spacing: 0.01em; }
+  .main-nav a, .nav-group-btn { padding: 8px 6px; font-size: 0.8rem; letter-spacing: 0.01em; }
 }
 
-/* Header: donate and login are round icons (their label is in title) so the menu
-   can stay centred under the big sign; Register keeps its label a while longer */
-.donate-link span, .auth-link:not(.auth-primary) span { display: none; }
-.donate-link, .auth-link:not(.auth-primary) { width: 36px; padding: 0; justify-content: center; }
-.donate-link { border: 1px solid var(--panel-border); }
+/* Hlavička: přihlášení je kulatá ikona (nápis v title), aby menu zůstalo uprostřed pod velkým logem */
+.auth-link:not(.auth-primary) span { display: none; }
+.auth-link:not(.auth-primary) { width: 36px; padding: 0; justify-content: center; }
 @media (max-width: 1280px) {
   .auth-link span { display: none; }
   .auth-link { width: 36px; padding: 0; justify-content: center; }
@@ -338,7 +383,6 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   }
   .menu-toggle[aria-expanded="true"] { background: var(--panel-strong); color: var(--text); border: 1px solid var(--accent); }
   .site-header .brand .squad-mark { height: 38px; }
-  .donate-link { display: none; }
 
   /* opened from Menu: a sheet under the bar */
   .main-nav {
@@ -365,8 +409,6 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav.open { display: flex; }
   .main-nav a { padding: 12px 14px; font-size: 0.95rem; border-radius: 10px; }
   .main-nav a.active { background: var(--accent-soft); color: var(--accent); }
-  .main-nav .nav-donate, .main-nav .nav-game { display: block; }
-  .main-nav .nav-donate i { color: var(--red); }
 }
 
 .nav-settings { display: none; }
@@ -417,50 +459,48 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
 /* Mobilní menu jako dlaždice: stránky ve dvou sloupcích s ikonkou, Podpoř přes celou šířku, nastavení
    na jednom řádku (B, režim | jazyky jako přepínač), účet jako dvě tlačítka vedle sebe */
 @media (max-width: 1024px) {
-  .main-nav.open { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; align-content: start; }
-  .main-nav > a {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    min-height: 78px;
-    padding: 14px;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--panel-border);
-    font-size: var(--fs-card);
-    line-height: 1.2;
-    opacity: 1;
+  .main-nav.open { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 8px; padding: 12px; align-content: start; }
+  /* Domů a Aktuality nahoře vedle sebe, pak skupiny, pak nastavení a účet */
+  .main-nav > .nav-top {
+    display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 8px;
+    border-radius: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--panel-border);
+    font-size: var(--fs-card); line-height: 1.2; opacity: 1;
   }
-  body.light .main-nav > a { background: rgba(0, 0, 0, 0.03); }
-  .main-nav > a .nav-ico { display: block; font-size: 1.15rem; color: var(--accent); opacity: .9; }
-  .main-nav > a.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-  .main-nav > .nav-donate, .main-nav > .nav-game {
-    grid-column: 1 / -1;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-    padding: 12px 14px;
+  body.light .main-nav > .nav-top { background: rgba(0, 0, 0, 0.03); }
+  .main-nav > .nav-top.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .main-nav .nav-ico { display: block; font-size: 1.05rem; color: var(--accent); opacity: .9; }
+  .main-nav > .nav-group { order: 1; grid-column: 1 / -1; display: block; }
+  .main-nav > .nav-settings { order: 2; }
+  .main-nav > .nav-account { order: 3; }
+  .nav-group-btn { display: none; }
+  .nav-group-title { display: block; margin: 0 0 6px 2px; color: var(--text-dim); font-size: var(--fs-small); letter-spacing: .06em; text-transform: uppercase; }
+  .nav-sub, .nav-group.open > .nav-sub {
+    position: static; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px;
+    min-width: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none;
   }
-  .main-nav > .nav-donate i { color: var(--red); }
-  /* karaoke: zlatavá dlaždice, okrajem pomalu přejede odlesk, štítek „pro členy“ vpravo nahoře */
-  .main-nav > a.nav-karaoke {
+  .nav-sub::before { display: none; }
+  .main-nav .nav-sub a, .nav-soon {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: 68px; padding: 8px 4px;
+    border-radius: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--panel-border);
+    font-size: var(--fs-small); line-height: 1.15; text-align: center;
+  }
+  body.light .main-nav .nav-sub a, body.light .nav-soon { background: rgba(0, 0, 0, 0.03); }
+  .main-nav .nav-sub a.active { border-color: var(--accent); }
+  .nav-sub small { display: none; }
+  .nav-sub-t { font-size: var(--fs-small); }
+  .nav-soon em { display: block; width: fit-content; margin: 3px auto 0; padding: 0 5px; }
+  /* karaoke: zlatavá dlaždice, okrajem pomalu přejede odlesk, u nepřihlášeného hvězdička „pro členy“ */
+  .main-nav .nav-sub a.nav-karaoke {
     position: relative; overflow: hidden;
     border-color: rgba(230, 183, 48, .55);
     background: linear-gradient(135deg, rgba(230, 183, 48, .16), rgba(230, 183, 48, .03) 60%);
   }
-  .main-nav > a.nav-karaoke::after {
+  .main-nav .nav-sub a.nav-karaoke::after {
     content: ""; position: absolute; inset: 0; pointer-events: none;
     background: linear-gradient(115deg, transparent 35%, rgba(255, 236, 170, .22) 50%, transparent 65%) -100% 0 / 220% 100% no-repeat;
     animation: nav-shine 5s ease-in-out infinite;
   }
-  .main-nav > a.nav-karaoke .nav-badge {
-    position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 8px; border-radius: 999px; font-size: var(--fs-small); line-height: 1.6;
-    background: var(--accent); color: var(--accent-ink);
-  }
-  .main-nav > a.nav-karaoke .nav-badge i { font-size: .65em; }
+  .nav-sub .nav-badge { display: block; width: fit-content; margin: 3px auto 0; padding: 0 5px; border-color: transparent; background: var(--accent); color: var(--accent-ink); }
   .main-nav .nav-settings {
     grid-column: 1 / -1;
     display: flex;
@@ -533,24 +573,12 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   :root { --header-h: 52px; }
   .site-header .brand .squad-mark { height: 30px; }
   .menu-toggle { padding: 8px 14px; }
-  .main-nav.open {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-auto-flow: row dense;
-    align-content: start;
-    column-gap: 18px;
-    left: auto;
-    width: min(620px, calc(100vw - 24px));
-  }
-  .main-nav > a { grid-column: 1; padding: 7px 14px; min-height: 0; flex-direction: row; align-items: center; }
-  .main-nav > .nav-donate, .main-nav > .nav-game { grid-column: 1; justify-content: flex-start; }
-  .main-nav .nav-account { grid-template-columns: 1fr 1fr; align-content: start; align-self: start; }
-  .main-nav .nav-settings { align-self: start; }
+  .main-nav.open { column-gap: 14px; left: 12px; right: 12px; }
+  .main-nav > .nav-top { min-height: 40px; }
+  .main-nav > .nav-group { grid-column: auto; }
+  .main-nav .nav-sub a, .nav-soon { min-height: 52px; padding: 4px; }
   .main-nav .nav-account > a, .main-nav .nav-account > .nav-notif, .main-nav .nav-account .logout-form button { min-height: 40px; }
-  .main-nav .nav-settings,
-  .main-nav .nav-account { grid-column: 2; margin-top: 0; border-top: 0; }
-  .main-nav .nav-settings { grid-row: 1; align-content: flex-start; padding-top: 4px; }
-  .main-nav .nav-account { grid-row: 2 / span 2; padding-top: 0; }
+  .main-nav .nav-account { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 /* ---------- Buttons ---------- */
@@ -1063,13 +1091,6 @@ body.light .card-gold {
 .av-frame.f-champ1 { box-shadow: 0 0 .3em rgba(255, 210, 63, .45); }
 .cmt-reply .av-frame { font-size: 30px; }
 @keyframes nav-shine { 0%, 55% { background-position: -100% 0; } 85%, 100% { background-position: 200% 0; } }
-/* karaoke v liště na počítači: jen malá zlatá hvězdička (štítek s textem by menu nevešel) */
-@media (min-width: 1025px) {
-  .main-nav a.nav-karaoke { position: relative; }
-  .main-nav a.nav-karaoke .nav-badge { position: absolute; top: 2px; right: 0; font-size: .55rem; color: var(--accent); line-height: 1; }
-  .main-nav a.nav-karaoke .nav-badge span { display: none; }
-}
-
 /* legendární znak u jména (CatSmash, odznaky za nejtěžší obtížnost) – jen když si ho autor zapnul */
 .cmt-mark { margin-left: 4px; font-size: .85em; color: var(--accent); filter: drop-shadow(0 0 4px rgba(230, 183, 48, .55)); vertical-align: baseline; }
 body.light .cmt-mark { color: #8f6600; filter: none; }

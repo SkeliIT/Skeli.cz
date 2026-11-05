@@ -1413,4 +1413,4 @@ html.low-fx .hero-title .logo-mark, html.low-fx .hero-title .logo-mark::after,
 html.low-fx .masthead-brand .squad-mark, html.low-fx .masthead-brand .squad-mark::after,
 html.low-fx .tape-gold, html.low-fx .tape-gold::after,
 html.low-fx .hero-quote.is-burnt .qc, html.low-fx .eq i, html.low-fx .page-hero-title, html.low-fx .lyric-page .lyric-title,
-html.low-fx .main-nav > a.nav-karaoke::after { animation: none !important; will-change: auto !important; }
+html.low-fx .main-nav .nav-sub a.nav-karaoke::after { animation: none !important; will-change: auto !important; }

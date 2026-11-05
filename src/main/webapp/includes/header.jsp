@@ -178,15 +178,43 @@
             <a href="<%= ctx %>/index.jsp" class="brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
 
             <nav id="mainNav" class="main-nav">
-              <a href="<%= ctx %>/index.jsp"><i class="fa-solid fa-house nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.home","Home") %></a>
-              <a href="<%= ctx %>/aktuality.jsp"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.news") %></a>
-              <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.music","Music") %></a>
-              <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.lyrics","Lyrics") %></a>
-              <%-- karaoke je jen pro přihlášené: v menu jemně odlišené, nepřihlášený vidí štítek „pro členy“ (láká k registraci) --%>
-              <a href="<%= ctx %>/karaoke-kino" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><i class="fa-solid fa-star" aria-hidden="true"></i><span><%= t.getProperty("menu.membersOnly") %></span></span><% } %></a>
-              <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.about","About") %></a>
-              <a href="<%= ctx %>/?kevin=pong" class="nav-game" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.game") %></a>
-              <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
+              <%-- Menu podle účelu. Počítač: položky se šipkou rozbalí nabídku. Telefon: všechno najednou jako dlaždice pod nadpisy. --%>
+              <a href="<%= ctx %>/index.jsp" class="nav-top"><i class="fa-solid fa-house nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.home") %></a>
+              <div class="nav-group">
+                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubMusic"><span><%= t.getProperty("menu.music") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
+                <span class="nav-group-title"><%= t.getProperty("menu.music") %></span>
+                <div class="nav-sub" id="navSubMusic">
+                  <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.discography") %></span><small><%= t.getProperty("menu.d.discography") %></small></a>
+                  <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.lyrics") %></span><small><%= t.getProperty("menu.d.lyrics") %></small></a>
+                  <a href="<%= ctx %>/karaoke-kino" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><i class="fa-solid fa-star" aria-hidden="true"></i><span><%= t.getProperty("menu.membersOnly") %></span></span><% } %></span><small><%= t.getProperty("menu.d.karaoke") %></small></a>
+                </div>
+              </div>
+              <a href="<%= ctx %>/aktuality.jsp" class="nav-top"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.news") %></a>
+              <div class="nav-group">
+                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubCommunity"><span><%= t.getProperty("menu.community") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
+                <span class="nav-group-title"><%= t.getProperty("menu.community") %></span>
+                <div class="nav-sub" id="navSubCommunity">
+                  <span class="nav-soon"><i class="fa-solid fa-table-cells nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.wall") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.wall") %></small></span>
+                  <span class="nav-soon"><i class="fa-solid fa-users nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.people") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.people") %></small></span>
+                  <span class="nav-soon"><i class="fa-solid fa-trophy nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.chart") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.chart") %></small></span>
+                </div>
+              </div>
+              <div class="nav-group">
+                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubGames"><span><%= t.getProperty("menu.games") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
+                <span class="nav-group-title"><%= t.getProperty("menu.games") %></span>
+                <div class="nav-sub" id="navSubGames">
+                  <a href="<%= ctx %>/?kevin=pong" class="nav-game" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.catsmash") %></span><small><%= t.getProperty("menu.d.game") %></small></a>
+                </div>
+              </div>
+              <div class="nav-group">
+                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubAbout"><span><%= t.getProperty("menu.about") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
+                <span class="nav-group-title"><%= t.getProperty("menu.about") %></span>
+                <div class="nav-sub" id="navSubAbout">
+                  <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.about") %></span><small><%= t.getProperty("menu.d.about") %></small></a>
+                  <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("btn.donate") %></span><small><%= t.getProperty("menu.d.donate") %></small></a>
+                  <span class="nav-soon"><i class="fa-solid fa-shirt nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.shop") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.shop") %></small></span>
+                </div>
+              </div>
               <%-- phones and tablets: the display controls, language and account live in the menu --%>
               <div class="nav-settings">
                 <button type="button" class="icon-btn" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold"></i></button>
@@ -215,16 +243,15 @@
             </nav>
 
             <div class="top-controls">
-              <a href="<%= ctx %>/donate.jsp" class="donate-link" title="<%= t.getProperty("btn.donate") %>">
-                <i class="fa-solid fa-heart"></i>
-                <span><%= t.getProperty("btn.donate") %></span>
-              </a>
-              <button id="fontToggle" type="button" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>" class="icon-btn bold-btn">
-                <i class="fa-solid fa-bold"></i>
-              </button>
-              <button id="themeToggle" type="button" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>" class="icon-btn">
-                <i class="fa-solid fa-circle-half-stroke"></i>
-              </button>
+              <%-- vzhled a zvuk: tři přepínače pod jedním kolečkem, ať je hlavička lehčí; jazyk zůstává vidět, lidi ho hledají --%>
+              <div class="view-menu">
+                <button type="button" class="icon-btn view-btn" aria-expanded="false" aria-controls="viewDropdown" title="<%= t.getProperty("header.view") %>" aria-label="<%= t.getProperty("header.view") %>"><i class="fa-solid fa-sliders" aria-hidden="true"></i></button>
+                <div class="view-dropdown" id="viewDropdown">
+                  <button id="fontToggle" type="button" class="view-row bold-btn" title="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold" aria-hidden="true"></i><span><%= t.getProperty("header.fontWeight") %></span></button>
+                  <button id="themeToggle" type="button" class="view-row" title="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span><%= t.getProperty("header.theme") %></span></button>
+                  <% if (currentUser != null) { %><button type="button" class="view-row" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i><span><%= t.getProperty("sound.off") %></span></button><% } %>
+                </div>
+              </div>
               <div class="lang-switch">
                 <button type="button" class="lang-btn icon-btn" data-lang="<%= cur %>" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>">
                   <span class="lang-code"><%= com.github.skeliit.I18n.label(cur) %></span>
@@ -259,7 +286,6 @@
               <% } else { %>
                 <script>try { localStorage.setItem('knownUser', '1'); } catch (e) { /* nevadí */ }</script>
                 <%-- the bell: replies to your comments, hearts from Skeli (js/notifications.js) --%>
-                <button type="button" class="icon-btn" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>" title="<%= t.getProperty("sound.off") %>" aria-label="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
                 <button type="button" class="icon-btn notif-btn" data-notif-open aria-haspopup="dialog" aria-controls="notifPanel"
                         title="<%= t.getProperty("notif.title") %>" aria-label="<%= t.getProperty("notif.title") %>">
                   <i class="fa-regular fa-bell"></i><span class="notif-badge" hidden></span>
@@ -414,6 +440,34 @@
               menuToggle.querySelector('i').classList.toggle('fa-xmark', open);
             }
 
+            // Rozbalovací nabídky menu a kolečko Vzhled a zvuk: klik, Esc, klik mimo. Vždy jen jedna otevřená.
+            const dropdowns = document.querySelectorAll('.nav-group, .view-menu');
+            function closeDropdowns(except) {
+              dropdowns.forEach(d => {
+                if (d === except) return;
+                d.classList.remove('open');
+                d.querySelector('button').setAttribute('aria-expanded', 'false');
+              });
+            }
+            dropdowns.forEach(d => d.querySelector('button').addEventListener('click', () => {
+              closeDropdowns(d);
+              d.querySelector('button').setAttribute('aria-expanded', String(d.classList.toggle('open')));
+            }));
+            document.addEventListener('click', (e) => { if (!e.target.closest('.nav-group, .view-menu')) closeDropdowns(); });
+            document.addEventListener('keydown', (e) => {
+              if (e.key !== 'Escape') return;
+              const open = document.querySelector('.nav-group.open, .view-menu.open');
+              if (open) { closeDropdowns(); open.querySelector('button').focus(); }
+            });
+            // po kliknutí na odkaz se nabídka zavře, i když nad ní pořád stojí myš
+            document.querySelectorAll('.nav-sub a').forEach(a => a.addEventListener('click', () => {
+              const g = a.closest('.nav-group');
+              closeDropdowns();
+              g.classList.add('just-used');
+              g.addEventListener('mouseleave', () => g.classList.remove('just-used'), { once: true });
+            }));
+            document.addEventListener('pjax:done', () => closeDropdowns());
+
             // User menu: opens on hover (CSS) and on click/tap
             const userMenu = document.querySelector('.user-menu');
             if (userMenu) {
@@ -497,6 +551,8 @@
                   a.classList.toggle('active', isActive);
                 } catch { }
               });
+              // stránka uvnitř nabídky: zlatě svítí i položka, která ji obsahuje
+              document.querySelectorAll('.nav-group').forEach(g => g.classList.toggle('has-active', !!g.querySelector('a.active')));
             }
             updateActiveNav();
             document.addEventListener('pjax:done', updateActiveNav);

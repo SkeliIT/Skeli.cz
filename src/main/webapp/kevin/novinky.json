@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-11-05",
+    "href": "/index.jsp",
+    "cs": "Web má nové menu. Hudba, Komunita a Games se rozbalují a tlačítka pro vzhled a zvuk jsou pod jedním kolečkem.",
+    "en": "The site has a new menu. Music, Community and Games fold out, and the look and sound buttons sit under one icon.",
+    "de": "Die Website hat ein neues Menü. Musik, Community und Games klappen auf, und die Knöpfe für Aussehen und Ton liegen unter einem Symbol.",
+    "uk": "На сайті нове меню. Музика, Спільнота та Ігри розгортаються, а кнопки вигляду й звуку зібрані під одним значком.",
+    "vi": "Trang web có menu mới. Âm nhạc, Cộng đồng và Trò chơi mở ra được, còn nút giao diện và âm thanh nằm chung dưới một biểu tượng."
+  },
+  {
+    "d": "2026-11-05",
     "href": "/nastaveni.jsp#soukromi",
     "cs": "O tom, co o tobě ostatní uvidí, rozhoduješ ty: veřejný nebo soukromý profil a vypínač u každé věci. Zprávy jsou v databázi zašifrované a po roce se samy smažou.",
     "en": "You decide what others see about you: a public or private profile and a switch for every item. Messages are encrypted in the database and delete themselves after a year.",
@@ -34,14 +43,5 @@
     "de": "Machst du Musik? Füge deine Tracks von YouTube, Spotify, Apple Music oder SoundCloud zu deinem Profil hinzu.",
     "uk": "Створюєш музику? Додай у профіль свої треки з YouTube, Spotify, Apple Music або SoundCloud.",
     "vi": "Bạn làm nhạc? Thêm các bài từ YouTube, Spotify, Apple Music hoặc SoundCloud vào hồ sơ của bạn."
-  },
-  {
-    "d": "2026-11-05",
-    "href": "/uzivatel.jsp",
-    "cs": "Profil ti teď napoví, čím začít, a najdeš v něm všechny písně se srdcem od tebe.",
-    "en": "Your profile now shows you where to start and lists every song you gave a heart.",
-    "de": "Dein Profil zeigt dir jetzt, womit du anfangen kannst, und listet alle Songs mit deinem Herz.",
-    "uk": "Профіль тепер підкаже, з чого почати, і покаже всі пісні з твоїм сердечком.",
-    "vi": "Hồ sơ giờ gợi ý bạn nên bắt đầu từ đâu và có đủ các bài hát bạn đã thả tim."
   }
 ]

@@ -30,13 +30,13 @@ class AboutPageIT extends UiTestSupport {
         assertTrue(driver.findElements(By.cssSelector(".about-avatar-container")).isEmpty(), "old side photo is gone");
         shot("about-desktop-dark");
 
-        driver.findElement(By.id("themeToggle")).click();
+        jsClick(driver.findElement(By.id("themeToggle")));
         Thread.sleep(800);
         String lightSrc = (String) ((JavascriptExecutor) driver).executeScript("return arguments[0].currentSrc", img);
         assertTrue(lightSrc.contains("skeli-portrait-light-"), "the light theme shows the photo without its black background, got " + lightSrc);
         assertTrue(loaded(img), "cut-out portrait should load");
         shot("about-desktop-light");
-        driver.findElement(By.id("themeToggle")).click();
+        jsClick(driver.findElement(By.id("themeToggle")));
     }
 
     @Test
