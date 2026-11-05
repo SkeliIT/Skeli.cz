@@ -101,6 +101,13 @@
                     <webApp>
                         <contextPath>/</contextPath>
                     </webApp>
+                    <!-- Web poslouchá jen na tomhle počítači: zvenku se k němu jde jen přes Apache a HTTPS.
+                         Port dál určuje -Djetty.http.port, v Dockeru se adresa přepíše na 0.0.0.0. -->
+                    <httpConnector>
+                        <host>${jetty.host}</host>
+                        <!-- bez tohohle řádku by si Jetty vybral náhodný port a -Djetty.http.port by nefungoval -->
+                        <port>${jetty.http.port}</port>
+                    </httpConnector>
                 </configuration>
                 <dependencies>
                     <!-- Newer ASM than Jetty bundles, so annotation scanning keeps up with recent class file versions -->
@@ -200,6 +207,8 @@
     </build>
 
     <properties>
+        <jetty.host>127.0.0.1</jetty.host>
+        <jetty.http.port>8080</jetty.http.port>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

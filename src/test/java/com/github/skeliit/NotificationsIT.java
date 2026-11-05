@@ -92,10 +92,11 @@ public class NotificationsIT extends UiTestSupport {
             driver.get(BASE_URL + "/profile.jsp");
             waitReady();
             assertTrue(driver.getCurrentUrl().endsWith("/uzivatel.jsp"), "Profile and Settings are one page now");
+            assertEquals("2", driver.findElement(By.cssSelector(".pt-comments .pt-big")).getText());
+            driver.get(BASE_URL + "/uzivatel.jsp#komentare");
             WebElement list = driver.findElement(By.id("komentare"));
             assertTrue(list.getText().contains(lyricText));
             assertTrue(list.getText().contains(clipText));
-            assertEquals("2", driver.findElement(By.cssSelector(".pt-comments .pt-big")).getText());
         } finally {
             update("DELETE FROM video_comments WHERE user_id=?", id);
         }
