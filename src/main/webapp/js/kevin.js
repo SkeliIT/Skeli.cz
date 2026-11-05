@@ -254,6 +254,7 @@
   // only where that edge is free (nothing of the page under him and his bubble); with no free edge the
   // paw gets a gold dot instead. Closed with the cross, he still gives a tip now and then, only that way.
   function auto(msg, pose, peekChance, isTip, go) {
+    if (window.SkeliSound) window.SkeliSound.play('kevin');
     var now = Date.now();
     if (busy || autoCount >= 6 || now - lastAuto < 40000 || !bubble.hidden) return;
     if (root.hidden && userHidden && !isTip) return;
@@ -284,7 +285,7 @@
     if (el.closest('.kevin, .kevin-paw, .kevin-walker, .bg-slides, .texty-bg')) return true;   // the background photos are background
     return !el.closest('a, button, input, select, textarea, label, img, picture, video, iframe, canvas, svg, '
       + 'p, h1, h2, h3, h4, h5, li, pre, blockquote, figure, table, header, footer, nav, form, aside, article, section, '
-      + '.card, .tape, .photo-band, .cookie-bar, [class*="spotify"], .notif-panel');
+      + '.card, .tape, .photo-band, .cookie-bar, .chat-dock, [class*="spotify"], .notif-panel');
   }
   function boxFree(x0, w, y0, h) {
     for (var gx = 0; gx <= 5; gx++) {

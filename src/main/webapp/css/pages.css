@@ -2422,6 +2422,37 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
   .chat-list { max-height: calc(100dvh - var(--masthead-h) - var(--header-h) - 40px); }
 }
 
+/* Malé okno chatu (/zpravy?embed=1) */
+.chat-embed-body { margin: 0; background: var(--bg); color: var(--text); }
+/* v malém okně bez fotky pozadí webu */
+.chat-embed-body::before, .chat-embed-body::after { display: none; }
+.chat-embed-body .chat-page { padding: 8px; width: 100%; }
+.chat-embed-body .chat-room { height: calc(100dvh - 16px); min-height: 0; }
+.chat-embed-body .chat-page:not(.in-room) .chat-list { padding-top: 34px; }
+.chat-embed-body .chat-head { padding-right: 44px; }
+/* Lišta chatu: na počítači dole vpravo, na telefonu kolečko. Nikdy přes hru, admin ani samotnou stránku Zprávy. */
+.chat-dock { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); z-index: 900; }
+body:has(main.chat-page) .chat-dock, body.is-admin .chat-dock, html.kpong-open .chat-dock, html.pb-open .chat-dock { display: none; }
+.chat-dock.ducked { visibility: hidden; }
+/* otevřené okno musí být nad hlavičkou */
+html.chat-dock-open .chat-dock { z-index: 10020; }
+.chat-dock-btn { position: relative; display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 1px solid var(--accent); border-radius: 50%; background: var(--panel-strong); color: var(--accent); font: inherit; font-size: 1.2rem; box-shadow: var(--shadow); cursor: pointer; }
+.chat-dock-label { display: none; }
+.chat-dock-btn .acct-count { position: absolute; top: -4px; right: -4px; margin: 0; background: var(--accent); color: var(--accent-ink); }
+.chat-dock-panel { position: fixed; inset: 0; z-index: 1; background: var(--bg); }
+.chat-dock-panel[hidden] { display: none; }
+.chat-dock-panel iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--bg); }
+.chat-dock-close { position: absolute; top: 6px; right: 6px; z-index: 2; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--text-dim); cursor: pointer; }
+.chat-dock-close:hover { color: var(--accent); }
+@media (min-width: 900px) {
+  .chat-dock { right: 24px; bottom: 0; }
+  .chat-dock-btn { display: flex; align-items: center; gap: 10px; width: auto; height: 44px; padding: 0 18px; border-bottom: 0; border-radius: 14px 14px 0 0; font-size: var(--fs-card); }
+  .chat-dock-label { display: inline; }
+  .chat-dock-btn .acct-count { position: static; }
+  .chat-dock-panel { position: absolute; inset: auto 0 44px auto; width: 380px; height: min(600px, calc(100dvh - 190px)); overflow: hidden; border: 1px solid var(--panel-border); border-radius: 16px; box-shadow: var(--shadow); }
+}
+.sound-prefs { margin: 0 0 14px; padding: 0; border: 0; }
+
 /* Odznaky za život na webu a aktivita */
 .pt-sitebadges .pt-in, .pt-activity .pt-in { gap: 10px; }
 .pt-sitebadges .pt-show { margin: 0; }

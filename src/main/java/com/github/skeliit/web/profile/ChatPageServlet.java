@@ -18,6 +18,7 @@ public class ChatPageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession s = req.getSession(false);
         Integer me = s == null ? null : (Integer) s.getAttribute("user_id");
+        boolean embed = "1".equals(req.getParameter("embed"));
         if (me == null) { resp.sendRedirect("/login.jsp?next=%2Fzpravy"); return; }
         resp.setHeader("X-Robots-Tag", "noindex");
         req.setAttribute("pageNoIndex", Boolean.TRUE);
@@ -31,6 +32,7 @@ public class ChatPageServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        req.getRequestDispatcher("/WEB-INF/views/chat.jsp").forward(req, resp);
+        req.setAttribute("chatEmbed", embed);
+        req.getRequestDispatcher(embed ? "/WEB-INF/views/chat-embed.jsp" : "/WEB-INF/views/chat.jsp").forward(req, resp);
     }
 }

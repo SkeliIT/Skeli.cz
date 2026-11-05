@@ -5,8 +5,8 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "7.3.1";
 %>
+<%@ include file="/includes/version.jspf" %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
 
@@ -203,6 +203,7 @@
                 <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %> <span class="nav-user">· <%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></span></a>
                 <a href="<%= ctx %>/zpravy"><i class="fa-solid fa-comments"></i> <%= t.getProperty("chat.title") %> <span class="acct-count" data-chat-count hidden></span></a>
                 <a href="<%= ctx %>/nastaveni.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
+                <button type="button" class="nav-notif" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> <span><%= t.getProperty("sound.off") %></span></button>
                 <button type="button" class="nav-notif" data-notif-open aria-controls="notifPanel"><i class="fa-regular fa-bell"></i> <%= t.getProperty("notif.title") %> <span class="notif-badge" hidden></span></button>
                 <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
                 <form method="post" action="<%= ctx %>/logout" class="logout-form">
@@ -258,6 +259,7 @@
               <% } else { %>
                 <script>try { localStorage.setItem('knownUser', '1'); } catch (e) { /* nevadí */ }</script>
                 <%-- the bell: replies to your comments, hearts from Skeli (js/notifications.js) --%>
+                <button type="button" class="icon-btn" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>" title="<%= t.getProperty("sound.off") %>" aria-label="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
                 <button type="button" class="icon-btn notif-btn" data-notif-open aria-haspopup="dialog" aria-controls="notifPanel"
                         title="<%= t.getProperty("notif.title") %>" aria-label="<%= t.getProperty("notif.title") %>">
                   <i class="fa-regular fa-bell"></i><span class="notif-badge" hidden></span>

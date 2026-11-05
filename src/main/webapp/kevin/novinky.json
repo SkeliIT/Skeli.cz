@@ -2,6 +2,15 @@
   {
     "d": "2026-11-05",
     "href": "/zpravy",
+    "cs": "Zprávy máš teď vždycky po ruce: na počítači vpravo dole, na telefonu jako kolečko. A nová zpráva umí cinknout. Když to vadí, ztlumíš to reproduktorem nahoře.",
+    "en": "Messages are now always at hand: bottom right on a computer, a bubble on a phone. A new message can also chime. If that bothers you, mute it with the speaker at the top.",
+    "de": "Nachrichten sind jetzt immer griffbereit: am Computer unten rechts, am Handy als Kreis. Eine neue Nachricht kann auch klingeln. Wenn dich das stört, schalte es oben mit dem Lautsprecher stumm.",
+    "uk": "Повідомлення тепер завжди під рукою: на комп’ютері внизу праворуч, на телефоні як кружечок. Нове повідомлення може ще й дзенькнути. Якщо заважає, вимкни звук динаміком угорі.",
+    "vi": "Tin nhắn giờ luôn trong tầm tay: góc dưới bên phải trên máy tính, vòng tròn trên điện thoại. Tin mới còn có thể kêu chuông. Nếu thấy phiền, hãy tắt bằng biểu tượng loa ở trên cùng."
+  },
+  {
+    "d": "2026-11-05",
+    "href": "/zpravy",
     "cs": "S přáteli si teď můžeš psát přímo na webu. Zprávy najdeš v menu pod svým jménem.",
     "en": "You can now message your friends right on the site. Find Messages in the menu under your name.",
     "de": "Du kannst deinen Freunden jetzt direkt auf der Website schreiben. Nachrichten findest du im Menü unter deinem Namen.",
@@ -34,14 +43,5 @@
     "de": "Du kannst jetzt Freunde hinzufügen. Du findest sie auf deinem Profil, das endlich schön aufgeteilt ist.",
     "uk": "Тепер на сайті можна додавати друзів. Вони є у твоєму профілі, який нарешті гарно поділений.",
     "vi": "Giờ bạn có thể kết bạn trên trang web. Bạn bè nằm trong hồ sơ của bạn, nay đã được chia gọn gàng."
-  },
-  {
-    "d": "2026-11-05",
-    "href": "/nastaveni.jsp#zahlavi",
-    "cs": "Na profilu si teď můžeš nahrát vlastní záhlaví: široký obrázek nad tvou fotkou. Najdeš ho v Nastavení.",
-    "en": "You can now upload your own header to your profile: a wide picture above your photo. You’ll find it in Settings.",
-    "de": "Du kannst jetzt ein eigenes Titelbild für dein Profil hochladen: ein breites Bild über deinem Foto. Du findest es in den Einstellungen.",
-    "uk": "Тепер можна завантажити власну шапку профілю: широке зображення над твоїм фото. Шукай у Налаштуваннях.",
-    "vi": "Giờ bạn có thể tải lên ảnh bìa riêng cho hồ sơ: một ảnh rộng phía trên ảnh đại diện. Bạn tìm thấy trong Cài đặt."
   }
 ]

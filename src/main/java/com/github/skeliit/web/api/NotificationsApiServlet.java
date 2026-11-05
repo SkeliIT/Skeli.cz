@@ -39,7 +39,10 @@ public class NotificationsApiServlet extends HttpServlet {
         try {
             Map<String, Object> out = new LinkedHashMap<>();
             out.put("unread", dao.unread(uid));
-            out.put("chat", new com.github.skeliit.dao.ChatDao().unreadTotal(uid));
+            var chat = new com.github.skeliit.dao.ChatDao();
+            out.put("chat", chat.unreadTotal(uid));
+            out.put("chatSound", chat.unreadNotMuted(uid));   // ztlumení lidé číslo zvýší, ale nezazvoní
+            out.put("dnd", "dnd".equals(chat.prefs(uid).status));
             if (!"1".equals(req.getParameter("count"))) out.put("items", dao.latest(uid, LIMIT));
             JSON.writeValue(resp.getWriter(), out);
         } catch (SQLException e) {

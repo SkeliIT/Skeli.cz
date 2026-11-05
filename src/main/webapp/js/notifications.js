@@ -43,11 +43,23 @@
     document.title = n ? '(' + n + ') ' + base : base;
   }
 
+  var lastBell = null, lastChat = 0;
   function count() {
     // ptá se i na skryté záložce: počet nepřečtených zpráv v názvu záložky je právě pro ni
     fetch('/api/notifications?count=1', { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) { if (d) { paint(d.unread); paintChat(d.chat || 0); } })
+      .then(function (d) {
+        if (!d) return;
+        paint(d.unread);
+        paintChat(d.chat || 0);
+        // zvuk jen když číslo vyrostlo; při prvním dotazu na stránce ne, to jsou staré zprávy. Nerušit = potichu.
+        if (lastBell !== null && !d.dnd && window.SkeliSound) {
+          if ((d.chatSound || 0) > lastChat) window.SkeliSound.play('message');
+          else if (d.unread > lastBell) window.SkeliSound.play('bell');
+        }
+        lastBell = d.unread;
+        lastChat = d.chatSound || 0;
+      })
       .catch(function () {});
   }
 
@@ -121,6 +133,6 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
 
   count();
-  setInterval(count, 90000);
+  setInterval(count, 25000);
   document.addEventListener('visibilitychange', count);
 })();

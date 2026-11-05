@@ -1,0 +1,15 @@
+<%-- Zprávy odkudkoli: lišta na počítači, kolečko na telefonu (js/chat-dock.js). Je mimo <main>, takže okno zůstává otevřené i při přechodu mezi stránkami. --%>
+<% if (session.getAttribute("user_id") != null) { %>
+<div class="chat-dock" id="chatDock">
+  <div class="chat-dock-panel" hidden>
+    <button type="button" class="chat-dock-close" aria-label="<%= t.getProperty("chat.settings.close") %>"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <iframe title="<%= t.getProperty("chat.title") %>" data-src="/zpravy?embed=1"></iframe>
+  </div>
+  <button type="button" class="chat-dock-btn" aria-expanded="false" aria-label="<%= t.getProperty("chat.title") %>">
+    <i class="fa-solid fa-comments" aria-hidden="true"></i>
+    <span class="chat-dock-label"><%= t.getProperty("chat.title") %></span>
+    <span class="acct-count" data-chat-count hidden></span>
+  </button>
+</div>
+<script src="/js/chat-dock.js?v=<%= assetVersion %>" defer></script>
+<% } %>

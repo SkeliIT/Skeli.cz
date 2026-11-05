@@ -332,6 +332,19 @@ public class ChatDao {
         return out;
     }
 
+    /** Nepřečtené od lidí, které nemám ztlumené: jen pro rozhodnutí, jestli zazvonit. */
+    public int unreadNotMuted(int me) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT COUNT(*) FROM chat_messages m WHERE m.recipient_id = ? AND m.read_at IS NULL AND m.deleted_at IS NULL "
+                + "AND NOT EXISTS (SELECT 1 FROM user_blocks b WHERE b.blocker_id = ? AND b.blocked_id = m.sender_id) "
+                + "AND NOT EXISTS (SELECT 1 FROM chat_muted x WHERE x.user_id = ? AND x.other_id = m.sender_id)")) {
+            ps.setInt(1, me);
+            ps.setInt(2, me);
+            ps.setInt(3, me);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getInt(1) : 0; }
+        }
+    }
+
     // ---------- nastavení a stav ----------
 
     public ChatPrefs prefs(int userId) throws SQLException {

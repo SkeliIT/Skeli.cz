@@ -11,6 +11,7 @@
     dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });   // klik mimo okno ho zavře
     dialog.addEventListener('change', function (e) {
       var name = e.target.name, value = e.target.value;
+      if (!name) return;   // zvuky si hlídá js/sounds.js
       if (name === 'theme') page.dataset.chatTheme = value;
       if (name === 'font') page.dataset.chatFont = value;
       if (name === 'size') page.dataset.chatSize = value;
@@ -416,6 +417,6 @@
   });
   room.querySelector('.chat-hide').addEventListener('click', function () {
     if (!confirm(T.tHideConfirm)) return;
-    post({ action: 'hide', with: name }).then(function () { location.href = '/zpravy'; });
+    post({ action: 'hide', with: name }).then(function () { location.href = room.dataset.base; });
   });
 })();

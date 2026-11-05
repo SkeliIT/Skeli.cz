@@ -126,7 +126,9 @@
 </script>
 <script src="<%= request.getContextPath() %>/js/password-helper.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/effects.js?v=<%= assetVersion %>" defer></script>
+<script src="<%= request.getContextPath() %>/js/sounds.js?v=<%= assetVersion %>"></script>
 <script src="<%= request.getContextPath() %>/js/presence.js?v=<%= assetVersion %>" defer></script>
+<%@ include file="/includes/chat-dock.jspf" %>
 <script src="<%= request.getContextPath() %>/js/consent.js?v=<%= assetVersion %>" defer></script>
 <%-- Kevinovy hlášky jen v jazyce stránky (texty hry CatSmash se načtou až se hrou, js/kevin.js) --%>
 <script src="<%= request.getContextPath() %>/js/lines/kevin-<%= cur %>.js?v=<%= assetVersion %>" defer></script>
