@@ -3,7 +3,8 @@ package com.github.skeliit.web.profile;
 import com.github.skeliit.Db;
 import com.github.skeliit.WebUtils;
 import com.github.skeliit.filter.CsrfFilter;
-import com.github.skeliit.web.files.AvatarFileServlet;
+import com.github.skeliit.service.ProfileImages;
+import com.github.skeliit.service.ProfileImages.Kind;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,17 +13,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.Iterator;
 
 @WebServlet(name = "ProfileAvatarServlet", urlPatterns = { "/profile/avatar" })
 @MultipartConfig(maxFileSize = 5 * 1024 * 1024) // 5 MB
@@ -76,43 +70,26 @@ public class ProfileAvatarServlet extends HttpServlet {
         g.drawImage(src, 0, 0, 512, 512, sx, sy, sx + size, sy + size, null);
         g.dispose();
 
-        // Resolve uploads dir
-        File dir = AvatarFileServlet.avatarDir(getServletContext());
-        if (!dir.exists())
-            dir.mkdirs();
-        String filename = userId + ".jpg";
-        File outFile = new File(dir, filename);
-
-        // Write JPEG with quality 0.9
-        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpeg");
-        if (!writers.hasNext()) {
-            ImageIO.write(dst, "jpg", outFile);
-        } else {
-            ImageWriter writer = writers.next();
-            ImageWriteParam param = writer.getDefaultWriteParam();
-            if (param.canWriteCompressed()) {
-                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                param.setCompressionQuality(0.9f);
+        // každé nahrání má nový náhodný název (service/ProfileImages), starý soubor se smaže až po uložení nového
+        String relUrl = ProfileImages.store(getServletContext(), Kind.AVATAR, dst, 0.9f);
+        String old = null;
+        try (Connection c = Db.get()) {
+            try (PreparedStatement ps = c.prepareStatement("SELECT avatar_url FROM users WHERE id=?")) {
+                ps.setInt(1, userId);
+                try (ResultSet rs = ps.executeQuery()) { if (rs.next()) old = rs.getString(1); }
             }
-            try (FileImageOutputStream fos = new FileImageOutputStream(outFile)) {
-                writer.setOutput(fos);
-                writer.write(null, new IIOImage(dst, null, null), param);
-                writer.dispose();
+            try (PreparedStatement ps = c.prepareStatement("UPDATE users SET avatar_url=? WHERE id=?")) {
+                ps.setString(1, relUrl);
+                ps.setInt(2, userId);
+                ps.executeUpdate();
             }
-        }
-
-        // the file keeps its name, so each upload gets a new ?v=: otherwise the browser shows the old photo
-        String relUrl = req.getContextPath() + "/uploads/avatars/" + filename + "?v=" + System.currentTimeMillis();
-        try (Connection c = Db.get();
-                PreparedStatement ps = c.prepareStatement("UPDATE users SET avatar_url=? WHERE id=?")) {
-            ps.setString(1, relUrl);
-            ps.setInt(2, userId);
-            ps.executeUpdate();
         } catch (SQLException e) {
+            ProfileImages.delete(getServletContext(), Kind.AVATAR, relUrl);
             resp.setStatus(500);
             resp.getWriter().write("{\"error\":\"db_error\"}");
             return;
         }
+        ProfileImages.delete(getServletContext(), Kind.AVATAR, old);
 
         req.getSession().setAttribute("avatar_url", relUrl);
         resp.getWriter().write("{\"ok\":true,\"url\":\"" + relUrl + "\"}");

@@ -1,5 +1,14 @@
 [
   {
+    "d": "2026-11-05",
+    "href": "/nastaveni.jsp#zahlavi",
+    "cs": "Na profilu si teď můžeš nahrát vlastní záhlaví: široký obrázek nad tvou fotkou. Najdeš ho v Nastavení.",
+    "en": "You can now upload your own header to your profile: a wide picture above your photo. You’ll find it in Settings.",
+    "de": "Du kannst jetzt ein eigenes Titelbild für dein Profil hochladen: ein breites Bild über deinem Foto. Du findest es in den Einstellungen.",
+    "uk": "Тепер можна завантажити власну шапку профілю: широке зображення над твоїм фото. Шукай у Налаштуваннях.",
+    "vi": "Giờ bạn có thể tải lên ảnh bìa riêng cho hồ sơ: một ảnh rộng phía trên ảnh đại diện. Bạn tìm thấy trong Cài đặt."
+  },
+  {
     "d": "2026-11-04",
     "href": "/?kevin=pong",
     "cs": "Každý automat v CatSmash má teď vlastní kolečka a táhla: ledová, lávová, plyšová… Vyber si pálku a mrkni dovnitř.",
@@ -34,14 +43,5 @@
     "de": "Mein Profil sieht jetzt neu aus: Glaskacheln mit deinen Zahlen, Abzeichen und deinem Lieblingssong. Schau mal, wie es dir steht.",
     "uk": "Мій профіль має новий вигляд: скляні плитки з твоїми числами, значками й улюбленою піснею. Глянь, як тобі пасує.",
     "vi": "Hồ sơ của tôi có diện mạo mới: các ô kính với số liệu, huy hiệu và bài hát yêu thích của bạn. Vào xem hợp với bạn thế nào nhé."
-  },
-  {
-    "d": "2026-11-03",
-    "href": "/",
-    "cs": "Zkus na úvodu švihnout myší nebo prstem přes jiskry. Odfoukneš je jako poryv větru a ve světlém režimu zase sníh.",
-    "en": "On the home page, swipe your mouse or finger through the embers. You’ll blow them away like a gust of wind, and in light mode the snow too.",
-    "de": "Wisch auf der Startseite mit Maus oder Finger durch die Funken. Du bläst sie weg wie ein Windstoß, im hellen Modus auch den Schnee.",
-    "uk": "На головній проведи мишею або пальцем крізь іскри. Здуєш їх, мов порив вітру, а у світлому режимі ще й сніг.",
-    "vi": "Ở trang chủ, hãy lướt chuột hoặc ngón tay qua những tia lửa. Bạn sẽ thổi bay chúng như một cơn gió, và cả tuyết ở chế độ sáng."
   }
 ]

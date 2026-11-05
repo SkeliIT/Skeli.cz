@@ -23,6 +23,15 @@ public class SongOverview {
     public String[] getLanguages() { return languages; }
     /** Má píseň text v daném jazyce? (seznam Písní v adminu přeškrtne chybějící) */
     public boolean hasLang(String lang) { if (languages == null) return false; for (String l : languages) if (l != null && l.equalsIgnoreCase(lang)) return true; return false; }
+    private static final String[] SITE_LANGS = { "cs", "en", "de", "uk", "vi" };
+    /** V kolika jazycích webu má píseň text (0–5). */
+    public int getLangCount() { int n = 0; for (String l : SITE_LANGS) if (hasLang(l)) n++; return n; }
+    /** Popisek do seznamu Písní: „text 3/5“, nebo „bez textu“. */
+    public String getLangLabel() { int n = getLangCount(); return n == 0 ? "bez textu" : "text " + n + "/" + SITE_LANGS.length; }
+    /** Jazyky, ve kterých text je, pro bublinu v seznamu Písní. */
+    public String getLangNames() { StringBuilder b = new StringBuilder(); for (String l : SITE_LANGS) if (hasLang(l)) b.append(b.length() > 0 ? ", " : "").append(l.toUpperCase()); return b.length() == 0 ? "žádné" : b.toString(); }
+    /** Má všechno: video, Spotify, Apple Music a text ve všech jazycích (filtr v seznamu Písní). */
+    public boolean isComplete() { return hasVideo && isHasSpotify() && isHasApple() && getLangCount() == SITE_LANGS.length; }
     public String getPreviewImageUrl() { return previewImageUrl; }
     public Integer getFirstLyricId() { return firstLyricId; }
     public String getAppleMusicId() { return appleMusicId; }

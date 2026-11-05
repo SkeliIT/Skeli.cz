@@ -298,7 +298,7 @@
       "Something got stuck. Let's try again.",
       "The player is in a mood today. I know the feeling.",
       "No picture, no sound? That's almost modern art.",
-      "That didn't work. Try another clip or try again in a moment.",
+      "That didn't work. Try another video or try again in a moment.",
       "The tech says it's not to blame. I say it is."
     ]
   },
@@ -447,10 +447,10 @@
       "Nothing new today. Not even in the bowl."
     ],
     "lead": "Since your last visit:",
-    "clip": "a new clip came out: {t}",
+    "clip": "a new video came out: {t}",
     "clips": [
       "",
-      "{n} new clips came out, the newest is {t}"
+      "{n} new videos came out, the newest is {t}"
     ],
     "posts": [
       "{n} new post in the News",
@@ -507,8 +507,8 @@
       "{n} reported comments are waiting to be checked"
     ],
     "clips": [
-      "{n} clip has no song ({t})",
-      "{n} clips have no song (newest: {t})"
+      "{n} video has no song ({t})",
+      "{n} videos have no song (newest: {t})"
     ],
     "lyrics": [
       "{n} song has no lyrics",

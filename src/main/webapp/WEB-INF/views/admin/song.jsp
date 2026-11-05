@@ -16,7 +16,7 @@
         <c:when test="${param.msg == 'track_added'}">Track přidán. Teď můžeš doplnit překlady textu a obrázek.</c:when>
         <c:when test="${param.msg == 'video_linked'}">YouTube video napojeno.</c:when>
         <c:when test="${param.msg == 'video_unlinked'}">YouTube video odpojeno.</c:when>
-        <c:when test="${param.msg == 'video_deleted'}">Klip je smazaný z celého webu a synchronizace z YouTube ho už nevrátí.</c:when>
+        <c:when test="${param.msg == 'video_deleted'}">Video je smazané z celého webu a synchronizace z YouTube ho už nevrátí.</c:when>
         <c:when test="${param.msg == 'release_saved'}">Premiéra uložená – na webu běží odpočet.</c:when>
         <c:when test="${param.msg == 'release_cleared'}">Premiéra zrušená.</c:when>
         <c:when test="${param.msg == 'bad_release'}">Datum a čas premiéry se nepodařilo přečíst.</c:when>
@@ -91,7 +91,7 @@
     <button type="button" role="tab" data-tab="zaklad"><i class="fa-solid fa-music" aria-hidden="true"></i> Základ</button>
     <button type="button" role="tab" data-tab="texty"><i class="fa-solid fa-align-left" aria-hidden="true"></i> Texty</button>
     <button type="button" role="tab" data-tab="obrazky"><i class="fa-regular fa-image" aria-hidden="true"></i> Obrázky</button>
-    <button type="button" role="tab" data-tab="klipy"><i class="fa-brands fa-youtube" aria-hidden="true"></i> Klipy</button>
+    <button type="button" role="tab" data-tab="videa"><i class="fa-brands fa-youtube" aria-hidden="true"></i> Videa</button>
   </nav>
 
   <div class="song-tab-panel admin-grid song-hub-grid" id="zaklad" role="tabpanel">
@@ -115,7 +115,7 @@
     <!-- Náhled / OG -->
     <section class="admin-card">
       <h3>Vlastní obrázek písně</h3>
-      <p class="text-dim">Ukáže se u písně bez klipu a při sdílení odkazu (Facebook, WhatsApp). Na šířku 16:9, max. 20&nbsp;MB.</p>
+      <p class="text-dim">Ukáže se u písně bez videa a při sdílení odkazu (Facebook, WhatsApp). Na šířku 16:9, max. 20&nbsp;MB.</p>
       <c:if test="${param.msg == 'too_large'}"><p class="admin-error">Soubor je příliš velký (max. 20&nbsp;MB).</p></c:if>
       <c:if test="${param.msg == 'invalid_image'}"><p class="admin-error">Soubor není platný obrázek.</p></c:if>
       <c:if test="${param.msg == 'no_file'}"><p class="admin-error">Nebyl vybrán žádný soubor.</p></c:if>
@@ -192,12 +192,12 @@
     </section>
 
 
-    <!-- Premiéra: datum a čas, kdy píseň nebo klip vyjde – na webu odpočet (úvod, stránka písně) -->
+    <!-- Premiéra: datum a čas, kdy píseň nebo video vyjde – na webu odpočet (úvod, stránka písně) -->
     <section class="admin-card" id="premiere">
       <h3><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i> Premiéra</h3>
       <p class="text-dim">Na úvodu i u písně poběží odpočet, po premiéře se 3 dny ukazuje „Venku!“. Čas je pražský.</p>
       <c:if test="${not empty premiere}">
-        <p class="premiere-state">${premiere.out ? 'Vyšlo' : 'Naplánováno'}: <b>${premiere.when}</b> · ${premiere.kind == 'song' ? 'nový song' : 'nový klip'}</p>
+        <p class="premiere-state">${premiere.out ? 'Vyšlo' : 'Naplánováno'}: <b>${premiere.when}</b> · ${premiere.kind == 'song' ? 'nový song' : 'nové video'}</p>
       </c:if>
       <form method="post" action="/admin/song" class="admin-form">
         <input type="hidden" name="csrf" value="${csrf}">
@@ -208,8 +208,8 @@
         </label>
         <label>Co vychází
           <select name="release_kind">
-            <option value="clip" ${(empty premiere and not empty videos) or premiere.kind == 'clip' ? 'selected' : ''}>Nový klip</option>
-            <option value="song" ${(empty premiere and empty videos) or premiere.kind == 'song' ? 'selected' : ''}>Nový song (bez klipu, jen fotka)</option>
+            <option value="clip" ${(empty premiere and not empty videos) or premiere.kind == 'clip' ? 'selected' : ''}>Nové video</option>
+            <option value="song" ${(empty premiere and empty videos) or premiere.kind == 'song' ? 'selected' : ''}>Nový song (zatím bez videa)</option>
           </select>
         </label>
         <button type="submit">Uložit premiéru</button>
@@ -231,10 +231,10 @@
     <c:choose>
       <c:when test="${lyricLangs > 0}">
         <p class="text-dim">Píseň <b><c:out value="${song.name}"/></b> má text (jazyků: ${lyricLangs}). Aby se nesmazal omylem, smaž ho nejdřív
-          v záložce <a href="#texty">Texty</a> (Smazat text u každého jazyka). Klipy smažeš v záložce <a href="#klipy">Klipy</a>.</p>
+          v záložce <a href="#texty">Texty</a> (Smazat text u každého jazyka). Videa smažeš v záložce <a href="#videa">Videa</a>.</p>
       </c:when>
       <c:otherwise>
-        <p class="text-dim">Smaže píseň <b><c:out value="${song.name}"/></b>. Text nemá. Její klipy zůstanou jako klipy bez písně – když mají zmizet taky, smaž je předtím v záložce Klipy.</p>
+        <p class="text-dim">Smaže píseň <b><c:out value="${song.name}"/></b>. Text nemá. Její videa zůstanou jako videa bez písně – když mají zmizet taky, smaž je předtím v záložce Videa.</p>
         <form method="post" action="/admin/song" class="admin-reset">
           <input type="hidden" name="csrf" value="${csrf}">
           <input type="hidden" name="id" value="${song.id}">
@@ -335,7 +335,7 @@
             </c:forEach>
           </select>
         </label>
-        <label>V klipu od (min:s)
+        <label>Ve videu od (min:s)
           <input name="help_from" value="<c:out value='${helpFromText}'/>" placeholder="např. 2:15" inputmode="numeric">
         </label>
         <button type="submit">Uložit</button>
@@ -365,12 +365,12 @@
       <h3>Obrázek v seznamu Texty</h3>
       <c:choose>
         <c:when test="${empty rowArt}">
-          <p class="text-dim">Song nemá klip ani náhledovou fotku, v seznamu má jen zlatou záři. Nahraj náhled výš a pak ho tu můžeš posunout.</p>
+          <p class="text-dim">Song nemá video ani náhledovou fotku, v seznamu má jen zlatou záři. Nahraj náhled výš a pak ho tu můžeš posunout.</p>
         </c:when>
         <c:otherwise>
           <p class="text-dim">
             Obrázek <strong>posuň myší</strong> (prstem), <strong>kolečkem</strong> zvětšíš.
-            Nahoře je řádek na počítači, pod ním na telefonu. Používá se nejnovější klip, jinak náhledová fotka.
+            Nahoře je řádek na počítači, pod ním na telefonu. Používá se nejnovější video, jinak náhledová fotka.
           </p>
           <div class="art-editor" id="artEditor"
                data-x="${song.artX != null ? song.artX : ''}" data-y="${song.artY != null ? song.artY : ''}" data-zoom="${song.artZoom != null ? song.artZoom : ''}">
@@ -415,7 +415,7 @@
       <h3>Plakát v Karaoke</h3>
       <c:choose>
         <c:when test="${empty posterArt}">
-          <p class="text-dim">Song nemá klip, v Karaoke se neukazuje.</p>
+          <p class="text-dim">Song nemá video, v Karaoke se neukazuje.</p>
         </c:when>
         <c:otherwise>
           <p class="text-dim">Obrázek <strong>posuň myší</strong> (prstem), <strong>kolečkem</strong> zvětšíš. Vlevo velký plakát (nejnovější píseň), vpravo běžný.</p>
@@ -452,7 +452,7 @@
 
   </div>
 
-  <div class="song-tab-panel admin-grid song-hub-grid" id="klipy" role="tabpanel" hidden>
+  <div class="song-tab-panel admin-grid song-hub-grid" id="videa" role="tabpanel" hidden>
     <!-- YouTube -->
     <section class="admin-card admin-card-wide">
       <h3><i class="fab fa-youtube icon-youtube"></i> YouTube videa</h3>
@@ -490,7 +490,7 @@
                       <input type="hidden" name="id" value="${song.id}">
                       <input type="hidden" name="action" value="delete_video">
                       <input type="hidden" name="youtube_id" value="<c:out value='${v.youtubeId}'/>">
-                      <button type="submit" class="btn-delete" onclick="return confirm('Smazat tenhle klip z celého webu? Synchronizace z YouTube ho už nevrátí.')"><i class="fa-solid fa-trash" aria-hidden="true"></i> Smazat klip</button>
+                      <button type="submit" class="btn-delete" onclick="return confirm('Smazat tohle video z celého webu? Synchronizace z YouTube ho už nevrátí.')"><i class="fa-solid fa-trash" aria-hidden="true"></i> Smazat video</button>
                     </form>
                   </td>
                 </tr>
@@ -517,13 +517,13 @@
   </div>
 </main>
 <script>
-// Záložky písně: Základ · Texty · Obrázky · Klipy. Která je otevřená, říká adresa (#texty); odkaz na prvek
+// Záložky písně: Základ · Texty · Obrázky · Videa. Která je otevřená, říká adresa (#texty); odkaz na prvek
 // uvnitř záložky (#lyric-help, #row-art…) otevře jeho záložku. Po uložení vrací server hlášku (msg), podle ní
 // se otevře záložka, ve které se pracovalo.
 (function () {
   var tabs = document.querySelectorAll('.song-tabs [data-tab]');
   if (!tabs.length) return;
-  var byMsg = { video_linked: 'klipy', video_unlinked: 'klipy', video_deleted: 'klipy', bad_youtube: 'klipy',
+  var byMsg = { video_linked: 'videa', video_unlinked: 'videa', video_deleted: 'videa', bad_youtube: 'videa',
     text_deleted: 'texty', locale_saved: 'texty', bad_seo_slug: 'texty', seo_slug_taken: 'texty', translated: 'texty',
     no_translator: 'texty', no_cs_source: 'texty', translate_failed: 'texty', help_saved: 'texty', help_deleted: 'texty',
     art_saved: 'obrazky', poster_saved: 'obrazky', bad_art: 'obrazky' };

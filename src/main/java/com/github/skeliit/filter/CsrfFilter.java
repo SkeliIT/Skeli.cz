@@ -17,8 +17,9 @@ import java.util.Set;
  * Ensures every session has a CSRF token (exposed as request attribute "csrf")
  * and rejects state-changing requests that do not carry it.
  *
- * Multipart requests cannot be parsed here (the multipart config belongs to the
- * target servlet), so servlets accepting multipart must call {@link #isValid}.
+ * Formulář s obrázkem (multipart) tu nejde přečíst, nastavení pro něj má až cílový servlet. Proto ho sem pustí
+ * jen adresy z MULTIPART_PATHS a ty si token kontrolují samy přes {@link #isValid}. Všude jinde musí mít multipart
+ * token v hlavičce: jinak by šla ochrana obejít, parametry v adrese se čtou i u multipart požadavku.
  */
 public class CsrfFilter implements Filter {
     public static final String ATTR = "csrf";
@@ -26,6 +27,8 @@ public class CsrfFilter implements Filter {
     private static final SecureRandom RANDOM = new SecureRandom();
     /** Machine-to-machine endpoints authenticated by their own token. */
     private static final Set<String> EXEMPT = Set.of("/api/social-posts");
+    /** Jediné servlety s @MultipartConfig; každý z nich volá isValid. Nový servlet s nahráváním přidat sem. */
+    static final Set<String> MULTIPART_PATHS = Set.of("/profile/avatar", "/profile/cover", "/admin/songs/preview");
 
     @Override public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
@@ -42,7 +45,8 @@ public class CsrfFilter implements Filter {
         String contentType = req.getContentType();
         boolean multipart = contentType != null && contentType.toLowerCase().startsWith("multipart/");
 
-        if (unsafe && !multipart && !isValid(req)) {
+        boolean checkedByServlet = multipart && MULTIPART_PATHS.contains(path);
+        if (unsafe && !checkedByServlet && !isValid(req)) {
             // Obyčejný formulář (třeba přihlášení otevřené dlouho v záložce, mezitím vypršela relace):
             // místo holé chyby zpátky na tutéž stránku s čerstvým formulářem a slušnou hláškou nahoře.
             String back = formBack(req);

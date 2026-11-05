@@ -51,7 +51,33 @@ public class AdminPanelIT extends UiTestSupport {
         }
 
         driver.get(BASE_URL + "/admin/songs");
-        assertFalse(driver.findElements(By.cssSelector("table.songs-table")).isEmpty(), "songs table expected");
+        assertFalse(driver.findElements(By.cssSelector(".songs-list .songs-row")).isEmpty(), "seznam písní");
+    }
+
+    @Test
+    @DisplayName("Písně: hledání bez háčků a filtr Něco chybí, nic nepřetéká")
+    void songListFilters() throws Exception {
+        String name = "IT Žlutá písnička " + uniq();
+        update("INSERT INTO songs (uuid, name, year) VALUES (UUID(), ?, 2026)", name);
+        try {
+            driver.get(BASE_URL + "/admin/songs");
+            waitReady();
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            String visible = "return [].slice.call(document.querySelectorAll('.songs-row')).filter(function (r) { return !r.hidden; }).map(function (r) { return r.dataset.name; })";
+            WebElement search = driver.findElement(By.id("songFilter"));
+            search.sendKeys(name.replace("Žlutá písnička", "zluta pisnicka"));
+            assertEquals(java.util.List.of(name), js.executeScript(visible), "hledání najde jen ji");
+            search.clear();
+            search.sendKeys(" ");
+            search.clear();
+            jsClick(driver.findElement(By.cssSelector("#songFilters [data-f=done]")));
+            js.executeScript("var i = document.getElementById('songFilter'); i.value = ''; i.dispatchEvent(new Event('input'))");
+            assertFalse(((java.util.List<?>) js.executeScript(visible)).contains(name), "bez textu a videa není hotová");
+            jsClick(driver.findElement(By.cssSelector("#songFilters [data-f=lack]")));
+            assertTrue(((java.util.List<?>) js.executeScript(visible)).contains(name), "je mezi Něco chybí");
+        } finally {
+            update("DELETE FROM songs WHERE name=?", name);
+        }
     }
 
     @Test
@@ -75,6 +101,11 @@ public class AdminPanelIT extends UiTestSupport {
     void deleteUser() throws Exception {
         String targetName = "at" + uniq();
         int targetId = insertUser(targetName, "USER");
+        // komentář ke klipu a hlas nemají cizí klíč na uživatele: musí zmizet taky
+        String yt = queryString("SELECT youtube_id FROM videos LIMIT 1");
+        update("INSERT INTO video_comments (user_id, youtube_id, content) VALUES (?, ?, 'spam')", targetId, yt);
+        int commentId = Integer.parseInt(queryString("SELECT MAX(id) FROM video_comments WHERE user_id=?", targetId));
+        update("INSERT INTO video_comment_votes (comment_id, user_id, vote) VALUES (?, ?, 1)", commentId, targetId);
 
         driver.get(BASE_URL + "/admin_users.jsp");
         WebElement deleteBtn = userRow(targetName).findElement(By.cssSelector("input[name=action][value=delete]"))
@@ -83,6 +114,57 @@ public class AdminPanelIT extends UiTestSupport {
 
         assertFalse(exists("SELECT 1 FROM users WHERE id=?", targetId), "user should be deleted");
         assertFalse(bodyText().contains(targetName), "deleted user must disappear from the list");
+        assertFalse(exists("SELECT 1 FROM video_comments WHERE user_id=?", targetId), "komentáře ke klipům jsou pryč");
+        assertFalse(exists("SELECT 1 FROM video_comment_votes WHERE user_id=?", targetId), "hlasy jsou pryč");
+    }
+
+    @Test
+    @DisplayName("Admin odebere cizí fotku a záhlaví, soubory zmizí z disku")
+    void removeOffensiveImages() throws Exception {
+        String targetName = "ai" + uniq();
+        int targetId = insertUser(targetName, "USER");
+        java.util.Map<String, java.io.File> files = new java.util.HashMap<>();
+        for (String folder : new String[] { "avatars", "covers" }) {
+            String name = com.github.skeliit.service.ProfileImages.randomName("jpg");
+            java.io.File dir = new java.io.File("src/main/webapp/uploads/" + folder);
+            dir.mkdirs();
+            java.io.File f = new java.io.File(dir, name);
+            javax.imageio.ImageIO.write(new java.awt.image.BufferedImage(30, 30, java.awt.image.BufferedImage.TYPE_INT_RGB), "jpg", f);
+            f.deleteOnExit();
+            files.put(folder, f);
+            update("UPDATE users SET " + (folder.equals("avatars") ? "avatar_url" : "cover_url") + "=? WHERE id=?", "/uploads/" + folder + "/" + name, targetId);
+        }
+        driver.get(BASE_URL + "/admin_users.jsp");
+        clickAndWaitReload(userRow(targetName).findElement(By.cssSelector("input[name=action][value=remove_cover]"))
+                .findElement(By.xpath("./ancestor::form//button")), true);
+        assertNull(queryString("SELECT cover_url FROM users WHERE id=?", targetId));
+        assertFalse(files.get("covers").exists(), "soubor záhlaví je pryč");
+        clickAndWaitReload(userRow(targetName).findElement(By.cssSelector("input[name=action][value=remove_avatar]"))
+                .findElement(By.xpath("./ancestor::form//button")), true);
+        assertNull(queryString("SELECT avatar_url FROM users WHERE id=?", targetId));
+        assertFalse(files.get("avatars").exists(), "soubor fotky je pryč");
+    }
+
+    @Test
+    @DisplayName("Admin nesmaže sám sebe a poslední admin zůstane")
+    void adminCannotRemoveHimself() throws Exception {
+        driver.get(BASE_URL + "/admin_users.jsp");
+        clickAndWaitReload(userRow(adminName).findElement(By.cssSelector("input[name=action][value=delete]"))
+                .findElement(By.xpath("./ancestor::form//button")), true);
+        assertTrue(driver.getCurrentUrl().contains("msg=self"), driver.getCurrentUrl());
+        assertTrue(bodyText().contains(adminName), "účet zůstal");
+    }
+
+    @Test
+    @DisplayName("Zkušební ukázka Kevina není pro návštěvníky")
+    void kevinSampleIsAdminOnly() throws Exception {
+        driver.get(BASE_URL + "/kevin-ukazka.jsp");
+        waitReady();
+        assertFalse(driver.findElements(By.cssSelector("main.kevin-show")).isEmpty(), "admin ji vidí");
+        logout();
+        driver.get(BASE_URL + "/kevin-ukazka.jsp");
+        waitReady();
+        assertTrue(driver.findElements(By.cssSelector("main.kevin-show")).isEmpty(), "návštěvník ne");
     }
 
     @Test
@@ -250,10 +332,10 @@ public class AdminPanelIT extends UiTestSupport {
             // v záznamu změn: kdo a co
             driver.get(BASE_URL + "/admin/history");
             String log = driver.findElement(By.id("log")).getText();
-            assertTrue(log.contains("Smazání klipu") && log.contains("Smazání textu") && log.contains(adminName), log);
+            assertTrue(log.contains("Smazání videa") && log.contains("Smazání textu") && log.contains(adminName), log);
 
             // vrátit obojí z koše
-            for (String label : new String[]{"Klip: IT trash clip", "Text (CS): " + name}) {
+            for (String label : new String[]{"Video: IT trash clip", "Text (CS): " + name}) {
                 WebElement btn = driver.findElement(By.xpath("//li[contains(@class,'trash-item')][.//span[contains(.,'" + label + "')]]//button"));
                 clickAndWaitReload(btn, false);
             }

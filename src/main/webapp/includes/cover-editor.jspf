@@ -1,0 +1,30 @@
+<%@ page pageEncoding="UTF-8" %>
+<%-- Záhlaví profilu v Nastavení: náhled, ořez na pruh 3:1 (Cropper.js), uložení, odebrání. Před vložením nastavit proměnnou coverUrl.
+     Pracuje s tím js/avatar-editor.js podle id; hlášky bere z data-msg-*. --%>
+<h3 id="zahlavi"><%= t.getProperty("cover.title") %></h3>
+<div class="cover-preview">
+  <img id="cover-preview-img" alt=""<%= coverUrl != null ? " src=\"" + com.github.skeliit.WebUtils.escapeHtml(coverUrl) + "\"" : " hidden" %>>
+</div>
+<input id="cover-input" class="cover-input" type="file" accept="image/*"
+       data-msg-huge="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.tooLarge")) %>"
+       data-msg-format="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.badFormat")) %>"
+       data-msg-preparing="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.preparing")) %>"
+       data-msg-saved="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("cover.saved")) %>"
+       data-msg-removed="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("cover.removed")) %>"
+       data-msg-failed="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.saveFailed")) %>"
+       data-msg-signed-out="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("avatar.signedOut")) %>"
+       data-msg-network="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("common.networkError")) %>">
+<div id="cover-crop-wrap" class="avatar-crop-wrap cover-crop-wrap">
+  <img id="cover-crop-img" alt="">
+</div>
+<div class="avatar-btns">
+  <button id="cover-zoom-in" type="button" class="control-btn" aria-label="+">+</button>
+  <button id="cover-zoom-out" type="button" class="control-btn" aria-label="−">−</button>
+  <button id="cover-save" type="button" class="control-btn btn-outline push"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> <%= t.getProperty("common.save") %></button>
+  <button id="cover-cancel" type="button" class="control-btn btn-outline"><%= t.getProperty("common.cancel") %></button>
+  <button id="cover-remove" type="button" class="control-btn btn-outline"<%= coverUrl == null ? " hidden" : "" %>><i class="fa-solid fa-trash-can" aria-hidden="true"></i> <%= t.getProperty("cover.remove") %></button>
+</div>
+<p class="form-note avatar-tip"><%= t.getProperty("cover.tip") %></p>
+<form id="cover-form" method="post" action="/profile/cover" enctype="multipart/form-data" hidden>
+  <input type="hidden" name="csrf" value="${csrf}">
+</form>

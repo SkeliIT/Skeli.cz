@@ -28,6 +28,9 @@ are easy to get wrong.
 - Where code goes: SQL in `dao/` (JSPs only render what a DAO returns, as plain classes in `model/`:
   the JSP compiler can't read records), servlets in `web/<area>/`, filters in `filter/`, background jobs
   in `job/`. Admin templates live in `WEB-INF/views/admin/`; old addresses go to `LegacyRedirectServlet`.
+- User images (avatar, profile header) go through `service/ProfileImages`: random file names, served only by
+  `web/files/ProfileImageServlet` (the header also checks who is looking). A new servlet with `@MultipartConfig`
+  must call `CsrfFilter.isValid` and be added to `CsrfFilter.MULTIPART_PATHS`.
 - Comments under lyrics and under clips are one system: `dao/CommentDao` (the `Kind` picks the table),
   `/api/comments`, drawn by `js/comments.js` from `includes/comments.jspf`. Change both kinds together.
 - Kevin's lines live in `js/lines/kevin-{cs,en,de,uk,vi}.js` (a page loads only its own language, footer.jsp);

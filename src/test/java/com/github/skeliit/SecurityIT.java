@@ -23,6 +23,25 @@ class SecurityIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Multipart bez tokenu neobejde ochranu formulářů; bez tokenu projde jen k servletům, které si ho hlídají samy")
+    void multipartCannotSkipCsrf() throws Exception {
+        String name = "mp" + uniq();
+        int id = registerAndLogin(name);
+        update("UPDATE users SET role='ADMIN' WHERE id=?", id);
+        logout();
+        login(name, PASSWORD);                               // role se načte při přihlášení
+        driver.get(BASE_URL + "/index.jsp");
+        waitReady();
+        String post = "var done = arguments[1], fd = new FormData(); fd.append('x', '1');"
+                + "fetch(arguments[0], {method: 'POST', body: fd}).then(function (r) { done(r.status); });";
+        org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+        assertEquals(400L, js.executeAsyncScript(post, "/api/pong/start?d=2&len=10"), "běžná adresa");
+        assertEquals(400L, js.executeAsyncScript(post, "/admin/users?action=role&role=USER&user_id=" + id), "ani admin bez tokenu");
+        assertEquals("ADMIN", queryString("SELECT role FROM users WHERE id=?", id), "role se nezměnila");
+        assertEquals(403L, js.executeAsyncScript(post, "/profile/cover"), "nahrávání si token zkontroluje samo");
+    }
+
+    @Test
     @DisplayName("Redirects are paths, so behind the https proxy the browser never drops to http")
     void redirectsStayOnTheSameScheme() throws Exception {
         HttpResponse<Void> r = get("/login");

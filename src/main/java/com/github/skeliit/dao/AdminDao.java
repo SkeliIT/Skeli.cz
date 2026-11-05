@@ -210,12 +210,12 @@ public class AdminDao {
 
     /** Every account, newest first (deleted ones too: the page hides them unless asked). */
     public List<AdminUser> users() throws SQLException {
-        String sql = "SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC";
+        String sql = "SELECT id, username, email, role, created_at, avatar_url, cover_url FROM users ORDER BY created_at DESC";
         List<AdminUser> out = new ArrayList<>();
         try (Connection conn = Db.get(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 out.add(new AdminUser(rs.getInt("id"), rs.getString("username"), rs.getString("email"),
-                        rs.getString("role"), rs.getTimestamp("created_at")));
+                        rs.getString("role"), rs.getTimestamp("created_at"), rs.getString("avatar_url"), rs.getString("cover_url")));
             }
         }
         return out;

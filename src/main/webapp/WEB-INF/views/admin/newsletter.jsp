@@ -28,9 +28,9 @@
       <p class="text-dim">Pošle se všem, kdo odběr potvrdili a neodhlásili se: <b><%= nlCount %></b>. Každý e-mail má odkaz na odhlášení. Nejdřív si pošli zkušební kopii na svůj e-mail.<% if (!nlSmtp) { %> <b>Odesílání e-mailů tu není nastavené.</b><% } %></p>
       <form method="post" action="/admin/newsletter" class="admin-form nl-form">
         <input type="hidden" name="csrf" value="${csrf}">
-        <label>Klip v e-mailu (nepovinné – předvyplní předmět i text)
+        <label>Video v e-mailu (nepovinné – předvyplní předmět i text)
           <select name="youtube_id" id="nlClip">
-            <option value="">— bez klipu —</option>
+            <option value="">— bez videa —</option>
             <% if (nlClips != null) for (com.github.skeliit.dao.HomeDao.HomeVideo v : nlClips) { %><option value="<%= com.github.skeliit.WebUtils.escapeHtml(v.youtubeId()) %>"><%= com.github.skeliit.WebUtils.escapeHtml(v.title() == null ? v.youtubeId() : v.title()) %></option><% } %>
           </select>
         </label>
@@ -50,8 +50,8 @@
           sel.addEventListener('change', function () {
             var title = sel.selectedIndex > 0 ? sel.options[sel.selectedIndex].text : '';
             if (!title) return;
-            if (!sub.value || sub.dataset.auto) { sub.value = 'Nový klip: ' + title; sub.dataset.auto = '1'; }
-            if (!body.value || body.dataset.auto) { body.value = 'Ahoj,\n\nje venku nový klip „' + title + '“. Pusť si ho a napiš mi, jak se ti líbí.\n\nSkeli'; body.dataset.auto = '1'; }
+            if (!sub.value || sub.dataset.auto) { sub.value = 'Nové video: ' + title; sub.dataset.auto = '1'; }
+            if (!body.value || body.dataset.auto) { body.value = 'Ahoj,\n\nje venku nové video „' + title + '“. Pusť si ho a napiš mi, jak se ti líbí.\n\nSkeli'; body.dataset.auto = '1'; }
           });
           [sub, body].forEach(function (f) { f.addEventListener('input', function () { delete f.dataset.auto; }); });
         })();

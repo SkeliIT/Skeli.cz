@@ -74,7 +74,7 @@
   String[] mDayNames = {"Po", "Út", "St", "Čt", "Pá", "So", "Ne"};
   String[] mDayLong = {"pondělí", "úterý", "středa", "čtvrtek", "pátek", "sobota", "neděle"};
   long topMax = topPlays.isEmpty() ? 1 : Math.max(1, Long.parseLong(topPlays.get(0)[1]));
-  String[][] playTabs = {{"lyric", "fa-align-left", "Texty"}, {"karaoke", "fa-microphone", "Karaoke"}, {"clip", "fa-play", "Klipy"}};
+  String[][] playTabs = {{"lyric", "fa-align-left", "Texty"}, {"karaoke", "fa-microphone", "Karaoke"}, {"clip", "fa-play", "Videa"}};
 %>
 <main class="admin-page admin-stats-page">
   <%@ include file="/includes/admin-nav.jspf" %>
@@ -102,7 +102,7 @@
     <section class="w" data-w="sum" data-size="xl" data-title="Souhrn">
       <h3><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Souhrn <small><%= periodText %></small></h3>
       <div class="st-sum">
-        <% for (String[] k : new String[][]{{"people", "Lidí na webu"}, {"pages", "Zobrazených stránek"}, {"plays", "Přehrání (texty, klipy, karaoke)"}}) {
+        <% for (String[] k : new String[][]{{"people", "Lidí na webu"}, {"pages", "Zobrazených stránek"}, {"plays", "Přehrání (texty, videa, karaoke)"}}) {
              com.github.skeliit.service.DashboardStats.Tile kt = tile.get(k[0]); if (kt == null) continue; %>
         <div class="st-num"><span class="st-lbl"><%= k[1] %></span><b><%= num.apply(kt.getTotal()) %></b>
           <% if (d != 0) { %><span class="st-trend st-<%= kt.getTrend() %>"><%= kt.getTrendText() %></span><% } %></div>
@@ -250,7 +250,7 @@
     <section class="w" data-w="campaigns" data-size="s" data-title="Kampaně">
       <h3><i class="fa-solid fa-tag" aria-hidden="true"></i> Kampaně</h3>
       <% if (mCampaigns.isEmpty()) { %>
-      <p class="st-note">Dej do odkazu štítek, třeba <code>skeli.cz/?z=ig-bio</code> do bia na Instagramu nebo <code>skeli.cz/?z=klip-drama</code> pod klip – tady pak uvidíš, kolik lidí přišlo z kterého odkazu.</p>
+      <p class="st-note">Dej do odkazu štítek, třeba <code>skeli.cz/?z=ig-bio</code> do bia na Instagramu nebo <code>skeli.cz/?z=video-drama</code> pod video – tady pak uvidíš, kolik lidí přišlo z kterého odkazu.</p>
       <% } else { %>
       <ol class="admin-top">
         <% for (String[] r : mCampaigns) { %><li><span><code><%= com.github.skeliit.WebUtils.escapeHtml(r[0]) %></code></span> <b><%= r[1] %></b></li><% } %>

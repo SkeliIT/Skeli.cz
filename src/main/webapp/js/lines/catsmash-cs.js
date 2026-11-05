@@ -375,7 +375,7 @@ window.KEVIN_LINES.cs.pong = {
   "menuTitle": "Pauza",
   "menuBack": "Zpět do menu",
   "supportCardTitle": "Podpoř Skeliho",
-  "supportCardText": "Každý příspěvek pomůže s novou hudbou, klipy i hrami. Platba proběhne bezpečně přes Revolut.",
+  "supportCardText": "Každý příspěvek pomůže s novou hudbou, videi i hrami. Platba proběhne bezpečně přes Revolut.",
   "supportMore": "Další možnosti podpory",
   "lookBtn": "Prohlídka automatu",
   "lookBack": "Zpět ke hře",

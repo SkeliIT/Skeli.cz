@@ -84,11 +84,14 @@
           <button type="button" class="action-btn" id="shareLyric" data-copied="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("lyric.linkCopied")) %>" title="<%= t.getProperty("lyric.shareLink") %>">
             <i class="fas fa-share-alt"></i> <span><%= t.getProperty("common.share") %></span>
           </button>
+          <%-- píseň bez videa má místo ikon velká tlačítka Poslechni pod fotkou --%>
+          <c:if test="${not empty lyric.youtubeId or (empty lyric.spotifyId and empty lyric.appleMusicId)}">
           <span class="listen-icons">
-            <a class="listen-icon listen-spotify" href="https://open.spotify.com/search/<c:out value='${lyric.songName}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.findSpotify") %>" aria-label="<%= t.getProperty("lyric.findSpotify") %>"><i class="fab fa-spotify" aria-hidden="true"></i></a>
+            <a class="listen-icon listen-spotify" href="<c:out value='${lyric.spotifyUrl}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.findSpotify") %>" aria-label="<%= t.getProperty("lyric.findSpotify") %>"><i class="fab fa-spotify" aria-hidden="true"></i></a>
             <c:if test="${not empty lyric.youtubeId}"><a class="listen-icon listen-yt" href="https://www.youtube.com/watch?v=<c:out value='${lyric.youtubeId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openYoutube") %>" aria-label="<%= t.getProperty("lyric.openYoutube") %>"><i class="fab fa-youtube" aria-hidden="true"></i></a></c:if>
             <c:if test="${not empty lyric.appleMusicId}"><a class="listen-icon listen-apple" href="https://music.apple.com/cz/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener" title="<%= t.getProperty("lyric.openApple") %>" aria-label="<%= t.getProperty("lyric.openApple") %>"><i class="fab fa-apple" aria-hidden="true"></i></a></c:if>
           </span>
+          </c:if>
         </div>
       </header>
 
@@ -198,6 +201,32 @@
       </section>
       </c:if>
 
+      <%-- pod fotkou nebo videem: nastříkaná poznámka z adminu (dao/SongNoteDao) a u písně bez videa tlačítka Poslechni --%>
+      <%
+        com.github.skeliit.model.LyricView noteView = (com.github.skeliit.model.LyricView) request.getAttribute("lyric");
+        String songNoteText = null;
+        if (noteView != null) {
+          try {
+            songNoteText = new com.github.skeliit.dao.SongNoteDao().active(com.github.skeliit.dao.SongNoteDao.Place.SONG, cur).get(noteView.songId);
+          } catch (java.sql.SQLException e) {
+            application.log("Poznámka u písně", e);
+          }
+        }
+        boolean listenButtons = noteView != null && (noteView.youtubeId == null || noteView.youtubeId.isEmpty())
+            && ((noteView.spotifyId != null && !noteView.spotifyId.isEmpty()) || (noteView.appleMusicId != null && !noteView.appleMusicId.isEmpty()));
+      %>
+      <% if (songNoteText != null || listenButtons) { %>
+      <div class="song-after-media">
+        <% if (songNoteText != null) { %><p class="song-note song-note-big" role="note"><span><%= com.github.skeliit.WebUtils.escapeHtml(songNoteText) %></span></p><% } %>
+        <% if (listenButtons) { %>
+        <div class="listen-cta">
+          <c:if test="${not empty lyric.spotifyId}"><a class="listen-btn listen-btn-spotify" href="<c:out value='${lyric.spotifyUrl}'/>" target="_blank" rel="noopener"><i class="fab fa-spotify" aria-hidden="true"></i> <%= t.getProperty("lyrics.listen.spotify") %></a></c:if>
+          <c:if test="${not empty lyric.appleMusicId}"><a class="listen-btn listen-btn-apple" href="https://music.apple.com/cz/song/<c:out value='${lyric.appleMusicId}'/>" target="_blank" rel="noopener"><i class="fab fa-apple" aria-hidden="true"></i> <%= t.getProperty("lyrics.listen.apple") %></a></c:if>
+        </div>
+        <% } %>
+      </div>
+      <% } %>
+
       <!-- The lyrics in a frame that fades out at the bottom -->
       <section class="lyric-main">
       <%-- reading the lyrics: karaoke (when the clip has timings) and Aa = size and font, in the corner of the frame --%>
@@ -273,7 +302,7 @@
           (function () {
             var card = document.getElementById('lyric-help');
             if (!card) return;
-            // pustit od místa, kde chybějící kus začíná: náhled spustí klip rovnou tam, běžící klip tam skočí
+            // pustit od místa, kde chybějící kus začíná: náhled spustí video rovnou tam, běžící video tam skočí
             var play = card.querySelector('.lyric-help-play');
             if (play) play.addEventListener('click', function () {
               var from = parseInt(play.dataset.from, 10) || 0, box = document.getElementById('ytFacade');

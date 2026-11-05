@@ -2,7 +2,7 @@
 <%@ include file="/includes/header.jsp" %>
 <%@ page import="java.util.List, com.github.skeliit.web.admin.AdminLyricsServlet.SongRow, com.github.skeliit.web.admin.AdminLyricsServlet.VideoRow" %>
 <%-- Texty: přehled, co u písní chybí. Samotné texty se upravují u písně v záložce Texty (/admin/song#texty);
-     tady zůstaly klipy bez písně (udělat z nich píseň / smazat) a nová píseň bez klipu. --%>
+     tady zůstaly videa bez písně (udělat z nich píseň / smazat) a nová píseň bez videa. --%>
 <%
   @SuppressWarnings("unchecked") List<SongRow> songs = (List<SongRow>) request.getAttribute("songs");
   @SuppressWarnings("unchecked") List<VideoRow> videos = (List<VideoRow>) request.getAttribute("videos");
@@ -15,7 +15,7 @@
   <h2 class="admin-page-title">Texty</h2>
   <p class="text-dim">Kompletní (všech 5 jazyků): <b><%= complete %> z <%= songs.size() %></b>. Kliknutím otevřeš píseň rovnou v záložce Texty.</p>
 
-  <% if ("1".equals(request.getParameter("hidden"))) { %><div class="form-success">Klip je smazaný z webu i z databáze a synchronizace z YouTube ho už nevrátí. 30 dní ho najdeš v Koši.</div><% } %>
+  <% if ("1".equals(request.getParameter("hidden"))) { %><div class="form-success">Video je smazané z webu i z databáze a synchronizace z YouTube ho už nevrátí. 30 dní ho najdeš v Koši.</div><% } %>
   <% if ("1".equals(request.getParameter("error"))) { %><div class="form-alert">Něco chybí, zkus to znovu.</div><% } %>
 
   <section class="admin-card">
@@ -34,8 +34,8 @@
   <div class="admin-grid">
     <% if (!videos.isEmpty()) { %>
     <section class="admin-card">
-      <h3><i class="fa-brands fa-youtube" aria-hidden="true"></i> Klipy bez písně</h3>
-      <p class="text-dim">Klikni na klip a udělá se z něj píseň. Klip, který ještě není hotová písnička, smaž košem.</p>
+      <h3><i class="fa-brands fa-youtube" aria-hidden="true"></i> Videa bez písně</h3>
+      <p class="text-dim">Klikni na video a udělá se z něj píseň. Video, které ještě není hotová písnička, smaž košem.</p>
       <% for (VideoRow v : videos) { String vid = com.github.skeliit.WebUtils.escapeHtml(v.youtubeId), vtitle = com.github.skeliit.WebUtils.escapeHtml(v.title); %>
         <div class="ls-video-row">
           <form method="post" action="/admin/lyrics" class="ls-video">
@@ -44,11 +44,11 @@
             <input type="hidden" name="youtube_id" value="<%= vid %>">
             <button type="submit"><i class="fab fa-youtube"></i> <%= vtitle %></button>
           </form>
-          <form method="post" action="/admin/lyrics" class="ls-video-hide" onsubmit="return confirm('Smazat tenhle klip z webu i z databáze? 30 dní ho najdeš v Koši.')">
+          <form method="post" action="/admin/lyrics" class="ls-video-hide" onsubmit="return confirm('Smazat tohle video z webu i z databáze? 30 dní ho najdeš v Koši.')">
             <input type="hidden" name="csrf" value="<%= csrfToken %>">
             <input type="hidden" name="action" value="hide_video">
             <input type="hidden" name="youtube_id" value="<%= vid %>">
-            <button type="submit" title="Smazat klip" aria-label="Smazat klip: <%= vtitle %>"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
+            <button type="submit" title="Smazat video" aria-label="Smazat video: <%= vtitle %>"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
           </form>
         </div>
       <% } %>
@@ -56,8 +56,8 @@
     <% } %>
 
     <section class="admin-card">
-      <h3><i class="fa-solid fa-plus" aria-hidden="true"></i> Nová píseň bez klipu</h3>
-      <p class="text-dim">Píseň s klipem přidáš přes „Přidat track“.</p>
+      <h3><i class="fa-solid fa-plus" aria-hidden="true"></i> Nová píseň bez videa</h3>
+      <p class="text-dim">Píseň s videem přidáš přes „Přidat track“.</p>
       <form method="post" action="/admin/lyrics" class="ls-new">
         <input type="hidden" name="csrf" value="<%= csrfToken %>">
         <input type="hidden" name="action" value="new_song">

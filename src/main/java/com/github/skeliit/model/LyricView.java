@@ -11,6 +11,8 @@ public class LyricView {
     /** hearts for the whole song (all its languages) */
     public int likes;
     public String appleMusicId;
+
+    public String spotifyId;
     public String previewImageUrl;
     /** Stable public song id. */
     public String songUuid;
@@ -38,6 +40,18 @@ public class LyricView {
     public long getViews() { return views; }
     public int getLikes() { return likes; }
     public String getAppleMusicId() { return appleMusicId; }
+
+    public String getSpotifyId() { return spotifyId; }
+
+    /** Skladba, když je známé její ID (admin), jinak hledání podle názvu. */
+
+    public String getSpotifyUrl() {
+
+        if (spotifyId != null && spotifyId.matches("[A-Za-z0-9]{22}")) return "https://open.spotify.com/track/" + spotifyId;
+
+        return "https://open.spotify.com/search/" + java.net.URLEncoder.encode("Skeli " + songName, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+
+    }
     public String getPreviewImageUrl() { return previewImageUrl; }
     public String getSongUuid() { return songUuid; }
     public String getLang() { return lang; }

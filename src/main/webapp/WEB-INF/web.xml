@@ -77,6 +77,8 @@
         <url-pattern>/admin/*</url-pattern>
         <url-pattern>/admin.jsp</url-pattern>
         <url-pattern>/admin_users.jsp</url-pattern>
+        <!-- zkušební ukázka Kevina, ne pro návštěvníky -->
+        <url-pattern>/kevin-ukazka.jsp</url-pattern>
     </filter-mapping>
 
     <!-- CSRF protection for every state-changing request (see CsrfFilter for exemptions) -->

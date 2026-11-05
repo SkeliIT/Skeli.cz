@@ -67,6 +67,6 @@ public class AdminComment {
     /** The song or the clip the comment belongs to. */
     public String where() {
         String name = isLyric() ? songName : videoTitle;
-        return name == null || name.isBlank() ? (isLyric() ? "text #" + lyricId : "klip " + youtubeId) : name;
+        return name == null || name.isBlank() ? (isLyric() ? "text #" + lyricId : "video " + youtubeId) : name;
     }
 }

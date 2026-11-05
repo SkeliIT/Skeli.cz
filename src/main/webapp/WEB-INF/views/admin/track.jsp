@@ -6,7 +6,7 @@
   <%@ include file="/includes/admin-nav.jspf" %>
   <p class="admin-crumb"><a href="/admin/songs">Písně</a> · <strong>Přidat track z YouTube</strong></p>
   <h2 class="admin-page-title">Přidat track z YouTube</h2>
-  <p class="text-dim">Vlož odkaz na klip. Název, rok a náhled se načtou z YouTube, zkontroluješ je, případně doplníš Spotify, Apple Music a text — a jedním tlačítkem je track na webu.</p>
+  <p class="text-dim">Vlož odkaz na video. Název, rok a náhled se načtou z YouTube, zkontroluješ je, případně doplníš Spotify, Apple Music a text — a jedním tlačítkem je track na webu.</p>
 
   <c:if test="${not empty error}"><p class="admin-error"><c:out value="${error}"/></p></c:if>
   <c:if test="${param.msg == 'bad_youtube'}"><p class="admin-error">Tohle nevypadá jako odkaz na YouTube video.</p></c:if>
@@ -29,11 +29,11 @@
       <div class="track-preview">
         <img src="<c:out value='${draft.thumbUrl}'/>" alt="">
         <div>
-          <label>Název klipu (jak je na YouTube)
+          <label>Název videa (jak je na YouTube)
             <input name="video_title" value="<c:out value='${draft.videoTitle}'/>">
           </label>
           <c:if test="${not empty draft.linkedSongId}">
-            <p class="text-dim">Tenhle klip už je u písně <a href="/admin/song?uuid=${draft.linkedSongUuid}"><c:out value="${draft.linkedSongName}"/></a>. Uložením ho můžeš přesunout jinam.</p>
+            <p class="text-dim">Tohle video už je u písně <a href="/admin/song?uuid=${draft.linkedSongUuid}"><c:out value="${draft.linkedSongName}"/></a>. Uložením ho můžeš přesunout jinam.</p>
           </c:if>
         </div>
       </div>
@@ -47,7 +47,7 @@
           <label>Název písně <input name="song_name" value="<c:out value='${draft.songName}'/>"></label>
           <label>Rok <input name="year" type="number" min="1990" max="2100" value="${draft.year}"></label>
         </div>
-        <label class="track-choice"><input type="radio" name="song_mode" value="existing"${useExisting ? ' checked' : ''}> K existující písni (např. remake nebo jiná verze klipu)</label>
+        <label class="track-choice"><input type="radio" name="song_mode" value="existing"${useExisting ? ' checked' : ''}> K existující písni (např. remake nebo jiná verze videa)</label>
         <select name="song_id" class="track-existing">
           <c:forEach var="s" items="${songs}">
             <option value="${s.id}"${s.id == preselect ? ' selected' : ''}><c:out value="${s.name}"/><c:if test="${not empty s.year}"> (${s.year})</c:if></option>

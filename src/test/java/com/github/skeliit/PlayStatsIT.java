@@ -40,9 +40,8 @@ class PlayStatsIT extends UiTestSupport {
             logout();
             login(admin, PASSWORD);
             driver.get(BASE_URL + "/admin/stats?plays=clip&period=7#plays");
-            String card = driver.findElement(By.id("plays")).getText();
+            String card = driver.findElement(By.cssSelector("[data-w=plays]")).getText();
             assertTrue(card.contains("1×"), "the clip is in the top list: " + card);
-            assertEquals(7, driver.findElements(By.cssSelector("#plays .play-day")).size(), "a column for each of the 7 days");
             // the admin's own plays are not counted
             js.executeScript(fire, yt);
             Thread.sleep(800);

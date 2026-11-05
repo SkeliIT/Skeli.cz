@@ -298,7 +298,7 @@
       "Něco se zaseklo. Zkusíme to znovu.",
       "Přehrávač má dneska vlastní náladu. Znám to.",
       "Obraz ani zvuk? To už je skoro moderní umění.",
-      "Teď to nevyšlo. Zkus jiný klip nebo to za chvíli opakuj.",
+      "Teď to nevyšlo. Zkus jiné video nebo to za chvíli opakuj.",
       "Technika tvrdí, že za to nemůže. Já tvrdím, že může."
     ]
   },
@@ -447,11 +447,11 @@
       "Dneska se nic nového neurodilo. Ani v misce."
     ],
     "lead": "Od tvé minulé návštěvy:",
-    "clip": "vyšel klip {t}",
+    "clip": "vyšlo video {t}",
     "clips": [
       "",
-      "vyšly {n} nové klipy, nejnovější {t}",
-      "vyšlo {n} nových klipů, nejnovější {t}"
+      "vyšla {n} nová videa, nejnovější {t}",
+      "vyšlo {n} nových videí, nejnovější {t}"
     ],
     "posts": [
       "{n} nový příspěvek v Aktualitách",
@@ -510,9 +510,9 @@
       "{n} nahlášených komentářů čeká na kontrolu"
     ],
     "clips": [
-      "{n} klip nemá přiřazenou skladbu ({t})",
-      "{n} klipy nemají přiřazenou skladbu (nejnovější: {t})",
-      "{n} klipů nemá přiřazenou skladbu (nejnovější: {t})"
+      "{n} video nemá přiřazenou skladbu ({t})",
+      "{n} videa nemají přiřazenou skladbu (nejnovější: {t})",
+      "{n} videí nemá přiřazenou skladbu (nejnovější: {t})"
     ],
     "lyrics": [
       "{n} skladbě chybí text",

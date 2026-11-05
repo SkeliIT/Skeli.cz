@@ -49,6 +49,7 @@ public class PlayerProfileServlet extends HttpServlet {
             var player = users.summary(id);
             req.setAttribute("player", player);
             req.setAttribute("playerAvatar", users.avatar(id));
+            req.setAttribute("playerCover", users.coverForOthers(id));
             req.setAttribute("playerShowcase", users.showcase(id));
             req.setAttribute("playerPong", new PongDao().profile(id));
             req.setAttribute("pageTitle", player.username);

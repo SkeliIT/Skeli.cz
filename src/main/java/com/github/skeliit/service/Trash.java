@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Koš v adminu (V94): těsně před smazáním písně, klipu, textu nebo komentáře si uložíme kopii všech řádků, které
+ * Koš v adminu (V94): těsně před smazáním písně, videa, textu nebo komentáře si uložíme kopii všech řádků, které
  * smazání odnese – i těch navázaných (komentáře, hlasy, časy karaoke…). Co je na smazaném řádku závislé, zjistíme
  * z cizích klíčů v databázi, takže se nic nezapomene. „Obnovit“ řádky vloží zpátky ve stejném pořadí
  * (nejdřív rodiče, pak děti) se stejnými id. Po 30 dnech se kopie smaže natrvalo.
@@ -57,7 +57,7 @@ public final class Trash {
 
     // ---------- co se ukládá před smazáním ----------
 
-    /** Klip: řádek videa, jeho komentáře (s odpověďmi a hlasy) a časy karaoke. Obnovení ho vyndá i ze seznamu blokovaných. */
+    /** Video: řádek videa, jeho komentáře (s odpověďmi a hlasy) a časy karaoke. Obnovení ho vyndá i ze seznamu blokovaných. */
     public static void video(HttpServletRequest req, String youtubeId) throws SQLException {
         Snapshot s = new Snapshot();
         try (Connection c = Db.get()) {
@@ -67,11 +67,11 @@ public final class Trash {
             for (Map<String, String> row : comments) s.capture(c, "video_comment_votes", "comment_id", row.get("id"));
             s.capture(c, "karaoke_timings", "youtube_id", youtubeId);
             s.unblock = youtubeId;
-            if (!s.rows.isEmpty()) store(req, "video", "Klip: " + (title == null ? youtubeId : com.github.skeliit.job.VideoTitles.display(title)), s);
+            if (!s.rows.isEmpty()) store(req, "video", "Video: " + (title == null ? youtubeId : com.github.skeliit.job.VideoTitles.display(title)), s);
         }
     }
 
-    /** Píseň (smazat jde jen bez textu): řádek písně a co je na ní závislé; klipy se k ní po obnovení zase připojí. */
+    /** Píseň (smazat jde jen bez textu): řádek písně a co je na ní závislé; videa se k ní po obnovení zase připojí. */
     public static void song(HttpServletRequest req, int songId) throws SQLException {
         Snapshot s = new Snapshot();
         try (Connection c = Db.get()) {
@@ -93,7 +93,7 @@ public final class Trash {
         }
     }
 
-    /** Komentář smazaný adminem (s odpověďmi; u klipů i s hlasy). Vlastní komentáře, které smaže autor, se neukládají. */
+    /** Komentář smazaný adminem (s odpověďmi; u videí i s hlasy). Vlastní komentáře, které smaže autor, se neukládají. */
     public static void comment(HttpServletRequest req, String kind, int commentId) throws SQLException {
         boolean video = "video".equals(kind);
         String table = video ? "video_comments" : "comments";
@@ -178,7 +178,7 @@ public final class Trash {
 
     // ---------- uvnitř ----------
 
-    /** Kopie smazaných řádků: řádky v pořadí pro vložení zpět, odkazy, které smazání vynulovalo, a klip k odblokování. */
+    /** Kopie smazaných řádků: řádky v pořadí pro vložení zpět, odkazy, které smazání vynulovalo, a video k odblokování. */
     public static class Snapshot {
         public static class Row { public String t; public Map<String, String> v; }
         public static class Link { public String t, col, val, pk, pkVal; }

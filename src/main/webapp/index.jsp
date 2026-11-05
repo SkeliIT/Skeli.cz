@@ -19,7 +19,7 @@
   }
   java.time.format.DateTimeFormatter dateFmt = java.time.format.DateTimeFormatter
       .ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(java.util.Locale.forLanguageTag(cur));
-  // nahoře „Nový song“ (ručně vybraný, nebo nejnovější klip); v Novinkách se pak už neopakuje
+  // nahoře „Nový song“ (ručně vybraný, nebo nejnovější video); v Novinkách se pak už neopakuje
   com.github.skeliit.dao.HomeDao.HomeVideo latest = homeVideos.isEmpty() ? null : homeVideos.get(0);
   try { latest = new com.github.skeliit.dao.HomeDao().featured(homeVideos); } catch (SQLException ex) { /* zůstane nejnovější */ }
   final String featuredId = latest == null ? "" : latest.youtubeId();

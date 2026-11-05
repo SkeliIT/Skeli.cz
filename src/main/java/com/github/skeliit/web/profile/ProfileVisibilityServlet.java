@@ -16,7 +16,7 @@ import java.util.Set;
 
 /**
  * POST /profile/visibility – karta „Co o mně vidí ostatní“ v Nastavení → Soukromí, vše najednou:
- * pub=1 (veřejný profil /hrac/jméno pro přihlášené), champ=1 (rámeček šampiona měsíce), f (rámeček kolem fotky –
+ * pub=1 (veřejný profil /hrac/jméno pro přihlášené), cover=1 (záhlaví profilu), champ=1 (rámeček šampiona měsíce), f (rámeček kolem fotky –
  * jen získaný odznak z PongBadges.FRAMES, prázdné = bez), m (legendární znak u jména – jen získaný, prázdné = neukazovat).
  * Zaškrtávátka chybí = vypnuto; rámeček / znak chybí úplně (hráč ještě nemá z čeho vybírat) = beze změny.
  * Zpět na nastaveni.jsp?vis=1 (uloženo) nebo vis=0 (rámeček / znak nesedí – nic se neuložilo).
@@ -39,6 +39,7 @@ public class ProfileVisibilityServlet extends HttpServlet {
             ok = frameOk && markOk;
             if (ok) {
                 new UserDao().setProfilePublic(me, "1".equals(req.getParameter("pub")));
+                new UserDao().setCoverPublic(me, "1".equals(req.getParameter("cover")));
                 pong.setChampOn(me, "1".equals(req.getParameter("champ")));
                 if (f != null) pong.setFrame(me, f.isBlank() ? null : f);
                 if (m != null) pong.setMark(me, m.isBlank() ? null : m);

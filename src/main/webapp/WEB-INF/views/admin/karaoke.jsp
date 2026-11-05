@@ -9,11 +9,11 @@
   <%@ include file="/includes/admin-nav.jspf" %>
   <% if (kClip == null) { %>
   <h2 class="admin-page-title">Karaoke</h2>
-  <p class="text-dim">Na stránce písně se řádek, který se zrovna zpívá, vypaluje laserem. Časy řádků se počítají automaticky (Whisper poslechne klip); tady je jde doladit ručně. Ruční úprava má přednost před automatickou.</p>
+  <p class="text-dim">Na stránce písně se řádek, který se zrovna zpívá, vypaluje laserem. Časy řádků se počítají automaticky (Whisper poslechne video); tady je jde doladit ručně. Ruční úprava má přednost před automatickou.</p>
   <section class="admin-card admin-card-wide">
-    <h3>Klipy s českým textem</h3>
+    <h3>Videa s českým textem</h3>
     <table class="admin-table karaoke-list">
-      <thead><tr><th>Klip</th><th>Píseň</th><th>Řádků</th><th>Časy</th><th></th></tr></thead>
+      <thead><tr><th>Video</th><th>Píseň</th><th>Řádků</th><th>Časy</th><th></th></tr></thead>
       <tbody>
       <% for (KaraokeClip k : kClips) { %>
         <tr>
@@ -28,9 +28,9 @@
     </table>
   </section>
   <% } else { %>
-  <p><a href="/admin/karaoke"><i class="fa-solid fa-arrow-left"></i> Všechny klipy</a></p>
+  <p><a href="/admin/karaoke"><i class="fa-solid fa-arrow-left"></i> Všechna videa</a></p>
   <h2 class="admin-page-title">Karaoke: <%= WebUtils.escapeHtml(kClip.songName) %></h2>
-  <p class="text-dim">Pusť klip a v <strong>ťukacím režimu</strong> zmáčkni <kbd>mezerník</kbd> přesně ve chvíli, kdy začíná další řádek (konec předchozího se nastaví sám). Pomůže zpomalit na 0,75×. Každý čas jde pak posunout o desetinu sekundy nebo nastavit na „teď“.</p>
+  <p class="text-dim">Pusť video a v <strong>ťukacím režimu</strong> zmáčkni <kbd>mezerník</kbd> přesně ve chvíli, kdy začíná další řádek (konec předchozího se nastaví sám). Pomůže zpomalit na 0,75×. Každý čas jde pak posunout o desetinu sekundy nebo nastavit na „teď“.</p>
 
   <div class="karaoke-editor" id="karaokeEditor" data-yt="<%= kClip.youtubeId %>" data-csrf="${csrf}">
     <div class="karaoke-side">

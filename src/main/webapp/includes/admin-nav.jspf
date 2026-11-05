@@ -23,6 +23,8 @@
       {"/admin/lyrics", "fa-align-left", "Texty", "/admin/lyrics", "", ""},
       {"/admin/karaoke", "fa-microphone-lines", "Karaoke", "/admin/karaoke", "", ""},
       {"/admin/quotes", "fa-quote-left", "Citáty na úvodu", "/admin/quotes", "", ""},
+
+      {"/admin/notes", "fa-spray-can", "Poznámky u písní", "/admin/notes", "", ""},
       {"Lidé"},
       {"/admin/comments", "fa-comments", "Komentáře", "/admin/comments", anCount.getOrDefault("reports", 0) > 0 ? String.valueOf(anCount.get("reports")) : "", "urgent"},
       {"/admin/feedback", "fa-comment-dots", "Hodnocení webu", "/admin/feedback", anCount.getOrDefault("newFeedback", 0) > 0 ? String.valueOf(anCount.get("newFeedback")) : "", ""},

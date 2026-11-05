@@ -1,6 +1,8 @@
 package com.github.skeliit.filter;
 
 import com.github.skeliit.Db;
+import com.github.skeliit.service.ProfileImages;
+import com.github.skeliit.service.ProfileImages.Kind;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -67,12 +69,28 @@ public class SessionValidityFilter implements Filter {
         return v;
     }
 
+    /** Přihlášení z doby před náhodnými názvy (job/ProfileImageNames) má v relaci starou adresu fotky: načíst aktuální. */
+    private static void refreshAvatar(HttpSession s, int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT avatar_url FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                String url = rs.next() ? rs.getString(1) : null;
+                if (url == null) s.removeAttribute("avatar_url");
+                else s.setAttribute("avatar_url", url);
+            }
+        }
+    }
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpSession s = ((HttpServletRequest) request).getSession(false);
         if (s != null && s.getAttribute("userId") instanceof Integer uid) {
             try {
-                if (isStale(s.getAttribute("signedInAt"), validAfter(uid))) s.invalidate();
+                if (isStale(s.getAttribute("signedInAt"), validAfter(uid))) {
+                    s.invalidate();
+                } else if (s.getAttribute("avatar_url") instanceof String url && ProfileImages.isOldUrl(Kind.AVATAR, url)) {
+                    refreshAvatar(s, uid);
+                }
             } catch (SQLException | IllegalStateException e) {
                 // database unreachable or the session already gone: let the request go on
             }

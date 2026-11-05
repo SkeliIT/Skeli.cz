@@ -1,4 +1,4 @@
-// Odpočet do premiéry písně nebo klipu (úvod i stránka písně): prvky s data-premiere = okamžik v ms.
+// Odpočet do premiéry písně nebo videa (úvod i stránka písně): prvky s data-premiere = okamžik v ms.
 // Uvnitř [data-u="d|h|m|s"] dostanou dny, hodiny, minuty a vteřiny; po nule prvek dostane třídu is-out
 // (CSS pak místo odpočtu ukáže „Venku!“). Běží každou vteřinu, skončí, když prvek zmizí ze stránky.
 (function () {

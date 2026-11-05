@@ -298,7 +298,7 @@
       "Có gì đó bị kẹt. Thử lại nhé.",
       "Trình phát hôm nay có tâm trạng riêng. Tôi hiểu mà.",
       "Không hình không tiếng? Gần như nghệ thuật đương đại rồi.",
-      "Lần này không được. Thử clip khác hoặc lát nữa thử lại.",
+      "Lần này không được. Thử video khác hoặc lát nữa thử lại.",
       "Kỹ thuật bảo không phải lỗi của nó. Tôi bảo là có."
     ]
   },
@@ -447,10 +447,10 @@
       "Hôm nay chẳng có gì mới. Kể cả trong bát."
     ],
     "lead": "Từ lần ghé trước của bạn:",
-    "clip": "có clip mới {t}",
+    "clip": "có video mới {t}",
     "clips": [
       "",
-      "có {n} clip mới, mới nhất là {t}"
+      "có {n} video mới, mới nhất là {t}"
     ],
     "posts": [
       "{n} bài mới trong Tin tức",
@@ -507,8 +507,8 @@
       "{n} bình luận bị báo cáo đang chờ kiểm tra"
     ],
     "clips": [
-      "{n} clip chưa có bài ({t})",
-      "{n} clip chưa có bài (mới nhất: {t})"
+      "{n} video chưa có bài ({t})",
+      "{n} video chưa có bài (mới nhất: {t})"
     ],
     "lyrics": [
       "{n} bài chưa có lời",

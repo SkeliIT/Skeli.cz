@@ -41,7 +41,7 @@
       <label class="admin-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
         <input type="search" id="commentFilter" placeholder="Hledat autora, píseň nebo text…" aria-label="Hledat komentáře"></label>
       <select id="commentKind" aria-label="Kde">
-        <option value="">Vše</option><option value="lyric">U textů</option><option value="video">U klipů</option>
+        <option value="">Vše</option><option value="lyric">U textů</option><option value="video">U videí</option>
       </select>
       <span class="text-dim" id="commentCount"></span>
     </div>
@@ -58,7 +58,7 @@
               <% if (isReply) { %><span class="reply-mark" title="Odpověď"><i class="fa-solid fa-reply fa-rotate-180" aria-hidden="true"></i> odpověď<%= c != th && th.author != null ? " pro " + WebUtils.escapeHtml(th.author) : "" %> · </span><% } %>
               <strong><%= c.author == null ? "Smazaný účet" : WebUtils.escapeHtml(c.author) %></strong>
               · <%= c.createdAt == null ? "" : fmt.format(c.createdAt) %>
-              <% if (c == th) { %>· <a href="<%= WebUtils.escapeHtml(c.link()) %>" target="_blank" rel="noopener"><%= c.isLyric() ? "text" : "klip" %>: <%= WebUtils.escapeHtml(c.where()) %></a><% } %>
+              <% if (c == th) { %>· <a href="<%= WebUtils.escapeHtml(c.link()) %>" target="_blank" rel="noopener"><%= c.isLyric() ? "text" : "video" %>: <%= WebUtils.escapeHtml(c.where()) %></a><% } %>
               <% if (c.edited) { %> · upraveno<% } %>
               <% if (c.pinned) { %> · <i class="fa-solid fa-thumbtack" title="Připnuto"></i><% } %>
               <% if (c.hearted) { %> · <i class="fa-solid fa-heart text-heart" title="Srdíčko od Skeliho"></i><% } %>

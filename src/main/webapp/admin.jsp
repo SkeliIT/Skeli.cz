@@ -22,8 +22,8 @@
   }
   // Czech plurals: 1 / 2–4 / 5 and more
   String reportsText = nReports == 1 ? "nahlášený komentář čeká na rozhodnutí" : nReports < 5 ? "nahlášené komentáře čekají na rozhodnutí" : "nahlášených komentářů čeká na rozhodnutí";
-  String clipsText = nClipsAlone == 1 ? "klip z YouTube zatím není u žádné písně" : nClipsAlone < 5 ? "klipy z YouTube zatím nejsou u žádné písně" : "klipů z YouTube zatím není u žádné písně";
-  String clipsTail = nClipsAlone == 1 ? " – v Diskografii je jen jako klip, bez textu a bez stránky písně" : " – v Diskografii jsou jen jako klipy, bez textu a bez stránky písně";
+  String clipsText = nClipsAlone == 1 ? "video z YouTube zatím není u žádné písně" : nClipsAlone < 5 ? "videa z YouTube zatím nejsou u žádné písně" : "videí z YouTube zatím není u žádné písně";
+  String clipsTail = nClipsAlone == 1 ? " – v Diskografii je jen jako video, bez textu a bez stránky písně" : " – v Diskografii jsou jen jako videa, bez textu a bez stránky písně";
   String clipsHint = "Přiřaď k písni v Textech, nebo odklikni ✓, když je to tak správně.";
   String siteReportsText = nSiteReports == 1 ? "problém nahlásil návštěvník Kevinovi" : nSiteReports < 5 ? "problémy nahlásili návštěvníci Kevinovi" : "problémů nahlásili návštěvníci Kevinovi";
   String lyricHelpText = nLyricHelp == 1 ? "text poslal návštěvník k písni, kde hledáme pomoc" : nLyricHelp < 5 ? "texty poslali návštěvníci k písním, kde hledáme pomoc" : "textů poslali návštěvníci k písním, kde hledáme pomoc";
@@ -150,7 +150,7 @@
       {"allVisits", "fa-infinity", "Návštěv celkem"},
       {"pagesAll", "fa-layer-group", "Stránek celkem"}
   };
-  String[][] topKinds = {{"lyric", "fa-align-left", "Texty"}, {"karaoke", "fa-microphone", "Karaoke"}, {"clip", "fa-play", "Klipy"}};
+  String[][] topKinds = {{"lyric", "fa-align-left", "Texty"}, {"karaoke", "fa-microphone", "Karaoke"}, {"clip", "fa-play", "Videa"}};
   java.util.Map<String, java.util.List<String[]>> tops = new java.util.LinkedHashMap<>();
   for (String[] k : topKinds) {
     try {

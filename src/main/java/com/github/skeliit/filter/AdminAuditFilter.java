@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * Záznam změn v adminu (V94, admin → Záznam změn a koš): po každém odeslaném formuláři v adminu (POST) zapíše,
- * kdo co udělal a u čeho. Funguje sám pro všechny stránky adminu, takže se na nic nezapomene. Jména písní a klipů
+ * kdo co udělal a u čeho. Funguje sám pro všechny stránky adminu, takže se na nic nezapomene. Jména písní a videí
  * zjistí ještě před úkonem (po smazání by už nebyla). Hesla ani texty se nezapisují, jen co se dělo.
  * Mapování ve web.xml: /admin/* a /api/comments (tam jen když admin maže nebo připíná).
  */
@@ -30,9 +30,9 @@ public class AdminAuditFilter implements Filter {
     /** Adresa#akce → čitelný popis. */
     private static final Map<String, String> WHAT = Map.ofEntries(
             Map.entry("/admin/song#save", "Úprava písně"),
-            Map.entry("/admin/song#link_video", "Připojení klipu k písni"),
-            Map.entry("/admin/song#unlink_video", "Odpojení klipu od písně"),
-            Map.entry("/admin/song#delete_video", "Smazání klipu"),
+            Map.entry("/admin/song#link_video", "Připojení videa k písni"),
+            Map.entry("/admin/song#unlink_video", "Odpojení videa od písně"),
+            Map.entry("/admin/song#delete_video", "Smazání videa"),
             Map.entry("/admin/song#delete_song", "Smazání písně"),
             Map.entry("/admin/song#delete_text", "Smazání textu"),
             Map.entry("/admin/song#save_release", "Premiéra nastavená"),
@@ -46,9 +46,9 @@ public class AdminAuditFilter implements Filter {
             Map.entry("/admin/songs/preview#", "Náhledový obrázek písně"),
             Map.entry("/admin/lyrics#save", "Uložení textu písně"),
             Map.entry("/admin/lyrics#delete_text", "Smazání textu"),
-            Map.entry("/admin/lyrics#hide_video", "Smazání klipu bez písně"),
+            Map.entry("/admin/lyrics#hide_video", "Smazání videa bez písně"),
             Map.entry("/admin/lyrics#new_song", "Nová píseň"),
-            Map.entry("/admin/lyrics#from_video", "Píseň z klipu"),
+            Map.entry("/admin/lyrics#from_video", "Píseň z videa"),
             Map.entry("/admin/users#role", "Změna role uživatele"),
             Map.entry("/admin/users#delete", "Smazání uživatele"),
             Map.entry("/admin/comment#delete", "Smazání komentáře"),
@@ -61,6 +61,10 @@ public class AdminAuditFilter implements Filter {
             Map.entry("/admin/quotes#add", "Nový citát na úvod"),
             Map.entry("/admin/quotes#save", "Úprava citátu"),
             Map.entry("/admin/quotes#delete", "Smazání citátu"),
+
+            Map.entry("/admin/notes#save", "Poznámka u písně"),
+
+            Map.entry("/admin/notes#delete", "Smazání poznámky u písně"),
             Map.entry("/admin/newsletter#send", "Rozeslání novinek e-mailem"),
             Map.entry("/admin/newsletter#test", "Zkušební e-mail novinek"),
             Map.entry("/admin/newsletter#", "Úprava odběratelů novinek"),
@@ -105,7 +109,7 @@ public class AdminAuditFilter implements Filter {
         }
     }
 
-    /** U čeho se to dělo: píseň, klip, jazyk, uživatel, komentář – podle toho, co formulář posílá. */
+    /** U čeho se to dělo: píseň, video, jazyk, uživatel, komentář – podle toho, co formulář posílá. */
     private static String target(HttpServletRequest req) {
         List<String> out = new ArrayList<>();
         try (Connection c = Db.get()) {
@@ -119,7 +123,7 @@ public class AdminAuditFilter implements Filter {
             String yt = first(req, "youtube_id", "yt");
             if (yt != null) {
                 String title = one(c, "SELECT title FROM videos WHERE youtube_id = ?", yt);
-                out.add("klip „" + (title != null ? com.github.skeliit.job.VideoTitles.display(title) : yt) + "“");
+                out.add("video „" + (title != null ? com.github.skeliit.job.VideoTitles.display(title) : yt) + "“");
             }
             String lang = req.getParameter("lang");
             if (lang != null && lang.matches("[a-z]{2}")) out.add("jazyk " + lang.toUpperCase());

@@ -9,8 +9,12 @@ public class AdminUser {
     public final String email;
     public final String role;
     public final Timestamp createdAt;
+    public final String avatarUrl;
+    public final String coverUrl;
 
-    public AdminUser(int id, String username, String email, String role, Timestamp createdAt) {
+    public AdminUser(int id, String username, String email, String role, Timestamp createdAt, String avatarUrl, String coverUrl) {
+        this.avatarUrl = avatarUrl;
+        this.coverUrl = coverUrl;
         this.id = id;
         this.username = username;
         this.email = email;
