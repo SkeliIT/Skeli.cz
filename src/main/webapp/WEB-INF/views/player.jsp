@@ -43,9 +43,17 @@
                  java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.LONG).withLocale(java.util.Locale.forLanguageTag(cur)).format(pl.memberSince.toLocalDateTime()))) %><% } %>
             <% String plCity = (String) request.getAttribute("playerCity"); if (plCity != null && !plCity.isBlank()) { %> · <%= WebUtils.escapeHtml(plCity) %><% } %>
           </p>
+          <% if (Boolean.TRUE.equals(request.getAttribute("playerOnline"))) { %><p class="pt-online"><%= t.getProperty("profile.online") %></p><% } %>
           <% if (sc[2] != null) { %><p class="acct-motto motto-<%= WebUtils.escapeHtml(sc[4]) %>">„<%= WebUtils.escapeHtml(sc[2]) %>“</p><% } %>
         </div>
       </div>
+      <%
+        @SuppressWarnings("unchecked")
+        java.util.List<String> shownBadges = (java.util.List<String>) request.getAttribute("playerShownBadges");
+        if (shownBadges == null) shownBadges = java.util.List.of();
+        PongProfile showPong = pp;
+      %>
+      <%@ include file="/includes/profile-showcase.jspf" %>
       <% String plBio = (String) request.getAttribute("playerBio"); if (plBio != null && !plBio.isBlank()) { %><p class="acct-bio"><%= WebUtils.escapeHtml(plBio) %></p><% } %>
       <%-- přátelé a nahlášení: u vlastního náhledu (?nahled) nic --%>
       <% if (plRel != null) { %>
@@ -103,6 +111,22 @@
     boolean likesOwn = false;
   %>
   <%@ include file="/includes/profile-likes.jspf" %>
+  <%
+    @SuppressWarnings("unchecked")
+    java.util.List<com.github.skeliit.model.Friend> plFriends = (java.util.List<com.github.skeliit.model.Friend>) request.getAttribute("playerFriends");
+    if (plFriends != null && !plFriends.isEmpty()) {
+  %>
+  <section class="pt pt-friends" id="pratele-hrace">
+    <div class="pt-in">
+      <span class="pt-label"><i class="fa-solid fa-user-group" aria-hidden="true"></i> <%= t.getProperty("profile.tab.friends") %></span>
+      <ul class="friend-list">
+        <% for (com.github.skeliit.model.Friend fr : plFriends) { %>
+        <li class="friend-row"><a class="friend-who" href="/hrac/<%= java.net.URLEncoder.encode(fr.username, "UTF-8").replace("+", "%20") %>"><img src="<%= WebUtils.escapeHtml(fr.avatarUrl) %>" alt="" width="44" height="44" loading="lazy" referrerpolicy="no-referrer"><span><%= WebUtils.escapeHtml(fr.username) %></span></a></li>
+        <% } %>
+      </ul>
+    </div>
+  </section>
+  <% } %>
 
   </div>
 

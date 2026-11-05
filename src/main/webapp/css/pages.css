@@ -2286,6 +2286,22 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
 .pt-steps .done a { color: var(--text-dim); text-decoration: line-through; }
 .pt-steps .done i { color: var(--accent); }
 
+/* Vitrína: až 3 odznaky nahoře na profilu; barva podle vzácnosti (stejná jako ve hře) */
+.pt-show { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.pt-show-item { --rar: #9aa0a8; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 12px; border: 1px solid var(--rar); border-radius: 999px; background: color-mix(in srgb, var(--rar) 16%, transparent); font-size: var(--fs-small); }
+.pt-show-item[data-rar="u"] { --rar: #4fd17a; }
+.pt-show-item[data-rar="r"] { --rar: #4ea3ff; }
+.pt-show-item[data-rar="e"] { --rar: #b06bff; }
+.pt-show-item[data-rar="l"] { --rar: #ff9a2e; }
+.pt-show-item i { color: var(--rar); }
+.pt-show-add { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; margin-top: 6px; color: var(--accent); font-size: var(--fs-small); text-decoration: none; }
+.vis-pick .vis-show-picks { grid-column: 2 / -1; display: grid; gap: 6px; min-width: 0; }
+.vis-pick .vis-show-picks select { grid-column: 1; min-width: 0; }
+/* Stav online */
+.pt-online { display: flex; align-items: center; gap: 6px; margin: 4px 0 0; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.pt-online::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #3ddc84; }
+.pt-friends .pt-in { gap: 10px; }
+
 /* Písně se srdcem */
 .pt-likes { --glow: #ff4d6d; }
 .pt-likes .pt-in { gap: 10px; }

@@ -226,24 +226,46 @@ public class UserDao {
         }
     }
 
-    /** Co člověk ukazuje ostatním navíc: {pár slov o sobě, město, písně se srdcem}. Výchozí je všechno vypnuté. */
+    /** Co člověk ukazuje ostatním navíc: {pár slov o sobě, město, písně se srdcem, přátelé, stav online}. Výchozí je všechno vypnuté. */
     public boolean[] sharing(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT about_public, city_public, likes_public FROM users WHERE id = ?")) {
+                "SELECT about_public, city_public, likes_public, friends_public, online_public FROM users WHERE id = ?")) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? new boolean[] { rs.getBoolean(1), rs.getBoolean(2), rs.getBoolean(3) } : new boolean[3];
+                return rs.next() ? new boolean[] { rs.getBoolean(1), rs.getBoolean(2), rs.getBoolean(3), rs.getBoolean(4), rs.getBoolean(5) } : new boolean[5];
             }
         }
     }
 
-    public void setSharing(int userId, boolean about, boolean city, boolean likes) throws SQLException {
+    public void setSharing(int userId, boolean about, boolean city, boolean likes, boolean friends, boolean online) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "UPDATE users SET about_public = ?, city_public = ?, likes_public = ? WHERE id = ?")) {
+                "UPDATE users SET about_public = ?, city_public = ?, likes_public = ?, friends_public = ?, online_public = ? WHERE id = ?")) {
             ps.setBoolean(1, about);
             ps.setBoolean(2, city);
             ps.setBoolean(3, likes);
-            ps.setInt(4, userId);
+            ps.setBoolean(4, friends);
+            ps.setBoolean(5, online);
+            ps.setInt(6, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Vitrína: klíče odznaků v pořadí, jak si je člověk vybral. */
+    public List<String> showcaseBadges(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT showcase_badges FROM user_profiles WHERE user_id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                String raw = rs.next() ? rs.getString(1) : null;
+                return raw == null || raw.isBlank() ? List.of() : List.of(raw.split(","));
+            }
+        }
+    }
+
+    public void setShowcaseBadges(int userId, List<String> keys) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "INSERT INTO user_profiles (user_id, showcase_badges) VALUES (?, ?) ON DUPLICATE KEY UPDATE showcase_badges = VALUES(showcase_badges)")) {
+            ps.setInt(1, userId);
+            ps.setString(2, keys.isEmpty() ? null : String.join(",", keys));
             ps.executeUpdate();
         }
     }

@@ -66,6 +66,9 @@ public class PlayerProfileServlet extends HttpServlet {
             if (sharing[0] && details != null) req.setAttribute("playerBio", details.bio);
             if (sharing[1] && details != null) req.setAttribute("playerCity", details.city);
             if (sharing[2]) req.setAttribute("playerLikes", users.likedSongs(id));
+            if (sharing[3]) req.setAttribute("playerFriends", new com.github.skeliit.dao.FriendDao().friendsShownTo(id, me));
+            req.setAttribute("playerOnline", sharing[4] && com.github.skeliit.service.OnlineUsers.isOnline(id));
+            req.setAttribute("playerShownBadges", users.showcaseBadges(id));
             req.setAttribute("pageTitle", player.username);
         } catch (SQLException e) {
             throw new ServletException(e);

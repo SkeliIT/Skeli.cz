@@ -1,0 +1,10 @@
+<%-- Vitrína: až 3 odznaky, kterými se člověk chlubí. Předem nastavit shownBadges (List<String>) a showPong (PongProfile).
+     Ukazují se jen získané, kdyby o některý přišel. Vkládaná šablona se nečte jako UTF-8: žádné české znaky přímo ve výstupu. --%>
+<% boolean anyShown = false; for (String shownKey : shownBadges) anyShown |= showPong.has(shownKey); %>
+<% if (anyShown) { %>
+<ul class="pt-show" aria-label="<%= t.getProperty("vis.showcase.title") %>">
+  <% for (String shownKey : shownBadges) { if (!showPong.has(shownKey)) continue; %>
+  <li class="pt-show-item" data-rar="<%= com.github.skeliit.model.PongBadges.rarity(shownKey) %>"><i class="fa-solid <%= com.github.skeliit.model.PongBadges.icon(shownKey) %>" aria-hidden="true"></i> <span><%= t.getProperty("pong.badge." + shownKey) %></span></li>
+  <% } %>
+</ul>
+<% } %>

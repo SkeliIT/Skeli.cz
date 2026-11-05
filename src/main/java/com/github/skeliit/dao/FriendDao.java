@@ -109,6 +109,17 @@ public class FriendDao {
                 + "WHERE (f.user_a = ? OR f.user_b = ?) AND f.status = 'accepted' AND u.role <> 'DELETED' AND u.blocked_at IS NULL ORDER BY u.username", me, me, me);
     }
 
+    /**
+     * Přátelé na cizím profilu (když si to majitel zapnul). Jen ti s veřejným profilem: kdo má soukromý, toho tu nikdo
+     * nevidí, ani když si přátele zapnul jeho kamarád. Kdo zablokoval diváka, nebo koho divák zablokoval, se taky neukáže.
+     */
+    public List<Friend> friendsShownTo(int owner, int viewer) throws SQLException {
+        return list("SELECT " + PERSON + " FROM friendships f JOIN users u ON u.id = IF(f.user_a = ?, f.user_b, f.user_a) "
+                + "WHERE (f.user_a = ? OR f.user_b = ?) AND f.status = 'accepted' AND u.profile_public = 1 AND u.role <> 'DELETED' AND u.blocked_at IS NULL "
+                + "AND NOT EXISTS (SELECT 1 FROM user_blocks b WHERE (b.blocker_id = u.id AND b.blocked_id = ?) OR (b.blocker_id = ? AND b.blocked_id = u.id)) "
+                + "ORDER BY u.username LIMIT 24", owner, owner, owner, viewer, viewer);
+    }
+
     /** Žádosti, které čekají na mě. Od lidí, které jsem zablokoval, se neukazují. */
     public List<Friend> incoming(int me) throws SQLException {
         return list("SELECT " + PERSON + " FROM friendships f JOIN users u ON u.id = f.requested_by "

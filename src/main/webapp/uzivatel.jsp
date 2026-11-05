@@ -27,6 +27,7 @@
     java.util.List<com.github.skeliit.model.Friend> frFriends = java.util.List.of(), frIn = java.util.List.of(), frOut = java.util.List.of(), frBlocked = java.util.List.of(), frFound = java.util.List.of();
     java.util.Map<Integer, com.github.skeliit.dao.FriendDao.Rel> frRel = new java.util.HashMap<>();
     boolean profilePublic = true;
+    java.util.List<String> shownBadges = java.util.List.of();
     String frQuery = request.getParameter("fq");
     if (frQuery != null) frQuery = frQuery.strip();
     try {
@@ -43,6 +44,7 @@
       if (frQuery != null && frQuery.length() >= 2 && frQuery.length() <= 50) frFound = fd.search(uid, frQuery);
       for (com.github.skeliit.model.Friend found : frFound) frRel.put(found.id, fd.relation(uid, found.id));
       profilePublic = users.profilePublic(uid);
+      shownBadges = users.showcaseBadges(uid);
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
       showcase = new com.github.skeliit.dao.UserDao().showcase(uid);   // oblíbený song a moto
@@ -101,6 +103,9 @@
           <% if (showcase[2] != null) { %><p class="acct-motto motto-<%= showcase[4] %>">„<%= WebUtils.escapeHtml(showcase[2]) %>“</p><% } %>
         </div>
       </div>
+      <% PongProfile showPong = pong; %>
+      <%@ include file="includes/profile-showcase.jspf" %>
+      <% if (!anyShown && pong.earnedCount() > 0) { %><a class="pt-show-add" href="/nastaveni.jsp#soukromi"><i class="fa-solid fa-medal" aria-hidden="true"></i> <%= t.getProperty("profile.showcase.pick") %></a><% } %>
       <% if (bio != null && !bio.isBlank()) { %><p class="acct-bio"><%= WebUtils.escapeHtml(bio) %></p><% } %>
     </div>
   </section>

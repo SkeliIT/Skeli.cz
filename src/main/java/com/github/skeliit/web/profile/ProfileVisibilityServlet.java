@@ -41,7 +41,15 @@ public class ProfileVisibilityServlet extends HttpServlet {
                 new UserDao().setProfilePublic(me, "1".equals(req.getParameter("pub")));
                 new UserDao().setCoverPublic(me, "1".equals(req.getParameter("cover")));
                 new UserDao().setFriendRequests(me, "1".equals(req.getParameter("friends")));
-                new UserDao().setSharing(me, "1".equals(req.getParameter("about")), "1".equals(req.getParameter("city")), "1".equals(req.getParameter("likes")));
+                new UserDao().setSharing(me, "1".equals(req.getParameter("about")), "1".equals(req.getParameter("city")), "1".equals(req.getParameter("likes")),
+                        "1".equals(req.getParameter("friendsPublic")), "1".equals(req.getParameter("online")));
+                // vitrína: jen získané odznaky, každý jednou, nejvýš tři
+                java.util.Set<String> shown = new java.util.LinkedHashSet<>();
+                for (String slot : new String[] { "b1", "b2", "b3" }) {
+                    String key = req.getParameter(slot);
+                    if (key != null && earned.contains(key)) shown.add(key);
+                }
+                if (req.getParameter("b1") != null) new UserDao().setShowcaseBadges(me, java.util.List.copyOf(shown));
                 pong.setChampOn(me, "1".equals(req.getParameter("champ")));
                 if (f != null) pong.setFrame(me, f.isBlank() ? null : f);
                 if (m != null) pong.setMark(me, m.isBlank() ? null : m);
