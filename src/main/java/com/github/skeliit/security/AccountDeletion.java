@@ -1,16 +1,14 @@
 package com.github.skeliit.security;
 
-import com.github.skeliit.web.files.AvatarFileServlet;
-import com.github.skeliit.web.files.CoverFileServlet;
+import com.github.skeliit.dao.CommentDao;
+import com.github.skeliit.service.ProfileImages;
+import com.github.skeliit.service.ProfileImages.Kind;
 import jakarta.servlet.ServletContext;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -21,25 +19,45 @@ import java.util.UUID;
  * and the comments stay so discussions still make sense, shown as
  * "Deleted account" (the user row remains as an empty shell with role DELETED, so the
  * comments keep their author id).
+ *
+ * {@link #purge} je mazání adminem (spamer): zmizí úplně, i s komentáři a hlasy.
  */
 public final class AccountDeletion {
     private AccountDeletion() {}
 
-    /** Deletes the user's data in one transaction; returns false when there is no such user. */
-    public static boolean delete(Connection c, int userId, ServletContext ctx) throws SQLException {
-        String email = null;
-        List<String> avatars = new ArrayList<>();
+    /** Co je potřeba uklidit mimo tabulku users. */
+    private record Leftovers(String email, String avatar, String profileAvatar, String cover) {}
+
+    private static Leftovers read(Connection c, int userId) throws SQLException {
         try (PreparedStatement ps = c.prepareStatement(
-                "SELECT u.email, u.avatar_url, p.avatar_url FROM users u LEFT JOIN user_profiles p ON p.user_id = u.id "
+                "SELECT u.email, u.avatar_url, p.avatar_url, u.cover_url FROM users u LEFT JOIN user_profiles p ON p.user_id = u.id "
                 + "WHERE u.id = ? AND u.role <> 'DELETED'")) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return false;
-                email = rs.getString(1);
-                avatars.add(rs.getString(2));
-                avatars.add(rs.getString(3));
+                return rs.next() ? new Leftovers(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)) : null;
             }
         }
+    }
+
+    /** Soubory až po uložení do databáze: nepovedené smazání souboru nesmí nechat data v databázi. */
+    private static void deleteFiles(Leftovers l, ServletContext ctx) {
+        ProfileImages.delete(ctx, Kind.AVATAR, l.avatar);
+        ProfileImages.delete(ctx, Kind.AVATAR, l.profileAvatar);
+        ProfileImages.delete(ctx, Kind.COVER, l.cover);
+    }
+
+    private static void deleteNewsletter(Connection c, String email) throws SQLException {
+        if (email == null || email.isBlank()) return;
+        try (PreparedStatement ps = c.prepareStatement("DELETE FROM newsletter_emails WHERE email = ?")) {
+            ps.setString(1, email);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Deletes the user's data in one transaction; returns false when there is no such user. */
+    public static boolean delete(Connection c, int userId, ServletContext ctx) throws SQLException {
+        Leftovers l = read(c, userId);
+        if (l == null) return false;
         boolean auto = c.getAutoCommit();
         c.setAutoCommit(false);
         try {
@@ -47,12 +65,7 @@ public final class AccountDeletion {
             run(c, "DELETE FROM comment_reports WHERE reporter_id = ?", userId);
             run(c, "DELETE FROM user_profiles WHERE user_id = ?", userId);
             run(c, "DELETE FROM notifications WHERE user_id = ?", userId);
-            if (email != null && !email.isBlank()) {
-                try (PreparedStatement ps = c.prepareStatement("DELETE FROM newsletter_emails WHERE email = ?")) {
-                    ps.setString(1, email);
-                    ps.executeUpdate();
-                }
-            }
+            deleteNewsletter(c, l.email);
             // an empty shell for the comments: no name, e-mail, password or avatar; it can't sign in
             try (PreparedStatement ps = c.prepareStatement(
                     "UPDATE users SET username = ?, email = NULL, password_hash = '', avatar_url = NULL, cover_url = NULL, role = 'DELETED', "
@@ -68,18 +81,29 @@ public final class AccountDeletion {
         } finally {
             c.setAutoCommit(auto);
         }
-        // the avatar files (after the commit: a failed delete must not keep the data)
-        File dir = AvatarFileServlet.avatarDir(ctx);
-        for (String url : avatars) {
-            if (url == null || !url.startsWith("/uploads/avatars/")) continue;
-            String name = url.substring(url.lastIndexOf('/') + 1).replaceAll("\\?.*$", "");
-            if (name.isEmpty() || name.contains("..")) continue;
-            File f = new File(dir, name);
-            if (f.isFile() && !f.delete()) ctx.log("Account deletion: could not delete " + f);
+        deleteFiles(l, ctx);
+        return true;
+    }
+
+    /**
+     * Admin maže uživatele úplně: komentáře pod texty i klipy (s odpověďmi, hlasy a nahlášeními), jeho hlasy,
+     * odběr novinek, fotku a záhlaví. Řádek users jde pryč a zbytek odstraní cizí klíče. U hlasů a komentářů ke
+     * klipům cizí klíč na uživatele není, proto se mažou tady. Vrací false, když uživatel neexistuje.
+     */
+    public static boolean purge(Connection c, int userId, ServletContext ctx) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT 1 FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { if (!rs.next()) return false; }
         }
-        // i obrázek záhlaví (soubor se jmenuje podle čísla uživatele)
-        File cover = new File(CoverFileServlet.coverDir(ctx), userId + ".jpg");
-        if (cover.isFile() && !cover.delete()) ctx.log("Account deletion: could not delete " + cover);
+        Leftovers l = read(c, userId);                       // už smazaná skořápka: žádné osobní údaje
+        CommentDao comments = new CommentDao();
+        for (CommentDao.Kind kind : CommentDao.Kind.values()) {
+            for (int id : comments.idsByUser(kind, userId)) comments.delete(kind, id);
+        }
+        run(c, "DELETE FROM video_comment_votes WHERE user_id = ?", userId);
+        if (l != null) deleteNewsletter(c, l.email);
+        run(c, "DELETE FROM users WHERE id = ?", userId);
+        if (l != null) deleteFiles(l, ctx);
         return true;
     }
 

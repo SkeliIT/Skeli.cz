@@ -3,7 +3,8 @@ package com.github.skeliit.web.profile;
 import com.github.skeliit.WebUtils;
 import com.github.skeliit.dao.UserDao;
 import com.github.skeliit.filter.CsrfFilter;
-import com.github.skeliit.web.files.CoverFileServlet;
+import com.github.skeliit.service.ProfileImages;
+import com.github.skeliit.service.ProfileImages.Kind;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,15 +14,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -45,11 +40,12 @@ public class ProfileCoverServlet extends HttpServlet {
         // formuláře s obrázkem CsrfFilter nekontroluje, proto tady
         if (!CsrfFilter.isValid(req)) { fail(resp, 403, "forbidden"); return; }
 
-        File file = new File(CoverFileServlet.coverDir(getServletContext()), me + ".jpg");
         try {
+            UserDao users = new UserDao();
+            String old = users.cover(me);
             if ("remove".equals(req.getParameter("action"))) {
-                new UserDao().setCover(me, null);
-                if (file.isFile() && !file.delete()) log("Záhlaví profilu: nejde smazat " + file);
+                users.setCover(me, null);
+                ProfileImages.delete(getServletContext(), Kind.COVER, old);
                 resp.getWriter().write("{\"ok\":true,\"url\":null}");
                 return;
             }
@@ -58,11 +54,9 @@ public class ProfileCoverServlet extends HttpServlet {
             BufferedImage src = WebUtils.readImage(part.getInputStream());   // null = není to obrázek nebo je moc velký
             if (src == null) { fail(resp, 400, "invalid_image"); return; }
 
-            file.getParentFile().mkdirs();
-            writeJpeg(cropWide(src), file);
-            // soubor si drží název, proto nové ?v= – jinak by prohlížeč ukazoval starý obrázek
-            String url = req.getContextPath() + "/uploads/covers/" + file.getName() + "?v=" + System.currentTimeMillis();
-            new UserDao().setCover(me, url);
+            String url = ProfileImages.store(getServletContext(), Kind.COVER, cropWide(src), 0.86f);
+            users.setCover(me, url);
+            ProfileImages.delete(getServletContext(), Kind.COVER, old);   // až po uložení nového
             resp.getWriter().write("{\"ok\":true,\"url\":\"" + url + "\"}");
         } catch (SQLException e) {
             fail(resp, 500, "db_error");
@@ -84,19 +78,6 @@ public class ProfileCoverServlet extends HttpServlet {
         g.drawImage(src, 0, 0, outW, outH, x, y, x + cropW, y + cropH, null);
         g.dispose();
         return out;
-    }
-
-    private static void writeJpeg(BufferedImage img, File file) throws IOException {
-        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
-        ImageWriteParam param = writer.getDefaultWriteParam();
-        param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-        param.setCompressionQuality(0.86f);
-        try (FileImageOutputStream out = new FileImageOutputStream(file)) {
-            writer.setOutput(out);
-            writer.write(null, new IIOImage(img, null, null), param);
-        } finally {
-            writer.dispose();
-        }
     }
 
     private static void fail(HttpServletResponse resp, int status, String code) throws IOException {

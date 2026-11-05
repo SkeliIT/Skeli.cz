@@ -208,6 +208,16 @@ public class CommentDao {
         }
     }
 
+    /** Čísla všech komentářů jednoho uživatele (pro smazání spamera adminem). */
+    public List<Integer> idsByUser(Kind k, int userId) throws SQLException {
+        List<Integer> ids = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT id FROM " + k.table + " WHERE user_id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) ids.add(rs.getInt(1)); }
+        }
+        return ids;
+    }
+
     /** Deletes a comment with its replies, their votes and reports. */
     public void delete(Kind k, int id) throws SQLException {
         try (Connection c = Db.get()) {

@@ -53,7 +53,11 @@ class ProfileCoverIT extends UiTestSupport {
         wait.until(d -> d.findElements(By.cssSelector("#cover-crop-wrap .cropper-container")).stream().anyMatch(e -> e.getSize().getHeight() > 50));
         jsClick(driver.findElement(By.id("cover-save")));
         wait.until(d -> d.findElement(By.id("cover-remove")).isDisplayed());
-        assertTrue(driver.findElement(By.id("cover-preview-img")).getAttribute("src").contains("/uploads/covers/"));
+        String src = driver.findElement(By.id("cover-preview-img")).getAttribute("src");
+        assertTrue(src.matches(".*/uploads/covers/[a-f0-9]{32}\\.jpg"), "náhodný název: " + src);
+        String coverPath = src.substring(src.indexOf("/uploads/"));
+        assertEquals(200L, status(coverPath, "same-origin"), "majitel ho vidí");
+        assertEquals(404L, status(coverPath, "omit"), "nepřihlášený ho nestáhne");
 
         driver.get(BASE_URL + "/uzivatel.jsp");
         waitReady();
@@ -87,6 +91,41 @@ class ProfileCoverIT extends UiTestSupport {
         driver.get(BASE_URL + "/uzivatel.jsp");
         waitReady();
         assertTrue(driver.findElements(COVER_IMG).isEmpty(), "po odebrání zase neutrální pozadí");
+    }
+
+    /** Stav odpovědi na adresu na webu; credentials = same-origin (s přihlášením) nebo omit (bez něj). */
+    private long status(String path, String credentials) {
+        return (Long) ((JavascriptExecutor) driver).executeAsyncScript(
+                "var done = arguments[2]; fetch(arguments[0], {credentials: arguments[1], cache: 'no-store'}).then(function (r) { done(r.status); });",
+                path, credentials);
+    }
+
+    @Test
+    @DisplayName("Cizí přihlášený vidí záhlaví jen když je zapnuté, stará adresa podle čísla nefunguje")
+    void hiddenCoverIsNotServed() throws Exception {
+        int owner = registerAndLogin("cv" + uniq());
+        String name = com.github.skeliit.service.ProfileImages.randomName("jpg");
+        File dir = new File("src/main/webapp/uploads/covers");
+        dir.mkdirs();
+        File file = new File(dir, name);
+        BufferedImage pic = new BufferedImage(30, 10, BufferedImage.TYPE_INT_RGB);
+        ImageIO.write(pic, "jpg", file);
+        file.deleteOnExit();
+        String path = "/uploads/covers/" + name;
+        update("UPDATE users SET cover_url=? WHERE id=?", path, owner);
+        logout();
+        registerAndLogin("cw" + uniq());
+        driver.get(BASE_URL + "/index.jsp");
+        waitReady();
+
+        assertEquals(200L, status(path, "same-origin"), "zapnuté: přihlášený ho vidí");
+        update("UPDATE users SET cover_public=0 WHERE id=?", owner);
+        assertEquals(404L, status(path, "same-origin"), "vypnuté: cizí ho nestáhne ani přímou adresou");
+        update("UPDATE users SET cover_public=1, profile_public=0 WHERE id=?", owner);
+        assertEquals(404L, status(path, "same-origin"), "skrytý profil: taky ne");
+        assertEquals(404L, status("/uploads/covers/" + owner + ".jpg", "same-origin"), "podle čísla nic");
+        assertEquals(404L, status("/uploads/avatars/" + owner + ".jpg", "same-origin"), "podle čísla nic");
+        file.delete();
     }
 
     @Test
