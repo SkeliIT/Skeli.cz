@@ -55,6 +55,7 @@ body.light .lang-flag { background: rgba(0,0,0,0.06); }
   padding: 8px 12px;
   border-radius: 8px;
 }
+.admin-flash.error { background: rgba(180,0,0,0.2); border-color: rgba(220,60,60,0.45); }
 .song-preview-thumb {
   width: 96px;
   height: 54px;
@@ -869,3 +870,10 @@ body.light .st-up { color: #1e7a45; } body.light .st-down { color: #b3261e; }
 .st-table th, .st-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--panel-border); white-space: nowrap; }
 .st-table th { color: var(--text-dim); font-weight: 400; font-size: var(--fs-small); }
 .st-table td small { color: var(--text-dim); }
+
+/* Uživatelé: náhled fotky a záhlaví s tlačítkem na odebrání nevhodného obrázku */
+.admin-images form { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.admin-images form:last-child { margin-bottom: 0; }
+.admin-thumb { display: block; height: 40px; object-fit: cover; border: 1px solid var(--panel-border); }
+.admin-thumb.round { width: 40px; border-radius: 50%; }
+.admin-thumb.wide { width: 120px; border-radius: 6px; }

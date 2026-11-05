@@ -75,6 +75,11 @@ public class AdminPanelIT extends UiTestSupport {
     void deleteUser() throws Exception {
         String targetName = "at" + uniq();
         int targetId = insertUser(targetName, "USER");
+        // komentář ke klipu a hlas nemají cizí klíč na uživatele: musí zmizet taky
+        String yt = queryString("SELECT youtube_id FROM videos LIMIT 1");
+        update("INSERT INTO video_comments (user_id, youtube_id, content) VALUES (?, ?, 'spam')", targetId, yt);
+        int commentId = Integer.parseInt(queryString("SELECT MAX(id) FROM video_comments WHERE user_id=?", targetId));
+        update("INSERT INTO video_comment_votes (comment_id, user_id, vote) VALUES (?, ?, 1)", commentId, targetId);
 
         driver.get(BASE_URL + "/admin_users.jsp");
         WebElement deleteBtn = userRow(targetName).findElement(By.cssSelector("input[name=action][value=delete]"))
@@ -83,6 +88,57 @@ public class AdminPanelIT extends UiTestSupport {
 
         assertFalse(exists("SELECT 1 FROM users WHERE id=?", targetId), "user should be deleted");
         assertFalse(bodyText().contains(targetName), "deleted user must disappear from the list");
+        assertFalse(exists("SELECT 1 FROM video_comments WHERE user_id=?", targetId), "komentáře ke klipům jsou pryč");
+        assertFalse(exists("SELECT 1 FROM video_comment_votes WHERE user_id=?", targetId), "hlasy jsou pryč");
+    }
+
+    @Test
+    @DisplayName("Admin odebere cizí fotku a záhlaví, soubory zmizí z disku")
+    void removeOffensiveImages() throws Exception {
+        String targetName = "ai" + uniq();
+        int targetId = insertUser(targetName, "USER");
+        java.util.Map<String, java.io.File> files = new java.util.HashMap<>();
+        for (String folder : new String[] { "avatars", "covers" }) {
+            String name = com.github.skeliit.service.ProfileImages.randomName("jpg");
+            java.io.File dir = new java.io.File("src/main/webapp/uploads/" + folder);
+            dir.mkdirs();
+            java.io.File f = new java.io.File(dir, name);
+            javax.imageio.ImageIO.write(new java.awt.image.BufferedImage(30, 30, java.awt.image.BufferedImage.TYPE_INT_RGB), "jpg", f);
+            f.deleteOnExit();
+            files.put(folder, f);
+            update("UPDATE users SET " + (folder.equals("avatars") ? "avatar_url" : "cover_url") + "=? WHERE id=?", "/uploads/" + folder + "/" + name, targetId);
+        }
+        driver.get(BASE_URL + "/admin_users.jsp");
+        clickAndWaitReload(userRow(targetName).findElement(By.cssSelector("input[name=action][value=remove_cover]"))
+                .findElement(By.xpath("./ancestor::form//button")), true);
+        assertNull(queryString("SELECT cover_url FROM users WHERE id=?", targetId));
+        assertFalse(files.get("covers").exists(), "soubor záhlaví je pryč");
+        clickAndWaitReload(userRow(targetName).findElement(By.cssSelector("input[name=action][value=remove_avatar]"))
+                .findElement(By.xpath("./ancestor::form//button")), true);
+        assertNull(queryString("SELECT avatar_url FROM users WHERE id=?", targetId));
+        assertFalse(files.get("avatars").exists(), "soubor fotky je pryč");
+    }
+
+    @Test
+    @DisplayName("Admin nesmaže sám sebe a poslední admin zůstane")
+    void adminCannotRemoveHimself() throws Exception {
+        driver.get(BASE_URL + "/admin_users.jsp");
+        clickAndWaitReload(userRow(adminName).findElement(By.cssSelector("input[name=action][value=delete]"))
+                .findElement(By.xpath("./ancestor::form//button")), true);
+        assertTrue(driver.getCurrentUrl().contains("msg=self"), driver.getCurrentUrl());
+        assertTrue(bodyText().contains(adminName), "účet zůstal");
+    }
+
+    @Test
+    @DisplayName("Zkušební ukázka Kevina není pro návštěvníky")
+    void kevinSampleIsAdminOnly() throws Exception {
+        driver.get(BASE_URL + "/kevin-ukazka.jsp");
+        waitReady();
+        assertFalse(driver.findElements(By.cssSelector("main.kevin-show")).isEmpty(), "admin ji vidí");
+        logout();
+        driver.get(BASE_URL + "/kevin-ukazka.jsp");
+        waitReady();
+        assertTrue(driver.findElements(By.cssSelector("main.kevin-show")).isEmpty(), "návštěvník ne");
     }
 
     @Test
