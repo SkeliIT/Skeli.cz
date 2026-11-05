@@ -167,6 +167,49 @@ public class UserDao {
         }
     }
 
+    /** Moje záhlaví profilu (bezpečná adresa), null = žádné nemám. Vidím ho vždy, i když ho ostatním neukazuju. */
+    public String cover(int userId) throws SQLException {
+        return coverQuery("SELECT cover_url FROM users WHERE id = ?", userId);
+    }
+
+    /** Záhlaví, jak ho vidí ostatní: null, když žádné není, nebo když ho hráč vypnul. */
+    public String coverForOthers(int userId) throws SQLException {
+        return coverQuery("SELECT cover_url FROM users WHERE id = ? AND cover_public = 1", userId);
+    }
+
+    private String coverQuery(String sql, int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return com.github.skeliit.WebUtils.safeUrl(rs.next() ? rs.getString(1) : null, null);
+            }
+        }
+    }
+
+    public void setCover(int userId, String url) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET cover_url = ? WHERE id = ?")) {
+            ps.setString(1, url);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Ukazovat moje záhlaví ostatním (users.cover_public)? */
+    public boolean coverPublic(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT cover_public FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return !rs.next() || rs.getBoolean(1); }
+        }
+    }
+
+    public void setCoverPublic(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET cover_public = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
     /** Ukazovat můj profil přihlášeným (users.profile_public)? */
     public boolean profilePublic(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT profile_public FROM users WHERE id = ?")) {

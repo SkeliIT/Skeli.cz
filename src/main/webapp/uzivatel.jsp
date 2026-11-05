@@ -22,6 +22,7 @@
     java.util.List<UserComment> myComments = java.util.List.of();
     PongProfile pong = new PongProfile();
     String[] showcase = { null, null, null, null, "brush" };
+    String coverUrl = null;
     try {
       UserDao users = new UserDao();          // dao/UserDao
       UserProfile p = users.profile(uid);     // nothing saved yet = null
@@ -30,6 +31,7 @@
         if (p.lang != null) prefLang = p.lang;
       }
       me = users.summary(uid);
+      coverUrl = users.cover(uid);
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
       showcase = new com.github.skeliit.dao.UserDao().showcase(uid);   // oblíbený song a moto
@@ -42,9 +44,13 @@
   <div class="pt-grid">
   <%-- kdo jsi: fotka (klik = změnit), jméno, od kdy, moto --%>
   <section class="pt pt-hero">
-    <div class="pt-photo" aria-hidden="true"></div>
+    <%-- záhlaví: vlastní obrázek uživatele, bez něj neutrální pozadí --%>
+    <div class="pt-cover" aria-hidden="true"><% if (coverUrl != null) { %><img src="<%= WebUtils.escapeHtml(coverUrl) %>" alt=""><% } %></div>
     <%-- úpravy profilu a celé nastavení jsou na samostatné stránce (nastaveni.jsp) --%>
-    <a class="pt-gear" href="/nastaveni.jsp" aria-label="<%= t.getProperty("account.edit") %>"><i class="fa-solid fa-gear" aria-hidden="true"></i> <span><%= t.getProperty("account.edit") %></span></a>
+    <div class="pt-tools">
+      <a class="pt-gear<%= coverUrl == null ? " pt-cover-add" : "" %>" href="/nastaveni.jsp#zahlavi" aria-label="<%= t.getProperty(coverUrl == null ? "cover.add" : "cover.change") %>"><i class="fa-solid fa-image" aria-hidden="true"></i> <span><%= t.getProperty(coverUrl == null ? "cover.add" : "cover.change") %></span></a>
+      <a class="pt-gear" href="/nastaveni.jsp" aria-label="<%= t.getProperty("account.edit") %>"><i class="fa-solid fa-gear" aria-hidden="true"></i> <span><%= t.getProperty("account.edit") %></span></a>
+    </div>
     <div class="pt-in">
       <div class="pt-who">
         <a class="acct-photo<%= pong.shownFrame != null ? " av-frame f-" + pong.shownFrame : "" %>" href="/nastaveni.jsp#profil" title="<%= t.getProperty("account.changePhoto") %>">

@@ -2141,24 +2141,38 @@ body.light .pt::before { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .07), inset 0
 .pt-badges { --glow: #b06bff; } .pt-song { --glow: #ff4d6d; } .pt-last { --glow: #4fd17a; }
 .pt-stat { grid-column: span 6; }
 .pt-stat-last { grid-column: span 12; }
-/* hlavička: fotka shora, dolů se ztrácí; na telefonu menší soubor */
-.pt-hero { min-height: 240px; }
-.pt-hero .pt-in { justify-content: flex-end; min-height: 240px; padding: 96px 18px 18px; }
-.pt-photo { position: absolute; inset: 0; z-index: 1; border-radius: inherit; background: url("/img/photos/street-sm.webp?v=4") 70% 35% / cover no-repeat;
-  -webkit-mask-image: linear-gradient(180deg, #000 18%, transparent 80%); mask-image: linear-gradient(180deg, #000 18%, transparent 80%); }
-body.light .pt-photo { background-image: url("/img/photos/point-sm.webp"); background-position: 50% 30%; }
-.pt-who { display: flex; align-items: center; gap: 22px; }
-.pt-who-text { min-width: 0; }
-.pt-hero .acct-photo, .pt-hero .acct-photo.av-frame { width: 92px; height: 92px; font-size: 92px; margin: 14px 8px; }
+/* hlavička: nahoře záhlaví v poměru 3:1 (vlastní obrázek nebo neutrální pozadí), fotka do něj zpola zasahuje, jméno je už pod ním,
+   takže je čitelné na jakémkoli obrázku. Výška je na počítači omezená, pruh se tam jen o kousek ořízne shora a zdola. */
+.pt-hero { --glow: transparent; min-height: 0; }
+.pt-cover, .cover-preview { position: relative; display: block; width: 100%; aspect-ratio: 3 / 1; overflow: hidden;
+  background: radial-gradient(90% 150% at 80% -30%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
+    linear-gradient(160deg, color-mix(in srgb, var(--text) 14%, transparent), color-mix(in srgb, var(--text) 4%, transparent)), var(--bg); }
+.pt-hero::before { background: var(--panel-strong); }   /* plné: fotky z pozadí webu přes hlavičku neprosvítají */
+.pt-cover { z-index: 1; max-height: 280px; border-radius: 26px 26px 0 0;
+  -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent); mask-image: linear-gradient(180deg, #000 78%, transparent); }
+.pt-cover img, .cover-preview img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+.pt-hero .pt-in { min-height: 0; padding: 0 18px 18px; }
+.pt-who { display: flex; align-items: flex-start; gap: 22px; }
+.pt-who-text { min-width: 0; padding-top: 12px; }
+.pt-hero .acct-photo, .pt-hero .acct-photo.av-frame { width: 92px; height: 92px; font-size: 92px; margin: -46px 8px 14px; }
 .pt-hero .acct-name { font-size: 1.45rem; text-shadow: 0 1px 8px rgba(0, 0, 0, .7); }
 body.light .pt-hero .acct-name { text-shadow: 0 1px 8px rgba(255, 255, 255, .85); }
 .pt-hero .acct-meta { color: var(--text); opacity: .78; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); }
 .acct-motto { margin: 6px 0 0; color: #ffd23f; line-height: 1.05; overflow-wrap: anywhere; text-shadow: 0 0 6px rgba(0, 0, 0, .9), 0 0 14px rgba(0, 0, 0, .7); }
 body.light .acct-motto { color: #a37b00; text-shadow: 0 0 6px rgba(255, 255, 255, .95), 0 0 16px rgba(255, 255, 255, .8); }
-.pt-gear { position: absolute; top: 12px; right: 12px; z-index: 3; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 40px; min-height: 40px; padding: 0 12px;
+.pt-tools { position: absolute; top: 12px; right: 12px; z-index: 3; display: flex; gap: 8px; }
+.pt-gear { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 40px; min-height: 40px; padding: 0 12px;
   border-radius: 13px; font-family: var(--font-text); font-size: var(--fs-card); color: var(--text); text-decoration: none; background: var(--panel-strong); border: 1px solid var(--panel-border); }
 .pt-gear:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
 .pt-gear span { display: none; }
+.pt-gear.pt-cover-add span { display: inline; }   /* záhlaví ještě není: pobídka i na telefonu s popiskem */
+/* záhlaví v Nastavení: náhled a ořezávač přes celou šířku */
+#zahlavi { scroll-margin-top: calc(var(--header-h) + 14px); }
+.cover-preview { margin: 8px 0 12px; border-radius: 14px; border: 1px solid var(--panel-border); }
+.cover-preview img[hidden], #cover-remove[hidden] { display: none; }
+.cover-input { display: block; max-width: 100%; }
+.cover-crop-wrap { max-width: 100%; }
+.cover-crop-wrap > img { max-height: 60vh; }
 /* odznaky: prstenec a vodorovná vitrína (na telefonu se posouvá prstem) */
 .pt-badges-top { display: flex; align-items: center; gap: 14px; }
 .pt-ring { flex: none; display: grid; place-items: center; width: 66px; height: 66px; border-radius: 50%; font-size: .84rem; color: var(--accent); text-decoration: none;
@@ -2200,17 +2214,14 @@ body.light .pt-song-name { text-shadow: 0 1px 8px rgba(255, 255, 255, .85); }
 .pt-panel .pt-in { padding: 20px 18px; display: block; }
 .pt-panel .pong-badge-rule { padding: 10px 14px 0; }
 @media (min-width: 600px) {
-  .pt-photo { background-image: url("/img/photos/street-md.webp?v=4"); }
-  body.light .pt-photo { background-image: url("/img/photos/point-md.webp"); }
   .pt-stat { grid-column: span 3; }
   .pt-stat3, .pt-stat-last { grid-column: span 4; }
   .pt-gear span { display: inline; }
   .pt-panel .pt-in { padding: 24px 26px; }
 }
 @media (min-width: 768px) {
-  .pt-hero, .pt-hero .pt-in { min-height: 260px; }
-  .pt-hero .pt-in { padding: 110px 26px 22px; }
-  .pt-hero .acct-photo, .pt-hero .acct-photo.av-frame { width: 116px; height: 116px; font-size: 116px; margin: 20px 14px; }
+  .pt-hero .pt-in { padding: 0 26px 22px; }
+  .pt-hero .acct-photo, .pt-hero .acct-photo.av-frame { width: 116px; height: 116px; font-size: 116px; margin: -58px 14px 20px; }
   .pt-hero .acct-name { font-size: var(--fs-h2); }
   .pt-badges { grid-column: span 7; }
   .pt-badges.pt-full { grid-column: span 12; }

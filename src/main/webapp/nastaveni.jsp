@@ -24,7 +24,8 @@
     PongProfile pong = new PongProfile();
     String[] showcase = { null, null, null, null, "brush" };
     java.util.List<String[]> songChoices = new java.util.ArrayList<>();
-    boolean profilePublic = true;
+    boolean profilePublic = true, coverPublic = true;
+    String coverUrl = null;
     try {
       UserDao users = new UserDao();          // dao/UserDao
       UserProfile p = users.profile(uid);     // nothing saved yet = null
@@ -34,6 +35,8 @@
       }
       me = users.summary(uid);
       profilePublic = users.profilePublic(uid);
+      coverPublic = users.coverPublic(uid);
+      coverUrl = users.cover(uid);
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
       showcase = new com.github.skeliit.dao.UserDao().showcase(uid);   // oblíbený song a moto
@@ -87,6 +90,9 @@
     </header>
     <div class="acct-block">
       <%@ include file="/includes/avatar-editor.jspf" %>
+    </div>
+    <div class="acct-block">
+      <%@ include file="/includes/cover-editor.jspf" %>
     </div>
     <%-- uživatelské jméno (vidí ho ostatní u komentářů); jde změnit i u účtu přes Google --%>
     <div class="settings-form acct-block">
@@ -294,6 +300,11 @@
           <span class="vis-text"><b id="visPubT"><%= t.getProperty("settings.public") %></b><small><%= t.getProperty("profile.public.lead") %></small>
             <% if (profilePublic && visName != null) { %><a class="vis-link" href="/hrac/<%= java.net.URLEncoder.encode(visName, "UTF-8").replace("+", "%20") %>?nahled=1"><%= t.getProperty("profile.public.preview") %> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a><% } %></span>
           <label class="vis-switch"><input type="checkbox" name="pub" value="1" aria-labelledby="visPubT"<%= profilePublic ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-image" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visCoverT"><%= t.getProperty("cover.title") %></b><small><%= t.getProperty("cover.visLead") %></small></span>
+          <label class="vis-switch"><input type="checkbox" name="cover" value="1" aria-labelledby="visCoverT"<%= coverPublic ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
         <li class="vis-row">
           <span class="vis-ico"><i class="fa-solid fa-crown" aria-hidden="true"></i></span>

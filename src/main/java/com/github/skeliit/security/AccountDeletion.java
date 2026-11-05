@@ -1,6 +1,7 @@
 package com.github.skeliit.security;
 
 import com.github.skeliit.web.files.AvatarFileServlet;
+import com.github.skeliit.web.files.CoverFileServlet;
 import jakarta.servlet.ServletContext;
 
 import java.io.File;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 /**
  * Deleting an account for real (the user's choice 2026-10-07): every personal detail goes –
- * name, e-mail, password, avatar (also the file), profile, reports, pending resets and the
+ * name, e-mail, password, avatar and profile header (also the files), profile, reports, pending resets and the
  * newsletter subscription with that e-mail. The votes stay counted (they belong to no name any
  * more, the user's wish)
  * and the comments stay so discussions still make sense, shown as
@@ -54,7 +55,7 @@ public final class AccountDeletion {
             }
             // an empty shell for the comments: no name, e-mail, password or avatar; it can't sign in
             try (PreparedStatement ps = c.prepareStatement(
-                    "UPDATE users SET username = ?, email = NULL, password_hash = '', avatar_url = NULL, role = 'DELETED', "
+                    "UPDATE users SET username = ?, email = NULL, password_hash = '', avatar_url = NULL, cover_url = NULL, role = 'DELETED', "
                     + "email_verified_at = NULL, verify_token_hash = NULL, verify_expires_at = NULL WHERE id = ?")) {
                 ps.setString(1, "deleted_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12));
                 ps.setInt(2, userId);
@@ -76,6 +77,9 @@ public final class AccountDeletion {
             File f = new File(dir, name);
             if (f.isFile() && !f.delete()) ctx.log("Account deletion: could not delete " + f);
         }
+        // i obrázek záhlaví (soubor se jmenuje podle čísla uživatele)
+        File cover = new File(CoverFileServlet.coverDir(ctx), userId + ".jpg");
+        if (cover.isFile() && !cover.delete()) ctx.log("Account deletion: could not delete " + cover);
         return true;
     }
 

@@ -9,6 +9,7 @@
   PongProfile pp = (PongProfile) request.getAttribute("playerPong");
   String[] sc = (String[]) request.getAttribute("playerShowcase");
   String plAvatar = (String) request.getAttribute("playerAvatar");
+  String plCover = (String) request.getAttribute("playerCover");   // null = bez záhlaví nebo ho hráč ostatním neukazuje
 %>
 <main class="account-page player-page profile-page">
   <% if (pl == null || pp == null) { %>
@@ -24,7 +25,7 @@
        Integer bestAll = null; for (Integer b : pp.bestMs) if (b != null && (bestAll == null || b < bestAll)) bestAll = b; %>
   <div class="pt-grid">
   <section class="pt pt-hero">
-    <div class="pt-photo" aria-hidden="true"></div>
+    <div class="pt-cover" aria-hidden="true"><% if (plCover != null) { %><img src="<%= WebUtils.escapeHtml(plCover) %>" alt=""><% } %></div>
     <div class="pt-in">
       <div class="pt-who">
         <span class="acct-photo<%= pp.shownFrame != null ? " av-frame f-" + WebUtils.escapeHtml(pp.shownFrame) : "" %>">
