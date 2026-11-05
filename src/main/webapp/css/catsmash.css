@@ -285,6 +285,10 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-seg :is(.kpong-level, .kpong-len):focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
 .kp-desc { margin: 0 0 6px; font-family: var(--font-text); font-size: var(--fs-text); color: #c9bda6; }
 .kp-desc::first-letter { text-transform: uppercase; }
+/* Upozornění: na Lehké se odznaky neodemykají */
+.kp-easy-note { display: flex; align-items: center; gap: 8px; margin: 0; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: #fff; font-family: var(--font-text); font-size: var(--fs-card); line-height: 1.3; text-align: left; }
+.kp-easy-note[hidden] { display: none; }
+.kp-easy-note i { flex: none; color: var(--accent); }
 .kpong-panel .kpong-play { width: 100%; min-height: 48px; border-radius: 99px; font-size: var(--fs-h4); box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent); }
 .kp-rec { margin: 4px 0 0; font-family: var(--font-text); font-size: var(--fs-text); color: #e8dcc5; }
 .kp-rec i { color: var(--accent); }

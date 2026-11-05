@@ -185,6 +185,7 @@ window.KEVIN_LINES.vi.pong = {
   },
   "badgesTitle": "Huy hiệu",
   "loading": "Đang khởi động cỗ máy…",
+  "easyNoBadges": "Ở mức Dễ không mở khóa huy hiệu và phần thưởng. Chúng bắt đầu từ mức Bình thường.",
   "badgesRule": "Chỉ ở mức Bình thường và Giận dữ.",
   "badgesGot": "Đã đạt",
   "badgesMissing": "Còn thiếu",

@@ -185,6 +185,7 @@ window.KEVIN_LINES.cs.pong = {
   },
   "badgesTitle": "Odznaky",
   "loading": "Startuju stroj…",
+  "easyNoBadges": "Na Lehké se odznaky a odměny neodemykají. Sbírají se až od Normální.",
   "badgesRule": "Jen na Normální a Naštvaný.",
   "badgesGot": "Získané",
   "badgesMissing": "Ještě chybí",

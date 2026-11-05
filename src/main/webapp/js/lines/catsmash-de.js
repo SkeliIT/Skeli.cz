@@ -185,6 +185,7 @@ window.KEVIN_LINES.de.pong = {
   },
   "badgesTitle": "Abzeichen",
   "loading": "Maschine startet…",
+  "easyNoBadges": "Auf Leicht werden keine Abzeichen und Belohnungen freigeschaltet. Das geht erst ab Normal.",
   "badgesRule": "Nur auf Normal und Wütend.",
   "badgesGot": "Erhalten",
   "badgesMissing": "Noch offen",

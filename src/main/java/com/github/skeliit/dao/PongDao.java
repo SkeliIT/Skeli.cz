@@ -257,7 +257,7 @@ public class PongDao {
     public PongProfile profile(int userId) throws SQLException {
         PongProfile p = new PongProfile();
         // odznaky jen z výher na Normální a nejtěžší (na Lehké se nesbírají); celkový počet výher zůstává pro profil
-        boolean clean = false, close = false, hardClean = false;
+        boolean clean = false, close = false, hardClean = false, wonNormal = false, wonAngry = false;
         int fastest = Integer.MAX_VALUE, hardFastest = Integer.MAX_VALUE, winsCounted = 0, winsHard = 0;
         // odznaky se počítají jen z výher od BADGES_FROM (2. 11. 2026 se odznaky všem vynulovaly); výhry a nejlepší časy navždy
         Timestamp from = Timestamp.valueOf(BADGES_FROM);
@@ -277,7 +277,8 @@ public class PongDao {
                     if (rs.getInt(4) > 0) p.bestMs[d - 1] = rs.getInt(3);   // časy jen ze zápasů do 10 (delší zápasy mají skóre)
                     if (d < 2) continue;
                     winsCounted += rs.getInt(5);
-                    if (d == 3) winsHard = rs.getInt(5);
+                    if (d == 2) wonNormal = rs.getInt(5) > 0;
+                    if (d == 3) { winsHard = rs.getInt(5); wonAngry = winsHard > 0; }
                     if (rs.getInt(9) == 0) continue;
                     fastest = Math.min(fastest, rs.getInt(6));
                     if (rs.getInt(7) == 0) clean = true;
@@ -295,8 +296,9 @@ public class PongDao {
         }
         p.badge("first", "fa-trophy", winsCounted > 0);
         p.badge("easy", "fa-mug-hot", winsCounted >= 3);
-        p.badge("normal", "fa-scale-balanced", p.bestMs[1] != null);
-        p.badge("angry", "fa-cat", p.bestMs[2] != null);
+        // hra je dává za zápas jakékoli délky, server dřív jen za zápas do 10 gólů (bestMs); starší výhry zůstávají, ať nikdo o odznak nepřijde
+        p.badge("normal", "fa-scale-balanced", p.bestMs[1] != null || wonNormal);
+        p.badge("angry", "fa-cat", p.bestMs[2] != null || wonAngry);
         p.badge("clean", "fa-shield-halved", clean);
         p.badge("close", "fa-heart-pulse", close);
         p.badge("fast", "fa-bolt", fastest < 75_000);

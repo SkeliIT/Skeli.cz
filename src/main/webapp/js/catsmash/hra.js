@@ -2812,6 +2812,7 @@ t    }
             '<img class="kp-kevhead" src="' + kevinHead(d) + '" alt="" width="64" height="64">' + esc(short[d - 1]) + '</button>';
         }).join('') + '</div>' +
         '<p class="kp-desc">' + esc(T.levelHints[level - 1]) + '</p>' +
+        easyNote(level !== 1) +
         '<div class="kp-seg kp-lenseg" role="radiogroup" aria-label="' + esc(T.lenTitle || '') + '" style="--i:' + LENGTHS.indexOf(matchLen) + '"><span class="kp-thumb" aria-hidden="true"></span>' +
         LENGTHS.map(function (n) { return '<button type="button" role="radio" class="kpong-len" data-len="' + n + '" aria-checked="' + (n === matchLen) + '">' + esc((T.lenGoals || '{n}').replace('{n}', n)) + '</button>'; }).join('') + '</div>' +
         '<button type="button" class="kpong-play btn-primary"><i class="fa-solid fa-play" aria-hidden="true"></i> ' + esc(T.play) + '</button>' +
@@ -2834,6 +2835,7 @@ t    }
           panel.querySelectorAll('.kpong-level').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
           panel.querySelector('.kp-seg').style.setProperty('--i', level - 1);
           panel.querySelector('.kp-desc').textContent = T.levelHints[level - 1];
+          panel.querySelector('.kp-easy-note').hidden = level !== 1;
           // tabulka a rekord v menu se přepnou na zvolenou obtížnost
           boardD = level; champs();
           panel.querySelectorAll('[data-bd]').forEach(function (x) { x.setAttribute('aria-pressed', String(+x.dataset.bd === level)); });
@@ -3157,6 +3159,10 @@ t    }
       }).catch(function () { box.innerHTML = '<p class="kpong-note">' + esc(T.boardFail) + '</p>'; });
     }
 
+    // Na Lehké se odznaky ani odměny neodemykají (earnBadges, PongDao.profile): hráč to musí vidět při výběru i po zápase.
+    function easyNote(hide) {
+      return '<p class="kp-easy-note"' + (hide ? ' hidden' : '') + '><i class="fa-solid fa-lock" aria-hidden="true"></i> <span>' + esc(T.easyNoBadges || '') + '</span></p>';
+    }
     function endScreen(won, ms, res, fresh) {
       panel.hidden = false;
       var line = won ? T.winTime.replace('{time}', time(ms)) : T.loseLine;
@@ -3164,6 +3170,7 @@ t    }
       panel.dataset.view = 'main';
       panel.innerHTML = '<div class="kp-view kp-main"><h2 class="kpong-title">' + esc(won ? T.winTitle : T.loseTitle) + '</h2>' +
         '<p class="kpong-final">' + you + ' : ' + kev + '</p><p class="kpong-lead">' + esc(line) + '</p>' + scoreHtml(lastScore) +
+        (level === 1 ? easyNote(false) : '') +
         (fresh && fresh.length ? '<div class="kp-newbadges"><p class="kp-label">' + esc(T.newBadge || '') + '</p><ul>' + fresh.slice(0, 3).map(function (k) {
           var rw = (T.rewards || {})[k];
           return '<li' + rar(k) + '><span class="kp-nb-icon' + ({ streak: ' bronze', wins50: ' silver' }[k] || '') + '"><i class="fa-solid ' + BADGE_ICON[k] + '" aria-hidden="true"></i></span>' +

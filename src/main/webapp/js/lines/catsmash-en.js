@@ -185,6 +185,7 @@ window.KEVIN_LINES.en.pong = {
   },
   "badgesTitle": "Badges",
   "loading": "Starting the machine…",
+  "easyNoBadges": "Badges and rewards don't unlock on Easy. They start at Normal.",
   "badgesRule": "Only on Normal and Angry.",
   "badgesGot": "Earned",
   "badgesMissing": "Still to get",
