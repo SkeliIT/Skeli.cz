@@ -79,7 +79,7 @@
               <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(pl.username) %>">
               <label><%= t.getProperty("player.report") %>
                 <select name="reason" required>
-                  <% for (String why : new String[] { "spam", "abuse", "image", "fake", "music", "other" }) { %><option value="<%= why %>"><%= t.getProperty("player.report." + why) %></option><% } %>
+                  <% for (String why : new String[] { "spam", "abuse", "image", "fake", "music", "illegal", "child", "other" }) { %><option value="<%= why %>"><%= t.getProperty("player.report." + why) %></option><% } %>
                 </select>
               </label>
               <input name="note" maxlength="300" placeholder="<%= WebUtils.escapeHtml(t.getProperty("player.report.note")) %>" aria-label="<%= WebUtils.escapeHtml(t.getProperty("player.report.note")) %>">

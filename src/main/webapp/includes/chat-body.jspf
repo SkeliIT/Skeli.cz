@@ -16,6 +16,12 @@
       <h2><i class="fa-solid fa-gear" aria-hidden="true"></i> <%= t.getProperty("chat.settings") %></h2>
       <button type="submit" class="chat-settings-close" aria-label="<%= t.getProperty("chat.settings.close") %>"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
     </form>
+    <div class="chat-tabs" role="tablist" aria-label="<%= t.getProperty("chat.settings") %>">
+      <button type="button" role="tab" id="chatTabState" aria-controls="chatPanelState" aria-selected="true" data-tab="state"><i class="fa-solid fa-circle-dot" aria-hidden="true"></i> <%= t.getProperty("chat.tab.state") %></button>
+      <button type="button" role="tab" id="chatTabLook" aria-controls="chatPanelLook" aria-selected="false" tabindex="-1" data-tab="look"><i class="fa-solid fa-palette" aria-hidden="true"></i> <%= t.getProperty("chat.tab.look") %></button>
+      <button type="button" role="tab" id="chatTabSound" aria-controls="chatPanelSound" aria-selected="false" tabindex="-1" data-tab="sound"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> <%= t.getProperty("chat.tab.sound") %></button>
+    </div>
+    <div class="chat-tab-panel" role="tabpanel" id="chatPanelState" aria-labelledby="chatTabState" data-panel="state">
     <fieldset>
       <legend><%= t.getProperty("chat.status") %></legend>
       <div class="chat-opts">
@@ -26,7 +32,9 @@
       <p class="chat-settings-note"><%= t.getProperty("chat.status.note") %></p>
       <label class="chat-opt chat-receipts"><input type="checkbox" name="receipts" value="1"<%= chatPrefs.receipts ? " checked" : "" %>> <i class="fa-solid fa-eye" aria-hidden="true"></i> <span><%= t.getProperty("chat.receipts") %></span></label>
     </fieldset>
-    <%@ include file="/includes/sound-prefs.jspf" %>
+    </div>
+    <div class="chat-tab-panel" role="tabpanel" id="chatPanelLook" aria-labelledby="chatTabLook" data-panel="look" hidden>
+      <div class="chat-preview" aria-hidden="true"><span><%= t.getProperty("chat.preview") %></span></div>
     <fieldset>
       <legend><%= t.getProperty("chat.theme") %></legend>
       <div class="chat-opts chat-swatches">
@@ -51,6 +59,10 @@
         <% } %>
       </div>
     </fieldset>
+    </div>
+    <div class="chat-tab-panel" role="tabpanel" id="chatPanelSound" aria-labelledby="chatTabSound" data-panel="sound" hidden>
+    <%@ include file="/includes/sound-prefs.jspf" %>
+    </div>
   </dialog>
   <section class="chat-list" aria-label="<%= t.getProperty("chat.title") %>">
     <div class="chat-title-row">
@@ -94,7 +106,7 @@
       <a class="chat-back" href="/zpravy<%= chatEmbed ? "?embed=1" : "" %>" aria-label="<%= t.getProperty("chat.back") %>"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
       <div class="chat-who-box">
         <a class="chat-who"<%= chatTop %> href="/hrac/<%= java.net.URLEncoder.encode(chatWith, "UTF-8").replace("+", "%20") %>"><%= WebUtils.escapeHtml(chatWith) %></a>
-        <small class="chat-who-state" hidden data-t-online="<%= t.getProperty("chat.status.online") %>" data-t-busy="<%= t.getProperty("chat.status.busy") %>" data-t-dnd="<%= t.getProperty("chat.status.dnd") %>"></small>
+        <small class="chat-who-state" hidden data-t-online="<%= t.getProperty("chat.status.online") %>" data-t-idle="<%= t.getProperty("chat.status.idle") %>" data-t-busy="<%= t.getProperty("chat.status.busy") %>" data-t-dnd="<%= t.getProperty("chat.status.dnd") %>"></small>
       </div>
       <button type="button" class="chat-gear" title="<%= t.getProperty("chat.settings") %>" aria-label="<%= t.getProperty("chat.settings") %>"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>
       <button type="button" class="chat-mute" aria-pressed="false" title="<%= t.getProperty("chat.mute") %>" aria-label="<%= t.getProperty("chat.mute") %>"><i class="fa-solid fa-bell" aria-hidden="true"></i></button>
@@ -117,6 +129,8 @@
           <select name="reason">
             <option value="abuse"><%= t.getProperty("chat.report.abuse") %></option>
             <option value="spam"><%= t.getProperty("chat.report.spam") %></option>
+            <option value="illegal"><%= t.getProperty("chat.report.illegal") %></option>
+            <option value="child"><%= t.getProperty("chat.report.child") %></option>
             <option value="other"><%= t.getProperty("chat.report.other") %></option>
           </select>
         </label>

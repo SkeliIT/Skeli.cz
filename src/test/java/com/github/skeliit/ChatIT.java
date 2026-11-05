@@ -108,7 +108,7 @@ class ChatIT extends UiTestSupport {
         long third = queryInt("SELECT MAX(id) FROM chat_messages WHERE sender_id=?", aid);
         assertFalse(exists("SELECT 1 FROM chat_messages WHERE id=? AND reply_to IS NOT NULL", third));
         assertEquals(200, browserPost("/api/chat", Map.of("action", "edit", "id", String.valueOf(first), "body", "Opravena"), true));
-        assertTrue(exists("SELECT 1 FROM chat_messages WHERE id=? AND body='Opravena' AND edited_at IS NOT NULL", first));
+        assertEquals("Opravena", com.github.skeliit.service.SecretBox.open(queryString("SELECT body FROM chat_messages WHERE id=? AND edited_at IS NOT NULL", first)));
         update("UPDATE chat_messages SET created_at = NOW() - INTERVAL 20 MINUTE WHERE id=?", third);
         assertEquals(404, browserPost("/api/chat", Map.of("action", "edit", "id", String.valueOf(third), "body", "Pozde"), true), "po 15 minutách už ne");
 
@@ -195,7 +195,7 @@ class ChatIT extends UiTestSupport {
         assertFalse(read(b).contains("tajne"));
         assertEquals(404, browserPost("/api/chat", Map.of("action", "delete", "id", String.valueOf(msg)), true));
         assertEquals(404, browserPost("/api/chat", Map.of("action", "report", "id", String.valueOf(msg), "reason", "spam"), true));
-        assertEquals("tajne", queryString("SELECT body FROM chat_messages WHERE id=?", msg));
+        assertEquals("tajne", com.github.skeliit.service.SecretBox.open(queryString("SELECT body FROM chat_messages WHERE id=?", msg)));
         logout();
 
         login(a, PASSWORD);
@@ -277,5 +277,91 @@ class ChatIT extends UiTestSupport {
         int report = queryInt("SELECT id FROM chat_reports WHERE message_id=?", msg);
         assertEquals(302, browserPost("/admin/chat-report", Map.of("action", "dismiss", "id", String.valueOf(report)), true));
         assertTrue(exists("SELECT 1 FROM chat_reports WHERE id=? AND resolved_at IS NOT NULL", report));
+    }
+
+    @Test
+    @DisplayName("Zprávy jsou v databázi zašifrované, staré se došifrují a po roce zmizí")
+    void encryptedAndExpiring() throws Exception {
+        org.junit.jupiter.api.Assumptions.assumeTrue(com.github.skeliit.service.SecretBox.enabled(), "bez CHAT_KEY v .env se nešifruje");
+        String a = "ek" + uniq(), b = "el" + uniq();
+        int aid = registerAndLogin(a);
+        logout();
+        int bid = insertUser(b, "USER");
+        befriend(aid, bid);
+        login(a, PASSWORD);
+        assertEquals(200, send(b, "TajnyText"));
+        assertTrue(exists("SELECT 1 FROM chat_messages WHERE sender_id=? AND body LIKE 'gcm1:%' AND body NOT LIKE '%TajnyText%'", aid), "v databázi není čitelná");
+        assertTrue(read(b).contains("TajnyText"), "ale v chatu ano");
+
+        // stará nezašifrovaná zpráva jde číst a údržba ji zašifruje
+        update("INSERT INTO chat_messages (user_a, user_b, sender_id, recipient_id, body) VALUES (?, ?, ?, ?, 'StaryText')", Math.min(aid, bid), Math.max(aid, bid), bid, aid);
+        assertTrue(read(b).contains("StaryText"));
+        new com.github.skeliit.dao.ChatDao().sealOldMessages();
+        assertFalse(exists("SELECT 1 FROM chat_messages WHERE sender_id=? AND body NOT LIKE 'gcm1:%'", bid), "údržba ji zašifrovala");
+        assertTrue(read(b).contains("StaryText"), "a jde číst dál");
+
+        // po roce pryč, novější zůstane
+        update("INSERT INTO chat_messages (user_a, user_b, sender_id, recipient_id, body, created_at) VALUES (?, ?, ?, ?, 'Prastara', NOW() - INTERVAL 366 DAY)", Math.min(aid, bid), Math.max(aid, bid), aid, bid);
+        new com.github.skeliit.dao.ChatDao().deleteExpired();
+        assertFalse(exists("SELECT 1 FROM chat_messages WHERE sender_id=? AND created_at < NOW() - INTERVAL 1 YEAR", aid));
+        assertTrue(exists("SELECT 1 FROM chat_messages WHERE sender_id=?", aid));
+    }
+
+    @Test
+    @DisplayName("Smazání konverzace: u mě hned, z databáze až když ji smaže i ten druhý; kopie nahlášené zůstane")
+    void deleteConversation() throws Exception {
+        String a = "em" + uniq(), b = "en" + uniq();
+        int aid = registerAndLogin(a);
+        logout();
+        int bid = registerAndLogin(b);
+        logout();
+        befriend(aid, bid);
+        login(a, PASSWORD);
+        assertEquals(200, send(b, "Smazat"));
+        browserPost("/api/chat", Map.of("action", "hide", "with", b), true);
+        assertFalse(read(b).contains("Smazat"), "u mě zmizela");
+        assertTrue(exists("SELECT 1 FROM chat_messages WHERE sender_id=?", aid), "druhému zůstává");
+        logout();
+
+        login(b, PASSWORD);
+        driver.get(BASE_URL + "/nastaveni.jsp");
+        waitReady();
+        assertTrue(read(a).contains("Smazat"));
+        long id = queryInt("SELECT MAX(id) FROM chat_messages WHERE sender_id=?", aid);
+        assertEquals(200, browserPost("/api/chat", Map.of("action", "report", "id", String.valueOf(id), "reason", "illegal"), true), "naléhavý důvod jde poslat");
+        browserPost("/api/chat", Map.of("action", "hide", "with", a), true);
+        assertFalse(exists("SELECT 1 FROM chat_messages WHERE sender_id=?", aid), "smazali oba: pryč i z databáze");
+        assertTrue(exists("SELECT 1 FROM chat_reports WHERE sender_id=? AND reason='illegal' AND message_id IS NULL", aid), "kopie k nahlášení zůstala");
+        logout();
+
+        // admin: naléhavé je vidět a postup je otevřený
+        String admin = "eo" + uniq();
+        insertUser(admin, "ADMIN");
+        login(admin, PASSWORD);
+        driver.get(BASE_URL + "/admin_users.jsp");
+        waitReady();
+        assertTrue(driver.getPageSource().contains("Smazat"), "admin čte kopii");
+        assertFalse(driver.findElements(org.openqa.selenium.By.cssSelector(".note-item.urgent")).isEmpty());
+        assertTrue(driver.findElement(org.openqa.selenium.By.cssSelector(".urgent-guide li")).isDisplayed(), "postup se sám otevřel");
+        update("DELETE FROM chat_reports WHERE sender_id=?", aid);
+    }
+
+    @Test
+    @DisplayName("Nastavení chatu je po záložkách a stav Nečinný má text")
+    void settingsTabs() throws Exception {
+        registerAndLogin("ep" + uniq());
+        driver.get(BASE_URL + "/zpravy");
+        waitReady();
+        jsClick(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-gear")));
+        org.openqa.selenium.WebElement state = driver.findElement(org.openqa.selenium.By.cssSelector("[data-panel=state]"));
+        org.openqa.selenium.WebElement look = driver.findElement(org.openqa.selenium.By.cssSelector("[data-panel=look]"));
+        assertTrue(state.isDisplayed());
+        assertFalse(look.isDisplayed(), "na začátku jen první záložka");
+        jsClick(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-tabs [data-tab=look]")));
+        assertTrue(look.isDisplayed());
+        assertFalse(state.isDisplayed());
+        assertTrue(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-preview span")).isDisplayed());
+        jsClick(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-tabs [data-tab=sound]")));
+        assertTrue(driver.findElement(org.openqa.selenium.By.cssSelector("[data-panel=sound] [data-sound-pref=message]")).isEnabled());
     }
 }

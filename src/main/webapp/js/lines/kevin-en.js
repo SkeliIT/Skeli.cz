@@ -214,6 +214,7 @@
       "Sorted. Now just remember it."
     ]
   },
+  "profileNews": ["We rebuilt the profile. Photo, header, friends, messages, your tracks. You set it all up your way. I'd go with a photo of a cat.","Now seriously: what others see about you is your call alone. Public or private profile, and every item has its own switch. Click and I’ll show you where."],
   "privacyTip": "Don't want people looking in here? Make your profile private in Settings. They can still send you a friend request, but nobody gets inside.",
   "profileHello": ["Your profile. Empty as my bowl so far. Start with that list.","So this is where you live? Furnish it a bit, the list will help."],
   "profile": [

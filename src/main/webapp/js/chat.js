@@ -9,6 +9,26 @@
   if (dialog) {
     page.querySelectorAll('.chat-gear').forEach(function (b) { b.addEventListener('click', function () { dialog.showModal(); }); });
     dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });   // klik mimo okno ho zavře
+    // záložky Stav, Vzhled, Zvuky; šipky přepínají jako u každých záložek
+    var tabs = Array.prototype.slice.call(dialog.querySelectorAll('.chat-tabs [role=tab]'));
+    function showTab(tab, focus) {
+      tabs.forEach(function (t) {
+        var on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        dialog.querySelector('[data-panel="' + t.dataset.tab + '"]').hidden = !on;
+      });
+      if (focus) tab.focus();
+    }
+    tabs.forEach(function (tab, i) {
+      tab.addEventListener('click', function () { showTab(tab); });
+      tab.addEventListener('keydown', function (e) {
+        var step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!step) return;
+        e.preventDefault();
+        showTab(tabs[(i + step + tabs.length) % tabs.length], true);
+      });
+    });
     dialog.addEventListener('change', function (e) {
       var name = e.target.name, value = e.target.value;
       if (!name) return;   // zvuky si hlídá js/sounds.js
@@ -258,7 +278,16 @@
     stateBox.className = 'chat-who-state' + (label ? ' s-' + data.state : '');
     if (stick) toBottom();
   }
-  function refresh() { return load('&recent=1').then(apply).catch(function () { /* příště */ }); }
+  // kdo si píše v malém okně, je pro web v rámečku: tahle stránka proto sama hlásí, že tu člověk je (stav Nečinný)
+  var lastInput = Date.now(), lastSent = 0;
+  ['pointermove', 'pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(function (type) {
+    window.addEventListener(type, function () { lastInput = Date.now(); }, { passive: true, capture: true });
+  });
+  function refresh() {
+    var active = lastInput > lastSent;
+    lastSent = Date.now();
+    return load('&recent=1' + (active ? '&active=1' : '')).then(apply).catch(function () { /* příště */ });
+  }
   function poll() {
     if (!document.body.contains(room)) { clearInterval(window.__chatTimer); window.__chatTimer = null; return; }
     if (document.hidden || busy) return;

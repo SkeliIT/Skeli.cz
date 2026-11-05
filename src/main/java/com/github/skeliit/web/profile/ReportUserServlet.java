@@ -38,6 +38,7 @@ public class ReportUserServlet extends HttpServlet {
                 return;
             }
             new ModerationDao().report(id, me, reason, note);
+            com.github.skeliit.service.UrgentReports.tellAdmin(reason, "reports");
         } catch (SQLException e) {
             throw new ServletException(e);
         }

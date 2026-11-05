@@ -13,7 +13,7 @@ import java.util.Set;
 
 /** Moderace účtů: zablokování a nahlášení profilu. Zásahy zapisuje záznam změn (filter/AdminAuditFilter). */
 public class ModerationDao {
-    public static final Set<String> REASONS = Set.of("spam", "abuse", "image", "fake", "music", "other");
+    public static final Set<String> REASONS = Set.of("spam", "abuse", "image", "fake", "music", "other", "illegal", "child");
 
     public boolean isBlocked(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT blocked_at IS NOT NULL FROM users WHERE id = ?")) {
@@ -57,7 +57,7 @@ public class ModerationDao {
         List<UserReport> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "SELECT r.id, r.reported_id, u.username, r.reason, r.note, r.created_at, u.avatar_url, u.cover_url, u.blocked_at IS NOT NULL "
-                + "FROM user_reports r JOIN users u ON u.id = r.reported_id WHERE r.resolved_at IS NULL ORDER BY r.created_at DESC");
+                + "FROM user_reports r JOIN users u ON u.id = r.reported_id WHERE r.resolved_at IS NULL ORDER BY r.reason IN ('illegal', 'child') DESC, r.created_at DESC");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 out.add(new UserReport(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4), rs.getString(5),

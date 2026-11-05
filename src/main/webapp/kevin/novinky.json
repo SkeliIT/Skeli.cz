@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-11-05",
+    "href": "/nastaveni.jsp#soukromi",
+    "cs": "O tom, co o tobě ostatní uvidí, rozhoduješ ty: veřejný nebo soukromý profil a vypínač u každé věci. Zprávy jsou v databázi zašifrované a po roce se samy smažou.",
+    "en": "You decide what others see about you: a public or private profile and a switch for every item. Messages are encrypted in the database and delete themselves after a year.",
+    "de": "Du entscheidest, was andere über dich sehen: öffentliches oder privates Profil und ein Schalter für alles. Nachrichten sind in der Datenbank verschlüsselt und löschen sich nach einem Jahr von selbst.",
+    "uk": "Саме ти вирішуєш, що інші бачать про тебе: публічний чи приватний профіль і перемикач для кожної речі. Повідомлення зашифровані в базі даних і через рік видаляються самі.",
+    "vi": "Bạn tự quyết định người khác thấy gì về bạn: hồ sơ công khai hoặc riêng tư và công tắc cho từng mục. Tin nhắn được mã hóa trong cơ sở dữ liệu và tự xóa sau một năm."
+  },
+  {
+    "d": "2026-11-05",
     "href": "/zpravy",
     "cs": "Zprávy máš teď vždycky po ruce: na počítači vpravo dole, na telefonu jako kolečko. A nová zpráva umí cinknout. Když to vadí, ztlumíš to reproduktorem nahoře.",
     "en": "Messages are now always at hand: bottom right on a computer, a bubble on a phone. A new message can also chime. If that bothers you, mute it with the speaker at the top.",
@@ -34,14 +43,5 @@
     "de": "Dein Profil zeigt dir jetzt, womit du anfangen kannst, und listet alle Songs mit deinem Herz.",
     "uk": "Профіль тепер підкаже, з чого почати, і покаже всі пісні з твоїм сердечком.",
     "vi": "Hồ sơ giờ gợi ý bạn nên bắt đầu từ đâu và có đủ các bài hát bạn đã thả tim."
-  },
-  {
-    "d": "2026-11-05",
-    "href": "/uzivatel.jsp#pratele",
-    "cs": "Na webu si teď můžeš přidávat přátele. Najdeš je na svém profilu a ten je konečně hezky rozdělený.",
-    "en": "You can now add friends on the site. You’ll find them on your profile, which is finally neatly divided.",
-    "de": "Du kannst jetzt Freunde hinzufügen. Du findest sie auf deinem Profil, das endlich schön aufgeteilt ist.",
-    "uk": "Тепер на сайті можна додавати друзів. Вони є у твоєму профілі, який нарешті гарно поділений.",
-    "vi": "Giờ bạn có thể kết bạn trên trang web. Bạn bè nằm trong hồ sơ của bạn, nay đã được chia gọn gàng."
   }
 ]

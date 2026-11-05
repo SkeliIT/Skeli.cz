@@ -214,6 +214,7 @@
       "Xong xuôi. Giờ nhớ lấy nó nhé."
     ]
   },
+  "profileNews": ["Chúng tôi đã làm lại hồ sơ. Ảnh, ảnh bìa, bạn bè, tin nhắn, các bài của bạn. Mọi thứ đều tùy bạn. Tôi thì sẽ để ảnh mèo.","Nói nghiêm túc nhé: người khác thấy gì về bạn là do bạn quyết định. Hồ sơ công khai hay riêng tư, và mỗi mục có công tắc riêng. Bấm đi, tôi chỉ cho."],
   "privacyTip": "Không muốn ai nhòm vào đây? Hãy đặt hồ sơ ở chế độ riêng tư trong Cài đặt. Người khác vẫn gửi được lời mời kết bạn, nhưng không ai vào được.",
   "profileHello": ["Hồ sơ của bạn đây. Trống như cái bát của tôi vậy. Bắt đầu từ danh sách kia đi.","Vậy là bạn sống ở đây à? Sắp xếp lại một chút đi, danh sách sẽ giúp."],
   "profile": [

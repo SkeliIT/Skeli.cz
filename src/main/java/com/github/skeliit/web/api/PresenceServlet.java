@@ -32,7 +32,7 @@ public class PresenceServlet extends HttpServlet {
         int online = VisitStats.ping(req, newPage, lyricId);
         // přihlášený: pro stav online na profilu (jen v paměti, ukáže se jen tomu, kdo si ho zapnul)
         jakarta.servlet.http.HttpSession session = req.getSession(false);
-        if (session != null && session.getAttribute("user_id") instanceof Integer me) com.github.skeliit.service.OnlineUsers.touch(me);
+        if (session != null && session.getAttribute("user_id") instanceof Integer me) com.github.skeliit.service.OnlineUsers.touch(me, "1".equals(req.getParameter("active")));
         resp.setHeader("Cache-Control", "no-store");
         resp.setContentType("application/json; charset=UTF-8");
         resp.getWriter().write("{\"online\":" + online + "}");

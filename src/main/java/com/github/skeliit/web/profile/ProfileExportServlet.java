@@ -75,6 +75,7 @@ public class ProfileExportServlet extends HttpServlet {
             String email = root.path("user").path("email").asText(null);
             section(c, m, root, "account", "SELECT avatar_url, cover_url, cover_public, email_verified_at FROM users WHERE id=?", uid);
             section(c, m, root, "chat_sent", "SELECT body, created_at FROM chat_messages WHERE sender_id=? AND deleted_at IS NULL", uid);
+            root.withArray("chat_sent").forEach(row -> ((ObjectNode) row).put("body", com.github.skeliit.service.SecretBox.open(row.path("body").asText(""))));
             section(c, m, root, "site_badges", "SELECT badge, earned_at FROM site_badges WHERE user_id=?", uid);
             section(c, m, root, "chat_settings", "SELECT status, theme, font, size, receipts FROM user_chat_prefs WHERE user_id=?", uid);
             section(c, m, root, "my_tracks", "SELECT title, year, youtube_id, spotify, apple, soundcloud, created_at, hidden_at, hidden_reason FROM user_tracks WHERE user_id=?", uid);

@@ -11,6 +11,8 @@
       String adminMsg = request.getParameter("msg");
       java.util.List<UserReport> reports = new ModerationDao().openReports();
       java.util.List<com.github.skeliit.model.ChatReport> chatReports = new com.github.skeliit.dao.ChatDao().openReports();
+      boolean urgentOpen = chatReports.stream().anyMatch(x -> com.github.skeliit.service.UrgentReports.isUrgent(x.reason))
+              || reports.stream().anyMatch(x -> com.github.skeliit.service.UrgentReports.isUrgent(x.reason));
   %>
     <% if ("image_removed".equals(adminMsg)) { %><p class="admin-flash">Obrázek je odebraný a smazaný z disku. Kdo měl nevhodnou fotku, je odhlášený.</p><% } %>
     <% if ("blocked".equals(adminMsg)) { %><p class="admin-flash">Účet je zablokovaný a odhlášený. Nepřihlásí se a profil není vidět, data zůstávají.</p><% } %>
@@ -19,13 +21,25 @@
     <% if ("self_block".equals(adminMsg)) { %><p class="admin-flash error">Sám sebe zablokovat nemůžeš.</p><% } %>
     <% if ("self".equals(adminMsg)) { %><p class="admin-flash error">Sám sebe smazat nemůžeš. Svůj účet smažeš v Nastavení.</p><% } %>
     <% if ("last_admin".equals(adminMsg)) { %><p class="admin-flash error">Tohle je poslední admin. Web musí mít aspoň jednoho.</p><% } %>
+    <%-- postup při naléhavém nahlášení: je tu napořád, aby se nemusel hledat, když je potřeba --%>
+    <details class="admin-card urgent-guide"<%= urgentOpen ? " open" : "" %>>
+      <summary><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Co dělat při naléhavém nahlášení</summary>
+      <ol>
+        <li><b>Účet zablokuj hned</b> tady níž v Uživatelích. Zprávu ani profil nemaž, dokud nevíš, že to policie nepotřebuje.</li>
+        <li><b>Ohrožení dítěte:</b> nic si nestahuj, nefoť, neposílej dál a neukazuj kamarádům, ani jako důkaz. Nahlas to na <a href="https://stoponline.cz" target="_blank" rel="noopener">stoponline.cz</a> a zavolej policii na <b>158</b>. Když jde o bezprostřední nebezpečí, volej hned.</li>
+        <li><b>Drogy, zbraně a jiný nelegální obsah:</b> obsah smaž z webu, účet nech zablokovaný. Když to vypadá vážně, nahlas to policii.</li>
+        <li><b>Přijde žádost od policie:</b> odpověz jen na to, na co se ptá, a jen na oficiální žádost. Když si nejsi jistý, zeptej se právníka.</li>
+        <li><b>Zapiš si</b>, kdy se to stalo a co jsi udělal. Záznam změn v adminu ti s tím pomůže.</li>
+      </ol>
+      <p class="text-dim">Tohle je můj rychlý postup, ne právní rada. Před spuštěním ho ukaž právníkovi.</p>
+    </details>
     <%-- nahlášené zprávy z chatu: jediné zprávy, které admin vidí --%>
     <% if (!chatReports.isEmpty()) { %>
     <section class="admin-card" id="chat-reports">
       <h3><i class="fa-solid fa-comments" aria-hidden="true"></i> Nahlášené zprávy (<%= chatReports.size() %>)</h3>
       <div class="note-list">
       <% for (com.github.skeliit.model.ChatReport r : chatReports) { %>
-        <article class="note-item">
+        <article class="note-item<%= com.github.skeliit.service.UrgentReports.isUrgent(r.reason) ? " urgent" : "" %>">
           <div class="note-item-text">
             <strong><%= WebUtils.escapeHtml(r.sender) %> <small class="text-dim">napsal(a) · nahlásil(a) <%= WebUtils.escapeHtml(r.reporter) %></small></strong>
             <span class="note-item-say">„<%= WebUtils.escapeHtml(r.body) %>“</span>

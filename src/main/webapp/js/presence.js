@@ -3,12 +3,22 @@
 // No cookies of its own, nothing stored in the browser.
 (function () {
   const box = document.getElementById('onlineNow');
+  // Pohyb, klávesa nebo posun od minulého hlášení: podle toho se přátelům ukáže Online, nebo Nečinný.
+  let lastInput = Date.now(), lastPing = 0;
+  ['pointermove', 'pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(type => {
+    window.addEventListener(type, () => { lastInput = Date.now(); }, { passive: true, capture: true });
+  });
   function ping(newPage) {
-    let url = '/api/presence';
+    const params = new URLSearchParams();
     if (newPage) {
+      params.set('view', '1');
       const main = document.querySelector('main[data-lyric-id]');
-      url += '?view=1' + (main ? '&lyric=' + encodeURIComponent(main.dataset.lyricId) : '');
+      if (main) params.set('lyric', main.dataset.lyricId);
     }
+    if (newPage || lastInput > lastPing) params.set('active', '1');
+    lastPing = Date.now();
+    const query = params.toString();
+    const url = '/api/presence' + (query ? '?' + query : '');
     fetch(url, { credentials: 'same-origin', cache: 'no-store' })
       .then(r => (r.ok ? r.json() : null))
       .then(j => {

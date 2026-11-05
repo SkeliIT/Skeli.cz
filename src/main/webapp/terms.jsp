@@ -17,7 +17,7 @@
       <h3><span class="privacy-num">3</span> <%= t.getProperty("terms.s3.t") %></h3>
       <p><%= t.getProperty("terms.s3.p") %></p>
       <ul>
-        <% for (int r = 1; r <= 7; r++) { %><li><%= t.getProperty("terms.rule" + r) %></li><% } %>
+        <% for (int r = 1; r <= 9; r++) { %><li><%= t.getProperty("terms.rule" + r) %></li><% } %>
       </ul>
     </section>
     <% for (int i = 4; i <= 9; i++) { %>

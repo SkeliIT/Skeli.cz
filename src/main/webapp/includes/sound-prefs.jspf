@@ -1,6 +1,5 @@
 <%-- Zvuky: vypínače pro tohle zařízení (js/sounds.js). Vkládaná šablona se nečte jako UTF-8: žádné české znaky přímo ve výstupu. --%>
-<fieldset class="sound-prefs">
-  <legend><i class="fa-solid fa-volume-high" aria-hidden="true"></i> <%= t.getProperty("sound.title") %></legend>
+<fieldset class="sound-prefs" aria-label="<%= t.getProperty("sound.title") %>">
   <div class="chat-opts">
     <label class="chat-opt"><input type="checkbox" data-sound-pref="message"> <%= t.getProperty("sound.message") %></label>
     <label class="chat-opt"><input type="checkbox" data-sound-pref="bell"> <%= t.getProperty("sound.bell") %></label>

@@ -8,6 +8,7 @@ import com.github.skeliit.dao.NotificationDao;
 import com.github.skeliit.model.ChatMessage;
 import com.github.skeliit.model.ChatPrefs;
 import com.github.skeliit.security.RequestLimiter;
+import com.github.skeliit.service.OnlineUsers;
 import com.github.skeliit.web.auth.EmailVerification;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -52,6 +53,7 @@ public class ChatApiServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer me = me(req);
         if (me == null) { json(resp, 401, Map.of("error", "login")); return; }
+        if ("1".equals(req.getParameter("active"))) OnlineUsers.touch(me, true);   // malé okno chatu se samo nehlásí
         try {
             Integer other = chat.userId(req.getParameter("with"));
             if (other == null || other.equals(me)) { json(resp, 404, Map.of("error", "closed")); return; }
@@ -81,6 +83,7 @@ public class ChatApiServlet extends HttpServlet {
         Integer me = me(req);
         if (me == null) { json(resp, 401, Map.of("error", "login")); return; }
         String action = String.valueOf(req.getParameter("action"));
+        OnlineUsers.touch(me, true);
         try {
             switch (action) {
                 case "send" -> send(req, resp, me);

@@ -7,6 +7,8 @@ import com.github.skeliit.model.ChatMessage;
 import com.github.skeliit.model.ChatPrefs;
 import com.github.skeliit.model.ChatReport;
 import com.github.skeliit.model.Friend;
+import com.github.skeliit.service.SecretBox;
+import com.github.skeliit.service.UrgentReports;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,11 +26,12 @@ import java.util.Set;
 /**
  * Soukromý chat mezi přáteli. „Já“ je vždy ze session a každý dotaz je omezený na mou dvojici, takže na cizí zprávy nejde sáhnout.
  * Admin zprávy nečte: vidí jen nahlášenou zprávu (kopie v chat_reports).
+ * Text je v databázi zašifrovaný (service/SecretBox): sem šifruje send a edit, ven čtou messages, conversations a openReports.
  */
 public class ChatDao {
     public static final int PAGE = 50;
     public static final int MAX_BODY = 1000;
-    public static final Set<String> REASONS = Set.of("spam", "abuse", "other");
+    public static final Set<String> REASONS = Set.of("spam", "abuse", "other", "illegal", "child");
     public static final Set<String> REACTIONS = Set.of("❤️", "😂", "👍", "🔥", "😮", "😢");
 
     /** Účet podle jména; smazaný ani adminem zablokovaný se nepočítá. */
@@ -68,7 +71,7 @@ public class ChatDao {
                 ps.setInt(2, Math.max(me, other));
                 ps.setInt(3, me);
                 ps.setInt(4, other);
-                ps.setString(5, body);
+                ps.setString(5, SecretBox.seal(body));
                 if (reply == null) ps.setNull(6, java.sql.Types.BIGINT); else ps.setLong(6, reply);
                 ps.executeUpdate();
                 try (ResultSet k = ps.getGeneratedKeys()) { return k.next() ? k.getLong(1) : 0; }
@@ -103,13 +106,13 @@ public class ChatDao {
                         m.id = rs.getLong(1);
                         m.mine = rs.getInt(2) == me;
                         m.deleted = rs.getTimestamp(5) != null;
-                        m.body = m.deleted ? "" : rs.getString(3);
+                        m.body = m.deleted ? "" : SecretBox.open(rs.getString(3));
                         m.at = rs.getTimestamp(4).getTime();
                         m.edited = rs.getTimestamp(6) != null;
                         long reply = rs.getLong(7);
                         if (!rs.wasNull() && !m.deleted) {
                             m.replyTo = reply;
-                            String quoted = rs.getTimestamp(10) != null || rs.getString(8) == null ? "" : rs.getString(8);
+                            String quoted = rs.getTimestamp(10) != null || rs.getString(8) == null ? "" : SecretBox.open(rs.getString(8));
                             m.replyBody = quoted.length() > 80 ? quoted.substring(0, 80) + "…" : quoted;
                             m.replyMine = rs.getInt(9) == me;
                         }
@@ -154,7 +157,7 @@ public class ChatDao {
     public boolean edit(int me, long id, String body) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "UPDATE chat_messages SET body = ?, edited_at = NOW() WHERE id = ? AND sender_id = ? AND deleted_at IS NULL AND created_at > NOW() - INTERVAL 15 MINUTE")) {
-            ps.setString(1, body);
+            ps.setString(1, SecretBox.seal(body));
             ps.setLong(2, id);
             ps.setInt(3, me);
             return ps.executeUpdate() > 0;
@@ -258,17 +261,70 @@ public class ChatDao {
         }
     }
 
-    /** Smazat konverzaci u mě: tomu druhému zůstává, nová zpráva ji zase ukáže. */
+    /**
+     * Smazat konverzaci u mě: tomu druhému zůstává, nová zpráva ji zase ukáže.
+     * Co už mají smazané oba, zmizí i z databáze (kopie u otevřeného nahlášení zůstává, jinak by šlo důkaz smazat).
+     */
     public void hide(int me, int other) throws SQLException {
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "INSERT INTO chat_hidden (user_id, other_id, up_to) "
-                + "SELECT ?, ?, MAX(id) FROM chat_messages WHERE user_a = ? AND user_b = ? HAVING MAX(id) IS NOT NULL "
-                + "ON DUPLICATE KEY UPDATE up_to = VALUES(up_to)")) {
-            ps.setInt(1, me);
-            ps.setInt(2, other);
-            ps.setInt(3, Math.min(me, other));
-            ps.setInt(4, Math.max(me, other));
-            ps.executeUpdate();
+        int a = Math.min(me, other), b = Math.max(me, other);
+        try (Connection c = Db.get()) {
+            try (PreparedStatement ps = c.prepareStatement(
+                    "INSERT INTO chat_hidden (user_id, other_id, up_to) "
+                    + "SELECT ?, ?, MAX(id) FROM chat_messages WHERE user_a = ? AND user_b = ? HAVING MAX(id) IS NOT NULL "
+                    + "ON DUPLICATE KEY UPDATE up_to = VALUES(up_to)")) {
+                ps.setInt(1, me);
+                ps.setInt(2, other);
+                ps.setInt(3, a);
+                ps.setInt(4, b);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = c.prepareStatement(
+                    "DELETE m FROM chat_messages m "
+                    + "JOIN chat_hidden x ON x.user_id = m.user_a AND x.other_id = m.user_b "
+                    + "JOIN chat_hidden y ON y.user_id = m.user_b AND y.other_id = m.user_a "
+                    + "WHERE m.user_a = ? AND m.user_b = ? AND m.id <= x.up_to AND m.id <= y.up_to")) {
+                ps.setInt(1, a);
+                ps.setInt(2, b);
+                ps.executeUpdate();
+            }
+        }
+    }
+
+    /** Dosud nezašifrované zprávy a kopie u nahlášení zašifruje; bez klíče nedělá nic. Vrací počet. */
+    public int sealOldMessages() throws SQLException {
+        if (!SecretBox.enabled()) return 0;
+        return sealColumn("chat_messages", "body", "id") + sealColumn("chat_reports", "body_copy", "id");
+    }
+
+    private static int sealColumn(String table, String column, String key) throws SQLException {
+        int total = 0;
+        try (Connection c = Db.get()) {
+            while (true) {
+                Map<Long, String> batch = new HashMap<>();
+                try (PreparedStatement ps = c.prepareStatement("SELECT " + key + ", " + column + " FROM " + table + " WHERE " + column + " <> '' AND " + column + " NOT LIKE 'gcm1:%' LIMIT 500");
+                     ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) batch.put(rs.getLong(1), rs.getString(2));
+                }
+                if (batch.isEmpty()) return total;
+                try (PreparedStatement ps = c.prepareStatement("UPDATE " + table + " SET " + column + " = ? WHERE " + key + " = ?")) {
+                    for (Map.Entry<Long, String> e : batch.entrySet()) {
+                        ps.setString(1, SecretBox.seal(e.getValue()));
+                        ps.setLong(2, e.getKey());
+                        ps.addBatch();
+                    }
+                    ps.executeBatch();
+                }
+                total += batch.size();
+            }
+        }
+    }
+
+    /** Zprávy starší než rok a vyřízená nahlášení starší než rok. Otevřené nahlášení zůstává, dokud ho admin nevyřídí. */
+    public int deleteExpired() throws SQLException {
+        try (Connection c = Db.get(); Statement st = c.createStatement()) {
+            int removed = st.executeUpdate("DELETE FROM chat_messages WHERE created_at < NOW() - INTERVAL 1 YEAR");
+            st.executeUpdate("DELETE FROM chat_reports WHERE resolved_at IS NOT NULL AND resolved_at < NOW() - INTERVAL 1 YEAR");
+            return removed;
         }
     }
 
@@ -282,7 +338,9 @@ public class ChatDao {
             ps.setString(3, note == null || note.isBlank() ? null : note.strip());
             ps.setLong(4, id);
             ps.setInt(5, me);
-            return ps.executeUpdate() > 0;
+            boolean added = ps.executeUpdate() > 0;
+            if (added) UrgentReports.tellAdmin(reason, "chat-reports");
+            return added;
         }
     }
 
@@ -307,7 +365,7 @@ public class ChatDao {
                     v.avatarUrl = WebUtils.safeUrl(rs.getString(2), "/img/avatar-default.svg");
                     v.lastMine = rs.getInt(3) == me;
                     v.lastDeleted = rs.getTimestamp(6) != null;
-                    v.lastBody = v.lastDeleted ? "" : rs.getString(4);
+                    v.lastBody = v.lastDeleted ? "" : SecretBox.open(rs.getString(4));
                     v.lastAt = rs.getTimestamp(5).getTime();
                     v.unread = rs.getInt(7);
                     out.add(v);
@@ -381,11 +439,12 @@ public class ChatDao {
         return true;
     }
 
-    /** Stav, jak ho vidí ostatní: online, busy, dnd, nebo offline (není tu, nebo je neviditelný). */
+    /** Stav, jak ho vidí ostatní: online, idle (online, ale 5 minut se nepohnul), busy, dnd, nebo offline (není tu, nebo je neviditelný). */
     public String shownState(int userId) throws SQLException {
         if (!com.github.skeliit.service.OnlineUsers.isOnline(userId)) return "offline";
         String status = prefs(userId).status;
-        return "invisible".equals(status) ? "offline" : status;
+        if ("invisible".equals(status)) return "offline";
+        return "online".equals(status) && com.github.skeliit.service.OnlineUsers.isIdle(userId) ? "idle" : status;
     }
 
     // ---------- moderace ----------
@@ -394,7 +453,7 @@ public class ChatDao {
         List<ChatReport> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "SELECT r.id, s.username, p.username, r.reason, r.note, r.body_copy, r.created_at FROM chat_reports r "
-                + "JOIN users s ON s.id = r.sender_id JOIN users p ON p.id = r.reporter_id WHERE r.resolved_at IS NULL ORDER BY r.created_at");
+                + "JOIN users s ON s.id = r.sender_id JOIN users p ON p.id = r.reporter_id WHERE r.resolved_at IS NULL ORDER BY r.reason IN ('illegal', 'child') DESC, r.created_at");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 ChatReport r = new ChatReport();
@@ -403,7 +462,7 @@ public class ChatDao {
                 r.reporter = rs.getString(3);
                 r.reason = rs.getString(4);
                 r.note = rs.getString(5);
-                r.body = rs.getString(6);
+                r.body = SecretBox.open(rs.getString(6));
                 r.createdAt = rs.getTimestamp(7);
                 out.add(r);
             }

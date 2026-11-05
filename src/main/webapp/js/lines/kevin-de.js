@@ -214,6 +214,7 @@
       "Erledigt. Jetzt merk's dir nur."
     ]
   },
+  "profileNews": ["Wir haben das Profil neu gebaut. Foto, Titelbild, Freunde, Nachrichten, deine Tracks. Alles stellst du dir selbst ein. Ich würde ein Katzenfoto nehmen.","Jetzt im Ernst: Was andere über dich sehen, entscheidest nur du. Öffentliches oder privates Profil, und jede Sache hat ihren eigenen Schalter. Klick, ich zeig dir wo."],
   "privacyTip": "Soll hier keiner reinschauen? Stell dein Profil in den Einstellungen auf privat. Freundschaftsanfragen gehen weiter, aber rein kommt keiner.",
   "profileHello": ["Dein Profil. Bisher so leer wie mein Napf. Fang mit der Liste an.","Hier wohnst du also? Richte es ein bisschen ein, die Liste hilft."],
   "profile": [

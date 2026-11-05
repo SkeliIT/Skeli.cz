@@ -628,6 +628,26 @@
     })();
   }
 
+  // Nový profil a soukromí: každému přihlášenému (novému i tomu, kdo se vrátil) to řekne dvakrát a nikdy víc,
+  // napoprvé co je nového, při další příležitosti že o svém soukromí rozhoduje každý sám. I tomu, kdo Kevina zavřel (jako tip).
+  function profileNews() {
+    if (!L.profileNews || !document.querySelector('form.logout-form')) return;
+    var step = Number(store.get('kevinProfileNews') || 0);
+    if (step >= L.profileNews.length || session.get('kevinProfileNewsNow')) return;
+    var targets = ['/uzivatel.jsp', '/nastaveni.jsp#soukromi'], tries = 0;
+    (function attempt() {
+      if (++tries > 12) return;
+      var before = autoCount;
+      if (bubble.hidden && !busy) lastAuto = 0;      // výjimka z odstupu mezi hláškami
+      auto(L.profileNews[step], 'point', 0.9, true, targets[step]);
+      if (autoCount > before) {
+        store.set('kevinProfileNews', String(step + 1));
+        session.set('kevinProfileNewsNow', '1');     // druhá věta až při další návštěvě, ať neotravuje
+        if (step === 1) store.set('kevinPrivacyTold', '1');
+      } else setTimeout(attempt, 5000);
+    })();
+  }
+
   // Novinky webu (kevin/novinky.json, nejnovější první): krátké lidské věty o tom, co jsme na webu změnili,
   // v 5 jazycích, s odkazem; přibývají při nasazení. „Co je nového“ = nové klipy a příspěvky + změny webu od
   // minulé návštěvy; když od minula nic, aspoň poslední novinka z dílny.
@@ -1052,6 +1072,7 @@
       root.classList.remove('kevin-in');
     });
     if (!adminPage) setTimeout(buildingNotice, 9000);
+    if (!adminPage) setTimeout(profileNews, 25000);
     if (userHidden) { place(false); introPaw(); if (!adminPage) scheduleTip(); return; }   // pacička se vylíhne i tomu, kdo Kevina zavřel
     if (pocket()) { place(false); introPaw(); }   // in the paw until he has something to say (greet below)
     else ensureModel();          // a page without the header bar: he stands there from the start
