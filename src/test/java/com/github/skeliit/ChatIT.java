@@ -92,6 +92,40 @@ class ChatIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Nastavení: uloží jen povolené hodnoty, stav vidí jen přátelé, neviditelný je offline")
+    void settingsAndStatus() throws Exception {
+        String a = "cm" + uniq(), b = "cn" + uniq(), c = "co" + uniq();
+        int aid = registerAndLogin(a);
+        ((JavascriptExecutor) driver).executeAsyncScript("var done = arguments[arguments.length - 1]; fetch('/api/presence').then(function () { done(); });");
+        driver.get(BASE_URL + "/nastaveni.jsp");
+        waitReady();
+        assertEquals(400, browserPost("/api/chat", Map.of("action", "prefs", "status", "online", "theme", "<script>", "font", "text", "size", "m"), true), "cizí hodnota neprojde");
+        assertEquals(200, browserPost("/api/chat", Map.of("action", "prefs", "status", "busy", "theme", "blue", "font", "clean", "size", "l"), true));
+        assertEquals("blue", queryString("SELECT theme FROM user_chat_prefs WHERE user_id=?", aid));
+        driver.get(BASE_URL + "/zpravy");
+        waitReady();
+        assertEquals("blue", driver.findElement(By.cssSelector("main.chat-page")).getAttribute("data-chat-theme"));
+        jsClick(driver.findElement(By.cssSelector(".chat-gear")));
+        assertTrue(driver.findElement(By.cssSelector(".chat-settings")).isDisplayed(), "kolečko otevře nastavení");
+        logout();
+
+        int bid = registerAndLogin(b);
+        befriend(aid, bid);
+        driver.get(BASE_URL + "/nastaveni.jsp");
+        waitReady();
+        assertTrue(read(a).contains("\"state\":\"busy\""), "přítel vidí stav");
+        update("UPDATE user_chat_prefs SET status='invisible' WHERE user_id=?", aid);
+        assertTrue(read(a).contains("\"state\":\"offline\""), "neviditelný je offline");
+        update("UPDATE user_chat_prefs SET status='busy' WHERE user_id=?", aid);
+        logout();
+
+        registerAndLogin(c);
+        driver.get(BASE_URL + "/nastaveni.jsp");
+        waitReady();
+        assertTrue(read(a).contains("\"state\":null"), "cizí stav nevidí");
+    }
+
+    @Test
     @DisplayName("Cizí konverzaci nejde číst, cizí zprávu nejde smazat ani nahlásit")
     void foreignMessagesAreSafe() throws Exception {
         String a = "cc" + uniq(), b = "cd" + uniq(), c = "ce" + uniq();

@@ -2,6 +2,27 @@
 // Otevřený chat se každé 4 s ptá na nové zprávy (jen když je stránka vidět). Zprávy se kreslí jen jako text, odkazy nejsou klikatelné.
 (function () {
   if (window.__chatTimer) { clearInterval(window.__chatTimer); window.__chatTimer = null; }
+
+  // nastavení (kolečko): stav, barvy, písmo a velikost; platí hned a hned se uloží
+  var page = document.querySelector('.chat-page'), dialog = page && page.querySelector('.chat-settings');
+  if (dialog) {
+    page.querySelectorAll('.chat-gear').forEach(function (b) { b.addEventListener('click', function () { dialog.showModal(); }); });
+    dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });   // klik mimo okno ho zavře
+    dialog.addEventListener('change', function (e) {
+      var name = e.target.name, value = e.target.value;
+      if (name === 'theme') page.dataset.chatTheme = value;
+      if (name === 'font') page.dataset.chatFont = value;
+      if (name === 'size') page.dataset.chatSize = value;
+      var body = { action: 'prefs' };
+      ['status', 'theme', 'font', 'size'].forEach(function (k) { body[k] = dialog.querySelector('input[name=' + k + ']:checked').value; });
+      fetch('/api/chat', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': page.dataset.csrf },
+        body: new URLSearchParams(body).toString()
+      }).catch(function () { /* platí aspoň do znovunačtení */ });
+    });
+  }
+
   var room = document.querySelector('.chat-room[data-with]');
   if (!room) return;
   var name = room.dataset.with, csrf = room.dataset.csrf;
@@ -91,8 +112,17 @@
     return box;
   }
 
+  // jen 1 až 3 smajlíky: velké a bez bubliny
+  function emojiOnly(text) {
+    if (!text) return false;
+    var found = text.match(/\p{Extended_Pictographic}/gu);
+    if (!found || found.length > 3) return false;
+    return text.replace(/[\p{Extended_Pictographic}\p{Emoji_Modifier}‍️\s]/gu, '') === '';
+  }
+
   function markDeleted(li) {
     li.classList.add('deleted');
+    li.classList.remove('emoji-only');
     var card = li.querySelector('.chat-embed');
     if (card) card.remove();
     li.querySelector('.chat-text').textContent = room.dataset.tDeleted;
@@ -105,6 +135,7 @@
     var text = document.createElement('span');
     text.className = 'chat-text';
     text.textContent = m.body;             // jen text: žádné HTML od uživatele
+    if (emojiOnly(m.body)) li.classList.add('emoji-only');
     var meta = document.createElement('span');
     meta.className = 'chat-meta';
     var when = document.createElement('time');
@@ -137,6 +168,12 @@
     });
     form.hidden = !data.canSend;
     closed.hidden = data.canSend;
+    // stav přítele v hlavičce (offline a cizí se neukazuje)
+    var stateBox = room.querySelector('.chat-who-state');
+    var label = data.state && stateBox.dataset['t' + data.state[0].toUpperCase() + data.state.slice(1)];
+    stateBox.hidden = !label;
+    stateBox.textContent = label || '';
+    stateBox.className = 'chat-who-state' + (label ? ' s-' + data.state : '');
     if (stick) toBottom();
   }
   function poll() {

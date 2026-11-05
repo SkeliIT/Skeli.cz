@@ -4,6 +4,7 @@ import com.github.skeliit.Db;
 import com.github.skeliit.WebUtils;
 import com.github.skeliit.model.ChatConversation;
 import com.github.skeliit.model.ChatMessage;
+import com.github.skeliit.model.ChatPrefs;
 import com.github.skeliit.model.ChatReport;
 import com.github.skeliit.model.Friend;
 
@@ -14,8 +15,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -186,14 +189,62 @@ public class ChatDao {
                 }
             }
         }
+        // stav vidí jen přátelé
+        Map<String, Integer> friendIds = new HashMap<>();
         for (Friend f : new FriendDao().friends(me)) {
+            friendIds.put(f.username, f.id);
             if (seen.contains(f.username)) continue;
             ChatConversation v = new ChatConversation();
             v.username = f.username;
             v.avatarUrl = f.avatarUrl;
             out.add(v);
         }
+        for (ChatConversation v : out) {
+            Integer id = friendIds.get(v.username);
+            if (id != null) v.state = shownState(id);
+        }
         return out;
+    }
+
+    // ---------- nastavení a stav ----------
+
+    public ChatPrefs prefs(int userId) throws SQLException {
+        ChatPrefs p = new ChatPrefs();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT status, theme, font, size FROM user_chat_prefs WHERE user_id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    p.status = rs.getString(1);
+                    p.theme = rs.getString(2);
+                    p.font = rs.getString(3);
+                    p.size = rs.getString(4);
+                }
+            }
+        }
+        return p;
+    }
+
+    /** Uloží jen povolené hodnoty; false = něco nesedí a nic se nezměnilo. */
+    public boolean savePrefs(int userId, ChatPrefs p) throws SQLException {
+        if (!ChatPrefs.STATUSES.contains(p.status) || !ChatPrefs.THEMES.contains(p.theme) || !ChatPrefs.FONTS.contains(p.font) || !ChatPrefs.SIZES.contains(p.size)) return false;
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "INSERT INTO user_chat_prefs (user_id, status, theme, font, size) VALUES (?, ?, ?, ?, ?) "
+                + "ON DUPLICATE KEY UPDATE status = VALUES(status), theme = VALUES(theme), font = VALUES(font), size = VALUES(size)")) {
+            ps.setInt(1, userId);
+            ps.setString(2, p.status);
+            ps.setString(3, p.theme);
+            ps.setString(4, p.font);
+            ps.setString(5, p.size);
+            ps.executeUpdate();
+        }
+        return true;
+    }
+
+    /** Stav, jak ho vidí ostatní: online, busy, dnd, nebo offline (není tu, nebo je neviditelný). */
+    public String shownState(int userId) throws SQLException {
+        if (!com.github.skeliit.service.OnlineUsers.isOnline(userId)) return "offline";
+        String status = prefs(userId).status;
+        return "invisible".equals(status) ? "offline" : status;
     }
 
     // ---------- moderace ----------

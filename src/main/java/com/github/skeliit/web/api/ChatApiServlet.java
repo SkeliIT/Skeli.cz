@@ -3,8 +3,10 @@ package com.github.skeliit.web.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.skeliit.WebUtils;
 import com.github.skeliit.dao.ChatDao;
+import com.github.skeliit.dao.FriendDao;
 import com.github.skeliit.dao.NotificationDao;
 import com.github.skeliit.model.ChatMessage;
+import com.github.skeliit.model.ChatPrefs;
 import com.github.skeliit.security.RequestLimiter;
 import com.github.skeliit.web.auth.EmailVerification;
 import jakarta.servlet.ServletException;
@@ -63,6 +65,8 @@ public class ChatApiServlet extends HttpServlet {
             out.put("items", items);
             out.put("deleted", chat.recentlyDeleted(me, other));
             out.put("canSend", EmailVerification.isVerified(req.getSession(false)) && chat.canSend(me, other));
+            // stav vidí jen přátelé
+            out.put("state", new FriendDao().relation(me, other) == FriendDao.Rel.FRIENDS ? chat.shownState(other) : null);
             json(resp, 200, out);
         } catch (SQLException e) {
             throw new ServletException(e);
@@ -77,6 +81,14 @@ public class ChatApiServlet extends HttpServlet {
         try {
             switch (action) {
                 case "send" -> send(req, resp, me);
+                case "prefs" -> {
+                    ChatPrefs p = new ChatPrefs();
+                    p.status = String.valueOf(req.getParameter("status"));
+                    p.theme = String.valueOf(req.getParameter("theme"));
+                    p.font = String.valueOf(req.getParameter("font"));
+                    p.size = String.valueOf(req.getParameter("size"));
+                    json(resp, chat.savePrefs(me, p) ? 200 : 400, Map.of("ok", true));
+                }
                 case "delete" -> json(resp, chat.deleteOwn(me, number(req.getParameter("id"))) ? 200 : 404, Map.of("ok", true));
                 case "hide" -> {
                     Integer other = chat.userId(req.getParameter("with"));

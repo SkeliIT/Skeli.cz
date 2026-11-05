@@ -101,7 +101,8 @@ public class PlayerProfileServlet extends HttpServlet {
             if (sharing[1] && details != null) req.setAttribute("playerCity", details.city);
             if (sharing[2]) req.setAttribute("playerLikes", users.likedSongs(id));
             if (sharing[3]) req.setAttribute("playerFriends", new com.github.skeliit.dao.FriendDao().friendsShownTo(id, me));
-            req.setAttribute("playerOnline", sharing[4] && com.github.skeliit.service.OnlineUsers.isOnline(id));
+            // neviditelný v chatu je neviditelný i na profilu
+            req.setAttribute("playerOnline", sharing[4] && !"offline".equals(new com.github.skeliit.dao.ChatDao().shownState(id)));
             req.setAttribute("playerShownBadges", users.showcaseBadges(id));
             req.setAttribute("playerSiteEarned", new com.github.skeliit.dao.SiteBadgeDao().sync(id));
             if (sharing[7]) req.setAttribute("playerActivity", new com.github.skeliit.dao.ActivityDao().recent(id, true, 8));

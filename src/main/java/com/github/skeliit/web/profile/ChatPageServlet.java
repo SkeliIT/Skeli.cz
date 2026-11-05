@@ -24,6 +24,7 @@ public class ChatPageServlet extends HttpServlet {
         try {
             ChatDao chat = new ChatDao();
             req.setAttribute("chatList", chat.conversations(me));
+            req.setAttribute("chatPrefs", chat.prefs(me));
             String with = req.getParameter("s");
             Integer other = chat.userId(with);
             if (other != null && !other.equals(me)) req.setAttribute("chatWith", with);

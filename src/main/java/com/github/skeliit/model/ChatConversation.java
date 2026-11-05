@@ -9,4 +9,5 @@ public class ChatConversation {
     public boolean lastDeleted;
     public long lastAt;
     public int unread;
+    public String state;        // online, busy, dnd, offline; null = není přítel, stav nevidím
 }
