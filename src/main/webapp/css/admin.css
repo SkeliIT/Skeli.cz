@@ -906,3 +906,13 @@ body.light .songs-icons small.lack { color: #a85b00; }
 .note-item form { margin: 0; }
 .note-item-btn { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 1px solid var(--panel-border); border-radius: 50%; background: none; color: var(--text-dim); cursor: pointer; text-decoration: none; }
 .note-item-btn:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+
+/* Moderace v Uživatelích */
+.user-blocked { color: #ff8a8a; font-size: var(--fs-small); white-space: nowrap; }
+body.light .user-blocked { color: #b3261e; }
+.user-block { position: relative; }
+.user-block summary { min-height: 36px; display: inline-flex; align-items: center; cursor: pointer; font-size: var(--fs-small); color: var(--text-dim); list-style: none; }
+.user-block summary::-webkit-details-marker { display: none; }
+.user-block summary:hover { color: var(--accent); }
+.user-block form { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.user-block input[name=reason] { min-width: 150px; }

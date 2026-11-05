@@ -2259,3 +2259,49 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
 .listen-btn-spotify:hover { border-color: var(--spotify); background: color-mix(in srgb, var(--spotify) 14%, var(--panel-strong)); }
 .listen-btn-apple i { color: var(--apple-music); }
 .listen-btn-apple:hover { border-color: var(--apple-music); background: color-mix(in srgb, var(--apple-music) 14%, var(--panel-strong)); }
+
+/* Profil po částech: Přehled, Hry (každá hra svůj blok), Přátelé, Komentáře. Hlavička nahoře je pořád vidět. */
+.pt-grid > .profile-tabs { grid-column: span 12; margin: 0; }
+.pt-tab { grid-column: span 12; margin: 0; }
+.pt-tab[hidden] { display: none; }
+.pt.pt-half { grid-column: span 6; }
+.game-head { grid-column: span 12; display: flex; align-items: center; gap: 10px; margin: 2px 2px -2px; color: var(--accent); }
+.game-head h2 { margin: 0; font-size: var(--fs-h3); font-weight: 400; color: var(--text); }
+.pt.pt-big-tile { grid-column: span 12; }
+.pt-games { --glow: #4ea3ff; }
+@media (min-width: 768px) {
+  .pt-tab .pt-song, .pt-tab .pt-last { grid-column: span 6; }
+  .player-page #prehled .pt-song { grid-column: span 12; }
+}
+/* Přátelé */
+.friend-search { display: flex; gap: 8px; margin: 0 0 14px; }
+.friend-search input { flex: 1; min-width: 0; min-height: 44px; }
+.friend-search button { min-width: 48px; min-height: 44px; }
+.friend-head { display: flex; align-items: center; gap: 8px; margin: 18px 0 8px; font-size: var(--fs-h4); font-weight: 400; }
+.friend-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.friend-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 8px 0; border-top: 1px solid var(--panel-border); }
+.friend-row:first-child { border-top: 0; }
+.friend-who { flex: 1 1 150px; min-width: 0; display: flex; align-items: center; gap: 12px; color: var(--text); font-size: var(--fs-card); text-decoration: none; overflow-wrap: anywhere; }
+a.friend-who:hover { color: var(--accent); text-decoration: none; }
+.friend-who img { flex: none; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+.friend-row form { margin: 0; }
+.friend-btn { min-height: 42px; padding: 0 16px; font-size: var(--fs-small); }
+.player-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.player-actions form { margin: 0; }
+.player-actions > .form-alert, .player-actions > .form-success { flex-basis: 100%; margin: 0; }
+.player-state { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); color: var(--text-dim); }
+.player-state.on { color: var(--accent); }
+.player-more { position: relative; margin-left: auto; }
+.player-more > summary { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--panel-border); border-radius: 50%; color: var(--text-dim); cursor: pointer; list-style: none; }
+.player-more > summary::-webkit-details-marker { display: none; }
+.player-more[open] > summary, .player-more > summary:hover { color: var(--accent); border-color: var(--accent); }
+.player-more-box { position: absolute; right: 0; z-index: 10; display: flex; flex-direction: column; gap: 12px; width: min(290px, 78vw); margin-top: 8px; padding: 14px; background: var(--panel-strong); border: 1px solid var(--panel-border); border-radius: 14px; box-shadow: var(--shadow); }
+.player-report { display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-small); color: var(--text-dim); }
+.player-report select, .player-report input { display: block; width: 100%; min-height: 42px; margin-top: 4px; }
+@media (max-width: 600px) {
+  .profile-tabs { overflow: visible; }
+  .profile-tabs a { flex: 1 1 0; min-width: 44px; min-height: 44px; padding-inline: 8px; justify-content: center; }
+  .profile-tabs a.active { flex: 0 1 auto; }
+  /* název schovaný jen pro oči, čtečka ho přečte pořád */
+  .profile-tabs a:not(.active) .tab-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}

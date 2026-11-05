@@ -81,6 +81,9 @@ public class ProfileExportServlet extends HttpServlet {
             section(c, m, root, "lyric_comment_votes", "SELECT * FROM lyric_comment_votes WHERE user_id=?", uid);
             section(c, m, root, "notifications", "SELECT type, comment_kind, comment_id, created_at, read_at FROM notifications WHERE user_id=?", uid);
             section(c, m, root, "reported_comments", "SELECT kind, comment_id, created_at FROM comment_reports WHERE reporter_id=?", uid);
+            section(c, m, root, "friends", "SELECT u.username, f.status, f.created_at FROM friendships f JOIN users u ON u.id = IF(f.user_a = " + uid + ", f.user_b, f.user_a) WHERE f.user_a = ? OR f.user_b = " + uid, uid);
+            section(c, m, root, "blocked_users", "SELECT u.username, b.created_at FROM user_blocks b JOIN users u ON u.id = b.blocked_id WHERE b.blocker_id = ?", uid);
+            section(c, m, root, "reported_profiles", "SELECT reported_id, reason, note, created_at FROM user_reports WHERE reporter_id=?", uid);
             if (email != null && !email.isBlank()) {
                 section(c, m, root, "newsletter",
                         "SELECT email, subscribed_at, confirmed_at, unsubscribed_at FROM newsletter_emails WHERE email=?", email);

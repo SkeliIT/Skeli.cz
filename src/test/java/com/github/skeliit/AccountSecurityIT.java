@@ -51,7 +51,8 @@ class AccountSecurityIT extends UiTestSupport {
         assertTrue(exists("SELECT 1 FROM lyrics_votes WHERE user_id=?", id), "the vote stays counted (the user's wish)");
 
         driver.get(BASE_URL + "/lyrics/" + lyricId);
-        assertTrue(bodyText().contains("Smazaný účet"), "shown as a deleted account");
+        // komentáře kreslí skript až po načtení stránky
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10)).until(d -> bodyText().contains("Smazaný účet"));
         assertFalse(bodyText().contains(name), "the old name is nowhere");
 
         login(name, PASSWORD);

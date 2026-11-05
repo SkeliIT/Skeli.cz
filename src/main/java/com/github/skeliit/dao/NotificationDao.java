@@ -41,6 +41,20 @@ public class NotificationDao {
         }
     }
 
+    /** Přátelé: žádost nebo přijetí; starší nepřečtené stejného druhu od téhož člověka nahradí, ať se nehromadí. */
+    public void addFriend(int userId, int actorId, String type) throws SQLException {
+        try (Connection c = Db.get()) {
+            try (PreparedStatement ps = c.prepareStatement("DELETE FROM notifications WHERE user_id = ? AND actor_id = ? AND type = ? AND read_at IS NULL")) {
+                ps.setInt(1, userId); ps.setInt(2, actorId); ps.setString(3, type);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = c.prepareStatement("INSERT INTO notifications (user_id, type, actor_id) VALUES (?, ?, ?)")) {
+                ps.setInt(1, userId); ps.setString(2, type); ps.setInt(3, actorId);
+                ps.executeUpdate();
+            }
+        }
+    }
+
     public int unread(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "SELECT COUNT(*) FROM notifications WHERE user_id = ? AND read_at IS NULL")) {
@@ -91,7 +105,10 @@ public class NotificationDao {
                         n.read = rs.getTimestamp(6) != null;
                         n.actor = rs.getString(8);
                         n.actorAvatar = WebUtils.safeUrl(rs.getString(9), "");
-                        if ("passed".equals(n.type)) {                // CatSmash: tabulka a nové místo, odkaz otevře hru
+                        if (n.type.startsWith("friend_")) {          // přátelé: vede na část Přátelé na mém profilu
+                            n.place = "friend"; n.placeName = ""; n.snippet = ""; n.link = "/uzivatel.jsp#pratele";
+                            out.add(n);
+                        } else if ("passed".equals(n.type)) {                // CatSmash: tabulka a nové místo, odkaz otevře hru
                             n.place = "pong"; n.placeName = rs.getString(7); n.snippet = ""; n.link = "/?kevin=pong";
                             out.add(n);
                         } else if (where(c, n, rs.getString(3), rs.getInt(4))) out.add(n);

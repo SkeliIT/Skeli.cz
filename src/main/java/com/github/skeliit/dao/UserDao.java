@@ -151,7 +151,7 @@ public class UserDao {
     /** Id hráče s veřejným profilem podle jména (/hrac/jméno); null = neexistuje, je smazaný nebo profil skryl. */
     public Integer publicPlayerId(String username) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT id FROM users WHERE username = ? AND profile_public = 1 AND role <> 'DELETED'")) {
+                "SELECT id FROM users WHERE username = ? AND profile_public = 1 AND role <> 'DELETED' AND blocked_at IS NULL")) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getInt(1) : null; }
         }
@@ -204,6 +204,22 @@ public class UserDao {
 
     public void setCoverPublic(int userId, boolean on) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET cover_public = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Smí mi lidé posílat žádosti o přátelství (users.friend_requests)? */
+    public boolean friendRequests(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT friend_requests FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return !rs.next() || rs.getBoolean(1); }
+        }
+    }
+
+    public void setFriendRequests(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET friend_requests = ? WHERE id = ?")) {
             ps.setBoolean(1, on);
             ps.setInt(2, userId);
             ps.executeUpdate();

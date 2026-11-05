@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-11-05",
+    "href": "/uzivatel.jsp#pratele",
+    "cs": "Na webu si teď můžeš přidávat přátele. Najdeš je na svém profilu a ten je konečně hezky rozdělený.",
+    "en": "You can now add friends on the site. You’ll find them on your profile, which is finally neatly divided.",
+    "de": "Du kannst jetzt Freunde hinzufügen. Du findest sie auf deinem Profil, das endlich schön aufgeteilt ist.",
+    "uk": "Тепер на сайті можна додавати друзів. Вони є у твоєму профілі, який нарешті гарно поділений.",
+    "vi": "Giờ bạn có thể kết bạn trên trang web. Bạn bè nằm trong hồ sơ của bạn, nay đã được chia gọn gàng."
+  },
+  {
+    "d": "2026-11-05",
     "href": "/nastaveni.jsp#zahlavi",
     "cs": "Na profilu si teď můžeš nahrát vlastní záhlaví: široký obrázek nad tvou fotkou. Najdeš ho v Nastavení.",
     "en": "You can now upload your own header to your profile: a wide picture above your photo. You’ll find it in Settings.",
@@ -34,14 +43,5 @@
     "de": "In CatSmash auf dem Handy laufe ich wieder auf einem großen Rad und bewege so meinen Schläger. Unter dem Spielfeld gehört das ganze Zahnradfenster deinem Finger.",
     "uk": "У CatSmash на телефоні я знову бігаю по великому колесу й так рухаю своєю ракеткою. Під полем усе віконце з колесами твоє — для пальця.",
     "vi": "Trong CatSmash trên điện thoại, tôi lại chạy trên bánh xe lớn và nhờ đó di chuyển vợt của mình. Dưới sân, cả ô bánh răng là chỗ cho ngón tay của bạn."
-  },
-  {
-    "d": "2026-11-04",
-    "href": "/uzivatel.jsp",
-    "cs": "Můj profil má nový vzhled: skleněné dlaždice s tvými čísly, odznaky a oblíbeným songem. Mrkni, jak ti to sluší.",
-    "en": "My profile has a new look: glass tiles with your numbers, badges and favourite song. Go and see how it suits you.",
-    "de": "Mein Profil sieht jetzt neu aus: Glaskacheln mit deinen Zahlen, Abzeichen und deinem Lieblingssong. Schau mal, wie es dir steht.",
-    "uk": "Мій профіль має новий вигляд: скляні плитки з твоїми числами, значками й улюбленою піснею. Глянь, як тобі пасує.",
-    "vi": "Hồ sơ của tôi có diện mạo mới: các ô kính với số liệu, huy hiệu và bài hát yêu thích của bạn. Vào xem hợp với bạn thế nào nhé."
   }
 ]

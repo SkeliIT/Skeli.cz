@@ -23,6 +23,9 @@
     PongProfile pong = new PongProfile();
     String[] showcase = { null, null, null, null, "brush" };
     String coverUrl = null;
+    java.util.List<com.github.skeliit.model.Friend> frFriends = java.util.List.of(), frIn = java.util.List.of(), frOut = java.util.List.of(), frBlocked = java.util.List.of(), frFound = java.util.List.of();
+    String frQuery = request.getParameter("fq");
+    if (frQuery != null) frQuery = frQuery.strip();
     try {
       UserDao users = new UserDao();          // dao/UserDao
       UserProfile p = users.profile(uid);     // nothing saved yet = null
@@ -32,6 +35,9 @@
       }
       me = users.summary(uid);
       coverUrl = users.cover(uid);
+      com.github.skeliit.dao.FriendDao fd = new com.github.skeliit.dao.FriendDao();   // dao/FriendDao
+      frFriends = fd.friends(uid); frIn = fd.incoming(uid); frOut = fd.outgoing(uid); frBlocked = fd.blocked(uid);
+      if (frQuery != null && frQuery.length() >= 2 && frQuery.length() <= 50) frFound = fd.search(uid, frQuery);
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
       showcase = new com.github.skeliit.dao.UserDao().showcase(uid);   // oblíbený song a moto
@@ -77,34 +83,22 @@
     </div>
   </section>
 
-  <%-- čísla: každé vede na to, čeho se týká --%>
   <% Integer bestAll = null; for (Integer b : pong.bestMs) if (b != null && (bestAll == null || b < bestAll)) bestAll = b; %>
-  <a class="pt pt-stat pt-wins" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-trophy pt-ghost" aria-hidden="true"></i>
-    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.wins") %></span><b class="pt-big"><%= pong.wins %></b></span></a>
-  <a class="pt pt-stat pt-best" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-stopwatch pt-ghost" aria-hidden="true"></i>
-    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.best") %></span><b class="pt-big"><%= bestAll == null ? "–" : PongProfile.time(bestAll) %></b></span></a>
-  <a class="pt pt-stat pt-comments" href="#komentare" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-comments pt-ghost" aria-hidden="true"></i>
+  <%-- části profilu: co je o mně, co je ze her (každá hra má v Hrách svůj blok), přátelé a komentáře --%>
+  <nav class="acct-tabs profile-tabs" aria-label="<%= t.getProperty("menu.account") %>">
+    <a href="#prehled"><i class="fa-solid fa-id-card" aria-hidden="true"></i> <span class="tab-name"><%= t.getProperty("profile.tab.overview") %></span></a>
+    <a href="#hry"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> <span class="tab-name"><%= t.getProperty("profile.tab.games") %></span></a>
+    <a href="#pratele"><i class="fa-solid fa-user-group" aria-hidden="true"></i> <span class="tab-name"><%= t.getProperty("profile.tab.friends") %></span><% if (!frIn.isEmpty()) { %> <span class="acct-count"><%= frIn.size() %></span><% } %></a>
+    <a href="#komentare"><i class="fa-solid fa-comments" aria-hidden="true"></i> <span class="tab-name"><%= t.getProperty("account.tab.comments") %></span></a>
+  </nav>
+
+  <div class="pt-tab pt-grid" id="prehled">
+  <a class="pt pt-stat pt-stat3 pt-comments" href="#komentare" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-comments pt-ghost" aria-hidden="true"></i>
     <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.comments") %></span><b class="pt-big"><%= me != null ? me.comments : 0 %></b></span></a>
-  <a class="pt pt-stat pt-hearts" href="#komentare" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-heart pt-ghost" aria-hidden="true"></i>
+  <a class="pt pt-stat pt-stat3 pt-hearts" href="#komentare" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-heart pt-ghost" aria-hidden="true"></i>
     <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.hearts") %></span><b class="pt-big"><%= me != null ? me.hearts : 0 %></b></span></a>
-
-  <%-- vitrína odznaků: prstenec, nejbližší odznak za výhry a nejvzácnější získané --%>
-  <section class="pt pt-badges pt-two">
-    <div class="pt-in">
-      <div class="pt-badges-top">
-        <a class="pt-ring" href="#odznaky" style="--ring:<%= pong.badges.isEmpty() ? 0 : pong.earnedCount() * 100 / pong.badges.size() %>" aria-label="<%= t.getProperty("pong.badges.title") %> <%= pong.earnedCount() %>/<%= pong.badges.size() %>"><%= pong.earnedCount() %>/<%= pong.badges.size() %></a>
-        <div>
-          <span class="pt-label"><%= t.getProperty("pong.badges.title") %></span>
-          <% if (pong.nextBadge != null) { %>
-          <p class="pt-note"><%= WebUtils.escapeHtml(t.getProperty("profile.nextBadge").replace("{0}", t.getProperty("pong.badge." + pong.nextBadge))) %> · <b><%= t.getProperty("profile.nextWins").replace("{0}", String.valueOf(pong.nextHave)).replace("{1}", String.valueOf(pong.nextNeed)) %></b></p>
-          <% } %>
-        </div>
-      </div>
-      <% PongProfile railPong = pong; String railEmpty = "profile.noBadgesYet"; %>
-      <%@ include file="/includes/profile-rail.jspf" %>
-    </div>
-  </section>
-
+  <a class="pt pt-stat pt-stat3 pt-stat-last pt-games" href="#hry" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-gamepad pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("profile.tab.games") %></span><b class="pt-big"><%= pong.wins %></b><span class="pt-note"><%= t.getProperty("account.stats.wins") %></span></span></a>
   <%-- oblíbený song: kdo ho nemá, dostane odkaz do nastavení --%>
   <% if (showcase[0] != null) { %>
   <a class="pt pt-song" href="<%= com.github.skeliit.I18n.songPath(request, showcase[0], 0) %>" data-tilt>
@@ -134,6 +128,32 @@
       <span class="pt-last-row"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i> <%= me != null ? me.likes : 0 %> · <%= t.getProperty("account.stats.likes") %></span>
     </span>
   </a>
+
+  </div>
+
+  <div class="pt-tab pt-grid" id="hry">
+  <%-- blok jedné hry: až přibude další hra, přijde sem další takový blok --%>
+  <header class="game-head"><i class="fa-solid fa-table-tennis-paddle-ball" aria-hidden="true"></i> <h2>CatSmash</h2></header>
+  <a class="pt pt-stat pt-half pt-wins" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-trophy pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.wins") %></span><b class="pt-big"><%= pong.wins %></b></span></a>
+  <a class="pt pt-stat pt-half pt-best" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-stopwatch pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.best") %></span><b class="pt-big"><%= bestAll == null ? "–" : PongProfile.time(bestAll) %></b></span></a>
+  <%-- vitrína odznaků: prstenec, nejbližší odznak za výhry a nejvzácnější získané --%>
+  <section class="pt pt-badges pt-full">
+    <div class="pt-in">
+      <div class="pt-badges-top">
+        <a class="pt-ring" href="#odznaky" style="--ring:<%= pong.badges.isEmpty() ? 0 : pong.earnedCount() * 100 / pong.badges.size() %>" aria-label="<%= t.getProperty("pong.badges.title") %> <%= pong.earnedCount() %>/<%= pong.badges.size() %>"><%= pong.earnedCount() %>/<%= pong.badges.size() %></a>
+        <div>
+          <span class="pt-label"><%= t.getProperty("pong.badges.title") %></span>
+          <% if (pong.nextBadge != null) { %>
+          <p class="pt-note"><%= WebUtils.escapeHtml(t.getProperty("profile.nextBadge").replace("{0}", t.getProperty("pong.badge." + pong.nextBadge))) %> · <b><%= t.getProperty("profile.nextWins").replace("{0}", String.valueOf(pong.nextHave)).replace("{1}", String.valueOf(pong.nextNeed)) %></b></p>
+          <% } %>
+        </div>
+      </div>
+      <% PongProfile railPong = pong; String railEmpty = "profile.noBadgesYet"; %>
+      <%@ include file="/includes/profile-rail.jspf" %>
+    </div>
+  </section>
 
   <% PongProfile timesPong = pong; String timesPlay = "pong.profile.play"; %>
   <%@ include file="/includes/profile-times.jspf" %>
@@ -181,8 +201,15 @@
     </div>
   </section>
 
+  </div>
+
+  <div class="pt-tab pt-grid" id="pratele">
+  <%@ include file="/includes/profile-friends.jspf" %>
+  </div>
+
+  <div class="pt-tab pt-grid" id="komentare">
   <%-- Comments: everything you wrote under lyrics and clips; edit in place or delete --%>
-  <section class="pt pt-panel" id="komentare">
+  <section class="pt pt-panel">
     <div class="pt-in">
     <header class="acct-card-head">
       <h3><i class="fa-solid fa-comments"></i> <%= t.getProperty("account.tab.comments") %></h3>
@@ -233,7 +260,9 @@
   </div>
   </section>
   </div>
+  </div>
   <script src="/js/profile-tiles.js?v=<%= assetVersion %>"></script>
+  <script src="/js/profile-tabs.js?v=<%= assetVersion %>"></script>
 
   <% } %>
 </main>

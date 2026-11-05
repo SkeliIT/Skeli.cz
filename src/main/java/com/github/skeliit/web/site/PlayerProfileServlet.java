@@ -46,6 +46,14 @@ public class PlayerProfileServlet extends HttpServlet {
                 req.getRequestDispatcher("/WEB-INF/views/player.jsp").forward(req, resp);
                 return;
             }
+            // kdo mě zablokoval, ten můj profil nevidí: stejná stránka jako u skrytého
+            com.github.skeliit.dao.FriendDao.Rel rel = id.equals(me) ? null : new com.github.skeliit.dao.FriendDao().relation(me, id);
+            if (rel == com.github.skeliit.dao.FriendDao.Rel.BLOCKS_ME) {
+                resp.setStatus(404);
+                req.getRequestDispatcher("/WEB-INF/views/player.jsp").forward(req, resp);
+                return;
+            }
+            req.setAttribute("playerRel", rel);
             var player = users.summary(id);
             req.setAttribute("player", player);
             req.setAttribute("playerAvatar", users.avatar(id));

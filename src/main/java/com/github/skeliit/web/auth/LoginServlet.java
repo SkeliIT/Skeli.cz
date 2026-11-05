@@ -89,6 +89,11 @@ public class LoginServlet extends HttpServlet {
      */
     static void finish(HttpServletRequest req, HttpServletResponse resp, int uid, String username, String role, String avatar,
                        boolean emailVerified, boolean remember, String target) throws IOException, SQLException {
+        // zablokovaný účet (admin): heslo i Google jsou v pořádku, ale dovnitř se nepustí
+        if (new com.github.skeliit.dao.ModerationDao().isBlocked(uid)) {
+            resp.sendRedirect("/login.jsp?blocked=1");
+            return;
+        }
         if (new com.github.skeliit.dao.TwoFactorDao().isEnabled(uid)) {
             HttpSession s = req.getSession(true);
             req.changeSessionId();

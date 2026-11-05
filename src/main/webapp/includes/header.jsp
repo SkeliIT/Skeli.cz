@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.99.6";
+  String assetVersion = "6.99.8";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -294,6 +294,8 @@
         <div class="notif-panel" id="notifPanel" role="dialog" aria-label="<%= t.getProperty("notif.title") %>" hidden
              data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>"
              data-t-reply="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.reply")) %>"
+             data-t-friend-request="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.friendRequest")) %>"
+             data-t-friend-accept="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.friendAccept")) %>"
              data-t-heart="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.heart")) %>"
              data-t-song="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.onSong")) %>"
              data-t-clip="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.onClip")) %>"

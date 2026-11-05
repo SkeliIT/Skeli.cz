@@ -63,6 +63,9 @@ public final class AccountDeletion {
         try {
             run(c, "DELETE FROM password_resets WHERE user_id = ?", userId);
             run(c, "DELETE FROM comment_reports WHERE reporter_id = ?", userId);
+            run(c, "DELETE FROM user_reports WHERE reporter_id = ? OR reported_id = ?", userId, userId);
+            run(c, "DELETE FROM friendships WHERE user_a = ? OR user_b = ?", userId, userId);
+            run(c, "DELETE FROM user_blocks WHERE blocker_id = ? OR blocked_id = ?", userId, userId);
             run(c, "DELETE FROM user_profiles WHERE user_id = ?", userId);
             run(c, "DELETE FROM notifications WHERE user_id = ?", userId);
             deleteNewsletter(c, l.email);
@@ -105,6 +108,14 @@ public final class AccountDeletion {
         run(c, "DELETE FROM users WHERE id = ?", userId);
         if (l != null) deleteFiles(l, ctx);
         return true;
+    }
+
+    private static void run(Connection c, String sql, int a, int b) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, a);
+            ps.setInt(2, b);
+            ps.executeUpdate();
+        }
     }
 
     private static void run(Connection c, String sql, int userId) throws SQLException {

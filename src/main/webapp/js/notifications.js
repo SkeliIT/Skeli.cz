@@ -53,11 +53,20 @@
       + '<span class="notif-body"><span class="notif-text">' + esc((panel.dataset.tPassed || '').replace('{name}', who)) + '</span>'
       + '<span class="notif-meta">' + esc(where) + ' · ' + esc(ago(n.created)) + '</span></span></a>';
   }
+  // přátelé: žádost nebo přijetí, odkaz vede na část Přátelé
+  function friendItem(n, who) {
+    var text = (n.type === 'friend_accept' ? panel.dataset.tFriendAccept : panel.dataset.tFriendRequest) || '';
+    var pic = n.actorAvatar ? '<img class="notif-icon" src="' + esc(n.actorAvatar) + '" alt="">' : '<span class="notif-icon"><i class="fa-solid fa-user-group"></i></span>';
+    return '<a class="notif-item' + (n.read ? '' : ' unread') + '" href="' + esc(n.link) + '">' + pic
+      + '<span class="notif-body"><span class="notif-text">' + esc(text.replace('{name}', who)) + '</span>'
+      + '<span class="notif-meta">' + esc(ago(n.created)) + '</span></span></a>';
+  }
   function render(items) {
     if (!items.length) { list.innerHTML = empty; return; }
     list.innerHTML = items.map(function (n) {
       var who = n.actor == null ? panel.dataset.tDeleted : n.actor;
       if (n.type === 'passed') return passedItem(n, who);
+      if (n.type === 'friend_request' || n.type === 'friend_accept') return friendItem(n, who);
       var text = n.type === 'heart' ? panel.dataset.tHeart : (panel.dataset.tReply || '').replace('{name}', who);
       var where = (n.place === 'clip' ? panel.dataset.tClip : panel.dataset.tSong).replace('{0}', n.placeName || '');
       var pic = n.type === 'heart' ? '<span class="notif-icon heart"><i class="fa-solid fa-heart"></i></span>'

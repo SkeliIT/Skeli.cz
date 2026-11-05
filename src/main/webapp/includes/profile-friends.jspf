@@ -1,0 +1,83 @@
+<%-- Můj profil → Přátelé: žádosti, přátelé, hledání a zablokovaní. Před vložením nastavit: List<Friend> frFriends, frIn, frOut, frBlocked, frFound; String frQuery.
+     Vkládané šablony se nečtou jako UTF-8: žádné české znaky přímo ve výstupu, texty jsou v překladech. --%>
+<%@ page import="com.github.skeliit.model.Friend" %>
+<%! /* fotka a jméno; odkaz jen na veřejný profil, jinak by vedl na 404 */
+    private static String frWho(Friend f) throws java.io.UnsupportedEncodingException {
+        String in = "<img src=\"" + WebUtils.escapeHtml(f.avatarUrl) + "\" alt=\"\" width=\"44\" height=\"44\" loading=\"lazy\" referrerpolicy=\"no-referrer\"><span>" + WebUtils.escapeHtml(f.username) + "</span>";
+        if (!f.pub) return "<span class=\"friend-who\">" + in + "</span>";
+        return "<a class=\"friend-who\" href=\"/hrac/" + java.net.URLEncoder.encode(f.username, "UTF-8").replace("+", "%20") + "\">" + in + "</a>";
+    } %>
+<section class="pt pt-panel">
+  <div class="pt-in">
+    <header class="acct-card-head">
+      <h3><i class="fa-solid fa-user-group" aria-hidden="true"></i> <%= t.getProperty("profile.tab.friends") %></h3>
+      <p><%= t.getProperty("friends.lead") %></p>
+    </header>
+    <% String frMsg = request.getParameter("friend"); if (frMsg != null && java.util.Set.of("fail", "verify", "limit", "closed").contains(frMsg)) { %><p class="form-alert" role="alert"><%= t.getProperty("friends.msg." + frMsg) %></p><% } %>
+
+    <form class="friend-search" method="get" action="/uzivatel.jsp#pratele" role="search">
+      <input type="search" name="fq" minlength="2" maxlength="50" value="<%= WebUtils.escapeHtml(frQuery) %>" placeholder="<%= t.getProperty("friends.search") %>" aria-label="<%= t.getProperty("friends.search") %>">
+      <button type="submit" class="btn-primary" aria-label="<%= t.getProperty("friends.search") %>"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+    </form>
+    <% if (frQuery != null && !frQuery.isBlank()) { %>
+    <h4 class="friend-head"><%= t.getProperty("friends.found") %></h4>
+    <% if (frFound.isEmpty()) { %><p class="acct-empty"><%= t.getProperty("friends.notFound") %></p><% } %>
+    <ul class="friend-list">
+      <% for (Friend f : frFound) { %>
+      <li class="friend-row">
+        <%= frWho(f) %>
+      </li>
+      <% } %>
+    </ul>
+    <% } %>
+
+    <% if (!frIn.isEmpty()) { %>
+    <h4 class="friend-head"><%= t.getProperty("friends.requests") %> <span class="acct-count"><%= frIn.size() %></span></h4>
+    <ul class="friend-list">
+      <% for (Friend f : frIn) { %>
+      <li class="friend-row">
+        <%= frWho(f) %>
+        <form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="accept"><button type="submit" class="btn-primary friend-btn"><%= t.getProperty("friends.accept") %></button></form>
+        <form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="decline"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.decline") %></button></form>
+      </li>
+      <% } %>
+    </ul>
+    <% } %>
+
+    <h4 class="friend-head"><%= t.getProperty("friends.mine") %> <span class="acct-count"><%= frFriends.size() %></span></h4>
+    <% if (frFriends.isEmpty()) { %><p class="acct-empty"><%= t.getProperty("friends.none") %></p><% } %>
+    <ul class="friend-list">
+      <% for (Friend f : frFriends) { %>
+      <li class="friend-row">
+        <%= frWho(f) %>
+        <form method="post" action="/profile/friends" onsubmit="return confirm('<%= WebUtils.escapeJs(t.getProperty("friends.removeConfirm")) %>');"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="remove"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.remove") %></button></form>
+      </li>
+      <% } %>
+    </ul>
+
+    <% if (!frOut.isEmpty()) { %>
+    <details class="acct-more"><summary><%= t.getProperty("friends.sent") %> (<%= frOut.size() %>)</summary>
+    <ul class="friend-list">
+      <% for (Friend f : frOut) { %>
+      <li class="friend-row">
+        <%= frWho(f) %>
+        <form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="cancel"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.cancel") %></button></form>
+      </li>
+      <% } %>
+    </ul>
+    </details>
+    <% } %>
+    <% if (!frBlocked.isEmpty()) { %>
+    <details class="acct-more"><summary><%= t.getProperty("friends.blocked") %> (<%= frBlocked.size() %>)</summary>
+    <ul class="friend-list">
+      <% for (Friend f : frBlocked) { %>
+      <li class="friend-row">
+        <%= frWho(f) %>
+        <form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="unblock"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.unblock") %></button></form>
+      </li>
+      <% } %>
+    </ul>
+    </details>
+    <% } %>
+  </div>
+</section>

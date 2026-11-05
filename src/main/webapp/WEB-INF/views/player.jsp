@@ -9,6 +9,8 @@
   PongProfile pp = (PongProfile) request.getAttribute("playerPong");
   String[] sc = (String[]) request.getAttribute("playerShowcase");
   String plAvatar = (String) request.getAttribute("playerAvatar");
+  com.github.skeliit.dao.FriendDao.Rel plRel = (com.github.skeliit.dao.FriendDao.Rel) request.getAttribute("playerRel");   // null = můj vlastní náhled
+  String plBack = pl == null ? "/uzivatel.jsp" : "/hrac/" + java.net.URLEncoder.encode(pl.username, "UTF-8").replace("+", "%20");
   String plCover = (String) request.getAttribute("playerCover");   // null = bez záhlaví nebo ho hráč ostatním neukazuje
 %>
 <main class="account-page player-page profile-page">
@@ -43,24 +45,46 @@
           <% if (sc[2] != null) { %><p class="acct-motto motto-<%= WebUtils.escapeHtml(sc[4]) %>">„<%= WebUtils.escapeHtml(sc[2]) %>“</p><% } %>
         </div>
       </div>
+      <%-- přátelé a nahlášení: u vlastního náhledu (?nahled) nic --%>
+      <% if (plRel != null) { %>
+      <div class="player-actions">
+        <% String frMsg = request.getParameter("friend"); if (frMsg != null && java.util.Set.of("fail", "verify", "limit", "closed").contains(frMsg)) { %><p class="form-alert" role="alert"><%= t.getProperty("friends.msg." + frMsg) %></p><% } %>
+        <% if ("1".equals(request.getParameter("reported"))) { %><p class="form-success" role="status"><%= t.getProperty("player.report.sent") %></p><% } %>
+        <% if ("0".equals(request.getParameter("reported"))) { %><p class="form-alert" role="alert"><%= t.getProperty("player.report.failed") %></p><% } %>
+        <% if (plRel == com.github.skeliit.dao.FriendDao.Rel.NONE) { %><form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(pl.username) %>"><input type="hidden" name="action" value="request"><input type="hidden" name="back" value="<%= WebUtils.escapeHtml(plBack) %>"><button type="submit" class="btn-primary friend-btn"><%= t.getProperty("friends.add") %></button></form>
+        <% } else if (plRel == com.github.skeliit.dao.FriendDao.Rel.SENT) { %><form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(pl.username) %>"><input type="hidden" name="action" value="cancel"><input type="hidden" name="back" value="<%= WebUtils.escapeHtml(plBack) %>"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.cancel") %></button></form><span class="player-state"><%= t.getProperty("friends.state.sent") %></span>
+        <% } else if (plRel == com.github.skeliit.dao.FriendDao.Rel.RECEIVED) { %><form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(pl.username) %>"><input type="hidden" name="action" value="accept"><input type="hidden" name="back" value="<%= WebUtils.escapeHtml(plBack) %>"><button type="submit" class="btn-primary friend-btn"><%= t.getProperty("friends.accept") %></button></form><form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(pl.username) %>"><input type="hidden" name="action" value="decline"><input type="hidden" name="back" value="<%= WebUtils.escapeHtml(plBack) %>"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.decline") %></button></form>
+        <% } else if (plRel == com.github.skeliit.dao.FriendDao.Rel.FRIENDS) { %><span class="player-state on"><i class="fa-solid fa-user-check" aria-hidden="true"></i> <%= t.getProperty("friends.state.friends") %></span><form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(pl.username) %>"><input type="hidden" name="action" value="remove"><input type="hidden" name="back" value="<%= WebUtils.escapeHtml(plBack) %>"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.remove") %></button></form>
+        <% } else if (plRel == com.github.skeliit.dao.FriendDao.Rel.I_BLOCKED) { %><span class="player-state"><%= t.getProperty("friends.state.blocked") %></span><form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(pl.username) %>"><input type="hidden" name="action" value="unblock"><input type="hidden" name="back" value="<%= WebUtils.escapeHtml(plBack) %>"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.unblock") %></button></form><% } %>
+        <details class="player-more">
+          <summary aria-label="<%= t.getProperty("player.more") %>"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></summary>
+          <div class="player-more-box">
+            <% if (plRel != com.github.skeliit.dao.FriendDao.Rel.I_BLOCKED) { %><form method="post" action="/profile/friends" onsubmit="return confirm('<%= WebUtils.escapeJs(t.getProperty("friends.blockConfirm")) %>');"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(pl.username) %>"><input type="hidden" name="action" value="block"><input type="hidden" name="back" value="<%= WebUtils.escapeHtml(plBack) %>"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.block") %></button></form><% } %>
+            <form class="player-report" method="post" action="/profile/report">
+              <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(pl.username) %>">
+              <label><%= t.getProperty("player.report") %>
+                <select name="reason" required>
+                  <% for (String why : new String[] { "spam", "abuse", "image", "fake", "other" }) { %><option value="<%= why %>"><%= t.getProperty("player.report." + why) %></option><% } %>
+                </select>
+              </label>
+              <input name="note" maxlength="300" placeholder="<%= WebUtils.escapeHtml(t.getProperty("player.report.note")) %>" aria-label="<%= WebUtils.escapeHtml(t.getProperty("player.report.note")) %>">
+              <button type="submit" class="btn-outline friend-btn"><%= t.getProperty("player.report.send") %></button>
+            </form>
+          </div>
+        </details>
+      </div>
+      <% } %>
     </div>
   </section>
 
-  <a class="pt pt-stat pt-stat3 pt-wins" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-trophy pt-ghost" aria-hidden="true"></i>
-    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.wins") %></span><b class="pt-big"><%= pp.wins %></b></span></a>
-  <a class="pt pt-stat pt-stat3 pt-best" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-stopwatch pt-ghost" aria-hidden="true"></i>
-    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.best") %></span><b class="pt-big"><%= bestAll == null ? "–" : PongProfile.time(bestAll) %></b></span></a>
-  <a class="pt pt-stat pt-stat3 pt-stat-last pt-medals" href="#odznaky" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-medal pt-ghost" aria-hidden="true"></i>
-    <span class="pt-in"><span class="pt-label"><%= t.getProperty("pong.badges.title") %></span><b class="pt-big"><%= pp.earnedCount() %></b></span></a>
+  <nav class="acct-tabs profile-tabs" aria-label="<%= WebUtils.escapeHtml(pl.username) %>">
+    <a href="#prehled"><i class="fa-solid fa-id-card" aria-hidden="true"></i> <span class="tab-name"><%= t.getProperty("profile.tab.overview") %></span></a>
+    <a href="#hry"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> <span class="tab-name"><%= t.getProperty("profile.tab.games") %></span></a>
+  </nav>
 
-  <section class="pt pt-badges<%= sc[0] == null ? " pt-full" : "" %>">
-    <div class="pt-in">
-      <span class="pt-label"><%= t.getProperty("player.badges") %></span>
-      <% PongProfile railPong = pp; String railEmpty = "player.noBadges"; %>
-      <%@ include file="/includes/profile-rail.jspf" %>
-    </div>
-  </section>
-
+  <div class="pt-tab pt-grid" id="prehled">
+  <a class="pt pt-stat pt-games pt-big-tile" href="#hry" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-gamepad pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("profile.tab.games") %></span><b class="pt-big"><%= pp.wins %></b><span class="pt-note"><%= t.getProperty("account.stats.wins") %></span></span></a>
   <% if (sc[0] != null) { %>
   <a class="pt pt-song" href="<%= com.github.skeliit.I18n.songPath(request, sc[0], 0) %>" data-tilt>
     <% if (sc[3] != null) { %><img class="pt-song-img" src="<%= WebUtils.escapeHtml(sc[3]) %>" alt="" loading="lazy"><% } %>
@@ -69,6 +93,24 @@
     <span class="pt-song-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
   </a>
   <% } %>
+
+  </div>
+
+  <div class="pt-tab pt-grid" id="hry">
+  <header class="game-head"><i class="fa-solid fa-table-tennis-paddle-ball" aria-hidden="true"></i> <h2>CatSmash</h2></header>
+  <a class="pt pt-stat pt-stat3 pt-wins" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-trophy pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.wins") %></span><b class="pt-big"><%= pp.wins %></b></span></a>
+  <a class="pt pt-stat pt-stat3 pt-best" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-stopwatch pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.best") %></span><b class="pt-big"><%= bestAll == null ? "–" : PongProfile.time(bestAll) %></b></span></a>
+  <a class="pt pt-stat pt-stat3 pt-stat-last pt-medals" href="#odznaky" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-medal pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><%= t.getProperty("pong.badges.title") %></span><b class="pt-big"><%= pp.earnedCount() %></b></span></a>
+  <section class="pt pt-badges<%= sc[0] == null ? " pt-full" : "" %>">
+    <div class="pt-in">
+      <span class="pt-label"><%= t.getProperty("player.badges") %></span>
+      <% PongProfile railPong = pp; String railEmpty = "player.noBadges"; %>
+      <%@ include file="/includes/profile-rail.jspf" %>
+    </div>
+  </section>
 
   <% PongProfile timesPong = pp; String timesPlay = "player.challenge"; %>
   <%@ include file="/includes/profile-times.jspf" %>
@@ -91,7 +133,9 @@
   </section>
   <% } %>
   </div>
+  </div>
   <script src="/js/profile-tiles.js?v=<%= assetVersion %>"></script>
+  <script src="/js/profile-tabs.js?v=<%= assetVersion %>"></script>
   <% } %>
 </main>
 <%@ include file="/includes/footer.jsp" %>

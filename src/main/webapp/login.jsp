@@ -12,6 +12,7 @@
       <% if ("1".equals(request.getParameter("registered"))) { %>
       <div class="form-success"><%= t.getProperty("auth.register.success","Registrace proběhla úspěšně. Nyní se můžete přihlásit.") %></div>
       <% } %>
+      <% if ("1".equals(request.getParameter("blocked"))) { %><div class="form-alert"><%= t.getProperty("auth.error.blocked") %></div><% } %>
       <% if ("1".equals(request.getParameter("reset"))) { %>
       <div class="form-success"><%= t.getProperty("reset.success") %></div>
       <% } %>

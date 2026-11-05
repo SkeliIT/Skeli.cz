@@ -20,6 +20,8 @@
   } catch (java.sql.SQLException e) {
     application.log("Admin to-do", e);
   }
+  int nUserReports = 0;
+  try { nUserReports = new com.github.skeliit.dao.ModerationDao().openReportCount(); } catch (java.sql.SQLException e) { application.log("Admin to-do", e); }
   // Czech plurals: 1 / 2–4 / 5 and more
   String reportsText = nReports == 1 ? "nahlášený komentář čeká na rozhodnutí" : nReports < 5 ? "nahlášené komentáře čekají na rozhodnutí" : "nahlášených komentářů čeká na rozhodnutí";
   String clipsText = nClipsAlone == 1 ? "video z YouTube zatím není u žádné písně" : nClipsAlone < 5 ? "videa z YouTube zatím nejsou u žádné písně" : "videí z YouTube zatím není u žádné písně";
@@ -121,6 +123,7 @@
       <p class="admin-done"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Všechno hotovo. Můžeš jít nahrávat.</p>
     <% } else { %>
     <ul>
+      <% if (nUserReports > 0) { %><li class="urgent"><a href="/admin_users.jsp#reports"><i class="fa-solid fa-flag"></i> <span><b><%= nUserReports %></b> nahlášených profilů čeká na rozhodnutí</span></a></li><% } %>
       <% if (nReports > 0) { %><li class="urgent"><a href="/admin/comments#reports"><i class="fa-solid fa-flag"></i> <span><b><%= nReports %></b> <%= reportsText %></span></a></li><% } %>
       <% if (nSiteReports > 0) { %><li class="urgent"><a href="/admin/feedback#reports"><i class="fa-solid fa-triangle-exclamation"></i> <span><b><%= nSiteReports %></b> <%= siteReportsText %></span></a></li><% } %>
       <% if (nLyricHelp > 0) { %><li><a href="/admin/song?id=<%= lyricHelpSong %>#lyric-help"><i class="fa-solid fa-pen-nib"></i> <span><b><%= nLyricHelp %></b> <%= lyricHelpText %><small>Přečti je u písně v kartě Hledáme pomoc s textem, opiš do textu a smaž.</small></span></a></li><% } %>

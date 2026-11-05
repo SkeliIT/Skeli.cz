@@ -24,7 +24,7 @@
     PongProfile pong = new PongProfile();
     String[] showcase = { null, null, null, null, "brush" };
     java.util.List<String[]> songChoices = new java.util.ArrayList<>();
-    boolean profilePublic = true, coverPublic = true;
+    boolean profilePublic = true, coverPublic = true, friendRequests = true;
     String coverUrl = null;
     try {
       UserDao users = new UserDao();          // dao/UserDao
@@ -36,6 +36,7 @@
       me = users.summary(uid);
       profilePublic = users.profilePublic(uid);
       coverPublic = users.coverPublic(uid);
+      friendRequests = users.friendRequests(uid);
       coverUrl = users.cover(uid);
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
@@ -300,6 +301,11 @@
           <span class="vis-text"><b id="visPubT"><%= t.getProperty("settings.public") %></b><small><%= t.getProperty("profile.public.lead") %></small>
             <% if (profilePublic && visName != null) { %><a class="vis-link" href="/hrac/<%= java.net.URLEncoder.encode(visName, "UTF-8").replace("+", "%20") %>?nahled=1"><%= t.getProperty("profile.public.preview") %> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a><% } %></span>
           <label class="vis-switch"><input type="checkbox" name="pub" value="1" aria-labelledby="visPubT"<%= profilePublic ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-user-group" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visFriendsT"><%= t.getProperty("friends.vis.title") %></b><small><%= t.getProperty("friends.vis.lead") %></small></span>
+          <label class="vis-switch"><input type="checkbox" name="friends" value="1" aria-labelledby="visFriendsT"<%= friendRequests ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
         <li class="vis-row">
           <span class="vis-ico"><i class="fa-solid fa-image" aria-hidden="true"></i></span>
