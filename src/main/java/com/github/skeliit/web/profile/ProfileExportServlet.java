@@ -73,7 +73,7 @@ public class ProfileExportServlet extends HttpServlet {
             }
             // everything else the site keeps about the user (GDPR: the right to a copy of one's data)
             String email = root.path("user").path("email").asText(null);
-            section(c, m, root, "account", "SELECT avatar_url, cover_url, cover_public, email_verified_at FROM users WHERE id=?", uid);
+            section(c, m, root, "account", "SELECT avatar_url, cover_url, cover_public, community_public, email_verified_at FROM users WHERE id=?", uid);
             section(c, m, root, "chat_sent", "SELECT body, created_at FROM chat_messages WHERE sender_id=? AND deleted_at IS NULL", uid);
             root.withArray("chat_sent").forEach(row -> ((ObjectNode) row).put("body", com.github.skeliit.service.SecretBox.open(row.path("body").asText(""))));
             section(c, m, root, "site_badges", "SELECT badge, earned_at FROM site_badges WHERE user_id=?", uid);

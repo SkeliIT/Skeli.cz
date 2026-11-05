@@ -226,6 +226,22 @@ public class UserDao {
         }
     }
 
+    /** Ukázat mě v Komunitě (seznam Lidé)? Výchozí ne. */
+    public boolean communityPublic(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT community_public FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() && rs.getBoolean(1); }
+        }
+    }
+
+    public void setCommunityPublic(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET community_public = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
     /** Co člověk ukazuje ostatním navíc: {pár slov o sobě, město, písně se srdcem, přátelé, stav online, moje tvorba, profil i pro nepřihlášené, aktivita}. Výchozí je vypnuto, kromě tvorby (tu přidává právě proto, aby ji ukazoval). */
     public boolean[] sharing(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(

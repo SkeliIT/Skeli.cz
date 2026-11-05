@@ -2572,3 +2572,23 @@ a.friend-who:hover { color: var(--accent); text-decoration: none; }
   /* název schovaný jen pro oči, čtečka ho přečte pořád */
   .profile-tabs a:not(.active) .tab-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
+
+/* ---------- Lidé (/lide): nejdřív telefon ---------- */
+.people-page { display: grid; gap: 14px; max-width: 980px; margin-inline: auto; padding-inline: 12px; }
+.people-me { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--panel); font-family: var(--font-text); font-size: var(--fs-card); }
+.people-me.on { border-color: var(--panel-border); }
+.people-me p { flex: 1 1 200px; margin: 0; }
+.people-me i { color: var(--accent); }
+.people-search { display: flex; gap: 8px; }
+.people-search input { flex: 1; min-width: 0; min-height: 44px; padding: 0 14px; border: 1px solid var(--panel-border); border-radius: 12px; background: var(--panel); color: var(--text); font: inherit; font-family: var(--font-text); }
+.people-search button { flex: none; width: 48px; min-height: 44px; padding: 0; justify-content: center; }
+.people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.people-card { display: grid; justify-items: center; align-content: start; gap: 8px; padding: 14px 10px; border: 1px solid var(--panel-border); border-radius: var(--radius); background: var(--panel); text-align: center; min-width: 0; }
+.people-av { position: relative; display: block; width: 64px; height: 64px; }
+.people-av img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.people-av .chat-state-dot { position: absolute; right: 2px; bottom: 2px; width: 14px; height: 14px; border: 2px solid var(--panel-strong); box-sizing: border-box; }
+.people-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-size: var(--fs-card); }
+a.people-name:hover { color: var(--accent); }
+.people-card .friend-btn { min-height: 40px; }
+.people-pager { display: flex; justify-content: center; gap: 10px; }
+

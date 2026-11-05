@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-11-05",
+    "href": "/lide",
+    "cs": "V menu Komunita jsou Lidé: najdeš tam ostatní a přidáš si je do přátel. Ukážeš se tam, jen když si to zapneš.",
+    "en": "People is now in the Community menu: find others and add them as friends. You only show up there if you switch it on yourself.",
+    "de": "Im Menü Community gibt es jetzt Leute: Finde andere und füge sie als Freunde hinzu. Du erscheinst dort nur, wenn du es selbst einschaltest.",
+    "uk": "У меню Спільнота тепер є Люди: знаходь інших і додавай у друзі. Ти з’явишся там, лише якщо це ввімкнеш.",
+    "vi": "Trong menu Cộng đồng giờ có Mọi người: tìm người khác và kết bạn. Bạn chỉ xuất hiện ở đó nếu tự bật."
+  },
+  {
+    "d": "2026-11-05",
     "href": "/index.jsp",
     "cs": "Web má nové menu. Hudba, Komunita a Games se rozbalují a tlačítka pro vzhled a zvuk jsou pod jedním kolečkem.",
     "en": "The site has a new menu. Music, Community and Games fold out, and the look and sound buttons sit under one icon.",
@@ -34,14 +43,5 @@
     "de": "Du kannst deinen Freunden jetzt direkt auf der Website schreiben. Nachrichten findest du im Menü unter deinem Namen.",
     "uk": "Тепер можна листуватися з друзями просто на сайті. Повідомлення є в меню під твоїм іменем.",
     "vi": "Giờ bạn có thể nhắn tin cho bạn bè ngay trên trang web. Tin nhắn nằm trong menu dưới tên bạn."
-  },
-  {
-    "d": "2026-11-05",
-    "href": "/nastaveni.jsp#tvorba",
-    "cs": "Děláš hudbu? Přidej si na profil svoje skladby z YouTube, Spotify, Apple Music nebo SoundCloudu.",
-    "en": "Do you make music? Add your tracks from YouTube, Spotify, Apple Music or SoundCloud to your profile.",
-    "de": "Machst du Musik? Füge deine Tracks von YouTube, Spotify, Apple Music oder SoundCloud zu deinem Profil hinzu.",
-    "uk": "Створюєш музику? Додай у профіль свої треки з YouTube, Spotify, Apple Music або SoundCloud.",
-    "vi": "Bạn làm nhạc? Thêm các bài từ YouTube, Spotify, Apple Music hoặc SoundCloud vào hồ sơ của bạn."
   }
 ]
