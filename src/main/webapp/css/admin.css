@@ -27,25 +27,6 @@ body.light .admin-table tr:hover { background: rgba(0,0,0,0.04); }
 
 
 /* Admin Songs */
-.songs-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-}
-.songs-table th, .songs-table td {
-    border: 1px solid var(--panel-border);
-    padding: 10px;
-    text-align: left;
-}
-.songs-table th { background: rgba(0,0,0,0.3); font-weight: bold; }
-body.light .songs-table th { background: rgba(0,0,0,0.06); }
-.songs-table tr:hover { background: rgba(255,255,255,0.05); }
-body.light .songs-table tr:hover { background: rgba(0,0,0,0.04); }
-.indicator { display:inline-block; padding:2px 8px; border-radius:3px; margin:0 2px; font-size:0.9em; }
-.indicator.yes { background: rgba(0,255,0,0.18); color:#0f0; }
-.indicator.no { background: rgba(255,255,255,0.06); color: var(--text-dim); opacity: .6; }   /* chybí: šedě, ne poplašně červeně */
-.lang-flag { display:inline-block; padding:2px 6px; margin:0 2px; background: rgba(255,255,255,0.1); border-radius:3px; font-size:0.8em; text-transform:uppercase; }
-body.light .lang-flag { background: rgba(0,0,0,0.06); }
 .link-btn { color: var(--accent); text-decoration:none; padding:6px 14px; border:1px solid var(--accent); border-radius:999px; margin:0 4px; font-size: var(--fs-card); display:inline-block; transition: background-color .2s, color .2s; }
 .link-btn:hover { background: var(--accent); color: var(--accent-ink); text-decoration:none; }
 
@@ -195,8 +176,6 @@ body.light .lang-flag { background: rgba(0,0,0,0.06); }
 .locale-panel.hidden { display: none; }
 .locale-panel textarea { width: 100%; min-height: 8rem; font-family: inherit; }
 .inline-check { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9em; }
-.media-badges .indicator { margin-right: 2px; }
-.media-badges .indicator i { font-size: 0.95em; }
 
 /* Admin: reported comments */
 .admin-card-wide { grid-column: 1 / -1; }
@@ -400,8 +379,8 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 
 /* tables: readable data, a sticky head, calm rows */
 .admin-table-card { padding: 0 !important; overflow: auto; max-height: 75vh; }
-.admin-page .admin-table, .admin-page .songs-table { margin: 0; border-collapse: separate; border-spacing: 0; }
-.admin-page .admin-table th, .admin-page .songs-table th {
+.admin-page .admin-table { margin: 0; border-collapse: separate; border-spacing: 0; }
+.admin-page .admin-table th {
   position: sticky;
   top: 0;
   z-index: 1;
@@ -414,7 +393,7 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
   border: 0;
   border-bottom: 1px solid var(--panel-border);
 }
-.admin-page .admin-table td, .admin-page .songs-table td { padding: 10px 14px; border: 0; border-bottom: 1px solid var(--panel-border); vertical-align: middle; }
+.admin-page .admin-table td { padding: 10px 14px; border: 0; border-bottom: 1px solid var(--panel-border); vertical-align: middle; }
 .admin-page .admin-table tr:last-child td { border-bottom: 0; }
 .admin-page .admin-table select, .admin-page .admin-table button { padding: 6px 10px; font-size: var(--fs-small); width: auto; }
 .admin-page .admin-table .act { flex-wrap: wrap; align-items: center; }
@@ -636,9 +615,6 @@ body.is-admin #sp-min { display: none !important; }
 body.is-admin main.admin-page { padding-bottom: 60px; }
 
 /* seznam Písní: legenda nad tabulkou, chybějící jazyk přeškrtnutý */
-.songs-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin: 0 0 14px; font-family: var(--font-text); font-size: var(--fs-small); font-weight: 300; }
-.songs-legend > span { display: inline-flex; align-items: center; gap: 6px; }
-.lang-flag.missing { opacity: .4; text-decoration: line-through; }
 
 /* stránka písně: technické údaje sbalené pod „Pokročilé“, tlačítko na zkopírování odkazu */
 .song-adv { margin-top: 6px; font-size: var(--fs-small); }
@@ -877,3 +853,39 @@ body.light .st-up { color: #1e7a45; } body.light .st-down { color: #b3261e; }
 .admin-thumb { display: block; height: 40px; object-fit: cover; border: 1px solid var(--panel-border); }
 .admin-thumb.round { width: 40px; border-radius: 50%; }
 .admin-thumb.wide { width: 120px; border-radius: 6px; }
+
+/* Písně: řádek je odkaz na úpravu (.songs-main roztažený přes celý řádek), ikony tiše ukazují, co píseň má.
+   Telefon napřed: náhled, pod názvem rok a ikony; na počítači jsou ikony vpravo v jedné řadě. */
+.songs-filters { display: flex; gap: 6px; margin: 0 0 12px; overflow-x: auto; scrollbar-width: none; }
+.songs-filters button { flex: none; min-height: 40px; padding: 0 14px; border: 1px solid var(--panel-border); border-radius: 999px; background: none; color: var(--text-dim); font: inherit; font-size: var(--fs-small); cursor: pointer; }
+.songs-filters button.on { color: var(--accent); border-color: var(--accent); }
+.songs-filters b { font-weight: 400; opacity: .7; margin-left: 4px; }
+.songs-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.songs-row { position: relative; display: grid; grid-template-columns: 84px minmax(0, 1fr) 40px; gap: 12px; align-items: center; padding: 9px 10px 9px 9px; background: var(--panel-strong); border: 1px solid var(--panel-border); border-radius: 16px; transition: border-color .15s; }
+.songs-row[hidden] { display: none; }
+.songs-row:hover, .songs-row:focus-within { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+.songs-pic { display: block; width: 84px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; background: #000; }
+.songs-pic-empty { display: grid; place-items: center; color: var(--text-dim); background: color-mix(in srgb, var(--text) 7%, transparent); }
+.songs-main { display: block; min-width: 0; color: var(--text); text-decoration: none; }
+.songs-main:hover { color: var(--text); text-decoration: none; }
+.songs-main::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.songs-main:focus-visible { outline: none; }
+.songs-main:focus-visible::after { outline: 2px solid var(--accent); }
+.songs-title { display: block; font-size: var(--fs-card); line-height: 1.25; overflow-wrap: anywhere; }
+.songs-year { display: block; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); color: var(--text-dim); }
+.songs-icons { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; margin-top: 6px; font-size: .95rem; color: var(--accent); }
+.songs-icons i.off { color: var(--text-dim); opacity: .32; }
+.songs-icons small { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); color: var(--text-dim); }
+.songs-icons small.lack { color: var(--accent-2); }
+body.light .songs-icons small.lack { color: #a85b00; }
+.songs-web { position: relative; z-index: 1; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: var(--text-dim); border: 1px solid var(--panel-border); font-size: .8rem; text-decoration: none; }
+.songs-web:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+.songs-none { margin: 0 0 18px; }
+@media (min-width: 768px) {
+  .songs-row { grid-template-columns: 112px minmax(0, 1fr) 40px; }
+  .songs-pic { width: 112px; }
+  .songs-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: center; }
+  .songs-title { grid-column: 1; font-size: var(--fs-h4); }
+  .songs-year { grid-column: 1; }
+  .songs-icons { grid-column: 2; grid-row: 1 / span 2; margin: 0; justify-content: flex-end; flex-wrap: nowrap; }
+}

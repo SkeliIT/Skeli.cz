@@ -51,7 +51,33 @@ public class AdminPanelIT extends UiTestSupport {
         }
 
         driver.get(BASE_URL + "/admin/songs");
-        assertFalse(driver.findElements(By.cssSelector("table.songs-table")).isEmpty(), "songs table expected");
+        assertFalse(driver.findElements(By.cssSelector(".songs-list .songs-row")).isEmpty(), "seznam písní");
+    }
+
+    @Test
+    @DisplayName("Písně: hledání bez háčků a filtr Něco chybí, nic nepřetéká")
+    void songListFilters() throws Exception {
+        String name = "IT Žlutá písnička " + uniq();
+        update("INSERT INTO songs (uuid, name, year) VALUES (UUID(), ?, 2026)", name);
+        try {
+            driver.get(BASE_URL + "/admin/songs");
+            waitReady();
+            org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+            String visible = "return [].slice.call(document.querySelectorAll('.songs-row')).filter(function (r) { return !r.hidden; }).map(function (r) { return r.dataset.name; })";
+            WebElement search = driver.findElement(By.id("songFilter"));
+            search.sendKeys(name.replace("Žlutá písnička", "zluta pisnicka"));
+            assertEquals(java.util.List.of(name), js.executeScript(visible), "hledání najde jen ji");
+            search.clear();
+            search.sendKeys(" ");
+            search.clear();
+            jsClick(driver.findElement(By.cssSelector("#songFilters [data-f=done]")));
+            js.executeScript("var i = document.getElementById('songFilter'); i.value = ''; i.dispatchEvent(new Event('input'))");
+            assertFalse(((java.util.List<?>) js.executeScript(visible)).contains(name), "bez textu a videa není hotová");
+            jsClick(driver.findElement(By.cssSelector("#songFilters [data-f=lack]")));
+            assertTrue(((java.util.List<?>) js.executeScript(visible)).contains(name), "je mezi Něco chybí");
+        } finally {
+            update("DELETE FROM songs WHERE name=?", name);
+        }
     }
 
     @Test

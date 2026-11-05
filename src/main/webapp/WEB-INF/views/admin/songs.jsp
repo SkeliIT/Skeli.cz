@@ -5,70 +5,79 @@
 <main class="admin-page">
   <%@ include file="/includes/admin-nav.jspf" %>
   <h2 class="admin-page-title">Písně <a class="admin-btn primary admin-title-btn" href="/admin/track"><i class="fa-solid fa-plus"></i> Přidat track z YouTube</a></h2>
-  <p class="text-dim">Klikni na píseň a uprav u ní všechno: video, Spotify, Apple Music, obrázky i texty.</p>
-  <%-- legenda: co znamenají ikony a zkratky jazyků v tabulce --%>
-  <p class="songs-legend">
-    <span><span class="indicator yes"><i class="fab fa-youtube"></i></span> zelená = je</span>
-    <span><span class="indicator no"><i class="fab fa-youtube"></i></span> šedá = chybí</span>
-    <span class="text-dim">ikony: video na YouTube · Spotify · Apple Music · vlastní obrázek</span>
-    <span><span class="lang-flag">CS</span><span class="lang-flag missing">EN</span> jazyky textu (přeškrtnutý = chybí)</span>
-  </p>
+  <p class="text-dim">Klikni na píseň a uprav u ní všechno. Zlatá ikona znamená, že to píseň má, bledá, že to chybí.</p>
   <% if ("1".equals(request.getParameter("deleted"))) { %><p class="admin-flash"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Píseň je smazaná. 30 dní ji najdeš v Koši (Systém → Záznam změn a koš).</p><% } %>
 
   <c:if test="${not empty param.msg}">
     <p class="admin-flash"><c:out value="${param.msg}"/></p>
   </c:if>
 
-  <table class="songs-table">
-    <thead>
-      <tr>
-        <th></th>
-        <th>Název</th>
-        <th>Rok</th>
-        <th>Média</th>
-        <th>Text</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <c:forEach var="song" items="${songs}">
-        <tr>
-          <td>
-            <c:choose>
-              <c:when test="${not empty song.thumbUrl}">
-                <img class="song-preview-thumb" src="<c:out value='${song.thumbUrl}'/>" alt="" loading="lazy">
-              </c:when>
-              <c:otherwise>
-                <span class="song-preview-empty">—</span>
-              </c:otherwise>
-            </c:choose>
-          </td>
-          <td>
-            <a href="/admin/song?uuid=${song.uuid}"><strong><c:out value="${song.name}"/></strong></a>
-          </td>
-          <td>${song.year != null ? song.year : '—'}</td>
-          <td class="media-badges">
-            <span class="indicator ${song.hasVideo ? 'yes' : 'no'}" title="YouTube"><i class="fab fa-youtube"></i></span>
-            <span class="indicator ${song.hasSpotify ? 'yes' : 'no'}" title="Spotify"><i class="fab fa-spotify"></i></span>
-            <span class="indicator ${song.hasApple ? 'yes' : 'no'}" title="Apple Music"><i class="fab fa-apple"></i></span>
-            <span class="indicator ${song.hasPreview ? 'yes' : 'no'}" title="Vlastní obrázek písně"><i class="fa-regular fa-image"></i></span>
-          </td>
-          <td>
-            <%-- všech pět jazyků; chybějící přeškrtnutý --%>
-            <c:forEach var="l" items="${['cs','en','de','uk','vi']}">
-              <span class="lang-flag${song.hasLang(l) ? '' : ' missing'}" title="${song.hasLang(l) ? 'Text je' : 'Text chybí'}">${l}</span>
-            </c:forEach>
-          </td>
-          <td>
-            <a href="/admin/song?uuid=${song.uuid}" class="link-btn">Upravit</a>
-            <c:if test="${not empty song.uuid and song.hasLyrics}">
-              <a href="/cs/song/${song.uuid}" class="link-btn" target="_blank" rel="noopener" title="Otevřít píseň na webu">Na webu ↗</a>
-            </c:if>
-          </td>
-        </tr>
-      </c:forEach>
-    </tbody>
-  </table>
+  <%-- hledání a filtr: kreslí skript dole, data jsou v data-name a data-lack na řádku --%>
+  <div class="admin-toolbar">
+    <label class="admin-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <input type="search" id="songFilter" placeholder="Hledat píseň…" aria-label="Hledat píseň"></label>
+  </div>
+  <div class="songs-filters" id="songFilters" role="group" aria-label="Filtr písní">
+    <button type="button" class="on" data-f="all" aria-pressed="true">Všechny <b></b></button>
+    <button type="button" data-f="lack" aria-pressed="false">Něco chybí <b></b></button>
+    <button type="button" data-f="done" aria-pressed="false">Hotové <b></b></button>
+  </div>
+
+  <%-- řádek = odkaz na úpravu; ikony tiše ukazují, co píseň má --%>
+  <div class="songs-list" id="songList">
+    <c:forEach var="song" items="${songs}">
+      <article class="songs-row" data-name="<c:out value='${song.name}'/>" data-lack="${song.complete ? '0' : '1'}">
+        <c:choose>
+          <c:when test="${not empty song.thumbUrl}"><img class="songs-pic" src="<c:out value='${song.thumbUrl}'/>" alt="" loading="lazy"></c:when>
+          <c:otherwise><span class="songs-pic songs-pic-empty"><i class="fa-solid fa-music" aria-hidden="true"></i></span></c:otherwise>
+        </c:choose>
+        <a class="songs-main" href="/admin/song?uuid=${song.uuid}">
+          <span class="songs-title"><c:out value="${song.name}"/></span>
+          <span class="songs-year">${song.year != null ? song.year : '—'}</span>
+          <span class="songs-icons">
+            <i class="fab fa-youtube${song.hasVideo ? '' : ' off'}" role="img" title="YouTube: ${song.hasVideo ? 'je' : 'chybí'}" aria-label="YouTube: ${song.hasVideo ? 'je' : 'chybí'}"></i>
+            <i class="fab fa-spotify${song.hasSpotify ? '' : ' off'}" role="img" title="Spotify: ${song.hasSpotify ? 'je' : 'chybí'}" aria-label="Spotify: ${song.hasSpotify ? 'je' : 'chybí'}"></i>
+            <i class="fab fa-apple${song.hasApple ? '' : ' off'}" role="img" title="Apple Music: ${song.hasApple ? 'je' : 'chybí'}" aria-label="Apple Music: ${song.hasApple ? 'je' : 'chybí'}"></i>
+            <small class="${song.langCount < 5 ? 'lack' : ''}" title="Jazyky: ${song.langNames}">${song.langLabel}</small>
+          </span>
+        </a>
+        <c:choose>
+          <c:when test="${not empty song.uuid and song.hasLyrics}"><a class="songs-web" href="/cs/song/${song.uuid}" target="_blank" rel="noopener" title="Otevřít píseň na webu" aria-label="Otevřít píseň na webu"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></c:when>
+          <c:otherwise><span></span></c:otherwise>
+        </c:choose>
+      </article>
+    </c:forEach>
+  </div>
+  <p class="text-dim songs-none" id="songNone" hidden>Nic takového tu není.</p>
+  <script>
+    // hledání (i bez háčků) a filtr Všechny / Něco chybí / Hotové
+    (function () {
+      var rows = [].slice.call(document.querySelectorAll('#songList .songs-row')), input = document.getElementById('songFilter');
+      var box = document.getElementById('songFilters'), none = document.getElementById('songNone'), filter = 'all';
+      function plain(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+      function lacks(r) { return r.dataset.lack === '1'; }
+      box.querySelector('[data-f=all] b').textContent = rows.length;
+      box.querySelector('[data-f=lack] b').textContent = rows.filter(lacks).length;
+      box.querySelector('[data-f=done] b').textContent = rows.length - rows.filter(lacks).length;
+      function render() {
+        var q = plain(input.value.trim()), shown = 0;
+        rows.forEach(function (r) {
+          var ok = (filter === 'all' || (filter === 'lack') === lacks(r)) && plain(r.dataset.name).indexOf(q) >= 0;
+          r.hidden = !ok;
+          if (ok) shown++;
+        });
+        none.hidden = shown > 0;
+      }
+      input.addEventListener('input', render);
+      box.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-f]');
+        if (!b) return;
+        filter = b.dataset.f;
+        box.querySelectorAll('[data-f]').forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
+        render();
+      });
+    })();
+  </script>
 
   <details class="admin-card admin-manual" id="manual"<%= request.getParameter("manual") != null ? " open" : "" %>>
     <summary><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Ručně: píseň z cizího kanálu nebo bez videa</summary>
