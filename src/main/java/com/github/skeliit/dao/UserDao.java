@@ -226,26 +226,29 @@ public class UserDao {
         }
     }
 
-    /** Co člověk ukazuje ostatním navíc: {pár slov o sobě, město, písně se srdcem, přátelé, stav online}. Výchozí je všechno vypnuté. */
+    /** Co člověk ukazuje ostatním navíc: {pár slov o sobě, město, písně se srdcem, přátelé, stav online, moje tvorba}. Výchozí je vypnuto, kromě tvorby (tu přidává právě proto, aby ji ukazoval). */
     public boolean[] sharing(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT about_public, city_public, likes_public, friends_public, online_public FROM users WHERE id = ?")) {
+                "SELECT about_public, city_public, likes_public, friends_public, online_public, tracks_public FROM users WHERE id = ?")) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? new boolean[] { rs.getBoolean(1), rs.getBoolean(2), rs.getBoolean(3), rs.getBoolean(4), rs.getBoolean(5) } : new boolean[5];
+                boolean[] out = new boolean[6];
+                if (rs.next()) for (int i = 0; i < out.length; i++) out[i] = rs.getBoolean(i + 1);
+                return out;
             }
         }
     }
 
-    public void setSharing(int userId, boolean about, boolean city, boolean likes, boolean friends, boolean online) throws SQLException {
+    public void setSharing(int userId, boolean about, boolean city, boolean likes, boolean friends, boolean online, boolean tracks) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "UPDATE users SET about_public = ?, city_public = ?, likes_public = ?, friends_public = ?, online_public = ? WHERE id = ?")) {
+                "UPDATE users SET about_public = ?, city_public = ?, likes_public = ?, friends_public = ?, online_public = ?, tracks_public = ? WHERE id = ?")) {
             ps.setBoolean(1, about);
             ps.setBoolean(2, city);
             ps.setBoolean(3, likes);
             ps.setBoolean(4, friends);
             ps.setBoolean(5, online);
-            ps.setInt(6, userId);
+            ps.setBoolean(6, tracks);
+            ps.setInt(7, userId);
             ps.executeUpdate();
         }
     }

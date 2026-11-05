@@ -25,7 +25,7 @@
     String[] showcase = { null, null, null, null, "brush" };
     java.util.List<String[]> songChoices = new java.util.ArrayList<>();
     boolean profilePublic = true, coverPublic = true, friendRequests = true;
-    boolean[] sharing = new boolean[5];   // {pár slov o sobě, město, písně se srdcem, přátelé, stav online}
+    boolean[] sharing = new boolean[6];   // {pár slov o sobě, město, písně se srdcem, přátelé, stav online, moje tvorba}
     java.util.List<String> shownBadges = java.util.List.of();
     String coverUrl = null;
     try {
@@ -84,8 +84,64 @@
   <nav class="acct-tabs settings-tabs" aria-label="<%= t.getProperty("menu.settings") %>">
     <a href="#profil"><i class="fa-solid fa-user"></i> <%= t.getProperty("account.tab.profile") %></a>
     <a href="#zabezpeceni"><i class="fa-solid fa-shield-halved"></i> <%= t.getProperty("account.tab.security") %></a>
+    <a href="#tvorba"><i class="fa-solid fa-music"></i> <%= t.getProperty("tracks.tab") %></a>
     <a href="#soukromi"><i class="fa-solid fa-user-lock"></i> <%= t.getProperty("account.tab.privacy") %></a>
   </nav>
+
+  <%-- Moje tvorba: skladby odkazem z YouTube, Spotify, Apple Music a SoundCloudu (nic se nenahrává) --%>
+  <section class="acct-card" id="tvorba">
+    <header class="acct-card-head">
+      <h3><i class="fa-solid fa-music" aria-hidden="true"></i> <%= t.getProperty("tracks.title") %></h3>
+      <p><%= t.getProperty("tracks.lead") %></p>
+    </header>
+    <%
+      String tracksMsg = request.getParameter("tracks");
+      if (tracksMsg != null && java.util.Set.of("saved", "deleted").contains(tracksMsg)) { %><p class="form-success" role="status"><%= t.getProperty("tracks.msg." + tracksMsg) %></p><% }
+      if (tracksMsg != null && java.util.Set.of("link", "nolink", "title", "rights", "limit", "verify", "fail").contains(tracksMsg)) { %><p class="form-alert" role="alert"><%= t.getProperty("tracks.msg." + tracksMsg) %></p><% }
+      @SuppressWarnings("unchecked")
+      java.util.Map<String, String> trackDraft = (java.util.Map<String, String>) session.getAttribute("tracksDraft");
+      session.removeAttribute("tracksDraft");
+      java.util.List<com.github.skeliit.model.UserTrack> myTracks = java.util.List.of();
+      try { myTracks = new com.github.skeliit.dao.UserTrackDao().list(uid, true); } catch (Exception ignore) {}
+      java.util.List<com.github.skeliit.model.UserTrack> trackForms = new java.util.ArrayList<>();
+      trackForms.add(null);          // první je formulář pro novou skladbu, pak jeden pro každou uloženou
+      trackForms.addAll(myTracks);
+      for (com.github.skeliit.model.UserTrack tr : trackForms) {
+        boolean isNew = tr == null;
+        String prefix = isNew ? "new" : "t" + tr.id;
+        String vTitle = isNew ? (trackDraft == null ? "" : trackDraft.get("title")) : tr.title;
+        String vYear = isNew ? (trackDraft == null ? "" : trackDraft.get("year")) : (tr.year == null ? "" : String.valueOf(tr.year));
+        String vYt = isNew ? (trackDraft == null ? "" : trackDraft.get("youtube")) : tr.youtubeUrl();
+        String vSp = isNew ? (trackDraft == null ? "" : trackDraft.get("spotify")) : tr.spotifyUrl();
+        String vAp = isNew ? (trackDraft == null ? "" : trackDraft.get("apple")) : tr.appleUrl();
+        String vSc = isNew ? (trackDraft == null ? "" : trackDraft.get("soundcloud")) : tr.soundcloudUrl();
+    %>
+    <% if (!isNew) { %>
+    <details class="acct-more"><summary><%= WebUtils.escapeHtml(tr.title) %><% if (tr.hidden) { %> <i class="fa-solid fa-lock" aria-hidden="true"></i><% } %></summary>
+    <% if (tr.hidden) { %><p class="acct-dim"><%= WebUtils.escapeHtml(t.getProperty("tracks.hidden").replace("{0}", tr.hiddenReason == null ? "" : tr.hiddenReason)) %></p><% } %>
+    <% } %>
+    <form method="post" action="/profile/tracks" class="acct-form-grid<%= isNew ? " track-form-new" : "" %>">
+      <input type="hidden" name="csrf" value="${csrf}">
+      <input type="hidden" name="action" value="save">
+      <% if (!isNew) { %><input type="hidden" name="id" value="<%= tr.id %>"><% } %>
+      <label><%= t.getProperty("tracks.name") %><input name="title" maxlength="120" value="<%= WebUtils.escapeHtml(vTitle) %>" placeholder="<%= t.getProperty("tracks.name.hint") %>"></label>
+      <label><%= t.getProperty("tracks.year") %><input type="number" name="year" min="1950" max="2100" value="<%= WebUtils.escapeHtml(vYear) %>"></label>
+      <label class="wide"><span><i class="fab fa-youtube" aria-hidden="true"></i> YouTube</span><input type="url" name="youtube" inputmode="url" maxlength="500" value="<%= WebUtils.escapeHtml(vYt) %>" placeholder="https://youtu.be/..."></label>
+      <label class="wide"><span><i class="fab fa-spotify" aria-hidden="true"></i> Spotify</span><input type="url" name="spotify" inputmode="url" maxlength="500" value="<%= WebUtils.escapeHtml(vSp) %>" placeholder="https://open.spotify.com/track/..."></label>
+      <label class="wide"><span><i class="fab fa-apple" aria-hidden="true"></i> Apple Music</span><input type="url" name="apple" inputmode="url" maxlength="500" value="<%= WebUtils.escapeHtml(vAp) %>" placeholder="https://music.apple.com/..."></label>
+      <label class="wide"><span><i class="fab fa-soundcloud" aria-hidden="true"></i> SoundCloud</span><input type="url" name="soundcloud" inputmode="url" maxlength="500" value="<%= WebUtils.escapeHtml(vSc) %>" placeholder="https://soundcloud.com/..."></label>
+      <label class="wide track-rights"><input type="checkbox" name="rights" value="1" required> <span><%= t.getProperty("tracks.rights") %></span></label>
+      <div class="form-actions wide"><button type="submit"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> <%= t.getProperty(isNew ? "tracks.add" : "common.save") %></button></div>
+    </form>
+    <% if (!isNew) { %>
+    <form method="post" action="/profile/tracks" onsubmit="return confirm('<%= WebUtils.escapeJs(t.getProperty("tracks.deleteConfirm")) %>');">
+      <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<%= tr.id %>">
+      <button type="submit" class="btn-outline friend-btn"><i class="fa-solid fa-trash" aria-hidden="true"></i> <%= t.getProperty("tracks.delete") %></button>
+    </form>
+    </details>
+    <% } %>
+    <% } %>
+  </section>
 
   <%-- Profile: photo, name and the rest, how the site looks for you --%>
   <section class="acct-card" id="profil">
@@ -327,6 +383,11 @@
           <label class="vis-switch"><input type="checkbox" name="friendsPublic" value="1" aria-labelledby="visFriendsListT"<%= sharing[3] ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
         <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-music" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visTracksT"><%= t.getProperty("vis.tracks.title") %></b><small><%= t.getProperty("vis.tracks.lead") %></small></span>
+          <label class="vis-switch"><input type="checkbox" name="tracks" value="1" aria-labelledby="visTracksT"<%= sharing[5] ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
           <span class="vis-ico"><i class="fa-solid fa-eye" aria-hidden="true"></i></span>
           <span class="vis-text"><b id="visOnlineT"><%= t.getProperty("vis.online.title") %></b><small><%= t.getProperty("vis.online.lead") %></small></span>
           <label class="vis-switch"><input type="checkbox" name="online" value="1" aria-labelledby="visOnlineT"<%= sharing[4] ? " checked" : "" %>><span aria-hidden="true"></span></label>
@@ -442,7 +503,7 @@
       if (!parts.length) return;
       function show() {
         const want = location.hash ? document.getElementById(location.hash.slice(1)) : null;
-        const part = (want && parts.find(function (p) { return p === want || p.contains(want); })) || parts[0];
+        const part = (want && parts.find(function (p) { return p === want || p.contains(want); })) || document.getElementById('profil');
         parts.forEach(function (p) { p.hidden = p !== part; });
         links.forEach(function (a) { const on = a.getAttribute('href') === '#' + part.id; a.classList.toggle('active', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
         if (want && want !== part) want.scrollIntoView({ block: 'start' });

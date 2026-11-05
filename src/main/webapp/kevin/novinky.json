@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-11-05",
+    "href": "/nastaveni.jsp#tvorba",
+    "cs": "Děláš hudbu? Přidej si na profil svoje skladby z YouTube, Spotify, Apple Music nebo SoundCloudu.",
+    "en": "Do you make music? Add your tracks from YouTube, Spotify, Apple Music or SoundCloud to your profile.",
+    "de": "Machst du Musik? Füge deine Tracks von YouTube, Spotify, Apple Music oder SoundCloud zu deinem Profil hinzu.",
+    "uk": "Створюєш музику? Додай у профіль свої треки з YouTube, Spotify, Apple Music або SoundCloud.",
+    "vi": "Bạn làm nhạc? Thêm các bài từ YouTube, Spotify, Apple Music hoặc SoundCloud vào hồ sơ của bạn."
+  },
+  {
+    "d": "2026-11-05",
     "href": "/uzivatel.jsp",
     "cs": "Profil ti teď napoví, čím začít, a najdeš v něm všechny písně se srdcem od tebe.",
     "en": "Your profile now shows you where to start and lists every song you gave a heart.",
@@ -34,14 +43,5 @@
     "de": "Jeder CatSmash-Automat hat jetzt eigene Zahnräder und Stangen: aus Eis, Lava, Plüsch… Wähl einen Schläger und schau hinein.",
     "uk": "Кожен автомат у CatSmash тепер має власні колеса й тяги: крижані, лавові, плюшеві… Обери ракетку й зазирни всередину.",
     "vi": "Mỗi máy CatSmash giờ có bánh răng và thanh truyền riêng: băng, dung nham, nhung… Chọn một chiếc vợt và nhìn vào bên trong nhé."
-  },
-  {
-    "d": "2026-11-04",
-    "href": "/?kevin=pong",
-    "cs": "CatSmash se teď barví podle tvojí pálky: s ledovou je celá hra namodralá, s čipem zelená. A menu hry má nový vzhled, všechny věci vidíš naráz.",
-    "en": "CatSmash now takes its colours from your paddle: blue with the ice one, green with the chip. And the game menu has a new look, with everything in view at once.",
-    "de": "CatSmash richtet seine Farben jetzt nach deinem Schläger: mit dem Eisschläger bläulich, mit dem Chip grün. Und das Spielmenü sieht neu aus, du siehst alles auf einmal.",
-    "uk": "CatSmash тепер забарвлюється за твоєю ракеткою: із крижаною гра блакитна, із чипом зелена. А меню гри має новий вигляд, усе видно одразу.",
-    "vi": "CatSmash giờ đổi màu theo vợt của bạn: vợt băng thì cả trò chơi xanh nhạt, vợt chip thì xanh lá. Menu trò chơi cũng có diện mạo mới, mọi thứ hiện ra cùng lúc."
   }
 ]

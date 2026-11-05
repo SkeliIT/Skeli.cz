@@ -13,7 +13,7 @@ import java.util.Set;
 
 /** Moderace účtů: zablokování a nahlášení profilu. Zásahy zapisuje záznam změn (filter/AdminAuditFilter). */
 public class ModerationDao {
-    public static final Set<String> REASONS = Set.of("spam", "abuse", "image", "fake", "other");
+    public static final Set<String> REASONS = Set.of("spam", "abuse", "image", "fake", "music", "other");
 
     public boolean isBlocked(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT blocked_at IS NOT NULL FROM users WHERE id = ?")) {

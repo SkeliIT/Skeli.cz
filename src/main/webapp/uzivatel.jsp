@@ -28,6 +28,7 @@
     java.util.Map<Integer, com.github.skeliit.dao.FriendDao.Rel> frRel = new java.util.HashMap<>();
     boolean profilePublic = true;
     java.util.List<String> shownBadges = java.util.List.of();
+    java.util.List<com.github.skeliit.model.UserTrack> myTracks = java.util.List.of();
     String frQuery = request.getParameter("fq");
     if (frQuery != null) frQuery = frQuery.strip();
     try {
@@ -45,6 +46,7 @@
       for (com.github.skeliit.model.Friend found : frFound) frRel.put(found.id, fd.relation(uid, found.id));
       profilePublic = users.profilePublic(uid);
       shownBadges = users.showcaseBadges(uid);
+      myTracks = new com.github.skeliit.dao.UserTrackDao().list(uid, true);   // i skryté adminem: majitel musí vidět proč
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
       showcase = new com.github.skeliit.dao.UserDao().showcase(uid);   // oblíbený song a moto
@@ -173,8 +175,11 @@
   </a>
   <% } %>
 
+  <% java.util.List<com.github.skeliit.model.UserTrack> tracksList = myTracks; String tracksTitle = "profile.tracks.title", tracksBack = "/uzivatel.jsp"; boolean tracksAdmin = false; %>
+  <%@ include file="includes/profile-tracks.jspf" %>
   <% String likesTitle = "profile.likes.title"; boolean likesOwn = true; %>
   <%@ include file="includes/profile-likes.jspf" %>
+  <% if (myTracks.isEmpty()) { %><a class="pt-show-add pt-tracks-invite" href="/nastaveni.jsp#tvorba"><i class="fa-solid fa-music" aria-hidden="true"></i> <%= t.getProperty("profile.tracks.invite") %></a><% } %>
 
   </div>
 

@@ -74,6 +74,7 @@ public class ProfileExportServlet extends HttpServlet {
             // everything else the site keeps about the user (GDPR: the right to a copy of one's data)
             String email = root.path("user").path("email").asText(null);
             section(c, m, root, "account", "SELECT avatar_url, cover_url, cover_public, email_verified_at FROM users WHERE id=?", uid);
+            section(c, m, root, "my_tracks", "SELECT title, year, youtube_id, spotify, apple, soundcloud, created_at, hidden_at, hidden_reason FROM user_tracks WHERE user_id=?", uid);
             section(c, m, root, "video_comments",
                     "SELECT id, youtube_id, parent_id, content, created_at, updated_at FROM video_comments WHERE user_id=? ORDER BY created_at DESC", uid);
             section(c, m, root, "lyric_votes", "SELECT * FROM lyrics_votes WHERE user_id=?", uid);

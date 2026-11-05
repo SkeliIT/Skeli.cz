@@ -74,7 +74,7 @@
               <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(pl.username) %>">
               <label><%= t.getProperty("player.report") %>
                 <select name="reason" required>
-                  <% for (String why : new String[] { "spam", "abuse", "image", "fake", "other" }) { %><option value="<%= why %>"><%= t.getProperty("player.report." + why) %></option><% } %>
+                  <% for (String why : new String[] { "spam", "abuse", "image", "fake", "music", "other" }) { %><option value="<%= why %>"><%= t.getProperty("player.report." + why) %></option><% } %>
                 </select>
               </label>
               <input name="note" maxlength="300" placeholder="<%= WebUtils.escapeHtml(t.getProperty("player.report.note")) %>" aria-label="<%= WebUtils.escapeHtml(t.getProperty("player.report.note")) %>">
@@ -103,6 +103,14 @@
     <span class="pt-song-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
   </a>
   <% } %>
+  <%
+    @SuppressWarnings("unchecked")
+    java.util.List<com.github.skeliit.model.UserTrack> tracksList = (java.util.List<com.github.skeliit.model.UserTrack>) request.getAttribute("playerTracks");
+    if (tracksList == null) tracksList = java.util.List.of();
+    String tracksTitle = "profile.tracks.others", tracksBack = plBack;
+    boolean tracksAdmin = "ADMIN".equals(session.getAttribute("role"));
+  %>
+  <%@ include file="/includes/profile-tracks.jspf" %>
   <%
     @SuppressWarnings("unchecked")
     java.util.List<com.github.skeliit.model.LikedSong> likesList = (java.util.List<com.github.skeliit.model.LikedSong>) request.getAttribute("playerLikes");
