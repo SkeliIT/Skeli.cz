@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "7.2.0";
+  String assetVersion = "7.2.1";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -146,7 +146,7 @@
            "music.song".equals(headType) ? headTitle : null, headImage, cur, t.getProperty("menu.home"), t.getProperty("menu.lyrics"));
        if (headLd != null) { %><script type="application/ld+json"><%= headLd %></script><% } %>
   </head>
-  <%-- v adminu (is-admin): klidné pozadí bez fotek, bez Spotify a bez veřejné patičky (css/admin.css) --%>
+  <%-- v adminu (is-admin): klidné pozadí bez fotek, bez veřejné patičky (css/admin.css) --%>
   <body<%= String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin") ? " class=\"is-admin\"" : "" %>>
     <%-- na stránce písně vede přepínač rovnou na adresu písně v daném jazyce (/en/song/…), jinak by
          adresa /cs/song/… nechala text česky; jinde jen ?lang= --%>
@@ -419,54 +419,9 @@
               document.addEventListener('click', () => userMenu.classList.remove('open'));
             }
 
-            // Persistent Spotify bottom bar
-            function ensureSpBar() {
-              if (document.getElementById('sp-bar')) return document.getElementById('sp-bar');
-              const bar = document.createElement('div'); bar.id = 'sp-bar'; bar.className = 'sp-bar';
-              bar.innerHTML = "<div class='sp-inner'><button id='sp-hide' class='sp-hide' title='<%= com.github.skeliit.WebUtils.escapeJs(com.github.skeliit.WebUtils.escapeHtml(t.getProperty("player.hide"))) %>' aria-label='<%= com.github.skeliit.WebUtils.escapeJs(com.github.skeliit.WebUtils.escapeHtml(t.getProperty("player.hide"))) %>'><i class='fa-solid fa-chevron-down'></i></button><iframe id='sp-iframe' class='sp-iframe' allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' loading='lazy'></iframe></div>";
-              document.body.appendChild(bar);
-              const min = document.createElement('div'); min.id = 'sp-min'; min.className = 'sp-minbar'; min.innerHTML = '<i class="fab fa-spotify"></i> Spotify';
-              document.body.appendChild(min);
-              document.getElementById('sp-hide').addEventListener('click', () => closeBar());
-              min.addEventListener('click', () => openBar());
-              return bar;
-            }
-            // theme=0 = Spotify's dark embed, instead of a color taken from the artwork
-            function darkEmbed(u) { return (!u || /[?&]theme=/.test(u)) ? u : u + (u.includes('?') ? '&' : '?') + 'theme=0'; }
-            function normalizeSrc(input) {
-              if (!input) return null;
-              if (/^https?:\/\//.test(input)) return darkEmbed(input);
-              // short forms: track:ID, playlist:ID, album:ID, artist:ID
-              const [type, id] = input.split(':');
-              if (id) { return `https://open.spotify.com/embed/\${type}/\${id}?utm_source=generator&theme=0`; }
-              return `https://open.spotify.com/embed/track/\${input}?utm_source=generator&theme=0`;
-            }
             // has the visitor allowed third-party content (YouTube, Spotify) in the cookie bar?
             window.skeliConsent = function () { try { return localStorage.getItem('cookieConsent') === 'true'; } catch (e) { return false; } };
-            // a phone on its side: the open player would cover the page, so it waits for a click there
-            const shortScreen = () => window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
-            const SP_DEFAULT = 'https://open.spotify.com/embed/artist/5IouXw8U9uKCTwmncG5bUl?utm_source=generator&theme=0';
-            function openBar() { const bar = ensureSpBar(); const f = document.getElementById('sp-iframe'); if (!f.src) { const saved = darkEmbed(localStorage.getItem('sp_src')); f.src = saved || SP_DEFAULT; } bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; localStorage.setItem('sp_min', '0'); try { sessionStorage.setItem('sp_open', '1'); } catch (e) {} }
-            function closeBar() { const bar = ensureSpBar(); bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'flex'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; localStorage.setItem('sp_min', '1'); try { sessionStorage.removeItem('sp_open'); } catch (e) {} }
-            window.toggleSpotifyBar = function () { if (ensureSpBar().style.display === 'none') { openBar(); } else { closeBar(); } }
-            window.playSpotify = function (src) { const bar = ensureSpBar(); const url = normalizeSrc(src); const f = document.getElementById('sp-iframe'); if (f.src !== url) f.src = url; openBar(); localStorage.setItem('sp_src', url); localStorage.setItem('sp_play', 'true'); };
-
-            // Restore state on every page. A new visit starts with the small button (the player never
-            // opens by itself and takes no room); it stays open only after it was opened in this visit.
-            // Without consent to third-party content (cookie bar) the iframe loads only after a click.
-            (function () {
-              const bar = ensureSpBar(); let wasMin = true; try { wasMin = sessionStorage.getItem('sp_open') !== '1'; } catch (e) {} const saved = darkEmbed(localStorage.getItem('sp_src')); const f = document.getElementById('sp-iframe');
-              const ok = window.skeliConsent();
-              if (saved && ok) { f.src = saved; }
-              if ((saved || SP_DEFAULT) && !wasMin && ok && !shortScreen()) { f.src = f.src || SP_DEFAULT; bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; }
-              else { bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'flex'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; }
-            })();
-
-
-            // Autowire any element with data-spotify-src
-            document.addEventListener('click', function (e) { const t = e.target.closest('[data-spotify-src]'); if (t) { e.preventDefault(); window.playSpotify(t.getAttribute('data-spotify-src')); } });
-
-            // Lightweight PJAX navigation to preserve global UI (Spotify bar)
+            // Lightweight PJAX navigation: only <main> changes, so Kevin and the header stay
             (function () {
               const ORIGIN = location.origin;
               function isInternal(a) { try { const u = new URL(a.href, ORIGIN); return u.origin === ORIGIN && !a.hasAttribute('download') && (!a.target || a.target === '_self'); } catch { return false; } }

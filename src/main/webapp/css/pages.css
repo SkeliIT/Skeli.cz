@@ -2020,7 +2020,6 @@ html.pb-open { overflow: hidden; }
   .pb-heads img { width: 34px; height: 34px; }
 }
 @media (prefers-reduced-motion: reduce) { .pb, .pb-win { animation: none; } }
-html.pb-open #sp-min, html.pb-open #sp-bar { visibility: hidden; }
 
 /* jména v tabulkách CatSmash a mezi šampiony = odkaz na veřejný profil hráče (/hrac/jméno) – nenápadný, zlatý při najetí */
 .game-champs .champ-name a, .pb-nm a.pb-prof { color: inherit; text-decoration: none; }
@@ -2389,8 +2388,8 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
 .chat-form[hidden] { display: none; }
 .chat-form textarea { flex: 1; min-width: 0; min-height: 44px; max-height: 130px; padding: 10px 12px; border-radius: 14px; resize: none; font-family: var(--font-text); font-size: 16px; line-height: 1.3; }
 .chat-form button { flex: none; width: 44px; height: 44px; padding: 0; border-radius: 50%; }
-/* na telefonu patří celá obrazovka chatu: patička a plovoucí přehrávač by překážely psaní */
-@media (max-width: 899px) { body:has(.chat-room) .site-footer, body:has(.chat-room) #sp-bar, body:has(.chat-room) #sp-min { display: none !important; } }
+/* na telefonu patří celá obrazovka chatu: patička by překážela psaní */
+@media (max-width: 899px) { body:has(.chat-room) .site-footer { display: none !important; } }
 @media (min-width: 900px) {
   .chat-page { grid-template-columns: 320px minmax(0, 1fr); align-items: start; }
   .chat-page.in-room .chat-list { display: block; }

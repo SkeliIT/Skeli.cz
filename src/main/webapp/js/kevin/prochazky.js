@@ -31,7 +31,7 @@ window.KevinWalk = function (K) {
     if (el.closest('.kevin, .kevin-paw, .bg-slides')) return true;
     return !el.closest(SURFACES + ', a, button, input, select, textarea, label, img, picture, video, iframe, canvas, svg, '
       + 'p, h1, h2, h3, h4, h5, li, pre, blockquote, figure, table, .site-header, nav, form, .tape, .photo-band, '
-      + '.cookie-bar, [class*="spotify"], .sp-bar, .sp-minbar, #sp-min, .notif-panel');
+      + '.cookie-bar, [class*="spotify"], .notif-panel');
   }
   // the longest free stretch over a horizontal edge at y (window coordinates) between from and to, 260 px at least
   function freeRun(y, from, to) {

@@ -101,7 +101,7 @@ body.light .kpong-panel { background: linear-gradient(180deg, transparent 0, rgb
   .kpong-panel { padding-top: 18px; }
 }
 /* během hry nic přes hřiště: Spotify, Kevin v rohu i chodící Kevin pryč */
-html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.kpong-open .kevin-walker { display: none !important; }
+html.kpong-open .kevin, html.kpong-open .kevin-walker { display: none !important; }
 /* odstřel: záblesk rámu hřiště (perfektní zlatý, super oranžový) */
 .kpong-field.shot { animation: kpong-shot .35s ease-out; }
 .kpong-field.shot-super { animation: kpong-shot-super .6s ease-out; }

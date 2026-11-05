@@ -610,8 +610,6 @@ body.is-admin::before {
 }
 body.is-admin .bg-slides,
 body.is-admin .site-footer,
-body.is-admin .sp-bar,
-body.is-admin #sp-min { display: none !important; }
 body.is-admin main.admin-page { padding-bottom: 60px; }
 
 /* seznam Písní: legenda nad tabulkou, chybějící jazyk přeškrtnutý */
