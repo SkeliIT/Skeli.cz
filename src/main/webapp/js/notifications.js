@@ -36,11 +36,18 @@
     });
   }
 
+  // nepřečtené zprávy: číslo u odkazu Zprávy v menu a v názvu záložky
+  function paintChat(n) {
+    document.querySelectorAll('[data-chat-count]').forEach(function (b) { b.textContent = n; b.hidden = !n; });
+    var base = document.title.replace(/^\(\d+\) /, '');
+    document.title = n ? '(' + n + ') ' + base : base;
+  }
+
   function count() {
-    if (document.hidden) return;
+    // ptá se i na skryté záložce: počet nepřečtených zpráv v názvu záložky je právě pro ni
     fetch('/api/notifications?count=1', { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) { if (d) paint(d.unread); })
+      .then(function (d) { if (d) { paint(d.unread); paintChat(d.chat || 0); } })
       .catch(function () {});
   }
 

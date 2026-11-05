@@ -26,6 +26,7 @@
         <% } %>
       </div>
       <p class="chat-settings-note"><%= t.getProperty("chat.status.note") %></p>
+      <label class="chat-opt chat-receipts"><input type="checkbox" name="receipts" value="1"<%= chatPrefs.receipts ? " checked" : "" %>> <i class="fa-solid fa-eye" aria-hidden="true"></i> <span><%= t.getProperty("chat.receipts") %></span></label>
     </fieldset>
     <fieldset>
       <legend><%= t.getProperty("chat.theme") %></legend>
@@ -86,6 +87,9 @@
            data-t-reported="<%= WebUtils.escapeHtml(t.getProperty("chat.reported")) %>" data-t-limit="<%= WebUtils.escapeHtml(t.getProperty("chat.limit")) %>"
            data-t-fail="<%= WebUtils.escapeHtml(t.getProperty("chat.fail")) %>" data-t-hide-confirm="<%= WebUtils.escapeHtml(t.getProperty("chat.hideConfirm")) %>"
            data-t-play="<%= WebUtils.escapeHtml(t.getProperty("chat.embed.play")) %>" data-t-open="<%= WebUtils.escapeHtml(t.getProperty("chat.embed.open")) %>"
+           data-t-reply="<%= WebUtils.escapeHtml(t.getProperty("chat.reply")) %>" data-t-reply-to="<%= WebUtils.escapeHtml(t.getProperty("chat.replyTo")) %>" data-t-edit="<%= WebUtils.escapeHtml(t.getProperty("chat.edit")) %>"
+           data-t-editing="<%= WebUtils.escapeHtml(t.getProperty("chat.editing")) %>" data-t-edited="<%= WebUtils.escapeHtml(t.getProperty("chat.edited")) %>" data-t-more="<%= WebUtils.escapeHtml(t.getProperty("chat.more")) %>"
+           data-t-seen="<%= WebUtils.escapeHtml(t.getProperty("chat.seen")) %>" data-t-mute="<%= WebUtils.escapeHtml(t.getProperty("chat.mute")) %>" data-t-unmute="<%= WebUtils.escapeHtml(t.getProperty("chat.unmute")) %>"
            aria-label="<%= WebUtils.escapeHtml(chatWith) %>">
     <header class="chat-head">
       <a class="chat-back" href="/zpravy" aria-label="<%= t.getProperty("chat.back") %>"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
@@ -94,12 +98,14 @@
         <small class="chat-who-state" hidden data-t-online="<%= t.getProperty("chat.status.online") %>" data-t-busy="<%= t.getProperty("chat.status.busy") %>" data-t-dnd="<%= t.getProperty("chat.status.dnd") %>"></small>
       </div>
       <button type="button" class="chat-gear" title="<%= t.getProperty("chat.settings") %>" aria-label="<%= t.getProperty("chat.settings") %>"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>
+      <button type="button" class="chat-mute" aria-pressed="false" title="<%= t.getProperty("chat.mute") %>" aria-label="<%= t.getProperty("chat.mute") %>"><i class="fa-solid fa-bell" aria-hidden="true"></i></button>
       <button type="button" class="chat-hide" title="<%= t.getProperty("chat.hide") %>" aria-label="<%= t.getProperty("chat.hide") %>"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
     </header>
     <button type="button" class="chat-older" hidden><%= t.getProperty("chat.older") %></button>
     <ol class="chat-msgs" aria-live="polite"></ol>
     <p class="chat-closed" hidden><%= t.getProperty("chat.closed") %></p>
     <p class="chat-error form-alert" role="alert" hidden></p>
+    <div class="chat-compose-bar" hidden><span></span><button type="button" aria-label="<%= t.getProperty("chat.settings.close") %>"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
     <form class="chat-form">
       <button type="button" class="chat-emoji-btn" aria-expanded="false" title="<%= t.getProperty("cmt.emoji") %>" aria-label="<%= t.getProperty("cmt.emoji") %>"><i class="fa-regular fa-face-smile" aria-hidden="true"></i></button>
       <div class="chat-emoji" hidden></div>

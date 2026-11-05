@@ -29,6 +29,7 @@ public class ChatDao {
     public static final int PAGE = 50;
     public static final int MAX_BODY = 1000;
     public static final Set<String> REASONS = Set.of("spam", "abuse", "other");
+    public static final Set<String> REACTIONS = Set.of("❤️", "😂", "👍", "🔥", "😮", "😢");
 
     /** Účet podle jména; smazaný ani adminem zablokovaný se nepočítá. */
     public Integer userId(String name) throws SQLException {
@@ -49,16 +50,29 @@ public class ChatDao {
         }
     }
 
-    public long send(int me, int other, String body) throws SQLException {
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "INSERT INTO chat_messages (user_a, user_b, sender_id, recipient_id, body) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, Math.min(me, other));
-            ps.setInt(2, Math.max(me, other));
-            ps.setInt(3, me);
-            ps.setInt(4, other);
-            ps.setString(5, body);
-            ps.executeUpdate();
-            try (ResultSet k = ps.getGeneratedKeys()) { return k.next() ? k.getLong(1) : 0; }
+    /** replyTo = zpráva, na kterou odpovídám; platí jen z téhle dvojice, jinak se tiše zahodí. */
+    public long send(int me, int other, String body, long replyTo) throws SQLException {
+        try (Connection c = Db.get()) {
+            Long reply = null;
+            if (replyTo > 0) {
+                try (PreparedStatement ps = c.prepareStatement("SELECT id FROM chat_messages WHERE id = ? AND user_a = ? AND user_b = ?")) {
+                    ps.setLong(1, replyTo);
+                    ps.setInt(2, Math.min(me, other));
+                    ps.setInt(3, Math.max(me, other));
+                    try (ResultSet rs = ps.executeQuery()) { if (rs.next()) reply = rs.getLong(1); }
+                }
+            }
+            try (PreparedStatement ps = c.prepareStatement(
+                    "INSERT INTO chat_messages (user_a, user_b, sender_id, recipient_id, body, reply_to) VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+                ps.setInt(1, Math.min(me, other));
+                ps.setInt(2, Math.max(me, other));
+                ps.setInt(3, me);
+                ps.setInt(4, other);
+                ps.setString(5, body);
+                if (reply == null) ps.setNull(6, java.sql.Types.BIGINT); else ps.setLong(6, reply);
+                ps.executeUpdate();
+                try (ResultSet k = ps.getGeneratedKeys()) { return k.next() ? k.getLong(1) : 0; }
+            }
         }
     }
 
@@ -70,14 +84,15 @@ public class ChatDao {
         }
     }
 
-    /** Zprávy mé dvojice od nejstarší: nové po after, nebo starší před before, nejvýš PAGE. */
-    public List<ChatMessage> messages(int me, int other, long after, long before) throws SQLException {
+    /** Zprávy mé dvojice od nejstarší: posledních limit, nebo starší před before. */
+    public List<ChatMessage> messages(int me, int other, long before, int limit) throws SQLException {
         List<ChatMessage> out = new ArrayList<>();
         try (Connection c = Db.get()) {
-            long from = Math.max(after, hiddenUpTo(c, me, other));
+            long from = hiddenUpTo(c, me, other);
             try (PreparedStatement ps = c.prepareStatement(
-                    "SELECT id, sender_id, body, created_at, deleted_at FROM chat_messages WHERE user_a = ? AND user_b = ? AND id > ?"
-                    + (before > 0 ? " AND id < ?" : "") + " ORDER BY id DESC LIMIT " + PAGE)) {
+                    "SELECT m.id, m.sender_id, m.body, m.created_at, m.deleted_at, m.edited_at, m.reply_to, r.body, r.sender_id, r.deleted_at "
+                    + "FROM chat_messages m LEFT JOIN chat_messages r ON r.id = m.reply_to WHERE m.user_a = ? AND m.user_b = ? AND m.id > ?"
+                    + (before > 0 ? " AND m.id < ?" : "") + " ORDER BY m.id DESC LIMIT " + limit)) {
                 ps.setInt(1, Math.min(me, other));
                 ps.setInt(2, Math.max(me, other));
                 ps.setLong(3, from);
@@ -90,27 +105,138 @@ public class ChatDao {
                         m.deleted = rs.getTimestamp(5) != null;
                         m.body = m.deleted ? "" : rs.getString(3);
                         m.at = rs.getTimestamp(4).getTime();
+                        m.edited = rs.getTimestamp(6) != null;
+                        long reply = rs.getLong(7);
+                        if (!rs.wasNull() && !m.deleted) {
+                            m.replyTo = reply;
+                            String quoted = rs.getTimestamp(10) != null || rs.getString(8) == null ? "" : rs.getString(8);
+                            m.replyBody = quoted.length() > 80 ? quoted.substring(0, 80) + "…" : quoted;
+                            m.replyMine = rs.getInt(9) == me;
+                        }
                         var embed = com.github.skeliit.service.MusicLinks.firstIn(m.body);
                         if (embed != null) { m.embedKind = embed.kind(); m.embedId = embed.id(); }
                         out.add(m);
                     }
                 }
             }
+            if (!out.isEmpty()) readReactions(c, out, me);
         }
         Collections.reverse(out);
         return out;
     }
 
-    /** Zprávy smazané v posledních minutách: otevřený chat je podle toho schová i tomu druhému. */
-    public List<Long> recentlyDeleted(int me, int other) throws SQLException {
-        List<Long> out = new ArrayList<>();
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT id FROM chat_messages WHERE user_a = ? AND user_b = ? AND deleted_at > NOW() - INTERVAL 10 MINUTE")) {
-            ps.setInt(1, Math.min(me, other));
-            ps.setInt(2, Math.max(me, other));
-            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) out.add(rs.getLong(1)); }
+    private static void readReactions(Connection c, List<ChatMessage> messages, int me) throws SQLException {
+        Map<Long, ChatMessage> byId = new HashMap<>();
+        StringBuilder marks = new StringBuilder();
+        for (ChatMessage m : messages) {
+            byId.put(m.id, m);
+            marks.append(marks.length() == 0 ? "?" : ",?");
         }
-        return out;
+        try (PreparedStatement ps = c.prepareStatement("SELECT message_id, emoji, COUNT(*), MAX(user_id = ?) FROM chat_reactions WHERE message_id IN (" + marks + ") GROUP BY message_id, emoji")) {
+            int i = 1;
+            ps.setInt(i++, me);
+            for (ChatMessage m : messages) ps.setLong(i++, m.id);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ChatMessage m = byId.get(rs.getLong(1));
+                    if (m == null || m.deleted) continue;
+                    ChatMessage.Reaction r = new ChatMessage.Reaction();
+                    r.e = rs.getString(2);
+                    r.n = rs.getInt(3);
+                    r.mine = rs.getBoolean(4);
+                    m.reactions.add(r);
+                }
+            }
+        }
+    }
+
+    /** Úprava vlastní zprávy do 15 minut od odeslání. */
+    public boolean edit(int me, long id, String body) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "UPDATE chat_messages SET body = ?, edited_at = NOW() WHERE id = ? AND sender_id = ? AND deleted_at IS NULL AND created_at > NOW() - INTERVAL 15 MINUTE")) {
+            ps.setString(1, body);
+            ps.setLong(2, id);
+            ps.setInt(3, me);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    /** S kým je zpráva, jestli jsem v ní já; null = není moje konverzace. */
+    public Integer otherIn(int me, long id) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT IF(user_a = ?, user_b, user_a) FROM chat_messages WHERE id = ? AND (user_a = ? OR user_b = ?) AND deleted_at IS NULL")) {
+            ps.setInt(1, me);
+            ps.setLong(2, id);
+            ps.setInt(3, me);
+            ps.setInt(4, me);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getInt(1) : null; }
+        }
+    }
+
+    /** Stejná reakce znovu ji zruší, jiná ji vymění. */
+    public void react(int me, long id, String emoji) throws SQLException {
+        try (Connection c = Db.get()) {
+            String current = null;
+            try (PreparedStatement ps = c.prepareStatement("SELECT emoji FROM chat_reactions WHERE message_id = ? AND user_id = ?")) {
+                ps.setLong(1, id);
+                ps.setInt(2, me);
+                try (ResultSet rs = ps.executeQuery()) { if (rs.next()) current = rs.getString(1); }
+            }
+            if (emoji.equals(current)) {
+                try (PreparedStatement ps = c.prepareStatement("DELETE FROM chat_reactions WHERE message_id = ? AND user_id = ?")) {
+                    ps.setLong(1, id);
+                    ps.setInt(2, me);
+                    ps.executeUpdate();
+                }
+            } else {
+                try (PreparedStatement ps = c.prepareStatement(
+                        "INSERT INTO chat_reactions (message_id, user_id, emoji) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE emoji = VALUES(emoji)")) {
+                    ps.setLong(1, id);
+                    ps.setInt(2, me);
+                    ps.setString(3, emoji);
+                    ps.executeUpdate();
+                }
+            }
+        }
+    }
+
+    /** Moje poslední zpráva, kterou ten druhý viděl. 0 = nic, nebo má jeden z nás „Viděno“ vypnuté. */
+    public long seenId(int me, int other) throws SQLException {
+        if (!prefs(me).receipts || !prefs(other).receipts) return 0;
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT COALESCE(MAX(id), 0) FROM chat_messages WHERE sender_id = ? AND recipient_id = ? AND read_at IS NOT NULL")) {
+            ps.setInt(1, me);
+            ps.setInt(2, other);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getLong(1) : 0; }
+        }
+    }
+
+    public boolean isMuted(int user, int other) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT 1 FROM chat_muted WHERE user_id = ? AND other_id = ?")) {
+            ps.setInt(1, user);
+            ps.setInt(2, other);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        }
+    }
+
+    public void setMuted(int me, int other, boolean muted) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(muted
+                ? "INSERT IGNORE INTO chat_muted (user_id, other_id) VALUES (?, ?)" : "DELETE FROM chat_muted WHERE user_id = ? AND other_id = ?")) {
+            ps.setInt(1, me);
+            ps.setInt(2, other);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Všechny nepřečtené zprávy (do menu a do názvu záložky). Od zablokovaných se nepočítají. */
+    public int unreadTotal(int me) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT COUNT(*) FROM chat_messages m WHERE m.recipient_id = ? AND m.read_at IS NULL AND m.deleted_at IS NULL "
+                + "AND NOT EXISTS (SELECT 1 FROM user_blocks b WHERE b.blocker_id = ? AND b.blocked_id = m.sender_id)")) {
+            ps.setInt(1, me);
+            ps.setInt(2, me);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getInt(1) : 0; }
+        }
     }
 
     public void markRead(int me, int other) throws SQLException {
@@ -210,7 +336,7 @@ public class ChatDao {
 
     public ChatPrefs prefs(int userId) throws SQLException {
         ChatPrefs p = new ChatPrefs();
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT status, theme, font, size FROM user_chat_prefs WHERE user_id = ?")) {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT status, theme, font, size, receipts FROM user_chat_prefs WHERE user_id = ?")) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -218,6 +344,7 @@ public class ChatDao {
                     p.theme = rs.getString(2);
                     p.font = rs.getString(3);
                     p.size = rs.getString(4);
+                    p.receipts = rs.getBoolean(5);
                 }
             }
         }
@@ -228,13 +355,14 @@ public class ChatDao {
     public boolean savePrefs(int userId, ChatPrefs p) throws SQLException {
         if (!ChatPrefs.STATUSES.contains(p.status) || !ChatPrefs.THEMES.contains(p.theme) || !ChatPrefs.FONTS.contains(p.font) || !ChatPrefs.SIZES.contains(p.size)) return false;
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "INSERT INTO user_chat_prefs (user_id, status, theme, font, size) VALUES (?, ?, ?, ?, ?) "
-                + "ON DUPLICATE KEY UPDATE status = VALUES(status), theme = VALUES(theme), font = VALUES(font), size = VALUES(size)")) {
+                "INSERT INTO user_chat_prefs (user_id, status, theme, font, size, receipts) VALUES (?, ?, ?, ?, ?, ?) "
+                + "ON DUPLICATE KEY UPDATE status = VALUES(status), theme = VALUES(theme), font = VALUES(font), size = VALUES(size), receipts = VALUES(receipts)")) {
             ps.setInt(1, userId);
             ps.setString(2, p.status);
             ps.setString(3, p.theme);
             ps.setString(4, p.font);
             ps.setString(5, p.size);
+            ps.setBoolean(6, p.receipts);
             ps.executeUpdate();
         }
         return true;

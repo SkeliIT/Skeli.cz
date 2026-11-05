@@ -5,7 +5,7 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "7.2.1";
+  String assetVersion = "7.3.1";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
@@ -201,7 +201,7 @@
                 <a href="<%= ctx %>/register.jsp" class="nav-register"><i class="fa-solid fa-user-plus"></i> <%= t.getProperty("btn.register") %></a>
               <% } else { %>
                 <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %> <span class="nav-user">· <%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></span></a>
-                <a href="<%= ctx %>/zpravy"><i class="fa-solid fa-comments"></i> <%= t.getProperty("chat.title") %></a>
+                <a href="<%= ctx %>/zpravy"><i class="fa-solid fa-comments"></i> <%= t.getProperty("chat.title") %> <span class="acct-count" data-chat-count hidden></span></a>
                 <a href="<%= ctx %>/nastaveni.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
                 <button type="button" class="nav-notif" data-notif-open aria-controls="notifPanel"><i class="fa-regular fa-bell"></i> <%= t.getProperty("notif.title") %> <span class="notif-badge" hidden></span></button>
                 <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
@@ -276,7 +276,7 @@
                   </button>
                   <div class="user-dropdown">
                     <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %></a>
-                    <a href="<%= ctx %>/zpravy"><i class="fa-solid fa-comments"></i> <%= t.getProperty("chat.title") %></a>
+                    <a href="<%= ctx %>/zpravy"><i class="fa-solid fa-comments"></i> <%= t.getProperty("chat.title") %> <span class="acct-count" data-chat-count hidden></span></a>
                     <a href="<%= ctx %>/nastaveni.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
                     <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
                     <%-- a POST with the CSRF token: another site cannot log people out with a link --%>

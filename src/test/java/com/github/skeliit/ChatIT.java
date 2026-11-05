@@ -92,6 +92,55 @@ class ChatIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Odpověď, úprava, reakce, viděno, ztlumení a počet nepřečtených")
+    void chatFeatures() throws Exception {
+        String a = "cp" + uniq(), b = "cq" + uniq();
+        int aid = registerAndLogin(a);
+        logout();
+        int bid = registerAndLogin(b);
+        logout();
+        befriend(aid, bid);
+        login(a, PASSWORD);
+        assertEquals(200, send(b, "Prvni"));
+        long first = queryInt("SELECT MAX(id) FROM chat_messages WHERE sender_id=?", aid);
+        assertEquals(200, browserPost("/api/chat", Map.of("action", "send", "with", b, "body", "Druha", "replyTo", String.valueOf(first)), true));
+        assertEquals(200, browserPost("/api/chat", Map.of("action", "send", "with", b, "body", "Cizi odpoved", "replyTo", "1"), true), "cizí zpráva se zahodí");
+        long third = queryInt("SELECT MAX(id) FROM chat_messages WHERE sender_id=?", aid);
+        assertFalse(exists("SELECT 1 FROM chat_messages WHERE id=? AND reply_to IS NOT NULL", third));
+        assertEquals(200, browserPost("/api/chat", Map.of("action", "edit", "id", String.valueOf(first), "body", "Opravena"), true));
+        assertTrue(exists("SELECT 1 FROM chat_messages WHERE id=? AND body='Opravena' AND edited_at IS NOT NULL", first));
+        update("UPDATE chat_messages SET created_at = NOW() - INTERVAL 20 MINUTE WHERE id=?", third);
+        assertEquals(404, browserPost("/api/chat", Map.of("action", "edit", "id", String.valueOf(third), "body", "Pozde"), true), "po 15 minutách už ne");
+
+        logout();
+        login(b, PASSWORD);
+        driver.get(BASE_URL + "/index.jsp");
+        waitReady();
+        String count = (String) ((JavascriptExecutor) driver).executeAsyncScript(
+                "var done = arguments[arguments.length - 1]; fetch('/api/notifications?count=1').then(function (r) { return r.text(); }).then(done);");
+        assertTrue(count.contains("\"chat\":3"), count);
+        // otevření chatu: přečteno, uvidí odpověď i značku „upraveno“
+        driver.get(BASE_URL + "/zpravy?s=" + a);
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".chat-msg")).size() == 3);
+        assertFalse(driver.findElement(By.cssSelector(".chat-quote:not([hidden])")).getText().isBlank(), "odpověď ukazuje citát");
+        assertFalse(driver.findElements(By.cssSelector(".chat-day")).isEmpty(), "oddělení po dnech");
+        assertEquals(200, browserPost("/api/chat", Map.of("action", "react", "id", String.valueOf(first), "emoji", "🔥"), true));
+        assertEquals(400, browserPost("/api/chat", Map.of("action", "react", "id", String.valueOf(first), "emoji", "<b>"), true), "jen povolené reakce");
+        assertEquals(200, browserPost("/api/chat", Map.of("action", "mute", "with", a, "on", "1"), true));
+
+        logout();
+        login(a, PASSWORD);
+        assertEquals(200, send(b, "Ztlumena"));
+        assertFalse(exists("SELECT 1 FROM notifications WHERE user_id=? AND actor_id=? AND type='message'", bid, aid), "kdo si mě ztlumil, nemá upozornění");
+        String json = read(b);
+        assertTrue(json.contains("\"seenId\":" + third), json);
+        assertTrue(json.contains("\"reactions\":[{"), "reakci vidím");
+        // „Viděno“ vypnuté: nevidím ho ani já
+        update("INSERT INTO user_chat_prefs (user_id, receipts) VALUES (?, 0) ON DUPLICATE KEY UPDATE receipts=0", bid);
+        assertTrue(read(b).contains("\"seenId\":0"));
+    }
+
+    @Test
     @DisplayName("Nastavení: uloží jen povolené hodnoty, stav vidí jen přátelé, neviditelný je offline")
     void settingsAndStatus() throws Exception {
         String a = "cm" + uniq(), b = "cn" + uniq(), c = "co" + uniq();

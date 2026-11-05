@@ -13,4 +13,5 @@ public class ChatPrefs {
     public String theme = "gold";
     public String font = "text";
     public String size = "m";
+    public boolean receipts = true;   // „Viděno“: kdo si to vypne, nevidí to ani u ostatních
 }

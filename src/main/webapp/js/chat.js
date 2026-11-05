@@ -1,5 +1,6 @@
 // Chat mezi přáteli (/zpravy). Skript je uvnitř <main>, takže běží i po přechodu přes PJAX.
-// Otevřený chat se každé 4 s ptá na nové zprávy (jen když je stránka vidět). Zprávy se kreslí jen jako text, odkazy nejsou klikatelné.
+// Otevřený chat se každé 4 s ptá na posledních 30 zpráv (jen když je stránka vidět): nové přidá, u známých srovná text, reakce a smazání.
+// Zprávy se kreslí jen jako text, odkazy nejsou klikatelné.
 (function () {
   if (window.__chatTimer) { clearInterval(window.__chatTimer); window.__chatTimer = null; }
 
@@ -13,7 +14,7 @@
       if (name === 'theme') page.dataset.chatTheme = value;
       if (name === 'font') page.dataset.chatFont = value;
       if (name === 'size') page.dataset.chatSize = value;
-      var body = { action: 'prefs' };
+      var body = { action: 'prefs', receipts: dialog.querySelector('input[name=receipts]').checked ? '1' : '0' };
       ['status', 'theme', 'font', 'size'].forEach(function (k) { body[k] = dialog.querySelector('input[name=' + k + ']:checked').value; });
       fetch('/api/chat', {
         method: 'POST', credentials: 'same-origin',
@@ -25,11 +26,16 @@
 
   var room = document.querySelector('.chat-room[data-with]');
   if (!room) return;
-  var name = room.dataset.with, csrf = room.dataset.csrf;
+  var name = room.dataset.with, csrf = room.dataset.csrf, T = room.dataset;
   var list = room.querySelector('.chat-msgs'), form = room.querySelector('.chat-form'), input = form.querySelector('textarea');
   var closed = room.querySelector('.chat-closed'), errorBox = room.querySelector('.chat-error'), older = room.querySelector('.chat-older');
-  var lastId = 0, firstId = 0, busy = false;
-  var timeFmt = new Intl.DateTimeFormat(document.documentElement.lang || undefined, { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });
+  var bar = room.querySelector('.chat-compose-bar'), barText = bar.querySelector('span'), muteBtn = room.querySelector('.chat-mute');
+  var lang = document.documentElement.lang || undefined;
+  var EDIT_WINDOW = 15 * 60000, REACTIONS = ['❤️', '😂', '👍', '🔥', '😮', '😢'];
+  var firstId = 0, busy = false, replyTo = 0, editId = 0, muted = false, loaded = false;
+  var timeFmt = new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit' });
+  var dayFmt = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long', year: 'numeric' });
+  var relFmt = Intl.RelativeTimeFormat ? new Intl.RelativeTimeFormat(lang, { numeric: 'auto' }) : null;
 
   function post(params) {
     return fetch('/api/chat', {
@@ -41,19 +47,23 @@
   function nearBottom() { return list.scrollHeight - list.scrollTop - list.clientHeight < 90; }
   function toBottom() { list.scrollTop = list.scrollHeight; }
   function showError(text) { errorBox.textContent = text; errorBox.hidden = !text; }
-
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;     // jen text: žádné HTML od uživatele
+    return n;
+  }
   function iconButton(cls, icon, label) {
-    var b = document.createElement('button');
+    var b = el('button', 'chat-act ' + cls);
     b.type = 'button';
-    b.className = 'chat-act ' + cls;
     b.title = label;
     b.setAttribute('aria-label', label);
-    var i = document.createElement('i');
-    i.className = 'fa-solid ' + icon;
+    var i = el('i', 'fa-solid ' + icon);
     i.setAttribute('aria-hidden', 'true');
     b.appendChild(i);
     return b;
   }
+
   // Karta u známého odkazu (server poslal jen ověřenou část odkazu, service/MusicLinks).
   // Přehrávač se načte až po kliknutí: do té doby cizí služba o nikom neví. Náhled videa jde přes náš server (/yt-thumb/).
   var EMBEDS = {
@@ -71,29 +81,25 @@
       player: function (id) { return 'https://w.soundcloud.com/player/?auto_play=true&url=' + encodeURIComponent('https://soundcloud.com/' + id); } }
   };
   function embedCard(m) {
-    var kind = EMBEDS[m.embedKind], box = document.createElement('div');
-    box.className = 'chat-embed';
+    var kind = EMBEDS[m.embedKind], box = el('div', 'chat-embed');
+    box.dataset.key = m.embedKind + ':' + m.embedId;
     if (!kind) return box;
-    var play = document.createElement('button');
+    var play = el('button', 'chat-embed-play');
     play.type = 'button';
-    play.className = 'chat-embed-play';
-    play.setAttribute('aria-label', room.dataset.tPlay + ': ' + kind.label);
+    play.setAttribute('aria-label', T.tPlay + ': ' + kind.label);
     if (m.embedKind === 'youtube') {
-      var img = document.createElement('img');
+      var img = el('img');
       img.src = '/yt-thumb/' + encodeURIComponent(m.embedId) + '/mqdefault.jpg';
       img.alt = '';
       img.loading = 'lazy';
       play.appendChild(img);
     }
-    var icon = document.createElement('span');
-    icon.className = 'chat-embed-icon';
-    var mark = document.createElement('i');
-    mark.className = m.embedKind === 'youtube' ? 'fa-solid fa-play' : kind.icon;
+    var icon = el('span', 'chat-embed-icon'), mark = el('i', m.embedKind === 'youtube' ? 'fa-solid fa-play' : kind.icon);
     mark.setAttribute('aria-hidden', 'true');
     icon.appendChild(mark);
     play.appendChild(icon);
     play.addEventListener('click', function () {
-      var frame = document.createElement('iframe');
+      var frame = el('iframe');
       frame.src = kind.player(m.embedId);
       frame.title = kind.label;
       frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
@@ -101,12 +107,10 @@
       if (kind.height) frame.height = kind.height; else frame.style.aspectRatio = '16 / 9';
       play.replaceWith(frame);
     });
-    var open = document.createElement('a');
-    open.className = 'chat-embed-open';
+    var open = el('a', 'chat-embed-open', T.tOpen + ' ' + kind.label);
     open.href = kind.open(m.embedId);
     open.target = '_blank';
     open.rel = 'noopener nofollow ugc';
-    open.textContent = room.dataset.tOpen + ' ' + kind.label;
     box.appendChild(play);
     box.appendChild(open);
     return box;
@@ -120,54 +124,131 @@
     return text.replace(/[\p{Extended_Pictographic}\p{Emoji_Modifier}‍️\s]/gu, '') === '';
   }
 
-  function markDeleted(li) {
-    li.classList.add('deleted');
-    li.classList.remove('emoji-only');
-    var card = li.querySelector('.chat-embed');
-    if (card) card.remove();
-    li.querySelector('.chat-text').textContent = room.dataset.tDeleted;
-    li.querySelectorAll('.chat-act').forEach(function (b) { b.remove(); });
+  function paintReactions(li, m) {
+    var box = li.querySelector('.chat-reactions');
+    box.textContent = '';
+    (m.reactions || []).forEach(function (r) {
+      var b = el('button', 'chat-reaction' + (r.mine ? ' mine' : ''), r.e + (r.n > 1 ? ' ' + r.n : ''));
+      b.type = 'button';
+      b.dataset.emoji = r.e;
+      box.appendChild(b);
+    });
+    box.hidden = !m.reactions || !m.reactions.length;
   }
+
+  // změny u zprávy, která už na stránce je; přehrávač v kartě zůstává hrát, pokud se odkaz nezměnil
+  function paint(li, m) {
+    li._m = m;
+    li.classList.toggle('deleted', m.deleted);
+    li.classList.toggle('emoji-only', !m.deleted && emojiOnly(m.body));
+    li.querySelector('.chat-text').textContent = m.deleted ? T.tDeleted : m.body;
+    var quote = li.querySelector('.chat-quote');
+    quote.hidden = !m.replyTo;
+    if (m.replyTo) {
+      quote.dataset.to = m.replyTo;
+      quote.textContent = m.replyBody || T.tDeleted;
+    }
+    var card = li.querySelector('.chat-embed'), key = m.embedKind && !m.deleted ? m.embedKind + ':' + m.embedId : '';
+    if (card && card.dataset.key !== key) { card.remove(); card = null; }
+    if (key && !card) li.querySelector('.chat-text').after(embedCard(m));
+    li.querySelector('.chat-edited').hidden = !m.edited || m.deleted;
+    li.querySelector('.chat-more').hidden = m.deleted;
+    if (m.deleted) li.querySelector('.chat-actions').hidden = true;
+    paintReactions(li, m);
+  }
+
   function bubble(m) {
-    var li = document.createElement('li');
-    li.className = 'chat-msg' + (m.mine ? ' mine' : '');
+    var li = el('li', 'chat-msg' + (m.mine ? ' mine' : ''));
     li.dataset.id = m.id;
-    var text = document.createElement('span');
-    text.className = 'chat-text';
-    text.textContent = m.body;             // jen text: žádné HTML od uživatele
-    if (emojiOnly(m.body)) li.classList.add('emoji-only');
-    var meta = document.createElement('span');
-    meta.className = 'chat-meta';
-    var when = document.createElement('time');
-    when.textContent = timeFmt.format(new Date(m.at));
+    li.dataset.at = m.at;
+    var quote = el('button', 'chat-quote');
+    quote.type = 'button';
+    var meta = el('span', 'chat-meta');
+    var edited = el('span', 'chat-edited', T.tEdited);
+    var when = el('time', null, timeFmt.format(new Date(m.at)));
+    var more = iconButton('chat-more', 'fa-ellipsis', T.tMore);
+    meta.appendChild(edited);
     meta.appendChild(when);
-    li.appendChild(text);
-    if (m.embedKind && !m.deleted) li.appendChild(embedCard(m));
+    meta.appendChild(more);
+    var actions = el('div', 'chat-actions');
+    actions.hidden = true;
+    REACTIONS.forEach(function (e) {
+      var b = el('button', 'chat-react-pick', e);
+      b.type = 'button';
+      b.dataset.emoji = e;
+      b.setAttribute('aria-label', e);
+      actions.appendChild(b);
+    });
+    actions.appendChild(iconButton('chat-reply', 'fa-reply', T.tReply));
+    if (m.mine) {
+      actions.appendChild(iconButton('chat-edit', 'fa-pen', T.tEdit));
+      actions.appendChild(iconButton('chat-del', 'fa-trash', T.tDelete));
+    } else {
+      actions.appendChild(iconButton('chat-rep', 'fa-flag', T.tReport));
+    }
+    li.appendChild(quote);
+    li.appendChild(el('span', 'chat-text'));
+    var reactions = el('div', 'chat-reactions');
+    li.appendChild(reactions);
     li.appendChild(meta);
-    if (m.mine) meta.appendChild(iconButton('chat-del', 'fa-trash', room.dataset.tDelete));
-    else meta.appendChild(iconButton('chat-rep', 'fa-flag', room.dataset.tReport));
-    if (m.deleted) markDeleted(li);
+    li.appendChild(actions);
+    paint(li, m);
     return li;
+  }
+
+  // oddělení po dnech: Dnes, Včera, jinak datum
+  function dayLabel(at) {
+    var d = new Date(at), now = new Date();
+    var days = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+    if (relFmt && days <= 1) {
+      var text = relFmt.format(-days, 'day');
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+    return dayFmt.format(d);
+  }
+  function markDays() {
+    list.querySelectorAll('.chat-day').forEach(function (n) { n.remove(); });
+    var last = '';
+    list.querySelectorAll('.chat-msg').forEach(function (li) {
+      var day = new Date(+li.dataset.at).toDateString();
+      if (day !== last) li.before(el('li', 'chat-day', dayLabel(+li.dataset.at)));
+      last = day;
+    });
+  }
+  function markSeen(id) {
+    var old = list.querySelector('.chat-seen');
+    if (old) old.remove();
+    var li = id && list.querySelector('.chat-msg[data-id="' + id + '"]');
+    if (li) li.after(el('li', 'chat-seen', T.tSeen));
   }
 
   function load(query) {
     return fetch('/api/chat?with=' + encodeURIComponent(name) + query, { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : null; });
   }
+  function setMuted(on) {
+    muted = on;
+    muteBtn.classList.toggle('on', on);
+    muteBtn.title = on ? T.tUnmute : T.tMute;
+    muteBtn.setAttribute('aria-label', muteBtn.title);
+    muteBtn.setAttribute('aria-pressed', String(on));
+    muteBtn.querySelector('i').className = 'fa-solid ' + (on ? 'fa-bell-slash' : 'fa-bell');
+  }
   function apply(data) {
     if (!data) return;
-    var stick = nearBottom() || !lastId;
+    var stick = nearBottom() || !loaded, added = false;
     data.items.forEach(function (m) {
-      if (list.querySelector('[data-id="' + m.id + '"]')) return;
+      var li = list.querySelector('.chat-msg[data-id="' + m.id + '"]');
+      if (li) { paint(li, m); return; }
       list.appendChild(bubble(m));
-      lastId = Math.max(lastId, m.id);
-      if (!firstId) firstId = m.id;
+      added = true;
+      if (!firstId || m.id < firstId) firstId = m.id;
     });
-    (data.deleted || []).forEach(function (id) {
-      var li = list.querySelector('[data-id="' + id + '"]');
-      if (li && !li.classList.contains('deleted')) markDeleted(li);
-    });
+    if (added) markDays();
+    markSeen(data.seenId);
+    loaded = true;
     form.hidden = !data.canSend;
     closed.hidden = data.canSend;
+    setMuted(data.muted);
     // stav přítele v hlavičce (offline a cizí se neukazuje)
     var stateBox = room.querySelector('.chat-who-state');
     var label = data.state && stateBox.dataset['t' + data.state[0].toUpperCase() + data.state.slice(1)];
@@ -176,13 +257,14 @@
     stateBox.className = 'chat-who-state' + (label ? ' s-' + data.state : '');
     if (stick) toBottom();
   }
+  function refresh() { return load('&recent=1').then(apply).catch(function () { /* příště */ }); }
   function poll() {
     if (!document.body.contains(room)) { clearInterval(window.__chatTimer); window.__chatTimer = null; return; }
     if (document.hidden || busy) return;
-    load('&after=' + lastId).then(apply).catch(function () { /* příště */ });
+    refresh();
   }
 
-  load('&after=0').then(function (data) {
+  load('').then(function (data) {
     apply(data);
     older.hidden = !data || data.items.length < 50;
   }).catch(function () { /* příště */ });
@@ -193,30 +275,47 @@
       if (!data) return;
       var height = list.scrollHeight;
       data.items.slice().reverse().forEach(function (m) { list.insertBefore(bubble(m), list.firstChild); firstId = m.id; });
+      markDays();
       list.scrollTop = list.scrollHeight - height;
       older.hidden = data.items.length < 50;
     });
   });
+
+  // odpověď a úprava: pruh nad políčkem říká, co se právě dělá
+  function composeMode(mode, text) {
+    bar.hidden = !mode;
+    barText.textContent = mode ? mode + ': ' + text.slice(0, 80) : '';
+  }
+  function cancelCompose() {
+    if (editId) input.value = '';
+    replyTo = 0;
+    editId = 0;
+    composeMode('');
+    autosize();
+  }
+  bar.querySelector('button').addEventListener('click', cancelCompose);
 
   function send() {
     var body = input.value.trim();
     if (!body || busy) return;
     busy = true;
     showError('');
-    post({ action: 'send', with: name, body: body }).then(function (r) {
-      if (r.status === 429) showError(room.dataset.tLimit);
+    var request = editId ? { action: 'edit', id: editId, body: body } : { action: 'send', with: name, body: body, replyTo: replyTo };
+    post(request).then(function (r) {
+      if (r.status === 429) showError(T.tLimit);
       else if (r.status === 403) { form.hidden = true; closed.hidden = false; }
-      else if (!r.ok) showError(room.dataset.tFail);
-      else { input.value = ''; autosize(); toggleEmoji(false); }
-    }).catch(function () { showError(room.dataset.tFail); }).then(function () {
+      else if (!r.ok) showError(T.tFail);
+      else { input.value = ''; replyTo = 0; editId = 0; composeMode(''); autosize(); toggleEmoji(false); }
+    }).catch(function () { showError(T.tFail); }).then(function () {
       busy = false;
-      load('&after=' + lastId).then(function (data) { apply(data); toBottom(); });
+      refresh().then(toBottom);
     });
   }
   form.addEventListener('submit', function (e) { e.preventDefault(); send(); });
   // na počítači Enter posílá (Shift+Enter = nový řádek); na telefonu je Enter nový řádek a posílá se tlačítkem
   input.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey && !matchMedia('(pointer: coarse)').matches) { e.preventDefault(); send(); }
+    if (e.key === 'Escape' && (replyTo || editId)) cancelCompose();
   });
   function autosize() {
     input.style.height = 'auto';
@@ -229,9 +328,8 @@
     '🤣', '😍', '🥹', '😮', '🤯', '🥶', '😢', '😤', '🙏', '❤️', '🖤', '💛', '💀', '⚡', '🚀', '🌙', '✨', '👀', '🤝', '🍀'];
   var emojiBtn = form.querySelector('.chat-emoji-btn'), emojiBox = form.querySelector('.chat-emoji');
   EMOJI.forEach(function (e) {
-    var b = document.createElement('button');
+    var b = el('button', null, e);
     b.type = 'button';
-    b.textContent = e;
     b.setAttribute('aria-label', e);
     emojiBox.appendChild(b);
   });
@@ -252,31 +350,72 @@
   document.addEventListener('click', function (e) { if (!form.contains(e.target) && document.body.contains(form)) toggleEmoji(false); });
 
   list.addEventListener('click', function (e) {
-    var del = e.target.closest('.chat-del'), rep = e.target.closest('.chat-rep');
-    if (del) {
-      if (!confirm(room.dataset.tDeleteConfirm)) return;
-      var li = del.closest('.chat-msg');
-      post({ action: 'delete', id: li.dataset.id }).then(function (r) { if (r.ok) markDeleted(li); });
-    } else if (rep) {
-      var msg = rep.closest('.chat-msg');
-      if (msg.querySelector('.chat-report-form')) return;
-      var box = room.querySelector('.chat-report-tpl').content.cloneNode(true);
-      msg.appendChild(box);
-      msg.querySelector('.chat-report-form').addEventListener('submit', function (ev) {
+    var li = e.target.closest('.chat-msg');
+    if (!li) return;
+    var m = li._m;
+    var quote = e.target.closest('.chat-quote');
+    if (quote) {
+      var target = list.querySelector('.chat-msg[data-id="' + quote.dataset.to + '"]');
+      if (target) target.scrollIntoView({ block: 'center' });
+      return;
+    }
+    if (e.target.closest('.chat-more')) {
+      var actions = li.querySelector('.chat-actions'), show = actions.hidden;
+      list.querySelectorAll('.chat-actions').forEach(function (a) { a.hidden = true; });
+      actions.hidden = !show;
+      var editBtn = li.querySelector('.chat-edit');
+      if (editBtn) editBtn.hidden = Date.now() - m.at > EDIT_WINDOW;
+      return;
+    }
+    var pick = e.target.closest('[data-emoji]');
+    if (pick) {
+      li.querySelector('.chat-actions').hidden = true;
+      post({ action: 'react', id: m.id, emoji: pick.dataset.emoji }).then(refresh);
+      return;
+    }
+    if (e.target.closest('.chat-reply')) {
+      li.querySelector('.chat-actions').hidden = true;
+      if (editId) cancelCompose();
+      replyTo = m.id;
+      composeMode(T.tReplyTo, m.body);
+      input.focus();
+      return;
+    }
+    if (e.target.closest('.chat-edit')) {
+      li.querySelector('.chat-actions').hidden = true;
+      replyTo = 0;
+      editId = m.id;
+      input.value = m.body;
+      composeMode(T.tEditing, m.body);
+      autosize();
+      input.focus();
+      return;
+    }
+    if (e.target.closest('.chat-del')) {
+      if (!confirm(T.tDeleteConfirm)) return;
+      post({ action: 'delete', id: m.id }).then(refresh);
+      return;
+    }
+    if (e.target.closest('.chat-rep')) {
+      if (li.querySelector('.chat-report-form')) return;
+      li.appendChild(room.querySelector('.chat-report-tpl').content.cloneNode(true));
+      li.querySelector('.chat-report-form').addEventListener('submit', function (ev) {
         ev.preventDefault();
         var f = ev.target;
-        post({ action: 'report', id: msg.dataset.id, reason: f.reason.value, note: f.note.value }).then(function (r) {
-          var note = document.createElement('p');
-          note.className = 'chat-reported';
-          note.textContent = r.ok ? room.dataset.tReported : (r.status === 429 ? room.dataset.tLimit : room.dataset.tFail);
-          f.replaceWith(note);
+        post({ action: 'report', id: m.id, reason: f.reason.value, note: f.note.value }).then(function (r) {
+          f.replaceWith(el('p', 'chat-reported', r.ok ? T.tReported : (r.status === 429 ? T.tLimit : T.tFail)));
         });
       });
     }
   });
 
+  muteBtn.addEventListener('click', function () {
+    var on = !muted;
+    setMuted(on);
+    post({ action: 'mute', with: name, on: on ? '1' : '0' });
+  });
   room.querySelector('.chat-hide').addEventListener('click', function () {
-    if (!confirm(room.dataset.tHideConfirm)) return;
+    if (!confirm(T.tHideConfirm)) return;
     post({ action: 'hide', with: name }).then(function () { location.href = '/zpravy'; });
   });
 })();

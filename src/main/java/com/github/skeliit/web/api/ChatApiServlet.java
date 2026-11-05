@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Chat mezi přáteli. GET ?with=jméno&after=id (nové zprávy) nebo &before=id (starší): otevřený chat se ptá každých pár sekund.
- * POST action = send | delete | hide | report. „Já“ je vždy ze session, CSRF hlídá CsrfFilter.
+ * Chat mezi přáteli. GET ?with=jméno&recent=1 (obnovení otevřeného chatu každých pár sekund) nebo &before=id (starší zprávy).
+ * POST action = send | edit | delete | react | mute | hide | report | prefs. „Já“ je vždy ze session, CSRF hlídá CsrfFilter.
  * Chyby nikdy neprozradí, proč psát nejde (přítel to vypnul, nebo zablokoval): vždy jen „closed“.
  */
 @WebServlet(name = "ChatApiServlet", urlPatterns = {"/api/chat"})
@@ -56,14 +56,17 @@ public class ChatApiServlet extends HttpServlet {
             Integer other = chat.userId(req.getParameter("with"));
             if (other == null || other.equals(me)) { json(resp, 404, Map.of("error", "closed")); return; }
             long before = number(req.getParameter("before"));
-            List<ChatMessage> items = chat.messages(me, other, number(req.getParameter("after")), before);
+            // obnovování otevřeného chatu stačí posledních 30 zpráv: nové a změny (úprava, smazání, reakce)
+            int limit = "1".equals(req.getParameter("recent")) ? 30 : ChatDao.PAGE;
+            List<ChatMessage> items = chat.messages(me, other, before, limit);
             if (before == 0 && !items.isEmpty()) {
                 chat.markRead(me, other);
                 new NotificationDao().removeMessages(me, other);
             }
             Map<String, Object> out = new LinkedHashMap<>();
             out.put("items", items);
-            out.put("deleted", chat.recentlyDeleted(me, other));
+            out.put("seenId", chat.seenId(me, other));
+            out.put("muted", chat.isMuted(me, other));
             out.put("canSend", EmailVerification.isVerified(req.getSession(false)) && chat.canSend(me, other));
             // stav vidí jen přátelé
             out.put("state", new FriendDao().relation(me, other) == FriendDao.Rel.FRIENDS ? chat.shownState(other) : null);
@@ -87,9 +90,30 @@ public class ChatApiServlet extends HttpServlet {
                     p.theme = String.valueOf(req.getParameter("theme"));
                     p.font = String.valueOf(req.getParameter("font"));
                     p.size = String.valueOf(req.getParameter("size"));
+                    p.receipts = !"0".equals(req.getParameter("receipts"));
                     json(resp, chat.savePrefs(me, p) ? 200 : 400, Map.of("ok", true));
                 }
                 case "delete" -> json(resp, chat.deleteOwn(me, number(req.getParameter("id"))) ? 200 : 404, Map.of("ok", true));
+                case "edit" -> {
+                    String raw = req.getParameter("body");
+                    String body = raw != null && raw.length() > ChatDao.MAX_BODY ? null : WebUtils.cleanComment(raw);
+                    if (body == null || body.isBlank()) { json(resp, 400, Map.of("error", "empty")); return; }
+                    json(resp, chat.edit(me, number(req.getParameter("id")), body) ? 200 : 404, Map.of("ok", true));
+                }
+                case "react" -> {
+                    String emoji = req.getParameter("emoji");
+                    long id = number(req.getParameter("id"));
+                    Integer other = chat.otherIn(me, id);
+                    if (emoji == null || !ChatDao.REACTIONS.contains(emoji) || other == null) { json(resp, 400, Map.of("error", "fail")); return; }
+                    if (!chat.canSend(me, other)) { json(resp, 403, Map.of("error", "closed")); return; }
+                    chat.react(me, id, emoji);
+                    json(resp, 200, Map.of("ok", true));
+                }
+                case "mute" -> {
+                    Integer other = chat.userId(req.getParameter("with"));
+                    if (other != null) chat.setMuted(me, other, "1".equals(req.getParameter("on")));
+                    json(resp, 200, Map.of("ok", true));
+                }
                 case "hide" -> {
                     Integer other = chat.userId(req.getParameter("with"));
                     if (other != null) chat.hide(me, other);
@@ -124,9 +148,9 @@ public class ChatApiServlet extends HttpServlet {
             json(resp, 429, Map.of("error", "limit"));
             return;
         }
-        long id = chat.send(me, other, body);
-        // do zvonečku jde jen „X ti napsal“, nikdy text zprávy
-        new NotificationDao().addFriend(other, me, "message");
+        long id = chat.send(me, other, body, number(req.getParameter("replyTo")));
+        // do zvonečku jde jen „X ti napsal“, nikdy text zprávy; kdo si mě ztlumil, tomu nic
+        if (!chat.isMuted(other, me)) new NotificationDao().addFriend(other, me, "message");
         json(resp, 200, Map.of("ok", true, "id", id));
     }
 }
