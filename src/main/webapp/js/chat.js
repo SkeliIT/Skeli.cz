@@ -33,8 +33,68 @@
     b.appendChild(i);
     return b;
   }
+  // Karta u známého odkazu (server poslal jen ověřenou část odkazu, service/MusicLinks).
+  // Přehrávač se načte až po kliknutí: do té doby cizí služba o nikom neví. Náhled videa jde přes náš server (/yt-thumb/).
+  var EMBEDS = {
+    youtube: { label: 'YouTube', icon: 'fab fa-youtube', height: 0,
+      open: function (id) { return 'https://www.youtube.com/watch?v=' + id; },
+      player: function (id) { return 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0'; } },
+    spotify: { label: 'Spotify', icon: 'fab fa-spotify', height: 152,
+      open: function (id) { return 'https://open.spotify.com/' + id; },
+      player: function (id) { return 'https://open.spotify.com/embed/' + id; } },
+    apple: { label: 'Apple Music', icon: 'fab fa-apple', height: 175,
+      open: function (id) { return 'https://music.apple.com/' + id; },
+      player: function (id) { return 'https://embed.music.apple.com/' + id; } },
+    soundcloud: { label: 'SoundCloud', icon: 'fab fa-soundcloud', height: 166,
+      open: function (id) { return 'https://soundcloud.com/' + id; },
+      player: function (id) { return 'https://w.soundcloud.com/player/?auto_play=true&url=' + encodeURIComponent('https://soundcloud.com/' + id); } }
+  };
+  function embedCard(m) {
+    var kind = EMBEDS[m.embedKind], box = document.createElement('div');
+    box.className = 'chat-embed';
+    if (!kind) return box;
+    var play = document.createElement('button');
+    play.type = 'button';
+    play.className = 'chat-embed-play';
+    play.setAttribute('aria-label', room.dataset.tPlay + ': ' + kind.label);
+    if (m.embedKind === 'youtube') {
+      var img = document.createElement('img');
+      img.src = '/yt-thumb/' + encodeURIComponent(m.embedId) + '/mqdefault.jpg';
+      img.alt = '';
+      img.loading = 'lazy';
+      play.appendChild(img);
+    }
+    var icon = document.createElement('span');
+    icon.className = 'chat-embed-icon';
+    var mark = document.createElement('i');
+    mark.className = m.embedKind === 'youtube' ? 'fa-solid fa-play' : kind.icon;
+    mark.setAttribute('aria-hidden', 'true');
+    icon.appendChild(mark);
+    play.appendChild(icon);
+    play.addEventListener('click', function () {
+      var frame = document.createElement('iframe');
+      frame.src = kind.player(m.embedId);
+      frame.title = kind.label;
+      frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      frame.referrerPolicy = 'strict-origin-when-cross-origin';
+      if (kind.height) frame.height = kind.height; else frame.style.aspectRatio = '16 / 9';
+      play.replaceWith(frame);
+    });
+    var open = document.createElement('a');
+    open.className = 'chat-embed-open';
+    open.href = kind.open(m.embedId);
+    open.target = '_blank';
+    open.rel = 'noopener nofollow ugc';
+    open.textContent = room.dataset.tOpen + ' ' + kind.label;
+    box.appendChild(play);
+    box.appendChild(open);
+    return box;
+  }
+
   function markDeleted(li) {
     li.classList.add('deleted');
+    var card = li.querySelector('.chat-embed');
+    if (card) card.remove();
     li.querySelector('.chat-text').textContent = room.dataset.tDeleted;
     li.querySelectorAll('.chat-act').forEach(function (b) { b.remove(); });
   }
@@ -51,6 +111,7 @@
     when.textContent = timeFmt.format(new Date(m.at));
     meta.appendChild(when);
     li.appendChild(text);
+    if (m.embedKind && !m.deleted) li.appendChild(embedCard(m));
     li.appendChild(meta);
     if (m.mine) meta.appendChild(iconButton('chat-del', 'fa-trash', room.dataset.tDelete));
     else meta.appendChild(iconButton('chat-rep', 'fa-flag', room.dataset.tReport));
@@ -109,7 +170,7 @@
       if (r.status === 429) showError(room.dataset.tLimit);
       else if (r.status === 403) { form.hidden = true; closed.hidden = false; }
       else if (!r.ok) showError(room.dataset.tFail);
-      else { input.value = ''; autosize(); }
+      else { input.value = ''; autosize(); toggleEmoji(false); }
     }).catch(function () { showError(room.dataset.tFail); }).then(function () {
       busy = false;
       load('&after=' + lastId).then(function (data) { apply(data); toBottom(); });
@@ -125,6 +186,33 @@
     input.style.height = Math.min(input.scrollHeight, 130) + 'px';
   }
   input.addEventListener('input', autosize);
+
+  // smajlíky: stejná sada jako u komentářů (js/comments.js), vloží se tam, kde je kurzor
+  var EMOJI = ['🔥', '💯', '🦖', '🎤', '🎧', '🎶', '👑', '💪', '👏', '🙌', '🤘', '✌️', '👊', '🫡', '😎', '😂',
+    '🤣', '😍', '🥹', '😮', '🤯', '🥶', '😢', '😤', '🙏', '❤️', '🖤', '💛', '💀', '⚡', '🚀', '🌙', '✨', '👀', '🤝', '🍀'];
+  var emojiBtn = form.querySelector('.chat-emoji-btn'), emojiBox = form.querySelector('.chat-emoji');
+  EMOJI.forEach(function (e) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = e;
+    b.setAttribute('aria-label', e);
+    emojiBox.appendChild(b);
+  });
+  function toggleEmoji(show) {
+    emojiBox.hidden = !show;
+    emojiBtn.setAttribute('aria-expanded', String(show));
+  }
+  emojiBtn.addEventListener('click', function () { toggleEmoji(emojiBox.hidden); });
+  emojiBox.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    var from = input.selectionStart, to = input.selectionEnd;
+    input.value = input.value.slice(0, from) + b.textContent + input.value.slice(to);
+    input.selectionStart = input.selectionEnd = from + b.textContent.length;
+    autosize();
+    if (!matchMedia('(pointer: coarse)').matches) input.focus();   // na telefonu by vyskočila klávesnice přes smajlíky
+  });
+  document.addEventListener('click', function (e) { if (!form.contains(e.target) && document.body.contains(form)) toggleEmoji(false); });
 
   list.addEventListener('click', function (e) {
     var del = e.target.closest('.chat-del'), rep = e.target.closest('.chat-rep');

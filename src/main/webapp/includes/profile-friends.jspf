@@ -15,10 +15,17 @@
     </header>
     <% String frMsg = request.getParameter("friend"); if (frMsg != null && java.util.Set.of("fail", "verify", "limit", "closed").contains(frMsg)) { %><p class="form-alert" role="alert"><%= t.getProperty("friends.msg." + frMsg) %></p><% } %>
 
-    <form class="friend-search" method="get" action="/uzivatel.jsp#pratele" role="search">
+    <form class="friend-search" method="get" action="/uzivatel.jsp#pratele" role="search" data-suggest
+          data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>" data-t-add="<%= WebUtils.escapeHtml(t.getProperty("friends.add")) %>" data-t-accept="<%= WebUtils.escapeHtml(t.getProperty("friends.accept")) %>"
+          data-t-sent="<%= WebUtils.escapeHtml(t.getProperty("friends.state.sent")) %>" data-t-friends="<%= WebUtils.escapeHtml(t.getProperty("friends.state.friends")) %>"
+          data-t-none="<%= WebUtils.escapeHtml(t.getProperty("friends.notFound")) %>" data-t-fail="<%= WebUtils.escapeHtml(t.getProperty("friends.msg.fail")) %>"
+          data-t-verify="<%= WebUtils.escapeHtml(t.getProperty("friends.msg.verify")) %>" data-t-limit="<%= WebUtils.escapeHtml(t.getProperty("friends.msg.limit")) %>" data-t-closed="<%= WebUtils.escapeHtml(t.getProperty("friends.msg.closed")) %>">
       <input type="search" name="fq" minlength="2" maxlength="50" value="<%= WebUtils.escapeHtml(frQuery) %>" placeholder="<%= t.getProperty("friends.search") %>" aria-label="<%= t.getProperty("friends.search") %>">
       <button type="submit" class="btn-primary" aria-label="<%= t.getProperty("friends.search") %>"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+      <ul class="friend-suggest" id="friendSuggest" role="listbox" aria-label="<%= t.getProperty("friends.search") %>" hidden></ul>
+      <p class="friend-suggest-status form-alert" role="alert" hidden></p>
     </form>
+    <script src="/js/friend-suggest.js?v=<%= assetVersion %>"></script>
     <% if (frQuery != null && !frQuery.isBlank()) { %>
     <h4 class="friend-head"><%= t.getProperty("friends.found") %></h4>
     <% if (frFound.isEmpty()) { %><p class="acct-empty"><%= t.getProperty("friends.notFound") %></p><% } %>

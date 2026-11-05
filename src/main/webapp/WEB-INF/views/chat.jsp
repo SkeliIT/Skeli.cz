@@ -37,6 +37,7 @@
            data-t-delete="<%= WebUtils.escapeHtml(t.getProperty("chat.delete")) %>" data-t-report="<%= WebUtils.escapeHtml(t.getProperty("chat.report")) %>"
            data-t-reported="<%= WebUtils.escapeHtml(t.getProperty("chat.reported")) %>" data-t-limit="<%= WebUtils.escapeHtml(t.getProperty("chat.limit")) %>"
            data-t-fail="<%= WebUtils.escapeHtml(t.getProperty("chat.fail")) %>" data-t-hide-confirm="<%= WebUtils.escapeHtml(t.getProperty("chat.hideConfirm")) %>"
+           data-t-play="<%= WebUtils.escapeHtml(t.getProperty("chat.embed.play")) %>" data-t-open="<%= WebUtils.escapeHtml(t.getProperty("chat.embed.open")) %>"
            aria-label="<%= WebUtils.escapeHtml(chatWith) %>">
     <header class="chat-head">
       <a class="chat-back" href="/zpravy" aria-label="<%= t.getProperty("chat.back") %>"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></a>
@@ -48,6 +49,8 @@
     <p class="chat-closed" hidden><%= t.getProperty("chat.closed") %></p>
     <p class="chat-error form-alert" role="alert" hidden></p>
     <form class="chat-form">
+      <button type="button" class="chat-emoji-btn" aria-expanded="false" title="<%= t.getProperty("cmt.emoji") %>" aria-label="<%= t.getProperty("cmt.emoji") %>"><i class="fa-regular fa-face-smile" aria-hidden="true"></i></button>
+      <div class="chat-emoji" hidden></div>
       <textarea name="body" rows="1" maxlength="1000" required aria-label="<%= t.getProperty("chat.placeholder") %>" placeholder="<%= t.getProperty("chat.placeholder") %>"></textarea>
       <button type="submit" class="btn-primary" aria-label="<%= t.getProperty("chat.send") %>" title="<%= t.getProperty("chat.send") %>"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></button>
     </form>

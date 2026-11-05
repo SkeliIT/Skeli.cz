@@ -60,9 +60,35 @@ class ChatIT extends UiTestSupport {
 
         // odpověď přes formulář, jak ji píše člověk
         driver.findElement(By.cssSelector(".chat-form textarea")).sendKeys("Čau 🐈");
-        jsClick(driver.findElement(By.cssSelector(".chat-form button")));
+        jsClick(driver.findElement(By.cssSelector(".chat-form button[type=submit]")));
         new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> !d.findElements(By.cssSelector(".chat-msg.mine")).isEmpty());
         assertEquals("Čau 🐈", driver.findElement(By.cssSelector(".chat-msg.mine .chat-text")).getText());
+    }
+
+    @Test
+    @DisplayName("Známý odkaz má kartu a přehrávač až po kliknutí, cizí odkaz zůstane text. Smajlíky jdou vložit.")
+    void linkCardsAndEmoji() throws Exception {
+        String a = "ck" + uniq(), b = "cl" + uniq();
+        int aid = registerAndLogin(a);
+        logout();
+        int bid = registerAndLogin(b);
+        logout();
+        befriend(aid, bid);
+        login(a, PASSWORD);
+        assertEquals(200, send(b, "https://youtu.be/dQw4w9WgXcQ"));
+        assertEquals(200, send(b, "https://evil.com/watch?v=dQw4w9WgXcQ"));
+
+        driver.get(BASE_URL + "/zpravy?s=" + b);
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".chat-msg")).size() == 2);
+        assertEquals(1, driver.findElements(By.cssSelector(".chat-embed")).size(), "jen známý odkaz");
+        assertTrue(driver.findElements(By.cssSelector(".chat-embed iframe")).isEmpty(), "přehrávač ještě ne");
+        assertTrue(driver.findElement(By.cssSelector(".chat-embed-play img")).getAttribute("src").contains("/yt-thumb/dQw4w9WgXcQ/"), "náhled přes náš server");
+        jsClick(driver.findElement(By.cssSelector(".chat-embed-play")));
+        assertTrue(driver.findElement(By.cssSelector(".chat-embed iframe")).getAttribute("src").startsWith("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"));
+
+        jsClick(driver.findElement(By.cssSelector(".chat-emoji-btn")));
+        jsClick(driver.findElement(By.cssSelector(".chat-emoji button")));
+        assertEquals("🔥", driver.findElement(By.cssSelector(".chat-form textarea")).getAttribute("value"));
     }
 
     @Test

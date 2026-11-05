@@ -2321,7 +2321,20 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
 .chat-reported { margin: 6px 0 0; font-family: var(--font-text); font-size: var(--fs-small); }
 .chat-closed { flex: none; margin: 0; padding: 12px; border-top: 1px solid var(--panel-border); color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); text-align: center; }
 .chat-error { flex: none; margin: 0 8px 8px; }
-.chat-form { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 8px; border-top: 1px solid var(--panel-border); }
+/* Karta u známého odkazu: náhled a přehrání až po kliknutí */
+.chat-embed { display: grid; gap: 6px; width: min(100%, 320px); margin-top: 6px; }
+.chat-embed-play { position: relative; display: grid; place-items: center; width: 100%; min-height: 72px; padding: 0; overflow: hidden; border: 0; border-radius: 12px; background: var(--bg); color: #fff; cursor: pointer; }
+.chat-embed-play img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.chat-embed-play .chat-embed-icon { position: absolute; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(0, 0, 0, .65); font-size: 1.4rem; }
+.chat-embed iframe { display: block; width: 100%; border: 0; border-radius: 12px; background: var(--bg); }
+.chat-embed-open { font-family: var(--font-text); font-size: var(--fs-small); color: inherit; }
+.chat-emoji-btn { flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; }
+.chat-emoji-btn:hover, .chat-emoji-btn[aria-expanded="true"] { color: var(--accent); }
+.chat-form button.chat-emoji-btn { background: transparent; }
+.chat-emoji { position: absolute; left: 8px; right: 8px; bottom: calc(100% + 6px); z-index: 5; display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 2px; max-height: 180px; padding: 6px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 14px; background: var(--bg); box-shadow: var(--shadow); }
+.chat-form .chat-emoji button { width: auto; height: 40px; border-radius: 10px; background: transparent; color: inherit; font-size: 1.25rem; cursor: pointer; }
+.chat-form .chat-emoji button:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.chat-form { position: relative; flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 8px; border-top: 1px solid var(--panel-border); }
 .chat-form[hidden] { display: none; }
 .chat-form textarea { flex: 1; min-width: 0; min-height: 44px; max-height: 130px; padding: 10px 12px; border-radius: 14px; resize: none; font-family: var(--font-text); font-size: 16px; line-height: 1.3; }
 .chat-form button { flex: none; width: 44px; height: 44px; padding: 0; border-radius: 50%; }
@@ -2403,7 +2416,17 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
   .player-page #prehled .pt-song, .pt-tab .pt-song.pt-solo { grid-column: span 12; }
 }
 /* Přátelé */
-.friend-search { display: flex; gap: 8px; margin: 0 0 14px; }
+.friend-search { position: relative; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.friend-suggest { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 20; display: grid; gap: 2px; max-height: min(60vh, 340px); margin: 0; padding: 6px; overflow-y: auto; list-style: none; border: 1px solid var(--panel-border); border-radius: 14px; background: var(--bg); box-shadow: var(--shadow); }
+.friend-suggest[hidden] { display: none; }
+.friend-suggest-row { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 4px 8px; border-radius: 10px; }
+.friend-suggest-row[aria-selected="true"], .friend-suggest-row:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.friend-suggest-who { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 40px; color: var(--text); font-size: var(--fs-card); text-decoration: none; overflow-wrap: anywhere; }
+.friend-suggest-who img { flex: none; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.friend-suggest-act { flex: none; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.friend-suggest-none { padding: 10px; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); }
+.friend-suggest-status { flex-basis: 100%; margin: 0; }
+.friend-suggest-status[hidden] { display: none; }
 .friend-search input { flex: 1; min-width: 0; min-height: 44px; }
 .friend-search button { min-width: 48px; min-height: 44px; }
 .friend-head { display: flex; align-items: center; gap: 8px; margin: 18px 0 8px; font-size: var(--fs-h4); font-weight: 400; }

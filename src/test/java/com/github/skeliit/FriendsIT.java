@@ -66,6 +66,40 @@ class FriendsIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Našeptávač: ukáže fotku a jméno, přidá přítele, soukromý profil jen podle celého jména")
+    void suggestFindsPeople() throws Exception {
+        String stem = "fs" + uniq();
+        String pub = stem + "a", priv = stem + "b";
+        int pubId = insertUser(pub, "USER");
+        int privId = insertUser(priv, "USER");
+        update("UPDATE users SET profile_public=1 WHERE id=?", pubId);
+        update("UPDATE users SET profile_public=0 WHERE id=?", privId);
+        int me = registerAndLogin("fm" + uniq());
+        driver.get(BASE_URL + "/uzivatel.jsp#pratele");
+        waitReady();
+        driver.findElement(By.cssSelector(".friend-search input[name=fq]")).sendKeys(stem);
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10))
+                .until(d -> !d.findElements(By.cssSelector(".friend-suggest-row")).isEmpty());
+        assertEquals(1, driver.findElements(By.cssSelector(".friend-suggest-row")).size(), "soukromý se podle začátku neukáže");
+        assertTrue(driver.findElement(By.cssSelector(".friend-suggest-row")).getText().contains(pub));
+        assertFalse(driver.findElements(By.cssSelector(".friend-suggest-row img")).isEmpty(), "s fotkou");
+        jsClick(driver.findElement(By.cssSelector(".friend-suggest-row button")));
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10))
+                .until(d -> exists0(me));
+        driver.findElement(By.cssSelector(".friend-search input[name=fq]")).sendKeys("b");
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10))
+                .until(d -> d.findElement(By.cssSelector(".friend-suggest")).getText().contains(priv));
+    }
+
+    private static boolean exists0(int me) {
+        try {
+            return exists("SELECT 1 FROM friendships WHERE requested_by=? AND status='pending'", me);
+        } catch (java.sql.SQLException e) {
+            return false;
+        }
+    }
+
+    @Test
     @DisplayName("Vypnuté žádosti: nová žádost neprojde")
     void requestsCanBeTurnedOff() throws Exception {
         String a = "fc" + uniq(), b = "fd" + uniq();

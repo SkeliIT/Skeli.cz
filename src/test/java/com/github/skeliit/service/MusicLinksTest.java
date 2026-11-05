@@ -56,6 +56,18 @@ class MusicLinksTest {
     }
 
     @Test
+    @DisplayName("Odkaz v textu zprávy: první známý, cizí se přeskočí")
+    void firstInText() {
+        assertEquals(new MusicLinks.Embed("youtube", "dQw4w9WgXcQ"), MusicLinks.firstIn("Koukni na https://youtu.be/dQw4w9WgXcQ, je to dobrý!"));
+        assertEquals(new MusicLinks.Embed("spotify", "track/" + ID22), MusicLinks.firstIn("cizi https://evil.com/x a pak open.spotify.com/track/" + ID22));
+        assertEquals(new MusicLinks.Embed("soundcloud", "ja/skladba"), MusicLinks.firstIn("https://soundcloud.com/ja/skladba."));
+        assertNull(MusicLinks.firstIn("https://evil.com/watch?v=dQw4w9WgXcQ"));
+        assertNull(MusicLinks.firstIn("javascript:alert(1)//youtu.be/dQw4w9WgXcQ"));
+        assertNull(MusicLinks.firstIn("obycejny text bez odkazu"));
+        assertNull(MusicLinks.firstIn(null));
+    }
+
+    @Test
     @DisplayName("Cizí krátký odkaz se nikam nevolá a vrací se beze změny")
     void expandOnlyKnownShortHosts() {
         assertEquals("https://evil.com/x", MusicLinks.expandShort("https://evil.com/x"));

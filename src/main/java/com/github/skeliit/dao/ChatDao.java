@@ -87,6 +87,8 @@ public class ChatDao {
                         m.deleted = rs.getTimestamp(5) != null;
                         m.body = m.deleted ? "" : rs.getString(3);
                         m.at = rs.getTimestamp(4).getTime();
+                        var embed = com.github.skeliit.service.MusicLinks.firstIn(m.body);
+                        if (embed != null) { m.embedKind = embed.kind(); m.embedId = embed.id(); }
                         out.add(m);
                     }
                 }

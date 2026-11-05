@@ -92,6 +92,26 @@ public final class MusicLinks {
         return m.matches() ? m.group(1) + "/" + m.group(2) : null;
     }
 
+    /** Odkaz na hudbu nalezený v textu: služba a její ověřená část. */
+    public record Embed(String kind, String id) { }
+
+    private static final Pattern URL_IN_TEXT = Pattern.compile("(?i)(?:https?://|(?<![\\w./-])(?:www\\.|m\\.)?(?:youtu\\.be|youtube\\.com|open\\.spotify\\.com|music\\.apple\\.com|soundcloud\\.com)/)\\S+");
+
+    /** První odkaz ve zprávě, který znám (YouTube, Spotify, Apple Music, SoundCloud). Cizí odkazy se přeskočí a nikam se nevolá. */
+    public static Embed firstIn(String text) {
+        if (text == null) return null;
+        Matcher m = URL_IN_TEXT.matcher(text);
+        while (m.find()) {
+            String url = m.group().replaceFirst("[.,;:!?)\\]\"'»“”]+$", "");
+            String id;
+            if ((id = youtube(url)) != null) return new Embed("youtube", id);
+            if ((id = spotify(url)) != null) return new Embed("spotify", id);
+            if ((id = apple(url)) != null) return new Embed("apple", id);
+            if ((id = soundcloud(url)) != null) return new Embed("soundcloud", id);
+        }
+        return null;
+    }
+
     /**
      * Krátký odkaz ze sdílení na telefonu převede na plný (jeden krok, jen ze SHORT_HOSTS, bez dalšího přesměrování).
      * Cokoli jiného vrátí beze změny, takže server nikdy nevolá adresu, kterou si někdo vymyslel.
