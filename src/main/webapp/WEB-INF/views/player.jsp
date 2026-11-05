@@ -12,6 +12,7 @@
   com.github.skeliit.dao.FriendDao.Rel plRel = (com.github.skeliit.dao.FriendDao.Rel) request.getAttribute("playerRel");   // null = můj vlastní náhled
   String plBack = pl == null ? "/uzivatel.jsp" : "/hrac/" + java.net.URLEncoder.encode(pl.username, "UTF-8").replace("+", "%20");
   String plCover = (String) request.getAttribute("playerCover");   // null = bez záhlaví nebo ho hráč ostatním neukazuje
+  boolean plAnon = Boolean.TRUE.equals(request.getAttribute("playerAnon"));   // nepřihlášený na veřejném profilu: jen jméno, fotka, představení a skladby
 %>
 <main class="account-page player-page profile-page">
   <% if (pl == null || pp == null) { %>
@@ -39,7 +40,7 @@
             <% if (pp.mark != null) { %><i class="fa-solid <%= com.github.skeliit.model.PongBadges.icon(pp.mark) %> acct-mark" title="<%= WebUtils.escapeHtml(t.getProperty("pong.badge." + pp.mark)) %>"></i><% } %>
           </h2>
           <p class="acct-meta">
-            <% if (pl.memberSince != null) { %><%= WebUtils.escapeHtml(t.getProperty("account.memberSince").replace("{0}",
+            <% if (!plAnon && pl.memberSince != null) { %><%= WebUtils.escapeHtml(t.getProperty("account.memberSince").replace("{0}",
                  java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.LONG).withLocale(java.util.Locale.forLanguageTag(cur)).format(pl.memberSince.toLocalDateTime()))) %><% } %>
             <% String plCity = (String) request.getAttribute("playerCity"); if (plCity != null && !plCity.isBlank()) { %> · <%= WebUtils.escapeHtml(plCity) %><% } %>
           </p>
@@ -87,14 +88,18 @@
     </div>
   </section>
 
+  <% if (!plAnon) { %>
   <nav class="acct-tabs profile-tabs" aria-label="<%= WebUtils.escapeHtml(pl.username) %>">
     <a href="#prehled"><i class="fa-solid fa-id-card" aria-hidden="true"></i> <span class="tab-name"><%= t.getProperty("profile.tab.overview") %></span></a>
     <a href="#hry"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> <span class="tab-name"><%= t.getProperty("profile.tab.games") %></span></a>
   </nav>
+  <% } %>
 
   <div class="pt-tab pt-grid" id="prehled">
+  <% if (!plAnon) { %>
   <a class="pt pt-stat pt-games pt-big-tile" href="#hry" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-gamepad pt-ghost" aria-hidden="true"></i>
     <span class="pt-in"><span class="pt-label"><%= t.getProperty("profile.tab.games") %></span><b class="pt-big"><%= pp.wins %></b><span class="pt-note"><%= t.getProperty("account.stats.wins") %></span></span></a>
+  <% } %>
   <% if (sc[0] != null) { %>
   <a class="pt pt-song" href="<%= com.github.skeliit.I18n.songPath(request, sc[0], 0) %>" data-tilt>
     <% if (sc[3] != null) { %><img class="pt-song-img" src="<%= WebUtils.escapeHtml(sc[3]) %>" alt="" loading="lazy"><% } %>
@@ -138,6 +143,7 @@
 
   </div>
 
+  <% if (!plAnon) { %>
   <div class="pt-tab pt-grid" id="hry">
   <header class="game-head"><i class="fa-solid fa-table-tennis-paddle-ball" aria-hidden="true"></i> <h2>CatSmash</h2></header>
   <a class="pt pt-stat pt-stat3 pt-wins" href="#pong" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-trophy pt-ghost" aria-hidden="true"></i>
@@ -175,6 +181,7 @@
   </section>
   <% } %>
   </div>
+  <% } %>
   </div>
   <script src="/js/profile-tiles.js?v=<%= assetVersion %>"></script>
   <script src="/js/profile-tabs.js?v=<%= assetVersion %>"></script>

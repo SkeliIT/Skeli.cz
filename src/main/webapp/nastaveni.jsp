@@ -25,7 +25,7 @@
     String[] showcase = { null, null, null, null, "brush" };
     java.util.List<String[]> songChoices = new java.util.ArrayList<>();
     boolean profilePublic = true, coverPublic = true, friendRequests = true;
-    boolean[] sharing = new boolean[6];   // {pár slov o sobě, město, písně se srdcem, přátelé, stav online, moje tvorba}
+    boolean[] sharing = new boolean[7];   // {pár slov o sobě, město, písně se srdcem, přátelé, stav online, moje tvorba, profil i pro nepřihlášené}
     java.util.List<String> shownBadges = java.util.List.of();
     String coverUrl = null;
     try {
@@ -386,6 +386,12 @@
           <span class="vis-ico"><i class="fa-solid fa-music" aria-hidden="true"></i></span>
           <span class="vis-text"><b id="visTracksT"><%= t.getProperty("vis.tracks.title") %></b><small><%= t.getProperty("vis.tracks.lead") %></small></span>
           <label class="vis-switch"><input type="checkbox" name="tracks" value="1" aria-labelledby="visTracksT"<%= sharing[5] ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-link" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visWebT"><%= t.getProperty("vis.web.title") %></b><small><%= t.getProperty("vis.web.lead") %></small>
+            <% if (sharing[6] && profilePublic && visName != null) { %><small class="vis-state on">skeli.cz/hrac/<%= WebUtils.escapeHtml(visName) %></small><% } %></span>
+          <label class="vis-switch"><input type="checkbox" name="web" value="1" aria-labelledby="visWebT"<%= sharing[6] ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
         <li class="vis-row">
           <span class="vis-ico"><i class="fa-solid fa-eye" aria-hidden="true"></i></span>

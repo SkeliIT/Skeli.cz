@@ -59,6 +59,42 @@ class UserTracksIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Veřejný profil: bez přihlášení jen po zapnutí a jen se skladbou, nic navíc")
+    void publicProfileForEveryone() throws Exception {
+        String name = "tp" + uniq();
+        int id = registerAndLogin(name);
+        update("INSERT INTO user_profiles (user_id, city, bio) VALUES (?, 'Mestecko', 'Rapuju') ON DUPLICATE KEY UPDATE city=VALUES(city), bio=VALUES(bio)", id);
+        update("INSERT INTO pong_results (user_id, difficulty, duration_ms, kevin_goals, match_len) VALUES (?, 2, 90000, 2, 10)", id);
+        logout();
+        String url = BASE_URL + "/hrac/" + name;
+
+        driver.get(url);
+        waitReady();
+        assertTrue(driver.getCurrentUrl().contains("login"), "výchozí je jen pro přihlášené");
+
+        update("UPDATE users SET web_public=1, about_public=1 WHERE id=?", id);
+        driver.get(url);
+        waitReady();
+        assertTrue(driver.getCurrentUrl().contains("login"), "bez skladby nemá co ukazovat");
+
+        update("INSERT INTO user_tracks (user_id, title, youtube_id) VALUES (?, 'Moje skladba', 'dQw4w9WgXcQ')", id);
+        driver.get(url);
+        waitReady();
+        assertEquals(url, driver.getCurrentUrl(), "teď je profil vidět bez přihlášení");
+        String page = driver.findElement(By.tagName("main")).getText();
+        assertTrue(page.contains("Moje skladba"));
+        assertTrue(page.contains("Rapuju"), "představení");
+        assertFalse(page.contains("Mestecko"), "město si nezapnul");
+        assertTrue(driver.findElements(By.cssSelector("#hry, .profile-tabs, .pt-games")).isEmpty(), "hry se neukazují");
+
+        update("UPDATE users SET profile_public=0 WHERE id=?", id);
+        driver.get(url);
+        waitReady();
+        assertTrue(driver.getCurrentUrl().contains("login"), "soukromý profil má přednost");
+        update("DELETE FROM pong_results WHERE user_id=?", id);
+    }
+
+    @Test
     @DisplayName("Cizí skladbu nejde upravit ani smazat")
     void cannotTouchForeignTrack() throws Exception {
         int owner = registerAndLogin("tc" + uniq());
