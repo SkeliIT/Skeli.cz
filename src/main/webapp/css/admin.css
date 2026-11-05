@@ -889,3 +889,20 @@ body.light .songs-icons small.lack { color: #a85b00; }
   .songs-year { grid-column: 1; }
   .songs-icons { grid-column: 2; grid-row: 1 / span 2; margin: 0; justify-content: flex-end; flex-wrap: nowrap; }
 }
+
+/* Poznámky u písní */
+.note-form-hint { margin: 0 0 8px; }
+.note-form-langs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-bottom: 12px; }
+@media (min-width: 768px) { .note-form-langs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.note-form-places { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--panel-border); border-radius: 12px; }
+.note-form-places legend { padding: 0 6px; font-size: var(--fs-small); color: var(--text-dim); }
+.note-form-places label { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin: 0; }
+.note-list { display: flex; flex-direction: column; }
+.note-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--panel-border); }
+.note-item:first-child { border-top: 0; }
+.note-item.is-expired { opacity: .55; }
+.note-item-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.note-item-say { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-text); overflow-wrap: anywhere; }
+.note-item form { margin: 0; }
+.note-item-btn { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 1px solid var(--panel-border); border-radius: 50%; background: none; color: var(--text-dim); cursor: pointer; text-decoration: none; }
+.note-item-btn:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }

@@ -27,9 +27,11 @@
       // null = they could not be read
       java.util.List<DiscoItem> disco = null;
       java.util.Map<Integer, java.util.List<SongClip>> clipsBySong = java.util.Map.of();
+      java.util.Map<Integer, String> musicNotes = java.util.Map.of();   // nastříkané poznámky z adminu
       try {
         disco = new SongDao().discography(cur);
         clipsBySong = SongClip.bySong();
+        musicNotes = new com.github.skeliit.dao.SongNoteDao().active(com.github.skeliit.dao.SongNoteDao.Place.MUSIC, cur);
       } catch (Exception e) {
         application.log("Diskografie", e);
       }
@@ -67,6 +69,7 @@
           <% } else { %>
             <span class="song-thumb-placeholder"><i class="fa-solid fa-music"></i></span>
           <% } %>
+          <% String cardNote = d.song ? musicNotes.get(d.id) : null; if (cardNote != null) { %><span class="song-note song-note-mini"><span><%= WebUtils.escapeHtml(cardNote) %></span></span><% } %>
         </a>
         <div class="song-info">
           <span class="song-name"><%= nameHtml %><% String tr = d.translatedTitle; if (!"cs".equals(cur) && tr != null && !tr.isBlank()) { %><span class="song-row-sub" lang="<%= cur %>"><%= WebUtils.escapeHtml(tr) %></span><% } %></span>

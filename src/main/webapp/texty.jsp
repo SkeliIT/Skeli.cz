@@ -23,9 +23,11 @@
         <%
             // dao/SongDao: songs with lyrics, newest first; null = they could not be read
             java.util.List<LyricListItem> songs = null;
+            java.util.Map<Integer, String> lyricNotes = java.util.Map.of();   // nastříkané poznámky z adminu
             java.util.Map<Integer, java.util.List<SongClip>> clipsBySong = java.util.Map.of();
             try {
                 songs = new SongDao().withLyrics(cur);
+                lyricNotes = new com.github.skeliit.dao.SongNoteDao().active(com.github.skeliit.dao.SongNoteDao.Place.LYRICS, cur);
                 clipsBySong = SongClip.bySong();
             } catch (Exception e) {
                 application.log("Texty list", e);
@@ -53,6 +55,7 @@
                                     <img src="<%= WebUtils.escapeHtml(art) %>" alt="" loading="lazy" data-trim-bars<% if (!song.artStyle.isEmpty()) { %> style="<%= song.artStyle %>" data-manual="1"<% } %>>
                                 <% } %>
                                 </span>
+                                <% String rowNote = lyricNotes.get(song.songId); if (rowNote != null) { %><span class="song-note song-note-mini song-note-row"><span><%= WebUtils.escapeHtml(rowNote) %></span></span><% } %>
                                 <span class="song-row-text">
                                     <span class="song-row-title"><%= WebUtils.escapeHtml(st.title) %></span>
                                     <% String tr = song.translatedTitle; if (!"cs".equals(cur) && tr != null && !tr.isBlank()) { %><span class="song-row-sub" lang="<%= cur %>"><%= WebUtils.escapeHtml(tr) %></span><% } %>

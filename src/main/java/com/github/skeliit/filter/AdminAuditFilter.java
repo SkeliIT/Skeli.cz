@@ -61,6 +61,10 @@ public class AdminAuditFilter implements Filter {
             Map.entry("/admin/quotes#add", "Nový citát na úvod"),
             Map.entry("/admin/quotes#save", "Úprava citátu"),
             Map.entry("/admin/quotes#delete", "Smazání citátu"),
+
+            Map.entry("/admin/notes#save", "Poznámka u písně"),
+
+            Map.entry("/admin/notes#delete", "Smazání poznámky u písně"),
             Map.entry("/admin/newsletter#send", "Rozeslání novinek e-mailem"),
             Map.entry("/admin/newsletter#test", "Zkušební e-mail novinek"),
             Map.entry("/admin/newsletter#", "Úprava odběratelů novinek"),

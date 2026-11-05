@@ -164,7 +164,7 @@ public class UzivatelPageIT {
                 assertTrue(rs.next());
                 String url = rs.getString(1);
                 assertNotNull(url, "avatar_url should be set after upload");
-                assertTrue(url.contains(userId + ".jpg"), "avatar_url should reference the uploaded file: " + url);
+                assertTrue(url.matches("/uploads/avatars/[a-f0-9]{32}\\.jpg"), "avatar_url má náhodný název: " + url);
             }
         }
 

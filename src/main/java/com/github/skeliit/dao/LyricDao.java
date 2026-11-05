@@ -17,7 +17,7 @@ public class LyricDao {
         String sql = "SELECT s.name AS song_name, s.year AS song_year, s.uuid AS song_uuid, " +
                 "COALESCE(NULLIF(l.seo_slug,''), CASE WHEN l.lang='cs' THEN s.seo_slug END) AS song_seo_slug, " +
                 "l.meta_description, l.lang AS lyric_lang, l.title AS lyric_title, " +
-                "s.apple_music_id, s.preview_image_url, l.words, l.song_id, l.id, l.lang, " +
+                "s.apple_music_id, s.spotify_id, s.preview_image_url, l.words, l.song_id, l.id, l.lang, " +
                 "(SELECT v.youtube_id FROM videos v WHERE v.song_id = l.song_id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt " +
                 "FROM lyrics l JOIN songs s ON s.id = l.song_id " +
                 "WHERE l.song_id = (SELECT x.song_id FROM lyrics x WHERE x.id = ?) AND l.lang = ? ORDER BY l.id LIMIT 1";
@@ -33,7 +33,7 @@ public class LyricDao {
                             "SELECT s.name AS song_name, s.year AS song_year, s.uuid AS song_uuid, " +
                             "COALESCE(NULLIF(l.seo_slug,''), CASE WHEN l.lang='cs' THEN s.seo_slug END) AS song_seo_slug, " +
                             "l.meta_description, l.lang AS lyric_lang, l.title AS lyric_title, " +
-                            "s.apple_music_id, s.preview_image_url, l.words, l.song_id, l.id, l.lang, " +
+                            "s.apple_music_id, s.spotify_id, s.preview_image_url, l.words, l.song_id, l.id, l.lang, " +
                             "(SELECT v.youtube_id FROM videos v WHERE v.song_id = l.song_id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt " +
                             "FROM lyrics l JOIN songs s ON s.id = l.song_id WHERE l.id = ?")) {
                         ps2.setInt(1, lyricId);
@@ -204,6 +204,8 @@ public class LyricDao {
         v.words = rs.getString("words");
         v.youtubeId = rs.getString("yt");
         v.appleMusicId = rs.getString("apple_music_id");
+
+        v.spotifyId = rs.getString("spotify_id");
         v.previewImageUrl = rs.getString("preview_image_url");
         try { v.songUuid = rs.getString("song_uuid"); } catch (SQLException ignore) {}
         try { v.songSeoSlug = rs.getString("song_seo_slug"); } catch (SQLException ignore) {}

@@ -42,8 +42,8 @@ class MarketingStatsIT extends UiTestSupport {
             update("UPDATE users SET role='ADMIN' WHERE id=?", admin);
             logout();
             login(queryString("SELECT username FROM users WHERE id=?", admin), PASSWORD);
-            driver.get(BASE_URL + "/admin/stats#marketing");
-            String page = driver.findElement(By.id("marketing")).findElement(By.xpath("following-sibling::div[contains(@class,'mk-grid')]")).getText();
+            driver.get(BASE_URL + "/admin/stats");
+            String page = driver.findElement(By.cssSelector("main")).getText();   // Odkud chodí, Kampaně a Co hledají jsou samostatné dlaždice
             assertTrue(page.contains("Instagram"), page);
             assertTrue(page.contains(campaign), "kampaň v seznamu");
             assertTrue(page.contains(term) && page.contains("nic nenašlo"), "hledání bez výsledku");

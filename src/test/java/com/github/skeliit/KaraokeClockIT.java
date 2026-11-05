@@ -60,6 +60,7 @@ class KaraokeClockIT extends UiTestSupport {
     void karaokeFollowsThePlayer() throws Exception {
         String uuid = queryString("SELECT s.uuid FROM songs s JOIN videos v ON v.song_id = s.id WHERE BINARY v.youtube_id = 'HCDDuRsWdRw'");
         assertNotNull(uuid, "the local DB needs Zoom – Drama with its clip");
+        registerAndLogin("kc" + uniq());                     // karaoke je jen pro přihlášené
         driver.get(BASE_URL + "/index.jsp");
         js().executeScript("localStorage.setItem('cookieConsent','true'); localStorage.removeItem('karaoke'); localStorage.setItem('kevin','hidden');");
         driver.get(BASE_URL + "/cs/song/" + uuid);
