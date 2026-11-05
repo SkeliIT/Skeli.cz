@@ -116,6 +116,11 @@
     <ol class="chat-msgs" aria-live="polite"></ol>
     <p class="chat-closed" hidden><%= t.getProperty("chat.closed") %></p>
     <p class="chat-error form-alert" role="alert" hidden></p>
+    <%-- js/chat-warn.js: jen u toho, kdo píše; nikam se nic neposílá --%>
+    <div class="chat-warn" role="alert" hidden>
+      <p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> <%= t.getProperty("chat.warn.text") %></p>
+      <div><button type="button" class="btn-primary chat-warn-edit"><%= t.getProperty("chat.warn.edit") %></button><button type="button" class="btn-outline chat-warn-send"><%= t.getProperty("chat.warn.send") %></button></div>
+    </div>
     <div class="chat-compose-bar" hidden><span></span><button type="button" aria-label="<%= t.getProperty("chat.settings.close") %>"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
     <form class="chat-form">
       <button type="button" class="chat-emoji-btn" aria-expanded="false" title="<%= t.getProperty("cmt.emoji") %>" aria-label="<%= t.getProperty("cmt.emoji") %>"><i class="fa-regular fa-face-smile" aria-hidden="true"></i></button>
@@ -142,5 +147,6 @@
   <% } else { %>
   <section class="chat-pick"><p><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= t.getProperty("chat.pick") %></p></section>
   <% } %>
+  <script src="/js/chat-warn.js?v=<%= assetVersion %>"></script>
   <script src="/js/chat.js?v=<%= assetVersion %>"></script>
 </main>

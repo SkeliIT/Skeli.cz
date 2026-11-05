@@ -364,4 +364,33 @@ class ChatIT extends UiTestSupport {
         jsClick(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-tabs [data-tab=sound]")));
         assertTrue(driver.findElement(org.openqa.selenium.By.cssSelector("[data-panel=sound] [data-sound-pref=message]")).isEnabled());
     }
+
+    @Test
+    @DisplayName("Nabídka drog: upozornění jen u pisatele, nic se neodešle bez potvrzení; o trávě se psát může")
+    void warnsBeforeSending() throws Exception {
+        String a = "ew" + uniq(), b = "ex" + uniq();
+        int aid = registerAndLogin(a);
+        int bid = insertUser(b, "USER");
+        befriend(aid, bid);
+        driver.get(BASE_URL + "/zpravy?s=" + b);
+        waitReady();
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        for (String ok : new String[] { "Mám rád trávu v tom songu", "Prodám kolo", "Sháním text k Ganja", "Ta tráva je zelená", "Kupim si novou kytaru" }) {
+            assertEquals(Boolean.FALSE, js.executeScript("return chatWarn(arguments[0])", ok), ok);
+        }
+        for (String bad : new String[] { "Prodám trávu, napiš", "sháním koks", "Mám na prodej pistoli", "Selling weed", "pošli nahé fotky", "Verkaufe Gras" }) {
+            assertEquals(Boolean.TRUE, js.executeScript("return chatWarn(arguments[0])", bad), bad);
+        }
+        org.openqa.selenium.WebElement input = driver.findElement(org.openqa.selenium.By.cssSelector(".chat-form textarea"));
+        org.openqa.selenium.WebElement warn = driver.findElement(org.openqa.selenium.By.cssSelector(".chat-warn"));
+        input.sendKeys("Prodam travu");
+        jsClick(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-form button[type=submit]")));
+        assertTrue(warn.isDisplayed(), "upozornění");
+        assertFalse(exists("SELECT 1 FROM chat_messages WHERE sender_id=?", aid), "nic neodešlo");
+        jsClick(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-warn-send")));
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10)).until(d -> {
+            try { return exists("SELECT 1 FROM chat_messages WHERE sender_id=?", aid); } catch (Exception e) { return false; }
+        });
+        assertFalse(warn.isDisplayed());
+    }
 }

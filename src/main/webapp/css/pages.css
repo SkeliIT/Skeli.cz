@@ -2399,6 +2399,11 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
 .chat-reported { margin: 6px 0 0; font-family: var(--font-text); font-size: var(--fs-small); }
 .chat-closed { flex: none; margin: 0; padding: 12px; border-top: 1px solid var(--panel-border); color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); text-align: center; }
 .chat-error { flex: none; margin: 0 8px 8px; }
+.chat-warn { flex: none; display: grid; gap: 8px; margin: 0 8px 8px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-family: var(--font-text); font-size: var(--fs-card); }
+.chat-warn p { margin: 0; }
+.chat-warn p i { color: var(--accent); }
+.chat-warn div { display: flex; flex-wrap: wrap; gap: 8px; }
+.chat-warn button { min-height: 40px; padding: 0 14px; }
 /* Karta u známého odkazu: náhled a přehrání až po kliknutí */
 .chat-embed { display: grid; gap: 6px; width: min(100%, 320px); margin-top: 6px; }
 .chat-embed-play { position: relative; display: grid; place-items: center; width: 100%; min-height: 72px; padding: 0; overflow: hidden; border: 0; border-radius: 12px; background: var(--bg); color: #fff; cursor: pointer; }

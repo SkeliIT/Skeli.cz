@@ -325,9 +325,17 @@
   }
   bar.querySelector('button').addEventListener('click', cancelCompose);
 
+  // upozornění před odesláním (js/chat-warn.js): člověk se rozhodne sám, nikam se nic nehlásí
+  var warnBox = room.querySelector('.chat-warn'), warnedText = null;
+  warnBox.querySelector('.chat-warn-edit').addEventListener('click', function () { warnBox.hidden = true; input.focus(); });
+  warnBox.querySelector('.chat-warn-send').addEventListener('click', function () { warnBox.hidden = true; warnedText = input.value.trim(); send(); });
+  input.addEventListener('input', function () { warnBox.hidden = true; });
+
   function send() {
     var body = input.value.trim();
     if (!body || busy) return;
+    if (body !== warnedText && window.chatWarn && window.chatWarn(body)) { warnBox.hidden = false; return; }
+    warnedText = null;
     busy = true;
     showError('');
     var request = editId ? { action: 'edit', id: editId, body: body } : { action: 'send', with: name, body: body, replyTo: replyTo };
