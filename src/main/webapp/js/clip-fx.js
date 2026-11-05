@@ -28,7 +28,7 @@
 
   // ---------- the switch ----------
   var mode = 'on';
-  try { mode = localStorage.getItem('eqMode') || 'on'; } catch (e) {}
+  try { mode = localStorage.getItem('eqMode') || (document.documentElement.classList.contains('low-fx') ? 'off' : 'on'); } catch (e) {}
   // a small drop-down outside the effect (includes/clip-fx-switch.jspf), hidden until the effect can run
   var switcher = document.querySelector('.clip-fx-switch');
   function paintSwitch() {

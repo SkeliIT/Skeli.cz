@@ -7,7 +7,7 @@
   var text = box && box.querySelector('.hero-quote-text');
   if (!text || text.dataset.burnt) return;
   text.dataset.burnt = '1';
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { box.classList.add('is-burnt'); return; }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('low-fx')) { box.classList.add('is-burnt'); return; }
 
   // the readable text stays for screen readers, the animated copy (quote, then the song) is only for the eyes
   var n = 0;

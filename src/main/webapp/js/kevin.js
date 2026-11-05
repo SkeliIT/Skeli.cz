@@ -121,7 +121,7 @@
     var gl = null;
     try { gl = document.createElement('canvas').getContext('webgl2'); } catch (e) { gl = null; }
     // localStorage.kevinLite = '1': just the picture (slow devices; the tests, whose software WebGL can't keep up)
-    if (reduced || saveData || !gl || store.get('kevinLite') === '1' || session.get('kevinNo3d') === '1') return useStill();
+    if (reduced || saveData || !gl || document.documentElement.classList.contains('low-fx') || store.get('kevinLite') === '1' || session.get('kevinNo3d') === '1') return useStill();
     // the ginger cat (js/kevin-model.js, about 5 MB with all his moves): the still image stays until he is on screen
     import('/js/kevin-model.js' + (version ? '?' + version : '')).then(function (m) {
       k = m.createKevin(canvas, {

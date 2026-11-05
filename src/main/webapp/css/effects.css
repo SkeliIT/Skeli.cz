@@ -1403,3 +1403,17 @@ body.light .kevin-bubble:has(.kevin-extra:not([hidden])) { --glass: rgba(255, 25
 /* bublina nad ním, ne vedle (ta vedle by v levém rohu skončila za okrajem obrazovky) */
 .kevin.over-lightbox .kevin-bubble { left: 10px; right: auto; top: auto; bottom: calc(100% - 6px); max-width: min(320px, calc(100vw - 40px)); border-radius: 18px 18px 18px 6px; }
 .kevin.over-lightbox .kevin-bubble::after { left: 22px; right: auto; top: auto; bottom: -7px; transform: rotate(45deg); }
+
+/* ---------- Lehký režim pro slabé telefony (html.low-fx, rozhoduje hlavička stránky a watchSmooth v js/effects.js) ----------
+   Vzhled zůstává, pryč je jen to, co telefon překresluje pořád dokola: rozmazané sklo, zrno přes stránku,
+   dýchající a střídané pozadí, jiskry a nekonečné animace nápisů. Jezdící páska zůstává, ta je levná. */
+html.low-fx *, html.low-fx *::before, html.low-fx *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+html.low-fx body { --panel: rgba(18, 18, 21, .92); }
+html.low-fx body.light { --panel: rgba(255, 255, 255, .93); }
+html.low-fx body::after, html.low-fx .hero-particles, html.low-fx .bg-slides, html.low-fx .lyric-ambient { display: none !important; }
+html.low-fx body::before, html.low-fx .auth-art::before,
+html.low-fx .hero-title .logo-mark, html.low-fx .hero-title .logo-mark::after,
+html.low-fx .masthead-brand .squad-mark, html.low-fx .masthead-brand .squad-mark::after,
+html.low-fx .tape-gold, html.low-fx .tape-gold::after,
+html.low-fx .hero-quote.is-burnt .qc, html.low-fx .eq i, html.low-fx .page-hero-title, html.low-fx .lyric-page .lyric-title,
+html.low-fx .main-nav > a.nav-karaoke::after { animation: none !important; will-change: auto !important; }

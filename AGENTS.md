@@ -28,6 +28,9 @@ are easy to get wrong.
 - Where code goes: SQL in `dao/` (JSPs only render what a DAO returns, as plain classes in `model/`:
   the JSP compiler can't read records), servlets in `web/<area>/`, filters in `filter/`, background jobs
   in `job/`. Admin templates live in `WEB-INF/views/admin/`; old addresses go to `LegacyRedirectServlet`.
+- Weak phones get `html.low-fx` (set early in `includes/header.jsp`, by `watchSmooth` in `js/effects.js` too): a new effect that
+  repaints all the time must switch off there (block at the end of `css/effects.css`). Icon fonts hold only the used icons:
+  a new Font Awesome icon = run `python tools/fa-subset.py` (`IconFontTest` fails otherwise).
 - User images (avatar, profile header) go through `service/ProfileImages`: random file names, served only by
   `web/files/ProfileImageServlet` (the header also checks who is looking). A new servlet with `@MultipartConfig`
   must call `CsrfFilter.isValid` and be added to `CsrfFilter.MULTIPART_PATHS`.

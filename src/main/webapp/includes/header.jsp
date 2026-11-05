@@ -5,13 +5,18 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.99.5";
+  String assetVersion = "6.99.6";
 %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
 
   <head>
     <meta charset="utf-8" />
+    <%-- lehký režim pro slabé telefony (css/effects.css, js/effects.js): rozhodne se dřív, než se stránka vykreslí.
+         Slabý = telefon s nejvýš 4 GB paměti, zapnuté šetření dat, nebo mu web při měření nestíhal. fxLow = 0 ho vypne. --%>
+    <script>try { (function () { var n = navigator, c = n.connection, m = n.deviceMemory, s = localStorage.getItem('fxLow');
+      if (s !== '0' && (s === '1' || sessionStorage.getItem('fxLowNow') === '1' || (c && c.saveData) || (m && m <= 4 && matchMedia('(pointer: coarse)').matches))) document.documentElement.classList.add('low-fx');
+    })(); } catch (e) { /* bez úložiště běží web normálně */ }</script>
     <meta name="viewport" content="width=device-width, viewport-fit=cover">
 <%
   // Per-page <title>/description. A servlet may set "pageTitle"/"pageDescription"

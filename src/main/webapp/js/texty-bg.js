@@ -8,7 +8,8 @@
   window.__textyBg = true;
   const ver = (document.currentScript && new URL(document.currentScript.src).searchParams.get("v")) || "1";
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches
-    || (navigator.connection && navigator.connection.saveData);
+    || (navigator.connection && navigator.connection.saveData)
+    || document.documentElement.classList.contains("low-fx");
   const tall = matchMedia("(orientation: portrait)");
   const light = () => document.body.classList.contains("light");
   const side = () => (tall.matches ? "tall" : "wide");

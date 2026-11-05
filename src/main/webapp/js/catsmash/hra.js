@@ -4250,7 +4250,8 @@ t    }
         else delete hc.shadowBlur;                       // zpátky na běžné stíny plátna
       } catch (e) { /* nevadí */ }
     }
-    function kevinSharpness() { return detail === 'low' ? 1 : detail === 'mid' ? 1.25 : 0; }   // 0 = výchozí
+    var weakPhone = document.documentElement.classList.contains('low-fx');   // lehký režim webu (js/effects.js)
+    function kevinSharpness() { return detail === 'low' ? 1 : detail === 'mid' || (detail === 'auto' && weakPhone) ? 1.25 : 0; }   // 0 = výchozí
     function applyDetail() {
       lowFx = DETAIL_FX[detail];
       noShadows(lowFx >= 1);
@@ -4260,6 +4261,8 @@ t    }
       frameAvg = 16.7; lowFxAt = performance.now();
     }
     if (detail !== 'auto') applyDetail();
+    // slabý telefon začne rovnou s nižšími detaily, ať se hra na začátku neseká; hra může ubrat ještě víc sama
+    else if (weakPhone) { lowFx = 1; noShadows(true); lowFxAt = performance.now(); }
     function watchSmooth(ms, now) {
       if (detail !== 'auto') return;
       frameAvg = frameAvg * 0.95 + ms * 0.05;

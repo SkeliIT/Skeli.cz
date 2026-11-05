@@ -4,10 +4,12 @@
 (function () {
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  // lehký režim pro slabé telefony (hlavička stránky, css/effects.css)
+  function low() { return document.documentElement.classList.contains('low-fx'); }
 
   // embers rising in the smoke (snow in the light theme: same elements, other animation)
   function particles(root) {
-    if (reduced) return;
+    if (reduced || low()) return;
     root.querySelectorAll('.hero-particles:not([data-done])').forEach(function (box) {
       box.dataset.done = '1';
       var count = window.innerWidth < 700 ? 22 : 42;
@@ -136,7 +138,7 @@
   var SLIDE_MS = 7000, SLIDE_KEY = 'bgSlide';
   function slides() {
     var box = document.querySelector('.bg-slides');
-    if (!box || reduced) return;
+    if (!box || reduced || low()) return;
     var step = 0, wait = 0, every = 0;   // step 0 = the usual background, 1..n = the photos
     function theme() { return document.body.classList.contains('light') ? 'light' : 'dark'; }
     function build() {
@@ -154,6 +156,7 @@
     }
     // a photo is fetched just before its turn
     function show(instant) {
+      if (low()) return;   // lehký režim se může zapnout i za běhu (watchSmooth)
       var layers = box.children, cur = layers[step - 1];
       function swap() {
         for (var i = 0; i < layers.length; i++) {
@@ -294,6 +297,29 @@
 
   function init(root) { particles(root); marquee(root); tilt(root); parallax(root); }
   init(document);
+  // Hlídač plynulosti: po načtení 3 s počítá snímky. Když telefon nestíhá, přepne se na lehký režim hned a po druhém
+  // takovém měření natrvalo. Testy (webdriver) mají softwarové kreslení, u nich neměří.
+  function watchSmooth() {
+    if (low() || reduced || navigator.webdriver) return;
+    setTimeout(function () {
+      if (document.hidden) return;
+      var frames = 0, t0 = performance.now();
+      requestAnimationFrame(function tick(now) {
+        frames++;
+        if (now - t0 < 3000) { requestAnimationFrame(tick); return; }
+        if (document.hidden || frames / 3 >= 20) return;
+        document.documentElement.classList.add('low-fx');
+        try {
+          sessionStorage.setItem('fxLowNow', '1');
+          var strikes = (+localStorage.getItem('fxSlow') || 0) + 1;
+          localStorage.setItem('fxSlow', strikes);
+          if (strikes >= 2 && localStorage.getItem('fxLow') !== '0') localStorage.setItem('fxLow', '1');
+        } catch (e) { /* bez úložiště to platí jen pro tuhle stránku */ }
+      });
+    }, 1500);
+  }
+  if (document.readyState === 'complete') watchSmooth(); else window.addEventListener('load', watchSmooth);
+
   slides();   // once: the layer is not part of the page that PJAX swaps
   document.addEventListener('pjax:done', function () { init(document.querySelector('main') || document); });
 })();
