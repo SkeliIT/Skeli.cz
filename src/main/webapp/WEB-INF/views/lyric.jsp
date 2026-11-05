@@ -273,7 +273,7 @@
           (function () {
             var card = document.getElementById('lyric-help');
             if (!card) return;
-            // pustit od místa, kde chybějící kus začíná: náhled spustí klip rovnou tam, běžící klip tam skočí
+            // pustit od místa, kde chybějící kus začíná: náhled spustí video rovnou tam, běžící video tam skočí
             var play = card.querySelector('.lyric-help-play');
             if (play) play.addEventListener('click', function () {
               var from = parseInt(play.dataset.from, 10) || 0, box = document.getElementById('ytFacade');

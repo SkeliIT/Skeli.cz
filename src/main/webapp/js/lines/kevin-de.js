@@ -298,7 +298,7 @@
       "Da hängt was. Versuchen wir's nochmal.",
       "Der Player hat heute seine eigene Laune. Kenn ich.",
       "Weder Bild noch Ton? Das ist fast schon moderne Kunst.",
-      "Hat nicht geklappt. Probier einen anderen Clip oder gleich nochmal.",
+      "Hat nicht geklappt. Probier ein anderes Video oder gleich nochmal.",
       "Die Technik sagt, sie ist nicht schuld. Ich sage, doch."
     ]
   },
@@ -447,10 +447,10 @@
       "Heute nichts Neues. Nicht mal im Napf."
     ],
     "lead": "Seit deinem letzten Besuch:",
-    "clip": "ein neuer Clip ist erschienen: {t}",
+    "clip": "ein neues Video ist erschienen: {t}",
     "clips": [
       "",
-      "{n} neue Clips sind erschienen, der neueste: {t}"
+      "{n} neue Videos sind erschienen, das neueste: {t}"
     ],
     "posts": [
       "{n} neuer Beitrag in den Neuigkeiten",
@@ -507,8 +507,8 @@
       "{n} gemeldete Kommentare warten auf Prüfung"
     ],
     "clips": [
-      "{n} Clip hat keinen Song ({t})",
-      "{n} Clips haben keinen Song (neuester: {t})"
+      "{n} Video hat keinen Song ({t})",
+      "{n} Videos haben keinen Song (neuestes: {t})"
     ],
     "lyrics": [
       "{n} Song hat keinen Text",

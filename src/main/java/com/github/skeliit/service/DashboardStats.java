@@ -131,7 +131,7 @@ public final class DashboardStats {
         out.add(new Tile("people", "Lidí na webu", "fa-user-group", "každý se počítá jednou za den", VisitStats.dailyVisits(n), days));
         out.add(new Tile("pages", "Zobrazených stránek", "fa-file-lines", "", daily("SELECT day, pageviews FROM site_stats_daily WHERE day >= ?", n), days));
         long[] plays = sum(VisitStats.dailyPlays("lyric", n), VisitStats.dailyPlays("karaoke", n), VisitStats.dailyPlays("clip", n));
-        out.add(new Tile("plays", "Přehrání", "fa-play", "texty, klipy a karaoke", plays, days));
+        out.add(new Tile("plays", "Přehrání", "fa-play", "texty, videa a karaoke", plays, days));
         // prokliky z webu na hudební služby – každá zvlášť (kam lidi chodí poslouchat; Spotify vydělává)
         out.add(new Tile("spotify", "Kliků na Spotify", "fa-brands fa-spotify", "kolik lidí z webu šlo poslouchat na Spotify", outbound("spotify", n), days));
         out.add(new Tile("youtube", "Kliků na YouTube", "fa-brands fa-youtube", "kolik lidí z webu šlo na YouTube", outbound("youtube", n), days));

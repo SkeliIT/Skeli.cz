@@ -306,10 +306,10 @@ public class AdminPanelIT extends UiTestSupport {
             // v záznamu změn: kdo a co
             driver.get(BASE_URL + "/admin/history");
             String log = driver.findElement(By.id("log")).getText();
-            assertTrue(log.contains("Smazání klipu") && log.contains("Smazání textu") && log.contains(adminName), log);
+            assertTrue(log.contains("Smazání videa") && log.contains("Smazání textu") && log.contains(adminName), log);
 
             // vrátit obojí z koše
-            for (String label : new String[]{"Klip: IT trash clip", "Text (CS): " + name}) {
+            for (String label : new String[]{"Video: IT trash clip", "Text (CS): " + name}) {
                 WebElement btn = driver.findElement(By.xpath("//li[contains(@class,'trash-item')][.//span[contains(.,'" + label + "')]]//button"));
                 clickAndWaitReload(btn, false);
             }

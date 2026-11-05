@@ -5,12 +5,12 @@
 <main class="admin-page">
   <%@ include file="/includes/admin-nav.jspf" %>
   <h2 class="admin-page-title">Písně <a class="admin-btn primary admin-title-btn" href="/admin/track"><i class="fa-solid fa-plus"></i> Přidat track z YouTube</a></h2>
-  <p class="text-dim">Klikni na píseň a uprav u ní všechno: klip, Spotify, Apple Music, obrázky i texty.</p>
+  <p class="text-dim">Klikni na píseň a uprav u ní všechno: video, Spotify, Apple Music, obrázky i texty.</p>
   <%-- legenda: co znamenají ikony a zkratky jazyků v tabulce --%>
   <p class="songs-legend">
     <span><span class="indicator yes"><i class="fab fa-youtube"></i></span> zelená = je</span>
     <span><span class="indicator no"><i class="fab fa-youtube"></i></span> šedá = chybí</span>
-    <span class="text-dim">ikony: klip na YouTube · Spotify · Apple Music · vlastní obrázek</span>
+    <span class="text-dim">ikony: video na YouTube · Spotify · Apple Music · vlastní obrázek</span>
     <span><span class="lang-flag">CS</span><span class="lang-flag missing">EN</span> jazyky textu (přeškrtnutý = chybí)</span>
   </p>
   <% if ("1".equals(request.getParameter("deleted"))) { %><p class="admin-flash"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Píseň je smazaná. 30 dní ji najdeš v Koši (Systém → Záznam změn a koš).</p><% } %>
@@ -71,7 +71,7 @@
   </table>
 
   <details class="admin-card admin-manual" id="manual"<%= request.getParameter("manual") != null ? " open" : "" %>>
-    <summary><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Ručně: píseň z cizího kanálu nebo bez klipu</summary>
+    <summary><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Ručně: píseň z cizího kanálu nebo bez videa</summary>
     <% if ("saved".equals(request.getParameter("manual"))) { %><p class="admin-flash"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Uloženo.</p><% } %>
     <p class="text-dim">Jen pro zvláštní případy (feat na cizím kanálu, píseň jen na Spotify). Běžně stačí „Přidat track z YouTube“.</p>
       <form method="post" action="/admin/video" class="admin-form admin-form-cols">

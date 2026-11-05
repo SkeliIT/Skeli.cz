@@ -375,7 +375,7 @@ window.KEVIN_LINES.uk.pong = {
   "menuTitle": "Пауза",
   "menuBack": "Назад до меню",
   "supportCardTitle": "Підтримай Skeli",
-  "supportCardText": "Кожен внесок допоможе з новою музикою, кліпами й іграми. Оплата безпечно проходить через Revolut.",
+  "supportCardText": "Кожен внесок допоможе з новою музикою, відео й іграми. Оплата безпечно проходить через Revolut.",
   "supportMore": "Інші способи підтримки",
   "lookBtn": "Оглянути автомат",
   "lookBack": "Назад до гри",
