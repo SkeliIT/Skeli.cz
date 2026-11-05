@@ -282,7 +282,7 @@ class ChatIT extends UiTestSupport {
     @Test
     @DisplayName("Zprávy jsou v databázi zašifrované, staré se došifrují a po roce zmizí")
     void encryptedAndExpiring() throws Exception {
-        org.junit.jupiter.api.Assumptions.assumeTrue(com.github.skeliit.service.SecretBox.enabled(), "bez CHAT_KEY v .env se nešifruje");
+        org.junit.jupiter.api.Assumptions.assumeTrue(com.github.skeliit.service.SecretBox.enabled(), "bez DATA_KEY v .env se nešifruje");
         String a = "ek" + uniq(), b = "el" + uniq();
         int aid = registerAndLogin(a);
         logout();

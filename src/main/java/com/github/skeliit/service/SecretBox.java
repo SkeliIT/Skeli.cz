@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Šifrování textu v databázi (AES-256-GCM) klíčem CHAT_KEY z .env. Kdo získá jen databázi nebo její zálohu, zprávy nepřečte.
+ * Šifrování textu v databázi (zprávy, klíče 2FA; AES-256-GCM) klíčem DATA_KEY z .env. Kdo získá jen databázi nebo její zálohu, nepřečte je.
  * Správce serveru, který má i .env, by je přečíst uměl: není to šifrování mezi dvěma telefony.
  * Bez klíče (lokální vývoj, server před doplněním klíče) se text ukládá tak, jak je, a starý nezašifrovaný text jde číst dál.
  * Pozor: když se klíč ztratí, zašifrované zprávy už nikdo nepřečte. Klíč proto patří i mimo server.
@@ -24,7 +24,7 @@ public final class SecretBox {
     private static final int IV_BYTES = 12;
     private static final int TAG_BITS = 128;
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final SecretKeySpec KEY = readKey(Config.get("CHAT_KEY"));
+    private static final SecretKeySpec KEY = readKey(Config.get("DATA_KEY"));
 
     private SecretBox() { }
 
@@ -37,7 +37,7 @@ public final class SecretBox {
         } catch (IllegalArgumentException e) {
             // níž se zaloguje
         }
-        LOG.severe("CHAT_KEY nemá 32 bajtů v base64, zprávy se nešifrují.");
+        LOG.severe("DATA_KEY nemá 32 bajtů v base64, zprávy se nešifrují.");
         return null;
     }
 
@@ -79,7 +79,7 @@ public final class SecretBox {
     static String open(String stored, SecretKeySpec key) {
         if (!isSealed(stored)) return stored;
         if (key == null) {
-            LOG.warning("Zašifrovaný text, ale CHAT_KEY chybí.");
+            LOG.warning("Zašifrovaný text, ale DATA_KEY chybí.");
             return "";
         }
         try {

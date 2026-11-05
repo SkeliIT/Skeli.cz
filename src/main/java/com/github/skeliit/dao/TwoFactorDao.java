@@ -41,9 +41,26 @@ public class TwoFactorDao {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) return new State(null, null, 0, 0);
-                return new State(rs.getString(1), rs.getTimestamp(2), rs.getLong(3), rs.getInt(4));
+                return new State(com.github.skeliit.service.SecretBox.open(rs.getString(1)), rs.getTimestamp(2), rs.getLong(3), rs.getInt(4));
             }
         }
+    }
+
+    /** Klíče uložené dřív bez šifrování zašifruje, jakmile je na serveru DATA_KEY. Vrací počet. */
+    public int sealOldSecrets() throws SQLException {
+        if (!com.github.skeliit.service.SecretBox.enabled()) return 0;
+        int done = 0;
+        try (Connection c = Db.get();
+             PreparedStatement read = c.prepareStatement("SELECT id, totp_secret FROM users WHERE totp_secret IS NOT NULL AND totp_secret NOT LIKE 'gcm1:%'");
+             PreparedStatement write = c.prepareStatement("UPDATE users SET totp_secret = ? WHERE id = ?");
+             ResultSet rs = read.executeQuery()) {
+            while (rs.next()) {
+                write.setString(1, com.github.skeliit.service.SecretBox.seal(rs.getString(2)));
+                write.setInt(2, rs.getInt(1));
+                done += write.executeUpdate();
+            }
+        }
+        return done;
     }
 
     /** True when the account must enter a code after its password (or after Google). */
@@ -55,7 +72,7 @@ public class TwoFactorDao {
     public void enable(int userId, String secret, long step) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "UPDATE users SET totp_secret = ?, totp_enabled_at = NOW(), totp_last_step = ? WHERE id = ?")) {
-            ps.setString(1, secret);
+            ps.setString(1, com.github.skeliit.service.SecretBox.seal(secret));   // v databázi zašifrovaný (DATA_KEY)
             ps.setLong(2, step);
             ps.setInt(3, userId);
             ps.executeUpdate();

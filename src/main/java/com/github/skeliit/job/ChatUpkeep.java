@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Údržba zpráv: minutu po startu a pak jednou denně. Dosud nezašifrované zprávy zašifruje (jakmile je na serveru klíč)
+ * Údržba zpráv: minutu po startu a pak jednou denně. Dosud nezašifrované zprávy a klíče 2FA zašifruje (jakmile je na serveru klíč)
  * a smaže zprávy starší než rok. Co se nesmaže hned, zůstane do dalšího dne, takže výpadek nevadí.
  */
 @WebListener
@@ -28,7 +28,7 @@ public class ChatUpkeep implements ServletContextListener {
         scheduler.scheduleWithFixedDelay(() -> {
             try {
                 ChatDao chat = new ChatDao();
-                int sealed = chat.sealOldMessages();
+                int sealed = chat.sealOldMessages() + new com.github.skeliit.dao.TwoFactorDao().sealOldSecrets();
                 int removed = chat.deleteExpired();
                 if (sealed > 0 || removed > 0) sce.getServletContext().log("Zprávy: zašifrováno " + sealed + ", smazáno starých " + removed);
             } catch (SQLException | RuntimeException e) {
