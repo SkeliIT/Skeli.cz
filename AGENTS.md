@@ -39,6 +39,8 @@ are easy to get wrong.
 - Friends and blocks: `dao/FriendDao` + POST `/profile/friends`; "me" always comes from the session. A block is silent: the blocked person's pending request stays
   visible to them as pending, never to the blocker, and nothing may reveal the block. A private profile still takes friend requests (found by full name only). Moderation: `dao/ModerationDao`. A new table with user
   data also goes into `AccountDeletion`, `ProfileExportServlet` and the privacy text.
+- Chat (`/zpravy`, `dao/ChatDao`, `/api/chat`, `js/chat.js`): friends only, plain text only (never render a message as HTML), the bell never shows the text, an error never says why someone can't be messaged, and the admin sees only reported messages.
+- User music links go through `service/MusicLinks` (exact hosts, only the verified part is stored, the URL is rebuilt from it); never store or print a link as the user typed it.
 - Comments under lyrics and under clips are one system: `dao/CommentDao` (the `Kind` picks the table),
   `/api/comments`, drawn by `js/comments.js` from `includes/comments.jspf`. Change both kinds together.
 - Kevin's lines live in `js/lines/kevin-{cs,en,de,uk,vi}.js` (a page loads only its own language, footer.jsp);

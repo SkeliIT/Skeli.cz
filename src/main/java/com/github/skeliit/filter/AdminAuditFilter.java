@@ -52,6 +52,8 @@ public class AdminAuditFilter implements Filter {
             Map.entry("/admin/users#role", "Změna role uživatele"),
             Map.entry("/admin/users#delete", "Smazání uživatele"),
             Map.entry("/admin/users#block", "Zablokování uživatele"),
+            Map.entry("/admin/chat-report#delete", "Smazání nahlášené zprávy z chatu"),
+            Map.entry("/admin/chat-report#dismiss", "Nahlášená zpráva z chatu zamítnuta"),
             Map.entry("/admin/user-track#hide", "Skrytí skladby uživatele"),
             Map.entry("/admin/user-track#show", "Znovu ukázaná skladba uživatele"),
             Map.entry("/admin/users#unblock", "Odblokování uživatele"),

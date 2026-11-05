@@ -10,6 +10,7 @@
       java.util.List<AdminUser> users = new AdminDao().users();
       String adminMsg = request.getParameter("msg");
       java.util.List<UserReport> reports = new ModerationDao().openReports();
+      java.util.List<com.github.skeliit.model.ChatReport> chatReports = new com.github.skeliit.dao.ChatDao().openReports();
   %>
     <% if ("image_removed".equals(adminMsg)) { %><p class="admin-flash">Obrázek je odebraný a smazaný z disku. Kdo měl nevhodnou fotku, je odhlášený.</p><% } %>
     <% if ("blocked".equals(adminMsg)) { %><p class="admin-flash">Účet je zablokovaný a odhlášený. Nepřihlásí se a profil není vidět, data zůstávají.</p><% } %>
@@ -18,6 +19,31 @@
     <% if ("self_block".equals(adminMsg)) { %><p class="admin-flash error">Sám sebe zablokovat nemůžeš.</p><% } %>
     <% if ("self".equals(adminMsg)) { %><p class="admin-flash error">Sám sebe smazat nemůžeš. Svůj účet smažeš v Nastavení.</p><% } %>
     <% if ("last_admin".equals(adminMsg)) { %><p class="admin-flash error">Tohle je poslední admin. Web musí mít aspoň jednoho.</p><% } %>
+    <%-- nahlášené zprávy z chatu: jediné zprávy, které admin vidí --%>
+    <% if (!chatReports.isEmpty()) { %>
+    <section class="admin-card" id="chat-reports">
+      <h3><i class="fa-solid fa-comments" aria-hidden="true"></i> Nahlášené zprávy (<%= chatReports.size() %>)</h3>
+      <div class="note-list">
+      <% for (com.github.skeliit.model.ChatReport r : chatReports) { %>
+        <article class="note-item">
+          <div class="note-item-text">
+            <strong><%= WebUtils.escapeHtml(r.sender) %> <small class="text-dim">napsal(a) · nahlásil(a) <%= WebUtils.escapeHtml(r.reporter) %></small></strong>
+            <span class="note-item-say">„<%= WebUtils.escapeHtml(r.body) %>“</span>
+            <small class="text-dim"><%= WebUtils.escapeHtml(t.getProperty("chat.report." + r.reason)) %><% if (r.note != null) { %>: „<%= WebUtils.escapeHtml(r.note) %>“<% } %> · <%= r.createdAt == null ? "" : new java.text.SimpleDateFormat("d. M. yyyy HH:mm").format(r.createdAt) %></small>
+          </div>
+          <form method="post" action="/admin/chat-report">
+            <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="id" value="<%= r.id %>"><input type="hidden" name="action" value="delete">
+            <button type="submit">Smazat zprávu</button>
+          </form>
+          <form method="post" action="/admin/chat-report">
+            <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="id" value="<%= r.id %>"><input type="hidden" name="action" value="dismiss">
+            <button type="submit">Nechat být</button>
+          </form>
+        </article>
+      <% } %>
+      </div>
+    </section>
+    <% } %>
     <%-- nahlášené profily: co se děje, náhled obrázků je v řádku uživatele níž --%>
     <% if (!reports.isEmpty()) { %>
     <section class="admin-card" id="reports">

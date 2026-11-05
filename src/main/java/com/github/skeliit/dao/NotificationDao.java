@@ -42,6 +42,15 @@ public class NotificationDao {
     }
 
     /** Přátelé: žádost nebo přijetí; starší nepřečtené stejného druhu od téhož člověka nahradí, ať se nehromadí. */
+    /** Přečtený chat: upozornění na zprávy od toho člověka zmizí ze zvonečku. */
+    public void removeMessages(int userId, int actorId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "DELETE FROM notifications WHERE user_id = ? AND actor_id = ? AND type = 'message'")) {
+            ps.setInt(1, userId); ps.setInt(2, actorId);
+            ps.executeUpdate();
+        }
+    }
+
     /** Odmítnutí nebo zablokování: upozornění na žádost od toho člověka zmizí ze zvonečku. */
     public void removeFriendRequest(int userId, int actorId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
@@ -114,7 +123,12 @@ public class NotificationDao {
                         n.read = rs.getTimestamp(6) != null;
                         n.actor = rs.getString(8);
                         n.actorAvatar = WebUtils.safeUrl(rs.getString(9), "");
-                        if (n.type.startsWith("friend_")) {          // přátelé: vede na část Přátelé na mém profilu
+                        if ("message".equals(n.type)) {              // chat: jen kdo napsal, text zprávy do zvonečku nepatří
+                            if (n.actor == null) continue;
+                            n.place = "message"; n.placeName = ""; n.snippet = "";
+                            n.link = "/zpravy?s=" + java.net.URLEncoder.encode(n.actor, java.nio.charset.StandardCharsets.UTF_8);
+                            out.add(n);
+                        } else if (n.type.startsWith("friend_")) {   // přátelé: vede na část Přátelé na mém profilu
                             n.place = "friend"; n.placeName = ""; n.snippet = ""; n.link = "/uzivatel.jsp#pratele";
                             out.add(n);
                         } else if ("passed".equals(n.type)) {                // CatSmash: tabulka a nové místo, odkaz otevře hru

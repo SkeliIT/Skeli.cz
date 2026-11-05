@@ -56,6 +56,7 @@
       <% for (Friend f : frFriends) { %>
       <li class="friend-row">
         <%= frWho(f) %>
+        <a class="btn-primary friend-btn friend-write" href="/zpravy?s=<%= java.net.URLEncoder.encode(f.username, "UTF-8") %>"><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= t.getProperty("chat.write") %></a>
         <form method="post" action="/profile/friends" onsubmit="return confirm('<%= WebUtils.escapeJs(t.getProperty("friends.removeConfirm")) %>');"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="remove"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.remove") %></button></form>
       </li>
       <% } %>

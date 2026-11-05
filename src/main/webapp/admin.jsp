@@ -22,6 +22,8 @@
   }
   int nUserReports = 0;
   try { nUserReports = new com.github.skeliit.dao.ModerationDao().openReportCount(); } catch (java.sql.SQLException e) { application.log("Admin to-do", e); }
+  int nChatReports = 0;
+  try { nChatReports = new com.github.skeliit.dao.ChatDao().openReportCount(); } catch (java.sql.SQLException e) { application.log("Admin to-do", e); }
   // Czech plurals: 1 / 2–4 / 5 and more
   String reportsText = nReports == 1 ? "nahlášený komentář čeká na rozhodnutí" : nReports < 5 ? "nahlášené komentáře čekají na rozhodnutí" : "nahlášených komentářů čeká na rozhodnutí";
   String clipsText = nClipsAlone == 1 ? "video z YouTube zatím není u žádné písně" : nClipsAlone < 5 ? "videa z YouTube zatím nejsou u žádné písně" : "videí z YouTube zatím není u žádné písně";
@@ -119,10 +121,11 @@
   <%-- what is waiting for the admin (the same list Kevin reads out) --%>
   <section class="admin-card admin-todo" id="todo">
     <h3><i class="fa-solid fa-list-check" aria-hidden="true"></i> Co čeká</h3>
-    <% if (nReports + nClipsAlone + nNoText + nSiteReports + nLyricHelp == 0) { %>
+    <% if (nUserReports + nChatReports + nReports + nClipsAlone + nNoText + nSiteReports + nLyricHelp == 0) { %>
       <p class="admin-done"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Všechno hotovo. Můžeš jít nahrávat.</p>
     <% } else { %>
     <ul>
+      <% if (nChatReports > 0) { %><li class="urgent"><a href="/admin_users.jsp#chat-reports"><i class="fa-solid fa-comments"></i> <span><b><%= nChatReports %></b> nahlášených zpráv</span></a></li><% } %>
       <% if (nUserReports > 0) { %><li class="urgent"><a href="/admin_users.jsp#reports"><i class="fa-solid fa-flag"></i> <span><b><%= nUserReports %></b> nahlášených profilů čeká na rozhodnutí</span></a></li><% } %>
       <% if (nReports > 0) { %><li class="urgent"><a href="/admin/comments#reports"><i class="fa-solid fa-flag"></i> <span><b><%= nReports %></b> <%= reportsText %></span></a></li><% } %>
       <% if (nSiteReports > 0) { %><li class="urgent"><a href="/admin/feedback#reports"><i class="fa-solid fa-triangle-exclamation"></i> <span><b><%= nSiteReports %></b> <%= siteReportsText %></span></a></li><% } %>

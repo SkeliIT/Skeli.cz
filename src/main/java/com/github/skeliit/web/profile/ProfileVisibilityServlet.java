@@ -43,6 +43,7 @@ public class ProfileVisibilityServlet extends HttpServlet {
                 new UserDao().setFriendRequests(me, "1".equals(req.getParameter("friends")));
                 new UserDao().setSharing(me, "1".equals(req.getParameter("about")), "1".equals(req.getParameter("city")), "1".equals(req.getParameter("likes")),
                         "1".equals(req.getParameter("friendsPublic")), "1".equals(req.getParameter("online")), "1".equals(req.getParameter("tracks")), "1".equals(req.getParameter("web")));
+                new UserDao().setChatOpen(me, "1".equals(req.getParameter("chat")));
                 // vitrína: jen získané odznaky, každý jednou, nejvýš tři
                 java.util.Set<String> shown = new java.util.LinkedHashSet<>();
                 for (String slot : new String[] { "b1", "b2", "b3" }) {

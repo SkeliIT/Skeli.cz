@@ -27,6 +27,7 @@
     boolean profilePublic = true, coverPublic = true, friendRequests = true;
     boolean[] sharing = new boolean[7];   // {pár slov o sobě, město, písně se srdcem, přátelé, stav online, moje tvorba, profil i pro nepřihlášené}
     java.util.List<String> shownBadges = java.util.List.of();
+    boolean chatOpen = true;
     String coverUrl = null;
     try {
       UserDao users = new UserDao();          // dao/UserDao
@@ -41,6 +42,7 @@
       friendRequests = users.friendRequests(uid);
       sharing = users.sharing(uid);
       shownBadges = users.showcaseBadges(uid);
+      chatOpen = users.chatOpen(uid);
       coverUrl = users.cover(uid);
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
@@ -421,6 +423,11 @@
           <span class="vis-ico"><i class="fa-solid fa-user-group" aria-hidden="true"></i></span>
           <span class="vis-text"><b id="visFriendsT"><%= t.getProperty("friends.vis.title") %></b><small><%= t.getProperty("friends.vis.lead") %></small></span>
           <label class="vis-switch"><input type="checkbox" name="friends" value="1" aria-labelledby="visFriendsT"<%= friendRequests ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-comments" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visChatT"><%= t.getProperty("vis.chat.title") %></b><small><%= t.getProperty("vis.chat.lead") %></small></span>
+          <label class="vis-switch"><input type="checkbox" name="chat" value="1" aria-labelledby="visChatT"<%= chatOpen ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
         <li class="vis-row">
           <span class="vis-ico"><i class="fa-solid fa-image" aria-hidden="true"></i></span>

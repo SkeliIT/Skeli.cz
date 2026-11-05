@@ -254,6 +254,22 @@ public class UserDao {
         }
     }
 
+    /** Můžou mi přátelé psát zprávy? */
+    public boolean chatOpen(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT chat_open FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return !rs.next() || rs.getBoolean(1); }
+        }
+    }
+
+    public void setChatOpen(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET chat_open = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
     /** Vitrína: klíče odznaků v pořadí, jak si je člověk vybral. */
     public List<String> showcaseBadges(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT showcase_badges FROM user_profiles WHERE user_id = ?")) {

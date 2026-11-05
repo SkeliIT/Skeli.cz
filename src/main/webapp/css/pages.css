@@ -2286,6 +2286,60 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
 .pt-steps .done a { color: var(--text-dim); text-decoration: line-through; }
 .pt-steps .done i { color: var(--accent); }
 
+/* Chat (/zpravy): telefon buď seznam, nebo chat; od 900 px vedle sebe */
+.friend-write { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.chat-page { display: grid; gap: 12px; width: min(100%, 1100px); margin-inline: auto; padding: 12px 16px; box-sizing: border-box; }
+.chat-page.in-room .chat-list, .chat-pick { display: none; }
+.chat-title { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; font-size: var(--fs-h3); font-weight: 400; color: var(--accent); }
+.chat-people { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.chat-person { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 12px; border: 1px solid var(--panel-border); border-radius: 16px; background: var(--panel); color: var(--text); text-decoration: none; }
+.chat-person:hover, .chat-person.active { border-color: var(--accent); color: var(--text); text-decoration: none; }
+.chat-person img { flex: none; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+.chat-person-text { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.chat-person-text b { font-weight: 400; font-size: var(--fs-card); overflow-wrap: anywhere; }
+.chat-person-text small { overflow: hidden; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); text-overflow: ellipsis; white-space: nowrap; }
+.chat-privacy { display: flex; gap: 8px; margin: 12px 2px 0; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.chat-room { display: flex; flex-direction: column; height: calc(100dvh - var(--header-h) - 24px); min-height: 320px; border: 1px solid var(--panel-border); border-radius: 18px; background: var(--panel-strong); overflow: hidden; }
+.chat-room [hidden] { display: none !important; }
+.chat-head { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--panel-border); }
+.chat-back, .chat-hide { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--text-dim); cursor: pointer; }
+.chat-back:hover, .chat-hide:hover { color: var(--accent); }
+.chat-who { flex: 1; min-width: 0; overflow: hidden; color: var(--text); font-size: var(--fs-card); text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.chat-older { flex: none; align-self: center; min-height: 40px; margin-top: 6px; padding: 0 14px; border: 0; background: transparent; color: var(--accent); font: inherit; font-size: var(--fs-small); cursor: pointer; }
+.chat-msgs { flex: 1; display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 12px; overflow-y: auto; list-style: none; overscroll-behavior: contain; }
+.chat-msg { align-self: flex-start; display: grid; gap: 2px; max-width: min(82%, 520px); padding: 8px 12px; border-radius: 16px 16px 16px 4px; background: color-mix(in srgb, var(--text) 10%, transparent); }
+.chat-msg.mine { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: var(--accent); color: var(--accent-ink); }
+.chat-msg.deleted { background: transparent; border: 1px dashed var(--panel-border); color: var(--text-dim); }
+.chat-text { font-family: var(--font-text); font-size: var(--fs-text); line-height: 1.35; overflow-wrap: anywhere; white-space: pre-wrap; }
+.chat-msg.deleted .chat-text { font-style: italic; }
+.chat-meta { display: flex; align-items: center; justify-content: flex-end; gap: 2px; min-height: 18px; font-family: var(--font-text); font-size: var(--fs-small); opacity: .75; }
+.chat-act { display: grid; place-items: center; width: 40px; height: 32px; margin: -6px -8px -6px 0; border: 0; background: transparent; color: inherit; cursor: pointer; opacity: .75; }
+.chat-act:hover { opacity: 1; }
+.chat-report-form { display: grid; gap: 6px; margin-top: 6px; }
+.chat-report-form label { display: grid; gap: 4px; font-size: var(--fs-small); }
+.chat-report-form input, .chat-report-form select { min-width: 0; min-height: 40px; }
+.chat-reported { margin: 6px 0 0; font-family: var(--font-text); font-size: var(--fs-small); }
+.chat-closed { flex: none; margin: 0; padding: 12px; border-top: 1px solid var(--panel-border); color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); text-align: center; }
+.chat-error { flex: none; margin: 0 8px 8px; }
+.chat-form { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 8px; border-top: 1px solid var(--panel-border); }
+.chat-form[hidden] { display: none; }
+.chat-form textarea { flex: 1; min-width: 0; min-height: 44px; max-height: 130px; padding: 10px 12px; border-radius: 14px; resize: none; font-family: var(--font-text); font-size: 16px; line-height: 1.3; }
+.chat-form button { flex: none; width: 44px; height: 44px; padding: 0; border-radius: 50%; }
+/* na telefonu patří celá obrazovka chatu: patička a plovoucí přehrávač by překážely psaní */
+@media (max-width: 899px) { body:has(.chat-room) .site-footer, body:has(.chat-room) #sp-bar, body:has(.chat-room) #sp-min { display: none !important; } }
+@media (min-width: 900px) {
+  .chat-page { grid-template-columns: 320px minmax(0, 1fr); align-items: start; }
+  .chat-page.in-room .chat-list { display: block; }
+  .chat-back { display: none; }
+  .chat-pick { display: grid; place-items: center; min-height: 320px; border: 1px dashed var(--panel-border); border-radius: 18px; color: var(--text-dim); font-family: var(--font-text); }
+  .chat-list { max-height: calc(100dvh - var(--header-h) - 24px); overflow-y: auto; }
+}
+/* od 1025 px je nad menu velké logo: chat se i s políčkem na psaní musí vejít pod něj */
+@media (min-width: 1025px) {
+  .chat-room { height: calc(100dvh - var(--masthead-h) - var(--header-h) - 40px); }
+  .chat-list { max-height: calc(100dvh - var(--masthead-h) - var(--header-h) - 40px); }
+}
+
 /* Vitrína: až 3 odznaky nahoře na profilu; barva podle vzácnosti (stejná jako ve hře) */
 .pt-show { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
 .pt-show-item { --rar: #9aa0a8; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 12px; border: 1px solid var(--rar); border-radius: 999px; background: color-mix(in srgb, var(--rar) 16%, transparent); font-size: var(--fs-small); }
