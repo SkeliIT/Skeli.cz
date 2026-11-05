@@ -2136,7 +2136,7 @@ body.light .pt::before { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .07), inset 0
 .pt-who { display: flex; align-items: flex-start; gap: 22px; }
 .pt-who-text { min-width: 0; padding-top: 12px; }
 .pt-hero .acct-photo, .pt-hero .acct-photo.av-frame { width: 92px; height: 92px; font-size: 92px; margin: -46px 8px 14px; }
-.pt-hero .acct-name { font-size: 1.45rem; text-shadow: 0 1px 8px rgba(0, 0, 0, .7); }
+.pt-hero .acct-name { font-size: clamp(1rem, 4.6vw, 1.45rem); text-shadow: 0 1px 8px rgba(0, 0, 0, .7); }
 body.light .pt-hero .acct-name { text-shadow: 0 1px 8px rgba(255, 255, 255, .85); }
 .pt-hero .acct-meta { color: var(--text); opacity: .78; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); }
 .acct-motto { margin: 6px 0 0; color: #ffd23f; line-height: 1.05; overflow-wrap: anywhere; text-shadow: 0 0 6px rgba(0, 0, 0, .9), 0 0 14px rgba(0, 0, 0, .7); }
@@ -2268,10 +2268,40 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
 .game-head { grid-column: span 12; display: flex; align-items: center; gap: 10px; margin: 2px 2px -2px; color: var(--accent); }
 .game-head h2 { margin: 0; font-size: var(--fs-h3); font-weight: 400; color: var(--text); }
 .pt.pt-big-tile { grid-column: span 12; }
+.pt[hidden] { display: none; }
+
+/* První kroky nováčka: místo nul krátký seznam, po splnění zmizí */
+.pt-start { --glow: var(--accent); }
+.pt-start .pt-in { gap: 10px; }
+.pt-start-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.pt-start-top h2 { margin: 0; font-size: var(--fs-h3); font-weight: 400; color: var(--accent); }
+.pt-start-hide { flex: none; min-height: 40px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--text-dim); font: inherit; font-size: var(--fs-small); cursor: pointer; }
+.pt-start-hide:hover { color: var(--text); }
+.pt-start-bar { height: 6px; border-radius: 999px; background: color-mix(in srgb, var(--text) 14%, transparent); overflow: hidden; }
+.pt-start-bar span { display: block; width: var(--start); height: 100%; border-radius: inherit; background: var(--accent); }
+.pt-steps { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.pt-steps a { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 12px; border-radius: 12px; background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--text); text-decoration: none; font-size: var(--fs-card); }
+.pt-steps a:hover { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--text); }
+.pt-steps i { color: var(--text-dim); }
+.pt-steps .done a { color: var(--text-dim); text-decoration: line-through; }
+.pt-steps .done i { color: var(--accent); }
+
+/* Písně se srdcem */
+.pt-likes { --glow: #ff4d6d; }
+.pt-likes .pt-in { gap: 10px; }
+.pt-likes-go { align-self: flex-start; }
+.pt-like-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.pt-like { display: flex; flex-direction: column; gap: 6px; color: var(--text); text-decoration: none; }
+.pt-like:hover { color: var(--accent); }
+.pt-like img, .pt-like-none { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; object-fit: cover; }
+.pt-like-none { display: grid; place-items: center; background: color-mix(in srgb, var(--text) 8%, transparent); color: var(--text-dim); }
+.pt-like-name { font-size: var(--fs-card); line-height: 1.25; overflow-wrap: anywhere; }
+@media (min-width: 600px) { .pt-like-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } .pt-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .pt-like-list { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .pt-games { --glow: #4ea3ff; }
 @media (min-width: 768px) {
   .pt-tab .pt-song, .pt-tab .pt-last { grid-column: span 6; }
-  .player-page #prehled .pt-song { grid-column: span 12; }
+  .player-page #prehled .pt-song, .pt-tab .pt-song.pt-solo { grid-column: span 12; }
 }
 /* Přátelé */
 .friend-search { display: flex; gap: 8px; margin: 0 0 14px; }

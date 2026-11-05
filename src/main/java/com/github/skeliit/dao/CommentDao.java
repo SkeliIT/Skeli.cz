@@ -63,6 +63,7 @@ public class CommentDao {
     public List<CommentItem> threads(Kind k, String target, Viewer viewer, Sort sort) throws SQLException {
         String sql = "SELECT c.id, c.parent_id, c.user_id, c.content, c.created_at, c.updated_at, c.pinned_at, c.hearted_at, "
                 + "u.username, u.avatar_url, u.role, u.is_artist, u.pong_title, u.pong_frame, u.pong_mark, u.pong_champ, "
+                + "u.profile_public, u.blocked_at, "
                 + "COALESCE(SUM(v.vote = 1), 0) AS up, COALESCE(SUM(v.vote = -1), 0) AS down, "
                 + "COALESCE(MAX(CASE WHEN v.user_id = ? THEN v.vote END), 0) AS my "
                 + "FROM " + k.table + " c LEFT JOIN users u ON u.id = c.user_id "
@@ -90,6 +91,7 @@ public class CommentDao {
         it.user = gone ? null : rs.getString("username");
         it.avatar = gone ? "" : WebUtils.safeUrl(rs.getString("avatar_url"), "");
         it.artist = !gone && rs.getBoolean("is_artist");
+        it.profile = !gone && viewer.userId() != null && rs.getBoolean("profile_public") && rs.getTimestamp("blocked_at") == null;
         String title = gone ? null : rs.getString("pong_title");
         if (PongBadges.TITLES_ON && PongBadges.exists(title)) {
             it.titleKey = title;

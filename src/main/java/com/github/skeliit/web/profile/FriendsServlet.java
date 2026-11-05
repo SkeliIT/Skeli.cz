@@ -49,18 +49,23 @@ public class FriendsServlet extends HttpServlet {
                 switch (action) {
                     case "request" -> {
                         if (!EmailVerification.isVerified(s)) result = "verify";
-                        else if (rel == Rel.BLOCKS_ME || rel == Rel.I_BLOCKED) result = "fail";
+                        else if (rel == Rel.I_BLOCKED) result = "fail";
                         else if (rel == Rel.RECEIVED) {                  // poslali jsme si ji navzájem: rovnou přátelé
                             if (friends.accept(me, other)) bell.addFriend(other, me, "friend_accept");
-                        } else if (rel == Rel.NONE) {
+                        } else if (rel == Rel.NONE || rel == Rel.BLOCKS_ME) {
                             if (!RequestLimiter.tryAcquire("friend-request", me, 30, RequestLimiter.HOUR)) result = "limit";
-                            else if (friends.request(me, other)) bell.addFriend(other, me, "friend_request");
-                            else result = "closed";
+                            else if (!friends.request(me, other)) result = "closed";
+                            // kdo mě zablokoval, tomu nic nepřijde; já vidím to samé co u kohokoli jiného: nevyřízenou žádost
+                            else if (rel == Rel.NONE) bell.addFriend(other, me, "friend_request");
                         }
                     }
                     case "accept" -> { if (friends.accept(me, other)) bell.addFriend(other, me, "friend_accept"); else result = "fail"; }
-                    case "decline", "cancel", "remove" -> { if (rel == Rel.SENT || rel == Rel.RECEIVED || rel == Rel.FRIENDS) friends.remove(me, other); }
-                    case "block" -> friends.block(me, other);
+                    case "decline", "cancel", "remove" -> {
+                        boolean cancelsOwn = rel == Rel.BLOCKS_ME && "cancel".equals(action);   // svou nevyřízenou žádost si můžu zrušit vždycky
+                        if (rel == Rel.SENT || rel == Rel.RECEIVED || rel == Rel.FRIENDS || cancelsOwn) friends.remove(me, other);
+                        if ("decline".equals(action)) bell.removeFriendRequest(me, other);
+                    }
+                    case "block" -> { friends.block(me, other); bell.removeFriendRequest(me, other); }
                     case "unblock" -> friends.unblock(me, other);
                     default -> result = "fail";
                 }

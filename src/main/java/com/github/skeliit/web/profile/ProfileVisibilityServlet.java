@@ -41,6 +41,7 @@ public class ProfileVisibilityServlet extends HttpServlet {
                 new UserDao().setProfilePublic(me, "1".equals(req.getParameter("pub")));
                 new UserDao().setCoverPublic(me, "1".equals(req.getParameter("cover")));
                 new UserDao().setFriendRequests(me, "1".equals(req.getParameter("friends")));
+                new UserDao().setSharing(me, "1".equals(req.getParameter("about")), "1".equals(req.getParameter("city")), "1".equals(req.getParameter("likes")));
                 pong.setChampOn(me, "1".equals(req.getParameter("champ")));
                 if (f != null) pong.setFrame(me, f.isBlank() ? null : f);
                 if (m != null) pong.setMark(me, m.isBlank() ? null : m);

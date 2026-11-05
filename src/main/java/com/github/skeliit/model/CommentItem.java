@@ -17,6 +17,7 @@ public class CommentItem {
     public String user;               // null when the account was deleted
     public String avatar;             // "" = no photo
     public boolean artist;            // Skeli himself: a badge next to the name
+    public boolean profile;           // jméno vede na profil: autor ho má zapnutý a čtenář je přihlášený (profily jsou jen pro přihlášené)
     public String titleKey;           // titul z CatSmash (klíč odznaku) nebo null
     public String titleIcon;          // ikona titulu
     public String titleName;          // název titulu v jazyce stránky (doplní CommentsApiServlet)

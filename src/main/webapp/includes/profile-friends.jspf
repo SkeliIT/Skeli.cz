@@ -1,4 +1,4 @@
-<%-- Můj profil → Přátelé: žádosti, přátelé, hledání a zablokovaní. Před vložením nastavit: List<Friend> frFriends, frIn, frOut, frBlocked, frFound; String frQuery.
+<%-- Můj profil → Přátelé: žádosti, přátelé, hledání a zablokovaní. Před vložením nastavit: List<Friend> frFriends, frIn, frOut, frBlocked, frFound; Map frRel (vztah k nalezeným podle id); String frQuery.
      Vkládané šablony se nečtou jako UTF-8: žádné české znaky přímo ve výstupu, texty jsou v překladech. --%>
 <%@ page import="com.github.skeliit.model.Friend" %>
 <%! /* fotka a jméno; odkaz jen na veřejný profil, jinak by vedl na 404 */
@@ -24,8 +24,13 @@
     <% if (frFound.isEmpty()) { %><p class="acct-empty"><%= t.getProperty("friends.notFound") %></p><% } %>
     <ul class="friend-list">
       <% for (Friend f : frFound) { %>
+      <% com.github.skeliit.dao.FriendDao.Rel foundRel = frRel.get(f.id); %>
       <li class="friend-row">
         <%= frWho(f) %>
+        <% if (foundRel == com.github.skeliit.dao.FriendDao.Rel.NONE) { %><form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="request"><button type="submit" class="btn-primary friend-btn"><%= t.getProperty("friends.add") %></button></form>
+        <% } else if (foundRel == com.github.skeliit.dao.FriendDao.Rel.RECEIVED) { %><form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="accept"><button type="submit" class="btn-primary friend-btn"><%= t.getProperty("friends.accept") %></button></form>
+        <% } else if (foundRel == com.github.skeliit.dao.FriendDao.Rel.SENT) { %><span class="player-state"><%= t.getProperty("friends.state.sent") %></span>
+        <% } else if (foundRel == com.github.skeliit.dao.FriendDao.Rel.FRIENDS) { %><span class="player-state on"><%= t.getProperty("friends.state.friends") %></span><% } %>
       </li>
       <% } %>
     </ul>
@@ -39,6 +44,7 @@
         <%= frWho(f) %>
         <form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="accept"><button type="submit" class="btn-primary friend-btn"><%= t.getProperty("friends.accept") %></button></form>
         <form method="post" action="/profile/friends"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="decline"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.decline") %></button></form>
+        <form method="post" action="/profile/friends" onsubmit="return confirm('<%= WebUtils.escapeJs(t.getProperty("friends.blockConfirm")) %>');"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="block"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.block") %></button></form>
       </li>
       <% } %>
     </ul>

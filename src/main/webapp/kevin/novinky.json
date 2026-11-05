@@ -1,6 +1,15 @@
 [
   {
     "d": "2026-11-05",
+    "href": "/uzivatel.jsp",
+    "cs": "Profil ti teď napoví, čím začít, a najdeš v něm všechny písně se srdcem od tebe.",
+    "en": "Your profile now shows you where to start and lists every song you gave a heart.",
+    "de": "Dein Profil zeigt dir jetzt, womit du anfangen kannst, und listet alle Songs mit deinem Herz.",
+    "uk": "Профіль тепер підкаже, з чого почати, і покаже всі пісні з твоїм сердечком.",
+    "vi": "Hồ sơ giờ gợi ý bạn nên bắt đầu từ đâu và có đủ các bài hát bạn đã thả tim."
+  },
+  {
+    "d": "2026-11-05",
     "href": "/uzivatel.jsp#pratele",
     "cs": "Na webu si teď můžeš přidávat přátele. Najdeš je na svém profilu a ten je konečně hezky rozdělený.",
     "en": "You can now add friends on the site. You’ll find them on your profile, which is finally neatly divided.",
@@ -34,14 +43,5 @@
     "de": "CatSmash richtet seine Farben jetzt nach deinem Schläger: mit dem Eisschläger bläulich, mit dem Chip grün. Und das Spielmenü sieht neu aus, du siehst alles auf einmal.",
     "uk": "CatSmash тепер забарвлюється за твоєю ракеткою: із крижаною гра блакитна, із чипом зелена. А меню гри має новий вигляд, усе видно одразу.",
     "vi": "CatSmash giờ đổi màu theo vợt của bạn: vợt băng thì cả trò chơi xanh nhạt, vợt chip thì xanh lá. Menu trò chơi cũng có diện mạo mới, mọi thứ hiện ra cùng lúc."
-  },
-  {
-    "d": "2026-11-04",
-    "href": "/?kevin=pong",
-    "cs": "V CatSmash na telefonu zase běhám po velkém kole a tím hýbu svou pálkou. Pod hřištěm máš celé okénko s koly pro prst.",
-    "en": "In CatSmash on a phone I’m back to running on a big wheel, and that’s what moves my paddle. Below the court, the whole gear window is yours for your finger.",
-    "de": "In CatSmash auf dem Handy laufe ich wieder auf einem großen Rad und bewege so meinen Schläger. Unter dem Spielfeld gehört das ganze Zahnradfenster deinem Finger.",
-    "uk": "У CatSmash на телефоні я знову бігаю по великому колесу й так рухаю своєю ракеткою. Під полем усе віконце з колесами твоє — для пальця.",
-    "vi": "Trong CatSmash trên điện thoại, tôi lại chạy trên bánh xe lớn và nhờ đó di chuyển vợt của mình. Dưới sân, cả ô bánh răng là chỗ cho ngón tay của bạn."
   }
 ]

@@ -36,7 +36,8 @@ are easy to get wrong.
   must call `CsrfFilter.isValid` and be added to `CsrfFilter.MULTIPART_PATHS`.
 - The profile (`uzivatel.jsp`, `WEB-INF/views/player.jsp`) is split into parts by `js/profile-tabs.js`: Overview = about the person,
   Games = one block per game (`.game-head` + its tiles; a new game adds a block, never mixes into Overview), Friends (own profile only), Comments.
-- Friends and blocks: `dao/FriendDao` + POST `/profile/friends`; "me" always comes from the session. Moderation: `dao/ModerationDao`. A new table with user
+- Friends and blocks: `dao/FriendDao` + POST `/profile/friends`; "me" always comes from the session. A block is silent: the blocked person's pending request stays
+  visible to them as pending, never to the blocker, and nothing may reveal the block. A private profile still takes friend requests (found by full name only). Moderation: `dao/ModerationDao`. A new table with user
   data also goes into `AccountDeletion`, `ProfileExportServlet` and the privacy text.
 - Comments under lyrics and under clips are one system: `dao/CommentDao` (the `Kind` picks the table),
   `/api/comments`, drawn by `js/comments.js` from `includes/comments.jspf`. Change both kinds together.

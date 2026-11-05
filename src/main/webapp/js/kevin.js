@@ -865,6 +865,7 @@
     if (/register/.test(p)) return 'register';
     if (/login/.test(p)) return 'login';
     if (/donate/.test(p)) return 'donate';
+    if (/uzivatel/.test(p)) return 'profile';
     return '';
   }
   function dayPart() {
@@ -917,6 +918,19 @@
       }, 900);
     }
     var key = pageKey(), lines = L.page[key];
+    // nováčka na profilu přivítá jednou a ukáže mu první kroky
+    var startList = key === 'profile' && document.querySelector('.pt-start:not([hidden])');
+    if (startList && L.profileHello && !store.get('kevinProfileHello')) {
+      store.set('kevinProfileHello', '1');
+      setTimeout(function () { auto(pick(L.profileHello), null, null, false, '#prvni-kroky'); }, 1500);
+      return;
+    }
+    // jednou každému řekne, že si profil může dát soukromý; po kliknutí ho zavede do nastavení
+    if (key === 'profile' && L.privacyTip && !store.get('kevinPrivacyTold') && !document.querySelector('[data-profile-private]')) {
+      store.set('kevinPrivacyTold', '1');
+      setTimeout(function () { auto(L.privacyTip, 'point', null, false, '/nastaveni.jsp#soukromi'); }, 1500);
+      return;
+    }
     if (key === 'login' && prev > 0) lines = lines.concat(L.page.loginBack || []);
     // a song he has his own memories of (by the clip on the page; L.songs is keyed by YouTube id)
     var clip = key === 'song' && document.querySelector('main [data-yt]');

@@ -214,6 +214,8 @@
       "Erledigt. Jetzt merk's dir nur."
     ]
   },
+  "privacyTip": "Soll hier keiner reinschauen? Stell dein Profil in den Einstellungen auf privat. Freundschaftsanfragen gehen weiter, aber rein kommt keiner.",
+  "profileHello": ["Dein Profil. Bisher so leer wie mein Napf. Fang mit der Liste an.","Hier wohnst du also? Richte es ein bisschen ein, die Liste hilft."],
   "profile": [
     "Ein neues Foto? Steht dir. Fast so gut wie mir.",
     "Profil geändert. An mir würde ich nichts ändern. Gibt nichts zu ändern.",

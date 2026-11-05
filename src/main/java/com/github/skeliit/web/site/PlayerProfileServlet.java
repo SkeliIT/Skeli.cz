@@ -60,6 +60,12 @@ public class PlayerProfileServlet extends HttpServlet {
             req.setAttribute("playerCover", users.coverForOthers(id));
             req.setAttribute("playerShowcase", users.showcase(id));
             req.setAttribute("playerPong", new PongDao().profile(id));
+            // jen to, co si člověk v Nastavení sám zapnul
+            boolean[] sharing = users.sharing(id);
+            var details = users.profile(id);
+            if (sharing[0] && details != null) req.setAttribute("playerBio", details.bio);
+            if (sharing[1] && details != null) req.setAttribute("playerCity", details.city);
+            if (sharing[2]) req.setAttribute("playerLikes", users.likedSongs(id));
             req.setAttribute("pageTitle", player.username);
         } catch (SQLException e) {
             throw new ServletException(e);

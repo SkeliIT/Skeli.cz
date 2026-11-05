@@ -30,4 +30,20 @@
     });
   }
   show(true);
+
+  // První kroky: kdo je schová, tomu se vrátí dlaždice s výběrem oblíbeného songu, kterou seznam nahrazuje.
+  var start = document.querySelector('.pt-start');
+  if (start) {
+    var hide = function () {
+      start.hidden = true;
+      document.querySelectorAll('[data-start-fallback]').forEach(function (n) { n.hidden = false; });
+    };
+    var wasHidden = false;
+    try { wasHidden = localStorage.getItem('profileStartHidden') === '1'; } catch (e) { /* bez úložiště to jde taky */ }
+    if (wasHidden) hide();
+    start.querySelector('.pt-start-hide').addEventListener('click', function () {
+      try { localStorage.setItem('profileStartHidden', '1'); } catch (e) { /* jen pro tuhle návštěvu */ }
+      hide();
+    });
+  }
 })();

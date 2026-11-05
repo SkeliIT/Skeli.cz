@@ -214,6 +214,8 @@
       "Vyřízeno. Teď si ho hlavně pamatuj."
     ]
   },
+  "privacyTip": "Nechceš, aby ti sem někdo koukal? V Nastavení si dej soukromý profil. Žádost o přátelství ti pošlou dál, ale dovnitř nikdo nevleze.",
+  "profileHello": ["Tvůj profil. Zatím prázdnej jak moje miska. Začni tím seznamem.","Tak tady bydlíš? Trochu to tu zařiď, seznam ti poradí."],
   "profile": [
     "Nová fotka? Sluší ti to. Skoro jako mně.",
     "Profil upraven. Já bych na sobě nic neměnil. Není co.",

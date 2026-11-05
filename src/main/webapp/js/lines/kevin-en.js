@@ -214,6 +214,8 @@
       "Sorted. Now just remember it."
     ]
   },
+  "privacyTip": "Don't want people looking in here? Make your profile private in Settings. They can still send you a friend request, but nobody gets inside.",
+  "profileHello": ["Your profile. Empty as my bowl so far. Start with that list.","So this is where you live? Furnish it a bit, the list will help."],
   "profile": [
     "A new picture? Looks good on you. Almost as good as on me.",
     "Profile updated. I wouldn't change a thing about myself. Nothing to change.",

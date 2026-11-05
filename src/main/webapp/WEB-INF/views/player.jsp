@@ -41,10 +41,12 @@
           <p class="acct-meta">
             <% if (pl.memberSince != null) { %><%= WebUtils.escapeHtml(t.getProperty("account.memberSince").replace("{0}",
                  java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.LONG).withLocale(java.util.Locale.forLanguageTag(cur)).format(pl.memberSince.toLocalDateTime()))) %><% } %>
+            <% String plCity = (String) request.getAttribute("playerCity"); if (plCity != null && !plCity.isBlank()) { %> · <%= WebUtils.escapeHtml(plCity) %><% } %>
           </p>
           <% if (sc[2] != null) { %><p class="acct-motto motto-<%= WebUtils.escapeHtml(sc[4]) %>">„<%= WebUtils.escapeHtml(sc[2]) %>“</p><% } %>
         </div>
       </div>
+      <% String plBio = (String) request.getAttribute("playerBio"); if (plBio != null && !plBio.isBlank()) { %><p class="acct-bio"><%= WebUtils.escapeHtml(plBio) %></p><% } %>
       <%-- přátelé a nahlášení: u vlastního náhledu (?nahled) nic --%>
       <% if (plRel != null) { %>
       <div class="player-actions">
@@ -93,6 +95,14 @@
     <span class="pt-song-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
   </a>
   <% } %>
+  <%
+    @SuppressWarnings("unchecked")
+    java.util.List<com.github.skeliit.model.LikedSong> likesList = (java.util.List<com.github.skeliit.model.LikedSong>) request.getAttribute("playerLikes");
+    if (likesList == null) likesList = java.util.List.of();
+    String likesTitle = "profile.likes.others";
+    boolean likesOwn = false;
+  %>
+  <%@ include file="/includes/profile-likes.jspf" %>
 
   </div>
 

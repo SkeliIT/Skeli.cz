@@ -42,6 +42,15 @@ public class NotificationDao {
     }
 
     /** Přátelé: žádost nebo přijetí; starší nepřečtené stejného druhu od téhož člověka nahradí, ať se nehromadí. */
+    /** Odmítnutí nebo zablokování: upozornění na žádost od toho člověka zmizí ze zvonečku. */
+    public void removeFriendRequest(int userId, int actorId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "DELETE FROM notifications WHERE user_id = ? AND actor_id = ? AND type = 'friend_request'")) {
+            ps.setInt(1, userId); ps.setInt(2, actorId);
+            ps.executeUpdate();
+        }
+    }
+
     public void addFriend(int userId, int actorId, String type) throws SQLException {
         try (Connection c = Db.get()) {
             try (PreparedStatement ps = c.prepareStatement("DELETE FROM notifications WHERE user_id = ? AND actor_id = ? AND type = ? AND read_at IS NULL")) {

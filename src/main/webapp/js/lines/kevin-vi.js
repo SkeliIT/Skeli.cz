@@ -214,6 +214,8 @@
       "Xong xuôi. Giờ nhớ lấy nó nhé."
     ]
   },
+  "privacyTip": "Không muốn ai nhòm vào đây? Hãy đặt hồ sơ ở chế độ riêng tư trong Cài đặt. Người khác vẫn gửi được lời mời kết bạn, nhưng không ai vào được.",
+  "profileHello": ["Hồ sơ của bạn đây. Trống như cái bát của tôi vậy. Bắt đầu từ danh sách kia đi.","Vậy là bạn sống ở đây à? Sắp xếp lại một chút đi, danh sách sẽ giúp."],
   "profile": [
     "Ảnh mới à? Hợp với bạn đấy. Gần bằng tôi.",
     "Đã cập nhật hồ sơ. Tôi thì chẳng đổi gì ở mình. Không có gì để đổi.",

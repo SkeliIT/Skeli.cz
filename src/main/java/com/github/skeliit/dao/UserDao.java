@@ -226,6 +226,49 @@ public class UserDao {
         }
     }
 
+    /** Co člověk ukazuje ostatním navíc: {pár slov o sobě, město, písně se srdcem}. Výchozí je všechno vypnuté. */
+    public boolean[] sharing(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT about_public, city_public, likes_public FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? new boolean[] { rs.getBoolean(1), rs.getBoolean(2), rs.getBoolean(3) } : new boolean[3];
+            }
+        }
+    }
+
+    public void setSharing(int userId, boolean about, boolean city, boolean likes) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "UPDATE users SET about_public = ?, city_public = ?, likes_public = ? WHERE id = ?")) {
+            ps.setBoolean(1, about);
+            ps.setBoolean(2, city);
+            ps.setBoolean(3, likes);
+            ps.setInt(4, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Písně, kterým člověk dal srdce (srdce platí pro celou píseň, ve všech jazycích), nejnovější nahoře. */
+    public List<com.github.skeliit.model.LikedSong> likedSongs(int userId) throws SQLException {
+        List<com.github.skeliit.model.LikedSong> out = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT s.uuid, s.name, s.preview_image_url, "
+                + "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) "
+                + "FROM songs s WHERE s.uuid IS NOT NULL AND s.id IN "
+                + "(SELECT l.song_id FROM lyrics_votes lv JOIN lyrics l ON l.id = lv.lyric_id WHERE lv.user_id = ? AND lv.vote = 1) "
+                + "ORDER BY s.year DESC, s.id DESC LIMIT 60")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String yt = rs.getString(4);
+                    out.add(new com.github.skeliit.model.LikedSong(rs.getString(1), rs.getString(2),
+                            yt != null ? "/yt-thumb/" + yt + "/mqdefault.jpg" : rs.getString(3)));
+                }
+            }
+        }
+        return out;
+    }
+
     /** Ukazovat můj profil přihlášeným (users.profile_public)? */
     public boolean profilePublic(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT profile_public FROM users WHERE id = ?")) {

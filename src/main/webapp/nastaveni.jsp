@@ -25,6 +25,7 @@
     String[] showcase = { null, null, null, null, "brush" };
     java.util.List<String[]> songChoices = new java.util.ArrayList<>();
     boolean profilePublic = true, coverPublic = true, friendRequests = true;
+    boolean[] sharing = new boolean[3];   // {pár slov o sobě, město, písně se srdcem}
     String coverUrl = null;
     try {
       UserDao users = new UserDao();          // dao/UserDao
@@ -37,6 +38,7 @@
       profilePublic = users.profilePublic(uid);
       coverPublic = users.coverPublic(uid);
       friendRequests = users.friendRequests(uid);
+      sharing = users.sharing(uid);
       coverUrl = users.cover(uid);
       myComments = users.comments(uid);
       pong = new PongDao().profile(uid);
@@ -301,6 +303,21 @@
           <span class="vis-text"><b id="visPubT"><%= t.getProperty("settings.public") %></b><small><%= t.getProperty("profile.public.lead") %></small>
             <% if (profilePublic && visName != null) { %><a class="vis-link" href="/hrac/<%= java.net.URLEncoder.encode(visName, "UTF-8").replace("+", "%20") %>?nahled=1"><%= t.getProperty("profile.public.preview") %> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a><% } %></span>
           <label class="vis-switch"><input type="checkbox" name="pub" value="1" aria-labelledby="visPubT"<%= profilePublic ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-comments" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visAboutT"><%= t.getProperty("vis.about.title") %></b><small><%= t.getProperty("vis.about.lead") %></small></span>
+          <label class="vis-switch"><input type="checkbox" name="about" value="1" aria-labelledby="visAboutT"<%= sharing[0] ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visCityT"><%= t.getProperty("vis.city.title") %></b><small><%= t.getProperty("vis.city.lead") %></small></span>
+          <label class="vis-switch"><input type="checkbox" name="city" value="1" aria-labelledby="visCityT"<%= sharing[1] ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-heart" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visLikesT"><%= t.getProperty("vis.likes.title") %></b><small><%= t.getProperty("vis.likes.lead") %></small></span>
+          <label class="vis-switch"><input type="checkbox" name="likes" value="1" aria-labelledby="visLikesT"<%= sharing[2] ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
         <li class="vis-row">
           <span class="vis-ico"><i class="fa-solid fa-user-group" aria-hidden="true"></i></span>

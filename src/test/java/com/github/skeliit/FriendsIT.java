@@ -66,7 +66,7 @@ class FriendsIT extends UiTestSupport {
     }
 
     @Test
-    @DisplayName("Vypnuté žádosti a skrytý profil: nová žádost neprojde")
+    @DisplayName("Vypnuté žádosti: nová žádost neprojde")
     void requestsCanBeTurnedOff() throws Exception {
         String a = "fc" + uniq(), b = "fd" + uniq();
         int bid = insertUser(b, "USER");
@@ -75,6 +75,70 @@ class FriendsIT extends UiTestSupport {
         openPlayer(b);
         submitForm(friendForm("request"));
         assertTrue(driver.getCurrentUrl().contains("friend=closed"), driver.getCurrentUrl());
+        assertFalse(exists("SELECT 1 FROM friendships WHERE requested_by=?", aid));
+    }
+
+    @Test
+    @DisplayName("Soukromému profilu jde poslat žádost; odmítnutí, nová žádost a tiché zablokování")
+    void privateProfileAndQuietBlock() throws Exception {
+        String a = "fg" + uniq(), b = "fh" + uniq();
+        int aid = registerAndLogin(a);
+        logout();
+        int bid = registerAndLogin(b);
+        update("UPDATE users SET profile_public=0 WHERE id=?", bid);
+        logout();
+        login(a, PASSWORD);
+
+        // soukromý profil se najde jen podle celého jména a žádost mu jde poslat
+        driver.get(BASE_URL + "/uzivatel.jsp?fq=" + b.substring(0, b.length() - 2) + "#pratele");
+        waitReady();
+        assertTrue(driver.findElements(By.cssSelector("#pratele .friend-row input[name=name][value='" + b + "']")).isEmpty(), "podle začátku jména ne");
+        driver.get(BASE_URL + "/uzivatel.jsp?fq=" + b + "#pratele");
+        waitReady();
+        submitForm(friendForm("request"));
+        assertTrue(exists("SELECT 1 FROM friendships WHERE requested_by=? AND status='pending'", aid));
+        assertTrue(exists("SELECT 1 FROM notifications WHERE user_id=? AND actor_id=? AND type='friend_request'", bid, aid));
+
+        // odmítne: žádost i upozornění zmizí a jde poslat znovu
+        logout();
+        login(b, PASSWORD);
+        driver.get(BASE_URL + "/uzivatel.jsp#pratele");
+        waitReady();
+        submitForm(friendForm("decline"));
+        assertFalse(exists("SELECT 1 FROM friendships WHERE requested_by=?", aid));
+        assertFalse(exists("SELECT 1 FROM notifications WHERE user_id=? AND actor_id=?", bid, aid));
+        logout();
+        login(a, PASSWORD);
+        driver.get(BASE_URL + "/uzivatel.jsp?fq=" + b + "#pratele");
+        waitReady();
+        submitForm(friendForm("request"));
+
+        // zablokuje: už ho to neotravuje
+        logout();
+        login(b, PASSWORD);
+        driver.get(BASE_URL + "/uzivatel.jsp#pratele");
+        waitReady();
+        submitForm(friendForm("block"));
+        driver.get(BASE_URL + "/uzivatel.jsp#pratele");
+        waitReady();
+        assertTrue(driver.findElements(By.cssSelector("input[name=action][value=decline]")).isEmpty(), "žádost se mu neukazuje");
+        assertFalse(exists("SELECT 1 FROM notifications WHERE user_id=? AND actor_id=?", bid, aid));
+
+        // ten druhý dál vidí nevyřízenou žádost, bez odkazu na profil, a další pokus nic neudělá
+        logout();
+        login(a, PASSWORD);
+        driver.get(BASE_URL + "/uzivatel.jsp#pratele");
+        waitReady();
+        assertTrue(driver.findElements(By.cssSelector("input[name=action][value=cancel]")).size() == 1, "žádost dál čeká");
+        assertTrue(driver.findElements(By.cssSelector("a.friend-who[href*='" + b + "']")).isEmpty(), "bez odkazu");
+        assertFalse(exists("SELECT 1 FROM notifications WHERE user_id=? AND actor_id=?", bid, aid));
+
+        // po odblokování žádost nevyskočí
+        logout();
+        login(b, PASSWORD);
+        driver.get(BASE_URL + "/uzivatel.jsp#pratele");
+        waitReady();
+        submitForm(friendForm("unblock"));
         assertFalse(exists("SELECT 1 FROM friendships WHERE requested_by=?", aid));
     }
 
