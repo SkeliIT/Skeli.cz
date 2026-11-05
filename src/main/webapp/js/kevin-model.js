@@ -78,7 +78,7 @@ export function createKevin(canvas, opts = {}) {
   let pose = 'idle', talking = false, talkClip = 'talk', act = null, actEnd = 0, paused = false, disposed = false;
   let lookX = 0, lookY = 0, spinT = -1, special = null, specialT = 0, frozenUntil = 0, held = null, turnTo = 0;
   let mixer = null, actions = {}, playing = null, head = null, hips = null, hipsRest = null, clock = 0;
-  let foot = null, walkSpeed = 0, speeds = {}, travel = {}, hipsH = 1, fbxK = 0, anchor = {};   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
+  let foot = null, walkSpeed = 0, travel = {}, hipsH = 1, fbxK = 0, anchor = {}, freeRoots = {};   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
   let legs = [], tail = [], jaw = null, jawRest = null, mouth = null, forcedFace = null, forcedUntil = 0;
   let feet = [], footRest = null, groundY = 0, groundK = 0;
 
@@ -138,7 +138,6 @@ export function createKevin(canvas, opts = {}) {
       if (disposed) return;
       for (const j of list) if (j.userData && j.userData.travel) travel[j.name] = j.userData.travel;
       api.addClips(list.map(j => THREE.AnimationClip.parse(j)));
-      for (const n of ['jog', 'run', 'run2', 'run3', 'runA', 'runM', 'sprint']) if (actions[n]) speeds[n] = measureWalk(model, n);
       // výška boků ve stoje (jednotky scény) – posun z pohybu se udává v násobcích výšky boků
       if (hips) { model.updateMatrixWorld(true); hipsH = hips.getWorldPosition(new THREE.Vector3()).y; }
       if (opts.onMoves) opts.onMoves();
@@ -342,6 +341,14 @@ export function createKevin(canvas, opts = {}) {
       const an = anchor[wanted()];
       hips.position.x = hipsRest.x + (an ? hips.position.x - an.x : 0);
       hips.position.z = hipsRest.z + (an ? hips.position.z - an.z : 0);
+      // tanec s kroky: boky jdou opravdu s pohybem (podle jeho váhy, takže prolnutí necukne)
+      for (const name in freeRoots) {
+        const a = actions[name], w = a.getEffectiveWeight();
+        if (!w || !a.isRunning()) continue;
+        const r = rootAt(name, a.time);
+        hips.position.x += r.x * w;
+        hips.position.z += r.z * w;
+      }
     }
     // the head follows the mouse a little (on top of whatever the move does; the move resets it each frame)
     if (!frozen) fixKnees();
@@ -383,6 +390,19 @@ export function createKevin(canvas, opts = {}) {
     renderer.render(scene, cam);
   }
   requestAnimationFrame(frame);
+
+  // posun boků v pohybu oproti jeho začátku (x, z v jednotkách kostí), y0 = výška boků v prvním snímku
+  const rootCache = {};
+  function rootAt(name, time) {
+    let c = rootCache[name];
+    if (!c) {
+      const tr = actions[name] && actions[name].getClip().tracks.find(t => /Hips\.position$/.test(t.name));
+      if (!tr) return { x: 0, z: 0, y0: 1 };
+      c = rootCache[name] = { f: tr.createInterpolant(), x0: tr.values[0], y0: tr.values[1] || 1, z0: tr.values[2] };
+    }
+    const r = c.f.evaluate(time);
+    return { x: r[0] - c.x0, z: r[2] - c.z0, y0: c.y0 };
+  }
 
   const api = {
     setPose(p) {
@@ -452,6 +472,22 @@ export function createKevin(canvas, opts = {}) {
       const v = travel[name] || 0;
       return v * hipsH * canvas.clientHeight / (2 * view.z * Math.tan(cam.fov * Math.PI / 360));
     },
+    // jaká část celkového posunu pohybu je hotová ve vteřině s (0–1): na začátku rozejití ještě stojí, okénko taky
+    travelAt(name, s) {
+      if (!actions[name]) return 1;
+      const d = actions[name].getClip().duration, end = rootAt(name, d), net = end.x * end.x + end.z * end.z;
+      if (!net) return 1;
+      const r = rootAt(name, Math.min(s, d));
+      return Math.max(0, Math.min(1, (r.x * end.x + r.z * end.z) / net));
+    },
+    // tanec, ve kterém dělá kroky: boky se nedrží na místě, ale jdou s pohybem (jen procházka, okénko je dost velké)
+    freeRoot(name) { if (actions[name]) freeRoots[name] = true; },
+    // jak daleko od výchozího místa teď tancem je (v násobcích výšky boků); poblíž nuly se dá plynule skončit
+    rootOffset(name) {
+      if (!freeRoots[name] || !actions[name]) return 0;
+      const r = rootAt(name, actions[name].time);
+      return Math.hypot(r.x, r.z) / r.y0;
+    },
     // reverse: pozpátku (např. „Sit To Stand“ pozpátku = sedá si)
     once(name, reverse) {
       if (!actions[name]) return 0;
@@ -493,10 +529,9 @@ export function createKevin(canvas, opts = {}) {
     setPaused(p) { paused = !!p; },
     setSpeed(s) { if (mixer) mixer.timeScale = s; },   // zpomalení pohybů (přehlídka)
     // css pixels a second the walker must move so his feet don't skate (0 before the model is loaded)
-    walkPxPerSec(name) {
-      const v = name && name !== 'walk' ? speeds[name] : walkSpeed;
-      if (!v) return 0;
-      return v * canvas.clientHeight / (2 * view.z * Math.tan(cam.fov * Math.PI / 360));
+    walkPxPerSec() {
+      if (!walkSpeed) return 0;
+      return walkSpeed * canvas.clientHeight / (2 * view.z * Math.tan(cam.fov * Math.PI / 360));
     },
     // kde je kost na obrázku: y v css px od horního okraje plátna (např. 'LeftHand', 'Hips') – podle toho se
     // Kevin zavěsí rukama na hranu karty nebo si sedne zadkem na hranu

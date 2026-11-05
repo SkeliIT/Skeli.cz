@@ -13,6 +13,9 @@ window.KevinWalk = function (K) {
   var walker = null, walkK = null, walking = false, movesReady = false, walkLoading = false;
   // what he dances when he stops on his walk
   var WALK_DANCES = ['dance', 'dance2', 'dance3', 'robot', 'silly', 'breakdance', 'flair', 'cheer', 'fistPump'];
+  // tance, ve kterých dělá kroky a vrací se na začátek: jdou opravdu s pohybem, jinak couval na místě
+  // (breakdance a flair zůstávají držené: jsou na zemi a v nich se boky točí, ne chodí)
+  var WALK_STEPS = ['dance', 'dance2', 'dance3', 'robot', 'silly', 'fistPump'];
   // where his feet are in his picture (the walker's camera: view below), as a share of its height
   var WALK_FEET = (1 + 1 / (5.0 * Math.tan(15 * Math.PI / 180))) / 2;
   // the surfaces he can walk on: cards and panels of the page, the footer
@@ -128,7 +131,13 @@ window.KevinWalk = function (K) {
         if (s.r.right > window.innerWidth - 20) { x1 = window.innerWidth; toSide = true; }
         Object.assign(walker.style, { position: 'fixed', top: 'auto', bottom: (-(1 - WALK_FEET) * h) + 'px' });
       }
-      var dir = Math.random() < 0.5 ? 1 : -1, x = dir > 0 ? x0 : x1;
+      var dir = Math.random() < 0.5 ? 1 : -1;
+      // na spodním okraji okna přijde vždy zboku; kde žádný bok není volný, tentokrát nepřijde
+      if (!s.el) {
+        if (!fromSide && !toSide) { walker.hidden = true; walking = false; return scheduleWalk(); }
+        if (dir > 0 ? !fromSide : !toSide) dir = -dir;
+      }
+      var x = dir > 0 ? x0 : x1;
       var inFromSide = dir > 0 ? fromSide : toSide, outToSide = dir > 0 ? toSide : fromSide;
       var stopAt = x0 + w / 2 + (x1 - x0) * (0.25 + Math.random() * 0.5), last = performance.now();
       // the box (160 px) must stand whole on the free stretch
@@ -153,31 +162,34 @@ window.KevinWalk = function (K) {
       // pokaždé jiný rovný běh (Run Forward, sprint); „Running“ a „Running (1)“ se v pohybu stáčejí o 62° a 166°,
       // při rovné cestě by to vypadalo, že se točí
       function runStyle() { var r = ['run3', 'runA', 'runM', 'sprint'].filter(function (n) { return walkK.has(n); }); return r[Math.floor(Math.random() * r.length)]; }
+      // rychlost cestovního tempa = kolik pohyb sám ujde za svou délku, přesně tak rychle jede zem pod nohou
+      function gaitPx(g) {
+        var px = walkK.travelPx(g), ms = walkK.clipMs(g);
+        return px > 0 && ms > 0 ? px / (ms / 1000) : walkK.walkPxPerSec();
+      }
       var cruise = (walkForce === 'run' || walkForce === 'all') && walkK.has('run3') ? runStyle() : len > 900 && walkK.has('sprint') && (hour >= 23 || hour < 4 || Math.random() < 0.15) ? 'sprint'
         : len > 650 && walkK.has('run3') && Math.random() < 0.6 ? runStyle()
         : len > 420 && walkK.has('jog') && Math.random() < 0.7 ? 'jog' : 'walk';
-      window.__kevinCruise = cruise + ' (délka ' + Math.round(len) + ') ' + ['walk', 'jog', 'run3', 'runA', 'runM', 'sprint'].map(function (n) { return n + ':' + (walkK.has(n) ? Math.round(walkK.walkPxPerSec(n)) : '-'); }).join(' ');   // pro testy
-      var stillUntil = 0, braked = false, gait = 'walk', gaitAt = 0, FALLBACK = { walk: 1, jog: 1.8, run: 2.6, run2: 2.6, run3: 2.6, runA: 2.6, runM: 2.6, sprint: 3.6 };
+      window.__kevinCruise = cruise + ' (délka ' + Math.round(len) + ') ' + ['walk', 'jog', 'run3', 'runA', 'runM', 'sprint'].map(function (n) { return n + ':' + (walkK.has(n) ? Math.round(gaitPx(n)) : '-'); }).join(' ');   // pro testy
+      var braked = false, gait = 'walk', gaitAt = 0, vel = 0;
       function setGait(g, now) {
         if (g === gait) return;
         gait = g; gaitAt = now; window.__kevinStage = 'tempo ' + g;
         walkK.hold(g);
-        // přikrčí se a vystřelí – během přikrčení stojí na místě (nesmí klouzat)
-        if (g === 'sprint' && walkK.has('sprintStart')) stillUntil = now + walkK.once('sprintStart') * 0.8;
-        // rychlost podle nohou v pohybu; u běhů měření z dotyku chodidla vychází moc nízko (klus 28, běh ~50 při chůzi 53
-        // = běžel stejně rychle jako šel), takže když je měření pod 75 % očekávané rychlosti, bere se poměr k chůzi
-        var base = walkK.walkPxPerSec() || 95, meas = walkK.walkPxPerSec(g);
-        speed = meas >= base * FALLBACK[g] * 0.75 ? meas : base * FALLBACK[g];
-        window.__kevinSpeed = g + ' ' + Math.round(speed) + ' (chůze ' + Math.round(base) + ')';   // pro testy
+        // přikrčí se a vystřelí (i v tom pohybu už běží dopředu, takže okénko jede dál)
+        if (g === 'sprint' && walkK.has('sprintStart')) walkK.once('sprintStart');
+        speed = gaitPx(g);
+        window.__kevinSpeed = g + ' ' + Math.round(speed) + ' (chůze ' + Math.round(walkK.walkPxPerSec()) + ')';   // pro testy
       }
-      // přechod (rozejde se, zastaví): hraje pohyb jednou a okénko jede přesně o tolik, kolik v něm ujde
+      // přechod (rozejde se, zastaví): hraje pohyb jednou a okénko jede stejně jako boky v tom pohybu – když v něm
+      // ještě stojí, stojí i okénko (dřív jelo pořád stejně, takže po tanci stál a přitom popojížděl)
       var trans = null;
       function transition(name, after) {
         var ms = walkK.clipMs(name);
         if (!ms) return after();
         walkK.hold(null); walkK.once(name);
-        gait = name; speed = walkK.travelPx(name) / (ms / 1000);
-        trans = { until: performance.now() + ms - 60, after: after };
+        gait = name;
+        trans = { name: name, start: performance.now(), x0: x, px: walkK.travelPx(name), until: performance.now() + ms - 60, after: after };
       }
       var goOn = function () {
         if (!walking) return;
@@ -188,13 +200,15 @@ window.KevinWalk = function (K) {
         }
         walkK.turn(dir * Math.PI / 2);
         gait = ''; braked = false;
-        if (walkK.has('walkStart')) transition('walkStart', function () { gait = ''; setGait('walk', performance.now()); });
-        else setGait('walk', performance.now());
+        // zboku přichází rovnou v chůzi: rozejití by proběhlo mimo obrazovku
+        if (walkK.has('walkStart') && !inFromSide) transition('walkStart', function () { gait = ''; setGait('walk', performance.now()); });
+        else { setGait('walk', performance.now()); vel = speed; }
+        inFromSide = false;
         last = performance.now(); requestAnimationFrame(step);
       };
       // občas vyleze zpoza karty: nad hranou nejdřív jen tlapky a hlava, zbytek těla je „za kartou“ (pod hranou
       // se plátno ořízne), vyšplhá nahoru (Braced Hang To Crouch) a rozejde se
-      if (!inFromSide && s.el && walkK.has('climbUp') && (walkForce === 'climb' || walkForce === 'all' || Math.random() < 0.4)) {
+      if (!inFromSide && s.el && walkK.has('climbUp')) {
         window.__kevinStage = 'leze zpoza karty';
         walkK.turn(0);
         var feetC = WALK_FEET * h - c.offsetTop, hipsY0 = walkK.boneY('Hips') || feetC - h * 0.4;
@@ -210,12 +224,10 @@ window.KevinWalk = function (K) {
           goOn();
         }, climbMs - 40);
       } else if (!inFromSide) {
+        // pohyby se nenačetly (šplhání není): jen se objeví na místě, žádný výskok zespodu (vypadal jako šmouha)
         walkK.turn(dir * Math.PI / 2);
-        walkK.once('jump');
-        walker.classList.add('airborne');
-        c.animate([{ transform: 'translateY(' + h * 0.5 + 'px)', opacity: 0 }, { transform: 'translateY(' + -h * 0.22 + 'px)', opacity: 1, offset: 0.55 }, { transform: 'translateY(0)', opacity: 1 }],
-          { duration: 900, easing: 'ease-out', fill: 'forwards' });
-        setTimeout(function () { walker.classList.remove('airborne'); goOn(); }, 900);
+        c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out' });
+        setTimeout(goOn, 400);
       } else { walker.classList.remove('airborne'); goOn(); }
       // sedne si na hranu: zadek přesně na hranu karty (poloha boků se změří na obrázku), nohy visí dolů
       // otočka na místě opravdovým pohybem (Left/Right Turn z Mixamo), pak se natočení přenese do celého těla;
@@ -349,7 +361,7 @@ window.KevinWalk = function (K) {
         last = now;
         var there = stops.length && (dir > 0 ? x + w / 2 >= stops[0] : x + w / 2 <= stops[0]);
         // konec přechodu → další krok (chůze po rozejití, příchod na zastávku po zastavení)
-        if (trans && now >= trans.until) { var after = trans.after; trans = null; after(); }
+        if (trans && now >= trans.until) { var after = trans.after; trans = null; after(); vel = speed; }
         // kolik zbývá do zastávky nebo konce: daleko = cestovní tempo (po chvíli chůze), blízko = chůze
         var left = stops.length ? Math.abs(stops[0] - (x + w / 2)) : (dir > 0 ? x1 - x : x - x0);
         // před zastávkou zastaví (Stop Walking) – začne tak daleko, kolik v něm ujde
@@ -374,12 +386,22 @@ window.KevinWalk = function (K) {
           // mostly a dance (5–7 s), else a wave or a look round – then on his way
           var moves = WALK_DANCES.filter(function (d) { return walkK.has(d); });
           if (moves.length && Math.random() < 0.65) {
-            walkK.hold(moves[Math.floor(Math.random() * moves.length)]);
-            return setTimeout(goOn, 5000 + Math.random() * 2000);
+            var move = moves[Math.floor(Math.random() * moves.length)], danced = performance.now(), least = 5000 + Math.random() * 2000;
+            if (WALK_STEPS.indexOf(move) >= 0) walkK.freeRoot(move);
+            walkK.hold(move);
+            // skončí, až je zase zhruba na výchozím místě, ať se k němu po tanci nesune
+            return (function wait() {
+              if (!walking) return;
+              var t = performance.now() - danced;
+              if (t >= least + 6000 || (t >= least && walkK.rootOffset(move) < 0.06)) return goOn();
+              setTimeout(wait, 60);
+            })();
           }
           return setTimeout(goOn, walkK.once(Math.random() < 0.5 ? 'wave' : 'lookAround') || 2500);
         }
-        if (now >= stillUntil) x += dir * speed * dt;
+        // rychlost se mění plynule jako prolnutí pohybů (chůze → běh); přechod jede podle boků v pohybu
+        if (trans) x = trans.x0 + dir * trans.px * walkK.travelAt(trans.name, (now - trans.start) / 1000);
+        else { vel += (speed - vel) * Math.min(1, dt / 0.25); x += dir * vel * dt; }
         walker.style.transform = 'translateX(' + x + 'px)';
         if ((dir > 0 && x >= x1) || (dir < 0 && x <= x0)) {
           if (outToSide) return endWalk();

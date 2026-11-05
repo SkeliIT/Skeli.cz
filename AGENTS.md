@@ -34,6 +34,10 @@ are easy to get wrong.
 - User images (avatar, profile header) go through `service/ProfileImages`: random file names, served only by
   `web/files/ProfileImageServlet` (the header also checks who is looking). A new servlet with `@MultipartConfig`
   must call `CsrfFilter.isValid` and be added to `CsrfFilter.MULTIPART_PATHS`.
+- The profile (`uzivatel.jsp`, `WEB-INF/views/player.jsp`) is split into parts by `js/profile-tabs.js`: Overview = about the person,
+  Games = one block per game (`.game-head` + its tiles; a new game adds a block, never mixes into Overview), Friends (own profile only), Comments.
+- Friends and blocks: `dao/FriendDao` + POST `/profile/friends`; "me" always comes from the session. Moderation: `dao/ModerationDao`. A new table with user
+  data also goes into `AccountDeletion`, `ProfileExportServlet` and the privacy text.
 - Comments under lyrics and under clips are one system: `dao/CommentDao` (the `Kind` picks the table),
   `/api/comments`, drawn by `js/comments.js` from `includes/comments.jspf`. Change both kinds together.
 - Kevin's lines live in `js/lines/kevin-{cs,en,de,uk,vi}.js` (a page loads only its own language, footer.jsp);
