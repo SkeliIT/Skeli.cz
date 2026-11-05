@@ -72,18 +72,8 @@
           <span class="song-name"><%= nameHtml %><% String tr = d.translatedTitle; if (!"cs".equals(cur) && tr != null && !tr.isBlank()) { %><span class="song-row-sub" lang="<%= cur %>"><%= WebUtils.escapeHtml(tr) %></span><% } %></span>
           <% if (d.year != null) { %><span class="song-year"><%= d.year %></span><% } %>
         </div>
-        <%-- the links behind one button under the name (they used to cover the thumbnail) --%>
+        <% if (versions != null && versions.size() > 1) { %>
         <div class="disco-actions">
-          <details class="disco-more">
-            <summary><i class="fa-solid fa-headphones"></i> <%= t.getProperty("music.links") %> <i class="fa-solid fa-chevron-down"></i></summary>
-            <div class="disco-links">
-              <% if (lyricsHref != null) { %><a class="disco-lyrics" href="<%= lyricsHref %>"><i class="fa-solid fa-align-left"></i> <%= t.getProperty("music.link.lyrics") %></a><% } %>
-              <% if (yt != null) { %><a class="disco-youtube" href="https://www.youtube.com/watch?v=<%= ytHtml %>" target="_blank" rel="noopener"><i class="fab fa-youtube"></i> YouTube</a><% } %>
-              <a class="disco-spotify" href="<%= spotifyHref %>" target="_blank" rel="noopener"><i class="fab fa-spotify"></i> Spotify</a>
-              <% if (appleHref != null) { %><a class="disco-apple" href="<%= appleHref %>" target="_blank" rel="noopener"><i class="fab fa-apple"></i> Apple Music</a><% } %>
-            </div>
-          </details>
-          <% if (versions != null && versions.size() > 1) { %>
           <details class="disco-versions">
             <summary><%= versions.size() %> <%= t.getProperty("music.versions") %> <i class="fa-solid fa-chevron-down"></i></summary>
             <ul>
@@ -96,8 +86,15 @@
             <% } %>
             </ul>
           </details>
-          <% } %>
         </div>
+        <% } %>
+        <%-- lišta dole na kartě: vždy čtyři místa, takže ikony leží pod sebou v celé mřížce; co píseň nemá, zůstane prázdné --%>
+        <nav class="disco-dock" aria-label="<%= nameHtml %>">
+          <% if (lyricsHref != null) { %><a class="disco-lyrics" href="<%= lyricsHref %>" title="<%= t.getProperty("music.link.lyrics") %>" aria-label="<%= t.getProperty("music.link.lyrics") %>"><i class="fa-solid fa-align-left" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
+          <% if (yt != null) { %><a class="disco-youtube" href="https://www.youtube.com/watch?v=<%= ytHtml %>" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
+          <a class="disco-spotify" href="<%= spotifyHref %>" target="_blank" rel="noopener" title="Spotify" aria-label="Spotify"><i class="fab fa-spotify" aria-hidden="true"></i></a>
+          <% if (appleHref != null) { %><a class="disco-apple" href="<%= appleHref %>" target="_blank" rel="noopener" title="Apple Music" aria-label="Apple Music"><i class="fab fa-apple" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
+        </nav>
       </article>
     <%
       }

@@ -39,6 +39,20 @@ public class MusicPageIT {
     }
 
     @Test
+    @DisplayName("Diskografie: odkazy jsou v liště se 4 místy, bez rozbalování, a mají popisek pro čtečky")
+    void discographyDockShowsTheLinks() {
+        driver.get("http://localhost:8080/music.jsp");
+        List<WebElement> docks = driver.findElements(By.cssSelector(".disco-card .disco-dock"));
+        assertFalse(docks.isEmpty(), "karty mají lištu");
+        assertEquals(driver.findElements(By.cssSelector(".disco-card")).size(), docks.size(), "každá karta");
+        for (WebElement dock : docks) assertEquals(4, dock.findElements(By.xpath("./*")).size(), "vždy čtyři místa");
+        for (WebElement a : driver.findElements(By.cssSelector(".disco-dock a"))) {
+            assertFalse(a.getAttribute("aria-label").isBlank(), "ikona má popisek");
+        }
+        assertTrue(driver.findElements(By.cssSelector(".disco-more")).isEmpty(), "staré rozbalování je pryč");
+    }
+
+    @Test
     void youtubePlayerIsInYoutubeSection() throws Exception {
         driver.get("http://localhost:8080/music.jsp");
         String src = driver.getPageSource();

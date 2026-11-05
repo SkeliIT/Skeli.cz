@@ -830,37 +830,23 @@ body.light .head-arrow { background: rgba(255, 255, 255, 0.4); }
 .music-page .discography,
 .music-page .spotify-block { margin-bottom: 56px; }
 
-/* Discography cards reuse .song-card from the Texty page. Under the name: "Listen & lyrics"
-   opens the links (lyrics, YouTube, Spotify, Apple Music) and "N versions" the clips. */
+/* Karty Diskografie vycházejí z .song-card (stránka Texty). Dole lišta se 4 místy (text, YouTube, Spotify, Apple Music),
+   nic se nerozbaluje, karty v řadě mají stejnou výšku; rozbalují se jen verze klipu („N verzí“). */
 .disco-card a.song-thumb { display: block; }
-.disco-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; padding: 0 18px 14px; margin-top: auto; }
-.disco-actions details[open] { flex-basis: 100%; }
-.disco-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.disco-links a {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--panel-border);
-  color: var(--text);
-  font-size: var(--fs-small);
-  transition: border-color .2s, background-color .2s;
-}
-.disco-links a:hover { text-decoration: none; background: color-mix(in srgb, var(--text) 6%, transparent); }
-.disco-links .disco-lyrics i { color: var(--accent); }
-.disco-links .disco-lyrics:hover { border-color: var(--accent); }
-.disco-links .disco-youtube i { color: var(--youtube); }
-.disco-links .disco-youtube:hover { border-color: var(--youtube); }
-.disco-links .disco-spotify i { color: var(--spotify); }
-.disco-links .disco-spotify:hover { border-color: var(--spotify); }
-.disco-links .disco-apple i { color: var(--apple-music); }
-.disco-links .disco-apple:hover { border-color: var(--apple-music); }
-/* two narrow cards side by side on phones: the buttons stay on one line */
+.disco-actions { padding: 0 18px 14px; }
+.disco-dock { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: auto; border-top: 1px solid var(--panel-border); }
+.disco-dock > * + * { border-left: 1px solid var(--panel-border); }
+.disco-dock a { display: flex; align-items: center; justify-content: center; min-height: 46px; font-size: 1.05rem; color: var(--text-dim); transition: background-color .2s, color .2s; }
+.disco-dock a:hover, .disco-dock a:focus-visible { text-decoration: none; background: color-mix(in srgb, var(--text) 7%, transparent); }
+.disco-dock a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.disco-dock .disco-lyrics, .disco-dock .disco-lyrics:hover { color: var(--accent); }
+.disco-dock .disco-youtube:hover, .disco-dock .disco-youtube:focus-visible { color: var(--youtube); }
+.disco-dock .disco-spotify:hover, .disco-dock .disco-spotify:focus-visible { color: var(--spotify); }
+.disco-dock .disco-apple:hover, .disco-dock .disco-apple:focus-visible { color: var(--apple-music); }
+/* dvě úzké karty vedle sebe na telefonu */
 @media (max-width: 600px) {
   .disco-actions { padding: 0 12px 12px; }
-  .disco-more summary, .disco-versions summary { white-space: nowrap; padding: 5px 10px; font-size: 0.66rem; gap: 6px; }
-  .disco-more summary .fa-headphones { display: none; }
+  .disco-versions summary { white-space: nowrap; padding: 5px 10px; font-size: var(--fs-small); gap: 6px; }
 }
 
 .spotify-embed { padding: 8px; }
@@ -1288,7 +1274,6 @@ body.light .lyric-textsize .ts-btn { width: 38px; height: 32px; padding: 0; bord
 .lyric-page .video-wrapper > .yt-facade-img { position: absolute; inset: 0; }
 
 /* ---------- Songs with several clips (original + remake) ---------- */
-.disco-more summary,
 .disco-versions summary {
   display: inline-flex;
   align-items: center;
@@ -1302,13 +1287,9 @@ body.light .lyric-textsize .ts-btn { width: 38px; height: 32px; padding: 0; bord
   list-style: none;
   user-select: none;
 }
-.disco-more summary::-webkit-details-marker,
 .disco-versions summary::-webkit-details-marker { display: none; }
-.disco-more summary:hover,
 .disco-versions summary:hover { color: var(--accent); border-color: var(--accent); }
-.disco-more summary .fa-chevron-down,
 .disco-versions summary .fa-chevron-down { font-size: 0.8em; transition: transform .2s; }
-.disco-more[open] summary .fa-chevron-down,
 .disco-versions[open] summary .fa-chevron-down { transform: rotate(180deg); }
 .disco-versions ul { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .disco-versions li a {
