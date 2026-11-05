@@ -79,11 +79,11 @@ class ChatDockIT extends UiTestSupport {
         js("localStorage.removeItem('soundMuted'); localStorage.removeItem('sound_kevin'); localStorage.removeItem('sound_message');");
         assertEquals(Boolean.TRUE, js("return SkeliSound.enabled('message')"));
         assertEquals(Boolean.FALSE, js("return SkeliSound.enabled('kevin')"), "Kevin je potichu, dokud si ho člověk nezapne");
-        jsClick(driver.findElement(By.cssSelector("button[data-sound-toggle].icon-btn")));
+        jsClick(driver.findElement(By.cssSelector("button[data-sound-toggle].view-row")));
         assertEquals("1", js("return localStorage.getItem('soundMuted')"));
         assertEquals(Boolean.FALSE, js("return SkeliSound.enabled('message')"), "reproduktor vypne všechno");
         assertEquals(Boolean.FALSE, js("return SkeliSound.play('message')"));
-        jsClick(driver.findElement(By.cssSelector("button[data-sound-toggle].icon-btn")));
+        jsClick(driver.findElement(By.cssSelector("button[data-sound-toggle].view-row")));
         assertEquals(Boolean.TRUE, js("return SkeliSound.enabled('message')"));
 
         int friend = insertUser("df" + uniq(), "USER");
@@ -93,5 +93,38 @@ class ChatDockIT extends UiTestSupport {
                 "var done = arguments[arguments.length - 1]; fetch('/api/notifications?count=1').then(function (r) { return r.text(); }).then(done);");
         assertTrue(count.contains("\"chat\":1"), count);
         assertTrue(count.contains("\"chatSound\":0"), "ztlumený člověk nezazvoní: " + count);
+    }
+
+    @Test
+    @DisplayName("Otevřený chat zazvoní na novou zprávu, ale ne při načtení, ne u ztlumeného a ne ve stavu Nerušit")
+    void openChatRings() throws Exception {
+        int me = registerAndLogin("dr" + uniq());
+        String friendName = "dt" + uniq();
+        int friend = insertUser(friendName, "USER");
+        update("INSERT INTO friendships (user_a, user_b, requested_by, status) VALUES (?, ?, ?, 'accepted')", Math.min(me, friend), Math.max(me, friend), me);
+        String add = "INSERT INTO chat_messages (user_a, user_b, sender_id, recipient_id, body) VALUES (?, ?, ?, ?, 'Ahoj')";
+        update(add, Math.min(me, friend), Math.max(me, friend), friend, me);
+        driver.get(BASE_URL + "/zpravy?s=" + friendName);
+        waitReady();
+        js("window.__plays = []; SkeliSound.play = function (k) { window.__plays.push(k); return true; };");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        wait.until(d -> !d.findElements(By.cssSelector(".chat-msg")).isEmpty());
+        Thread.sleep(5000);
+        assertEquals(0L, js("return window.__plays.length"), "stará zpráva nezvoní");
+
+        update(add, Math.min(me, friend), Math.max(me, friend), friend, me);
+        wait.until(d -> ((Number) js("return window.__plays.length")).intValue() == 1);
+        assertEquals("message", js("return window.__plays[0]"));
+
+        update("INSERT INTO chat_muted (user_id, other_id) VALUES (?, ?)", me, friend);
+        update(add, Math.min(me, friend), Math.max(me, friend), friend, me);
+        wait.until(d -> ((Number) js("return document.querySelectorAll('.chat-msg').length")).intValue() == 3);
+        assertEquals(1L, js("return window.__plays.length"), "ztlumený nezvoní");
+        update("DELETE FROM chat_muted WHERE user_id=?", me);
+
+        update("INSERT INTO user_chat_prefs (user_id, status) VALUES (?, 'dnd')", me);
+        update(add, Math.min(me, friend), Math.max(me, friend), friend, me);
+        wait.until(d -> ((Number) js("return document.querySelectorAll('.chat-msg').length")).intValue() == 4);
+        assertEquals(1L, js("return window.__plays.length"), "Nerušit nezvoní");
     }
 }

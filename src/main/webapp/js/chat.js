@@ -256,16 +256,20 @@
   }
   function apply(data) {
     if (!data) return;
-    var stick = nearBottom() || !loaded, added = false;
+    var stick = nearBottom() || !loaded, added = false, incoming = false;
     data.items.forEach(function (m) {
       var li = list.querySelector('.chat-msg[data-id="' + m.id + '"]');
       if (li) { paint(li, m); return; }
       list.appendChild(bubble(m));
       added = true;
+      if (!m.mine) incoming = true;
       if (!firstId || m.id < firstId) firstId = m.id;
     });
     if (added) markDays();
     markSeen(data.seenId);
+    // v otevřeném chatu je zpráva hned přečtená, takže počítadlo v hlavičce nevyskočí: zazvoní to tady.
+    // Ne při prvním načtení (staré zprávy), ne u ztlumeného člověka, ne ve stavu Nerušit.
+    if (loaded && incoming && !data.muted && !data.dnd && window.SkeliSound) window.SkeliSound.play('message');
     loaded = true;
     form.hidden = !data.canSend;
     closed.hidden = data.canSend;

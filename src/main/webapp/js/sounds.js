@@ -1,6 +1,7 @@
 // Zvuky webu: nová zpráva, zvoneček, Kevin. Vyrábí je prohlížeč (Web Audio), nic se nestahuje.
 // Reproduktor v hlavičce vypíná všechno, jednotlivé zvuky jsou v nastavení chatu. Ukládá se jen v tomhle prohlížeči.
-// Prohlížeč pustí zvuk až po prvním kliknutí na stránce; do té doby se nic nehraje a nic se nedohrává.
+// Prohlížeč pustí zvuk až po prvním kliknutí nebo klepnutí; do té doby se nic nehraje a nic se nedohrává.
+// Kdo už na webu klikal, tomu ho prohlížeč často povolí hned po načtení další stránky, proto se o to pokusí sám.
 (function () {
   if (window.SkeliSound) { window.SkeliSound.refresh(); return; }
   var DEFAULTS = { message: true, bell: true, kevin: false };
@@ -20,7 +21,9 @@
     var AC = window.AudioContext || window.webkitAudioContext;
     if (AC) { try { ctx = new AC(); } catch (e) { ctx = null; } }
   }
-  ['pointerdown', 'keydown'].forEach(function (ev) { document.addEventListener(ev, wake, { passive: true }); });
+  // dotyk počítá prohlížeč jako povolení až při zvednutí prstu (touchend, click), ne při pointerdown
+  ['pointerdown', 'pointerup', 'touchend', 'mousedown', 'click', 'keydown'].forEach(function (ev) { document.addEventListener(ev, wake, { passive: true, capture: true }); });
+  wake();
 
   function tone(freq, start, length, volume) {
     var o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + start;
@@ -34,16 +37,21 @@
     o.stop(t + length + 0.02);
   }
   var SOUNDS = {
-    message: function () { tone(740, 0, 0.14, 0.12); tone(988, 0.1, 0.2, 0.12); },
-    bell: function () { tone(1175, 0, 0.32, 0.08); },
-    kevin: function () { tone(520, 0, 0.09, 0.06); tone(660, 0.07, 0.1, 0.05); }
+    message: function () { tone(740, 0, 0.16, 0.3); tone(988, 0.11, 0.24, 0.3); },
+    bell: function () { tone(1175, 0, 0.36, 0.22); },
+    kevin: function () { tone(520, 0, 0.1, 0.16); tone(660, 0.07, 0.12, 0.14); }
   };
 
   function play(kind) {
-    if (!enabled(kind) || !SOUNDS[kind] || !ctx || ctx.state !== 'running') return false;
-    // víc otevřených záložek nemá zvonit přes sebe
+    if (!enabled(kind) || !SOUNDS[kind] || !ctx) return false;
+    // víc otevřených záložek a malé okno chatu nemají zvonit přes sebe
     var now = Date.now(), last = +(get('soundLast') || 0);
     if (now - last < 1500) return false;
+    if (ctx.state !== 'running') {
+      // ještě se o to pokusí; když to prohlížeč nedovolí, nic se později nedohraje
+      ctx.resume().then(function () { if (Date.now() - now < 800) { set('soundLast', String(Date.now())); SOUNDS[kind](); } }).catch(function () {});
+      return false;
+    }
     set('soundLast', String(now));
     SOUNDS[kind]();
     return true;
@@ -66,6 +74,13 @@
   }
 
   document.addEventListener('click', function (e) {
+    var test = e.target.closest && e.target.closest('[data-sound-test]');
+    if (test) {
+      wake();
+      var kind = test.dataset.soundTest;
+      if (ctx && SOUNDS[kind]) { ctx.resume().then(function () { SOUNDS[kind](); }).catch(function () {}); }
+      return;
+    }
     var b = e.target.closest && e.target.closest('[data-sound-toggle]');
     if (!b) return;
     set('soundMuted', muted() ? '0' : '1');

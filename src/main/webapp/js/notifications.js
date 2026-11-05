@@ -133,6 +133,6 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
 
   count();
-  setInterval(count, 25000);
+  setInterval(count, 12000);
   document.addEventListener('visibilitychange', count);
 })();

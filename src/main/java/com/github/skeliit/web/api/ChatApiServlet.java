@@ -69,6 +69,7 @@ public class ChatApiServlet extends HttpServlet {
             out.put("items", items);
             out.put("seenId", chat.seenId(me, other));
             out.put("muted", chat.isMuted(me, other));
+            out.put("dnd", "dnd".equals(chat.prefs(me).status));   // Nerušit: zprávy chodí, jen bez zvuku
             out.put("canSend", EmailVerification.isVerified(req.getSession(false)) && chat.canSend(me, other));
             // stav vidí jen přátelé
             out.put("state", new FriendDao().relation(me, other) == FriendDao.Rel.FRIENDS ? chat.shownState(other) : null);
