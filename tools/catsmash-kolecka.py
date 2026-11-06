@@ -1,4 +1,4 @@
-# Tematická kolečka k automatům CatSmash z obrázků z Gemini (na purpurovém pozadí #FF00FF, viz prompty ve skeli-navrh/catsmash-kolecka).
+# Tematická kolečka k automatům CatSmash z obrázků z Gemini (na purpurovém pozadí #FF00FF, viz prompty ve Skeli.cz-podklady/navrhy/catsmash-kolecka).
 # Z každého obrázku vyřízne velké, střední a malé kolo, táhlo a píst a uloží je do src/main/webapp/kevin/pong/kolecka/:
 #   <automat>-1.webp (velké), -2.webp (střední), -3.webp (malé), -rod.webp (táhlo), -piston.webp (píst)
 # Kola jsou vystředěná podle obrysu, ať se ve hře netočí do šišky. Hra si je načte jen pro vybraný automat (hra.js loadWheels).

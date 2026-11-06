@@ -1608,7 +1608,7 @@ t    }
     }
     // série perfektních odstřelů: kovová cedulka vlevo dole ve skle (2× bronz, 3× stříbro, 4× zlato, od 5× hoří),
     // dopadne s rázovou vlnou a zlatá jiskra doletí po oblouku do ukazatele nabití; přerušená série cedulku rozlomí
-    // (schválený náhled work/skeli-navrh/catsmash-serie)
+    // (schválený náhled work/Skeli.cz-podklady/navrhy/catsmash-serie)
     var ST_COL = ['#e09a5a', '#e6ebf2', '#ffd23f', '#ff7a1a'];
     function streakPop(n) {
       var el = root.querySelector('.kp-streak'), field = root.querySelector('.kpong-field');

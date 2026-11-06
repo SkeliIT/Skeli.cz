@@ -1,7 +1,7 @@
 // Hlášky do hry CatSmash: z textových souborů (klíč na řádku, pod ním „- hláška“) udělá
 // src/main/webapp/js/catsmash/hlasky.js (window.KEVIN_PONG_LINES = { cs: { start: [...], ... }, en: {...} }).
 // Hra ho načte až při otevření (zbytek webu nezpomaluje).
-//   node tools/catsmash-hlasky.js cs=../kevin-hlasky-pong.md [en=../kevin-hlasky-pong-en.md ...]
+//   node tools/catsmash-hlasky.js cs=../Skeli.cz-podklady/kevin/hlasky/kevin-hlasky-pong.md [en=../Skeli.cz-podklady/kevin/hlasky/kevin-hlasky-pong-en.md ...]
 // Vyřazené hlášky (slabé, opakující se vtip, skoro sprosté) jsou v SKIP – porovnává se celý text.
 const fs = require('fs');
 const path = require('path');

@@ -1,6 +1,6 @@
 // Kevin – the ginger cat in his hoodie (kevin/kevin.glb): a model made from the user's pictures (Rodin),
 // a skeleton and 38 moves from Mixamo, joined and compressed (meshopt, WebP) into one file of about 7 MB.
-// Doplněno 2026-10-25 (nástroje v work/skeli-navrh/kevin-model/nastroje): vlastní kosti ocasu ocas0–ocas6
+// Doplněno 2026-10-25 (nástroje v work/Skeli.cz-podklady/navrhy/kevin-model/nastroje): vlastní kosti ocasu ocas0–ocas6
 // (ocas se vlní a houpe kódem, pohyby z Mixamo na něj nesahají), kost brady „celist“ a pusa jako nálepka
 // z 24 obrázků (kevin/pusy.webp + kevin/pusa.json) – mění tvar při řeči a výrazech, brada jde s ní dolů.
 // Stejné ovládání, jaké měla stará zlatá soška (dřív js/kevin3d.js, smazaná), takže js/kevin.js
