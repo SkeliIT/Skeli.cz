@@ -97,7 +97,7 @@ class PeopleIT extends UiTestSupport {
         driver.get(BASE_URL + FIND);
         waitReady();
         assertEquals(Boolean.TRUE, ((JavascriptExecutor) driver).executeScript("return document.documentElement.scrollWidth <= innerWidth"));
-        assertTrue(driver.findElements(By.cssSelector("#navSubCommunity a[href$='/lide']")).isEmpty(), "v menu nesmí být");
+        assertTrue(driver.findElements(By.cssSelector("#navSubSquad a[href$='/lide']")).isEmpty(), "v menu nesmí být");
         java.net.HttpURLConnection old = (java.net.HttpURLConnection) java.net.URI.create(BASE_URL + "/lide").toURL().openConnection();
         old.setInstanceFollowRedirects(false);
         assertEquals(404, old.getResponseCode());

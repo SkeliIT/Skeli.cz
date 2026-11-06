@@ -21,25 +21,25 @@ class NavMenuIT extends UiTestSupport {
     }
 
     @Test
-    @DisplayName("Počítač: CatSmash je pod Games, nabídka se otevře kliknutím a zavře Esc; aktuální stránka svítí i na skupině")
+    @DisplayName("Počítač: CatSmash je ve Squadu, nabídka se otevře kliknutím a zavře Esc; aktuální stránka svítí i na skupině")
     void desktopGroups() {
         driver.manage().window().setSize(new Dimension(1400, 900));
         driver.get(BASE_URL + "/texty.jsp?lang=cs");
         waitReady();
         new Actions(driver).moveToLocation(5, 700).perform();
         assertTrue(driver.findElements(By.cssSelector("#mainNav > a[data-play-game]")).isEmpty(), "hra není přímo v menu");
-        WebElement game = driver.findElement(By.cssSelector("#navSubGames a[data-play-game]"));
+        WebElement game = driver.findElement(By.cssSelector("#navSubSquad a[data-play-game]"));
         assertFalse(game.isDisplayed(), "nabídka je zavřená");
-        group("Games").click();
+        group("Squad").click();
         assertTrue(game.isDisplayed());
-        assertEquals("true", group("Games").getAttribute("aria-expanded"));
+        assertEquals("true", group("Squad").getAttribute("aria-expanded"));
         new Actions(driver).sendKeys(Keys.ESCAPE).moveToLocation(5, 700).perform();
         assertFalse(game.isDisplayed(), "Esc nabídku zavře");
         assertTrue(driver.findElement(By.cssSelector("#navSubMusic")).findElement(By.xpath("..")).getAttribute("class").contains("has-active"), "Texty jsou v Hudbě");
-        group("Community").click();
-        assertTrue(driver.findElement(By.cssSelector("#navSubCommunity")).isDisplayed());
+        group("Squad").click();
+        assertTrue(driver.findElement(By.cssSelector("#navSubSquad")).isDisplayed());
         group("Music").click();
-        assertFalse(driver.findElement(By.cssSelector("#navSubCommunity")).isDisplayed(), "otevřená je vždy jen jedna");
+        assertFalse(driver.findElement(By.cssSelector("#navSubSquad")).isDisplayed(), "otevřená je vždy jen jedna");
     }
 
     @Test
@@ -67,9 +67,9 @@ class NavMenuIT extends UiTestSupport {
             driver.get(BASE_URL + "/index.jsp?lang=de");
             waitReady();
             jsClick(driver.findElement(By.id("menuToggle")));
-            WebElement game = driver.findElement(By.cssSelector("#navSubGames a[data-play-game]"));
+            WebElement game = driver.findElement(By.cssSelector("#navSubSquad a[data-play-game]"));
             assertTrue(game.isDisplayed(), "hra je vidět i bez rozbalování");
-            assertFalse(group("Games").isDisplayed(), "na telefonu jsou nadpisy, ne tlačítka");
+            assertFalse(group("Squad").isDisplayed(), "na telefonu jsou nadpisy, ne tlačítka");
             assertEquals(Boolean.TRUE, ((JavascriptExecutor) driver).executeScript(
                     "const n = document.getElementById('mainNav'); return n.scrollWidth <= n.clientWidth + 1 && document.documentElement.scrollWidth <= innerWidth;"), "nepřetéká: " + size);
         }

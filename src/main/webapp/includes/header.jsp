@@ -191,18 +191,12 @@
               </div>
               <a href="<%= ctx %>/aktuality.jsp" class="nav-top"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.news") %></a>
               <div class="nav-group">
-                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubCommunity"><span><%= t.getProperty("menu.community") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
-                <span class="nav-group-title"><%= t.getProperty("menu.community") %></span>
-                <div class="nav-sub" id="navSubCommunity">
+                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubSquad"><span><%= t.getProperty("menu.squad") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
+                <span class="nav-group-title"><%= t.getProperty("menu.squad") %></span>
+                <div class="nav-sub" id="navSubSquad">
                   <span class="nav-soon"><i class="fa-solid fa-table-cells nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.wall") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.wall") %></small></span>
                   <span class="nav-soon"><i class="fa-solid fa-trophy nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.chart") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.chart") %></small></span>
-                </div>
-              </div>
-              <div class="nav-group">
-                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubGames"><span><%= t.getProperty("menu.games") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
-                <span class="nav-group-title"><%= t.getProperty("menu.games") %></span>
-                <div class="nav-sub" id="navSubGames">
-                  <a href="<%= ctx %>/?kevin=pong" class="nav-game" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.catsmash") %></span><small><%= t.getProperty("menu.d.game") %></small></a>
+                  <a href="<%= ctx %>/?kevin=pong" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.catsmash") %></span><small><%= t.getProperty("menu.d.game") %></small></a>
                 </div>
               </div>
               <div class="nav-group">
