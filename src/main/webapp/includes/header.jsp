@@ -28,7 +28,6 @@
         java.util.Map.entry("/karaoke-kino", "menu.karaoke"),   // (the list sets pageTitle too: a forward has the view as servlet path)
         java.util.Map.entry("/music.jsp", "menu.music"),
         java.util.Map.entry("/about.jsp", "about.title"),
-        java.util.Map.entry("/lide", "menu.people"),
         java.util.Map.entry("/aktuality.jsp", "menu.news"),
         java.util.Map.entry("/donate.jsp", "donate.title"),
         java.util.Map.entry("/login.jsp", "auth.login.heading"),
@@ -196,7 +195,6 @@
                 <span class="nav-group-title"><%= t.getProperty("menu.community") %></span>
                 <div class="nav-sub" id="navSubCommunity">
                   <span class="nav-soon"><i class="fa-solid fa-table-cells nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.wall") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.wall") %></small></span>
-                  <a href="<%= ctx %>/lide"><i class="fa-solid fa-users nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.people") %></span><small><%= t.getProperty("menu.d.people") %></small></a>
                   <span class="nav-soon"><i class="fa-solid fa-trophy nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.chart") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.chart") %></small></span>
                 </div>
               </div>

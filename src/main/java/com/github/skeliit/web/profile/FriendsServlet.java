@@ -4,6 +4,7 @@ import com.github.skeliit.Db;
 import com.github.skeliit.dao.FriendDao;
 import com.github.skeliit.dao.FriendDao.Rel;
 import com.github.skeliit.dao.NotificationDao;
+import com.github.skeliit.dao.UserDao;
 import com.github.skeliit.security.RequestLimiter;
 import com.github.skeliit.web.auth.EmailVerification;
 import com.github.skeliit.web.auth.LoginServlet;
@@ -22,7 +23,7 @@ import java.sql.SQLException;
 
 /**
  * POST /profile/friends: action = request | accept | decline | cancel | remove | block | unblock, name = jméno druhého,
- * back = kam se vrátit. Formulář má CSRF token (CsrfFilter), „já“ je vždy ze session.
+ * nebo action = show | hide (ukázat mě v hledání přátel), back = kam se vrátit. Formulář má CSRF token (CsrfFilter), „já“ je vždy ze session.
  * Žádostí nejvýš 30 za hodinu. Kdo mě zablokoval, se dozví jen to, že žádost nešla poslat.
  */
 @WebServlet(name = "FriendsServlet", urlPatterns = {"/profile/friends"})
@@ -39,8 +40,14 @@ public class FriendsServlet extends HttpServlet {
         String anchor = back.startsWith("/hrac/") ? "" : "#pratele";
         String result = "ok";
         try {
-            Integer other = idOf(req.getParameter("name"));
             String action = String.valueOf(req.getParameter("action"));
+            // Hledat přátele: ukázat se ostatním, nebo se schovat. Týká se jen mě, druhého člověka to nepotřebuje.
+            if ("show".equals(action) || "hide".equals(action)) {
+                new UserDao().setCommunityPublic(me, "show".equals(action));
+                resp.sendRedirect(back + anchor);
+                return;
+            }
+            Integer other = idOf(req.getParameter("name"));
             if (other == null || other.equals(me)) {
                 result = "fail";
             } else {

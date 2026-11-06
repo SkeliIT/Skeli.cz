@@ -157,23 +157,19 @@ public class FriendDao {
     }
 
     /**
-     * Stránka Lidé: kdo si zapnul „ukázat mě v Komunitě“, nejnovější první. S hledáním i člověk se soukromým seznamem,
-     * pokud někdo napíše celé jeho jméno (žádost o přátelství poslat jde). Blokovaní oběma směry, adminem zablokovaní a smazaní tu nejsou.
+     * Hledat přátele na profilu: kdo si zapnul „ukázat mě v hledání přátel“, nejnovější první.
+     * Blokovaní oběma směry, adminem zablokovaní a smazaní tu nejsou.
      */
-    public List<com.github.skeliit.model.DirectoryPerson> directory(int me, String q, int offset, int limit) throws SQLException {
-        boolean search = q != null && !q.isBlank();
-        String like = search ? q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%" : null;
+    public List<com.github.skeliit.model.DirectoryPerson> directory(int me, int offset, int limit) throws SQLException {
         String sql = "SELECT u.id, u.username, u.avatar_url, u.profile_public, u.online_public, f.status, f.requested_by FROM users u "
                 + "LEFT JOIN friendships f ON f.user_a = LEAST(u.id, ?) AND f.user_b = GREATEST(u.id, ?) "
-                + "WHERE u.id <> ? AND u.role <> 'DELETED' AND u.blocked_at IS NULL "
-                + (search ? "AND (u.username = ? OR (u.community_public = 1 AND u.username LIKE ?)) " : "AND u.community_public = 1 ")
+                + "WHERE u.id <> ? AND u.role <> 'DELETED' AND u.blocked_at IS NULL AND u.community_public = 1 "
                 + "AND NOT EXISTS (SELECT 1 FROM user_blocks b WHERE (b.blocker_id = ? AND b.blocked_id = u.id) OR (b.blocker_id = u.id AND b.blocked_id = ?)) "
                 + "ORDER BY u.id DESC LIMIT ? OFFSET ?";
         List<com.github.skeliit.model.DirectoryPerson> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
             int i = 1;
             ps.setInt(i++, me); ps.setInt(i++, me); ps.setInt(i++, me);
-            if (search) { ps.setString(i++, q); ps.setString(i++, like); }
             ps.setInt(i++, me); ps.setInt(i++, me);
             ps.setInt(i++, limit); ps.setInt(i, offset);
             try (ResultSet rs = ps.executeQuery()) {

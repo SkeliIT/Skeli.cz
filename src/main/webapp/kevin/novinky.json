@@ -1,12 +1,12 @@
 [
   {
-    "d": "2026-11-05",
-    "href": "/lide",
-    "cs": "V menu Komunita jsou Lidé: najdeš tam ostatní a přidáš si je do přátel. Ukážeš se tam, jen když si to zapneš.",
-    "en": "People is now in the Community menu: find others and add them as friends. You only show up there if you switch it on yourself.",
-    "de": "Im Menü Community gibt es jetzt Leute: Finde andere und füge sie als Freunde hinzu. Du erscheinst dort nur, wenn du es selbst einschaltest.",
-    "uk": "У меню Спільнота тепер є Люди: знаходь інших і додавай у друзі. Ти з’явишся там, лише якщо це ввімкнеш.",
-    "vi": "Trong menu Cộng đồng giờ có Mọi người: tìm người khác và kết bạn. Bạn chỉ xuất hiện ở đó nếu tự bật."
+    "d": "2026-11-06",
+    "href": "/uzivatel.jsp?najit=1#pratele",
+    "cs": "Na profilu v Přátelích je tlačítko Hledat přátele. Ukážeš se tam, jen když si to zapneš.",
+    "en": "Your profile's Friends part now has a Find friends button. You only show up there if you switch it on yourself.",
+    "de": "Im Bereich Freunde auf deinem Profil gibt es jetzt den Knopf Freunde finden. Du erscheinst dort nur, wenn du es selbst einschaltest.",
+    "uk": "У розділі Друзі на твоєму профілі тепер є кнопка Знайти друзів. Ти з’явишся там, лише якщо це ввімкнеш.",
+    "vi": "Mục Bạn bè trên hồ sơ của bạn giờ có nút Tìm bạn bè. Bạn chỉ xuất hiện ở đó nếu tự bật."
   },
   {
     "d": "2026-11-05",

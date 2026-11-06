@@ -33,6 +33,12 @@
     java.util.List<com.github.skeliit.model.ActivityItem> activityList = java.util.List.of();
     String frQuery = request.getParameter("fq");
     if (frQuery != null) frQuery = frQuery.strip();
+    // Hledat přátele: lidé, kteří se chtějí nechat najít, po stránkách
+    final int FR_PAGE_SIZE = 24;
+    java.util.List<com.github.skeliit.model.DirectoryPerson> frPeople = java.util.List.of();
+    boolean frPeopleMore = false, frShown = false;
+    String frRawPage = request.getParameter("np");
+    int frPage = frRawPage != null && frRawPage.matches("[0-9]{1,4}") ? Integer.parseInt(frRawPage) : 0;
     try {
       UserDao users = new UserDao();          // dao/UserDao
       UserProfile p = users.profile(uid);     // nothing saved yet = null
@@ -46,6 +52,10 @@
       frFriends = fd.friends(uid); frIn = fd.incoming(uid); frOut = fd.outgoing(uid); frBlocked = fd.blocked(uid);
       if (frQuery != null && frQuery.length() >= 2 && frQuery.length() <= 50) frFound = fd.search(uid, frQuery);
       for (com.github.skeliit.model.Friend found : frFound) frRel.put(found.id, fd.relation(uid, found.id));
+      frPeople = fd.directory(uid, frPage * FR_PAGE_SIZE, FR_PAGE_SIZE + 1);
+      frPeopleMore = frPeople.size() > FR_PAGE_SIZE;
+      if (frPeopleMore) frPeople = frPeople.subList(0, FR_PAGE_SIZE);
+      frShown = users.communityPublic(uid);
       profilePublic = users.profilePublic(uid);
       shownBadges = users.showcaseBadges(uid);
       myTracks = new com.github.skeliit.dao.UserTrackDao().list(uid, true);   // i skryté adminem: majitel musí vidět proč

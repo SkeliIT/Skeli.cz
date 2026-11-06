@@ -2573,15 +2573,21 @@ a.friend-who:hover { color: var(--accent); text-decoration: none; }
   .profile-tabs a:not(.active) .tab-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 
-/* ---------- Lidé (/lide): nejdřív telefon ---------- */
-.people-page { display: grid; gap: 14px; max-width: 980px; margin-inline: auto; padding-inline: 12px; }
+/* ---------- Hledat přátele (Přátelé na profilu): nejdřív telefon ---------- */
+.friend-find { margin: 0 0 14px; }
+.friend-find > summary { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; box-sizing: border-box; border-radius: 999px; cursor: pointer; list-style: none; }
+.friend-find > summary::-webkit-details-marker { display: none; }
+.friend-find-chev { transition: transform .2s; }
+.friend-find[open] .friend-find-chev { transform: rotate(180deg); }
+.friend-find-body { display: grid; gap: 12px; padding-top: 14px; }
+.friend-find-body > * { min-width: 0; }
+.friend-find-body .friend-search, .friend-find-body .friend-head, .friend-find-body .people-lead { margin: 0; }
+.people-lead { color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); }
+@media (min-width: 768px) { .friend-find > summary { display: inline-flex; width: auto; padding-inline: 22px; } }
 .people-me { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--panel); font-family: var(--font-text); font-size: var(--fs-card); }
 .people-me.on { border-color: var(--panel-border); }
 .people-me p { flex: 1 1 200px; margin: 0; }
 .people-me i { color: var(--accent); }
-.people-search { display: flex; gap: 8px; }
-.people-search input { flex: 1; min-width: 0; min-height: 44px; padding: 0 14px; border: 1px solid var(--panel-border); border-radius: 12px; background: var(--panel); color: var(--text); font: inherit; font-family: var(--font-text); }
-.people-search button { flex: none; width: 48px; min-height: 44px; padding: 0; justify-content: center; }
 .people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
 .people-card { display: grid; justify-items: center; align-content: start; gap: 8px; padding: 14px 10px; border: 1px solid var(--panel-border); border-radius: var(--radius); background: var(--panel); text-align: center; min-width: 0; }
 .people-av { position: relative; display: block; width: 64px; height: 64px; }
