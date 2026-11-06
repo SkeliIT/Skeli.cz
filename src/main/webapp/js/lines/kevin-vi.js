@@ -474,7 +474,7 @@
   "photos": {
     "hint": "Đừng bấm vào tên tôi. Thật đấy. Trong đó có ảnh riêng tư.",
     "1": "Đúng rồi, là tôi đây! Mèo đẹp trai nhỉ? Cái chân này để xin đồ ăn, trả tiền trước nhé.",
-    "2": "It is Godzilla! Chạy đi, mấy ngôi nhà nhỏ.",
+    "2": "It's Catzilla! Gravity test bắt đầu sau ba... hai...",
     "3": "Đây chỉ là một file RAW bình thường. Andy đã chăm chút nó trong Affinity, và xem này: ngôi sao điện ảnh. Giỏi lắm, Andy. Nhưng người mẫu cũng có công đấy.",
     "4": "Đây là cách tôi trở thành chú mèo trên web. Từ ảnh đến bản phác thảo rồi đến áo hoodie. Tiền cát-xê vẫn chưa thấy.",
     "5": "Từ trước, từ bên và từ sau. Cứ tìm lỗi đi. Không có đâu."

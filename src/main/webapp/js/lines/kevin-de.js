@@ -474,7 +474,7 @@
   "photos": {
     "hint": "Klick nicht auf meinen Namen. Im Ernst. Da sind private Fotos drin.",
     "1": "Ja ja, das bin ich! Schöner Kater, oder? Die Pfote ist für Leckerlis, Bezahlung im Voraus.",
-    "2": "It is Godzilla! Lauft, kleine Häuser.",
+    "2": "It's Catzilla! Der Gravity-Test beginnt in drei... zwei...",
     "3": "Das war eine ganz normale RAW-Datei. Andy hat sich in Affinity richtig Mühe gegeben, und schau: ein Filmstar. Gute Arbeit, Andy. Das Model hat aber auch seinen Anteil.",
     "4": "So wurde ich zum Kater auf der Website. Vom Foto über die Skizze bis zum Hoodie. Das Honorar ist noch nicht da.",
     "5": "Von vorn, von der Seite und von hinten. Such ruhig einen Fehler. Du findest keinen."
