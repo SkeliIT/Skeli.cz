@@ -17,7 +17,21 @@
   <link rel="stylesheet" href="/css/pages.css?v=<%= assetVersion %>">
 </head>
 <body class="chat-embed-body">
-  <script>try { document.body.classList.add(localStorage.getItem('theme') || 'dark'); } catch (e) { document.body.classList.add('dark'); }</script>
+  <script>
+    // Režim a tučné písmo jako web. Okno se načte jen jednou: když člověk na stránce přepne světlý/tmavý režim
+    // nebo tučné písmo, přijde sem událost storage (stejný původ) a okno se přebarví hned, ne až po obnovení.
+    (function () {
+      function apply() {
+        var theme = 'dark', bold = false;
+        try { theme = localStorage.getItem('theme') === 'light' ? 'light' : 'dark'; bold = /^(600|700)$/.test(localStorage.getItem('fontWeight') || ''); } catch (e) { /* soukromý režim */ }
+        document.body.classList.toggle('light', theme === 'light');
+        document.body.classList.toggle('dark', theme === 'dark');
+        document.documentElement.classList.toggle('bold-text', bold);
+      }
+      apply();
+      window.addEventListener('storage', function (e) { if (e.key === 'theme' || e.key === 'fontWeight' || e.key === null) apply(); });
+    })();
+  </script>
   <%@ include file="/includes/chat-body.jspf" %>
   <script src="/js/sounds.js?v=<%= assetVersion %>"></script>
 </body>
