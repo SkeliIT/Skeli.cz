@@ -131,6 +131,11 @@ html.kpong-open .kevin, html.kpong-open .kevin-walker { display: none !important
     display: flex; align-items: center; justify-content: center; gap: 8px; color: color-mix(in srgb, var(--accent) 40%, transparent); font-size: var(--fs-small);
   }
   .kpong-zone[hidden] { display: none; }
+  /* tlačítka ⚡ a magnet leží vždy nad plochou pro pálku (plocha je v DOM až za nimi): dřív je plocha zakryla,
+     takže v Upravit rozložení nešla chytit a při hře nešla zmáčknout, když na ploše ležela */
+  .kpong-zone { z-index: 1; }
+  .kpong-shot, .kpong-stickbtn { z-index: 2; }
+  .kp-layout-bar { z-index: 3; }
   .kpong-zone .kp-zone-name, .kpong-zone .kp-zone-grip { display: none; }
   .kpong.kp-layout .kpong-pad { visibility: visible !important; background: rgba(0, 0, 0, .45); pointer-events: auto; }
   .kpong.kp-layout .kpong-zone { border: 2px dashed var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }

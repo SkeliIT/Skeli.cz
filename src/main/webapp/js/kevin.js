@@ -228,6 +228,19 @@
     hideTimer = setTimeout(function () { hideBubble(hideAfter); }, Math.max(6000, hideAt - Date.now()));
   }
   text.addEventListener('click', function () { if (currentGo) goTo(currentGo); });
+  // odkaz v bublině na místo na téže stránce (#lyric-help…): sjedeme k němu sami a rozblikáme ho. Na skok
+  // prohlížeče na kotvu se nedá spolehnout (bratr hlásil, že „Ukaž mi to“ nic neudělalo).
+  link.addEventListener('click', function (e) {
+    var href = link.getAttribute('href') || '';
+    if (href.charAt(0) !== '#' || href.length < 2) return;
+    var target = document.getElementById(decodeURIComponent(href.slice(1)));
+    if (!target) return;
+    e.preventDefault();
+    hideBubble('point');
+    highlight(target);
+    // karta bývá vysoká: ať je vidět její začátek (nadpis), ne střed (odsazení od lišty dává scroll-margin)
+    target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+  });
   bubble.addEventListener('pointerenter', holdBubble);
   bubble.addEventListener('focusin', holdBubble);
   bubble.addEventListener('pointerleave', releaseBubble);

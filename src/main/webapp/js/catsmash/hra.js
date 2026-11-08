@@ -197,7 +197,7 @@
         rk[i] = inf.b ? D.RANK.indexOf(inf.b) : -1;
       }
       return idx.sort(function (a, c) { return locked[a] - locked[c] || rk[a] - rk[c] || a - c; });
-t    }
+    }
     // přidá odznaky, vrátí ty opravdu nové (v pořadí BADGE_ICON)
     function addBadges(list) {
       var fresh = [];
@@ -540,7 +540,8 @@ t    }
     var eqLv = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], eqT = 0;
     // sloupce ekvalizéru v obrázku pálky (souřadnice těla pálky): první sloupec, rozestup, šířka, spodek, nejvyšší výška
     var EQ = { x0: 75, step: 31.2, w: 25, bottom: 107, max: 42, bg: [68, 58, 322, 51] };
-    function addP(o) { if (pfx.length < (lowFx >= 3 ? 30 : lowFx ? 70 : 180)) { o.age = 0; pfx.push(o); } }
+    // strop částic najednou; na telefonu o něco nižší (při rychlé výměně s perfektními ranami se jich jinak nahromadí stovky)
+    function addP(o) { if (pfx.length < (lowFx >= 3 ? 30 : lowFx ? 70 : coarse ? 130 : 180)) { o.age = 0; pfx.push(o); } }
     function curPad() { return SKINS[skin] && SKINS[skin].img; }
     // automat podle pálky (kevin/pong/stroje/, tools/catsmash-stroje.py): leží nad hřištěm a okénky s koly
     // (otvory jsou průhledné), dnešní automat ram.webp se pod ním schová. Vypínač = ⚙ „Atmosféra pálky“.
@@ -1106,7 +1107,7 @@ t    }
       }
     }
     var FLIGHT = D.FLIGHT;
-    var flight = null, flightLast = {}, FLIGHT_LIFE = 0.75;
+    var flight = null, flightLast = {}, FLIGHT_LIFE = 0.75, FLIGHT_CHUNK = 4;   // FLIGHT_CHUNK = kolik bodů stopy jedním tahem (drawFlight)
     var BALL_FLIGHT = D.BALL_FLIGHT;
     var REACT = D.REACT;
     var BALL_KINDS = D.BALL_KINDS;
@@ -1230,13 +1231,19 @@ t    }
           for (var i = 0; i < line.length; i += 3) { cx.globalAlpha = alphaAt(line[i]); cx.fillStyle = colorAt(st, i, true); cx.beginPath(); cx.arc(line[i][0], line[i][1], st.w * 0.8, 0, 7); cx.fill(); }
           return;
         }
-        for (var pass = 0; pass < 2; pass++) {          // záře pod čarou, pak jádro
+        // záře pod čarou, pak jádro. Čára se kreslí po kouscích FLIGHT_CHUNK bodů jedním tahem (průhlednost a barva
+        // podle prostředního bodu kousku): dřív měl každý úsek vlastní tah, při rychlé výměně to bylo stovky tahů
+        // za snímek a iPhone se sekal. Okem je rozdíl nepoznat.
+        for (var pass = 0; pass < 2; pass++) {
           cx.lineWidth = pass ? st.w : st.w * 2.6;
-          for (var j = 1; j < line.length; j++) {
-            var al = alphaAt(line[j]) * (pass ? 1 : 0.28);
+          for (var s0 = 1; s0 < line.length; s0 += FLIGHT_CHUNK) {
+            var s1 = Math.min(line.length - 1, s0 + FLIGHT_CHUNK - 1);
+            var al = alphaAt(line[(s0 + s1) >> 1]) * (pass ? 1 : 0.28);
             if (al <= 0.01) continue;
-            cx.globalAlpha = al; cx.strokeStyle = colorAt(st, j, pass === 1);
-            cx.beginPath(); cx.moveTo(line[j - 1][0], line[j - 1][1]); cx.lineTo(line[j][0], line[j][1]); cx.stroke();
+            cx.globalAlpha = al; cx.strokeStyle = colorAt(st, s0, pass === 1);
+            cx.beginPath(); cx.moveTo(line[s0 - 1][0], line[s0 - 1][1]);
+            for (var j = s0; j <= s1; j++) cx.lineTo(line[j][0], line[j][1]);
+            cx.stroke();
           }
         }
       }
@@ -3469,7 +3476,10 @@ t    }
       if (e.pointerType !== 'touch' && e.type === 'pointerdown' && e.button === 0 && !setCard && !e.target.closest('button, a, .kpong-panel, .kpong-settings')) lockMouse();
       if (e.pointerType === 'touch') {
         if (e.type === 'pointerdown') {
-          if (mover !== null && mover !== e.pointerId) { shoot(); e.preventDefault(); return; }
+          // pálku už vede jiný prst (na stroji i v ploše pro pálku): tenhle = odstřel. Dřív se kontroloval jen
+          // prst na stroji, takže ťuknutí vedle ⚡ při vedení v ploše převzalo pálku a po zvednutí ji „pustilo“ –
+          // pálka pak stála, dokud hráč znovu neťukl
+          if ((mover !== null && mover !== e.pointerId) || (st && st.id !== e.pointerId)) { shoot(); e.preventDefault(); return; }
           mover = e.pointerId;
           kickOff();
           try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
@@ -3594,7 +3604,7 @@ t    }
       e.stopPropagation();
       if (layoutMode) return dragLayout(e, e.target.closest('.kp-zone-grip') ? 'size' : 'zone');
       if (!running) return;
-      if (zoneMover !== null && zoneMover !== e.pointerId) { shoot(); e.preventDefault(); return; }
+      if ((zoneMover !== null && zoneMover !== e.pointerId) || (st && st.id !== e.pointerId)) { shoot(); e.preventDefault(); return; }
       zoneMover = e.pointerId; kickOff();
       try { zoneEl.setPointerCapture(e.pointerId); } catch (x) { /* nevadí */ }
       steerStart(e, 'zone');
@@ -3603,6 +3613,16 @@ t    }
     zoneEl.addEventListener('pointermove', function (e) { if (e.pointerId === zoneMover && running) zoneSteer(e); });
     function zoneEnd(e) { if (e.pointerId === zoneMover) { zoneMover = null; steerEnd(e); } }
     zoneEl.addEventListener('pointerup', zoneEnd); zoneEl.addEventListener('pointercancel', zoneEnd);
+    // pojistka: zvednutý prst se uvolní vždy, i když jeho „pointerup“ nedošel na stroj ani do plochy (iPhone ho
+    // občas pošle jinam, když se pod prstem změní stránka). Jinak by hra pořád myslela, že pálku vede, a každé
+    // další ťuknutí by bylo jen odstřel.
+    function fingerGone(e) {
+      if (e.pointerId === mover) mover = null;
+      if (e.pointerId === zoneMover) zoneMover = null;
+      steerEnd(e);
+    }
+    document.addEventListener('pointerup', fingerGone, true);
+    document.addEventListener('pointercancel', fingerGone, true);
     // přetahování v režimu úprav: tlačítko, celá plocha, nebo roh plochy (velikost)
     function dragLayout(e, what) {
       e.preventDefault(); e.stopPropagation();
@@ -4226,6 +4246,7 @@ t    }
       cancelAnimationFrame(raf);
       document.removeEventListener('keydown', onKey); document.removeEventListener('keyup', onKey);
       document.removeEventListener('visibilitychange', onHidden);
+      document.removeEventListener('pointerup', fingerGone, true); document.removeEventListener('pointercancel', fingerGone, true);
       removeEventListener('resize', fit); removeEventListener('resize', fxSize);
       document.removeEventListener('fullscreenchange', onFull); document.removeEventListener('webkitfullscreenchange', onFull);
       if (isFull()) { var ex = (document.exitFullscreen || document.webkitExitFullscreen).call(document); if (ex && ex.catch) ex.catch(function () {}); }
