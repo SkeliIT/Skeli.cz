@@ -58,10 +58,13 @@ for (const b of blocks(css)) {
     return m && KEEP.has(m[1]) && !DROP.test(p);
   });
   if (!parts.length) continue;
-  const sel = parts.map(p => {
+  const sel = parts.flatMap(p => {
     let s = p.replace(/^\.([a-z]+\d*)/, '.chat-room.lk-$1');
     for (const [re, to] of MAP) s = s.replace(re, to);
-    return s;
+    // pozadí vzhledu (kořen, ::before/::after, částice) dostane i seznam rozhovorů, ať okénko Zprávy vypadá stejně jako chat
+    const rest = p.replace(/^\.[a-z]+\d*/, '');
+    if (/^(::?(before|after))?$|^ \.deco\b/.test(rest)) return [s, s.replace(/^\.chat-room\./, '.chat-list.')];
+    return [s];
   }).join(',\n');
   let body = b.body.replace(VAR_RE, '--k-$1').replace(/'Space Grotesk'/g, "'Exo 2'")
     // jména v náhledu jsou natvrdo (Terka, ty): v chatu je bere z data-who u zprávy (js/chat.js)
@@ -72,7 +75,7 @@ for (const b of blocks(css)) {
   // kořen vzhledu (jen „.d1“, „.g“…): stejné proměnné dostane i okno nastavení, ať má barvy vybraného vzhledu
   const roots = parts.filter(p => /^\.[a-z]+\d*$/.test(p));
   const vars = body.split(';').map(d => d.trim()).filter(d => d.startsWith('--k-'));
-  if (roots.length && vars.length) rules.push(roots.map(p => '.chat-settings.lk-' + p.slice(1)).join(', ') + ' { ' + vars.join('; ') + '; }');
+  if (roots.length && vars.length) rules.push(roots.map(p => '.chat-settings.lk-' + p.slice(1) + ', .chat-list.lk-' + p.slice(1)).join(', ') + ' { ' + vars.join('; ') + '; }');
 }
 // animace: jen použité, přejmenované na lk-*
 const names = [...keyframes.keys()].filter(n => used.has(n));
