@@ -49,16 +49,21 @@
     </div>
     <div class="chat-tab-panel" role="tabpanel" id="chatPanelLook" aria-labelledby="chatTabLook" data-panel="look">
       <%-- živý náhled: vzhled pro právě zapnutý režim webu, barva bublin, písmo a velikost --%>
-      <div class="look-live chat-room" aria-hidden="true"><div class="lk-deco"></div><ol class="chat-msgs">
-        <li class="chat-msg" data-who="yo"><span class="chat-text">&#x1F3A4; &#x1F3B6;</span></li>
-        <li class="chat-msg mine" data-who="yo"><span class="chat-text"><%= t.getProperty("chat.preview") %></span></li></ol></div>
-      <p class="chat-settings-note"><%= t.getProperty("chat.look.hint") %></p>
+      <div class="look-stage">
+        <div class="look-live chat-room" aria-hidden="true"><div class="lk-deco"></div><ol class="chat-msgs">
+          <li class="chat-msg" data-who="yo"><span class="chat-text">&#x1F3A4; &#x1F3B6;</span></li>
+          <li class="chat-msg mine" data-who="yo"><span class="chat-text"><%= t.getProperty("chat.preview") %></span></li></ol></div>
+        <button type="button" class="look-arrow look-prev" data-step="-1" aria-label="<%= t.getProperty("chat.look.prev") %>" title="<%= t.getProperty("chat.look.prev") %>"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+        <button type="button" class="look-arrow look-next" data-step="1" aria-label="<%= t.getProperty("chat.look.next") %>" title="<%= t.getProperty("chat.look.next") %>"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        <span class="look-live-name" aria-live="polite"></span>
+      </div>
       <% for (int mode = 0; mode < 2; mode++) {
            boolean dark = mode == 0;
            String field = dark ? "lookDark" : "lookLight", current = dark ? chatPrefs.lookDark : chatPrefs.lookLight;
            java.util.List<String> looks = dark ? com.github.skeliit.model.ChatPrefs.LOOKS_DARK : com.github.skeliit.model.ChatPrefs.LOOKS_LIGHT; %>
       <fieldset class="look-group<%= dark ? " look-dark" : " look-light" %>">
         <legend><i class="fa-solid <%= dark ? "fa-moon" : "fa-sun" %>" aria-hidden="true"></i> <%= t.getProperty(dark ? "chat.look.dark" : "chat.look.light") %></legend>
+        <p class="chat-settings-note"><%= t.getProperty("chat.look.hint") %></p>
         <div class="look-tiles">
           <label class="look-tile"><input type="radio" name="<%= field %>" value=""<%= current.isEmpty() ? " checked" : "" %>><%= chatLookMini("") %><span class="look-name"><%= t.getProperty("chat.look.basic") %></span></label>
           <% for (String id : looks) { %>
@@ -67,7 +72,7 @@
         </div>
       </fieldset>
       <% } %>
-    <fieldset>
+    <fieldset class="chat-theme-field">
       <legend><%= t.getProperty("chat.theme") %></legend>
       <p class="chat-settings-note chat-theme-note"><%= t.getProperty("chat.theme.note") %></p>
       <div class="chat-opts chat-swatches">

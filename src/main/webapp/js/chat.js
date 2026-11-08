@@ -31,20 +31,39 @@
       }
     }
   }
-  function setLook(box, id) {
+  function setLook(box, id, noDeco) {
     if (!box) return;
     box.className = box.className.split(/\s+/).filter(function (c) { return c.indexOf('lk-') !== 0; }).join(' ');
     lookClasses(id).forEach(function (c) { box.classList.add(c); });
-    if (id) decoFor(box);
+    if (id && !noDeco) decoFor(box);
   }
+  function isLight() { return document.body.classList.contains('light'); }
   function currentLook() {
     if (!page) return '';
-    return document.body.classList.contains('light') ? page.dataset.lookLight || '' : page.dataset.lookDark || '';
+    return isLight() ? page.dataset.lookLight || '' : page.dataset.lookDark || '';
   }
+  // pás náhledů pro zapnutý režim (ten druhý je schovaný v CSS)
+  function lookGroup() { return dialog && dialog.querySelector(isLight() ? '.look-light' : '.look-dark'); }
   function applyLook() {
     var id = currentLook();
     setLook(document.querySelector('.chat-room[data-with]'), id);
     setLook(page && page.querySelector('.look-live'), id);
+    if (!dialog) return;
+    // okno nastavení v barvách vybraného vzhledu (proměnné vzhledu, bez částic)
+    setLook(dialog, id, true);
+    dialog.classList.toggle('look-is-light', isLight());
+    var group = lookGroup(), checked = group && group.querySelector('input:checked');
+    var name = dialog.querySelector('.look-live-name');
+    if (name && checked) name.textContent = checked.closest('.look-tile').querySelector('.look-name').textContent;
+    var themeField = dialog.querySelector('.chat-theme-field');
+    if (themeField) themeField.hidden = !!id;   // barvy bublin mají vliv jen u vzhledu Základní
+  }
+  // vybraný vzhled doprostřed pásu (po otevření okna a po šipce)
+  function showChecked(smooth) {
+    var group = lookGroup(), checked = group && group.querySelector('input:checked');
+    if (!checked) return;
+    var tile = checked.closest('.look-tile'), strip = tile.parentNode;
+    strip.scrollTo({ left: tile.offsetLeft - (strip.clientWidth - tile.offsetWidth) / 2, behavior: smooth && !calm ? 'smooth' : 'auto' });
   }
   applyLook();
   if (page && !window.__chatLookWatch) {
@@ -103,7 +122,24 @@
 
   // ---------- nastavení (kolečko): vzhled, barvy, písmo, velikost, zvuky, „Viděno“; platí hned a hned se uloží ----------
   if (dialog) {
-    page.querySelectorAll('.chat-gear').forEach(function (b) { b.addEventListener('click', function () { dialog.showModal(); }); });
+    page.querySelectorAll('.chat-gear').forEach(function (b) { b.addEventListener('click', function () { dialog.showModal(); showChecked(false); }); });
+    // šipky ‹ › v náhledu: předchozí / další vzhled v pásu (dokola)
+    dialog.querySelectorAll('.look-arrow').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var inputs = Array.prototype.slice.call(lookGroup().querySelectorAll('input[type=radio]'));
+        var i = inputs.findIndex(function (n) { return n.checked; });
+        inputs[(i + +b.dataset.step + inputs.length) % inputs.length].click();   // click = vybere a spustí change (uložení)
+        showChecked(true);
+      });
+    });
+    // kolečko myši nad pásem posouvá do strany
+    dialog.querySelectorAll('.look-tiles').forEach(function (strip) {
+      strip.addEventListener('wheel', function (e) {
+        if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+        strip.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }, { passive: false });
+    });
     dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });   // klik mimo okno ho zavře
     // záložky Stav, Vzhled, Zvuky; šipky přepínají jako u každých záložek
     var tabs = Array.prototype.slice.call(dialog.querySelectorAll('.chat-tabs [role=tab]'));

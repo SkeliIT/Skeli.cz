@@ -69,6 +69,10 @@ for (const b of blocks(css)) {
     .replace(/'\/\/ (TERKA|JÁ)'/g, "'// ' attr(data-who)");
   for (const m of body.matchAll(/animation(?:-name)?\s*:\s*([^;]+)/g)) m[1].split(/[\s,]+/).forEach(w => used.add(w));
   rules.push(sel + ' {' + body + '}');
+  // kořen vzhledu (jen „.d1“, „.g“…): stejné proměnné dostane i okno nastavení, ať má barvy vybraného vzhledu
+  const roots = parts.filter(p => /^\.[a-z]+\d*$/.test(p));
+  const vars = body.split(';').map(d => d.trim()).filter(d => d.startsWith('--k-'));
+  if (roots.length && vars.length) rules.push(roots.map(p => '.chat-settings.lk-' + p.slice(1)).join(', ') + ' { ' + vars.join('; ') + '; }');
 }
 // animace: jen použité, přejmenované na lk-*
 const names = [...keyframes.keys()].filter(n => used.has(n));

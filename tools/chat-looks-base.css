@@ -86,29 +86,61 @@ html.low-fx .chat-room .lk-deco i { display: none !important; }
 .chat-settings legend i { color: var(--accent); }
 .chat-settings .chat-theme-note { margin: 0 0 8px; }
 
-/* živý náhled nahoře: vzhled pro právě zapnutý režim webu */
-.chat-settings .look-live { height: 132px; min-height: 0; margin: 0 0 8px; border-radius: 16px; position: relative; isolation: isolate; overflow: hidden; }
-.chat-settings .look-live .chat-msgs { overflow: hidden; justify-content: center; height: 100%; padding: 12px 14px; box-sizing: border-box; }
+/* ---------- okno nastavení v barvách vybraného vzhledu (třídy lk-* na dialogu, js/chat.js) ---------- */
+/* hlavní barva každého vzhledu (tlačítka, záložky, rámeček vybraného) a barva písma na ní */
+.chat-settings.lk-d1 { --k-acc: #ff46be; } .chat-settings.lk-d2 { --k-acc: #fcee0a; } .chat-settings.lk-d3 { --k-acc: #3cffb4; } .chat-settings.lk-d4 { --k-acc: #39ff6a; }
+.chat-settings.lk-d5 { --k-acc: #7fe3ff; } .chat-settings.lk-d6 { --k-acc: #d9dbe2; } .chat-settings.lk-d7 { --k-acc: #ff4fae; } .chat-settings.lk-d8 { --k-acc: #e6b730; }
+.chat-settings.lk-d9 { --k-acc: #ff7a2a; } .chat-settings.lk-d11 { --k-acc: #6ee07a; } .chat-settings.lk-d16 { --k-acc: #ffc24a; } .chat-settings.lk-d18 { --k-acc: #ffb36b; }
+.chat-settings.lk-l1 { --k-acc: #9b5cff; } .chat-settings.lk-s2 { --k-acc: #ff3d8b; } .chat-settings.lk-s4 { --k-acc: #0090c0; } .chat-settings.lk-s11 { --k-acc: #1f8a44; }
+.chat-settings.lk-s13 { --k-acc: #0b8f96; } .chat-settings.lk-s15 { --k-acc: #d42f8c; } .chat-settings.lk-l8 { --k-acc: #2f7fd0; } .chat-settings.lk-l10 { --k-acc: #e63b5a; }
+.chat-settings.lk-m4 { --k-acc: #1e6bff; } .chat-settings.lk-o1 { --k-acc: #a37b00; } .chat-settings.lk-o2 { --k-acc: #16977a; } .chat-settings.lk-o3 { --k-acc: #d0562f; } .chat-settings.lk-o4 { --k-acc: #6b4dff; }
+.chat-settings[class*="lk-"] { --accent: var(--k-acc); --accent-ink: #111; --text: var(--k-fg); --text-dim: var(--k-dim); --panel-border: var(--k-line);
+  color: var(--k-fg); background: linear-gradient(var(--k-veil, rgba(0,0,0,.35)), var(--k-veil, rgba(0,0,0,.35))), var(--k-bg); border-color: color-mix(in srgb, var(--k-acc) 45%, transparent);
+  transition: background .4s, border-color .4s, color .4s; }
+.chat-settings.look-is-light[class*="lk-"] { --k-veil: rgba(255,255,255,.55); --accent-ink: #fff; }
+.chat-settings.lk-d6, .chat-settings.lk-d2, .chat-settings.lk-d4 { --accent-ink: #111; }
 
-/* dlaždice vzhledů: malý chat v daném vzhledu; pohyb jen u vybrané a pod myší (šetří telefon) */
-.look-group { margin-top: 6px; }
-.look-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
-.look-tile { position: relative; display: grid; gap: 6px; padding: 6px; border: 1px solid var(--panel-border); border-radius: 16px; cursor: pointer;
-  transition: transform .2s, border-color .2s, box-shadow .2s; }
-.look-tile:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 50%, var(--panel-border)); }
-.look-tile:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 6px 24px color-mix(in srgb, var(--accent) 35%, transparent); }
-.look-tile:has(input:checked)::after { content: '\2713'; position: absolute; top: 2px; right: 2px; z-index: 2; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; }
-.look-tile:has(input:focus-visible) { outline: 2px solid var(--text); outline-offset: 2px; }
+/* živý náhled nahoře: vzhled pro právě zapnutý režim webu, jméno vzhledu a šipky ‹ › */
+.look-stage { position: relative; margin: 0 0 10px; }
+.chat-settings .look-live { height: 150px; min-height: 0; border-radius: 18px; position: relative; isolation: isolate; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.chat-settings .look-live .chat-msgs { overflow: hidden; justify-content: center; height: 100%; padding: 12px 56px; box-sizing: border-box; }
+.look-live-name { position: absolute; left: 50%; bottom: -12px; z-index: 2; transform: translateX(-50%); max-width: 80%; padding: 4px 14px; border-radius: 999px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); font-size: var(--fs-small); letter-spacing: 1px; box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 45%, transparent); }
+.look-arrow { position: absolute; top: 50%; z-index: 2; display: grid; place-items: center; width: 40px; height: 40px; margin-top: -20px; border: 1px solid color-mix(in srgb, var(--text) 25%, transparent); border-radius: 50%;
+  background: color-mix(in srgb, var(--panel-strong) 70%, transparent); backdrop-filter: blur(8px); color: var(--text); cursor: pointer; }
+.look-arrow:hover { border-color: var(--accent); color: var(--accent); }
+.look-prev { left: 8px; } .look-next { right: 8px; }
+
+/* pás náhledů: jen vzhledy pro zapnutý režim, projíždí se do strany (prst, kolečko, šipky) */
+body:not(.light) .look-group.look-light, body.light .look-group.look-dark { display: none; }
+.look-group { margin: 14px 0 0; }
+.look-tiles { display: flex; gap: 10px; margin: 0 -18px; padding: 8px 18px 12px; overflow-x: auto; scroll-snap-type: x proximity; scroll-padding: 0 18px; scrollbar-width: none; overscroll-behavior-x: contain;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent); mask: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent); }
+.look-tiles::-webkit-scrollbar { display: none; }
+.look-tile { position: relative; flex: 0 0 76px; display: grid; gap: 5px; justify-items: center; padding: 0; border: 0; cursor: pointer; scroll-snap-align: center; }
 .look-tile input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.chat-settings .look-tile .look-mini { display: block; position: relative; isolation: isolate; height: 78px; min-height: 0; overflow: hidden; border-radius: 11px; pointer-events: none; }
-.chat-settings .look-tile .look-mini .chat-msgs { gap: 5px; height: 100%; padding: 8px; overflow: hidden; box-sizing: border-box; perspective: none; }
-.chat-settings .look-tile .look-mini .chat-msg { max-width: 85%; padding: 3px 8px; margin: 0; align-self: flex-start; }
+.chat-settings .look-tile .look-mini { display: block; position: relative; isolation: isolate; width: 76px; height: 96px; min-height: 0; overflow: hidden; border-radius: 16px; pointer-events: none;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--text) 18%, transparent); transition: transform .2s, box-shadow .2s; }
+.look-tile:hover .look-mini { transform: translateY(-3px); }
+.look-tile:has(input:checked) .look-mini { transform: translateY(-3px) scale(1.04); box-shadow: 0 0 0 2px var(--accent), 0 8px 22px color-mix(in srgb, var(--accent) 50%, transparent); }
+.look-tile:has(input:focus-visible) .look-mini { outline: 2px solid var(--text); outline-offset: 3px; }
+.chat-settings .look-tile .look-mini .chat-msgs { gap: 5px; height: 100%; padding: 8px 6px; overflow: hidden; box-sizing: border-box; perspective: none; justify-content: center; }
+.chat-settings .look-tile .look-mini .chat-msg { max-width: 92%; padding: 2px 6px; margin: 0; align-self: flex-start; }
 .chat-settings .look-tile .look-mini .chat-msg.mine { align-self: flex-end; }
-.chat-settings .look-tile .look-mini .chat-text { font-size: .8rem; line-height: 1.2; }
-.look-name { font-family: var(--font-text); font-size: var(--fs-small); text-align: center; }
+.chat-settings .look-tile .look-mini .chat-text { font-size: .66rem; line-height: 1.2; }
+.look-name { max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-text); font-size: .7rem; color: var(--text-dim); }
+.look-tile:has(input:checked) .look-name { color: var(--accent); }
 .look-tile:not(:hover):not(:has(input:checked)) .look-mini, .look-tile:not(:hover):not(:has(input:checked)) .look-mini *,
 .look-tile:not(:hover):not(:has(input:checked)) .look-mini::before, .look-tile:not(:hover):not(:has(input:checked)) .look-mini::after,
 .look-tile:not(:hover):not(:has(input:checked)) .look-mini *::before, .look-tile:not(:hover):not(:has(input:checked)) .look-mini *::after { animation-play-state: paused !important; }
+
+/* barvy, písmo a velikost: kompaktně; barvy jen u vzhledu Základní (jinde nemají vliv) */
+.chat-theme-field[hidden] { display: none; }
+.chat-settings .chat-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.chat-settings .chat-swatch { flex: 0 0 auto; padding: 6px 8px; }
+.chat-settings .chat-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.chat-settings[class*="lk-"] .chat-opt, .chat-settings[class*="lk-"] .chat-swatch { border-color: color-mix(in srgb, var(--text) 22%, transparent); }
+@media (prefers-reduced-motion: reduce) { .look-tile .look-mini, .chat-settings[class*=lk-] { transition: none; } }
 html.low-fx .chat-settings, html.low-fx .chat-state-menu { backdrop-filter: none; }
 @media (prefers-reduced-motion: reduce) { .look-tile { transition: none; } }
 /* Pódium v náhledu a v dlaždicích: dav a mobily úplně dole (náhled nemá pole na psaní) */
