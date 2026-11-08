@@ -8,35 +8,68 @@
   if (chatPrefs == null) chatPrefs = new com.github.skeliit.model.ChatPrefs();
   boolean chatEmbed = Boolean.TRUE.equals(request.getAttribute("chatEmbed"));   // malé okno v liště: odkazy zůstávají v něm
   String chatTop = chatEmbed ? " target=\"_top\"" : "";
+  String chatMe = (String) session.getAttribute("username");
 %>
-<main class="chat-page<%= chatWith != null ? " in-room" : "" %>" data-chat-theme="<%= chatPrefs.theme %>" data-chat-font="<%= chatPrefs.font %>" data-chat-size="<%= chatPrefs.size %>" data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
-  <%-- nastavení: stav, barvy, písmo, velikost; ukládá se hned při změně (js/chat.js) --%>
+<%! /* malý chat ve vzhledu: dlaždice v nastavení. Třídy rodin (lk-p, lk-g, lk-calm) stejně jako js/chat.js lookClasses() */
+    private static String chatLookClasses(String id) {
+        if (id == null || id.isEmpty()) return "";
+        String c = " lk-" + id;
+        if (id.startsWith("s")) c += " lk-p lk-g";
+        else if (id.startsWith("o")) c += " lk-g lk-calm";
+        else if (id.startsWith("m") || id.equals("d11")) c += " lk-p";
+        return c;
+    }
+    private static String chatLookMini(String id) {
+        return "<span class=\"look-mini chat-room" + chatLookClasses(id) + "\" aria-hidden=\"true\"><ol class=\"chat-msgs\">"
+            + "<li class=\"chat-msg\" data-who=\"yo\"><span class=\"chat-text\">&#x1F3A4; &#x1F3B6;</span></li>"
+            + "<li class=\"chat-msg mine\" data-who=\"yo\"><span class=\"chat-text\">&#x1F525; &#x1F4AF;</span></li></ol></span>";
+    } %>
+<link rel="stylesheet" href="/css/chat-looks.css?v=<%= assetVersion %>">
+<%-- filtr pro slévání kapek (vzhled Lávová lampa) --%>
+<svg width="0" height="0" class="chat-svg-defs" aria-hidden="true" focusable="false"><filter id="goo"><feGaussianBlur stdDeviation="10"/><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/></filter></svg>
+<main class="chat-page<%= chatWith != null ? " in-room" : "" %>" data-chat-theme="<%= chatPrefs.theme %>" data-chat-font="<%= chatPrefs.font %>" data-chat-size="<%= chatPrefs.size %>"
+      data-look-dark="<%= chatPrefs.lookDark %>" data-look-light="<%= chatPrefs.lookLight %>" data-status="<%= chatPrefs.status %>" data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
+  <%-- stav jedním ťuknutím (tlačítko .chat-me-state v seznamu i v hlavičce rozhovoru), js/chat.js --%>
+  <div class="chat-state-menu" role="menu" aria-label="<%= t.getProperty("chat.state.change") %>" hidden>
+    <% for (String v : com.github.skeliit.model.ChatPrefs.STATUSES) { %>
+    <button type="button" role="menuitemradio" aria-checked="<%= v.equals(chatPrefs.status) %>" data-status="<%= v %>"><span class="chat-state-dot s-<%= v %>" aria-hidden="true"></span> <span><%= t.getProperty("chat.status." + v) %></span></button>
+    <% } %>
+    <p class="chat-settings-note"><%= t.getProperty("chat.status.note") %></p>
+  </div>
+  <%-- nastavení: vzhled, zvuky, soukromí; ukládá se hned při změně (js/chat.js) --%>
   <dialog class="chat-settings" aria-label="<%= t.getProperty("chat.settings") %>">
     <form method="dialog" class="chat-settings-head">
-      <h2><i class="fa-solid fa-gear" aria-hidden="true"></i> <%= t.getProperty("chat.settings") %></h2>
+      <h2><i class="fa-solid fa-sliders" aria-hidden="true"></i> <%= t.getProperty("chat.settings") %></h2>
       <button type="submit" class="chat-settings-close" aria-label="<%= t.getProperty("chat.settings.close") %>"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
     </form>
     <div class="chat-tabs" role="tablist" aria-label="<%= t.getProperty("chat.settings") %>">
-      <button type="button" role="tab" id="chatTabState" aria-controls="chatPanelState" aria-selected="true" data-tab="state"><i class="fa-solid fa-circle-dot" aria-hidden="true"></i> <%= t.getProperty("chat.tab.state") %></button>
-      <button type="button" role="tab" id="chatTabLook" aria-controls="chatPanelLook" aria-selected="false" tabindex="-1" data-tab="look"><i class="fa-solid fa-palette" aria-hidden="true"></i> <%= t.getProperty("chat.tab.look") %></button>
+      <button type="button" role="tab" id="chatTabLook" aria-controls="chatPanelLook" aria-selected="true" data-tab="look"><i class="fa-solid fa-palette" aria-hidden="true"></i> <%= t.getProperty("chat.tab.look") %></button>
       <button type="button" role="tab" id="chatTabSound" aria-controls="chatPanelSound" aria-selected="false" tabindex="-1" data-tab="sound"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> <%= t.getProperty("chat.tab.sound") %></button>
+      <button type="button" role="tab" id="chatTabPrivacy" aria-controls="chatPanelPrivacy" aria-selected="false" tabindex="-1" data-tab="privacy"><i class="fa-solid fa-user-lock" aria-hidden="true"></i> <%= t.getProperty("account.tab.privacy") %></button>
     </div>
-    <div class="chat-tab-panel" role="tabpanel" id="chatPanelState" aria-labelledby="chatTabState" data-panel="state">
-    <fieldset>
-      <legend><%= t.getProperty("chat.status") %></legend>
-      <div class="chat-opts">
-        <% for (String v : com.github.skeliit.model.ChatPrefs.STATUSES) { %>
-        <label class="chat-opt"><input type="radio" name="status" value="<%= v %>"<%= v.equals(chatPrefs.status) ? " checked" : "" %>> <span class="chat-state-dot s-<%= v %>" aria-hidden="true"></span> <%= t.getProperty("chat.status." + v) %></label>
-        <% } %>
-      </div>
-      <p class="chat-settings-note"><%= t.getProperty("chat.status.note") %></p>
-      <label class="chat-opt chat-receipts"><input type="checkbox" name="receipts" value="1"<%= chatPrefs.receipts ? " checked" : "" %>> <i class="fa-solid fa-eye" aria-hidden="true"></i> <span><%= t.getProperty("chat.receipts") %></span></label>
-    </fieldset>
-    </div>
-    <div class="chat-tab-panel" role="tabpanel" id="chatPanelLook" aria-labelledby="chatTabLook" data-panel="look" hidden>
-      <div class="chat-preview" aria-hidden="true"><span><%= t.getProperty("chat.preview") %></span></div>
+    <div class="chat-tab-panel" role="tabpanel" id="chatPanelLook" aria-labelledby="chatTabLook" data-panel="look">
+      <%-- živý náhled: vzhled pro právě zapnutý režim webu, barva bublin, písmo a velikost --%>
+      <div class="look-live chat-room" aria-hidden="true"><div class="lk-deco"></div><ol class="chat-msgs">
+        <li class="chat-msg" data-who="yo"><span class="chat-text">&#x1F3A4; &#x1F3B6;</span></li>
+        <li class="chat-msg mine" data-who="yo"><span class="chat-text"><%= t.getProperty("chat.preview") %></span></li></ol></div>
+      <p class="chat-settings-note"><%= t.getProperty("chat.look.hint") %></p>
+      <% for (int mode = 0; mode < 2; mode++) {
+           boolean dark = mode == 0;
+           String field = dark ? "lookDark" : "lookLight", current = dark ? chatPrefs.lookDark : chatPrefs.lookLight;
+           java.util.List<String> looks = dark ? com.github.skeliit.model.ChatPrefs.LOOKS_DARK : com.github.skeliit.model.ChatPrefs.LOOKS_LIGHT; %>
+      <fieldset class="look-group<%= dark ? " look-dark" : " look-light" %>">
+        <legend><i class="fa-solid <%= dark ? "fa-moon" : "fa-sun" %>" aria-hidden="true"></i> <%= t.getProperty(dark ? "chat.look.dark" : "chat.look.light") %></legend>
+        <div class="look-tiles">
+          <label class="look-tile"><input type="radio" name="<%= field %>" value=""<%= current.isEmpty() ? " checked" : "" %>><%= chatLookMini("") %><span class="look-name"><%= t.getProperty("chat.look.basic") %></span></label>
+          <% for (String id : looks) { %>
+          <label class="look-tile"><input type="radio" name="<%= field %>" value="<%= id %>"<%= id.equals(current) ? " checked" : "" %>><%= chatLookMini(id) %><span class="look-name"><%= t.getProperty("chat.look." + id) %></span></label>
+          <% } %>
+        </div>
+      </fieldset>
+      <% } %>
     <fieldset>
       <legend><%= t.getProperty("chat.theme") %></legend>
+      <p class="chat-settings-note chat-theme-note"><%= t.getProperty("chat.theme.note") %></p>
       <div class="chat-opts chat-swatches">
         <% for (String v : com.github.skeliit.model.ChatPrefs.THEMES) { %>
         <label class="chat-swatch" data-chat-theme="<%= v %>" title="<%= t.getProperty("chat.theme." + v) %>"><input type="radio" name="theme" value="<%= v %>"<%= v.equals(chatPrefs.theme) ? " checked" : "" %>> <span class="chat-swatch-bubble" aria-hidden="true">&#x1F525;&#x1F602;</span> <span class="chat-swatch-name"><%= t.getProperty("chat.theme." + v) %></span></label>
@@ -63,10 +96,14 @@
     <div class="chat-tab-panel" role="tabpanel" id="chatPanelSound" aria-labelledby="chatTabSound" data-panel="sound" hidden>
     <%@ include file="/includes/sound-prefs.jspf" %>
     </div>
+    <div class="chat-tab-panel" role="tabpanel" id="chatPanelPrivacy" aria-labelledby="chatTabPrivacy" data-panel="privacy" hidden>
+      <label class="chat-opt chat-receipts"><input type="checkbox" name="receipts" value="1"<%= chatPrefs.receipts ? " checked" : "" %>> <i class="fa-solid fa-eye" aria-hidden="true"></i> <span><%= t.getProperty("chat.receipts") %></span></label>
+    </div>
   </dialog>
   <section class="chat-list" aria-label="<%= t.getProperty("chat.title") %>">
     <div class="chat-title-row">
       <h1 class="chat-title"><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= t.getProperty("chat.title") %></h1>
+      <button type="button" class="chat-me-state" aria-haspopup="menu" aria-expanded="false" title="<%= t.getProperty("chat.state.change") %>"><span class="chat-state-dot s-<%= chatPrefs.status %>" aria-hidden="true"></span><span class="chat-me-label"><%= t.getProperty("chat.status." + chatPrefs.status) %></span></button>
       <button type="button" class="chat-gear" title="<%= t.getProperty("chat.settings") %>" aria-label="<%= t.getProperty("chat.settings") %>"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>
     </div>
     <% if (chatList.isEmpty()) { %>
@@ -92,7 +129,7 @@
   </section>
 
   <% if (chatWith != null) { %>
-  <section class="chat-room" data-with="<%= WebUtils.escapeHtml(chatWith) %>" data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>"
+  <section class="chat-room" data-with="<%= WebUtils.escapeHtml(chatWith) %>" data-me="<%= WebUtils.escapeHtml(chatMe) %>" data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>"
            data-t-delete-confirm="<%= WebUtils.escapeHtml(t.getProperty("chat.deleteConfirm")) %>" data-t-deleted="<%= WebUtils.escapeHtml(t.getProperty("chat.deleted")) %>"
            data-t-delete="<%= WebUtils.escapeHtml(t.getProperty("chat.delete")) %>" data-t-report="<%= WebUtils.escapeHtml(t.getProperty("chat.report")) %>"
            data-t-reported="<%= WebUtils.escapeHtml(t.getProperty("chat.reported")) %>" data-t-limit="<%= WebUtils.escapeHtml(t.getProperty("chat.limit")) %>"
@@ -108,6 +145,7 @@
         <a class="chat-who"<%= chatTop %> href="/hrac/<%= java.net.URLEncoder.encode(chatWith, "UTF-8").replace("+", "%20") %>"><%= WebUtils.escapeHtml(chatWith) %></a>
         <small class="chat-who-state" hidden data-t-online="<%= t.getProperty("chat.status.online") %>" data-t-idle="<%= t.getProperty("chat.status.idle") %>" data-t-busy="<%= t.getProperty("chat.status.busy") %>" data-t-dnd="<%= t.getProperty("chat.status.dnd") %>"></small>
       </div>
+      <button type="button" class="chat-me-state" aria-haspopup="menu" aria-expanded="false" title="<%= t.getProperty("chat.state.change") %>"><span class="chat-state-dot s-<%= chatPrefs.status %>" aria-hidden="true"></span><span class="chat-me-label"><%= t.getProperty("chat.status." + chatPrefs.status) %></span></button>
       <button type="button" class="chat-gear" title="<%= t.getProperty("chat.settings") %>" aria-label="<%= t.getProperty("chat.settings") %>"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>
       <button type="button" class="chat-mute" aria-pressed="false" title="<%= t.getProperty("chat.mute") %>" aria-label="<%= t.getProperty("chat.mute") %>"><i class="fa-solid fa-bell" aria-hidden="true"></i></button>
       <button type="button" class="chat-hide" title="<%= t.getProperty("chat.hide") %>" aria-label="<%= t.getProperty("chat.hide") %>"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>

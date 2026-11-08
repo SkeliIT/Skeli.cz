@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * Chat mezi přáteli. GET ?with=jméno&recent=1 (obnovení otevřeného chatu každých pár sekund) nebo &before=id (starší zprávy).
- * POST action = send | edit | delete | react | mute | hide | report | prefs. „Já“ je vždy ze session, CSRF hlídá CsrfFilter.
+ * POST action = send | edit | delete | react | mute | hide | report | prefs | status. „Já“ je vždy ze session, CSRF hlídá CsrfFilter.
  * Chyby nikdy neprozradí, proč psát nejde (přítel to vypnul, nebo zablokoval): vždy jen „closed“.
  */
 @WebServlet(name = "ChatApiServlet", urlPatterns = {"/api/chat"})
@@ -89,12 +89,21 @@ public class ChatApiServlet extends HttpServlet {
             switch (action) {
                 case "send" -> send(req, resp, me);
                 case "prefs" -> {
-                    ChatPrefs p = new ChatPrefs();
-                    p.status = String.valueOf(req.getParameter("status"));
+                    // stav se mění zvlášť (akce status, tlačítko s tečkou v chatu); tady zůstane, když nepřijde
+                    ChatPrefs p = new ChatPrefs(), old = chat.prefs(me);
+                    p.status = req.getParameter("status") == null ? old.status : req.getParameter("status");
+                    p.lookDark = req.getParameter("lookDark") == null ? old.lookDark : req.getParameter("lookDark");
+                    p.lookLight = req.getParameter("lookLight") == null ? old.lookLight : req.getParameter("lookLight");
                     p.theme = String.valueOf(req.getParameter("theme"));
                     p.font = String.valueOf(req.getParameter("font"));
                     p.size = String.valueOf(req.getParameter("size"));
                     p.receipts = !"0".equals(req.getParameter("receipts"));
+                    json(resp, chat.savePrefs(me, p) ? 200 : 400, Map.of("ok", true));
+                }
+                case "status" -> {
+                    // rychlá změna stavu jedním ťuknutím: ostatní nastavení zůstává, jak je
+                    ChatPrefs p = chat.prefs(me);
+                    p.status = String.valueOf(req.getParameter("status"));
                     json(resp, chat.savePrefs(me, p) ? 200 : 400, Map.of("ok", true));
                 }
                 case "delete" -> json(resp, chat.deleteOwn(me, number(req.getParameter("id"))) ? 200 : 404, Map.of("ok", true));

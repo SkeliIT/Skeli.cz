@@ -1,5 +1,14 @@
 [
   {
+    "d": "2026-11-08",
+    "href": "/zpravy",
+    "cs": "Chat má 25 vzhledů, zvlášť pro tmavý a světlý režim. Stav změníš jedním ťuknutím na svou tečku nahoře.",
+    "en": "The chat has 25 looks, separately for dark and light mode. Change your status with one tap on your dot at the top.",
+    "de": "Der Chat hat 25 Looks, getrennt für den dunklen und hellen Modus. Deinen Status änderst du mit einem Tipp auf deinen Punkt oben.",
+    "uk": "Чат має 25 виглядів, окремо для темного й світлого режиму. Статус зміниш одним дотиком на свою крапку вгорі.",
+    "vi": "Chat có 25 giao diện, riêng cho chế độ tối và sáng. Đổi trạng thái chỉ bằng một chạm vào chấm của bạn ở trên."
+  },
+  {
     "d": "2026-11-06",
     "href": "/uzivatel.jsp?najit=1#pratele",
     "cs": "Na profilu v Přátelích je tlačítko Hledat přátele. Ukážeš se tam, jen když si to zapneš.",
@@ -34,14 +43,5 @@
     "de": "Nachrichten sind jetzt immer griffbereit: am Computer unten rechts, am Handy als Kreis. Eine neue Nachricht kann auch klingeln. Wenn dich das stört, schalte es oben mit dem Lautsprecher stumm.",
     "uk": "Повідомлення тепер завжди під рукою: на комп’ютері внизу праворуч, на телефоні як кружечок. Нове повідомлення може ще й дзенькнути. Якщо заважає, вимкни звук динаміком угорі.",
     "vi": "Tin nhắn giờ luôn trong tầm tay: góc dưới bên phải trên máy tính, vòng tròn trên điện thoại. Tin mới còn có thể kêu chuông. Nếu thấy phiền, hãy tắt bằng biểu tượng loa ở trên cùng."
-  },
-  {
-    "d": "2026-11-05",
-    "href": "/zpravy",
-    "cs": "S přáteli si teď můžeš psát přímo na webu. Zprávy najdeš v menu pod svým jménem.",
-    "en": "You can now message your friends right on the site. Find Messages in the menu under your name.",
-    "de": "Du kannst deinen Freunden jetzt direkt auf der Website schreiben. Nachrichten findest du im Menü unter deinem Namen.",
-    "uk": "Тепер можна листуватися з друзями просто на сайті. Повідомлення є в меню під твоїм іменем.",
-    "vi": "Giờ bạn có thể nhắn tin cho bạn bè ngay trên trang web. Tin nhắn nằm trong menu dưới tên bạn."
   }
 ]

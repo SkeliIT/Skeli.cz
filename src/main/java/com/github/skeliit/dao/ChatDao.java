@@ -407,7 +407,7 @@ public class ChatDao {
 
     public ChatPrefs prefs(int userId) throws SQLException {
         ChatPrefs p = new ChatPrefs();
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT status, theme, font, size, receipts FROM user_chat_prefs WHERE user_id = ?")) {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT status, theme, font, size, receipts, look_dark, look_light FROM user_chat_prefs WHERE user_id = ?")) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -416,6 +416,8 @@ public class ChatDao {
                     p.font = rs.getString(3);
                     p.size = rs.getString(4);
                     p.receipts = rs.getBoolean(5);
+                    p.lookDark = rs.getString(6);
+                    p.lookLight = rs.getString(7);
                 }
             }
         }
@@ -424,16 +426,19 @@ public class ChatDao {
 
     /** Uloží jen povolené hodnoty; false = něco nesedí a nic se nezměnilo. */
     public boolean savePrefs(int userId, ChatPrefs p) throws SQLException {
-        if (!ChatPrefs.STATUSES.contains(p.status) || !ChatPrefs.THEMES.contains(p.theme) || !ChatPrefs.FONTS.contains(p.font) || !ChatPrefs.SIZES.contains(p.size)) return false;
+        if (!ChatPrefs.STATUSES.contains(p.status) || !ChatPrefs.THEMES.contains(p.theme) || !ChatPrefs.FONTS.contains(p.font) || !ChatPrefs.SIZES.contains(p.size)
+                || !ChatPrefs.validLook(p.lookDark, ChatPrefs.LOOKS_DARK) || !ChatPrefs.validLook(p.lookLight, ChatPrefs.LOOKS_LIGHT)) return false;
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "INSERT INTO user_chat_prefs (user_id, status, theme, font, size, receipts) VALUES (?, ?, ?, ?, ?, ?) "
-                + "ON DUPLICATE KEY UPDATE status = VALUES(status), theme = VALUES(theme), font = VALUES(font), size = VALUES(size), receipts = VALUES(receipts)")) {
+                "INSERT INTO user_chat_prefs (user_id, status, theme, font, size, receipts, look_dark, look_light) VALUES (?, ?, ?, ?, ?, ?, ?, ?) "
+                + "ON DUPLICATE KEY UPDATE status = VALUES(status), theme = VALUES(theme), font = VALUES(font), size = VALUES(size), receipts = VALUES(receipts), look_dark = VALUES(look_dark), look_light = VALUES(look_light)")) {
             ps.setInt(1, userId);
             ps.setString(2, p.status);
             ps.setString(3, p.theme);
             ps.setString(4, p.font);
             ps.setString(5, p.size);
             ps.setBoolean(6, p.receipts);
+            ps.setString(7, p.lookDark);
+            ps.setString(8, p.lookLight);
             ps.executeUpdate();
         }
         return true;

@@ -53,16 +53,16 @@ class ChatIT extends UiTestSupport {
         waitReady();
         assertEquals("1", driver.findElement(By.cssSelector(".chat-person .acct-count")).getText(), "nepřečtená");
         driver.get(BASE_URL + "/zpravy?s=" + a);
-        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> !d.findElements(By.cssSelector(".chat-text")).isEmpty());
-        assertEquals("<img src=x onerror=alert(1)> Ahoj", driver.findElement(By.cssSelector(".chat-text")).getText(), "jen text");
-        assertTrue(driver.findElements(By.cssSelector(".chat-msgs img")).isEmpty());
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> !d.findElements(By.cssSelector(".chat-room[data-with] .chat-text")).isEmpty());
+        assertEquals("<img src=x onerror=alert(1)> Ahoj", driver.findElement(By.cssSelector(".chat-room[data-with] .chat-text")).getText(), "jen text");
+        assertTrue(driver.findElements(By.cssSelector(".chat-room[data-with] .chat-msgs img")).isEmpty());
         assertFalse(exists("SELECT 1 FROM notifications WHERE user_id=? AND actor_id=? AND type='message'", bid, aid), "přečteno");
 
         // odpověď přes formulář, jak ji píše člověk
         driver.findElement(By.cssSelector(".chat-form textarea")).sendKeys("Čau 🐈");
         jsClick(driver.findElement(By.cssSelector(".chat-form button[type=submit]")));
-        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> !d.findElements(By.cssSelector(".chat-msg.mine")).isEmpty());
-        assertEquals("Čau 🐈", driver.findElement(By.cssSelector(".chat-msg.mine .chat-text")).getText());
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> !d.findElements(By.cssSelector(".chat-room[data-with] .chat-msg.mine")).isEmpty());
+        assertEquals("Čau 🐈", driver.findElement(By.cssSelector(".chat-room[data-with] .chat-msg.mine .chat-text")).getText());
     }
 
     @Test
@@ -79,7 +79,7 @@ class ChatIT extends UiTestSupport {
         assertEquals(200, send(b, "https://evil.com/watch?v=dQw4w9WgXcQ"));
 
         driver.get(BASE_URL + "/zpravy?s=" + b);
-        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".chat-msg")).size() == 2);
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".chat-room[data-with] .chat-msg")).size() == 2);
         assertEquals(1, driver.findElements(By.cssSelector(".chat-embed")).size(), "jen známý odkaz");
         assertTrue(driver.findElements(By.cssSelector(".chat-embed iframe")).isEmpty(), "přehrávač ještě ne");
         assertTrue(driver.findElement(By.cssSelector(".chat-embed-play img")).getAttribute("src").contains("/yt-thumb/dQw4w9WgXcQ/"), "náhled přes náš server");
@@ -121,9 +121,9 @@ class ChatIT extends UiTestSupport {
         assertTrue(count.contains("\"chat\":3"), count);
         // otevření chatu: přečteno, uvidí odpověď i značku „upraveno“
         driver.get(BASE_URL + "/zpravy?s=" + a);
-        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".chat-msg")).size() == 3);
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> d.findElements(By.cssSelector(".chat-room[data-with] .chat-msg")).size() == 3);
         assertFalse(driver.findElement(By.cssSelector(".chat-quote:not([hidden])")).getText().isBlank(), "odpověď ukazuje citát");
-        assertFalse(driver.findElements(By.cssSelector(".chat-day")).isEmpty(), "oddělení po dnech");
+        assertFalse(driver.findElements(By.cssSelector(".chat-room[data-with] .chat-day")).isEmpty(), "oddělení po dnech");
         assertEquals(200, browserPost("/api/chat", Map.of("action", "react", "id", String.valueOf(first), "emoji", "🔥"), true));
         assertEquals(400, browserPost("/api/chat", Map.of("action", "react", "id", String.valueOf(first), "emoji", "<b>"), true), "jen povolené reakce");
         assertEquals(200, browserPost("/api/chat", Map.of("action", "mute", "with", a, "on", "1"), true));
@@ -156,6 +156,27 @@ class ChatIT extends UiTestSupport {
         assertEquals("blue", driver.findElement(By.cssSelector("main.chat-page")).getAttribute("data-chat-theme"));
         jsClick(driver.findElement(By.cssSelector(".chat-gear")));
         assertTrue(driver.findElement(By.cssSelector(".chat-settings")).isDisplayed(), "kolečko otevře nastavení");
+        assertFalse(driver.findElements(By.cssSelector(".chat-settings .look-tile")).isEmpty(), "vzhledy jako dlaždice");
+
+        // vzhled: jen povolené hodnoty, zvlášť pro tmavý a světlý režim; stav se přitom nemění
+        assertEquals(400, browserPost("/api/chat", Map.of("action", "prefs", "theme", "blue", "font", "clean", "size", "l", "lookDark", "x9"), true), "cizí vzhled neprojde");
+        assertEquals(200, browserPost("/api/chat", Map.of("action", "prefs", "theme", "blue", "font", "clean", "size", "l", "lookDark", "d4", "lookLight", "l10"), true));
+        assertEquals("d4", queryString("SELECT look_dark FROM user_chat_prefs WHERE user_id=?", aid));
+        assertEquals("l10", queryString("SELECT look_light FROM user_chat_prefs WHERE user_id=?", aid));
+        assertEquals("busy", queryString("SELECT status FROM user_chat_prefs WHERE user_id=?", aid), "změna vzhledu stav nesmaže");
+
+        // stav jedním ťuknutím: tlačítko s tečkou → nabídka → Nerušit
+        driver.get(BASE_URL + "/zpravy");
+        waitReady();
+        jsClick(driver.findElement(By.cssSelector(".chat-me-state")));
+        assertTrue(driver.findElement(By.cssSelector(".chat-state-menu")).isDisplayed(), "nabídka stavů");
+        jsClick(driver.findElement(By.cssSelector(".chat-state-menu [data-status='dnd']")));
+        String status = "";
+        for (int i = 0; i < 25 && !"dnd".equals(status); i++) { Thread.sleep(200); status = queryString("SELECT status FROM user_chat_prefs WHERE user_id=?", aid); }
+        assertEquals("dnd", status, "stav se uložil");
+        assertTrue(driver.findElement(By.cssSelector(".chat-me-state .chat-state-dot")).getAttribute("class").contains("s-dnd"));
+        assertEquals(200, browserPost("/api/chat", Map.of("action", "status", "status", "busy"), true));
+        assertEquals(400, browserPost("/api/chat", Map.of("action", "status", "status", "spim"), true), "cizí stav neprojde");
         logout();
 
         int bid = registerAndLogin(b);
@@ -347,20 +368,23 @@ class ChatIT extends UiTestSupport {
     }
 
     @Test
-    @DisplayName("Nastavení chatu je po záložkách a stav Nečinný má text")
+    @DisplayName("Nastavení chatu je po záložkách (Vzhled, Zvuky, Soukromí) a stav má vlastní tlačítko")
     void settingsTabs() throws Exception {
         registerAndLogin("ep" + uniq());
         driver.get(BASE_URL + "/zpravy");
         waitReady();
+        assertTrue(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-me-state")).isDisplayed(), "stav hned po ruce");
         jsClick(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-gear")));
-        org.openqa.selenium.WebElement state = driver.findElement(org.openqa.selenium.By.cssSelector("[data-panel=state]"));
         org.openqa.selenium.WebElement look = driver.findElement(org.openqa.selenium.By.cssSelector("[data-panel=look]"));
-        assertTrue(state.isDisplayed());
-        assertFalse(look.isDisplayed(), "na začátku jen první záložka");
-        jsClick(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-tabs [data-tab=look]")));
-        assertTrue(look.isDisplayed());
-        assertFalse(state.isDisplayed());
-        assertTrue(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-preview span")).isDisplayed());
+        org.openqa.selenium.WebElement privacy = driver.findElement(org.openqa.selenium.By.cssSelector("[data-panel=privacy]"));
+        assertTrue(look.isDisplayed(), "první je Vzhled");
+        assertFalse(privacy.isDisplayed(), "na začátku jen první záložka");
+        assertTrue(driver.findElement(org.openqa.selenium.By.cssSelector(".look-live")).isDisplayed(), "živý náhled");
+        assertTrue(driver.findElements(org.openqa.selenium.By.cssSelector("[data-panel=state]")).isEmpty(), "stav už v nastavení není");
+        jsClick(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-tabs [data-tab=privacy]")));
+        assertTrue(privacy.isDisplayed());
+        assertFalse(look.isDisplayed());
+        assertTrue(driver.findElement(org.openqa.selenium.By.cssSelector("[data-panel=privacy] input[name=receipts]")).isEnabled());
         jsClick(driver.findElement(org.openqa.selenium.By.cssSelector(".chat-tabs [data-tab=sound]")));
         assertTrue(driver.findElement(org.openqa.selenium.By.cssSelector("[data-panel=sound] [data-sound-pref=message]")).isEnabled());
     }

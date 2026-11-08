@@ -108,7 +108,7 @@ class ChatDockIT extends UiTestSupport {
         waitReady();
         js("window.__plays = []; SkeliSound.play = function (k) { window.__plays.push(k); return true; };");
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        wait.until(d -> !d.findElements(By.cssSelector(".chat-msg")).isEmpty());
+        wait.until(d -> !d.findElements(By.cssSelector(".chat-room[data-with] .chat-msg")).isEmpty());
         Thread.sleep(5000);
         assertEquals(0L, js("return window.__plays.length"), "stará zpráva nezvoní");
 
@@ -118,13 +118,13 @@ class ChatDockIT extends UiTestSupport {
 
         update("INSERT INTO chat_muted (user_id, other_id) VALUES (?, ?)", me, friend);
         update(add, Math.min(me, friend), Math.max(me, friend), friend, me);
-        wait.until(d -> ((Number) js("return document.querySelectorAll('.chat-msg').length")).intValue() == 3);
+        wait.until(d -> ((Number) js("return document.querySelectorAll('.chat-room[data-with] .chat-msg').length")).intValue() == 3);
         assertEquals(1L, js("return window.__plays.length"), "ztlumený nezvoní");
         update("DELETE FROM chat_muted WHERE user_id=?", me);
 
         update("INSERT INTO user_chat_prefs (user_id, status) VALUES (?, 'dnd')", me);
         update(add, Math.min(me, friend), Math.max(me, friend), friend, me);
-        wait.until(d -> ((Number) js("return document.querySelectorAll('.chat-msg').length")).intValue() == 4);
+        wait.until(d -> ((Number) js("return document.querySelectorAll('.chat-room[data-with] .chat-msg').length")).intValue() == 4);
         assertEquals(1L, js("return window.__plays.length"), "Nerušit nezvoní");
     }
 }

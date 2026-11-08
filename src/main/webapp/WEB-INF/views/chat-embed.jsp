@@ -9,6 +9,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
+  <%-- lehký režim pro slabé telefony stejně jako includes/header.jsp: vzhledy chatu pak neanimují a nerozmazávají --%>
+  <script>try { (function () { var n = navigator, c = n.connection, m = n.deviceMemory, s = localStorage.getItem('fxLow');
+    if (s !== '0' && (s === '1' || sessionStorage.getItem('fxLowNow') === '1' || (c && c.saveData) || (m && m <= 4 && matchMedia('(pointer: coarse)').matches))) document.documentElement.classList.add('low-fx');
+  })(); } catch (e) { /* bez úložiště normálně */ }</script>
   <title><%= t.getProperty("chat.title") %></title>
   <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css">
   <link rel="stylesheet" href="/fonts/fonts.css?v=<%= assetVersion %>">

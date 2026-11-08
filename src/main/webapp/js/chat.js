@@ -4,8 +4,104 @@
 (function () {
   if (window.__chatTimer) { clearInterval(window.__chatTimer); window.__chatTimer = null; }
 
-  // nastavení (kolečko): stav, barvy, písmo a velikost; platí hned a hned se uloží
   var page = document.querySelector('.chat-page'), dialog = page && page.querySelector('.chat-settings');
+  var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- vzhled chatu (css/chat-looks.css) ----------
+  // Každý má jeden vzhled pro tmavý a jeden pro světlý režim webu; chat se přepne sám, když se režim změní.
+  // Třída lk-<id> + rodina (lk-p = částice, lk-g = sklo, lk-calm = klidný), stejně jako chatLookClasses() v chat-body.jspf.
+  function lookClasses(id) {
+    if (!id) return [];
+    var c = ['lk-' + id];
+    if (/^s/.test(id)) c.push('lk-p', 'lk-g');
+    else if (/^o/.test(id)) c.push('lk-g', 'lk-calm');
+    else if (/^m/.test(id) || id === 'd11') c.push('lk-p');
+    return c;
+  }
+  // částice (bublinky, listy, déšť…): 12 prvků s vlastním místem, velikostí a rytmem
+  function decoFor(box) {
+    var deco = box.querySelector(':scope > .lk-deco');
+    if (!deco) { deco = document.createElement('div'); deco.className = 'lk-deco'; deco.setAttribute('aria-hidden', 'true'); box.insertBefore(deco, box.firstChild); }
+    if (!deco.children.length) {
+      for (var k = 0; k < 12; k++) {
+        var i = document.createElement('i');
+        i.style.cssText = '--k-k:' + k + ';--k-z:' + (k % 2) + ';--k-x:' + ((k * 37 + 11) % 92) + '%;--k-y:' + ((k * 53 + 7) % 85) + '%;--k-s:' + (12 + (k * 7) % 16)
+          + 'px;--k-d:' + (9 + (k * 5) % 9) + 's;--k-dl:-' + ((k * 2.3) % 10).toFixed(1) + 's;--k-sw:' + ((k % 2 ? 1 : -1) * (14 + (k * 9) % 30)) + 'px';
+        deco.appendChild(i);
+      }
+    }
+  }
+  function setLook(box, id) {
+    if (!box) return;
+    box.className = box.className.split(/\s+/).filter(function (c) { return c.indexOf('lk-') !== 0; }).join(' ');
+    lookClasses(id).forEach(function (c) { box.classList.add(c); });
+    if (id) decoFor(box);
+  }
+  function currentLook() {
+    if (!page) return '';
+    return document.body.classList.contains('light') ? page.dataset.lookLight || '' : page.dataset.lookDark || '';
+  }
+  function applyLook() {
+    var id = currentLook();
+    setLook(document.querySelector('.chat-room[data-with]'), id);
+    setLook(page && page.querySelector('.look-live'), id);
+  }
+  applyLook();
+  if (page && !window.__chatLookWatch) {
+    // přepnutí světlého/tmavého režimu (header.jsp, v okně v liště chat-embed.jsp) mění třídu na <body>
+    window.__chatLookWatch = new MutationObserver(function () { if (document.querySelector('.chat-page')) { page = document.querySelector('.chat-page'); applyLook(); } });
+    window.__chatLookWatch.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // ---------- stav jedním ťuknutím (tlačítko s tečkou v seznamu i v hlavičce) ----------
+  var stateMenu = page && page.querySelector('.chat-state-menu');
+  if (stateMenu) {
+    var stateBtns = page.querySelectorAll('.chat-me-state'), openedBy = null;
+    function closeState() {
+      stateMenu.hidden = true;
+      if (openedBy) { openedBy.setAttribute('aria-expanded', 'false'); openedBy = null; }
+    }
+    function paintState(v) {
+      page.dataset.status = v;
+      var label = stateMenu.querySelector('[data-status="' + v + '"] span:last-child').textContent;
+      stateBtns.forEach(function (b) { b.querySelector('.chat-state-dot').className = 'chat-state-dot s-' + v; b.querySelector('.chat-me-label').textContent = label; });
+      stateMenu.querySelectorAll('[data-status]').forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.status === v)); });
+    }
+    stateBtns.forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (!stateMenu.hidden && openedBy === b) return closeState();
+        closeState();
+        openedBy = b;
+        b.setAttribute('aria-expanded', 'true');
+        stateMenu.hidden = false;
+        // nabídka pod tlačítkem, ale vždy celá na obrazovce (telefon, malé okno v liště)
+        var r = b.getBoundingClientRect(), w = stateMenu.offsetWidth, h = stateMenu.offsetHeight;
+        stateMenu.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px';
+        stateMenu.style.top = (r.bottom + h + 8 < innerHeight ? r.bottom + 6 : Math.max(8, r.top - h - 6)) + 'px';
+        var cur = stateMenu.querySelector('[aria-checked="true"]');
+        if (cur) cur.focus();
+      });
+    });
+    stateMenu.addEventListener('click', function (e) {
+      var item = e.target.closest('[data-status]');
+      if (!item) return;
+      paintState(item.dataset.status);
+      closeState();
+      fetch('/api/chat', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': page.dataset.csrf },
+        body: new URLSearchParams({ action: 'status', status: item.dataset.status }).toString()
+      }).catch(function () { /* platí aspoň do znovunačtení */ });
+    });
+    stateMenu.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { var b = openedBy; closeState(); if (b) b.focus(); }
+    });
+    document.addEventListener('click', function (e) { if (!stateMenu.hidden && !stateMenu.contains(e.target)) closeState(); });
+    addEventListener('resize', closeState);
+  }
+
+  // ---------- nastavení (kolečko): vzhled, barvy, písmo, velikost, zvuky, „Viděno“; platí hned a hned se uloží ----------
   if (dialog) {
     page.querySelectorAll('.chat-gear').forEach(function (b) { b.addEventListener('click', function () { dialog.showModal(); }); });
     dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });   // klik mimo okno ho zavře
@@ -35,8 +131,9 @@
       if (name === 'theme') page.dataset.chatTheme = value;
       if (name === 'font') page.dataset.chatFont = value;
       if (name === 'size') page.dataset.chatSize = value;
+      if (name === 'lookDark' || name === 'lookLight') { page.dataset[name] = value; applyLook(); }
       var body = { action: 'prefs', receipts: dialog.querySelector('input[name=receipts]').checked ? '1' : '0' };
-      ['status', 'theme', 'font', 'size'].forEach(function (k) { body[k] = dialog.querySelector('input[name=' + k + ']:checked').value; });
+      ['theme', 'font', 'size', 'lookDark', 'lookLight'].forEach(function (k) { body[k] = dialog.querySelector('input[name=' + k + ']:checked').value; });
       fetch('/api/chat', {
         method: 'POST', credentials: 'same-origin',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': page.dataset.csrf },
@@ -181,6 +278,7 @@
   function bubble(m) {
     var li = el('li', 'chat-msg' + (m.mine ? ' mine' : ''));
     li.dataset.id = m.id;
+    li.dataset.who = m.mine ? room.dataset.me || '' : name;   // vzhledy Terminál a Cyberpunk píšou jméno před zprávu
     li.dataset.at = m.at;
     var quote = el('button', 'chat-quote');
     quote.type = 'button';
@@ -456,6 +554,26 @@
       });
     }
   });
+
+  // Bubliny se naklánějí za myší i pod prstem (jako dlaždice webu). Prst: jen dokud se nezačne posouvat (pointercancel).
+  // Osa otáčení je kolmo k místu dotyku; vlastnosti rotate/scale se skládají s pohyby vzhledů (css/chat-looks.css).
+  if (!calm && !document.documentElement.classList.contains('low-fx')) {
+    var tilted = null;
+    function tilt(li, e) {
+      var r = li.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+      li.style.rotate = (-y).toFixed(3) + ' ' + x.toFixed(3) + ' 0 ' + Math.min(12, Math.hypot(x, y) * 22).toFixed(1) + 'deg';
+      li.classList.add('tilt');
+      tilted = li;
+    }
+    function untilt() { if (tilted) { tilted.style.rotate = ''; tilted.classList.remove('tilt'); tilted = null; } }
+    list.addEventListener('pointermove', function (e) {
+      var li = e.target.closest('.chat-msg');
+      if (li !== tilted) untilt();
+      if (li && (e.pointerType === 'mouse' || e.buttons)) tilt(li, e);
+    });
+    list.addEventListener('pointerdown', function (e) { var li = e.target.closest('.chat-msg'); if (li) tilt(li, e); });
+    ['pointerleave', 'pointerup', 'pointercancel'].forEach(function (t) { list.addEventListener(t, untilt); });
+  }
 
   muteBtn.addEventListener('click', function () {
     var on = !muted;
