@@ -569,3 +569,71 @@
     "Được rồi. Bạn thắng."
   ]
 };
+
+// ---------- Rady k funkcím, reakce a svátky (2026-11-08, překlad české sady; klíče stejné jako v kevin-cs.js) ----------
+(function (L) {
+  L.hints = {
+    "squad": ["CatSmash giờ ở trong Squad. Ai muốn thắng tôi thì biết tìm tôi ở đâu rồi."],
+    "wheel": ["Chế độ sáng, chữ đậm và âm thanh nằm trong bánh xe phía trên. Bạn làm gì với chúng thì tôi mặc kệ.", "Bánh xe phía trên có giao diện và âm thanh. Tôi sẽ thêm một nút để ngủ lâu hơn."],
+    "verify": ["Chưa xác minh e-mail thì chưa bình luận, gửi lời mời kết bạn hay nhắn tin được.", "Đường link xác minh đã gửi vào hộp thư. Đôi khi nó lạc vào thư rác."],
+    "photo": ["Hồ sơ chịu được một tấm ảnh và một ảnh bìa rộng. Không bắt buộc. Nhưng chịu được.", "Ảnh và ảnh bìa được thêm ngay tại đây, trên hồ sơ."],
+    "showcase": ["Tủ trưng bày trên hồ sơ vừa ba huy hiệu. Tôi thì cần một cái tủ to hơn.", "Ba chỗ trong tủ trưng bày. Không cần nghĩ lâu. Hoặc ngược lại."],
+    "likes": ["Bài hát có tim tự xếp vào mục yêu thích trên hồ sơ. Chẳng phải làm gì. Đúng kiểu tôi thích.", "Thả tim cho bài hát là nó có trong mục yêu thích trên hồ sơ. Vậy thôi."],
+    "findFriends": ["Tìm bạn bè ở mục Bạn bè trên hồ sơ. Cứ bắt đầu gõ tên.", "Nút Tìm bạn bè nằm ở mục Bạn bè trên hồ sơ. Tôi chỉ cần cái bát, nhưng đó là việc của bạn."],
+    "findWho": ["Trong Tìm bạn bè chỉ có những người tự bật nó lên.", "Hiện trong tìm bạn bè: Cài đặt, thẻ Quyền riêng tư. Mặc định là tắt."],
+    "privacy": ["Hồ sơ công khai hay riêng tư? Công tắc ở Cài đặt, thẻ Quyền riêng tư.", "Hồ sơ công khai chỉ người đã đăng nhập mới thấy. Nếu muốn cả người không có tài khoản cũng thấy, hãy bật trong Cài đặt, thẻ Quyền riêng tư.", "Người khác thấy gì về bạn là do bạn quyết định. Cài đặt, thẻ Quyền riêng tư."],
+    "visibility": ["Trong mục “Người khác thấy gì về tôi”, mỗi thứ có công tắc riêng. Không cần ẩn cả hồ sơ.", "Tiểu sử, thành phố và bài hát yêu thích có thể hiện hoặc ẩn riêng. Cài đặt, thẻ Quyền riêng tư."],
+    "settings": ["Cài đặt có các thẻ Hồ sơ, Bảo mật, Quyền riêng tư và Âm nhạc. Mật khẩu ở Bảo mật.", "Cài đặt có bốn thẻ. Chỉ cần biết mình tìm gì. Thường đó mới là phần khó."],
+    "twofa": ["Đăng nhập hai bước bảo vệ tài khoản ngay cả khi ai đó biết mật khẩu. Cài đặt, thẻ Bảo mật.", "Đăng nhập hai bước là tùy chọn. Nó thêm một lớp bảo vệ cho tài khoản."],
+    "export": ["Bạn có thể tải dữ liệu về và xóa tài khoản bất cứ lúc nào. Cả hai đều ở Cài đặt."],
+    "tracks": ["Bạn làm nhạc? Bài từ YouTube, Spotify, Apple Music và SoundCloud có thể đưa lên hồ sơ. Cài đặt, Âm nhạc.", "Bài hát của bạn có thể nằm trên hồ sơ. Thêm ở Cài đặt, thẻ Âm nhạc."],
+    "chat": ["Tin nhắn ở góc dưới bên phải, trên điện thoại là nút tròn. Chỉ bạn bè mới nhắn cho nhau được.", "Chat ở góc dưới bên phải. Trên điện thoại là cái nút tròn trông như đang muốn gì đó."],
+    "chatSettings": ["Bánh xe trong chat có trạng thái, màu, phông chữ và âm thanh. Tôi sẽ chọn màu vàng. Ai mà không."],
+    "dnd": ["Không làm phiền nghĩa là tin nhắn vẫn đến, chỉ là im lặng. Tôi có trạng thái này từ lúc sinh ra.", "Không làm phiền nằm trong bánh xe của chat. Tôi dùng nó suốt, kể cả không có bánh xe."],
+    "chatDelete": ["Bạn có thể xóa cuộc trò chuyện ở phía mình bất cứ lúc nào. Người kia vẫn giữ cho đến khi họ cũng xóa.", "Tin nhắn tự xóa sau một năm."],
+    "block": ["Nếu ai đó làm phiền bạn, trên hồ sơ của họ có nút Chặn. Họ không nhận được thông báo.", "Bạn không phải chịu đựng cách cư xử khó chịu. Chặn là im lặng, người kia sẽ không biết."]
+  };
+  L.react = {
+    "friendSent": ["Lời mời đã bay đi. Giờ thì chờ. Tôi giỏi chờ lắm, tôi tập bên cái bát.", "Lời mời đã gửi. Bước tiếp theo không còn trong tay bạn. Đó là phần hay nhất."],
+    "friendIn": ["Có người muốn kết bạn với bạn. Còn tôi thì ai có đồ ăn vặt cũng muốn.", "Có lời mời kết bạn mới ở mục Bạn bè trên hồ sơ. Không nhận cũng được. Tôi cũng đâu nhận tất cả."],
+    "friendAccepted": ["Có người đã nhận lời kết bạn. Dũng cảm đáng được ghi nhận.", "Bạn có thêm một người bạn. Tôi cũng có vài người. Tôi lờ họ đi."],
+    "stepsDone": ["Hồ sơ giờ đã ra dáng. Tôi không khen nhiều đâu, kẻo bạn quen.", "Xong. Hồ sơ đã sống. Tôi đi ngủ tiếp đây."],
+    "privateOn": ["Hồ sơ đang riêng tư. Người khác không thấy nội dung, nhưng vẫn gửi được lời mời kết bạn."],
+    "publicOn": ["Hồ sơ đang công khai, người đã đăng nhập có thể thấy. Từng mục có thể tắt trong Cài đặt, thẻ Quyền riêng tư."],
+    "trackAdded": ["Bài hát đã lên hồ sơ. Tôi sẽ nghe khi ngủ dậy.", "Thêm một bài trên hồ sơ. Sắp thành một danh sách đĩa nhạc ra trò rồi."],
+    "chatNew": ["Bạn có tin nhắn mới. Nó ở trong chat góc dưới bên phải, trên điện thoại là nút tròn.", "Ting. Có người nhắn cho bạn. Nội dung là chuyện giữa hai người. Đúng là phải thế.", "Có tin nhắn mới đang chờ trong chat. Tôi sẽ trả lời ngay, nhưng chẳng ai nhắn cho tôi."],
+    "chatSent": ["Tin nhắn đầu tiên đã đi. Nội dung là chuyện giữa hai người. Tôi chỉ quan tâm bữa tối.", "Tin nhắn đang trên đường. Giờ đến phần khó nhất: chờ."],
+    "soundOff": ["Đã tắt âm thanh. Cuối cùng cũng có ý hay.", "Im lặng. Có những cài đặt đáng được vỗ tay. Vỗ khẽ thôi, tất nhiên."],
+    "soundOn": ["Âm thanh đã trở lại. Im lặng hay hơn, nhưng chẳng ai hỏi tôi.", "Im lặng đã hết. Một thời gian đẹp."],
+    "peopleNone": ["Ở đây chưa có ai. Đến tôi cũng chẳng đánh hơi được ai.", "Chưa có ai xuất hiện. Không phải ai cũng muốn được tìm thấy. Và thế cũng ổn."]
+  };
+  L.profileHello = L.profileHello.concat(["Hồ sơ đã sẵn sàng. Nội dung đang chờ người tạo ra nó. Đoán xem là ai.", "Hồ sơ trống? Có thể thay đổi. Nhưng không vội, chẳng ai đuổi bạn."]);
+  L.days = {
+    "mikulas": ["Tối nay Thánh Nicôla đến. Tôi mong được đồ ăn vặt thay vì than.", "Quỷ, thiên thần và Thánh Nicôla? Tôi thích ba gói pate hơn.", "Hôm nay phát kẹo. Tôi đã ngoan… phần lớn thời gian."],
+    "nicholas": ["Hôm nay là ngày Thánh Nicôla. Mong bát của tôi đầy hơn mọi khi.", "Thánh Nicôla đang trên đường. Chân tôi đã sẵn sàng."],
+    "advent": ["Mùa Vọng. Bốn tuần chờ Giáng sinh. Gần giống chờ đồ ăn vặt.", "Thêm một ngọn nến Mùa Vọng được thắp. Tôi đứng xa, tôi chỉ có một cái đuôi.", "Ngoài trời lạnh, trong nhà đèn sáng. Lúc lý tưởng để chui vào ổ."],
+    "eve": ["Đêm Giáng sinh. Tôi chỉ có một điều ước: bát đầy.", "Dưới cây thông đầy quà. Còn tôi vẫn đang chờ quà của mình.", "Hôm nay không ai vội. Tận hưởng buổi tối nhé."],
+    "holidays": ["Tận hưởng kỳ nghỉ lễ. Kế hoạch của tôi: nghỉ ngơi, không gắng sức.", "Lễ vẫn tiếp tục. Tôi vẫn đang xử lý mẻ đồ ngon đầu tiên."],
+    "xmas": ["Giáng sinh vui vẻ. Tôi sẽ canh quà. Nhất là quà ăn được.", "Giáng sinh vui vẻ. Mong một ngày yên bình và đồ ăn ngon."],
+    "nye": ["Ngày cuối năm. Thứ duy nhất tôi tạm biệt là cái bát rỗng.", "Năm mới đang gõ cửa. Mong nó mang lại nhiều giấc ngủ hơn.", "Tận hưởng buổi tối cuối năm. Ngày mai cũng là một ngày."],
+    "newyear": ["Chúc mừng năm mới. Tôi bắt đầu bằng một giấc ngủ nữa.", "Ngày đầu năm. Quyết tâm của tôi: không bỏ bữa nào.", "Chúc năm nay mọi việc suôn sẻ. Đặt chân lên đó."],
+    "valentine": ["Ngày tình yêu. Tôi nhận ra nó chủ yếu nhờ ai cho tôi đồ ăn vặt.", "Hôm nay một tin nhắn dễ thương có thể làm ai đó vui cả ngày. Tôi chỉ cần cái bát."],
+    "easter": ["Chúc mừng lễ Phục sinh. Tôi chọn cái ổ.", "Mùa xuân, trứng và ngày nghỉ. Một kế hoạch tôi hiểu."],
+    "witches": ["Hôm nay ở Séc người ta đốt hình nộm phù thủy, một phong tục mùa xuân với lửa trại. Tôi tránh xa lửa và ở gần lò sưởi.", "Đêm Walpurgis. Phép thuật duy nhất của tôi: tìm ra đồ ăn vặt."],
+    "halloween": ["Halloween. Tôi không cần hóa trang, khuôn mặt tôi đủ đáng sợ rồi.", "Tôi đeo mặt nạ con mèo cau có. Đeo quanh năm."],
+    "souls": ["Hôm nay chúng ta tưởng nhớ những người không còn ở bên ta."],
+    "cz2810": ["Hôm nay Séc kỷ niệm ngày thành lập nước Tiệp Khắc độc lập."],
+    "cz1711": ["Hôm nay Séc tưởng nhớ cuộc đấu tranh vì tự do và dân chủ."],
+    "carnival": ["Lễ hội hóa trang. Trang phục của tôi: một con mèo hoàn toàn bình thường.", "Vui với mặt nạ và lễ hội nhé. Tôi sẽ canh cái bát."],
+    "de0310": ["Hôm nay Đức kỷ niệm Ngày Thống nhất nước Đức."],
+    "ua2408": ["Hôm nay Ukraina kỷ niệm Ngày Độc lập. Chúc hòa bình và một tương lai tự do."],
+    "tet": ["Chúc mừng năm mới! Tôi ước một năm đầy gói pate.", "Tết đến rồi. Thời gian của gia đình và khởi đầu mới. Ăn Tết vui vẻ."],
+    "midautumn": ["Tết Trung thu. Đèn lồng, bánh trung thu và trăng tròn.", "Tối nay dành cho đèn lồng và bánh trung thu. Cái bánh thì tôi giữ."],
+    "vn0209": ["Hôm nay là ngày Quốc khánh Việt Nam."],
+    "thanks": ["Lễ Tạ ơn. Tôi biết ơn những giấc ngủ ấm và cái bát không bao giờ rỗng.", "Tận hưởng bữa ăn và những người quan trọng với bạn."],
+    "winter": ["Mùa đông đã đến. Chỗ cạnh lò sưởi tôi đã đặt trước.", "Mùa đông rồi. Mức hoạt động của tôi vừa rơi xuống tối thiểu.", "Brrr. Ai phát minh ra mùa đông vậy? Tôi muốn nói chuyện với họ."],
+    "spring": ["Mùa xuân. Mọi thứ thức dậy. Tôi cũng vậy, nhưng mới mở một mắt.", "Không khí mùa xuân tràn ngập. Chỉ đừng gửi muỗi đến chỗ tôi."],
+    "summer": ["Nóng quá. Tôi chuyển sang chỗ gạch mát nhất quanh đây.", "Nếu tìm tôi thì tôi ở trong bóng râm. Tốt nhất là cạnh cái bát.", "Mùa hè thì hay, nhưng ai đã tắt điều hòa của cả thế giới?"],
+    "autumn": ["Lá rơi rồi. Tôi đang dần chuyển sang chế độ ngủ đông.", "Mùa thu. Lý do hoàn hảo để ở nhà và không lo nghĩ gì."]
+  };
+})(window.KEVIN_LINES.vi);

@@ -57,6 +57,8 @@
           if ((d.chatSound || 0) > lastChat) window.SkeliSound.play('message');
           else if (d.unread > lastBell) window.SkeliSound.play('bell');
         }
+        // nová zpráva během návštěvy: Kevin řekne, kde ji najít (o čem je, neví a nezjišťuje)
+        if (lastBell !== null && (d.chatSound || 0) > lastChat) window.dispatchEvent(new CustomEvent('kevin', { detail: { chat: 'new' } }));
         lastBell = d.unread;
         lastChat = d.chatSound || 0;
       })

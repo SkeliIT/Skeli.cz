@@ -59,7 +59,7 @@
 
     <h4 class="friend-head"><%= t.getProperty("people.title") %></h4>
     <p class="people-lead"><%= t.getProperty("people.lead") %></p>
-    <% if (frPeople.isEmpty()) { %><p class="acct-empty"><%= t.getProperty("people.none") %></p><% } %>
+    <% if (frPeople.isEmpty()) { %><p class="acct-empty" data-people-none><%= t.getProperty("people.none") %></p><% } %>
     <ul class="people-grid">
       <% for (com.github.skeliit.model.DirectoryPerson p : frPeople) { String urlName = java.net.URLEncoder.encode(p.username, "UTF-8").replace("+", "%20"); %>
       <li class="people-card">
@@ -91,7 +91,7 @@
 
     <% if (!frIn.isEmpty()) { %>
     <h4 class="friend-head"><%= t.getProperty("friends.requests") %> <span class="acct-count"><%= frIn.size() %></span></h4>
-    <ul class="friend-list">
+    <ul class="friend-list" data-friend-in="<%= frIn.size() %>">
       <% for (Friend f : frIn) { %>
       <li class="friend-row">
         <%= frWho(f) %>
@@ -103,7 +103,7 @@
     </ul>
     <% } %>
 
-    <h4 class="friend-head"><%= t.getProperty("friends.mine") %> <span class="acct-count"><%= frFriends.size() %></span></h4>
+    <h4 class="friend-head" data-friends-n="<%= frFriends.size() %>"><%= t.getProperty("friends.mine") %> <span class="acct-count"><%= frFriends.size() %></span></h4>
     <% if (frFriends.isEmpty()) { %><p class="acct-empty"><%= t.getProperty("friends.none") %></p><% } %>
     <ul class="friend-list">
       <% for (Friend f : frFriends) { %>

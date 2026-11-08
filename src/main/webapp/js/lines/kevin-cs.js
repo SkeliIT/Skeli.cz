@@ -596,3 +596,74 @@
     "Dobře. Vyhráváš."
   ]
 };
+
+// ---------- Rady k funkcím, reakce a svátky (2026-11-08, sada kevin-hlasky-2026-11-v3.md) ----------
+// hints = rady sám od sebe, každá jen jednou (js/kevin.js HINTS: kde a kdy). react = odpověď na to, co člověk
+// právě udělal. days = svátky a začátky ročních období podle regionu z časového pásma (js/kevin.js holiday()),
+// místo běžného pozdravu, jednou za den. Soukromí a bezpečí věcně, bez vtipu.
+(function (L) {
+  L.hints = {
+    "squad": ["CatSmash je teď ve Squadu. Kdo mě chce porazit, ví, kde mě najde."],
+    "wheel": ["Světlý režim, tučné písmo a zvuky jsou v kolečku nahoře. Co s nimi uděláš, je mi jedno.", "V kolečku nahoře je vzhled a zvuky. Já bych tam přidal tlačítko na prodloužení spánku."],
+    "verify": ["Bez ověřeného e-mailu zatím nejdou komentáře, žádosti o přátelství ani zprávy.", "Odkaz na ověření přišel do pošty. Občas zapadne do spamu."],
+    "photo": ["Profil snese fotku a široký obrázek do záhlaví. Nemusí. Ale snese.", "Fotka i záhlaví se přidávají přímo tady na profilu."],
+    "showcase": ["Do vitríny na profilu se vejdou tři odznaky. Já bych potřeboval větší vitrínu.", "Tři místa ve vitríně. Žádné dlouhé rozhodování. Nebo právě naopak."],
+    "likes": ["Písně se srdíčkem se samy řadí do oblíbených na profilu. Žádná práce. Přesně jak to mám rád.", "Srdíčko u písně a je v oblíbených na tvém profilu. Víc v tom není."],
+    "findFriends": ["Přátele jde hledat v Přátelích na profilu. Stačí začít psát jméno.", "Tlačítko Hledat přátele je v Přátelích na profilu. Mně stačí miska, ale je to tvoje věc."],
+    "findWho": ["V části Hledat přátele jsou jen ti, kdo si to sami zapnuli.", "Ukázat se v hledání přátel jde v Nastavení, záložka Soukromí. Výchozí je vypnuto."],
+    "privacy": ["Veřejný, nebo soukromý profil? Přepínač je v Nastavení, záložka Soukromí.", "Veřejný profil uvidí jen přihlášení. Jestli ho chceš ukázat i lidem bez účtu, zapneš to v Nastavení, záložka Soukromí.", "O tom, co o tobě ostatní vidí, rozhoduješ jen ty. Nastavení, záložka Soukromí."],
+    "visibility": ["V části „Co o mně vidí ostatní“ má každá věc vlastní vypínač. Nemusíš skrývat celý profil.", "Bio, město i oblíbené písně se dají ukázat nebo skrýt zvlášť. Nastavení, záložka Soukromí."],
+    "settings": ["Nastavení má záložky Profil, Zabezpečení, Soukromí a Tvorba. Heslo je v Zabezpečení.", "V Nastavení jsou čtyři záložky. Stačí vědět, co hledáš. To je obvykle ta těžší část."],
+    "twofa": ["Dvoufázové přihlášení chrání účet, i kdyby někdo zjistil heslo. Nastavení, záložka Zabezpečení.", "Dvoufázové přihlášení je dobrovolné. Přidává další vrstvu ochrany účtu."],
+    "export": ["Data si můžeš stáhnout a účet kdykoli smazat. Obojí je v Nastavení."],
+    "tracks": ["Děláš hudbu? Skladby z YouTube, Spotify, Apple Music i SoundCloudu jdou na profil. Nastavení, Tvorba.", "Tvoje skladby můžou být na profilu. Přidávají se v Nastavení, záložka Tvorba."],
+    "chat": ["Zprávy jsou vpravo dole, na telefonu v kolečku. Psát si můžou jen přátelé.", "Chat je vpravo dole. Na telefonu je to to kolečko, co vypadá, že něco chce."],
+    "chatSettings": ["V kolečku u chatu je stav, barvy, písmo a zvuky. Já bych si dal zlatou. Kdo by ne."],
+    "dnd": ["Nerušit znamená, že zprávy chodí dál, jen potichu. Tenhle stav mám od narození.", "Stav Nerušit je v kolečku u chatu. Já ho používám pořád, i bez kolečka."],
+    "chatDelete": ["Konverzaci si můžeš kdykoli smazat u sebe. Tomu druhému zůstane, dokud ji nesmaže taky.", "Zprávy se po roce mažou samy."],
+    "block": ["Když tě někdo obtěžuje, na jeho profilu je Zablokovat. Upozornění mu nepřijde.", "Nemusíš snášet nepříjemné chování. Zablokování je tiché, ten druhý se to nedozví."]
+  };
+  L.react = {
+    "friendSent": ["Žádost letí. Teď se čeká. Čekání umím, trénuju to u misky.", "Žádost je odeslaná. Další krok už není v tvých rukou. To je na tom to nejlepší."],
+    "friendIn": ["Někdo tě chce do přátel. Mě chce každej, kdo má granule.", "Nová žádost o přátelství je v Přátelích na profilu. Přijmout ji nemusíš. Já taky neberu každého."],
+    "friendAccepted": ["Někdo tě přijal do přátel. Odvaha se cení.", "Máš o přítele víc. Já jich mám taky pár. Ignoruju je."],
+    "stepsDone": ["Profil už má něco do sebe. Nechci chválit moc, ať si nezvykáš.", "Hotovo. Profil žije. Já jdu zase spát."],
+    "privateOn": ["Profil je soukromý. Ostatní neuvidí obsah, žádost o přátelství ale poslat můžou."],
+    "publicOn": ["Profil je veřejný, vidí ho přihlášení lidé. Jednotlivé věci jdou vypnout v Nastavení, záložka Soukromí."],
+    "trackAdded": ["Skladba je na profilu. Poslechnu si ji, až dospím.", "Další skladba na profilu. Za chvíli z toho bude slušná diskografie."],
+    "chatNew": ["Máš novou zprávu. Je v chatu vpravo dole, na telefonu v kolečku.", "Cink. Někdo ti napsal. Co v tom je, je jen mezi vámi. A tak to má být.", "Nová zpráva čeká v chatu. Já bych odpověděl hned, ale mně nikdo nepíše."],
+    "chatSent": ["První zpráva je venku. Co v ní je, je jen mezi vámi. Mě zajímá večeře.", "Zpráva je na cestě. Teď přichází ta nejtěžší část: čekání."],
+    "soundOff": ["Zvuky vypnuté. Konečně rozumný nápad.", "Ticho. Některá nastavení si zaslouží potlesk. Potichu, samozřejmě."],
+    "soundOn": ["Zvuky jsou zpátky. Ticho bylo hezčí, ale nikdo se mě neptal.", "Ticho skončilo. Bylo to pěkné období."],
+    "peopleNone": ["Tady je zatím liduprázdno. Ani já nikoho nevyčmuchám.", "Nikdo se zatím neukázal. Ne každý chce být k nalezení. A to je v pořádku."]
+  };
+  L.profileHello = L.profileHello.concat(["Profil je připravený. Obsah čeká na svého tvůrce. Hádej na koho.", "Prázdný profil? To se dá změnit. Ale žádný spěch, nikdo tě nehoní."]);
+  L.days = {
+    "mikulas": ["Dneska chodí Mikuláš. Já doufám, že místo uhlí dostanu granule.", "Čert, anděl a Mikuláš? Já bych radši trojici kapsiček.", "Dneska se rozdává dobrota. Já jsem byl hodný… většinu času."],
+    "nicholas": ["Dneska je svátek svatého Mikuláše. Doufám, že je miska plnější než obvykle.", "Svatý Mikuláš je na cestě. Tlapky mám připravené."],
+    "advent": ["Advent. Čtyři týdny čekání na Vánoce. To je skoro jako čekání na granule.", "Další adventní svíčka hoří. Já se od ní držím dál, ocas mám jen jeden.", "Venku zima, doma světýlka. Ideální čas zalézt do pelíšku."],
+    "eve": ["Štědrý den. Já mám jediný přání: ať je miska plná.", "Pod stromečkem je plno dárků. A já pořád čekám na ten svůj.", "Dneska se nikam nežene. Užij si večer."],
+    "holidays": ["Užij si svátky. Já mám plán: odpočívat a nepřepínat se.", "Svátky pokračují. Já pořád zpracovávám první várku dobrot."],
+    "xmas": ["Veselé Vánoce. Já budu hlídat dárky. Hlavně ty k jídlu.", "Veselé Vánoce. Ať je den v klidu a s dobrým jídlem."],
+    "nye": ["Poslední den roku. Já se loučím jen s prázdnou miskou.", "Nový rok už klepe na dveře. Doufám, že přinese víc spánku.", "Užij si poslední večer roku. Zítra je taky den."],
+    "newyear": ["Šťastný nový rok. Já začínám tím, že si dám další šlofík.", "První den roku. Moje předsevzetí: nezmeškat žádné krmení.", "Ať se ti letos daří. Tlapka na to."],
+    "valentine": ["Svátek lásky. Já ji poznám hlavně podle toho, kdo mi dá kapsičku.", "Dneska může milá zpráva někomu zlepšit den. Mně stačí miska."],
+    "easter": ["Veselé Velikonoce. Já volím pelíšek.", "Jaro, vajíčka a volno. To je plán, kterému rozumím."],
+    "witches": ["Dneska se pálí čarodějnice. Já se držím dál od ohně a blízko topení.", "Filipojakubská noc. Moje jediná magická schopnost: najít granule."],
+    "halloween": ["Halloween. Já se převlékat nemusím, můj výraz děsí sám.", "Mám masku otráveného kocoura. Nosím ji celý rok."],
+    "souls": ["Dnes vzpomínáme na ty, kteří už s námi nejsou."],
+    "cz2810": ["Dnes si připomínáme vznik samostatného Československa."],
+    "cz1711": ["Dnes si připomínáme boj za svobodu a demokracii."],
+    "carnival": ["Masopust. Můj kostým: úplně normální kocour.", "Užij si masky a veselí. Já zatím pohlídám misku."],
+    "de0310": ["Dnes Německo slaví Den německé jednoty."],
+    "ua2408": ["Dnes Ukrajina slaví Den nezávislosti. Přeju mír a svobodnou budoucnost."],
+    "tet": ["Lunární Nový rok je tady. Já bych si přál rok plný kapsiček.", "Tết. Čas rodiny a nových začátků. Užij si svátky."],
+    "midautumn": ["Svátek poloviny podzimu. Lucerny, měsíční koláčky a úplněk.", "Dnes večer patří lucernám a měsíčním koláčkům. Ten koláček si nechám."],
+    "vn0209": ["Dnes Vietnam slaví Den nezávislosti."],
+    "thanks": ["Díkůvzdání. Já děkuju za teplé šlofíky a misku, která nezůstane prázdná.", "Užij si jídlo a lidi, na kterých ti záleží."],
+    "winter": ["Zima dorazila. Místo u topení mám rezervované.", "Zima je tady. Moje aktivita právě klesla na minimum.", "Brrr. Kdo vymyslel zimu? Rád bych si s ním promluvil."],
+    "spring": ["Jaro. Všechno se probouzí. Já taky, ale zatím jen na jedno oko.", "Jarní nálada je ve vzduchu. Jen ty komáry mi sem neposílej."],
+    "summer": ["Vedro. Přesouvám se na nejchladnější dlažbu v okolí.", "Jestli mě hledáš, jsem ve stínu. Ideálně u misky.", "Léto je fajn, ale kdo vypnul klimatizaci na světě?"],
+    "autumn": ["Listí padá. Já pomalu přecházím do zimního spánku.", "Podzim. Ideální důvod zůstat doma a nic neřešit."]
+  };
+})(window.KEVIN_LINES.cs);

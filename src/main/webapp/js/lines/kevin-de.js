@@ -569,3 +569,71 @@
     "Gut. Du gewinnst."
   ]
 };
+
+// ---------- Rady k funkcím, reakce a svátky (2026-11-08, překlad české sady; klíče stejné jako v kevin-cs.js) ----------
+(function (L) {
+  L.hints = {
+    "squad": ["CatSmash wohnt jetzt im Squad. Wer mich schlagen will, weiß, wo er mich findet."],
+    "wheel": ["Heller Modus, fette Schrift und Töne sind im Rädchen oben. Was du damit machst, ist mir egal.", "Im Rädchen oben gibt es Aussehen und Töne. Ich würde noch einen Knopf für längere Nickerchen einbauen."],
+    "verify": ["Ohne bestätigte E-Mail gehen Kommentare, Freundschaftsanfragen und Nachrichten noch nicht.", "Der Bestätigungslink ist in deinem Postfach. Manchmal landet er im Spam."],
+    "photo": ["Ein Profil verträgt ein Foto und ein breites Titelbild. Muss nicht. Verträgt es aber.", "Foto und Titelbild fügst du direkt hier im Profil hinzu."],
+    "showcase": ["In die Vitrine im Profil passen drei Abzeichen. Ich bräuchte eine größere Vitrine.", "Drei Plätze in der Vitrine. Keine langen Entscheidungen. Oder genau das Gegenteil."],
+    "likes": ["Songs mit Herz landen von selbst in den Favoriten im Profil. Keine Arbeit. Genau wie ich es mag.", "Herz beim Song, und er ist in den Favoriten in deinem Profil. Mehr ist es nicht."],
+    "findFriends": ["Freunde suchst du unter Freunde im Profil. Fang einfach an, einen Namen zu tippen.", "Der Knopf Freunde finden ist unter Freunde im Profil. Mir reicht ein Napf, aber das ist deine Sache."],
+    "findWho": ["Bei Freunde finden sind nur Leute, die das selbst eingeschaltet haben.", "In der Freundessuche auftauchen kannst du in den Einstellungen, Tab Privatsphäre. Standardmäßig aus."],
+    "privacy": ["Öffentliches oder privates Profil? Der Schalter ist in den Einstellungen, Tab Privatsphäre.", "Ein öffentliches Profil sehen nur angemeldete Leute. Wenn es auch Leute ohne Konto sehen sollen, schaltest du das in den Einstellungen ein, Tab Privatsphäre.", "Was andere von dir sehen, entscheidest nur du. Einstellungen, Tab Privatsphäre."],
+    "visibility": ["Bei „Was andere von mir sehen“ hat jede Sache einen eigenen Schalter. Du musst nicht das ganze Profil verstecken.", "Bio, Stadt und Lieblingssongs kannst du einzeln zeigen oder verstecken. Einstellungen, Tab Privatsphäre."],
+    "settings": ["Die Einstellungen haben die Tabs Profil, Sicherheit, Privatsphäre und Meine Musik. Das Passwort ist unter Sicherheit.", "Die Einstellungen haben vier Tabs. Du musst nur wissen, was du suchst. Das ist meistens der schwierige Teil."],
+    "twofa": ["Die Zwei-Schritt-Anmeldung schützt dein Konto, auch wenn jemand das Passwort herausfindet. Einstellungen, Tab Sicherheit.", "Die Zwei-Schritt-Anmeldung ist freiwillig. Sie ist eine weitere Schutzschicht für dein Konto."],
+    "export": ["Du kannst deine Daten herunterladen und dein Konto jederzeit löschen. Beides ist in den Einstellungen."],
+    "tracks": ["Machst du Musik? Tracks von YouTube, Spotify, Apple Music und SoundCloud können ins Profil. Einstellungen, Meine Musik.", "Deine Tracks können im Profil sein. Du fügst sie in den Einstellungen hinzu, Tab Meine Musik."],
+    "chat": ["Nachrichten sind rechts unten, am Handy im runden Knopf. Schreiben können sich nur Freunde.", "Der Chat ist rechts unten. Am Handy ist es der runde Knopf, der aussieht, als wollte er etwas."],
+    "chatSettings": ["Im Rädchen im Chat gibt es Status, Farben, Schrift und Töne. Ich würde Gold nehmen. Wer nicht."],
+    "dnd": ["Nicht stören heißt: Nachrichten kommen weiter, nur leise. Diesen Status habe ich seit meiner Geburt.", "Nicht stören ist im Rädchen im Chat. Ich benutze es ständig, sogar ohne Rädchen."],
+    "chatDelete": ["Eine Unterhaltung kannst du jederzeit bei dir löschen. Die andere Person behält sie, bis sie sie auch löscht.", "Nachrichten löschen sich nach einem Jahr von selbst."],
+    "block": ["Wenn dich jemand belästigt, gibt es auf seinem Profil Blockieren. Er bekommt keine Nachricht darüber.", "Unangenehmes Verhalten musst du nicht hinnehmen. Blockieren ist still, die andere Person erfährt es nicht."]
+  };
+  L.react = {
+    "friendSent": ["Anfrage unterwegs. Jetzt wird gewartet. Warten kann ich, ich übe am Napf.", "Die Anfrage ist raus. Der nächste Schritt liegt nicht mehr bei dir. Das ist das Beste daran."],
+    "friendIn": ["Jemand will dich als Freund. Mich will jeder, der Leckerlis hat.", "Eine neue Freundschaftsanfrage ist unter Freunde im Profil. Annehmen musst du sie nicht. Ich nehme auch nicht jeden."],
+    "friendAccepted": ["Jemand hat dich als Freund angenommen. Mut wird geschätzt.", "Ein Freund mehr. Ich habe auch ein paar. Ich ignoriere sie."],
+    "stepsDone": ["Das Profil hat jetzt was. Ich lobe nicht zu viel, sonst gewöhnst du dich dran.", "Fertig. Das Profil lebt. Ich gehe wieder schlafen."],
+    "privateOn": ["Dein Profil ist privat. Andere sehen den Inhalt nicht, eine Freundschaftsanfrage können sie aber schicken."],
+    "publicOn": ["Dein Profil ist öffentlich, angemeldete Leute sehen es. Einzelne Sachen kannst du in den Einstellungen ausschalten, Tab Privatsphäre."],
+    "trackAdded": ["Der Track ist im Profil. Ich höre ihn mir an, wenn ich ausgeschlafen habe.", "Noch ein Track im Profil. Bald wird daraus eine ordentliche Diskografie."],
+    "chatNew": ["Du hast eine neue Nachricht. Sie ist im Chat rechts unten, am Handy im runden Knopf.", "Pling. Jemand hat dir geschrieben. Was drinsteht, bleibt unter euch. So soll es sein.", "Im Chat wartet eine neue Nachricht. Ich würde sofort antworten, aber mir schreibt keiner."],
+    "chatSent": ["Die erste Nachricht ist raus. Was drinsteht, bleibt unter euch. Mich interessiert das Abendessen.", "Die Nachricht ist unterwegs. Jetzt kommt der schwerste Teil: warten."],
+    "soundOff": ["Töne aus. Endlich eine vernünftige Idee.", "Stille. Manche Einstellungen verdienen Applaus. Leisen Applaus, natürlich."],
+    "soundOn": ["Die Töne sind zurück. Die Stille war schöner, aber mich hat keiner gefragt.", "Die Stille ist vorbei. Es war eine schöne Zeit."],
+    "peopleNone": ["Hier ist noch niemand. Nicht mal ich schnüffle jemanden auf.", "Noch hat sich niemand gezeigt. Nicht jeder will gefunden werden. Und das ist in Ordnung."]
+  };
+  L.profileHello = L.profileHello.concat(["Das Profil ist bereit. Der Inhalt wartet auf seinen Schöpfer. Rate mal, wer das ist.", "Leeres Profil? Das lässt sich ändern. Aber keine Eile, niemand hetzt dich."]);
+  L.days = {
+    "mikulas": ["Heute Abend kommt der Nikolaus. Ich hoffe, ich bekomme Leckerlis statt Kohle.", "Teufel, Engel und Nikolaus? Mir wären drei Portionsbeutel lieber.", "Heute gibt es Süßes. Ich war brav… meistens."],
+    "nicholas": ["Heute ist Nikolaustag. Ich hoffe, der Napf ist voller als sonst.", "Der Nikolaus ist unterwegs. Meine Pfoten sind bereit."],
+    "advent": ["Advent. Vier Wochen Warten auf Weihnachten. Fast wie Warten auf Leckerlis.", "Noch eine Adventskerze brennt. Ich halte Abstand, ich habe nur einen Schwanz.", "Draußen kalt, drinnen Lichter. Die perfekte Zeit fürs Körbchen."],
+    "eve": ["Heiligabend. Ich habe nur einen Wunsch: einen vollen Napf.", "Unter dem Baum liegen viele Geschenke. Und ich warte immer noch auf meins.", "Heute hetzt keiner. Genieß den Abend."],
+    "holidays": ["Genieß die Feiertage. Mein Plan: ausruhen und nichts überstürzen.", "Die Feiertage gehen weiter. Ich arbeite mich noch durch die erste Ladung Leckereien."],
+    "xmas": ["Frohe Weihnachten. Ich passe auf die Geschenke auf. Vor allem auf die essbaren.", "Frohe Weihnachten. Möge der Tag ruhig sein und das Essen gut."],
+    "nye": ["Letzter Tag des Jahres. Verabschieden tue ich mich nur von einem leeren Napf.", "Das neue Jahr klopft schon an. Hoffentlich bringt es mehr Schlaf.", "Genieß den letzten Abend des Jahres. Morgen ist auch noch ein Tag."],
+    "newyear": ["Frohes neues Jahr. Ich fange es mit einem weiteren Nickerchen an.", "Erster Tag des Jahres. Mein Vorsatz: keine Mahlzeit verpassen.", "Möge dir dieses Jahr alles gelingen. Pfote drauf."],
+    "valentine": ["Der Tag der Liebe. Ich erkenne sie vor allem daran, wer mir ein Leckerli gibt.", "Eine liebe Nachricht kann heute jemandem den Tag retten. Mir reicht ein Napf."],
+    "easter": ["Frohe Ostern. Ich wähle das Körbchen.", "Frühling, Eier und freie Tage. Ein Plan, den ich verstehe."],
+    "witches": ["Heute verbrennt man in Tschechien Hexenpuppen im Lagerfeuer, ein alter Frühlingsbrauch. Ich halte mich vom Feuer fern und nah an der Heizung.", "Walpurgisnacht. Meine einzige Zauberkraft: Leckerlis finden."],
+    "halloween": ["Halloween. Ich muss mich nicht verkleiden, mein Blick ist gruselig genug.", "Ich trage die Maske eines genervten Katers. Das ganze Jahr."],
+    "souls": ["Heute denken wir an die, die nicht mehr bei uns sind."],
+    "cz2810": ["Heute erinnert Tschechien an die Gründung der unabhängigen Tschechoslowakei."],
+    "cz1711": ["Heute erinnert Tschechien an den Kampf für Freiheit und Demokratie."],
+    "carnival": ["Fasching. Mein Kostüm: ganz normaler Kater.", "Viel Spaß beim Feiern und Verkleiden. Ich passe solange auf den Napf auf."],
+    "de0310": ["Heute ist der Tag der Deutschen Einheit."],
+    "ua2408": ["Heute feiert die Ukraine ihren Unabhängigkeitstag. Ich wünsche Frieden und eine freie Zukunft."],
+    "tet": ["Das Mondneujahr ist da. Ich wünsche mir ein Jahr voller Portionsbeutel.", "Tết. Zeit für Familie und Neuanfänge. Genieß die Feiertage."],
+    "midautumn": ["Das Mittherbstfest. Laternen, Mondkuchen und Vollmond.", "Heute Abend gehört den Laternen und Mondkuchen. Den Mondkuchen behalte ich."],
+    "vn0209": ["Heute feiert Vietnam seinen Unabhängigkeitstag."],
+    "thanks": ["Thanksgiving. Ich bin dankbar für warme Nickerchen und einen Napf, der nie leer bleibt.", "Genieß das Essen und die Menschen, die dir wichtig sind."],
+    "winter": ["Der Winter ist da. Mein Platz an der Heizung ist reserviert.", "Winter. Meine Aktivität ist gerade aufs Minimum gefallen.", "Brrr. Wer hat den Winter erfunden? Mit dem würde ich gern reden."],
+    "spring": ["Frühling. Alles wacht auf. Ich auch, aber vorerst nur mit einem Auge.", "Frühlingsstimmung liegt in der Luft. Schick mir nur bitte keine Mücken."],
+    "summer": ["Hitze. Ich ziehe auf die kühlsten Fliesen weit und breit.", "Wenn du mich suchst, ich bin im Schatten. Am besten neben dem Napf.", "Sommer ist schön, aber wer hat die Klimaanlage der Welt ausgeschaltet?"],
+    "autumn": ["Die Blätter fallen. Ich schalte langsam in den Winterschlaf.", "Herbst. Der perfekte Grund, zu Hause zu bleiben und nichts zu regeln."]
+  };
+})(window.KEVIN_LINES.de);

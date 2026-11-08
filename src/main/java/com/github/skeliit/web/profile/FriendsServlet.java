@@ -39,8 +39,8 @@ public class FriendsServlet extends HttpServlet {
         if (back == null) back = "/uzivatel.jsp";
         String anchor = back.startsWith("/hrac/") ? "" : "#pratele";
         String result = "ok";
+        String action = String.valueOf(req.getParameter("action"));
         try {
-            String action = String.valueOf(req.getParameter("action"));
             // Hledat přátele: ukázat se ostatním, nebo se schovat. Týká se jen mě, druhého člověka to nepotřebuje.
             if ("show".equals(action) || "hide".equals(action)) {
                 new UserDao().setCommunityPublic(me, "show".equals(action));
@@ -80,7 +80,9 @@ public class FriendsServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        resp.sendRedirect(back + (back.contains("?") ? "&" : "?") + "friend=" + result + anchor);
+        // odeslaná žádost navíc s &fa=request, ať Kevin ví, co se stalo (jen pevné slovo, nic od uživatele)
+        String sent = "ok".equals(result) && "request".equals(action) ? "&fa=request" : "";
+        resp.sendRedirect(back + (back.contains("?") ? "&" : "?") + "friend=" + result + sent + anchor);
     }
 
     /** Účet podle jména; smazaný ani zablokovaný se nepočítá. */

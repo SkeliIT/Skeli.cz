@@ -147,7 +147,8 @@
        if (headLd != null) { %><script type="application/ld+json"><%= headLd %></script><% } %>
   </head>
   <%-- v adminu (is-admin): klidné pozadí bez fotek, bez veřejné patičky (css/admin.css) --%>
-  <body<%= String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin") ? " class=\"is-admin\"" : "" %>>
+  <%-- data-unverified: přihlášený s neověřeným e-mailem (Kevin mu jednou řekne proč nejdou komentáře) --%>
+  <body<%= String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin") ? " class=\"is-admin\"" : "" %><%= session.getAttribute("username") != null && !com.github.skeliit.web.auth.EmailVerification.isVerified(session) ? " data-unverified" : "" %>>
     <%-- na stránce písně vede přepínač rovnou na adresu písně v daném jazyce (/en/song/…), jinak by
          adresa /cs/song/… nechala text česky; jinde jen ?lang= --%>
     <% @SuppressWarnings("unchecked") java.util.Map<String, String> songLangs = (java.util.Map<String, String>) request.getAttribute("hreflang");
@@ -195,7 +196,9 @@
                 <span class="nav-group-title"><%= t.getProperty("menu.squad") %></span>
                 <div class="nav-sub" id="navSubSquad">
                   <span class="nav-soon"><i class="fa-solid fa-table-cells nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.wall") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.wall") %></small></span>
+                  <%-- Rookie Chart (hitparáda) je zatím schovaná: vrátí se, až bude na webu víc lidí. Překlady menu.chart a menu.d.chart zůstávají.
                   <span class="nav-soon"><i class="fa-solid fa-trophy nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.chart") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.chart") %></small></span>
+                  --%>
                   <a href="<%= ctx %>/?kevin=pong" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.catsmash") %></span><small><%= t.getProperty("menu.d.game") %></small></a>
                 </div>
               </div>

@@ -347,7 +347,13 @@
       if (r.status === 429) showError(T.tLimit);
       else if (r.status === 403) { form.hidden = true; closed.hidden = false; }
       else if (!r.ok) showError(T.tFail);
-      else { input.value = ''; replyTo = 0; editId = 0; composeMode(''); autosize(); toggleEmoji(false); }
+      else {
+        // první odeslaná zpráva: Kevin (na stránce, nebo kolem okna chatu v liště) ví jen to, že odešla – text ne
+        if (request.action === 'send') {
+          try { var w = window.parent !== window ? window.parent : window; w.dispatchEvent(new w.CustomEvent('kevin', { detail: { chat: 'sent' } })); } catch (e) { /* jiný původ */ }
+        }
+        input.value = ''; replyTo = 0; editId = 0; composeMode(''); autosize(); toggleEmoji(false);
+      }
     }).catch(function () { showError(T.tFail); }).then(function () {
       busy = false;
       refresh().then(toBottom);

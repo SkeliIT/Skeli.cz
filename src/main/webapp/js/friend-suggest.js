@@ -33,6 +33,7 @@
       var result = (/[?&]friend=([a-z]+)/.exec(r.url) || [])[1] || 'ok';
       if (result === 'ok') {
         cell.textContent = p.rel === 'RECEIVED' ? T.tFriends : T.tSent;
+        if (p.rel !== 'RECEIVED') window.dispatchEvent(new CustomEvent('kevin', { detail: { friend: 'sent' } }));
       } else {
         button.disabled = false;
         status.textContent = T['t' + result[0].toUpperCase() + result.slice(1)] || T.tFail;

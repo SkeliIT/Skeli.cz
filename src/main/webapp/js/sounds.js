@@ -85,6 +85,8 @@
     if (!b) return;
     set('soundMuted', muted() ? '0' : '1');
     refresh();
+    // Kevin to okomentuje (js/kevin.js): ticho pochválí, zvuky přijme s povzdechem
+    window.dispatchEvent(new CustomEvent('kevin', { detail: { sound: muted() ? 'off' : 'on' } }));
   });
   document.addEventListener('change', function (e) {
     var kind = e.target.dataset && e.target.dataset.soundPref;

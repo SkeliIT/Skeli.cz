@@ -149,7 +149,7 @@
   // '/cesta' (jiná stránka; když už na ní jsi, sjede k její hlavní části), '.selektor' (část této stránky
   // – sjede k ní a rozbliká ji), 'btn:#id' (tlačítko – rozbliká ho), 'menu:play' (pustí něco), 'login'
   // (přihlášení, přihlášenému Texty). Tipy L.tips jsou ve všech jazycích ve stejném pořadí → TIP_GO.
-  var TIP_GO = ['/texty.jsp', 'btn:#themeToggle', 'login', '/texty.jsp', 'menu:play', '/texty.jsp'];
+  var TIP_GO = ['/texty.jsp', 'btn:.view-btn', 'login', '/texty.jsp', 'menu:play', '/texty.jsp'];
   var PAGE_GO = {
     home: '.hero', music: '[data-clip-player]', lyrics: '.song-list', song: '[data-clip-player]', about: '.about-intro',
     news: '.news-grid', register: '.auth-card', login: '.auth-card', donate: '.donate-card', error: '.error-page .btn-primary'
@@ -262,19 +262,105 @@
       .then(function (r) { return r.status === 200 ? r.json() : null; })
       .catch(function () { return null; });
   }
-  // lines the visitor did not ask for: at most one in 40 s and six per page
-  // Something he says on his own. In the paw he peeks out from the side of the screen to say it, but
-  // only where that edge is free (nothing of the page under him and his bubble); with no free edge the
-  // paw gets a gold dot instead. Closed with the cross, he still gives a tip now and then, only that way.
-  function auto(msg, pose, peekChance, isTip, go) {
-    if (window.SkeliSound) window.SkeliSound.play('kevin');
+  // Strop (přání uživatele: Kevin nesmí otravovat): sám od sebe řekne za celou návštěvu nejvýš 3 věci
+  // a mezi nimi je aspoň 10 minut. Platí pro tipy, rady i hlášky ke stránce. Pozdrav na začátku návštěvy
+  // a odpovědi na to, co člověk právě udělal (react), se nepočítají. Návštěva = záložka (sessionStorage).
+  var OWN_MAX = 3, OWN_GAP = 10 * 60000;
+  function ownState() { try { return JSON.parse(session.get('kevinOwn')) || { n: 0, at: 0 }; } catch (e) { return { n: 0, at: 0 }; } }
+  // za kolik ms smí zase sám promluvit (0 = hned, Infinity = v téhle návštěvě už ne)
+  function ownWait() {
+    var s = ownState();
+    if (s.n >= OWN_MAX) return Infinity;
+    return Math.max(0, s.at + OWN_GAP - Date.now());
+  }
+  function ownUsed() { var s = ownState(); s.n++; s.at = Date.now(); session.set('kevinOwn', JSON.stringify(s)); }
+  // Něco, co řekne sám od sebe. V tlapce vykoukne z okraje obrazovky, ale jen kde je okraj volný (pod ním
+  // ani pod bublinou nic ze stránky); bez volného okraje dostane tlapka zlatou tečku. Zavřený křížkem dává
+  // už jen tipy, a to jen takhle. force = vyžádal si to jiný skript (testy): strop se nehlídá.
+  // Vrací true, když to opravdu řekl (nebo nechal čekat za tečkou).
+  function auto(msg, pose, peekChance, isTip, go, force) {
     var now = Date.now();
-    if (busy || autoCount >= 6 || now - lastAuto < 40000 || !bubble.hidden) return;
-    if (root.hidden && userHidden && !isTip) return;
-    if (root.hidden && !pocket()) return;
+    if (busy || !bubble.hidden || !msg) return false;
+    if (!force && (ownWait() > 0 || now - lastAuto < 40000)) return false;
+    if (root.hidden && userHidden && !isTip) return false;
+    if (root.hidden && !pocket()) return false;
+    if (window.SkeliSound) window.SkeliSound.play('kevin');
     autoCount++;
     lastAuto = now;
+    if (!force) ownUsed();
     onOwn(msg, { pose: pose || 'point', go: go }, isTip, peekChance);
+    return true;
+  }
+  // Jednorázové oznámení (stavba webu, nový profil): počká, až to strop dovolí, a když zrovna mluví, zkusí
+  // to za 5 s znovu. Když už v návštěvě promluvit nesmí, zkusí to při příští návštěvě. sayIt vrací true = řečeno.
+  function whenAllowed(sayIt) {
+    var tries = 0;
+    (function attempt() {
+      var wait = ownWait();
+      if (wait === Infinity) return;
+      if (wait > 0) return setTimeout(attempt, wait + 2000);
+      if (++tries > 12) return;
+      if (bubble.hidden && !busy) lastAuto = 0;      // výjimka z odstupu 40 s po pozdravu
+      if (!sayIt()) setTimeout(attempt, 5000);
+    })();
+  }
+
+  // Rady k funkcím webu (L.hints): každou řekne jednou za celý život prohlížeče (localStorage kevinHints)
+  // a jen tam, kde dává smysl (when). go = kam vede klik na bublinu (viz goTo). Staré tipy L.tips taky jen jednou.
+  function signedIn() { return !!document.querySelector('form.logout-form'); }
+  function hasEl(sel) { return function () { return !!document.querySelector(sel); }; }
+  var HINTS = [
+    { id: 'squad', go: function () { return wideMq.matches ? 'btn:[aria-controls="navSubSquad"]' : 'btn:#menuToggle'; } },
+    { id: 'wheel', when: hasEl('.view-btn'), go: 'btn:.view-btn' },
+    { id: 'verify', when: function () { return document.body.hasAttribute('data-unverified'); } },
+    { id: 'photo', when: function () { return pageKey() === 'profile'; }, go: 'btn:.acct-photo-edit' },
+    { id: 'showcase', when: function () { return pageKey() === 'profile'; } },
+    { id: 'likes', when: function () { return signedIn() && !!document.getElementById('likeSong'); }, go: 'btn:#likeSong' },
+    { id: 'findFriends', when: signedIn, go: '/uzivatel.jsp#pratele' },
+    { id: 'findWho', when: hasEl('details.friend-find[open]') },
+    { id: 'privacy', when: function () { return signedIn() && !store.get('kevinPrivacyTold'); }, go: '/nastaveni.jsp#soukromi' },
+    { id: 'visibility', when: signedIn, go: '/nastaveni.jsp#viditelnost' },
+    { id: 'settings', when: function () { return pageKey() === 'settings'; } },
+    { id: 'twofa', when: signedIn, go: '/nastaveni.jsp#dvoufazove' },
+    { id: 'export', when: function () { return pageKey() === 'settings'; } },
+    { id: 'tracks', when: signedIn, go: '/nastaveni.jsp#tvorba' },
+    { id: 'chat', when: hasEl('.chat-dock-btn'), go: 'btn:.chat-dock-btn' },
+    { id: 'chatSettings', when: function () { return pageKey() === 'chat'; } },
+    { id: 'dnd', when: function () { return pageKey() === 'chat'; } },
+    { id: 'chatDelete', when: function () { return pageKey() === 'chat'; } },
+    { id: 'block', when: function () { return pageKey() === 'player' && signedIn(); } }
+  ];
+  function listStore(key) { try { return JSON.parse(store.get(key)) || []; } catch (e) { return []; } }
+  function listAdd(key, v) { var l = listStore(key); if (l.indexOf(v) < 0) { l.push(v); store.set(key, JSON.stringify(l)); } }
+  // další rada pro tuhle stránku: nejdřív ty, které se týkají právě otevřené stránky, pak obecné
+  function nextHint() {
+    if (!L.hints) return null;
+    var done = listStore('kevinHints'), here = null, any = null;
+    HINTS.forEach(function (h) {
+      if (!L.hints[h.id] || done.indexOf(h.id) >= 0) return;
+      if (h.when && !h.when()) return;
+      var local = h.when && h.when !== signedIn;
+      if (local && !here) here = h;
+      if (!any) any = h;
+    });
+    return here || any;
+  }
+  function sayHint(h) {
+    var go = typeof h.go === 'function' ? h.go() : h.go;
+    if (!auto(pick(L.hints[h.id]), 'point', 0.8, true, go)) return false;
+    listAdd('kevinHints', h.id);
+    if (h.id === 'privacy') store.set('kevinPrivacyTold', '1');
+    return true;
+  }
+  function nextTip() {
+    var done = listStore('kevinTips'), left = [];
+    (L.tips || []).forEach(function (t, i) { if (done.indexOf(i) < 0) left.push(i); });
+    return left.length ? left[Math.floor(Math.random() * left.length)] : -1;
+  }
+  function sayTip(i, force) {
+    if (!auto(L.tips[i], 'point', force ? 1 : 0.8, true, TIP_GO[i], force)) return false;
+    listAdd('kevinTips', i);
+    return true;
   }
   function onOwn(msg, opts, isTip, peekChance) {
     if (!root.hidden) {   // he is out (the visitor called him): he just says it
@@ -348,16 +434,18 @@
       else root.classList.add('kevin-in');   // pops back up in his corner
     }, 550);
   }
-  // a tip or a joke every minute and a half or so, while someone is on the page
+  // Jednou za čas (ale jen když to strop dovolí): nejdřív rada k funkci, kterou ještě neslyšel, pak starý
+  // tip, občas pozvánka ke hře; když už všechno řekl, jen vtip. Každá rada a tip jen jednou.
   function scheduleTip() {
     setTimeout(function () {
-      if (!document.hidden && !asleep) {
-        var tip = Math.random() < 0.6;
+      if (!document.hidden && !asleep && ownWait() === 0) {
         var own = window.innerWidth <= 767 && L.mobile ? L.idle.concat(L.mobile) : L.idle;   // on a phone also his size joke
-        if (tip && L.pongInvite && !session.get('kevinInvite') && Math.random() < 0.25) {
-          session.set('kevinInvite', '1');
-          auto(pick(L.pongInvite), 'point', 0.8, true, 'menu:pong');
-        } else if (tip && L.tips) { var i = Math.floor(Math.random() * L.tips.length); auto(L.tips[i], 'point', 0.8, true, TIP_GO[i]); }
+        var hint = nextHint(), tip = nextTip();
+        if (hint && Math.random() < 0.7) sayHint(hint);
+        else if (L.pongInvite && !session.get('kevinInvite') && Math.random() < 0.25) {
+          if (auto(pick(L.pongInvite), 'point', 0.8, true, 'menu:pong')) session.set('kevinInvite', '1');
+        } else if (tip >= 0) sayTip(tip);
+        else if (hint) sayHint(hint);
         else auto(pick(own), 'point', 0.8, false);
       }
       scheduleTip();
@@ -630,15 +718,12 @@
   var UNDER_CONSTRUCTION = true;
   function buildingNotice() {
     if (!UNDER_CONSTRUCTION || !L.building || session.get('kevinBuilding')) return;
-    var tries = 0;
-    (function attempt() {
-      if (session.get('kevinBuilding') || ++tries > 12) return;
-      var before = autoCount;
-      if (bubble.hidden && !busy) lastAuto = 0;      // výjimka z odstupu 40 s mezi hláškami
-      auto(pick(L.building), 'point', 0.9, true, 'menu:news');
-      if (autoCount > before) session.set('kevinBuilding', '1');
-      else setTimeout(attempt, 5000);
-    })();
+    whenAllowed(function () {
+      if (session.get('kevinBuilding')) return true;
+      if (!auto(pick(L.building), 'point', 0.9, true, 'menu:news')) return false;
+      session.set('kevinBuilding', '1');
+      return true;
+    });
   }
 
   // Nový profil a soukromí: každému přihlášenému (novému i tomu, kdo se vrátil) to řekne dvakrát a nikdy víc,
@@ -647,18 +732,15 @@
     if (!L.profileNews || !document.querySelector('form.logout-form')) return;
     var step = Number(store.get('kevinProfileNews') || 0);
     if (step >= L.profileNews.length || session.get('kevinProfileNewsNow')) return;
-    var targets = ['/uzivatel.jsp', '/nastaveni.jsp#soukromi'], tries = 0;
-    (function attempt() {
-      if (++tries > 12) return;
-      var before = autoCount;
-      if (bubble.hidden && !busy) lastAuto = 0;      // výjimka z odstupu mezi hláškami
-      auto(L.profileNews[step], 'point', 0.9, true, targets[step]);
-      if (autoCount > before) {
-        store.set('kevinProfileNews', String(step + 1));
-        session.set('kevinProfileNewsNow', '1');     // druhá věta až při další návštěvě, ať neotravuje
-        if (step === 1) store.set('kevinPrivacyTold', '1');
-      } else setTimeout(attempt, 5000);
-    })();
+    var targets = ['/uzivatel.jsp', '/nastaveni.jsp#soukromi'];
+    whenAllowed(function () {
+      if (session.get('kevinProfileNewsNow')) return true;
+      if (!auto(L.profileNews[step], 'point', 0.9, true, targets[step])) return false;
+      store.set('kevinProfileNews', String(step + 1));
+      session.set('kevinProfileNewsNow', '1');     // druhá věta až při další návštěvě, ať neotravuje
+      if (step === 1) store.set('kevinPrivacyTold', '1');
+      return true;
+    });
   }
 
   // Novinky webu (kevin/novinky.json, nejnovější první): krátké lidské věty o tom, co jsme na webu změnili,
@@ -900,12 +982,94 @@
     if (/login/.test(p)) return 'login';
     if (/donate/.test(p)) return 'donate';
     if (/uzivatel/.test(p)) return 'profile';
+    if (/nastaveni/.test(p)) return 'settings';
+    if (/^\/hrac\//.test(p)) return 'player';
+    if (/^\/zpravy/.test(p)) return 'chat';
     return '';
   }
   function dayPart() {
     var h = new Date().getHours();
     return h >= 5 && h < 10 ? 'morning' : h < 17 && h >= 10 ? 'day' : h >= 17 && h < 22 ? 'evening' : 'night';
   }
+  // ---------- svátky a roční období (L.days) ----------
+  // Region podle časového pásma prohlížeče (nic se neposílá na server): cz, de, ua, vn, us, jinak world.
+  // Text je v jazyce stránky, svátky podle toho, kde člověk je. Jižní polokoule má roční období obráceně.
+  function region() {
+    var tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { tz = ''; }
+    if (/^Europe\/(Prague|Bratislava)$/.test(tz)) return 'cz';
+    if (/^Europe\/(Berlin|Busingen|Vienna|Zurich)$/.test(tz)) return 'de';
+    if (/^Europe\/(Kyiv|Kiev|Zaporozhye|Uzhgorod)$/.test(tz)) return 'ua';
+    if (/^Asia\/(Ho_Chi_Minh|Saigon)$/.test(tz)) return 'vn';
+    if (/^America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix|Anchorage|Detroit|Boise|Juneau|Indiana|Kentucky|North_Dakota)|^Pacific\/Honolulu$/.test(tz)) return 'us';
+    return /^(Australia\/|Pacific\/Auckland|America\/(Argentina|Sao_Paulo|Santiago|Montevideo)|Africa\/Johannesburg)/.test(tz) ? 'south' : 'world';
+  }
+  function ymd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  // Velikonoční neděle: západní (gregoriánský výpočet) a pravoslavná (juliánský + 13 dní, platí 1900–2099)
+  function easterWest(y) {
+    var a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25);
+    var g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4;
+    var l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    var month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(y, month - 1, day);
+  }
+  function easterOrthodox(y) {
+    var a = y % 4, b = y % 7, c = y % 19, d = (19 * c + 15) % 30, e = (2 * a + 4 * b - d + 34) % 7;
+    var month = Math.floor((d + e + 114) / 31), day = ((d + e + 114) % 31) + 1;
+    return addDays(new Date(y, month - 1, day), 13);
+  }
+  // lunární svátky Vietnamu se nedají jednoduše spočítat: data na pár let dopředu (pak doplnit)
+  var TET = ['2027-02-06', '2028-01-26', '2029-02-13', '2030-02-03', '2031-01-23', '2032-02-11'];
+  var MID_AUTUMN = ['2027-09-15', '2028-10-03', '2029-09-22', '2030-09-12', '2031-10-01', '2032-09-19'];
+  function within(today, start, days) { var s = ymd(start), e = ymd(addDays(start, days)); return today >= s && today <= e; }
+  // klíč z L.days pro dnešek (nebo null). Pořadí = přednost: konkrétní den před obdobím (Mikuláš před adventem).
+  function holiday(now) {
+    now = now || new Date();
+    var r = region(), y = now.getFullYear(), md = ymd(now).slice(5), today = ymd(now);
+    var ez = r === 'ua' ? easterOrthodox(y) : easterWest(y);
+    var fixed = {
+      cz: { '12-05': 'mikulas', '12-24': 'eve', '12-25': 'holidays', '12-26': 'holidays', '04-30': 'witches', '11-02': 'souls', '10-28': 'cz2810', '11-17': 'cz1711', '10-31': 'halloween', '02-14': 'valentine' },
+      de: { '12-06': 'nicholas', '12-24': 'eve', '12-25': 'holidays', '12-26': 'holidays', '10-03': 'de0310' },
+      ua: { '12-06': 'nicholas', '12-25': 'xmas', '08-24': 'ua2408' },
+      vn: { '12-25': 'xmas', '09-02': 'vn0209' },
+      us: { '12-25': 'xmas', '10-31': 'halloween', '02-14': 'valentine' }
+    }[r] || { '12-25': 'xmas', '10-31': 'halloween', '02-14': 'valentine' };
+    if (md === '12-31') return 'nye';
+    if (md === '01-01') return 'newyear';
+    if (fixed[md]) return fixed[md];
+    if (r === 'vn') {
+      if (TET.some(function (d) { var p = d.split('-'); return within(today, new Date(+p[0], p[1] - 1, +p[2]), 2); })) return 'tet';
+      if (MID_AUTUMN.indexOf(today) >= 0) return 'midautumn';
+    } else {
+      if (within(today, addDays(ez, r === 'ua' ? 0 : -2), r === 'ua' ? 1 : 3)) return 'easter';   // Velký pátek až pondělí
+    }
+    if (r === 'de' && within(today, addDays(ez, -52), 5)) return 'carnival';                     // tučný čtvrtek až úterý
+    if (r === 'us' && now.getMonth() === 10 && now.getDay() === 4 && now.getDate() >= 22 && now.getDate() <= 28) return 'thanks';
+    if ((r === 'cz' || r === 'de') && md >= '11-27' && md <= '12-23') {
+      var adv = new Date(y, 10, 27);                                                              // 1. adventní neděle: 27. 11. – 3. 12.
+      while (adv.getDay() !== 0) adv = addDays(adv, 1);
+      if (today >= ymd(adv)) return 'advent';
+    }
+    // první týden ročního období (astronomicky); ve Vietnamu ne (tropy), na jihu obráceně
+    if (r === 'vn') return null;
+    var seasons = [['12-21', 'winter'], ['03-20', 'spring'], ['06-21', 'summer'], ['09-22', 'autumn']];
+    var flip = { winter: 'summer', summer: 'winter', spring: 'autumn', autumn: 'spring' };
+    for (var i = 0; i < seasons.length; i++) {
+      var p = seasons[i][0].split('-');
+      if (within(today, new Date(y, p[0] - 1, +p[1]), 6)) return r === 'south' ? flip[seasons[i][1]] : seasons[i][1];
+    }
+    return null;
+  }
+  // svátek místo běžného pozdravu, jednou za den (localStorage kevinDay)
+  function holidayLine() {
+    var key = L.days && holiday(), today = ymd(new Date());
+    if (!key || !L.days[key] || store.get('kevinDay') === today) return null;
+    store.set('kevinDay', today);
+    return L.days[key];
+  }
+  window.__kevinHoliday = holiday;   // pro testy: __kevinHoliday(new Date(2026, 11, 5))
+
   // the first page of a visit remembers when the previous visit was (for "what's new")
   function noteVisit() {
     if (session.get('kevinVisit')) return;
@@ -944,11 +1108,16 @@
       var d = new Date(), h = d.getHours(), time = h + ':' + String(d.getMinutes()).padStart(2, '0');
       var say1 = function (list) { onOwn(pick(list).replace('{time}', time), { pose: 'point', after: 'idle' }, false, 0); lastAuto = Date.now(); };
       // the very first visit: he sniffs the newcomer; at three in the morning his own line now and then
-      var hello = function () { say1(!(prev > 0) && L.first ? L.first : h === 3 && L.greet.three && Math.random() < 0.5 ? L.greet.three : L.greet[dayPart()]); };
+      // svátek nebo začátek ročního období místo pozdravu podle denní doby (jednou za den, nováček má přednost)
+      var hello = function () {
+        var day = prev > 0 ? holidayLine() : null;
+        say1(!(prev > 0) && L.first ? L.first : day ? day : h === 3 && L.greet.three && Math.random() < 0.5 ? L.greet.three : L.greet[dayPart()]);
+      };
       // back after a while: what came out since, otherwise a "back again"
       return setTimeout(function () {
         if (acted) return;
-        if (prev > 0 && Date.now() - prev > 30 * 60000) news(false, function () { if (!acted) say1(L.back.plain); }); else hello();
+        var dayNow = prev > 0 && L.days && holiday() && store.get('kevinDay') !== ymd(new Date());
+        if (!dayNow && prev > 0 && Date.now() - prev > 30 * 60000) news(false, function () { if (!acted) say1(L.back.plain); }); else hello();
       }, 900);
     }
     var key = pageKey(), lines = L.page[key];
@@ -987,7 +1156,42 @@
     if (q.get('welcome') && signedIn) return ['auth', L.auth.welcome || L.auth.in, 'cool'];   // just signed up
     if (before === '0' && signedIn) return ['auth', L.auth.in, 'point'];
     if (before === '1' && !signedIn) return ['auth', L.auth.out, 'idle'];
-    return null;
+    return L.react ? pageReaction(q) : null;
+  }
+  // Co se změnilo na profilu a v nastavení od minula (žádosti, přátelé, soukromí, skladby, první kroky).
+  // Stav si pamatuje v localStorage, takže jednu věc řekne jen jednou.
+  function pageReaction(q) {
+    var R = L.react, key = pageKey(), out = null;
+    if (q.get('friend') === 'ok' && q.get('fa') === 'request') out = ['friend', R.friendSent, 'cool'];
+    if (key === 'settings' && q.get('tracks') === 'saved') out = ['tracks', R.trackAdded, 'cool'];
+    var pub = key === 'settings' && document.querySelector('input[name="pub"]');
+    if (pub) {
+      var was = store.get('kevinPub'), now = pub.checked ? '1' : '0';
+      store.set('kevinPub', now);
+      if (q.get('vis') === '1' && was !== null && was !== now) out = ['privacy', now === '1' ? R.publicOn : R.privateOn, 'point'];
+    }
+    if (key !== 'profile') return out;
+    // nové žádosti o přátelství (počet v Přátelích)
+    var inEl = document.querySelector('[data-friend-in]'), inN = inEl ? +inEl.getAttribute('data-friend-in') : 0;
+    var inSeen = +(store.get('kevinFriendIn') || 0);
+    store.set('kevinFriendIn', String(inN));
+    if (!out && inN > inSeen) out = ['friend', R.friendIn, 'point'];
+    // přítel navíc, a nepřijal jsem ho právě já (?friend=ok bez fa) = někdo přijal moji žádost
+    var frEl = document.querySelector('[data-friends-n]'), frN = frEl ? +frEl.getAttribute('data-friends-n') : 0;
+    var frSeen = store.get('kevinFriendsN');
+    store.set('kevinFriendsN', String(frN));
+    if (!out && frSeen !== null && frN > +frSeen && q.get('friend') !== 'ok') out = ['friend', R.friendAccepted, 'cool'];
+    // první kroky hotové: seznam už na profilu není (jen schovaný tlačítkem se nepočítá)
+    if (!out && store.get('kevinProfileHello') && !document.getElementById('prvni-kroky') && !store.get('kevinStepsDone')) {
+      store.set('kevinStepsDone', '1');
+      out = ['profile', R.stepsDone, 'cool'];
+    }
+    // hledání přátel otevřené, ale nikdo se tam zatím neukázal
+    if (!out && document.querySelector('details.friend-find[open] [data-people-none]') && !store.get('kevinPeopleNone')) {
+      store.set('kevinPeopleNone', '1');
+      out = ['people', R.peopleNone, 'idle'];
+    }
+    return out;
   }
 
   // An answer to something the visitor did: at most once in 45 s for each kind, never when he was closed
@@ -1253,10 +1457,18 @@
       // hláška zvenku (hra: odchod uprostřed zápasu) – řekne ji, i když je v tlapce (zlatá tečka)
       onOwn(d.say, { pose: 'point' }, true, 0.9);
     } else if (d.tip) {
-      // another script wants a tip now (also used by the tests): he peeks out to say it
-      lastAuto = 0;
+      // jiný skript chce tip hned (i testy): vykoukne a řekne ho, strop se tu nehlídá
       var ti = Math.floor(Math.random() * L.tips.length);
-      auto(L.tips[ti], 'point', 1, true, TIP_GO[ti]);
+      auto(L.tips[ti], 'point', 1, true, TIP_GO[ti], true);
+    } else if (d.friend === 'sent' && L.react) {
+      react('friend', L.react.friendSent, 'cool');
+    } else if (d.sound && L.react) {
+      react('sound', d.sound === 'off' ? L.react.soundOff : L.react.soundOn, d.sound === 'off' ? 'cool' : 'sulk');
+    } else if (d.chat === 'new' && L.react) {
+      react('chat', L.react.chatNew, 'point');
+    } else if (d.chat === 'sent' && L.react && !store.get('kevinChatSent')) {
+      store.set('kevinChatSent', '1');           // jen u úplně první odeslané zprávy
+      react('chat', L.react.chatSent, 'cool');
     }
   });
   document.addEventListener('pjax:done', function () { autoCount = 0; greet(); watchSecret(); });

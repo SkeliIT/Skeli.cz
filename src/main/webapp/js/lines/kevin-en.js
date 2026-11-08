@@ -569,3 +569,71 @@
     "Fine. You win."
   ]
 };
+
+// ---------- Rady k funkcím, reakce a svátky (2026-11-08, překlad české sady; klíče stejné jako v kevin-cs.js) ----------
+(function (L) {
+  L.hints = {
+    "squad": ["CatSmash lives in Squad now. Anyone who wants to beat me knows where to find me."],
+    "wheel": ["Light mode, bold text and sounds are in the wheel up top. What you do with them is your business.", "The wheel up top has looks and sounds. I'd add a button for longer naps."],
+    "verify": ["Without a verified e-mail you can't comment, send friend requests or messages yet.", "The verification link is in your inbox. Sometimes it slips into spam."],
+    "photo": ["A profile can take a photo and a wide header picture. It doesn't have to. But it can.", "Photo and header are added right here on the profile."],
+    "showcase": ["Three badges fit in the showcase on your profile. I'd need a bigger showcase.", "Three spots in the showcase. No long decisions. Or exactly the opposite."],
+    "likes": ["Songs with a heart line up in your favourites on the profile. No work at all. Just how I like it.", "Heart a song and it's in the favourites on your profile. That's all there is to it."],
+    "findFriends": ["You can look for friends in Friends on your profile. Just start typing a name.", "The Find friends button is in Friends on your profile. A bowl is enough for me, but that's your call."],
+    "findWho": ["Find friends only shows people who switched it on themselves.", "Showing up in Find friends is in Settings, Privacy tab. It's off by default."],
+    "privacy": ["Public or private profile? The switch is in Settings, Privacy tab.", "Only signed-in people see a public profile. If you want people without an account to see it too, switch it on in Settings, Privacy tab.", "What others see about you is your decision alone. Settings, Privacy tab."],
+    "visibility": ["In “What others see about me” every item has its own switch. No need to hide the whole profile.", "Bio, city and favourite songs can be shown or hidden one by one. Settings, Privacy tab."],
+    "settings": ["Settings has the tabs Profile, Security, Privacy and My music. The password is in Security.", "Settings has four tabs. You just need to know what you're looking for. That's usually the hard part."],
+    "twofa": ["Two-step sign-in protects your account even if someone finds out the password. Settings, Security tab.", "Two-step sign-in is optional. It adds another layer of protection to your account."],
+    "export": ["You can download your data and delete your account any time. Both are in Settings."],
+    "tracks": ["Making music? Tracks from YouTube, Spotify, Apple Music and SoundCloud can go on your profile. Settings, My music.", "Your tracks can be on your profile. They're added in Settings, My music tab."],
+    "chat": ["Messages are bottom right, on a phone in the round button. Only friends can write to each other.", "The chat is bottom right. On a phone it's the round button that looks like it wants something."],
+    "chatSettings": ["The wheel in the chat has status, colours, font and sounds. I'd go for gold. Who wouldn't."],
+    "dnd": ["Do not disturb means messages keep coming, just quietly. I've had that status since birth.", "Do not disturb is in the wheel in the chat. I use it all the time, even without the wheel."],
+    "chatDelete": ["You can delete a conversation on your side any time. The other person keeps it until they delete it too.", "Messages delete themselves after a year."],
+    "block": ["If someone bothers you, their profile has Block. They get no notice.", "You don't have to put up with unpleasant behaviour. Blocking is silent, the other person won't find out."]
+  };
+  L.react = {
+    "friendSent": ["Request sent. Now we wait. I'm good at waiting, I practise by the bowl.", "The request is sent. The next step isn't in your hands. That's the best part."],
+    "friendIn": ["Someone wants you as a friend. Everyone with treats wants me.", "A new friend request is in Friends on your profile. You don't have to accept it. I don't take everyone either."],
+    "friendAccepted": ["Someone accepted you as a friend. Courage is appreciated.", "One more friend. I've got a few too. I ignore them."],
+    "stepsDone": ["Your profile has something to it now. I won't praise it too much, don't get used to it.", "Done. The profile is alive. I'm going back to sleep."],
+    "privateOn": ["Your profile is private. Others won't see what's on it, but they can still send you a friend request."],
+    "publicOn": ["Your profile is public, signed-in people can see it. Single items can be switched off in Settings, Privacy tab."],
+    "trackAdded": ["The track is on your profile. I'll listen once I've finished my nap.", "Another track on the profile. Soon it'll be a decent discography."],
+    "chatNew": ["You've got a new message. It's in the chat bottom right, on a phone in the round button.", "Ding. Someone wrote to you. What it says stays between you two. As it should.", "A new message is waiting in the chat. I'd answer right away, but nobody writes to me."],
+    "chatSent": ["Your first message is out. What's in it is between you two. I'm interested in dinner.", "The message is on its way. Now comes the hardest part: waiting."],
+    "soundOff": ["Sounds off. Finally a sensible idea.", "Silence. Some settings deserve applause. Quiet applause, of course."],
+    "soundOn": ["Sounds are back. Silence was nicer, but nobody asked me.", "The silence is over. It was a nice time."],
+    "peopleNone": ["Nobody around yet. Even I can't sniff anyone out.", "No one has shown up yet. Not everyone wants to be found. And that's fine."]
+  };
+  L.profileHello = L.profileHello.concat(["The profile is ready. The content is waiting for its creator. Guess who.", "An empty profile? That can change. But no rush, nobody's chasing you."]);
+  L.days = {
+    "mikulas": ["Saint Nicholas is coming tonight. I hope I get treats instead of coal.", "A devil, an angel and Saint Nicholas? I'd rather have three pouches of food.", "Today they hand out sweets. I've been good… most of the time."],
+    "nicholas": ["It's Saint Nicholas Day. I hope the bowl is fuller than usual.", "Saint Nicholas is on his way. My paws are ready."],
+    "advent": ["Advent. Four weeks of waiting for Christmas. Almost like waiting for treats.", "Another Advent candle is burning. I keep my distance, I've only got one tail.", "Cold outside, lights inside. Perfect time to crawl into bed."],
+    "eve": ["Christmas Eve. I have one wish: a full bowl.", "Lots of presents under the tree. And I'm still waiting for mine.", "No rush today. Enjoy the evening."],
+    "holidays": ["Enjoy the holidays. My plan: rest and take it easy.", "The holidays go on. I'm still working through the first batch of goodies."],
+    "xmas": ["Merry Christmas. I'll be guarding the presents. Especially the edible ones.", "Merry Christmas. May the day be calm and the food good."],
+    "nye": ["Last day of the year. The only thing I'm saying goodbye to is an empty bowl.", "The new year is knocking. I hope it brings more sleep.", "Enjoy the last evening of the year. Tomorrow is a day too."],
+    "newyear": ["Happy New Year. I'm starting it with another nap.", "First day of the year. My resolution: never miss a meal.", "Hope this year goes well for you. Paw on it."],
+    "valentine": ["The day of love. I recognise it mostly by who gives me a treat.", "A kind message can make someone's day today. A bowl is enough for me."],
+    "easter": ["Happy Easter. I'm choosing my bed.", "Spring, eggs and days off. A plan I understand."],
+    "witches": ["Tonight Czechs burn witch dummies on bonfires, an old spring custom. I keep away from the fire and close to the heater.", "Walpurgis Night. My only magic power: finding treats."],
+    "halloween": ["Halloween. I don't need a costume, my face is scary enough.", "I've got the mask of a grumpy cat. I wear it all year."],
+    "souls": ["Today we remember those who are no longer with us."],
+    "cz2810": ["Today Czechs remember the founding of independent Czechoslovakia."],
+    "cz1711": ["Today Czechs remember the struggle for freedom and democracy."],
+    "carnival": ["Carnival. My costume: a perfectly normal cat.", "Enjoy the masks and the fun. I'll keep an eye on the bowl."],
+    "de0310": ["Today Germany celebrates the Day of German Unity."],
+    "ua2408": ["Today Ukraine celebrates Independence Day. Wishing peace and a free future."],
+    "tet": ["The Lunar New Year is here. I'd wish for a year full of food pouches.", "Tết. Time for family and new beginnings. Enjoy the holidays."],
+    "midautumn": ["The Mid-Autumn Festival. Lanterns, mooncakes and a full moon.", "Tonight belongs to lanterns and mooncakes. I'll keep the mooncake."],
+    "vn0209": ["Today Vietnam celebrates Independence Day."],
+    "thanks": ["Thanksgiving. I'm thankful for warm naps and a bowl that never stays empty.", "Enjoy the food and the people who matter to you."],
+    "winter": ["Winter has arrived. My spot by the heater is booked.", "Winter is here. My activity just dropped to the minimum.", "Brrr. Who invented winter? I'd like a word with them."],
+    "spring": ["Spring. Everything is waking up. Me too, but only with one eye so far.", "Spring is in the air. Just don't send the mosquitoes my way."],
+    "summer": ["Hot. I'm moving to the coolest tiles around.", "If you're looking for me, I'm in the shade. Ideally next to the bowl.", "Summer is nice, but who switched off the world's air conditioning?"],
+    "autumn": ["Leaves are falling. I'm slowly switching to hibernation.", "Autumn. A perfect reason to stay home and not deal with anything."]
+  };
+})(window.KEVIN_LINES.en);
