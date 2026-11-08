@@ -7,6 +7,8 @@ public class Friend {
     public final String avatarUrl;
     /** Má veřejný profil? Jen pak na něj vede odkaz. */
     public final boolean pub;
+    /** Stav jako v chatu (online, idle, busy, dnd, offline); vyplní jen FriendDao.friendsWithState pro můj seznam přátel. */
+    public String state = "offline";
 
     public Friend(int id, String username, String avatarUrl, boolean pub) {
         this.id = id;

@@ -6,6 +6,15 @@
         String in = "<img src=\"" + WebUtils.escapeHtml(f.avatarUrl) + "\" alt=\"\" width=\"44\" height=\"44\" loading=\"lazy\" referrerpolicy=\"no-referrer\"><span>" + WebUtils.escapeHtml(f.username) + "</span>";
         if (!f.pub) return "<span class=\"friend-who\">" + in + "</span>";
         return "<a class=\"friend-who\" href=\"/hrac/" + java.net.URLEncoder.encode(f.username, "UTF-8").replace("+", "%20") + "\">" + in + "</a>";
+    }
+    /* totéž se stavem jako v chatu (jen můj seznam přátel): tečka u fotky a stav pod jménem */
+    private static String frWhoState(Friend f, String label) throws java.io.UnsupportedEncodingException {
+        String st = WebUtils.escapeHtml(f.state);
+        String in = "<span class=\"friend-av\"><img src=\"" + WebUtils.escapeHtml(f.avatarUrl) + "\" alt=\"\" width=\"44\" height=\"44\" loading=\"lazy\" referrerpolicy=\"no-referrer\">"
+                + "<span class=\"chat-state-dot s-" + st + "\" aria-hidden=\"true\"></span></span>"
+                + "<span class=\"friend-name\"><span>" + WebUtils.escapeHtml(f.username) + "</span><small class=\"friend-state s-" + st + "\">" + WebUtils.escapeHtml(label) + "</small></span>";
+        if (!f.pub) return "<span class=\"friend-who\">" + in + "</span>";
+        return "<a class=\"friend-who\" href=\"/hrac/" + java.net.URLEncoder.encode(f.username, "UTF-8").replace("+", "%20") + "\">" + in + "</a>";
     } %>
 <section class="pt pt-panel">
   <div class="pt-in">
@@ -108,7 +117,7 @@
     <ul class="friend-list">
       <% for (Friend f : frFriends) { %>
       <li class="friend-row">
-        <%= frWho(f) %>
+        <%= frWhoState(f, t.getProperty("chat.status." + f.state, t.getProperty("chat.status.offline"))) %>
         <a class="btn-primary friend-btn friend-write" href="/zpravy?s=<%= java.net.URLEncoder.encode(f.username, "UTF-8") %>"><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= t.getProperty("chat.write") %></a>
         <form method="post" action="/profile/friends" onsubmit="return confirm('<%= WebUtils.escapeJs(t.getProperty("friends.removeConfirm")) %>');"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="name" value="<%= WebUtils.escapeHtml(f.username) %>"><input type="hidden" name="action" value="remove"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("friends.remove") %></button></form>
       </li>

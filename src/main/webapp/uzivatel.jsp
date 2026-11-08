@@ -49,7 +49,7 @@
       me = users.summary(uid);
       coverUrl = users.cover(uid);
       com.github.skeliit.dao.FriendDao fd = new com.github.skeliit.dao.FriendDao();   // dao/FriendDao
-      frFriends = fd.friends(uid); frIn = fd.incoming(uid); frOut = fd.outgoing(uid); frBlocked = fd.blocked(uid);
+      frFriends = fd.friendsWithState(uid); frIn = fd.incoming(uid); frOut = fd.outgoing(uid); frBlocked = fd.blocked(uid);
       if (frQuery != null && frQuery.length() >= 2 && frQuery.length() <= 50) frFound = fd.search(uid, frQuery);
       for (com.github.skeliit.model.Friend found : frFound) frRel.put(found.id, fd.relation(uid, found.id));
       frPeople = fd.directory(uid, frPage * FR_PAGE_SIZE, FR_PAGE_SIZE + 1);

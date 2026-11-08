@@ -110,6 +110,19 @@ public class FriendDao {
     }
 
     /**
+     * Moji přátelé i se stavem, jak ho vidí v chatu (ChatDao.shownState: neviditelný = offline, nic navíc se neprozradí).
+     * Seřazení: kdo je tu, nahoře (online, nečinný, zaneprázdněný, nerušit), pak offline, uvnitř podle jména.
+     */
+    public List<Friend> friendsWithState(int me) throws SQLException {
+        List<Friend> list = new ArrayList<>(friends(me));
+        ChatDao chat = new ChatDao();
+        for (Friend f : list) f.state = chat.shownState(f.id);
+        List<String> order = List.of("online", "idle", "busy", "dnd", "offline");
+        list.sort(java.util.Comparator.comparingInt((Friend f) -> order.indexOf(f.state) < 0 ? 4 : order.indexOf(f.state)).thenComparing(f -> f.username.toLowerCase()));
+        return list;
+    }
+
+    /**
      * Přátelé na cizím profilu (když si to majitel zapnul). Jen ti s veřejným profilem: kdo má soukromý, toho tu nikdo
      * nevidí, ani když si přátele zapnul jeho kamarád. Kdo zablokoval diváka, nebo koho divák zablokoval, se taky neukáže.
      */

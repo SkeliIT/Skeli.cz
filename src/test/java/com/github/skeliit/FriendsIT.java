@@ -60,6 +60,9 @@ class FriendsIT extends UiTestSupport {
         assertTrue(exists("SELECT 1 FROM friendships WHERE status='accepted' AND requested_by=?", aid));
         assertTrue(exists("SELECT 1 FROM notifications WHERE user_id=? AND actor_id=? AND type='friend_accept'", aid, bid));
         assertTrue(driver.findElement(By.cssSelector("#pratele a.friend-who")).getText().contains(a));
+        // u přítele je stav jako v chatu: tečka u fotky a slovo pod jménem (online, offline…)
+        assertFalse(driver.findElement(By.cssSelector("#pratele .friend-state")).getText().isBlank(), "stav přítele");
+        assertFalse(driver.findElements(By.cssSelector("#pratele .friend-av .chat-state-dot")).isEmpty(), "tečka u fotky");
 
         submitForm(friendForm("remove"));
         assertFalse(exists("SELECT 1 FROM friendships WHERE requested_by=?", aid));

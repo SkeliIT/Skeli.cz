@@ -2551,6 +2551,13 @@ html.chat-dock-open .chat-dock { z-index: 10020; }
 .friend-who { flex: 1 1 150px; min-width: 0; display: flex; align-items: center; gap: 12px; color: var(--text); font-size: var(--fs-card); text-decoration: none; overflow-wrap: anywhere; }
 a.friend-who:hover { color: var(--accent); text-decoration: none; }
 .friend-who img { flex: none; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+/* moji přátelé: stav jako v chatu – tečka u fotky a slovo pod jménem (barva tečky = barva stavu) */
+.friend-av { position: relative; flex: none; display: inline-flex; }
+.friend-av .chat-state-dot { position: absolute; right: -1px; bottom: -1px; width: 14px; height: 14px; border: 2px solid var(--panel-strong); box-sizing: border-box; }
+.friend-name { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+.friend-state { font-size: var(--fs-small); color: var(--text-dim); }
+.friend-state.s-online { color: #3ddc84; }
+body.light .friend-state.s-online { color: #1f8f4e; }
 .friend-row form { margin: 0; }
 .friend-btn { min-height: 42px; padding: 0 16px; font-size: var(--fs-small); }
 .player-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
