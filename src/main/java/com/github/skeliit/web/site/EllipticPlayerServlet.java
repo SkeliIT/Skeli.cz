@@ -185,9 +185,9 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("const car = document.getElementById('ep-carousel');");
                 out.println("if (matchMedia('(pointer: fine)').matches) car.addEventListener('pointermove', e => { const r = car.getBoundingClientRect();");
                 out.println("  car.style.setProperty('--cy', (((e.clientX - r.left) / r.width - .5) * 14).toFixed(1) + 'deg'); car.style.setProperty('--cx', (8 - ((e.clientY - r.top) / r.height - .5) * 8).toFixed(1) + 'deg'); });");
-                out.println("let tx = null; viewport.addEventListener('pointerdown', e => { tx = e.clientX; });");
-                out.println("viewport.addEventListener('pointerup', e => { if (tx !== null && Math.abs(e.clientX - tx) > 40) goTo(currentIndex + (e.clientX < tx ? 1 : -1), true); tx = null; });");
-                out.println("let wheelAt = 0; viewport.addEventListener('wheel', e => { if (Math.abs(e.deltaX) < 8 || Math.abs(e.deltaX) < Math.abs(e.deltaY)) return; e.preventDefault(); const t = Date.now(); if (t - wheelAt < 350) return; wheelAt = t; goTo(currentIndex + (e.deltaX > 0 ? 1 : -1), true); }, { passive: false });");
+                out.println("let tx = null, ty = 0; viewport.addEventListener('pointerdown', e => { tx = e.clientX; ty = e.clientY; });");
+                out.println("viewport.addEventListener('pointerup', e => { if (tx !== null && Math.abs(e.clientX - tx) > 40 && Math.abs(e.clientX - tx) > Math.abs(e.clientY - ty) * 1.5) goTo(currentIndex + (e.clientX < tx ? 1 : -1), true); tx = null; });");
+                out.println("let wheelAt = 0; viewport.addEventListener('wheel', e => { const dx = e.shiftKey ? (e.deltaX || e.deltaY) : e.deltaX; if (Math.abs(dx) < 8 || (!e.shiftKey && Math.abs(dx) < Math.abs(e.deltaY))) return; e.preventDefault(); const t = Date.now(); if (t - wheelAt < 350) return; wheelAt = t; goTo(currentIndex + (dx > 0 ? 1 : -1), true); }, { passive: false });");
                 out.println("window.addEventListener('resize', place);");
                 out.println("if (videos.length > 0) {");
                 out.println("  build();");
