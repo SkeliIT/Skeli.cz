@@ -66,6 +66,21 @@ public class SongDao {
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) out.putIfAbsent(rs.getInt(1), rs.getString(2));
         }
+        // písně bez vybraného citátu: první řádek českého textu (bez prázdných a orientačních řádků v závorkách)
+        try (Connection c = Db.get();
+             PreparedStatement ps = c.prepareStatement("SELECT song_id, words FROM lyrics WHERE lang = 'cs' ORDER BY id");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                if (out.containsKey(id) || rs.getString(2) == null) continue;
+                for (String line : rs.getString(2).split("\\R")) {
+                    String l = line.strip();
+                    if (l.isEmpty() || l.startsWith("[") || l.startsWith("(") || l.endsWith(":")) continue;
+                    out.put(id, l.replaceAll("[,;:]+$", ""));
+                    break;
+                }
+            }
+        }
         return out;
     }
 
