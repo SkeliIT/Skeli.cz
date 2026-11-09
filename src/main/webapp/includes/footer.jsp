@@ -1,6 +1,8 @@
 <!-- includes/footer.jsp -->
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <footer class="site-footer">
+  <%-- žhavý okraj nad patičkou na podstránkách s kouřem nahoře (css/effects.css: ukáže se jen u main.has-floor, js/smoke.js) --%>
+  <div class="smoke-edge b footer-smoke" aria-hidden="true"><canvas></canvas></div>
   <div class="footer-inner">
     <div class="footer-brand">
       <a href="<%= request.getContextPath() %>/index.jsp" class="brand"><span class="logo-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>

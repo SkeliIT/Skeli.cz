@@ -1785,3 +1785,8 @@ html.low-fx .ep-hud::after, html.low-fx .ep-holo .ep-floor { animation: none; }
   .pt-activity .pt-feed li, .pt-activity .pt-feed li:nth-child(even) { width: auto; margin-left: 0; align-items: flex-start; text-align: left; padding: 0 0 16px 44px; }
   .pt-activity .pt-feed li > i, .pt-activity .pt-feed li:nth-child(even) > i { left: 0; right: auto; }
 }
+/* žhavý okraj nad patičkou: lem kouře leží přesně na horní hraně patičky, kouř stoupá do konce stránky */
+.footer-smoke { display: none; }
+body:has(main.has-floor) .site-footer { position: relative; border-top: 0; }
+body:has(main.has-floor) .footer-smoke { display: block; top: auto; bottom: calc(100% - 55px); height: 210px; }
+body:has(main.has-floor) .site-footer > :not(.footer-smoke) { position: relative; z-index: 2; }
