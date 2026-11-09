@@ -1459,8 +1459,13 @@ body.light .home-page.ulice .hero-quote { --burn: color-mix(in srgb, var(--accen
 .home-page.ulice .hero-actions { justify-content: flex-start; margin-top: 0; }
 /* na velké obrazovce fotku posuneme doprava, aby postava nebyla pod textem (levý okraj zakrývá závoj) */
 @media (min-width: 1025px) {
-  body:has(main.home-page.ulice)::before, body:has(main.home-page.ulice) .bg-slides { translate: 14vw 0; }
-  body::before, .bg-slides { transition: translate .9s ease; }
+  /* posun podle toho, kde na fotce postava stojí (lebka a pole ji mají vpravo už samy) */
+  body:has(main.home-page.ulice)::before { translate: 14vw 0; }
+  body:has(main.home-page.ulice) .bg-slides > div { transition: opacity 4s ease-in-out, translate .9s ease; }
+  body:has(main.home-page.ulice) .bg-slides > div[data-name="mic"], body:has(main.home-page.ulice) .bg-slides > div[data-name="square"],
+  body:has(main.home-page.ulice) .bg-slides > div[data-name="point"] { translate: 12vw 0; }
+  body:has(main.home-page.ulice) .bg-slides > div[data-name="walker"] { translate: 9vw 0; }
+  body::before { transition: translate .9s ease; }
 }
 
 /* KOUŘ na předělu (js/smoke.js). Bez WebGL / na slabém telefonu jen klidný přechod do barvy stránky. */
