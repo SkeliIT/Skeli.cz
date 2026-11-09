@@ -145,7 +145,7 @@
             square: ['#ffad42', '#ff6a1f'], walker: ['#3fb4ff', '#7cf3ff'] },
     light: { base: ['#1f6fc4', '#4aa3ea'], field: ['#c4521a', '#e8892a'], point: ['#a87400', '#d6a019'], rocks: ['#4e7a1c', '#86a83a'] }
   };
-  var painted = 'base';
+  var painted = 'base', songColor = null;   // songColor = barva písně z náhledu jejího klipu (stránka písně)
   // instant = bez přelévání (načtení stránky, nová stránka navazuje na fotku té předchozí)
   function paint(name, instant) {
     if (name) painted = name;
@@ -154,7 +154,7 @@
       b.style.transition = 'none';
       requestAnimationFrame(function () { requestAnimationFrame(function () { b.style.removeProperty('transition'); }); });
     }
-    var c = !own && PALETTE[b.classList.contains('light') ? 'light' : 'dark'][painted];
+    var c = !own && (songColor ? songColor[b.classList.contains('light') ? 1 : 0] : PALETTE[b.classList.contains('light') ? 'light' : 'dark'][painted]);
     if (c) { b.style.setProperty('--accent', c[0]); b.style.setProperty('--accent-2', c[1]); }
     else { b.style.removeProperty('--accent'); b.style.removeProperty('--accent-2'); }
     // sníh ve světlém režimu: bílý jen u sněhové fotky, jinak v barvě fotky
@@ -338,7 +338,39 @@
     if (window.ResizeObserver) { floorObs = new ResizeObserver(set); floorObs.observe(hero); floorObs.observe(main); }
   }
 
-  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); floor(); }   // paint: Texty mají vlastní barvu
+  // BARVA PÍSNĚ: stránka písně se přebarví podle náhledu svého klipu (.lyric-ambient, --amb). Z malé kopie obrázku se
+  // vezme nejsytější barva (vážený průměr sytých pixelů), pak se upraví jas: tmavý režim světlejší, světlý tmavší.
+  function hsl(h, s, l) {
+    function f(n) { var k = (n + h / 30) % 12, a = s * Math.min(l, 1 - l); return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); }
+    return '#' + [f(0), f(8), f(4)].map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('');
+  }
+  function songPaint() {
+    var amb = document.querySelector('main.lyric-page .lyric-ambient');
+    var m = amb && /url\(['"]?([^'")]+)/.exec(amb.getAttribute('style') || '');
+    if (!m) { if (songColor) { songColor = null; paint(); } return; }
+    var img = new Image();
+    img.onload = function () {
+      try {
+        var c = document.createElement('canvas'); c.width = 32; c.height = 18;
+        var x = c.getContext('2d'); x.drawImage(img, 0, 0, 32, 18);
+        var d = x.getImageData(0, 0, 32, 18).data, sr = 0, sg = 0, sb = 0, sw = 0;
+        for (var i = 0; i < d.length; i += 4) {
+          var r = d[i] / 255, g = d[i + 1] / 255, bl = d[i + 2] / 255, mx = Math.max(r, g, bl), mn = Math.min(r, g, bl);
+          var w = Math.pow(mx - mn, 2) * mx;   // syté a jasné pixely váží víc, šedé a černé skoro nic
+          sr += r * w; sg += g * w; sb += bl * w; sw += w;
+        }
+        if (sw < 0.5) { songColor = null; paint(); return; }   // černobílý náhled: zůstává barva fotky v pozadí
+        var R = sr / sw, G = sg / sw, B = sb / sw, M = Math.max(R, G, B), N = Math.min(R, G, B), h = 0;
+        if (M !== N) h = M === R ? 60 * (((G - B) / (M - N)) % 6) : M === G ? 60 * ((B - R) / (M - N) + 2) : 60 * ((R - G) / (M - N) + 4);
+        if (h < 0) h += 360;
+        songColor = [[hsl(h, 0.9, 0.6), hsl((h + 28) % 360, 0.95, 0.66)], [hsl(h, 0.75, 0.36), hsl((h + 28) % 360, 0.8, 0.45)]];
+        paint(null, true);
+      } catch (e) { /* obrázek z jiného webu nejde přečíst – zůstává barva fotky */ }
+    };
+    img.src = m[1];
+  }
+
+  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); floor(); songPaint(); }   // paint: Texty mají vlastní barvu
   init(document);
   // Hlídač plynulosti: po načtení 3 s počítá snímky. Když telefon nestíhá, přepne se na lehký režim hned a po druhém
   // takovém měření natrvalo. Testy (webdriver) mají softwarové kreslení, u nich neměří.

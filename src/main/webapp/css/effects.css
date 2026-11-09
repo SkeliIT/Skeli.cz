@@ -1564,3 +1564,13 @@ body.light .page-hero-title {
 /* plná barva stránky pod úvodním pásem, přes celou šířku (hranici nastavuje js/effects.js: --floor-top) */
 main.has-floor { border-image: linear-gradient(to bottom, transparent var(--floor-top, 0px), var(--bg) var(--floor-top, 0px)) fill 0 / 0 / 0 100vmax; }
 main.has-floor > .page-hero.with-smoke + * { margin-top: 24px; }
+/* nadpis písně v barvě písně (js/effects.js songPaint), dřív zlatý */
+.lyric-page .lyric-title {
+  background: linear-gradient(100deg, transparent 40%, rgba(255, 250, 230, 0.7) 50%, transparent 60%) -200% 0 / 200% 100% no-repeat,
+              linear-gradient(180deg, color-mix(in srgb, var(--accent) 30%, #fff) 0%, var(--accent) 45%, var(--accent-2) 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+body.light .lyric-page .lyric-title {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 65%, #000) 0%, var(--accent) 45%, var(--accent-2) 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
