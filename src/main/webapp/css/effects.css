@@ -1737,3 +1737,28 @@ html.low-fx .ep-hud::after, html.low-fx .ep-holo .ep-floor { animation: none; }
 .flip-hint { font-size: 1rem; line-height: 1; }
 .flip-front .song-info { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .flip-front .song-note-mini { top: 10px; bottom: auto; left: 10px; right: 46px; max-width: none; }
+
+/* =====================================================================
+   AKTUALITY: časová osa – svítící čára v barvě fotky uprostřed, příspěvky střídavě vlevo a vpravo
+   s datem u čáry; na telefonu čára vlevo a příspěvky pod sebou
+   ===================================================================== */
+.news-timeline { position: relative; display: block; max-width: 980px; margin: 0 auto; }
+.news-timeline::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; translate: -1px 0;
+  background: linear-gradient(transparent, var(--accent) 4%, var(--accent-2) 80%, transparent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent); }
+.news-timeline .tl-item { position: relative; width: 50%; padding: 0 36px 30px 0; }
+.news-timeline .tl-item:nth-child(even) { margin-left: 50%; padding: 0 0 30px 36px; }
+.news-timeline .tl-item::after { content: ""; position: absolute; top: 4px; right: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg);
+  border: 2px solid var(--accent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 70%, transparent); }
+.news-timeline .tl-item:nth-child(even)::after { right: auto; left: -7px; }
+.news-timeline .tl-when { margin: 0 0 8px; font-size: var(--fs-small); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.news-timeline .tl-item:nth-child(odd) .tl-when { text-align: right; }
+.news-timeline .news-card { display: block; background: color-mix(in srgb, var(--accent) 5%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 26%, var(--panel-border)); }
+.news-timeline .news-card:hover { border-color: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--accent) 60%, transparent); }
+.news-timeline .news-image { aspect-ratio: 16 / 10; }
+.news-timeline .tl-item:has(.news-card:hover)::after { background: var(--accent); }
+@media (max-width: 760px) {
+  .news-timeline::before { left: 8px; }
+  .news-timeline .tl-item, .news-timeline .tl-item:nth-child(even) { width: auto; margin-left: 0; padding: 0 0 24px 30px; }
+  .news-timeline .tl-item::after, .news-timeline .tl-item:nth-child(even)::after { left: 2px; right: auto; }
+  .news-timeline .tl-item:nth-child(odd) .tl-when { text-align: left; }
+}

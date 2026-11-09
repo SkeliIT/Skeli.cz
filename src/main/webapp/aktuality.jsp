@@ -17,7 +17,8 @@
     </div>
   </sk:pageHero>
   <section class="news-feed">
-    <div id="social-feed" class="news-grid"></div>
+    <%-- časová osa: svítící čára uprostřed (na telefonu vlevo), příspěvky střídavě vlevo a vpravo --%>
+    <div id="social-feed" class="news-grid news-timeline"></div>
     <div id="feed-empty" class="empty-note" hidden><%= t.getProperty("news.empty") %></div>
     <div class="news-more">
       <button id="load-more" type="button" class="btn" hidden><%= t.getProperty("news.loadMore") %></button>
@@ -67,13 +68,13 @@
     var cap = esc((p.caption || '').slice(0, 200));
     var badge = sourceBadge(p.source);
     var date = p.createdAt ? esc(new Date(p.createdAt).toLocaleDateString('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("meta.locale")) %>')) : '';
-    return '<a href="' + safeUrl(p.permalink) + '" target="_blank" rel="noopener" class="news-card">'
+    return '<div class="tl-item"><p class="tl-when">' + date + '</p>'
+      + '<a href="' + safeUrl(p.permalink) + '" target="_blank" rel="noopener" class="news-card" data-tilt>'
       + img
       + '<span class="news-badge">' + badge + '</span>'
       + '<div class="news-info">'
       + '<div class="news-title">' + cap + '</div>'
-      + '<div class="news-date">' + date + '</div>'
-      + '</div></a>';
+      + '</div></a></div>';
   }
 
   async function load() {
