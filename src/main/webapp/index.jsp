@@ -7,13 +7,14 @@
   // Newest clips (hero card + news) and songs with lyrics (the running tapes)
   java.util.List<com.github.skeliit.dao.HomeDao.HomeVideo> homeVideos = java.util.List.of();
   java.util.List<com.github.skeliit.dao.HomeDao.TapeSong> tapeSongs = java.util.List.of();
-  com.github.skeliit.dao.HomeDao.Quote quote = null;
+  com.github.skeliit.dao.HomeDao.Quote quote = null, quote2 = null;   // quote2 = jiný citát do pásu s fotkou dole
   boolean homeDbError = false;
   try {
     com.github.skeliit.dao.HomeDao homeDao = new com.github.skeliit.dao.HomeDao();
     homeVideos = homeDao.latestVideos(6);
     tapeSongs = homeDao.songsWithLyrics(cur);
     quote = homeDao.randomQuote(cur);
+    for (int qi = 0; qi < 5 && quote != null && (quote2 == null || quote2.line1.equals(quote.line1)); qi++) quote2 = homeDao.randomQuote(cur);
   } catch (SQLException ex) {
     homeDbError = true;
   }
@@ -25,13 +26,12 @@
   final String featuredId = latest == null ? "" : latest.youtubeId();
   java.util.List<com.github.skeliit.dao.HomeDao.HomeVideo> newsVideos = new java.util.ArrayList<>();
   if (latest != null) newsVideos.add(latest);   // první velká novinka = nový song
-  for (com.github.skeliit.dao.HomeDao.HomeVideo hv : homeVideos) if (!hv.youtubeId().equals(featuredId) && newsVideos.size() < 5) newsVideos.add(hv);
+  for (com.github.skeliit.dao.HomeDao.HomeVideo hv : homeVideos) if (!hv.youtubeId().equals(featuredId) && newsVideos.size() < 4) newsVideos.add(hv);
 %>
 <main class="home-page ulice">
   <%-- vzhled „Ulice“ (2026-11): vlevo jméno sprejem, citát vypalovaný laserem a tlačítka; fotka v pozadí je
        pozadí webu (bg-slides), barvy se mění podle ní; dole přechází do tmavé stránky kouřem (js/smoke.js) --%>
   <section class="hero">
-    <div class="hero-particles" aria-hidden="true"></div>
     <div class="uh-in">
     <span class="uh-crown" aria-hidden="true"><i class="fa-solid fa-crown"></i></span>
     <h1 class="uh-name"><span class="uh-sign" aria-hidden="true">Skeli</span><span class="sr-only">Skeli – <%= t.getProperty("home.lead") %></span></h1>
@@ -133,54 +133,17 @@
         <a class="side-link" href="/aktuality.jsp"><%= t.getProperty("home.allNews") %></a>
       </div>
 
-      <%-- hra CatSmash: jedna karta, ať o ní lidi vědí (dřív jen přes Kevinovo menu) --%>
-      <div class="card side-card game-card">
-        <a class="game-card-shot" href="/?kevin=pong" data-play-game tabindex="-1" aria-hidden="true"><img src="/img/catsmash-nahled.jpg" alt="" width="200" height="389" loading="lazy"></a>
-        <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
-        <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
-<%
-  // šampioni CatSmash: první tři tohoto měsíce; když tento měsíc ještě nikdo nevyhrál, Síň slávy (navždy)
-  java.util.List<com.github.skeliit.model.PongScoreRank> champs = java.util.List.of();
-  String champsHead = null;
-  try {
-    com.github.skeliit.dao.PongDao pongDao = new com.github.skeliit.dao.PongDao();
-    java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague"));
-    champs = pongDao.champions(3, today.withDayOfMonth(1).atStartOfDay());
-    if (!champs.isEmpty()) {
-      String month = today.getMonth().getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, java.util.Locale.forLanguageTag(cur));
-      champsHead = t.getProperty("home.game.champs").replace("{month}", month.substring(0, 1).toUpperCase() + month.substring(1));
-    } else {
-      champs = pongDao.champions(3, null);
-      champsHead = t.getProperty("home.game.fame");
-    }
-  } catch (SQLException ex) { /* bez šampionů */ }
-  java.text.NumberFormat champNum = java.text.NumberFormat.getIntegerInstance(java.util.Locale.forLanguageTag(cur));
-  if (!champs.isEmpty()) {
-%>
-        <div class="game-champs">
-          <p class="game-champs-head"><i class="fa-solid fa-crown" aria-hidden="true"></i> <%= com.github.skeliit.WebUtils.escapeHtml(champsHead) %></p>
-          <ol>
-          <% for (com.github.skeliit.model.PongScoreRank r : champs) { %>
-            <li class="p<%= r.place %>">
-              <span class="champ-place"><%= r.place %>.</span>
-              <% if (r.frame != null) { %><span class="av-frame f-<%= com.github.skeliit.WebUtils.escapeHtml(r.frame) %>"><% } %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(com.github.skeliit.WebUtils.safeUrl(r.avatarUrl, "/img/avatar-default.svg")) %>" alt="" width="26" height="26" loading="lazy"><% if (r.frame != null) { %></span><% } %>
-              <span class="champ-who"><span class="champ-name"><% if (r.pub) { %><a href="/hrac/<%= java.net.URLEncoder.encode(r.username, "UTF-8").replace("+", "%20") %>"><% } %><%= com.github.skeliit.WebUtils.escapeHtml(r.username) %><% if (r.pub) { %></a><% } %><% if (r.mark != null) { %> <i class="fa-solid <%= r.getMarkIcon() %> champ-mark" aria-hidden="true"></i><% } %></span>
-                <small><b><%= champNum.format(r.score) %></b> <%= "★★★".substring(0, Math.max(1, Math.min(3, r.difficulty))) %> · <%= t.getProperty("home.game.goals").replace("{n}", String.valueOf(r.len)) %></small></span>
-            </li>
-          <% } %>
-          </ol>
+      <%-- hra CatSmash: krátce, s Kevinem (tabulka a šampioni jsou ve hře) --%>
+      <div class="card side-card game-card ulice-game">
+        <div>
+          <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
+          <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
+          <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
         </div>
-<% } %>
-        <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
-        <a class="side-link game-card-board" href="/?kevin=pong&amp;view=top" data-pong-board><i class="fa-solid fa-trophy" aria-hidden="true"></i> <%= t.getProperty("home.game.board") %></a>
-        <p class="game-credit"><%= t.getProperty("home.game.credit") %></p>
+        <a href="/?kevin=pong" data-play-game tabindex="-1" aria-hidden="true"><img class="ulice-kevin" src="/img/kevin.webp" alt="" width="110" height="127" loading="lazy"></a>
       </div>
-<%@ include file="/includes/pong-board.jspf" %>
-
-<%@ include file="/includes/feedback-card.jspf" %>
 
       <div class="card side-card newsletter card-gold">
-        <div class="nl-photo" aria-hidden="true"><img src="/img/photos/point-sm.webp" alt="" loading="lazy" width="640" height="480"></div>
         <p class="nl-lead"><%= t.getProperty("home.newsletter.lead") %></p>
         <h3><i class="fa-solid fa-envelope"></i> <%= t.getProperty("home.newsletter.title","Novinky e-mailem") %></h3>
         <form method="post" action="/newsletter/subscribe" class="newsletter-form">
@@ -191,11 +154,6 @@
         </form>
       </div>
 
-      <%-- koncerty až úplně dole, dokud žádné nejsou --%>
-      <div class="card side-card">
-        <h3><i class="fa-solid fa-microphone-lines"></i> <%= t.getProperty("home.concerts","Koncerty") %></h3>
-        <p class="text-dim"><%= t.getProperty("home.concerts.none","Zatím nejsou naplánovány žádné koncerty.") %></p>
-      </div>
     </aside>
   </section>
 
@@ -247,14 +205,19 @@
   </nav>
 
   <%-- a wide photo with a line from Skeli; the photo drifts slower than the page --%>
-<%@ include file="/includes/feedback-refs.jspf" %>
 
   <section class="photo-band" data-reveal>
     <div class="smoke-edge t" aria-hidden="true"><canvas></canvas></div>
     <div class="photo-band-img" data-parallax></div>
     <div class="photo-band-text">
+      <% if (quote2 != null) { %>
+      <%-- dvojverší z textu (jako v ukázce „Ulice“), podpis = píseň --%>
+      <blockquote class="band-lyric"><%= com.github.skeliit.WebUtils.escapeHtml(quote2.line1) %> <%= com.github.skeliit.WebUtils.escapeHtml(quote2.line2) %></blockquote>
+      <p class="photo-band-sign"><a href="<%= com.github.skeliit.WebUtils.escapeHtml(quote2.href) %>">— <%= com.github.skeliit.WebUtils.escapeHtml(quote2.song) %></a></p>
+      <% } else { %>
       <blockquote><%= t.getProperty("home.band.quote") %></blockquote>
       <p class="photo-band-sign">— Skeli</p>
+      <% } %>
       <a class="btn btn-primary" href="/about.jsp"><%= t.getProperty("home.band.cta") %> <i class="fa-solid fa-arrow-right"></i></a>
     </div>
     <div class="smoke-edge b" aria-hidden="true"><canvas></canvas></div>

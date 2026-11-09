@@ -17,7 +17,7 @@ public class FeedbackIT extends UiTestSupport {
     @Test
     @DisplayName("A visitor who is not signed in is asked to sign in, not shown the form")
     void signInFirst() {
-        driver.get(BASE_URL + "/index.jsp");
+        driver.get(BASE_URL + "/about.jsp");
         assertFalse(driver.findElements(By.cssSelector("#feedback .fb-login")).isEmpty(), "the sign-in button");
         assertTrue(driver.findElements(By.cssSelector("#feedback form.fb-form")).isEmpty(), "no form");
     }
@@ -28,7 +28,7 @@ public class FeedbackIT extends UiTestSupport {
         String name = "fb" + uniq();
         int uid = registerAndLogin(name);
         String msg = "Web je super " + uniq();
-        driver.get(BASE_URL + "/index.jsp#feedback");
+        driver.get(BASE_URL + "/about.jsp#feedback");
         jsClick(driver.findElement(By.cssSelector("#feedback input[name=vote][value=up]")));
         driver.findElement(By.cssSelector("#feedback textarea[name=message]")).sendKeys(msg);
         clickAndWaitReload(driver.findElement(By.cssSelector("#feedback .fb-form button[type=submit]")), false);
@@ -54,7 +54,7 @@ public class FeedbackIT extends UiTestSupport {
         int fid = queryInt("SELECT id FROM site_feedback WHERE user_id=?", uid);
         clickAndWaitReload(driver.findElement(By.cssSelector("#f" + fid + " input[value=heart] ~ button")), false);
         assertTrue(exists("SELECT 1 FROM site_feedback WHERE id=? AND hearted_at IS NOT NULL", fid));
-        driver.get(BASE_URL + "/index.jsp");
+        driver.get(BASE_URL + "/about.jsp");
         assertTrue(hearted().contains(msg), "shown on the home page with the heart");
         update("DELETE FROM site_feedback WHERE id=?", fid);
     }

@@ -239,13 +239,17 @@ main > h2:first-child::after {
 .admin-card,
 .auth-card,
 .donate-card {
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
+  /* sklo s jemným nádechem barvy fotky v pozadí (vzhled „Ulice“) */
+  background: color-mix(in srgb, var(--accent) 5%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--panel-border));
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  transition: border-color .35s ease, box-shadow .35s ease;
 }
+/* administrace zůstává klidná: bez barevného nádechu */
+body.is-admin .card, .admin-card { background: var(--panel); border-color: var(--panel-border); }
 
 /* Reveal animation */
 /* sections fade in from a soft blur; --d staggers neighbours (0, 1, 2…) */

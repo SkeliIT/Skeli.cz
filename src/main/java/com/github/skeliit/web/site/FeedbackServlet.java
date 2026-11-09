@@ -25,16 +25,16 @@ public class FeedbackServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession s = req.getSession(false);
         if (s == null || !(s.getAttribute("userId") instanceof Integer uid)) {
-            resp.sendRedirect("/login.jsp?next=%2Findex.jsp%23feedback");
+            resp.sendRedirect("/login.jsp?next=%2Fabout.jsp%23feedback");
             return;
         }
         String vote = req.getParameter("vote");
         if (!"up".equals(vote) && !"down".equals(vote) || !isBlank(req.getParameter("website"))) {   // website = the honeypot
-            resp.sendRedirect("/index.jsp#feedback");
+            resp.sendRedirect("/about.jsp#feedback");
             return;
         }
         if (!RequestLimiter.tryAcquire("feedback", uid, 10, RequestLimiter.HOUR)) {
-            resp.sendRedirect("/index.jsp?feedback=limit#feedback");
+            resp.sendRedirect("/about.jsp?feedback=limit#feedback");
             return;
         }
         try {
@@ -42,7 +42,7 @@ public class FeedbackServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        resp.sendRedirect("/index.jsp?feedback=thanks#feedback");
+        resp.sendRedirect("/about.jsp?feedback=thanks#feedback");
     }
 
     /** The message as typed, line breaks kept, cut to the column's length; empty = none. */

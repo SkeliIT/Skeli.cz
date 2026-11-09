@@ -1504,3 +1504,44 @@ body.light .home-page.ulice .ticker { background: color-mix(in srgb, var(--accen
   .home-page.ulice .hero::before { background: linear-gradient(0deg, rgba(9, 9, 11, .95) 25%, rgba(9, 9, 11, .35) 60%, rgba(9, 9, 11, .1)); }
   body.light .home-page.ulice .hero::before { background: linear-gradient(0deg, rgba(244, 242, 238, .96) 28%, rgba(244, 242, 238, .4) 62%, rgba(244, 242, 238, .1)); }
 }
+
+/* ---- Ulice, 2. kolo: podle ukázky ---- */
+/* videa: stejné sklo s nádechem barvy fotky jako karty */
+.video { background: color-mix(in srgb, var(--accent) 5%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 24%, var(--panel-border)); }
+.video:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--accent) 55%, transparent); }
+.card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--panel-border)); }
+/* dlaždice v barvě fotky */
+.home-tile { background: color-mix(in srgb, var(--accent) 6%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 28%, var(--panel-border)); }
+/* fotka v hlavičce úvodu jasnější (pod hlavičkou je stejně plná barva stránky) */
+body:has(main.home-page.ulice) { --bg-overlay: linear-gradient(180deg, rgba(9, 9, 11, 0.12) 0%, rgba(9, 9, 11, 0.35) 55%, rgba(9, 9, 11, 0.7) 100%); }
+body.light:has(main.home-page.ulice) { --bg-overlay: linear-gradient(180deg, rgba(244, 242, 238, 0.1) 0%, rgba(244, 242, 238, 0.35) 55%, rgba(244, 242, 238, 0.7) 100%); }
+/* Novinky: velké video a pod ním 3 menší v řadě */
+.home-page.ulice .videos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.home-page.ulice .videos .video:not(.video-featured) .meta { padding: 10px 12px 12px; }
+.home-page.ulice .videos .video:not(.video-featured) .video-title { font-size: var(--fs-card); }
+@media (max-width: 760px) {
+  .home-page.ulice .videos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home-page.ulice .videos .video:nth-child(4) { display: none; }
+}
+/* CatSmash: text a tlačítko vlevo, Kevin vpravo */
+.ulice-game { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 10px; align-items: end; }
+.ulice-game .game-card-play { margin-top: 4px; }
+.ulice-kevin { display: block; width: 96px; height: auto; filter: drop-shadow(0 8px 16px rgba(0, 0, 0, .55)); }
+/* patička: nápis v barvě fotky */
+.footer-brand .brand { color: var(--accent); }
+/* O mně: hodnocení webu dole */
+.about-feedback { display: grid; gap: 16px; max-width: 760px; margin: 30px auto 0; }
+/* světlušky / sníh přes celou obrazovku (js/effects.js, fireflies): zadní vrstva za obsahem, přední (pár kusů) přes něj */
+.ff-layer { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
+.ff-layer.ff-front { z-index: 5; }
+html.low-fx .ff-layer { display: none; }
+/* plátno světlušek pod hlavičkou úvodu: lepí se k obrazovce, leží za kartami (přes celou šířku) */
+.ff-local { position: sticky; top: 0; display: block; width: 100vw; height: 100vh; margin: 0 calc(50% - 50vw) -100vh; pointer-events: none; }
+html.low-fx .ff-local { display: none; }
+/* pás s fotkou na úvodu: noční ulice s maskou (tmavý) / silueta na poli (světlý), citát z písně štětcem */
+.home-page.ulice .photo-band { --band: url('/img/photos/walker-lg.webp'); }
+body.light .home-page.ulice .photo-band { --band: url('/img/photos/field-wide.webp'); }
+.home-page.ulice .photo-band-img { filter: none; background-position: 62% 35%; }
+.photo-band blockquote.band-lyric { font-family: var(--font-brush); font-size: clamp(1.9rem, 3.4vw, 2.6rem); line-height: 1.05; color: var(--text); text-shadow: 0 2px 14px rgba(0, 0, 0, .55); }
+body.light .band-lyric { text-shadow: 0 1px 10px rgba(255, 255, 255, .8); }
+.home-page.ulice .photo-band-sign a { color: var(--accent); text-decoration: none; }

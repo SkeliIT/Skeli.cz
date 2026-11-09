@@ -99,6 +99,11 @@
         </a>
     </div>
   </section>
+  <%-- hodnocení webu a vybrané vzkazy (dřív na úvodu; úvod je teď podle ukázky „Ulice“) --%>
+  <section class="about-feedback">
+<%@ include file="/includes/feedback-card.jspf" %>
+<%@ include file="/includes/feedback-refs.jspf" %>
+  </section>
 </main>
 
 <%@ include file="includes/footer.jsp" %>

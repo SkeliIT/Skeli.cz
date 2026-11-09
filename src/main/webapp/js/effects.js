@@ -107,7 +107,7 @@
   }
 
   // cards lean slightly towards the mouse
-  var TILT = '.feature-card, .video, .song-card, .disco-card, [data-tilt]';
+  var TILT = '.feature-card, .video, .song-card, .disco-card, [data-tilt], .home-page .side-card:not(:has(form))';   // karty bez formuláře (při psaní by se kývaly)
   function tilt(root) {
     if (reduced || !finePointer) return;
     root.querySelectorAll(TILT).forEach(function (el) {
@@ -350,6 +350,87 @@
     }, 1500);
   }
   if (document.readyState === 'complete') watchSmooth(); else window.addEventListener('load', watchSmooth);
+
+  // SVĚTLUŠKY přes celou stránku (vzhled „Ulice“): měkké svítící body v barvě fotky stoupají, pomalu pomrkávají,
+  // myš nebo prst do nich fouká. Většina létá za obsahem, asi každá desátá i přes něj (slabší).
+  // Ve světlém režimu padá sníh – bílý u sněhové fotky, jinak v barvě fotky. Dvě plátna přes celou obrazovku
+  // (ne přes celou stránku), kreslí se jen na viditelné stránce. Ne na slabém telefonu, v adminu a pod hrou.
+  function fireflies() {
+    if (reduced || low() || document.body.classList.contains('is-admin')) return;
+    var back = document.createElement('canvas'), front = document.createElement('canvas');
+    back.className = 'ff-layer'; front.className = 'ff-layer ff-front';
+    back.setAttribute('aria-hidden', 'true'); front.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(back); document.body.appendChild(front);
+    var gb = back.getContext('2d'), gf = front.getContext('2d'), W = 0, H = 0, P = [], t = 0;
+    var mx = -1e4, my = -1e4, vx = 0, vy = 0, col = '#ff3b30', col2 = '#ff8a3d', flake = '#ffffff';
+    function mk(y) {
+      return { front: Math.random() < 0.1, x: Math.random() * W, y: y, r: 0.6 + Math.random() * 1.6, s: 0.2 + Math.random() * 0.55,
+               ph: Math.random() * 6.3, dx: 0, dy: 0, a: 0.35 + Math.random() * 0.55 };
+    }
+    function size() {
+      W = back.width = front.width = innerWidth; H = back.height = front.height = innerHeight;
+      var n = Math.min(innerWidth < 700 ? 34 : 70, Math.round(W * H / 16000));
+      P = []; for (var i = 0; i < n; i++) P.push(mk(Math.random() * H));
+    }
+    function colors() {
+      var cs = getComputedStyle(document.body);
+      col = cs.getPropertyValue('--accent').trim() || col; col2 = cs.getPropertyValue('--accent-2').trim() || col2;
+      flake = cs.getPropertyValue('--flake').trim() || '#ffffff';
+    }
+    // úvod: pod hlavičkou leží plná barva stránky (.home-below), ta by zadní vrstvu zakryla – dostane vlastní plátno
+    // (lepí se k obrazovce, za kartami); kreslí se do něj totéž co do zadní vrstvy
+    var local = null, gl2 = null;
+    function findLocal() {
+      var box = document.querySelector('.home-below');
+      local = box && box.querySelector(':scope > .ff-local');
+      if (box && !local) { local = document.createElement('canvas'); local.className = 'ff-local'; local.setAttribute('aria-hidden', 'true'); box.insertBefore(local, box.firstChild); }
+      if (local) { local.width = W; local.height = H; gl2 = local.getContext('2d'); } else gl2 = null;
+    }
+    size(); colors(); findLocal();
+    addEventListener('resize', function () { size(); findLocal(); });
+    document.addEventListener('pjax:done', findLocal);
+    addEventListener('pointermove', function (e) { if (mx > -1e4) { vx = e.clientX - mx; vy = e.clientY - my; } mx = e.clientX; my = e.clientY; }, { passive: true });
+    addEventListener('touchmove', function (e) { var p = e.touches[0]; if (!p) return; if (mx > -1e4) { vx = p.clientX - mx; vy = p.clientY - my; } mx = p.clientX; my = p.clientY; }, { passive: true });
+    (function loop() {
+      requestAnimationFrame(loop);
+      if (document.hidden || low() || document.documentElement.classList.contains('kpong-open')) { gb.clearRect(0, 0, W, H); gf.clearRect(0, 0, W, H); return; }
+      t++;
+      if (t % 20 === 0) colors();   // barva se mění s fotkou (přelévá se 4 s), stačí ji číst občas
+      var snow = document.body.classList.contains('light');
+      gb.clearRect(0, 0, W, H); gf.clearRect(0, 0, W, H);
+      var lr = null;
+      if (gl2 && local.isConnected) {
+        lr = local.getBoundingClientRect();
+        gl2.setTransform(1, 0, 0, 1, 0, 0); gl2.clearRect(0, 0, W, H);
+        if (lr.bottom > 0 && lr.top < H) gl2.setTransform(1, 0, 0, 1, -lr.left, -lr.top); else lr = null;   // kreslí se v souřadnicích obrazovky
+      }
+      for (var i = 0; i < P.length; i++) {
+        var p = P[i], ddx = p.x - mx, ddy = p.y - my, d2 = ddx * ddx + ddy * ddy;
+        if (d2 < 140 * 140) { var f = (1 - Math.sqrt(d2) / 140) * 0.06; p.dx += vx * f + ddx * 0.002; p.dy += vy * f + ddy * 0.002; }
+        p.dx *= 0.95; p.dy *= 0.95;
+        p.x += Math.sin(t * (snow ? 0.02 : 0.01) + p.ph) * (snow ? 0.6 : 0.3) + p.dx;
+        p.y += snow ? p.s * 0.9 + p.dy : -(p.s - p.dy);
+        if (!snow && p.y < -10) { P[i] = mk(H + 10); continue; }
+        if (snow && p.y > H + 10) { P[i] = mk(-10); continue; }
+        if (p.x < -10) p.x = W + 10; if (p.x > W + 10) p.x = -10;
+        var g = p.front ? gf : gb;
+        if (snow) {
+          g.globalAlpha = (0.6 + p.a * 0.4) * (p.front ? 0.65 : 1); g.fillStyle = flake;
+          g.beginPath(); g.arc(p.x, p.y, p.r * 0.85, 0, 6.283); g.fill();
+          if (lr && !p.front) { gl2.globalAlpha = g.globalAlpha; gl2.fillStyle = flake; gl2.beginPath(); gl2.arc(p.x, p.y, p.r * 0.85, 0, 6.283); gl2.fill(); }
+          continue;
+        }
+        var tw = 0.7 + 0.3 * Math.sin(t * 0.022 + p.ph * 3), R = p.r * 1.6;
+        var gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, R);
+        gr.addColorStop(0, 'rgba(255,245,225,.95)'); gr.addColorStop(0.25, col2); gr.addColorStop(0.55, col); gr.addColorStop(1, 'rgba(0,0,0,0)');
+        g.globalAlpha = p.a * tw * (p.front ? 0.65 : 1); g.fillStyle = gr;
+        g.beginPath(); g.arc(p.x, p.y, R, 0, 6.283); g.fill();
+        if (lr && !p.front) { gl2.globalAlpha = g.globalAlpha; gl2.fillStyle = gr; gl2.beginPath(); gl2.arc(p.x, p.y, R, 0, 6.283); gl2.fill(); }
+      }
+      vx *= 0.8; vy *= 0.8;
+    })();
+  }
+  fireflies();
 
   slides();   // once: the layer is not part of the page that PJAX swaps
   document.addEventListener('pjax:done', function () { init(document.querySelector('main') || document); });

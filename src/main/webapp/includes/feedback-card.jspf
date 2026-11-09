@@ -50,6 +50,6 @@
         </script>
         <% } else { %>
         <p class="fb-lead"><%= t.getProperty("home.feedback.login") %></p>
-        <a class="btn btn-primary fb-login" href="/login.jsp?next=%2Findex.jsp%23feedback"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> <%= t.getProperty("auth.submit.login") %></a>
+        <a class="btn btn-primary fb-login" href="/login.jsp?next=%2Fabout.jsp%23feedback"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> <%= t.getProperty("auth.submit.login") %></a>
         <% } %>
       </div>
