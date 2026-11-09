@@ -3,6 +3,11 @@
    Design tokens, typography, page layout
    ============================================ */
 
+/* Hlavní barva webu se mění podle fotky v pozadí (js/effects.js, paint). Zaregistrované jako barvy,
+   aby se mezi fotkami plynule přelila (přechod na body níž), ne skočila. */
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #ffd23f; }
+@property --accent-2 { syntax: '<color>'; inherits: true; initial-value: #ff8a3d; }
+
 /* Design tokens (dark theme is the default) */
 :root {
   /* One typeface for the whole site; hierarchy comes from size and color.
@@ -38,7 +43,7 @@
 
   --accent: #ffd23f;
   --accent-ink: #141414;                    /* text on an accent background */
-  --accent-soft: rgba(255, 210, 63, 0.12);
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
   --accent-2: #ff8a3d;  /* ember orange from the smoke photo */
   --gold: linear-gradient(100deg, #ffe58a, #ffd23f 35%, #ff9d3d 75%, #ffd23f);
   --red: #e5383b;
@@ -75,7 +80,7 @@ body.light {
 
   --accent: #a37b00;
   --accent-ink: #ffffff;
-  --accent-soft: rgba(163, 123, 0, 0.12);
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
   --accent-2: #2f7fd6;  /* blue sky from the snow photo */
   --gold: linear-gradient(100deg, #c99a12, #a37b00 40%, #d08a1c 80%, #a37b00);
   --shadow: 0 20px 45px -24px rgba(0, 0, 0, 0.30);
@@ -99,6 +104,8 @@ body {
   line-height: 1.6;
   color: var(--text);
   background-color: var(--bg);
+  /* barva podle fotky se přelije pomalu, spolu s prolnutím fotky */
+  transition: --accent 4s ease-in-out, --accent-2 4s ease-in-out;
   margin: 0;
   display: flex;
   flex-direction: column;

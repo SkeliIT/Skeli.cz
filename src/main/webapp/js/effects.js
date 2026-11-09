@@ -136,6 +136,29 @@
   // data-dark / data-light = "name:position[:wide],…" of img/photos/<name>-lg|md.webp; a portrait
   // photo marked wide has <name>-wide.webp (whole photo on a 16:9 canvas) for landscape screens
   var SLIDE_MS = 7000, SLIDE_KEY = 'bgSlide';
+
+  // Barva webu podle fotky v pozadí: [hlavní, druhá]. „base“ = obvyklé pozadí (tmavý: rudá fotka IMG_0090,
+  // světlý: sníh lightnaweb). Světlé barvy jsou tmavší, aby byly na světlém podkladu čitelné.
+  // Texty mají vlastní video pozadí a admin klidný vzhled – tam zůstává barva z CSS.
+  var PALETTE = {
+    dark: { base: ['#ff3b30', '#ff8a3d'], skull: ['#ff3d8b', '#ff7ab8'], mic: ['#7dff3a', '#d4ff1f'],
+            square: ['#ffad42', '#ff6a1f'], walker: ['#3fb4ff', '#7cf3ff'] },
+    light: { base: ['#1f6fc4', '#4aa3ea'], field: ['#c4521a', '#e8892a'], point: ['#a87400', '#d6a019'], rocks: ['#4e7a1c', '#86a83a'] }
+  };
+  var painted = 'base';
+  function paint(name) {
+    if (name) painted = name;
+    var b = document.body, own = document.querySelector('main.texty-page') || b.classList.contains('is-admin');
+    var c = !own && PALETTE[b.classList.contains('light') ? 'light' : 'dark'][painted];
+    if (c) { b.style.setProperty('--accent', c[0]); b.style.setProperty('--accent-2', c[1]); }
+    else { b.style.removeProperty('--accent'); b.style.removeProperty('--accent-2'); }
+    // sníh ve světlém režimu: bílý jen u sněhové fotky, jinak v barvě fotky
+    if (b.classList.contains('light') && painted !== 'base' && c) b.style.setProperty('--flake', c[1]); else b.style.removeProperty('--flake');
+  }
+  paint('base');
+  // přepnutí světlého a tmavého režimu = barvy druhé sady (i když se fotky nestřídají)
+  new MutationObserver(function () { paint(); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
   function slides() {
     var box = document.querySelector('.bg-slides');
     if (!box || reduced || low()) return;
@@ -149,6 +172,7 @@
         var parts = item.split(':');
         if (!parts[0]) return;
         var layer = document.createElement('div');
+        layer.dataset.name = parts[0].trim();   // podle jména se vybere barva webu (PALETTE)
         layer.dataset.src = '/img/photos/' + parts[0].trim() + '-' + (parts[2] === 'wide' && landscape ? 'wide' : size) + '.webp';
         layer.style.setProperty('--pos', parts[1] || 'center');
         box.appendChild(layer);
@@ -163,6 +187,8 @@
           layers[i].classList.toggle('instant', !!instant);
           layers[i].classList.toggle('on', layers[i] === cur);
         }
+        paint(cur ? cur.dataset.name : 'base');   // web se přebarví spolu s fotkou
+
         if (instant) requestAnimationFrame(function () {
           requestAnimationFrame(function () { for (var i = 0; i < layers.length; i++) layers[i].classList.remove('instant'); });
         });
@@ -295,7 +321,7 @@
     lightboxOpen(group, group.indexOf(a));
   });
 
-  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); }
+  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); }   // paint: Texty mají vlastní barvu
   init(document);
   // Hlídač plynulosti: po načtení 3 s počítá snímky. Když telefon nestíhá, přepne se na lehký režim hned a po druhém
   // takovém měření natrvalo. Testy (webdriver) mají softwarové kreslení, u nich neměří.

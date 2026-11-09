@@ -205,8 +205,9 @@ body.light .hero-quote.is-burnt .qc { animation: none; }
   width: var(--s);
   height: var(--s);
   border-radius: 50%;
-  background: radial-gradient(circle, #ffd27a, #ff6a2b 55%, transparent 70%);
-  box-shadow: 0 0 8px 2px rgba(255, 110, 40, 0.5);
+  /* jiskry mají barvu fotky v pozadí (--accent mění js/effects.js) */
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 45%, #fff), var(--accent) 55%, transparent 70%);
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--accent) 50%, transparent);
   opacity: 0;
   animation: ember var(--t) linear var(--delay) infinite;
 }
@@ -216,7 +217,9 @@ body.light .hero-quote.is-burnt .qc { animation: none; }
   80% { opacity: .45; }
   100% { transform: translate(var(--dx), -80vh); opacity: 0; }
 }
-body.light .hero-particles span { top: -10px; bottom: auto; background: #fff; box-shadow: 0 0 6px rgba(255, 255, 255, 0.9); animation-name: snow; }
+/* sníh: bílý u sněhové fotky, u ostatních v barvě fotky (--flake), jemný stín, aby byl vidět i na světlém */
+body.light .hero-particles span { top: -10px; bottom: auto; width: calc(var(--s) * .6); height: calc(var(--s) * .6); background: var(--flake, #fff);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--flake, #fff) 80%, transparent), 0 1px 3px rgba(40, 60, 90, .35); animation-name: snow; transition: background 4s ease-in-out; }
 @keyframes snow {
   0% { transform: translate(0, 0); opacity: 0; }
   10% { opacity: .95; }
