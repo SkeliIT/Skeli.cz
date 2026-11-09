@@ -1599,3 +1599,21 @@ body.light .masthead-brand .squad-mark {
 .about-header h2.about-name::after { display: none; }
 .about-name .uh-sign { font-size: clamp(3.6rem, 10vw, 6.6rem); transform: rotate(-3deg); transform-origin: center; }
 .about-squad-title { color: var(--accent); }
+
+/* ---- Profil (můj i cizí) – první krok ke „Časové ose“: obří jméno v barvě fotky, fotka v barevném kruhu ---- */
+.pt-hero .acct-name {
+  font-size: clamp(2rem, 6vw, 4rem); line-height: .95; letter-spacing: .02em; text-shadow: none;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 20%, #fff) 10%, var(--accent) 60%, var(--accent-2));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 40%, transparent)) drop-shadow(0 2px 8px rgba(0, 0, 0, .6));
+}
+body.light .pt-hero .acct-name { background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 65%, #000) 10%, var(--accent) 60%, var(--accent-2)); filter: drop-shadow(0 1px 6px rgba(255, 255, 255, .8)); }
+.pt-hero .acct-name .acct-badge { -webkit-text-fill-color: currentColor; color: var(--text); background-clip: border-box; filter: none; font-size: var(--fs-small); letter-spacing: .06em; }
+.pt-hero .acct-name .acct-badge.artist { color: var(--accent-ink); background: var(--accent); }
+@media (max-width: 760px) { .pt-hero .acct-name { font-size: clamp(1.8rem, 9vw, 2.6rem); } }
+/* fotka v kruhu barvy fotky (rámeček z odznaků má přednost) */
+.pt-hero .acct-photo:not(.av-frame) { box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent), 0 0 30px color-mix(in srgb, var(--accent) 55%, transparent); }
+.pt-hero .acct-photo:not(.av-frame) .acct-avatar { border-radius: 50%; }
+/* moto v barvě fotky (dřív zlaté) */
+.acct-motto { color: var(--accent); }
+body.light .acct-motto { color: var(--accent); }
