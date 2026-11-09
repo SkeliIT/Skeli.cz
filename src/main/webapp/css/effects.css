@@ -1630,7 +1630,8 @@ html { overflow-x: clip; }
   body:has(main.home-page.ulice)::before,
   body:has(main.home-page.ulice) .bg-slides > div[data-name="mic"], body:has(main.home-page.ulice) .bg-slides > div[data-name="square"],
   body:has(main.home-page.ulice) .bg-slides > div[data-name="point"], body:has(main.home-page.ulice) .bg-slides > div[data-name="walker"] {
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 24vw); mask-image: linear-gradient(90deg, transparent 0, #000 24vw);
+    --fl: max(24vw, var(--fx, 0px));
+    -webkit-mask-image: var(--fit-x), var(--fit-y); mask-image: var(--fit-x), var(--fit-y); -webkit-mask-composite: source-in; mask-composite: intersect;
   }
 }
 /* nová stránka navazuje na fotku té předchozí hned (bez prolínání) – i na úvodu, kde mají vrstvy vlastní přechod */
@@ -1691,7 +1692,7 @@ body.light .home-page.ulice .photo-band-img { background-position: 50% 110px; }
   .ep-holo .ep-item, .ep-holo .ep-item.is-active { width: 170px !important; margin-left: -85px; }
   .ep-holo .ep-arrow { top: auto; bottom: -20px; transform: none; }
   .ep-holo #ep-prev { left: calc(50% - 60px); } .ep-holo #ep-next { right: calc(50% - 60px); }
-  .ep-tc { left: 40px; font-size: .62rem; } .ep-tc-r { display: none; }
+  .ep-tc { left: 40px; font-size: var(--fs-small); } .ep-tc-r { display: none; }
 }
 /* když na Hudbě hraje/je vybrané video, fotky pozadí se ztlumí (barvu stránky bere z videa js/effects.js) */
 body.clip-on .bg-slides, body.clip-on::before { filter: brightness(.45) saturate(.6); transition: filter 1.2s ease; }
@@ -1701,7 +1702,7 @@ html.low-fx .ep-hud::after, html.low-fx .ep-holo .ep-floor { animation: none; }
 .ep-hud-bar { position: relative; z-index: 2; display: flex; justify-content: space-between; gap: 16px; max-width: 880px; margin: 0 auto 8px; padding: 0 6px; }
 .ep-hud-bar .ep-tc { position: static; max-width: 60%; }
 .ep-carousel.ep-holo { margin-top: -30px; }
-@media (max-width: 600px) { .ep-hud-bar .ep-tc-r { display: block; font-size: .62rem; } .ep-carousel.ep-holo { margin-top: 0; } }
+@media (max-width: 600px) { .ep-hud-bar .ep-tc-r { display: block; font-size: var(--fs-small); } .ep-carousel.ep-holo { margin-top: 0; } }
 
 /* =====================================================================
    HUDBA: Diskografie jako otočné karty – vpředu náhled, po najetí (telefon: ťuknutí) se otočí,
@@ -1790,3 +1791,17 @@ html.low-fx .ep-hud::after, html.low-fx .ep-holo .ep-floor { animation: none; }
 body:has(main.has-floor) .site-footer { position: relative; border-top: 0; }
 body:has(main.has-floor) .footer-smoke { display: block; top: auto; bottom: calc(100% - 55px); height: 210px; }
 body:has(main.has-floor) .site-footer > :not(.footer-smoke) { position: relative; z-index: 2; }
+
+/* ZMENŠENÁ FOTKA na velkém monitoru (js/effects.js fitBox): fotky mají menší rozlišení, „cover“ by je nafoukl a byly by
+   rozmazané. Vrstva je pak menší a uprostřed, strany, které nedosáhnou na kraj obrazovky, se ztratí do barvy stránky.
+   --fl/--fr/--ft/--fb = jak široký je přechod vlevo, vpravo, nahoře, dole (úvod přidává vlevo vlastní přechod za textem). */
+.bg-slides > div, body::before {
+  --fl: var(--fx, 0px); --fr: var(--fx, 0px); --ft: var(--fy, 0px); --fb: var(--fy, 0px);
+  --fit-x: linear-gradient(90deg, transparent, #000 var(--fl), #000 calc(100% - var(--fr)), transparent);
+  --fit-y: linear-gradient(180deg, transparent, #000 var(--ft), #000 calc(100% - var(--fb)), transparent);
+}
+.bg-slides > div { --fx: var(--bfx, 0px); --fy: var(--bfy, 0px); }
+body::before { --fx: var(--bbfx, 0px); --fy: var(--bbfy, 0px); }
+.bg-slides > div.fit { inset: 0; margin: auto; width: var(--bw); height: var(--bh); }
+body.bg-fit::before { inset: 0; margin: auto; width: var(--bbw); height: var(--bbh); }
+.bg-slides > div.fit, body.bg-fit::before { -webkit-mask-image: var(--fit-x), var(--fit-y); mask-image: var(--fit-x), var(--fit-y); -webkit-mask-composite: source-in; mask-composite: intersect; }

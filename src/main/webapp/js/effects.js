@@ -164,6 +164,44 @@
   // přepnutí světlého a tmavého režimu = barvy druhé sady (i když se fotky nestřídají)
   new MutationObserver(function () { paint(); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
+  // Fotky mají omezené rozlišení: na velkém monitoru by je „cover“ nafoukl (pole 1920×819 na 2560 px skoro 2×)
+  // a byly by rozmazané. Od šířky 1025 px se vrstva s fotkou zmenší tak, aby fotka nebyla zvětšená víc než FIT_MAX ×,
+  // a strany, které nedosáhnou na kraj obrazovky, se ztratí do barvy stránky (css/effects.css, třída .fit).
+  // Telefon beze změny. BASE_SIZE = rozměry obvyklého pozadí (IMG_0090, lightnaweb) pro body::before.
+  var FIT_MAX = 1.1, BASE_SIZE = { dark: [2560, 1707], light: [1538, 1022] };
+  function fitBox(nw, nh) {
+    var W = window.innerWidth, H = window.innerHeight;
+    if (!nw || !nh || W < 1025) return null;
+    var w = Math.min(W, Math.round(nw * FIT_MAX)), h = Math.min(H, Math.round(nh * FIT_MAX));
+    if (w >= W && h >= H) return null;
+    return { w: w, h: h, fx: w < W ? Math.round(w * 0.16) : 0, fy: h < H ? Math.round(h * 0.16) : 0 };
+  }
+  function fitSet(el, cls, f, p) {
+    el.classList.toggle(cls, !!f);
+    if (!f) { ['w', 'h', 'fx', 'fy'].forEach(function (k) { el.style.removeProperty('--' + p + k); }); return; }
+    el.style.setProperty('--' + p + 'w', f.w + 'px'); el.style.setProperty('--' + p + 'h', f.h + 'px');
+    el.style.setProperty('--' + p + 'fx', f.fx + 'px'); el.style.setProperty('--' + p + 'fy', f.fy + 'px');
+  }
+  function fitLayer(el) { fitSet(el, 'fit', fitBox(+el.dataset.nw, +el.dataset.nh), 'b'); }
+  function fitBase() {
+    var s = BASE_SIZE[document.body.classList.contains('light') ? 'light' : 'dark'];
+    fitSet(document.body, 'bg-fit', fitBox(s[0], s[1]), 'bb');
+  }
+  fitBase();
+  var fitLight = document.body.classList.contains('light'), fitRaf = 0;
+  new MutationObserver(function () {
+    var l = document.body.classList.contains('light');
+    if (l !== fitLight) { fitLight = l; fitBase(); }
+  }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('resize', function () {
+    if (fitRaf) return;
+    fitRaf = requestAnimationFrame(function () {
+      fitRaf = 0;
+      fitBase();
+      document.querySelectorAll('.bg-slides > div[data-nw]').forEach(fitLayer);
+    });
+  });
+
   function slides() {
     var box = document.querySelector('.bg-slides');
     if (!box || reduced || low()) return;
@@ -200,7 +238,10 @@
       }
       if (cur && !cur.style.getPropertyValue('--slide')) {
         var img = new Image();
-        img.onload = function () { cur.style.setProperty('--slide', 'url("' + cur.dataset.src + '")'); swap(); };
+        img.onload = function () {
+          cur.dataset.nw = img.naturalWidth; cur.dataset.nh = img.naturalHeight; fitLayer(cur);
+          cur.style.setProperty('--slide', 'url("' + cur.dataset.src + '")'); swap();
+        };
         img.src = cur.dataset.src;
       } else swap();
     }
