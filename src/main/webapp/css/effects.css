@@ -24,13 +24,14 @@ body.light::after { opacity: 0.03; }
    The smoke from the background photo rolls slowly inside the gold (img/smoke-tex.webp:
    mirrored 2x2, so the tile repeats without a seam; it moves exactly one tile per loop).
    Every few seconds a soft glint sweeps across (::after, clipped by the sign's mask). */
-:root {
-  --gold-base: #ffd23f;
-  --gold-hi: rgba(255, 244, 190, 0.9);
+/* logo má barvu fotky v pozadí (--accent mění js/effects.js na body, proto se to počítá až na body, ne na :root) */
+body {
+  --gold-base: var(--accent);
+  --gold-hi: color-mix(in srgb, var(--accent-2) 45%, rgba(255, 244, 200, 0.9));
 }
 body.light {
-  --gold-base: #a37b00;
-  --gold-hi: rgba(226, 182, 52, 0.9);
+  --gold-base: var(--accent);
+  --gold-hi: color-mix(in srgb, var(--accent) 60%, rgba(255, 255, 255, 0.9));
 }
 .hero-title .logo-mark,
 .masthead-brand .squad-mark,
@@ -69,7 +70,7 @@ body.light {
    signs and the tape are plain polished gold, light from above (the user's pick); the glint stays */
 body.light .hero-title .logo-mark,
 body.light .masthead-brand .squad-mark {
-  background: linear-gradient(180deg, #e6b730 0%, #c99a12 38%, #8f6600 70%, #b8860b 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 70%, #fff) 0%, var(--accent) 38%, color-mix(in srgb, var(--accent) 70%, #000) 70%, var(--accent) 100%);
   animation: none;
 }
 body.light .tape-gold {
