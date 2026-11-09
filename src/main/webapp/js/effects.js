@@ -135,7 +135,7 @@
   // and the next one comes when it would have anyway.
   // data-dark / data-light = "name:position[:wide],…" of img/photos/<name>-lg|md.webp; a portrait
   // photo marked wide has <name>-wide.webp (whole photo on a 16:9 canvas) for landscape screens
-  var SLIDE_MS = 7000, SLIDE_KEY = 'bgSlide';
+  var SLIDE_MS = 12000, SLIDE_KEY = 'bgSlide';   // každá fotka 12 s, prolnutí i přebarvení 4 s
 
   // Barva webu podle fotky v pozadí: [hlavní, druhá]. „base“ = obvyklé pozadí (tmavý: rudá fotka IMG_0090,
   // světlý: sníh lightnaweb). Světlé barvy jsou tmavší, aby byly na světlém podkladu čitelné.

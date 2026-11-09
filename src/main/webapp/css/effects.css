@@ -318,7 +318,7 @@ body.light:has(main.texty-page) { background-color: #e9ecef; }
   inset: 0;
   opacity: 0;
   background: var(--bg-overlay), var(--slide) var(--pos, center) / cover no-repeat;
-  transition: opacity 2.6s ease;
+  transition: opacity 4s ease-in-out;   /* stejně dlouho jako přelití barvy webu (base.css) */
 }
 .bg-slides > div.on { opacity: 1; }
 /* a new page starts on the photo the last one showed, without fading in again */
@@ -1541,7 +1541,7 @@ html.low-fx .ff-local { display: none; }
 /* pás s fotkou na úvodu: noční ulice s maskou (tmavý) / silueta na poli (světlý), citát z písně štětcem */
 .home-page.ulice .photo-band { --band: url('/img/photos/walker-lg.webp'); }
 body.light .home-page.ulice .photo-band { --band: url('/img/photos/field-wide.webp'); }
-.home-page.ulice .photo-band-img { filter: none; background-position: 62% 35%; }
+.home-page.ulice .photo-band-img { filter: none; background-position: 60% 14%; }   /* celý obličej s maskou */
 .photo-band blockquote.band-lyric { font-family: var(--font-brush); font-size: clamp(1.9rem, 3.4vw, 2.6rem); line-height: 1.05; color: var(--text); text-shadow: 0 2px 14px rgba(0, 0, 0, .55); }
 body.light .band-lyric { text-shadow: 0 1px 10px rgba(255, 255, 255, .8); }
 .home-page.ulice .photo-band-sign a { color: var(--accent); text-decoration: none; }
@@ -1574,3 +1574,7 @@ body.light .lyric-page .lyric-title {
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 65%, #000) 0%, var(--accent) 45%, var(--accent-2) 100%);
   -webkit-background-clip: text; background-clip: text;
 }
+/* pod pásem s fotkou až k patičce plná barva (dřív tam ve spodním odsazení prosvítala fotka pozadí) */
+main.home-page.ulice { padding-bottom: 0; }
+.home-page.ulice .home-below { padding-bottom: 70px; }
+body:has(main.home-page.ulice) .site-footer, body:has(main.has-floor) .site-footer { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
