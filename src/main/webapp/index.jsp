@@ -27,9 +27,15 @@
   if (latest != null) newsVideos.add(latest);   // první velká novinka = nový song
   for (com.github.skeliit.dao.HomeDao.HomeVideo hv : homeVideos) if (!hv.youtubeId().equals(featuredId) && newsVideos.size() < 5) newsVideos.add(hv);
 %>
-<main class="home-page">
+<main class="home-page ulice">
+  <%-- vzhled „Ulice“ (2026-11): vlevo jméno sprejem, citát vypalovaný laserem a tlačítka; fotka v pozadí je
+       pozadí webu (bg-slides), barvy se mění podle ní; dole přechází do tmavé stránky kouřem (js/smoke.js) --%>
   <section class="hero">
     <div class="hero-particles" aria-hidden="true"></div>
+    <div class="uh-in">
+    <span class="uh-crown" aria-hidden="true"><i class="fa-solid fa-crown"></i></span>
+    <h1 class="uh-name"><span class="uh-sign" aria-hidden="true">Skeli</span><span class="sr-only">Skeli – <%= t.getProperty("home.lead") %></span></h1>
+    <p class="uh-roles"><%= t.getProperty("home.roles") %></p>
     <%-- first glance: two lines from one of Skeli's songs, another on every visit (table home_quotes) --%>
     <% if (quote != null) { %>
     <%-- burnt in letter by letter by js/quote-burn.js (the plain text stays readable without it) --%>
@@ -41,8 +47,6 @@
     <% } else { %>
     <p class="hero-kicker"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><%= t.getProperty("home.kicker") %></p>
     <% } %>
-    <%-- pořadí: kdo (nadpis) → co je nového (Nový song / premiéra) → kde poslouchat (Spotify) → sítě --%>
-    <h1 class="hero-tagline"><%= t.getProperty("home.lead") %></h1>
     <%-- premiéra s odpočtem (admin → píseň → Premiéra): má přednost před kartou „Nový song“ --%>
     <% com.github.skeliit.model.Premiere premiere = null;
        try { premiere = new com.github.skeliit.dao.PremiereDao().forHome(); } catch (java.sql.SQLException e) { application.log("Premiere", e); }
@@ -71,22 +75,20 @@
       <a class="btn btn-primary btn-lg btn-spotify" href="https://open.spotify.com/artist/5IouXw8U9uKCTwmncG5bUl" target="_blank" rel="noopener">
         <i class="fab fa-spotify" aria-hidden="true"></i> <%= t.getProperty("home.cta.listen") %>
       </a>
+      <a class="btn btn-ghost btn-lg" href="/music.jsp"><i class="fab fa-youtube" aria-hidden="true"></i> <%= t.getProperty("home.cta.videos") %></a>
     </div>
+    </div>
+    <div class="smoke-edge b" aria-hidden="true"><canvas></canvas></div>
   </section>
 
+  <%-- všechno pod hlavičkou leží na tmavé (ve světlém režimu světlé) stránce, do které se fotka ztrácí kouřem --%>
+  <div class="home-below">
   <% if (!tapeSongs.isEmpty()) { %>
-  <%-- two crossed tapes with the song names, running in opposite directions --%>
-  <section class="tapes" aria-label="<%= t.getProperty("home.songs") %>">
-    <div class="tape tape-gold"><div class="marquee-track">
-      <span class="tape-name">SKELI</span><i aria-hidden="true">✦</i>
-      <% for (com.github.skeliit.dao.HomeDao.TapeSong s : tapeSongs) { %><a href="<%= com.github.skeliit.WebUtils.escapeHtml(s.href()) %>"><%= com.github.skeliit.WebUtils.escapeHtml(s.name()) %></a><i aria-hidden="true">✦</i><% } %>
-    </div></div>
-    <div class="tape tape-dark" aria-hidden="true"><div class="marquee-track reverse">
-      <% for (com.github.skeliit.dao.HomeDao.TapeSong s : tapeSongs) {
-           String img = s.thumb(); %>
-      <a href="<%= com.github.skeliit.WebUtils.escapeHtml(s.href()) %>" tabindex="-1"><% if (img != null) { %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(img) %>" alt="" loading="lazy"><% } %><%= com.github.skeliit.WebUtils.escapeHtml(s.name()) %><% if (s.year() != null) { %> <small><%= s.year() %></small><% } %></a>
-      <% } %>
-    </div></div>
+  <%-- pás s názvy písní, běží dokola --%>
+  <section class="ticker" aria-label="<%= t.getProperty("home.songs") %>">
+    <div class="marquee-track">
+      <% for (com.github.skeliit.dao.HomeDao.TapeSong s : tapeSongs) { %><a href="<%= com.github.skeliit.WebUtils.escapeHtml(s.href()) %>"><i class="fa-solid fa-music" aria-hidden="true"></i> <%= com.github.skeliit.WebUtils.escapeHtml(s.name()) %></a><% } %>
+    </div>
   </section>
   <% } %>
 
@@ -236,17 +238,28 @@
   }
 </script>
 
+  <%-- čtyři dlaždice: kam dál (naklánějí se k myši, js/effects.js) --%>
+  <nav class="home-tiles" aria-label="<%= t.getProperty("footer.menu") %>">
+    <a class="home-tile" href="/music.jsp" data-tilt><i class="fa-solid fa-music" aria-hidden="true"></i><span><b><%= t.getProperty("menu.discography") %></b><small><%= t.getProperty("menu.d.discography") %></small></span></a>
+    <a class="home-tile" href="/texty.jsp" data-tilt><i class="fa-solid fa-align-left" aria-hidden="true"></i><span><b><%= t.getProperty("menu.lyrics") %></b><small><%= t.getProperty("menu.d.lyrics") %></small></span></a>
+    <a class="home-tile" href="/karaoke-kino" data-tilt><i class="fa-solid fa-microphone" aria-hidden="true"></i><span><b><%= t.getProperty("menu.karaoke") %></b><small><%= t.getProperty("menu.d.karaoke") %></small></span></a>
+    <a class="home-tile" href="/?kevin=pong" data-play-game data-tilt><i class="fa-solid fa-table-tennis-paddle-ball" aria-hidden="true"></i><span><b><%= t.getProperty("menu.catsmash") %></b><small><%= t.getProperty("menu.d.game") %></small></span></a>
+  </nav>
+
   <%-- a wide photo with a line from Skeli; the photo drifts slower than the page --%>
 <%@ include file="/includes/feedback-refs.jspf" %>
 
   <section class="photo-band" data-reveal>
+    <div class="smoke-edge t" aria-hidden="true"><canvas></canvas></div>
     <div class="photo-band-img" data-parallax></div>
     <div class="photo-band-text">
       <blockquote><%= t.getProperty("home.band.quote") %></blockquote>
       <p class="photo-band-sign">— Skeli</p>
       <a class="btn btn-primary" href="/about.jsp"><%= t.getProperty("home.band.cta") %> <i class="fa-solid fa-arrow-right"></i></a>
     </div>
+    <div class="smoke-edge b" aria-hidden="true"><canvas></canvas></div>
   </section>
+  </div>
 </main>
 
 <%@ include file="includes/footer.jsp" %>

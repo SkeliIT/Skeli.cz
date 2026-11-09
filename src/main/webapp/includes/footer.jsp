@@ -126,6 +126,7 @@
 </script>
 <script src="<%= request.getContextPath() %>/js/password-helper.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/effects.js?v=<%= assetVersion %>" defer></script>
+<script src="<%= request.getContextPath() %>/js/smoke.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/sounds.js?v=<%= assetVersion %>"></script>
 <script src="<%= request.getContextPath() %>/js/presence.js?v=<%= assetVersion %>" defer></script>
 <%@ include file="/includes/chat-dock.jspf" %>

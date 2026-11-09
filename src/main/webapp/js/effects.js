@@ -146,16 +146,21 @@
     light: { base: ['#1f6fc4', '#4aa3ea'], field: ['#c4521a', '#e8892a'], point: ['#a87400', '#d6a019'], rocks: ['#4e7a1c', '#86a83a'] }
   };
   var painted = 'base';
-  function paint(name) {
+  // instant = bez přelévání (načtení stránky, nová stránka navazuje na fotku té předchozí)
+  function paint(name, instant) {
     if (name) painted = name;
     var b = document.body, own = document.querySelector('main.texty-page') || b.classList.contains('is-admin');
+    if (instant) {
+      b.style.transition = 'none';
+      requestAnimationFrame(function () { requestAnimationFrame(function () { b.style.removeProperty('transition'); }); });
+    }
     var c = !own && PALETTE[b.classList.contains('light') ? 'light' : 'dark'][painted];
     if (c) { b.style.setProperty('--accent', c[0]); b.style.setProperty('--accent-2', c[1]); }
     else { b.style.removeProperty('--accent'); b.style.removeProperty('--accent-2'); }
     // sníh ve světlém režimu: bílý jen u sněhové fotky, jinak v barvě fotky
     if (b.classList.contains('light') && painted !== 'base' && c) b.style.setProperty('--flake', c[1]); else b.style.removeProperty('--flake');
   }
-  paint('base');
+  paint('base', true);
   // přepnutí světlého a tmavého režimu = barvy druhé sady (i když se fotky nestřídají)
   new MutationObserver(function () { paint(); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
@@ -187,7 +192,7 @@
           layers[i].classList.toggle('instant', !!instant);
           layers[i].classList.toggle('on', layers[i] === cur);
         }
-        paint(cur ? cur.dataset.name : 'base');   // web se přebarví spolu s fotkou
+        paint(cur ? cur.dataset.name : 'base', instant);   // web se přebarví spolu s fotkou
 
         if (instant) requestAnimationFrame(function () {
           requestAnimationFrame(function () { for (var i = 0; i < layers.length; i++) layers[i].classList.remove('instant'); });

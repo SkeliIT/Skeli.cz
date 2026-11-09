@@ -1417,3 +1417,90 @@ html.low-fx .masthead-brand .squad-mark, html.low-fx .masthead-brand .squad-mark
 html.low-fx .tape-gold, html.low-fx .tape-gold::after,
 html.low-fx .hero-quote.is-burnt .qc, html.low-fx .eq i, html.low-fx .page-hero-title, html.low-fx .lyric-page .lyric-title,
 html.low-fx .main-nav .nav-sub a.nav-karaoke::after { animation: none !important; will-change: auto !important; }
+
+/* =====================================================================
+   ÚVOD „ULICE“ (2026-11): jméno sprejem vlevo, citát laserem, tlačítka; pod hlavičkou tmavá stránka,
+   do které se fotka ztrácí kouřem (js/smoke.js). Barvy = barva fotky v pozadí (--accent, js/effects.js).
+   ===================================================================== */
+.home-page.ulice .hero {
+  align-items: flex-start; justify-content: flex-end; text-align: left;
+  min-height: min(calc(100svh - var(--header-h) - var(--masthead-h)), 780px);
+  padding: 30px 0 clamp(120px, 14vw, 190px);
+}
+/* tmavý závoj zleva, aby text byl čitelný na každé fotce */
+.home-page.ulice .hero::before {
+  content: ""; position: absolute; top: calc(-1 * var(--header-h) - var(--masthead-h)); bottom: 0; left: calc(50% - 50vw); width: 100vw; z-index: -1; pointer-events: none;
+  background: linear-gradient(90deg, rgba(9, 9, 11, .88) 0%, rgba(9, 9, 11, .5) 42%, rgba(9, 9, 11, 0) 70%);
+}
+body.light .home-page.ulice .hero::before { background: linear-gradient(90deg, rgba(244, 242, 238, .92) 0%, rgba(244, 242, 238, .55) 45%, rgba(244, 242, 238, 0) 72%); }
+.uh-in { position: relative; z-index: 2; max-width: 640px; }
+.uh-crown { display: inline-block; color: var(--accent); font-size: 2rem; transform: rotate(-12deg); filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 60%, transparent)); }
+.uh-name { margin: 2px 0 10px; line-height: .8; }
+.uh-sign {
+  display: inline-block; padding: 0 .12em .06em 0; transform: rotate(-4deg); transform-origin: left bottom;
+  font-family: 'Permanent Marker', var(--font-display); font-weight: 400; font-size: clamp(4.4rem, 11vw, 8.4rem);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 30%, #fff) 5%, var(--accent) 48%, var(--accent-2));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--accent) 50%, transparent));
+}
+body.light .uh-sign { background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 65%, #000) 5%, var(--accent) 50%, var(--accent-2)); filter: drop-shadow(0 6px 16px rgba(0, 0, 0, .18)); }
+.uh-roles { margin: 0 0 20px; font-size: var(--fs-small); letter-spacing: .3em; text-transform: uppercase; color: var(--text); opacity: .85; }
+/* citát vlevo; vypálená písmena doutnají v barvě fotky */
+.home-page.ulice .hero-quote {
+  align-items: flex-start; text-align: left; margin: 0 0 22px; max-width: 640px;
+  --burn: color-mix(in srgb, var(--accent) 55%, #ffe2b8);
+  --burn-glow: 0 0 5px color-mix(in srgb, var(--accent) 75%, transparent), 0 0 16px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 34px color-mix(in srgb, var(--accent) 20%, transparent);
+  --hot: 0 0 3px #fff, 0 0 9px #ffe08a, 0 0 20px var(--accent);
+}
+body.light .home-page.ulice .hero-quote { --burn: color-mix(in srgb, var(--accent) 55%, #1d0f05); --burn-glow: 0 0 1px rgba(0, 0, 0, .25); }
+.home-page.ulice .hero-quote-text { font-size: clamp(1.9rem, 3.3vw, 2.7rem); transform: rotate(-2deg); transform-origin: left center; }
+.home-page.ulice .hero-quote-song { font-size: clamp(1.15rem, 2vw, 1.55rem); transform: rotate(-1deg); transform-origin: left center; color: var(--accent); }
+.home-page.ulice .hero-latest { margin: 0 0 20px; }
+.home-page.ulice .hero-actions { justify-content: flex-start; margin-top: 0; }
+/* na velké obrazovce fotku posuneme doprava, aby postava nebyla pod textem (levý okraj zakrývá závoj) */
+@media (min-width: 1025px) {
+  body:has(main.home-page.ulice)::before, body:has(main.home-page.ulice) .bg-slides { translate: 14vw 0; }
+  body::before, .bg-slides { transition: translate .9s ease; }
+}
+
+/* KOUŘ na předělu (js/smoke.js). Bez WebGL / na slabém telefonu jen klidný přechod do barvy stránky. */
+.smoke-edge { position: absolute; left: calc(50% - 50vw); width: 100vw; height: calc(max(22vw, 180px) * 1.6); z-index: 1; pointer-events: none; }
+.smoke-edge.b { bottom: calc(-1 * max(6vw, 50px)); }
+.smoke-edge.t { top: calc(-1 * max(6vw, 50px)); transform: scaleY(-1); }
+.smoke-edge canvas { display: block; width: 100%; height: 100%; }
+.smoke-edge:not(.live) canvas { display: none; }
+.smoke-edge:not(.live)::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 35%, var(--bg) 72%); }
+
+/* všechno pod hlavičkou na plné barvě stránky (přes celou šířku), nad kouřem */
+.home-page.ulice .home-below { position: relative; z-index: 2; background: var(--bg); box-shadow: 0 0 0 100vmax var(--bg); clip-path: inset(0 -100vmax); }
+
+/* pás s názvy písní */
+.home-page.ulice .ticker { width: 100vw; margin: 0 calc(50% - 50vw) 34px; overflow: hidden; border-block: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); background: color-mix(in srgb, var(--accent) 4%, rgba(0, 0, 0, .35)); }
+body.light .home-page.ulice .ticker { background: color-mix(in srgb, var(--accent) 5%, rgba(255, 255, 255, .6)); }
+.home-page.ulice .ticker .marquee-track { gap: 36px; padding: 12px 0; animation-duration: 70s; }
+.home-page.ulice .ticker a { color: var(--text); font-size: var(--fs-small); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; text-decoration: none; }
+.home-page.ulice .ticker a i { color: var(--accent); margin-right: 6px; }
+.home-page.ulice .ticker a:hover { color: var(--accent); }
+
+/* čtyři dlaždice */
+.home-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 34px 0 10px; }
+.home-tile { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--panel); border: 1px solid var(--panel-border); color: var(--text); text-decoration: none; }
+.home-tile:hover { text-decoration: none; border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 18px 40px -20px color-mix(in srgb, var(--accent) 60%, transparent); }
+.home-tile > i { width: 30px; text-align: center; font-size: 1.5rem; color: var(--accent); }
+.home-tile b { display: block; font-weight: 400; font-size: var(--fs-card); }
+.home-tile small { display: block; color: var(--text-dim); font-size: var(--fs-small); }
+@media (max-width: 760px) { .home-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* pás s fotkou: nahoře i dole se ztrácí kouřem */
+.home-page.ulice .photo-band { margin-top: 60px; }
+.home-page.ulice .photo-band .smoke-edge { height: 190px; }
+.home-page.ulice .photo-band .smoke-edge.t { top: 0; }
+.home-page.ulice .photo-band .smoke-edge.b { bottom: 0; }
+.home-page.ulice .photo-band-text { position: relative; z-index: 2; }
+
+/* telefon: text dole přes fotku, závoj odspodu */
+@media (max-width: 760px) {
+  .home-page.ulice .hero { min-height: min(calc(100svh - var(--header-h)), 720px); padding-bottom: 110px; }
+  .home-page.ulice .hero::before { background: linear-gradient(0deg, rgba(9, 9, 11, .95) 25%, rgba(9, 9, 11, .35) 60%, rgba(9, 9, 11, .1)); }
+  body.light .home-page.ulice .hero::before { background: linear-gradient(0deg, rgba(244, 242, 238, .96) 28%, rgba(244, 242, 238, .4) 62%, rgba(244, 242, 238, .1)); }
+}
