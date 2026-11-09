@@ -1623,3 +1623,13 @@ html { overflow-x: clip; }
 /* na podstránkách nižší kouř a víc místa pod textem, ať neleze přes nadpis */
 .page-hero.with-smoke { padding-bottom: clamp(110px, 10vw, 140px); }
 .page-hero.with-smoke .smoke-edge { height: 210px; }
+/* posunutá fotka (jen úvod na PC) se do levé strany plynule ztrácí – po posunu tam nesmí zůstat hrana ani pruh */
+@media (min-width: 1025px) {
+  body:has(main.home-page.ulice)::before,
+  body:has(main.home-page.ulice) .bg-slides > div[data-name="mic"], body:has(main.home-page.ulice) .bg-slides > div[data-name="square"],
+  body:has(main.home-page.ulice) .bg-slides > div[data-name="point"], body:has(main.home-page.ulice) .bg-slides > div[data-name="walker"] {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 24vw); mask-image: linear-gradient(90deg, transparent 0, #000 24vw);
+  }
+}
+/* nová stránka navazuje na fotku té předchozí hned (bez prolínání) – i na úvodu, kde mají vrstvy vlastní přechod */
+body:has(main.home-page.ulice) .bg-slides > div.instant { transition: none; }

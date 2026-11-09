@@ -217,6 +217,12 @@
       clearTimeout(wait);
       clearInterval(every);
       build();
+      // kontrola fotek: ?bgshow=<jméno fotky> (např. skull) ukáže jen tu jednu a nestřídá se
+      var only = new URLSearchParams(location.search).get('bgshow');
+      if (only) {
+        for (var oi = 0; oi < box.children.length; oi++) if (box.children[oi].dataset.name === only) { step = oi + 1; show(true); }
+        return;
+      }
       var saved = null, delay = SLIDE_MS;
       try { saved = JSON.parse(sessionStorage.getItem(SLIDE_KEY)); } catch (e) { }
       var age = saved ? Date.now() - saved.at : -1;
