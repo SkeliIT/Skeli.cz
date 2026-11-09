@@ -1633,3 +1633,12 @@ html { overflow-x: clip; }
 }
 /* nová stránka navazuje na fotku té předchozí hned (bez prolínání) – i na úvodu, kde mají vrstvy vlastní přechod */
 body:has(main.home-page.ulice) .bg-slides > div.instant { transition: none; }
+/* světlý pás: silueta na poli celá od hlavy (fotka posunutá dolů) */
+body.light .home-page.ulice .photo-band-img { background-position: 50% 4%; }
+/* pás s fotkou vyšší, kouř jen na okrajích – hlava ani nohy pod kouřem nemizí */
+.home-page.ulice .photo-band { min-height: 600px; }
+.home-page.ulice .photo-band .smoke-edge { height: 150px; }
+@media (max-width: 760px) { .home-page.ulice .photo-band { min-height: 480px; } }
+/* horní okraj fotky = horní okraj pásu (vrstva fotky je kvůli posunu při scrollu o 60 px vyšší) – hlava i maska celá */
+.home-page.ulice .photo-band-img { background-position: 60% 60px; }
+body.light .home-page.ulice .photo-band-img { background-position: 50% 110px; }

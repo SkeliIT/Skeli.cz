@@ -1,2 +1,2 @@
 <%-- Verze CSS a JS: po každé změně je zvýšit, jinak prohlížeče drží staré soubory (StaticCacheFilter). --%>
-<% String assetVersion = "7.13.10"; %>
+<% String assetVersion = "7.13.12"; %>
