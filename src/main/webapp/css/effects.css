@@ -1568,7 +1568,9 @@ body.light .page-hero-title {
 .page-hero.with-smoke .page-hero-inner { position: relative; z-index: 2; }
 .page-hero.with-smoke .smoke-edge.b { bottom: 0; }
 /* plná barva stránky pod úvodním pásem, přes celou šířku (hranici nastavuje js/effects.js: --floor-top) */
-main.has-floor { border-image: linear-gradient(to bottom, transparent var(--floor-top, 0px), var(--bg) var(--floor-top, 0px)) fill 0 / 0 / 0 100vmax; }
+/* plná barva pod úvodním pásem přes celou šířku až dolů (dřív border-image – na krátkých stránkách se nevykreslil) */
+main.has-floor { position: relative; }
+main.has-floor::before { content: ""; position: absolute; z-index: -1; top: var(--floor-top, 0px); bottom: 0; left: calc(50% - 50vw); width: 100vw; background: var(--bg); pointer-events: none; }
 main.has-floor > .page-hero.with-smoke + * { margin-top: 24px; }
 /* nadpis písně v barvě písně (js/effects.js songPaint), dřív zlatý */
 .lyric-page .lyric-title {
