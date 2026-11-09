@@ -1764,3 +1764,24 @@ html.low-fx .ep-hud::after, html.low-fx .ep-holo .ep-floor { animation: none; }
   .news-timeline .tl-item::after, .news-timeline .tl-item:nth-child(even)::after { left: 2px; right: auto; }
   .news-timeline .tl-item:nth-child(odd) .tl-when { text-align: left; }
 }
+
+/* =====================================================================
+   PROFIL: Aktivita jako časová osa (můj i cizí profil) – přes celou šířku, svítící čára v barvě fotky,
+   ikona jako uzel na čáře, datum u čáry; na PC záznamy střídavě vlevo a vpravo, na telefonu čára vlevo
+   ===================================================================== */
+.pt-grid > .pt-activity { grid-column: 1 / -1; --glow: var(--accent); }
+.pt-activity .pt-feed { position: relative; gap: 0; padding: 6px 0 4px; }
+.pt-activity .pt-feed::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; translate: -1px 0;
+  background: linear-gradient(transparent, var(--accent) 8%, var(--accent-2) 85%, transparent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent); }
+.pt-activity .pt-feed li { position: relative; width: 50%; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding: 0 30px 18px 0; text-align: right; }
+.pt-activity .pt-feed li:nth-child(even) { margin-left: 50%; align-items: flex-start; padding: 0 0 18px 30px; text-align: left; }
+.pt-activity .pt-feed li > i { position: absolute; top: -2px; right: -15px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; font-size: .8rem;
+  background: var(--bg); color: var(--accent); border: 2px solid var(--accent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent); z-index: 1; }
+.pt-activity .pt-feed li:nth-child(even) > i { right: auto; left: -15px; }
+.pt-activity .pt-feed time { order: -1; font-family: var(--font-body); font-size: var(--fs-small); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.pt-activity .pt-feed span { font-size: var(--fs-text); line-height: 1.35; }
+@media (max-width: 700px) {
+  .pt-activity .pt-feed::before { left: 15px; }
+  .pt-activity .pt-feed li, .pt-activity .pt-feed li:nth-child(even) { width: auto; margin-left: 0; align-items: flex-start; text-align: left; padding: 0 0 16px 44px; }
+  .pt-activity .pt-feed li > i, .pt-activity .pt-feed li:nth-child(even) > i { left: 0; right: auto; }
+}
