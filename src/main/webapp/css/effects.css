@@ -1545,3 +1545,22 @@ body.light .home-page.ulice .photo-band { --band: url('/img/photos/field-wide.we
 .photo-band blockquote.band-lyric { font-family: var(--font-brush); font-size: clamp(1.9rem, 3.4vw, 2.6rem); line-height: 1.05; color: var(--text); text-shadow: 0 2px 14px rgba(0, 0, 0, .55); }
 body.light .band-lyric { text-shadow: 0 1px 10px rgba(255, 255, 255, .8); }
 .home-page.ulice .photo-band-sign a { color: var(--accent); text-decoration: none; }
+
+/* ---- Ulice na podstránkách (pageHero.tag) ---- */
+/* nadpis v barvě fotky (dřív zlatý), lesk zůstává */
+.page-hero-title {
+  background: linear-gradient(100deg, transparent 40%, rgba(255, 250, 230, 0.7) 50%, transparent 60%) -200% 0 / 200% 100% no-repeat,
+              linear-gradient(180deg, color-mix(in srgb, var(--accent) 30%, #fff) 0%, var(--accent) 45%, var(--accent-2) 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+body.light .page-hero-title {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 65%, #000) 0%, var(--accent) 45%, var(--accent-2) 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+/* pás s kouřem dole: fotka se ztrácí do plné barvy stránky */
+.page-hero.with-smoke { position: relative; padding-bottom: clamp(100px, 11vw, 150px); margin-bottom: 0; }
+.page-hero.with-smoke .page-hero-inner { position: relative; z-index: 2; }
+.page-hero.with-smoke .smoke-edge.b { bottom: 0; }
+/* plná barva stránky pod úvodním pásem, přes celou šířku (hranici nastavuje js/effects.js: --floor-top) */
+main.has-floor { border-image: linear-gradient(to bottom, transparent var(--floor-top, 0px), var(--bg) var(--floor-top, 0px)) fill 0 / 0 / 0 100vmax; }
+main.has-floor > .page-hero.with-smoke + * { margin-top: 24px; }

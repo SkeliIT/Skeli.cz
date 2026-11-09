@@ -326,7 +326,19 @@
     lightboxOpen(group, group.indexOf(a));
   });
 
-  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); }   // paint: Texty mají vlastní barvu
+  // Podstránky ve vzhledu „Ulice“: pod úvodním pásem s kouřem (pageHero.tag) leží plná barva stránky.
+  // Hranici (kde pás končí) dostane CSS jako --floor-top na <main> (css/effects.css, main.has-floor).
+  var floorObs = null;
+  function floor() {
+    var main = document.querySelector('main'), hero = main && main.querySelector('.page-hero.with-smoke');
+    if (floorObs) { floorObs.disconnect(); floorObs = null; }
+    if (!hero) { if (main) main.classList.remove('has-floor'); return; }
+    function set() { main.style.setProperty('--floor-top', Math.round(hero.getBoundingClientRect().bottom - main.getBoundingClientRect().top) + 'px'); }
+    main.classList.add('has-floor'); set();
+    if (window.ResizeObserver) { floorObs = new ResizeObserver(set); floorObs.observe(hero); floorObs.observe(main); }
+  }
+
+  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); floor(); }   // paint: Texty mají vlastní barvu
   init(document);
   // Hlídač plynulosti: po načtení 3 s počítá snímky. Když telefon nestíhá, přepne se na lehký režim hned a po druhém
   // takovém měření natrvalo. Testy (webdriver) mají softwarové kreslení, u nich neměří.
@@ -380,10 +392,14 @@
     // úvod: pod hlavičkou leží plná barva stránky (.home-below), ta by zadní vrstvu zakryla – dostane vlastní plátno
     // (lepí se k obrazovce, za kartami); kreslí se do něj totéž co do zadní vrstvy
     var local = null, gl2 = null;
+    // podstránky: totéž pod úvodním pásem s kouřem (main.has-floor) – plátno hned za pásem
     function findLocal() {
-      var box = document.querySelector('.home-below');
-      local = box && box.querySelector(':scope > .ff-local');
-      if (box && !local) { local = document.createElement('canvas'); local.className = 'ff-local'; local.setAttribute('aria-hidden', 'true'); box.insertBefore(local, box.firstChild); }
+      var box = document.querySelector('.home-below'), hero = !box && document.querySelector('main .page-hero.with-smoke');
+      local = box ? box.querySelector(':scope > .ff-local') : hero && hero.nextElementSibling && hero.nextElementSibling.classList.contains('ff-local') ? hero.nextElementSibling : null;
+      if ((box || hero) && !local) {
+        local = document.createElement('canvas'); local.className = 'ff-local'; local.setAttribute('aria-hidden', 'true');
+        if (box) box.insertBefore(local, box.firstChild); else hero.after(local);
+      }
       if (local) { local.width = W; local.height = H; gl2 = local.getContext('2d'); } else gl2 = null;
     }
     size(); colors(); findLocal();
