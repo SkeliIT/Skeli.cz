@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="includes/header.jsp" %>
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
-<%-- tělo úvodního pásu je jen pro EL (scriptless), proto se odkaz na feed připraví tady --%>
 <main class="news-page">
   <sk:pageHero kicker='<%= t.getProperty("hero.kicker.news") %>'
                title='<%= t.getProperty("menu.news") %>' lead='<%= t.getProperty("news.lead") %>'>
