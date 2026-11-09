@@ -1617,3 +1617,9 @@ body.light .pt-hero .acct-name { background-image: linear-gradient(180deg, color
 /* moto v barvě fotky (dřív zlaté) */
 .acct-motto { color: var(--accent); }
 body.light .acct-motto { color: var(--accent); }
+/* kouř na podstránkách přes celou šířku: stránku do stran ořízne až html (Hudba měla ořez na <main>, ten useknul kouř) */
+html { overflow-x: clip; }
+.music-page.has-floor { overflow-x: visible; }
+/* na podstránkách nižší kouř a víc místa pod textem, ať neleze přes nadpis */
+.page-hero.with-smoke { padding-bottom: clamp(110px, 10vw, 140px); }
+.page-hero.with-smoke .smoke-edge { height: 210px; }
