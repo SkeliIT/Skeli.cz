@@ -4,7 +4,7 @@
 <main class="about-page">
   <section class="about-header">
     <%-- the heading is the artist's name, the same in every language; the tab title stays about.title --%>
-    <h2>Skeli</h2>
+    <h2 class="about-name"><span class="uh-crown" aria-hidden="true"><i class="fa-solid fa-crown"></i></span><span class="uh-sign">Skeli</span></h2>
     <div class="about-intro">
       <%-- the portrait heads the story and fades out into the text below it --%>
       <%-- dark theme: the photo on its black background; light theme: the same photo with the

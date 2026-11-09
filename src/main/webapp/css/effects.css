@@ -1594,3 +1594,8 @@ body.light .hero-title .logo-mark,
 body.light .masthead-brand .squad-mark {
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 70%, #fff) 0%, var(--accent) 45%, color-mix(in srgb, var(--accent) 70%, #000) 100%);
 }
+/* O mně: jméno sprejem s korunkou jako na úvodu (barva fotky); h2 bez zlaté čárky pod sebou */
+.about-header h2.about-name { display: flex; flex-direction: column; align-items: center; gap: 0; line-height: .9; }
+.about-header h2.about-name::after { display: none; }
+.about-name .uh-sign { font-size: clamp(3.6rem, 10vw, 6.6rem); transform: rotate(-3deg); transform-origin: center; }
+.about-squad-title { color: var(--accent); }
