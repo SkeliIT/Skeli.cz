@@ -195,7 +195,9 @@
                 <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubSquad"><span><%= t.getProperty("menu.squad") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
                 <span class="nav-group-title"><%= t.getProperty("menu.squad") %></span>
                 <div class="nav-sub" id="navSubSquad">
+                  <%-- Zeď je zatím schovaná: potřebuje lepší název a promyslet, co přesně bude. Překlady menu.wall a menu.d.wall zůstávají.
                   <span class="nav-soon"><i class="fa-solid fa-table-cells nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.wall") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.wall") %></small></span>
+                  --%>
                   <%-- Rookie Chart (hitparáda) je zatím schovaná: vrátí se, až bude na webu víc lidí. Překlady menu.chart a menu.d.chart zůstávají.
                   <span class="nav-soon"><i class="fa-solid fa-trophy nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.chart") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.chart") %></small></span>
                   --%>
