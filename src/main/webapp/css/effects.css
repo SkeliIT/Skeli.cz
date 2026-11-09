@@ -1429,7 +1429,7 @@ html.low-fx .main-nav .nav-sub a.nav-karaoke::after { animation: none !important
 }
 /* tmavý závoj zleva, aby text byl čitelný na každé fotce */
 .home-page.ulice .hero::before {
-  content: ""; position: absolute; top: calc(-1 * var(--header-h) - var(--masthead-h)); bottom: 0; left: calc(50% - 50vw); width: 100vw; z-index: -1; pointer-events: none;
+  content: ""; position: absolute; top: -400px; bottom: 0; left: calc(50% - 50vw); width: 100vw; z-index: -1; pointer-events: none;   /* až k hornímu okraji stránky (lišta a nápis nad hlavičkou) */
   background: linear-gradient(90deg, rgba(9, 9, 11, .88) 0%, rgba(9, 9, 11, .5) 42%, rgba(9, 9, 11, 0) 70%);
 }
 body.light .home-page.ulice .hero::before { background: linear-gradient(90deg, rgba(244, 242, 238, .92) 0%, rgba(244, 242, 238, .55) 45%, rgba(244, 242, 238, 0) 72%); }
