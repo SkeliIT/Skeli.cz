@@ -497,6 +497,14 @@
   }
   fireflies();
 
+  // Diskografie: na dotykové obrazovce se karta otočí ťuknutím (odkazy vzadu fungují normálně), další ťuknutí ji vrátí
+  document.addEventListener('click', function (e) {
+    var card = e.target.closest('.flip-card');
+    if (!card || e.target.closest('a, summary, details') || window.matchMedia('(hover: hover)').matches) return;
+    document.querySelectorAll('.flip-card.open').forEach(function (c) { if (c !== card) c.classList.remove('open'); });
+    card.classList.toggle('open');
+  });
+
   slides();   // once: the layer is not part of the page that PJAX swaps
   document.addEventListener('pjax:done', function () { init(document.querySelector('main') || document); });
 })();

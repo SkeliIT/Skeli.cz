@@ -58,6 +58,17 @@ public class SongDao {
      * The Diskografie: every song (newest first; a song with several clips is dated and sorted by
      * its newest clip), then the clips that aren't linked to a song.
      */
+    /** Jeden řádek z textu ke každé písni (z vybraných citátů home_quotes) – zadní strana karty v Diskografii. */
+    public java.util.Map<Integer, String> quoteLines() throws SQLException {
+        java.util.Map<Integer, String> out = new java.util.HashMap<>();
+        try (Connection c = Db.get();
+             PreparedStatement ps = c.prepareStatement("SELECT song_id, line1 FROM home_quotes ORDER BY id");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) out.putIfAbsent(rs.getInt(1), rs.getString(2));
+        }
+        return out;
+    }
+
     public List<DiscoItem> discography(String lang) throws SQLException {
         String sql = "SELECT s.name, CASE WHEN (SELECT COUNT(*) FROM videos v WHERE v.song_id = s.id) > 1 "
                 + "         THEN (SELECT YEAR(MAX(v.published_at)) FROM videos v WHERE v.song_id = s.id) ELSE s.year END AS year, "
