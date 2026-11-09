@@ -1642,3 +1642,61 @@ body.light .home-page.ulice .photo-band-img { background-position: 50% 4%; }
 /* horní okraj fotky = horní okraj pásu (vrstva fotky je kvůli posunu při scrollu o 60 px vyšší) – hlava i maska celá */
 .home-page.ulice .photo-band-img { background-position: 60% 60px; }
 body.light .home-page.ulice .photo-band-img { background-position: 50% 110px; }
+
+/* =====================================================================
+   HUDBA: kolotoč videí „Hologram“ (EllipticPlayerServlet): HUD rám, skenovací linky, glitch při přepnutí,
+   skleněné miniatury ve 3D se zrcadlením na svítící mřížce, natáčení za myší
+   ===================================================================== */
+.ep-frame-wrap { clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px); border-radius: 4px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), 0 30px 80px -30px color-mix(in srgb, var(--accent) 50%, transparent); }
+.ep-hud { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.ep-hud::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px); }
+.ep-hud::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--accent) 18%, transparent) 50%, transparent) 0 -100% / 100% 40% no-repeat; animation: ep-scan 5s linear infinite; }
+@keyframes ep-scan { to { background-position: 0 250%; } }
+.ep-hud i { position: absolute; width: 30px; height: 30px; border: 2px solid var(--accent); filter: drop-shadow(0 0 6px var(--accent)); }
+.ep-hud i:nth-child(1) { left: 8px; top: 8px; border-right: 0; border-bottom: 0; } .ep-hud i:nth-child(2) { right: 8px; top: 8px; border-left: 0; border-bottom: 0; }
+.ep-hud i:nth-child(3) { left: 8px; bottom: 8px; border-right: 0; border-top: 0; } .ep-hud i:nth-child(4) { right: 8px; bottom: 8px; border-left: 0; border-top: 0; }
+.ep-tc { position: absolute; top: 16px; left: 46px; max-width: 45%; font-size: var(--fs-small); letter-spacing: .14em; color: var(--accent); text-shadow: 0 0 8px var(--accent), 0 1px 3px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ep-tc-r { left: auto; right: 46px; text-align: right; }
+.ep-tc-r::before { content: "● "; color: #ff3b30; animation: ep-blink 1.2s infinite; }
+@keyframes ep-blink { 50% { opacity: .2; } }
+.ep-frame-wrap.glitch iframe, .ep-frame-wrap.glitch .ep-poster { animation: ep-glitch .45s steps(6) 1; }
+@keyframes ep-glitch { 0% { clip-path: inset(10% 0 60% 0); transform: translateX(-12px); filter: hue-rotate(60deg) saturate(3); } 30% { clip-path: inset(50% 0 20% 0); transform: translateX(10px); }
+  60% { clip-path: inset(30% 0 40% 0); transform: translateX(-6px); filter: hue-rotate(-40deg); } 100% { clip-path: inset(0); transform: none; filter: none; } }
+/* kolotoč */
+.ep-carousel.ep-holo { max-width: 1000px; padding: 10px 70px 30px; background: none; border: 0; perspective: 900px; }
+.ep-holo .ep-viewport { height: 230px; padding-top: 0; overflow: visible; transform-style: preserve-3d; transition: transform .25s ease-out; transform: rotateX(var(--cx, 8deg)) rotateY(var(--cy, 0deg)); touch-action: pan-y; }
+.ep-holo .ep-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; transform: perspective(600px) rotateX(70deg); transform-origin: bottom; pointer-events: none;
+  background: linear-gradient(color-mix(in srgb, var(--accent) 30%, transparent) 1px, transparent 1px) 0 0 / 40px 40px, linear-gradient(90deg, color-mix(in srgb, var(--accent) 30%, transparent) 1px, transparent 1px) 0 0 / 40px 40px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 15%, transparent 70%); mask-image: radial-gradient(ellipse at center, #000 15%, transparent 70%); animation: ep-grid 4s linear infinite; }
+@keyframes ep-grid { to { background-position: 0 40px, 0 0; } }
+.ep-holo .ep-item { left: 50%; top: 18px; width: 240px; margin-left: -120px; transform: none; opacity: 1; border: 0; border-radius: 4px; overflow: visible; box-shadow: none; background: none; cursor: pointer;
+  transition: transform .6s cubic-bezier(.2, .8, .2, 1), opacity .6s, filter .6s; }
+.ep-holo .ep-item img { aspect-ratio: 16 / 9; height: auto; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  -webkit-box-reflect: below 6px linear-gradient(transparent 55%, rgba(0, 0, 0, .35)); }
+.ep-holo .ep-item:not(.is-active) img { filter: saturate(.4); opacity: .75; }
+.ep-holo .ep-item.is-active { filter: drop-shadow(0 0 16px var(--accent)) !important; }
+.ep-holo .ep-item.is-active img { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ep-holo .ep-title { position: static; margin-top: 30px; padding: 0; background: none; text-align: center; font-size: var(--fs-small); letter-spacing: .08em; color: var(--accent); opacity: 0; transition: opacity .4s; }
+.ep-holo .ep-item.is-active .ep-title { opacity: 1; }
+.ep-holo .ep-item.is-hidden, .ep-holo .ep-item.is-prev2, .ep-holo .ep-item.is-next2 { display: block; -webkit-mask-image: none; mask-image: none; }
+.ep-holo .ep-arrow { width: 44px; height: 44px; background: color-mix(in srgb, var(--accent) 8%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 30%, var(--panel-border)); }
+.ep-holo .ep-arrow:hover { background: var(--accent); color: var(--accent-ink); }
+.ep-holo #ep-prev { left: 10px; } .ep-holo #ep-next { right: 10px; }
+@media (max-width: 600px) {
+  .ep-carousel.ep-holo { padding: 6px 0 24px; }
+  .ep-holo .ep-viewport { height: 170px; }
+  .ep-holo .ep-item, .ep-holo .ep-item.is-active { width: 170px !important; margin-left: -85px; }
+  .ep-holo .ep-arrow { top: auto; bottom: -20px; transform: none; }
+  .ep-holo #ep-prev { left: calc(50% - 60px); } .ep-holo #ep-next { right: calc(50% - 60px); }
+  .ep-tc { left: 40px; font-size: .62rem; } .ep-tc-r { display: none; }
+}
+/* když na Hudbě hraje/je vybrané video, fotky pozadí se ztlumí (barvu stránky bere z videa js/effects.js) */
+body.clip-on .bg-slides, body.clip-on::before { filter: brightness(.45) saturate(.6); transition: filter 1.2s ease; }
+html.low-fx .ep-hud::after, html.low-fx .ep-holo .ep-floor { animation: none; }
+@media (prefers-reduced-motion: reduce) { .ep-hud::after, .ep-holo .ep-floor, .ep-frame-wrap.glitch iframe { animation: none; } }
+/* HUD nápisy nad videem */
+.ep-hud-bar { position: relative; z-index: 2; display: flex; justify-content: space-between; gap: 16px; max-width: 880px; margin: 0 auto 8px; padding: 0 6px; }
+.ep-hud-bar .ep-tc { position: static; max-width: 60%; }
+.ep-carousel.ep-holo { margin-top: -30px; }
+@media (max-width: 600px) { .ep-hud-bar .ep-tc-r { display: block; font-size: .62rem; } .ep-carousel.ep-holo { margin-top: 0; } }

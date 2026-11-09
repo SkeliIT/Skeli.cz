@@ -57,12 +57,17 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("<div class='ep-wrap'>");
                 out.println("  <section class='clip-stage ep-stage has-fx' data-clip-fx>");
                 out.println("    <canvas class='clip-fx-gl' aria-hidden='true'></canvas><canvas class='clip-fx-2d' aria-hidden='true'></canvas>");
+                // HUD nápisy nad videem (ve videu by se pletly s titulkem, který tam dává YouTube)
+                out.println("    <div class='ep-hud-bar' aria-hidden='true'><span class='ep-tc' id='ep-track'></span><span class='ep-tc ep-tc-r' id='ep-name'></span></div>");
                 out.println("    <div class='ep-frame-wrap' data-clip-player>");
                 out.println("      <div id='ep-poster' class='ep-poster' hidden></div>");
                 out.println("      <iframe id='ep-main' allow='autoplay; encrypted-media; picture-in-picture' allowfullscreen></iframe>");
+                // vzhled „Hologram“: HUD rám (rohy, číslo skladby, název) a skenovací linky přes obraz – jen ozdoba, kliká se skrz
+                out.println("      <div class='ep-hud' aria-hidden='true'><i></i><i></i><i></i><i></i></div>");
                 out.println("    </div>");
                 out.println("  </section>");
-                out.println("  <div class='ep-carousel'>");
+                out.println("  <div class='ep-carousel ep-holo' id='ep-carousel'>");
+                out.println("    <div class='ep-floor' aria-hidden='true'></div>");
                 out.println("    <button class='ep-arrow' id='ep-prev' aria-label='" + WebUtils.escapeHtml(tr.getProperty("player.prev")) + "'>‹</button>");
                 out.println("    <div class='ep-viewport' id='ep-viewport'></div>");
                 out.println("    <button class='ep-arrow' id='ep-next' aria-label='" + WebUtils.escapeHtml(tr.getProperty("player.next")) + "'>›</button>");
@@ -84,7 +89,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("const frame = document.getElementById('ep-main');");
                 out.println("const poster = document.getElementById('ep-poster');");
                 out.println("const viewport = document.getElementById('ep-viewport');");
-                out.println("let currentIndex = 0;");
+                out.println("let currentIndex = 0, glitchOn = false;");
 
                 out.println("function build(){");
                 out.println("  videos.forEach((video, index) => {");
@@ -115,6 +120,17 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("    else el.classList.add('is-hidden');");
                 out.println("  });");
                 out.println("}");
+                // Hologram: miniatury ve 3D (prostřední rovně, boční natočené a ztmavlé), víc než 3 vedle = schované
+                out.println("function place(){");
+                out.println("  const n = videos.length, narrow = viewport.clientWidth < 560, sp = narrow ? 118 : 190;");
+                out.println("  viewport.querySelectorAll('.ep-item').forEach((el, i) => {");
+                out.println("    let d = i - currentIndex; if (d > n / 2) d -= n; if (d < -n / 2) d += n;");
+                out.println("    const a = Math.abs(d), sg = Math.sign(d);");
+                out.println("    el.style.transform = 'translateX(' + (d * sp * (a ? .85 : 0) + sg * (a ? 60 : 0)) + 'px) translateZ(' + (-a * 140) + 'px) rotateY(' + (-sg * Math.min(a, 1) * 55) + 'deg)';");
+                out.println("    el.style.opacity = a > 3 ? 0 : 1; el.style.zIndex = 10 - a; el.style.pointerEvents = a > 3 ? 'none' : '';");
+                out.println("    el.style.filter = a ? 'brightness(' + (1 - a * .22) + ')' + (a > 1 ? ' blur(1px)' : '') : 'none';");
+                out.println("  });");
+                out.println("}");
 
                 out.println("function play(id, autoplay){");
                 out.println("  frame.parentElement.dataset.yt = id;");
@@ -139,7 +155,14 @@ public class EllipticPlayerServlet extends HttpServlet {
 
                 out.println("function goTo(index, autoplay){");
                 out.println("  currentIndex = (index + videos.length) % videos.length;");
-                out.println("  updateUI();");
+                out.println("  updateUI(); place();");
+                out.println("  const pad = n => String(n).padStart(2, '0');");
+                out.println("  document.getElementById('ep-track').textContent = 'TRACK ' + pad(currentIndex + 1) + ' / ' + pad(videos.length);");
+                out.println("  document.getElementById('ep-name').textContent = videos[currentIndex].title;");
+                // krátký glitch při přepnutí (ne při načtení stránky); barvu stránky podle videa nastaví js/effects.js
+                out.println("  const fw = frame.closest('.ep-frame-wrap'); if (glitchOn) { fw.classList.remove('glitch'); void fw.offsetWidth; fw.classList.add('glitch'); }");
+                out.println("  glitchOn = true;");
+                out.println("  window.dispatchEvent(new CustomEvent('skeli:clip', { detail: { yt: videos[currentIndex].id, thumb: videos[currentIndex].preview || '/yt-thumb/' + videos[currentIndex].id + '/mqdefault.jpg' } }));");
                 out.println("  play(videos[currentIndex].id, autoplay);");
                 // the comments under the player (includes/comments.jspf in music.jsp) follow the clip
                 out.println("  const cm = document.querySelector('[data-comments][data-kind=video]'); if (cm) cm.dataset.target = videos[currentIndex].id;");
@@ -158,6 +181,14 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("  else if (e.key === 'ArrowRight') goTo(currentIndex + 1, true);");
                 out.println("});");
 
+                // kolotoč se natáčí za myší; tah prstem / kolečko myši přepíná
+                out.println("const car = document.getElementById('ep-carousel');");
+                out.println("if (matchMedia('(pointer: fine)').matches) car.addEventListener('pointermove', e => { const r = car.getBoundingClientRect();");
+                out.println("  car.style.setProperty('--cy', (((e.clientX - r.left) / r.width - .5) * 14).toFixed(1) + 'deg'); car.style.setProperty('--cx', (8 - ((e.clientY - r.top) / r.height - .5) * 8).toFixed(1) + 'deg'); });");
+                out.println("let tx = null; viewport.addEventListener('pointerdown', e => { tx = e.clientX; });");
+                out.println("viewport.addEventListener('pointerup', e => { if (tx !== null && Math.abs(e.clientX - tx) > 40) goTo(currentIndex + (e.clientX < tx ? 1 : -1), true); tx = null; });");
+                out.println("let wheelAt = 0; viewport.addEventListener('wheel', e => { if (Math.abs(e.deltaX) < 8 || Math.abs(e.deltaX) < Math.abs(e.deltaY)) return; e.preventDefault(); const t = Date.now(); if (t - wheelAt < 350) return; wheelAt = t; goTo(currentIndex + (e.deltaX > 0 ? 1 : -1), true); }, { passive: false });");
+                out.println("window.addEventListener('resize', place);");
                 out.println("if (videos.length > 0) {");
                 out.println("  build();");
                 // ?clip=<YouTube id> (a link from the admin to a comment) starts on that clip

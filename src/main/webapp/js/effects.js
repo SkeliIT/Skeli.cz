@@ -350,9 +350,14 @@
     function f(n) { var k = (n + h / 30) % 12, a = s * Math.min(l, 1 - l); return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); }
     return '#' + [f(0), f(8), f(4)].map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('');
   }
-  function songPaint() {
+  function songPaint(url) {
     var amb = document.querySelector('main.lyric-page .lyric-ambient');
     var m = amb && /url\(['"]?([^'")]+)/.exec(amb.getAttribute('style') || '');
+    // Hudba: přehrávač už má vybrané video dřív, než se tenhle skript načte – vezme se z něj
+    var cp = !url && document.querySelector('[data-clip-player][data-yt]');
+    if (cp) url = '/yt-thumb/' + cp.dataset.yt + '/mqdefault.jpg';
+    document.body.classList.toggle('clip-on', !!url);
+    if (url) m = [0, url];
     if (!m) { if (songColor) { songColor = null; paint(); } return; }
     var img = new Image();
     img.onload = function () {
@@ -370,11 +375,17 @@
         if (M !== N) h = M === R ? 60 * (((G - B) / (M - N)) % 6) : M === G ? 60 * ((B - R) / (M - N) + 2) : 60 * ((R - G) / (M - N) + 4);
         if (h < 0) h += 360;
         songColor = [[hsl(h, 0.9, 0.6), hsl((h + 28) % 360, 0.95, 0.66)], [hsl(h, 0.75, 0.36), hsl((h + 28) % 360, 0.8, 0.45)]];
-        paint(null, true);
+        paint(null, !url);   // video na Hudbě: barva se přelije, stránka písně: hned
       } catch (e) { /* obrázek z jiného webu nejde přečíst – zůstává barva fotky */ }
     };
     img.src = m[1];
   }
+  // Hudba: vybrané video (EllipticPlayerServlet) určí barvu stránky a fotky v pozadí se ztlumí
+  window.addEventListener('skeli:clip', function (e) {
+    if (!e.detail || !e.detail.thumb) return;
+    document.body.classList.add('clip-on');
+    songPaint(e.detail.thumb);
+  });
 
   function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); floor(); songPaint(); }   // paint: Texty mají vlastní barvu
   init(document);
