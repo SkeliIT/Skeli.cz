@@ -126,9 +126,18 @@ public class KaraokeCinemaServlet extends HttpServlet {
                 });
                 ObjectNode o = stage.addObject();
                 o.put("uuid", s.uuid).put("title", s.title).put("yt", s.youtubeId);
+                // ukázka z klipu (tools/karaoke-nahled.js): promítá se bez zvuku a titulky jedou podle ní
+                JsonNode cut = file(getServletContext(), "/karaoke/nahled/" + s.youtubeId + ".json");
+                double to = Double.MAX_VALUE;
+                if (cut != null) {
+                    o.put("clip", "/karaoke/nahled/" + s.youtubeId + ".mp4").put("poster", "/karaoke/nahled/" + s.youtubeId + ".webp");
+                    o.put("from", cut.path("from").asDouble());
+                    to = cut.path("to").asDouble();
+                }
                 ArrayNode ls = o.putArray("lines");
                 JsonNode times = timing.path("times"), words = timing.path("words");
                 for (int i = 0; i < Math.min(6, s.lines.length); i++) {
+                    if (i > 0 && times.path(i).path(1).asDouble() > to) break;   // jen řádky, které se v ukázce zpívají
                     ObjectNode l = ls.addObject();
                     l.put("t", s.lines[i]).put("a", times.path(i).path(0).asDouble()).put("b", times.path(i).path(1).asDouble());
                     if (words.path(i).isArray()) l.set("w", words.get(i));

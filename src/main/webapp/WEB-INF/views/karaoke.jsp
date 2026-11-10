@@ -24,7 +24,8 @@
     </div>
     <% if (kFirst != null) { %>
     <section class="kp-stage" aria-live="off">
-      <div class="kp-glow" id="kpGlow" aria-hidden="true"><img src="<%= kFirst.getThumb() %>" alt=""></div>
+      <%-- promítaná ukázka z klipu bez zvuku: přes celou šířku, okraje se rozplývají do tmy (src dá js/karaoke-page.js) --%>
+      <div class="kp-film" id="kpFilm" aria-hidden="true"><video muted playsinline loop preload="metadata"></video></div>
       <p class="kp-now"><span><%= WebUtils.escapeHtml(t.getProperty("karaoke.page.now")) %></span><b id="kpNow"><%= WebUtils.escapeHtml(kFirst.title) %></b></p>
       <div class="kp-lyr" id="kpLyr" aria-hidden="true"><div class="kp-slot"></div><div class="kp-slot"></div></div>
       <div class="kp-cta">
