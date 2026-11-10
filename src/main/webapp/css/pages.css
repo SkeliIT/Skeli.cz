@@ -2752,15 +2752,15 @@ body.light .kp-pass { background: color-mix(in srgb, var(--accent) 10%, rgba(255
 
 /* pódium: bez rámu, za textem jen rozmazaná záře z náhledu klipu */
 .kp-stage { position: relative; max-width: 980px; margin: 26px auto 0; padding: 0 16px 120px; text-align: center; }
-/* promítaná ukázka z klipu: přes celou šířku stránky, bez okrajů – do stran i nahoru a dolů se rozplývá do ztracena */
-.kp-film { position: relative; width: 100vw; margin: 0 0 0 calc(50% - 50vw); aspect-ratio: 16 / 11; max-height: 62vh; overflow: hidden; pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent), linear-gradient(180deg, transparent, #000 14%, #000 70%, transparent);
-  -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent), linear-gradient(180deg, transparent, #000 14%, #000 70%, transparent);
+/* promítaná ukázka z klipu: jen malý detail k textu (menší než okno přehrávače YouTube – zvětšená by byla rozmazaná),
+   bez okrajů, do všech stran se rozplývá do ztracena */
+.kp-film { position: relative; width: min(520px, 88vw); margin: 0 auto; aspect-ratio: 16 / 9; overflow: hidden; pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent), linear-gradient(180deg, transparent, #000 16%, #000 80%, transparent);
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent), linear-gradient(180deg, transparent, #000 16%, #000 80%, transparent);
   mask-composite: intersect; }
-@media (min-width: 700px) { .kp-film { aspect-ratio: 21 / 9; max-height: 48vh; } }   /* titulky pod ní musí být na PC vidět hned */
 .kp-film video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .kp-film.none { display: none; }
-.kp-film + .kp-now { position: relative; margin-top: -3.5em; }
+.kp-film + .kp-now { position: relative; margin-top: -1em; }
 .kp-now { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; margin: 0; font-size: var(--fs-small); letter-spacing: .18em; color: var(--text-dim); text-transform: uppercase; }
 .kp-now b { color: var(--text); font-weight: 400; letter-spacing: .06em; text-transform: none; }
 /* dva řádky nad sebou se střídají (jako opravdové karaoke): zpívaný svítí, v druhém už čeká další */
