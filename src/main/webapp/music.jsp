@@ -37,6 +37,9 @@
       } catch (Exception e) {
         application.log("Diskografie", e);
       }
+      // ostré náhledy na výšku z klipů (tools/disco-nahledy.py, img/disco/<id>.webp); bez nich malý náhled z YouTube
+      java.util.Set<String> discoImgs = application.getResourcePaths("/img/disco/");
+      if (discoImgs == null) discoImgs = java.util.Set.of();
       if (disco != null) for (DiscoItem d : disco) {
         String nameHtml = WebUtils.escapeHtml(d.name);
         String yt = d.youtubeId;
@@ -57,13 +60,14 @@
           <span class="song-thumb">
           <% if (versions != null && versions.size() > 1) { %>
             <span class="thumb-split">
-              <img class="split-bottom" src="/yt-thumb/<%= WebUtils.escapeHtml(versions.get(versions.size() - 1).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
-              <img class="split-top" src="/yt-thumb/<%= WebUtils.escapeHtml(versions.get(0).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+              <% String vb = versions.get(versions.size() - 1).youtubeId, vt = versions.get(0).youtubeId; %>
+              <img class="split-bottom" src="<%= discoImgs.contains("/img/disco/" + vb + ".webp") ? "/img/disco/" + WebUtils.escapeHtml(vb) + ".webp" : "/yt-thumb/" + WebUtils.escapeHtml(vb) + "/mqdefault.jpg" %>" alt="" loading="lazy">
+              <img class="split-top" src="<%= discoImgs.contains("/img/disco/" + vt + ".webp") ? "/img/disco/" + WebUtils.escapeHtml(vt) + ".webp" : "/yt-thumb/" + WebUtils.escapeHtml(vt) + "/mqdefault.jpg" %>" alt="" loading="lazy">
               <span class="split-tag split-tag-top"><%= WebUtils.escapeHtml(versions.get(0).label(t)) %></span>
               <span class="split-tag split-tag-bottom"><%= WebUtils.escapeHtml(versions.get(versions.size() - 1).label(t)) %></span>
             </span>
           <% } else if (yt != null) { %>
-            <img src="/yt-thumb/<%= ytHtml %>/mqdefault.jpg" alt="" loading="lazy">
+            <img src="<%= discoImgs.contains("/img/disco/" + yt + ".webp") ? "/img/disco/" + ytHtml + ".webp" : "/yt-thumb/" + ytHtml + "/mqdefault.jpg" %>" alt="" loading="lazy">
           <% } else if (preview != null) { %>
             <img src="<%= WebUtils.escapeHtml(preview) %>" alt="" loading="lazy">
           <% } else { %>
