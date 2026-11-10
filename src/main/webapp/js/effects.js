@@ -608,57 +608,101 @@
   }
   fireflies();
 
-  // Kyselinové bublinky (nápad uživatele): když je web v kyselinově zelené (fotka s mikrofonem, tmavý režim),
-  // zespodu pomalu stoupá pár bublin a dají se praskat (klik / ťuknutí) – rozstříknou se na kapičky.
-  // ?bubliny=1 v adrese je pustí pořád (na zkoušku). Ne v lehkém režimu, při omezení pohybu, v adminu a pod hrou.
+  // Kyselinové bublinky (nápad uživatele): když je web v kyselinově zelené (fotka s mikrofonem, tmavý režim), vznikají
+  // malinkaté bublinky v žhavém lemu kouře (předěl mezi fotkou a stránkou, .smoke-edge) a stoupají. Pohyb myši nebo
+  // prstu je rozfouká jako létající jiskry, klik nebo ťuknutí na ně praskne (kapičky). Po přepnutí barvy jinam každá
+  // sama praskne. ?bubliny=1 v adrese je pustí pořád. Kreslí se na jedno plátno (.acid-layer), jen když nějaké jsou.
   function bubbles() {
     if (reduced || document.body.classList.contains('is-admin')) return;
-    var always = /[?&]bubliny=1/.test(location.search), box = document.createElement('div'), count = 0;
-    box.className = 'acid-bubbles'; box.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(box);
+    var always = /[?&]bubliny=1/.test(location.search);
+    var cv = document.createElement('canvas'), g = cv.getContext('2d'), B = [], drops = [], raf = 0, last = 0, spawnAcc = 0;
+    cv.className = 'acid-layer'; cv.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(cv);
+    var px = -1e4, py = -1e4, pvx = 0, pvy = 0, pt = 0;
     function green() { return always || (painted === 'mic' && !document.body.classList.contains('light')); }
+    function size() { var d = Math.min(2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; g.setTransform(d, 0, 0, d, 0, 0); }
+    size(); addEventListener('resize', size);
+    // lem záře v kouři: v .smoke-edge.b leží ve 26 % výšky odspodu, v převráceném .t ve 26 % shora (js/smoke.js: 0,42 × výška ÷ 1,6)
+    function rims() {
+      var out = [];
+      document.querySelectorAll('.smoke-edge').forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (!r.height || r.bottom < 0 || r.top > innerHeight || getComputedStyle(el).display === 'none') return;
+        var y = el.classList.contains('t') ? r.top + r.height * 0.2625 : r.bottom - r.height * 0.2625;
+        if (y > -10 && y < innerHeight + 10) out.push({ y: y, l: Math.max(0, r.left), w: Math.min(innerWidth, r.right) - Math.max(0, r.left) });
+      });
+      return out;
+    }
     function spawn() {
-      var b = document.createElement('div'), s = 26 + Math.random() * 38;
-      b.className = 'acid-b';
-      b.style.setProperty('--s', s.toFixed(0) + 'px');
-      b.style.setProperty('--x', (4 + Math.random() * 92).toFixed(1) + 'vw');
-      b.style.setProperty('--dur', (11 + Math.random() * 8).toFixed(1) + 's');
-      b.style.setProperty('--sway', (2.4 + Math.random() * 2).toFixed(1) + 's');
-      b.innerHTML = '<i></i>';
-      b.addEventListener('animationend', function (e) { if (e.target === b) { b.remove(); count--; } });
-      b.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); pop(b); });
-      box.appendChild(b); count++;
+      var rs = rims(); if (!rs.length) return;
+      var rm = rs[Math.floor(Math.random() * rs.length)];
+      B.push({ x: rm.l + Math.random() * rm.w, y: rm.y + (Math.random() * 12 - 8) + scrollY, r: 1.4 + Math.random() * 3.2,
+               vx: 0, vy: 0, rise: 14 + Math.random() * 22, ph: Math.random() * 6.3, age: 0, life: 5 + Math.random() * 6, die: 0 });
     }
     function pop(b) {
-        if (b.classList.contains('pop') || !b.isConnected) return;
-        // prásk: bublina se nafoukne a zmizí, kolem se rozletí kapičky
-        var r = b.getBoundingClientRect(), splash = document.createElement('div');
-        splash.className = 'acid-splash';
-        splash.style.left = (r.left + r.width / 2) + 'px'; splash.style.top = (r.top + r.height / 2) + 'px';
-        splash.style.setProperty('--s', r.width + 'px');
-        for (var k = 0; k < 9; k++) {
-          var d = document.createElement('i'), a = k / 9 * 6.283 + Math.random() * 0.5, dist = r.width * (0.7 + Math.random() * 0.6);
-          d.style.setProperty('--dx', (Math.cos(a) * dist).toFixed(0) + 'px'); d.style.setProperty('--dy', (Math.sin(a) * dist).toFixed(0) + 'px');
-          splash.appendChild(d);
-        }
-        box.appendChild(splash);
-        setTimeout(function () { splash.remove(); }, 650);
-        b.classList.add('pop');
-        setTimeout(function () { if (b.isConnected) { b.remove(); count--; } }, 260);
+      if (b.gone) return; b.gone = true;
+      for (var k = 0; k < 6; k++) { var a = k / 6 * 6.283 + Math.random(); drops.push({ x: b.x, y: b.y, vx: Math.cos(a) * (30 + b.r * 18), vy: Math.sin(a) * (30 + b.r * 18) - 20, t: 0 }); }
     }
-    (function tick() {
-      setTimeout(tick, 1400 + Math.random() * 1800);
-      if (document.hidden || low() || document.documentElement.classList.contains('kpong-open')) return;
-      if (!green()) {
-        // barva se přepnula pryč ze zelené: zbylé bublinky ještě kousek letí a pak každá sama praskne
-        box.querySelectorAll('.acid-b:not(.leaving)').forEach(function (b) {
-          b.classList.add('leaving');
-          setTimeout(function () { pop(b); }, 500 + Math.random() * 2500);
-        });
-        return;
-      }
-      if (count < (innerWidth < 700 ? 5 : 8)) spawn();
-    })();
+    // pohyb myši / prstu = vítr (jako u jisker), rychlost se počítá z posunu mezi událostmi
+    function move(x, y) {
+      var now = performance.now(), dt = Math.max(8, now - pt) / 1000;
+      if (pt) { pvx = (x - px) / dt; pvy = (y - py) / dt; }
+      px = x; py = y; pt = now; start();
+    }
+    addEventListener('pointermove', function (e) { move(e.clientX, e.clientY); }, { passive: true });
+    addEventListener('touchmove', function (e) { var t = e.touches[0]; if (t) move(t.clientX, t.clientY); }, { passive: true });
+    // ťuknutí / klik: praskne nejbližší bublinka u prstu; když se trefí, klik nepropadne na odkaz pod ní
+    var swallow = false;
+    addEventListener('pointerdown', function (e) {
+      var x = e.clientX, y = e.clientY + scrollY, best = null, bd = 1e9;
+      B.forEach(function (b) { var d = Math.hypot(b.x - x, b.y - y); if (!b.gone && d < b.r + (e.pointerType === 'touch' ? 18 : 10) && d < bd) { bd = d; best = b; } });
+      if (best) { pop(best); swallow = true; setTimeout(function () { swallow = false; }, 600); start(); }
+    }, true);
+    addEventListener('click', function (e) { if (swallow) { swallow = false; e.preventDefault(); e.stopPropagation(); } }, true);
+    function start() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+    function frame(now) {
+      raf = 0;
+      var dt = Math.min(0.05, (now - last) / 1000); last = now;
+      var on = green() && !low() && !document.hidden && !document.documentElement.classList.contains('kpong-open');
+      if (on) { spawnAcc += dt * (innerWidth < 700 ? 3 : 5); while (spawnAcc > 1) { spawnAcc--; if (B.length < 70) spawn(); } }
+      var wind = Math.min(1, (now - pt) < 120 ? 1 : 0);
+      g.clearRect(0, 0, innerWidth, innerHeight);
+      B = B.filter(function (b) {
+        if (b.gone) return false;
+        b.age += dt;
+        if (!on && !b.die) b.die = b.age + 0.4 + Math.random() * 2.5;   // barva se přepnula: každá sama praskne
+        if ((b.die && b.age > b.die) || b.age > b.life) { pop(b); return false; }
+        var sy = b.y - scrollY;
+        if (wind) {
+          var dx = b.x - px, dy = sy - py, d = Math.hypot(dx, dy), reach = 110;
+          if (d < reach) { var f = Math.pow(1 - d / reach, 2) * dt * 3.2; b.vx += pvx * f + dx / (d + 1) * 40 * f; b.vy += pvy * f + dy / (d + 1) * 40 * f; }
+        }
+        b.vx *= Math.exp(-1.6 * dt); b.vy *= Math.exp(-1.6 * dt);
+        b.x += (b.vx + Math.sin(b.age * 2.2 + b.ph) * 8) * dt;
+        b.y += (b.vy - b.rise) * dt;
+        var a = Math.min(1, b.age * 2) * Math.min(1, (b.life - b.age) / 1.2);
+        sy = b.y - scrollY;
+        if (sy < -10 || sy > innerHeight + 10) return true;
+        g.globalAlpha = a;
+        g.beginPath(); g.arc(b.x, sy, b.r, 0, 6.283);
+        g.fillStyle = 'rgba(125, 255, 58, .16)'; g.fill();
+        g.lineWidth = 0.9; g.strokeStyle = 'rgba(200, 255, 70, .9)'; g.stroke();
+        g.fillStyle = 'rgba(255, 255, 255, .85)'; g.fillRect(b.x - b.r * 0.45, sy - b.r * 0.5, Math.max(0.8, b.r * 0.35), Math.max(0.8, b.r * 0.35));   // odlesk
+        return true;
+      });
+      drops = drops.filter(function (d) {
+        d.t += dt; if (d.t > 0.45) return false;
+        d.vy += 260 * dt; d.x += d.vx * dt; d.y += d.vy * dt;
+        g.globalAlpha = 1 - d.t / 0.45; g.fillStyle = '#b8ff2e';
+        g.beginPath(); g.arc(d.x, d.y - scrollY, 1.1, 0, 6.283); g.fill();
+        return true;
+      });
+      g.globalAlpha = 1;
+      if (on || B.length || drops.length) raf = requestAnimationFrame(frame);
+    }
+    // jednou za chvíli zkontroluje, jestli je zelená (pak se kreslí, dokud jsou bublinky)
+    setInterval(function () { if (green() && !low() && !document.hidden) start(); }, 1000);
+    start();
   }
   bubbles();
 
