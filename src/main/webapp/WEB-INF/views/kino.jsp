@@ -3,7 +3,7 @@
 <%-- Karaoke cinema (preview of the coming big karaoke): /karaoke/{song uuid}, KaraokeCinemaServlet fills kinoJson.
      Two rooms: Prostor (/kino/prostor.js, a looping video; the default) and Ořechový salon (/kino/domov.js); switching loads the page again.
      A loading screen stays up until the room is built (no jerk on the way in). Czech only for now. --%>
-<% String v = "5.9.5"; %>
+<% String v = "6.0.1"; %>
 <!doctype html>
 <html lang="cs">
 <head>
@@ -279,10 +279,12 @@ body.fading::after { opacity: 1; pointer-events: auto; }
   <span class="time" id="time">0:00 / 0:00</span>
   <div class="bar" id="bar"><div class="track"></div><div class="fill" id="fill"></div></div>
   <input class="vol" id="vol" type="range" min="0" max="100" value="90" aria-label="Hlasitost">
-  <button class="cb room-btn" id="roomBtn" title="Změnit pokoj" aria-label="Změnit pokoj"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-6H4zm15-8h3v3h-3zM2 10h3v3H2zm15 3H7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2z"/></svg><span>Pokoj</span></button>
+  <button class="cb room-btn" id="roomBtn" title="Změnit styl" aria-label="Změnit styl"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-6H4zm15-8h3v3h-3zM2 10h3v3H2zm15 3H7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2z"/></svg><span>Styl</span></button>
   <div class="rooms" id="rooms" hidden>
-      <button type="button" class="room" data-room="p" aria-pressed="false"><span class="rt"><b>Prostor</b><small>Kameny ve vzduchu, zlaté světlo</small></span><img src="/kino/rooms/p.webp" loading="lazy" alt=""></button>
-      <button type="button" class="room" data-room="a" aria-pressed="false"><span class="rt"><b>Ořechový salon</b><small>Ořech, kůže, noční město</small></span><img src="/kino/rooms/a.webp" loading="lazy" alt=""></button>
+      <button type="button" class="room" data-room="l" aria-pressed="false"><span class="rt"><b>Lyric video</b><small>Slova vlétají přes celý klip</small></span><span class="st-sw" data-word="BOOM"></span></button>
+      <button type="button" class="room" data-room="o" aria-pressed="false"><span class="rt"><b>Kouř a oheň</b><small>Text se vypaluje, jiskry do rytmu</small></span><span class="st-sw"></span></button>
+      <button type="button" class="room" data-room="c" aria-pressed="false"><span class="rt"><b>Čisté plátno</b><small>Tma, plátno a text</small></span><span class="st-sw"></span></button>
+      <button type="button" class="room" data-room="t" aria-pressed="false"><span class="rt"><b>Tunel</b><small>Slova letí z hloubky</small></span><span class="st-sw"></span></button>
   </div>
   <button class="cb" id="fs" title="Celá obrazovka (F)" aria-label="Celá obrazovka"><svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm-2-4h2V7h3V5H5zm12 7h-3v2h5v-5h-2zM14 5v2h3v3h2V5z"/></svg></button>
 </div>
@@ -291,10 +293,12 @@ body.fading::after { opacity: 1; pointer-events: auto; }
     <div class="k">KARAOKE</div>
     <h1 id="lobbyTitle"></h1>
     <p id="lobbyArtist"></p>
-    <div class="room-pick" aria-label="Vyber si pokoj">
-      <div class="room-k">Vyber si pokoj</div>
-      <button type="button" class="room" data-room="p" aria-pressed="false"><span class="rt"><b>Prostor</b><small>Kameny ve vzduchu, zlaté světlo</small></span><img src="/kino/rooms/p.webp" loading="lazy" alt=""></button>
-      <button type="button" class="room" data-room="a" aria-pressed="false"><span class="rt"><b>Ořechový salon</b><small>Ořech, kůže, noční město</small></span><img src="/kino/rooms/a.webp" loading="lazy" alt=""></button>
+    <div class="room-pick" aria-label="Vyber si styl">
+      <div class="room-k">Vyber si styl</div>
+      <button type="button" class="room" data-room="l" aria-pressed="false"><span class="rt"><b>Lyric video</b><small>Slova vlétají přes celý klip</small></span><span class="st-sw" data-word="BOOM"></span></button>
+      <button type="button" class="room" data-room="o" aria-pressed="false"><span class="rt"><b>Kouř a oheň</b><small>Text se vypaluje, jiskry do rytmu</small></span><span class="st-sw"></span></button>
+      <button type="button" class="room" data-room="c" aria-pressed="false"><span class="rt"><b>Čisté plátno</b><small>Tma, plátno a text</small></span><span class="st-sw"></span></button>
+      <button type="button" class="room" data-room="t" aria-pressed="false"><span class="rt"><b>Tunel</b><small>Slova letí z hloubky</small></span><span class="st-sw"></span></button>
     </div>
     <button class="enter" id="enter"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Vstoupit do kina</button>
     <small>Pusť si zvuk a dej celou obrazovku (F). <a class="back-song" href="/karaoke">← všechny písně</a></small>
@@ -313,38 +317,26 @@ body.fading::after { opacity: 1; pointer-events: auto; }
 <script>window.KDATA = <%= request.getAttribute("kinoJson") %>;</script>
 <script src="/js/yt-clock.js?v=<%= v %>"></script>
 <script>
-  // the room: p = Prostor (prostor.js, the default), a = Ořechový salon (domov.js); switching loads the page again
+  // Styl zpívání (kino/styly.js): l = Lyric video (výchozí), o = Kouř a oheň, c = Čisté plátno, t = Tunel.
+  // Pokoje Prostor (p, prostor.js) a Ořechový salon (a, domov.js) jsou z výběru schované (zatím se nevylepšují),
+  // přes ?v=p / ?v=a se dají otevřít. Přepnutí = stránka se načte znovu.
+  var STYLES = { l: 1, o: 1, c: 1, t: 1 };
   var ROOM = new URLSearchParams(location.search).get("v");
-  try { if (!ROOM) ROOM = localStorage.getItem("kinoRoom"); } catch (e) {}
-  if (ROOM !== "a") ROOM = "p";
-  // the Ořechový salon is a heavy 3D room: on a phone or tablet (an iPhone above all) or a weak computer the
-  // browser runs out of memory, drops the page and loads it again and again (the picker "blinks", the cinema
-  // throws you out). There only Prostor is offered. And on any device: when the salon went down on its last load
-  // (the page came back without leaving it properly), Prostor this time.
+  try { if (!ROOM) ROOM = localStorage.getItem("kinoStyle"); } catch (e) {}
+  if (!STYLES[ROOM] && ROOM !== "p" && ROOM !== "a") ROOM = "l";
+  // Ořechový salon je těžký 3D pokoj: na telefonu nebo slabém počítači prohlížeči dojde paměť → místo něj Prostor
   var weak = /iP(hone|od|ad)|Android/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
     || Math.min(screen.width, screen.height) < 600 || (navigator.deviceMemory && navigator.deviceMemory < 4);
-  var crashed = false;
-  try { crashed = sessionStorage.getItem("kinoTry") === "a"; sessionStorage.removeItem("kinoTry"); } catch (e) {}
-  if (weak || crashed) {
-    ROOM = "p";
-    document.querySelectorAll('[data-room="a"]').forEach(function (b) { b.remove(); });
-    document.querySelector(".room-pick").hidden = true;   // one room: nothing to pick
-    document.getElementById("roomBtn").hidden = true;
-  }
-  if (ROOM === "a") {
-    try { sessionStorage.setItem("kinoTry", "a"); } catch (e) {}
-    addEventListener("pagehide", function () { try { sessionStorage.removeItem("kinoTry"); } catch (e) {} });   // left properly
-  }
+  if (ROOM === "a" && weak) ROOM = "p";
   if (ROOM === "p") document.body.classList.add("cinema");
+  window.KINO_STYLE = STYLES[ROOM] ? ROOM : null;
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("[data-room]"); if (!b) return;
-    var k = b.dataset.room, cinema = document.body.classList.contains("cinema");
-    if (k === "p" ? !cinema : cinema) { try { localStorage.setItem("kinoRoom", k); } catch (er) {} location.search = "?v=" + k; }
+    var k = b.dataset.room;
+    if (k !== ROOM) { try { localStorage.setItem("kinoStyle", k); } catch (er) {} location.search = "?v=" + k; }
   });
-  if (ROOM === "p") {
-    document.querySelectorAll("[data-room]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.room === "p" ? "true" : "false"); });
-    document.getElementById("roomBtn").onclick = function (e) { e.stopPropagation(); var r = document.getElementById("rooms"); r.hidden = !r.hidden; };
-  }
+  document.querySelectorAll("[data-room]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.room === ROOM ? "true" : "false"); });
+  document.getElementById("roomBtn").onclick = function (e) { e.stopPropagation(); var r = document.getElementById("rooms"); r.hidden = !r.hidden; };
 </script>
 <script>
   // a broken script shows its error on the page (preview only)
@@ -362,7 +354,7 @@ body.fading::after { opacity: 1; pointer-events: auto; }
     setTimeout(window.kinoLoaded, 25000);
   })();
 </script>
-<script type="module">import(document.body.classList.contains("cinema") ? "/kino/prostor.js?v=<%= v %>" : "/kino/domov.js?v=<%= v %>").catch(function (e) { showErr(String(e && e.stack || e)); window.kinoLoaded(); });</script>
+<script type="module">import(window.KINO_STYLE ? "/kino/styly.js?v=<%= v %>" : document.body.classList.contains("cinema") ? "/kino/prostor.js?v=<%= v %>" : "/kino/domov.js?v=<%= v %>").catch(function (e) { showErr(String(e && e.stack || e)); window.kinoLoaded(); });</script>
 <script>
   // the exit: on the lobby a plain link back to the karaoke list; inside the cinema it leaves the room
   // (the same as the leave button in the controls and Esc)

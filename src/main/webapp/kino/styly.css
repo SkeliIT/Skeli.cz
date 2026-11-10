@@ -1,0 +1,100 @@
+/* Karaoke kino – styly zpívání (kino/styly.js). Barvy a basy klipu nastavuje skript na :root:
+   --acc (sytá barva klipu), --l / --r / --b (barvy levého, pravého a spodního okraje obrazu), --bass (0–1). */
+:root { --acc: #ff5a3c; --l: #333; --r: #333; --b: #333; --bass: 0; }
+@property --acc { syntax: '<color>'; inherits: true; initial-value: #ff5a3c; }
+.st-stage { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #000; }
+[data-look="st"] #back, [data-look="st"] #css3d, [data-look="st"] #front, [data-look="st"] #fx { display: none; }
+[data-look="st"] .lyrics { top: 42%; height: auto; }
+[data-look="st"] .lyrics::before, [data-look="st"] .dots { display: none; }
+.st-player { position: absolute; inset: 0; background: #000; overflow: hidden; }
+.st-player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.st-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .8s; pointer-events: none; z-index: 1; }
+.st-catch { position: absolute; inset: 0; z-index: 2; cursor: pointer; }
+.st-stage .w { position: relative; display: inline-block; white-space: pre; }
+@keyframes stIn { from { opacity: 0; transform: translateY(8px); } }
+@keyframes stOut { to { opacity: 0; transform: translateY(-8px); } }
+
+/* ===== 1 · LYRIC VIDEO ===== */
+.st-l .l-video { position: absolute; inset: 0; }
+.st-l .l-video .st-player { inset: -6%; transform: scale(calc(1.02 + var(--bass) * .03)); }   /* přesah = ořízne pruhy a nechá místo na pulz */
+.st-l .l-video iframe { width: 100%; height: 100%; }
+.st-l .l-shade { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, .45), rgba(0, 0, 0, .78)); }
+.st-l .l-stack { position: absolute; inset: 70px 0 150px; display: grid; place-items: center; padding: 0 6vw; pointer-events: none; z-index: 2; }   /* nahoře název, dole nápověda a ovládání */
+.st-l .blk { display: flex; flex-direction: column; gap: .05em; font-family: 'Bruno Ace SC', sans-serif; text-transform: uppercase; letter-spacing: .01em;
+  font-size: clamp(22px, min(4.6vw, 8.5vh), 78px); line-height: 1.04; transform: scale(calc(1 + var(--bass) * .06)) rotate(var(--rot, 0deg)); }
+.st-l .blk.left { align-items: flex-start; } .st-l .blk.right { align-items: flex-end; } .st-l .blk.center { align-items: center; }
+.st-l .row { display: flex; gap: .28em; flex-wrap: wrap; }
+.st-l .blk.right .row { justify-content: flex-end; } .st-l .blk.center .row { justify-content: center; }
+.st-l .w { opacity: 0; color: #fff; text-shadow: 0 4px 24px rgba(0, 0, 0, .7); }
+.st-l .w.on { opacity: 1; animation: lPop .35s cubic-bezier(.2, 1.5, .4, 1); }
+.st-l .w.big { font-size: 1.35em; color: var(--acc); text-shadow: 0 0 30px color-mix(in srgb, var(--acc) 60%, transparent); }
+.st-l .w.small { font-size: .62em; align-self: flex-end; }
+.st-l .w.now { text-shadow: 0 0 22px #fff, 0 0 50px var(--acc); }
+@keyframes lPop { from { opacity: 0; transform: scale(1.9) translateY(-8%); filter: blur(10px); } }
+.st-l .blk.out { animation: lOut .45s ease-in forwards; }
+@keyframes lOut { to { opacity: 0; transform: scale(1.25) translateY(-12%); filter: blur(14px); } }
+.st-l .l-hint { position: absolute; z-index: 2; left: 0; right: 0; bottom: 92px; text-align: center; font-family: 'Oswald', sans-serif; font-weight: 300;
+  font-size: clamp(14px, 1.6vw, 20px); color: rgba(255, 255, 255, .5); letter-spacing: .04em; padding: 0 20px; pointer-events: none; }
+
+/* ===== 2 · KOUŘ A OHEŇ ===== */
+.st-o .o-bg { position: absolute; inset: 0; background: radial-gradient(90% 70% at 50% 30%, color-mix(in srgb, var(--acc) 18%, #0b0807), #050404 70%); }
+.st-o .o-smoke { position: absolute; inset: auto -10% -25% -10%; height: 75%; opacity: .55; filter: blur(34px); pointer-events: none;
+  background: radial-gradient(40% 50% at 20% 70%, color-mix(in srgb, var(--acc) 40%, #333), transparent 70%), radial-gradient(45% 55% at 75% 75%, color-mix(in srgb, var(--acc) 25%, #222), transparent 70%), radial-gradient(60% 50% at 50% 100%, #2a2522, transparent 70%);
+  animation: oSmoke 18s ease-in-out infinite alternate; }
+@keyframes oSmoke { to { transform: translateX(-6%) scale(1.15); } }
+.st-o .o-plate { position: absolute; left: 50%; top: 9vh; width: min(66vw, 1100px, 88vh); aspect-ratio: 16 / 9; transform: translateX(-50%); border-radius: 16px; overflow: hidden;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--acc) 60%, transparent), 0 0 calc(40px + var(--bass) * 60px) -6px var(--acc), -40px 0 120px -40px var(--l), 40px 0 120px -40px var(--r); }
+@media (max-aspect-ratio: 16/10) { .st-o .o-plate { width: 92vw; top: 12vh; } }
+.st-o .o-sparks { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+.st-o .o-lyr { position: absolute; left: 5vw; right: 5vw; bottom: 100px; text-align: center; display: grid; gap: 6px; font-family: 'Bruno Ace SC', sans-serif; font-size: clamp(18px, 2.8vw, 42px); line-height: 1.25; z-index: 2; pointer-events: none; }
+.st-o .slot { min-height: 2.5em; display: grid; align-items: center; }
+.st-o .ln { grid-area: 1 / 1; color: rgba(255, 255, 255, .28); }
+.st-o .slot.act .ln { color: rgba(255, 255, 255, .42); }
+.st-o .ln.in { animation: stIn .5s .35s both; } .st-o .ln.out { animation: stOut .35s forwards; }
+.st-o .w::after { content: attr(data-t); position: absolute; left: 0; top: 0; color: #fff6e8; text-shadow: 0 0 6px #fff, 0 0 18px var(--acc), 0 0 40px var(--acc);
+  clip-path: inset(-30% calc((1 - var(--k, 0)) * 108% - 4%) -30% -4%); }
+.st-o .w.done::after { color: var(--acc); text-shadow: 0 0 12px color-mix(in srgb, var(--acc) 60%, transparent); transition: color 1s; }
+.st-o .w { transition: opacity 1.2s, filter 1.2s; }
+.st-o .w.gone { opacity: .14; filter: blur(3px); }
+
+/* ===== 3 · ČISTÉ PLÁTNO ===== */
+.st-c .st-stage { background: #030303; }
+.st-c .c-cont { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.st-c .c-cont path { fill: none; stroke-width: 1; stroke-linecap: round; vector-effect: non-scaling-stroke; transition: stroke 2s; }
+.st-c .c-screen { position: absolute; left: 50%; top: 11vh; width: min(72vw, 1200px, 96vh); aspect-ratio: 16 / 9; transform: translateX(-50%); }
+@media (max-aspect-ratio: 16/10) { .st-c .c-screen { width: 94vw; top: 16vh; } }
+.st-c .c-screen::before { content: ""; position: absolute; inset: -8%; z-index: 0; filter: blur(60px); opacity: .5; pointer-events: none;
+  background: linear-gradient(90deg, var(--l), transparent 35%, transparent 65%, var(--r)), linear-gradient(0deg, var(--b), transparent 45%); }
+.st-c .c-screen .st-player { border-radius: 3px; }
+.st-c .c-lyr { position: absolute; left: 6vw; right: 6vw; bottom: 96px; text-align: center; pointer-events: none; }
+.st-c .cur { font-family: 'Bruno Ace SC', sans-serif; font-size: clamp(19px, 2.6vw, 38px); line-height: 1.3; color: rgba(255, 255, 255, .3); min-height: 2.6em; }
+.st-c .cur.in { animation: stIn .5s .1s both; }
+.st-c .nxt { margin-top: 12px; font-family: 'Oswald', sans-serif; font-weight: 300; font-size: clamp(14px, 1.5vw, 20px); color: rgba(255, 255, 255, .3); letter-spacing: .03em; }
+.st-c .w { transition: color .25s; }
+.st-c .w.on { color: #fff; }
+.st-c .w.done { color: color-mix(in srgb, var(--acc) 70%, #fff); }
+
+/* ===== 4 · TUNEL ===== */
+.st-t .t-scene { position: absolute; inset: 0; perspective: 700px; transform-style: preserve-3d; }
+.st-t .t-video { position: absolute; left: 50%; top: 50%; width: 62vw; aspect-ratio: 16 / 9; transform: translate(-50%, -50%) translateZ(-420px); border-radius: 8px; overflow: hidden;
+  box-shadow: 0 0 140px 30px color-mix(in srgb, var(--acc) 40%, transparent); }
+@media (max-aspect-ratio: 1/1) { .st-t .t-video { width: 150vw; } }
+.st-t .t-ring { position: absolute; left: 50%; top: 50%; width: 120vw; height: 120vh; margin: -60vh 0 0 -60vw; border-radius: 42%; opacity: 0; will-change: transform, opacity; pointer-events: none;
+  border: 1px solid transparent; background: linear-gradient(#0000, #0000) padding-box, conic-gradient(from 0deg, var(--acc), var(--l), var(--r), var(--acc)) border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; filter: drop-shadow(0 0 10px var(--acc)); }
+.st-t .t-words { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+.st-t .fw { position: absolute; left: 0; top: 50%; font-family: 'Bruno Ace SC', sans-serif; text-transform: uppercase; white-space: nowrap; font-size: clamp(20px, min(3.6vw, 6.5vh), 56px);
+  color: #fff; will-change: transform, opacity; text-shadow: 0 0 18px var(--acc), 0 4px 18px rgba(0, 0, 0, .7); }
+.st-t .fw.sung { color: var(--acc); text-shadow: 0 0 26px var(--acc), 0 0 2px #fff; }
+.st-t .fw.past { transition: transform .7s ease-in, opacity .7s ease-in; }
+.st-t .t-hint { position: absolute; left: 0; right: 0; bottom: 92px; text-align: center; font-family: 'Oswald', sans-serif; font-weight: 300; color: rgba(255, 255, 255, .5); font-size: clamp(14px, 1.5vw, 19px); padding: 0 20px; pointer-events: none; }
+
+/* výběr stylu v lobby a v ovládání (kino.jsp) */
+.room .st-sw { position: absolute; right: 0; top: 0; width: 70%; height: 100%; }
+.room[data-room="l"] .st-sw { background: linear-gradient(90deg, transparent, #0c0c10 10%), url(/img/disco/YQt6qBZ2f4g.webp) right 40% / cover; }
+.room .st-sw::after { content: attr(data-word); position: absolute; right: 12px; top: 50%; transform: translateY(-50%) rotate(-4deg); font: 400 20px 'Bruno Ace SC', sans-serif; color: #fff; text-shadow: 0 0 16px var(--gold); }
+.room[data-room="o"] .st-sw { background: radial-gradient(60% 80% at 70% 70%, #ff6a1f, #3a1205 60%, transparent), #120806; }
+.room[data-room="c"] .st-sw { background: radial-gradient(40% 50% at 70% 50%, #2a2a2e, #050505 70%); box-shadow: inset -60px 0 60px -40px #3fb4ff; }
+.room[data-room="t"] .st-sw { background: repeating-radial-gradient(circle at 75% 50%, transparent 0 10px, rgba(255, 90, 60, .55) 11px 12px), #050505; }
+
+@media (prefers-reduced-motion: reduce) { .st-stage *, .st-stage *::before, .st-stage *::after { animation: none !important; } }

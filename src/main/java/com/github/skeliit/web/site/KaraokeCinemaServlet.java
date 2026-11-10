@@ -43,7 +43,10 @@ public class KaraokeCinemaServlet extends HttpServlet {
         if ("/karaoke".equals(req.getServletPath())) { listPage(req, resp); return; }
         if (uuid.isEmpty()) { resp.setStatus(301); resp.setHeader("Location", "/karaoke"); return; }
         if (!uuid.matches("[0-9a-fA-F-]{36}")) { resp.sendError(404); return; }
-        if (!canSing(req)) { resp.sendRedirect("/login.jsp?next=" + URLEncoder.encode("/karaoke-kino/" + uuid, StandardCharsets.UTF_8)); return; }
+        if (!canSing(req)) {   // po přihlášení zpátky i se zvoleným stylem (?v=)
+            String back = "/karaoke-kino/" + uuid + (req.getQueryString() != null ? "?" + req.getQueryString() : "");
+            resp.sendRedirect("/login.jsp?next=" + URLEncoder.encode(back, StandardCharsets.UTF_8)); return;
+        }
         String[] song;
         String manual;
         try {
