@@ -28,8 +28,9 @@
     .texty-bg video.on { opacity: 1; }
     /* tmavé video je zlaté: vrstva v barvě webu v režimu „barva“ mu nechá světlost (černá zůstane černá,
        písmena a plazma září dál) a vezme odstín z --accent – Texty se přebarvují spolu se zbytkem webu */
-    .texty-bg .tint { position: absolute; inset: 0; background: var(--accent); mix-blend-mode: color; }
-    body.light .texty-bg .tint { display: none; }
+    .texty-bg .tint { position: absolute; inset: 0; background: var(--accent); mix-blend-mode: color; transition: opacity .6s; }
+    /* světlé zamlžené okno je šedomodré: jemné zabarvení (jako barevné sluneční světlo), ať k němu barva webu ladí */
+    body.light .texty-bg .tint { opacity: .4; }
     /* závoj nahoře a dole, ať se dá číst hlavička i seznam */
     .texty-bg .shade { position: absolute; inset: 0;
       background: linear-gradient(180deg, rgba(5,4,3,.6) 0%, rgba(5,4,3,.2) 30%, rgba(5,4,3,.3) 65%, rgba(5,4,3,.8) 100%); }
