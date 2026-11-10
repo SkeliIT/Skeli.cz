@@ -20,7 +20,7 @@ window.KevinWalk = function (K) {
   var WALK_FEET = (1 + 1 / (5.0 * Math.tan(15 * Math.PI / 180))) / 2;
   // the surfaces he can walk on: cards and panels of the page, the footer
   var SURFACES = '.card, .admin-card, .prose-card, .side-card, .about-card, .card-gold, .acct-card, .auth-card, .feature-card, '
-    + '.song-row, .disco-card, .news-card, .quote-card, .donate-card, .feedback-card, .site-footer, footer';
+    + '.song-row:not(.wheel-item), .disco-card, .news-card, .quote-card, .donate-card, .feedback-card, .site-footer, footer';
   // the lowest top edge in the window (not under the header bar) with a free stretch above it, where he covers
   // nothing: columns every 20 px are probed every 12 px up to his height over the edge (Kevin never covers content); he walks
   // only along the longest free run

@@ -462,7 +462,7 @@ public class AdminPanelIT extends UiTestSupport {
             assertTrue(Double.parseDouble(queryString("SELECT art_x FROM songs WHERE id=?", songId)) > 5, "moved to the right");
 
             driver.get(BASE_URL + "/texty.jsp?lang=cs");   // testovací píseň má jen český text
-            String style = driver.findElement(By.cssSelector("a.song-row[data-song='" + songId + "'] img")).getAttribute("style");
+            String style = driver.findElement(By.cssSelector(".song-row[data-song='" + songId + "'] img")).getAttribute("style");
             assertTrue(style.contains("--az: 1.5"), "got: " + style);
 
             driver.get(BASE_URL + "/admin/song?id=" + songId + "#obrazky");   // editory obrázků jsou v záložce Obrázky
@@ -474,7 +474,7 @@ public class AdminPanelIT extends UiTestSupport {
                         driver.findElement(By.id("row-art")).getScreenshotAs(org.openqa.selenium.OutputType.BYTES));
             }
             driver.get(BASE_URL + "/texty.jsp?lang=cs");   // testovací píseň má jen český text
-            assertNull(driver.findElement(By.cssSelector("a.song-row[data-song='" + songId + "'] img")).getAttribute("data-manual"));
+            assertNull(driver.findElement(By.cssSelector(".song-row[data-song='" + songId + "'] img")).getAttribute("data-manual"));
         } finally {
             update("DELETE FROM lyrics WHERE song_id=?", songId);
             update("DELETE FROM songs WHERE id=?", songId);

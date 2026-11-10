@@ -395,6 +395,123 @@ body.light .song-year-head::after { display: none; }
   .song-year-head { margin-top: 18px; }
 }
 
+/* ===== Texty a Karaoke: Kolotoč (texty.jsp + js/texty-wheel.js) =====
+   Svislé kolo písní. Píseň na „čáře výběru“ (horní třetina kola) se rozsvítí, ukáže verš a tlačítka,
+   ostatní se naklánějí do 3D a mizí. Náhledy v původních barvách, barvou webu jen rámeček. */
+.mode-switch {
+  position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 4px; margin: 0 auto 14px; border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+body.light .mode-switch { background: rgba(255, 255, 255, 0.6); }
+.mode-switch button {
+  position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 128px; min-height: 42px;
+  padding: 8px 18px; border: 0; border-radius: 999px; background: none; color: var(--text); font-family: var(--font-display); font-size: var(--fs-card);
+  letter-spacing: 0.05em; cursor: pointer; transition: color .3s;
+}
+.mode-switch .mode-pill {
+  position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 999px; background: var(--accent);
+  box-shadow: 0 0 24px -4px var(--accent); transition: transform .45s cubic-bezier(.5, 1.5, .4, 1);
+}
+main.k-mode .mode-switch .mode-pill { transform: translateX(100%); }
+main:not(.k-mode) .mode-switch [data-mode="t"], main.k-mode .mode-switch [data-mode="k"] { color: var(--accent-ink); }
+
+.wheel-wrap { position: relative; max-width: 1080px; margin: 0 auto; }
+.wheel-wrap[hidden] { display: none; }
+.wheel-years { display: none; }
+.lyric-wheel.song-list {
+  --ih: 220px;
+  display: block; max-width: none; height: min(600px, calc(100svh - var(--header-h, 64px) - 40px)); min-height: 300px;
+  overflow-y: auto; overscroll-behavior-y: auto; scroll-snap-type: y mandatory; perspective: 900px; scrollbar-width: none; outline: none;
+  -webkit-mask-image: linear-gradient(transparent, #000 6%, #000 80%, transparent);
+          mask-image: linear-gradient(transparent, #000 6%, #000 80%, transparent);
+}
+.lyric-wheel::-webkit-scrollbar { display: none; }
+.lyric-wheel:focus-visible .wheel-item.mid { outline: 2px solid var(--accent); outline-offset: 3px; }
+.lyric-wheel .wheel-item {
+  height: var(--ih); min-height: 0; margin: 0 0 14px; padding: 46px 18px 16px; scroll-snap-align: start;
+  flex-direction: column; justify-content: flex-end; align-items: stretch; gap: 0;
+  transform-origin: center; will-change: transform, opacity; cursor: pointer;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius: 22px;
+  background: linear-gradient(to right, rgba(10, 10, 12, 0.9), rgba(10, 10, 12, 0.6) 55%, rgba(10, 10, 12, 0.35));
+  backdrop-filter: none; -webkit-backdrop-filter: none;   /* rozmazání pod 20 otáčejícími se kartami by sekalo */
+  transition: border-color .4s ease, box-shadow .4s ease;
+}
+.lyric-wheel .wheel-item[hidden] { display: none; }
+.lyric-wheel .wheel-item:hover { transform: none; }
+.lyric-wheel .wheel-item::before {   /* spodek karty tmavší, ať se dá číst verš i název přes náhled */
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, transparent 25%, rgba(6, 6, 8, 0.82));
+}
+.lyric-wheel .wheel-item.mid { border-color: var(--accent); box-shadow: 0 0 44px -12px var(--accent); }
+.lyric-wheel .song-row-art img { filter: brightness(0.62); }
+.lyric-wheel .wheel-item.mid .song-row-art img { filter: brightness(0.9); }
+.wheel-year { position: absolute; top: 14px; left: 18px; font-family: var(--font-display); font-size: var(--fs-small); letter-spacing: 0.1em; color: var(--accent); }
+.wheel-kbadge {
+  position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px;
+  font-family: var(--font-display); font-size: var(--fs-small); color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: rgba(0, 0, 0, 0.45);
+}
+.lyric-wheel .song-note-row { top: 46px; translate: none; }
+.wheel-verse {
+  margin: 0 0 8px; max-width: 34ch; font-family: var(--font-text); font-weight: 300; font-size: 1.1rem; line-height: 1.25;
+  opacity: 0.5; transition: opacity .4s; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.wheel-item.mid .wheel-verse { opacity: 1; }
+/* karaoke: verš vybrané písně se barví zleva jako při zpěvu (js/texty-wheel.js nastavuje --k) */
+.wheel-verse .kline.sung {
+  background: linear-gradient(90deg, var(--accent) var(--k, 0%), var(--text) var(--k, 0%));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.lyric-wheel .song-row-text { max-width: 100%; gap: 3px; color: var(--text); text-decoration: none; }
+.lyric-wheel .song-row-title { font-size: var(--fs-h4); }
+.wheel-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s; }
+.wheel-item.mid .wheel-btns { opacity: 1; visibility: visible; }
+.wbtn {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 8px 16px; border-radius: 999px;
+  font-family: var(--font-display); font-size: var(--fs-card); letter-spacing: 0.04em; text-decoration: none; color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); background: rgba(0, 0, 0, 0.35);
+}
+.wbtn:hover { text-decoration: none; border-color: var(--accent); }
+.wbtn small { font-size: var(--fs-small); opacity: 0.8; }
+/* hlavní tlačítko: v Textech Číst text, v Karaoke Zpívej (a to je první) */
+main.texty-page:not(.k-mode) .wbtn-read, main.texty-page.k-mode .wbtn-sing { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); box-shadow: 0 0 22px -6px var(--accent); }
+main.k-mode .wbtn-sing { order: -1; }
+body.light .lyric-wheel .wheel-item { background: linear-gradient(to right, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.7) 55%, rgba(255, 255, 255, 0.4)); }
+body.light .lyric-wheel .wheel-item::before { background: linear-gradient(180deg, transparent 20%, rgba(250, 248, 244, 0.9)); }
+body.light .lyric-wheel .song-row-art img, body.light .lyric-wheel .wheel-item.mid .song-row-art img { filter: none; }
+body.light .wheel-verse { text-shadow: 0 1px 8px rgba(255, 255, 255, 0.9); }
+body.light .wheel-kbadge, body.light .wbtn { background: rgba(255, 255, 255, 0.7); }
+/* PC: vlevo roky (skok na první píseň roku), karty vyšší, verš větší */
+@media (min-width: 1025px) {
+  .wheel-wrap { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 18px; }
+  .wheel-years { display: flex; flex-direction: column; gap: 4px; padding-top: 24px; }
+  .wheel-years button {
+    padding: 8px 10px; border: 0; border-radius: 10px; background: none; text-align: left; cursor: pointer;
+    font-family: var(--font-display); font-size: var(--fs-card); color: var(--text-dim);
+  }
+  .wheel-years button.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .lyric-wheel.song-list { --ih: 226px; }
+  .lyric-wheel .wheel-item { padding: 48px 26px 18px; }
+  .wheel-verse { font-size: 1.35rem; max-width: 60%; }
+  .lyric-wheel .song-row-title { font-size: var(--fs-h3); }
+}
+/* telefon: tlačítka vedle sebe v jednom řádku, „pro členy“ jen jako zámek */
+@media (max-width: 600px) {
+  .wheel-btns { flex-wrap: nowrap; gap: 6px; }
+  .wbtn { padding: 8px 12px; gap: 6px; }
+  .wbtn small { display: none; }
+  .wheel-verse { font-size: 1rem; }
+}
+/* telefon na šířku: nízká obrazovka, menší karty */
+@media (orientation: landscape) and (max-height: 500px) {
+  .lyric-wheel.song-list { --ih: 176px; }
+  .lyric-wheel .wheel-item { padding-top: 40px; }
+  .wheel-verse { -webkit-line-clamp: 1; }
+}
+/* slabý telefon: bez naklánění (js) a bez záře */
+html.low-fx .lyric-wheel .wheel-item.mid { box-shadow: none; }
+
 @media (max-width: 600px) {
   .song-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
   .song-info { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px; }

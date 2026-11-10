@@ -44,7 +44,7 @@ class SongNoteIT extends UiTestSupport {
 
             driver.get(BASE_URL + "/texty.jsp");
             waitReady();
-            assertFalse(driver.findElements(By.cssSelector("a.song-row[data-song='" + song + "'] .song-note")).isEmpty(), "v Textech je");
+            assertFalse(driver.findElements(By.cssSelector(".song-row[data-song='" + song + "'] .song-note")).isEmpty(), "v Textech je");
 
             driver.get(BASE_URL + "/music.jsp");
             waitReady();

@@ -200,7 +200,7 @@
   <nav class="home-tiles" aria-label="<%= t.getProperty("footer.menu") %>">
     <a class="home-tile" href="/music.jsp" data-tilt><i class="fa-solid fa-music" aria-hidden="true"></i><span><b><%= t.getProperty("menu.discography") %></b><small><%= t.getProperty("menu.d.discography") %></small></span></a>
     <a class="home-tile" href="/texty.jsp" data-tilt><i class="fa-solid fa-align-left" aria-hidden="true"></i><span><b><%= t.getProperty("menu.lyrics") %></b><small><%= t.getProperty("menu.d.lyrics") %></small></span></a>
-    <a class="home-tile" href="/karaoke-kino" data-tilt><i class="fa-solid fa-microphone" aria-hidden="true"></i><span><b><%= t.getProperty("menu.karaoke") %></b><small><%= t.getProperty("menu.d.karaoke") %></small></span></a>
+    <a class="home-tile" href="/texty.jsp?karaoke=1" data-tilt><i class="fa-solid fa-microphone" aria-hidden="true"></i><span><b><%= t.getProperty("menu.karaoke") %></b><small><%= t.getProperty("menu.d.karaoke") %></small></span></a>
     <a class="home-tile" href="/?kevin=pong" data-play-game data-tilt><i class="fa-solid fa-table-tennis-paddle-ball" aria-hidden="true"></i><span><b><%= t.getProperty("menu.catsmash") %></b><small><%= t.getProperty("menu.d.game") %></small></span></a>
   </nav>
 

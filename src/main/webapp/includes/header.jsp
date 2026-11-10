@@ -25,7 +25,6 @@
   if (headTitle == null) {
     java.util.Map<String, String> titleKeys = java.util.Map.ofEntries(
         java.util.Map.entry("/texty.jsp", "menu.lyrics"),
-        java.util.Map.entry("/karaoke-kino", "menu.karaoke"),   // (the list sets pageTitle too: a forward has the view as servlet path)
         java.util.Map.entry("/music.jsp", "menu.music"),
         java.util.Map.entry("/about.jsp", "about.title"),
         java.util.Map.entry("/aktuality.jsp", "menu.news"),
@@ -187,7 +186,7 @@
                 <div class="nav-sub" id="navSubMusic">
                   <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.discography") %></span><small><%= t.getProperty("menu.d.discography") %></small></a>
                   <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.lyrics") %></span><small><%= t.getProperty("menu.d.lyrics") %></small></a>
-                  <a href="<%= ctx %>/karaoke-kino" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><i class="fa-solid fa-star" aria-hidden="true"></i><span><%= t.getProperty("menu.membersOnly") %></span></span><% } %></span><small><%= t.getProperty("menu.d.karaoke") %></small></a>
+                  <a href="<%= ctx %>/texty.jsp?karaoke=1" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><i class="fa-solid fa-star" aria-hidden="true"></i><span><%= t.getProperty("menu.membersOnly") %></span></span><% } %></span><small><%= t.getProperty("menu.d.karaoke") %></small></a>
                 </div>
               </div>
               <a href="<%= ctx %>/aktuality.jsp" class="nav-top"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.news") %></a>
@@ -544,7 +543,9 @@
                   const href = a.getAttribute('href') || '';
                   const normalized = (href.split('?')[0] || '').split('/').pop() || '';
                   if (!normalized) return;
-                  const isActive = ((cur === '' || cur === '/') && (normalized === '/' || normalized === 'index.jsp')) || (cur === normalized || (location.pathname.endsWith('/') && normalized === 'index.jsp'));
+                  let isActive = ((cur === '' || cur === '/') && (normalized === '/' || normalized === 'index.jsp')) || (cur === normalized || (location.pathname.endsWith('/') && normalized === 'index.jsp'));
+                  // Texty a Karaoke jsou jedna stránka (texty.jsp, Karaoke = ?karaoke=1): svítí jen ta podle režimu
+                  if (isActive && normalized === 'texty.jsp') isActive = href.includes('karaoke=1') === /[?&]karaoke=1/.test(location.search);
                   a.classList.toggle('active', isActive);
                 } catch { }
               });
@@ -552,6 +553,7 @@
               document.querySelectorAll('.nav-group').forEach(g => g.classList.toggle('has-active', !!g.querySelector('a.active')));
             }
             updateActiveNav();
+            window.updateActiveNav = updateActiveNav;   // přepínač Texty | Karaoke mění adresu bez načtení (js/texty-wheel.js)
             document.addEventListener('pjax:done', updateActiveNav);
 
             // Reveal animations

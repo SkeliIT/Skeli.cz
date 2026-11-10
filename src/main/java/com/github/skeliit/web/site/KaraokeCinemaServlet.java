@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.skeliit.I18n;
 import com.github.skeliit.dao.KaraokeDao;
 import com.github.skeliit.model.SongTitle;
 import jakarta.servlet.ServletException;
@@ -22,7 +21,8 @@ import java.sql.SQLException;
 import java.util.Base64;
 
 /**
- * GET /karaoke-kino: the list of songs that have karaoke (WEB-INF/views/karaoke-list.jsp, in the menu).
+ * GET /karaoke-kino: dřív samostatný seznam („hala kina“), teď přesměruje na Texty v režimu Karaoke
+ * (texty.jsp?karaoke=1 – Kolotoč písní, playable() a canSing() používá i texty.jsp).
  * GET /karaoke-kino/{song uuid}: the karaoke cinema (a preview of the coming big karaoke, WEB-INF/views/kino.jsp).
  * The page gets everything in one object (window.KDATA): the newest clip, the Czech lines, when every line
  * and word is sung (as /api/karaoke: the admin's correction wins over karaoke/<id>.json) and the clip's
@@ -39,9 +39,9 @@ public class KaraokeCinemaServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String path = req.getPathInfo();
         String uuid = path == null ? "" : path.substring(1);
-        if (uuid.isEmpty()) { list(req, resp); return; }
+        if (uuid.isEmpty()) { resp.sendRedirect("/texty.jsp?karaoke=1"); return; }
         if (!uuid.matches("[0-9a-fA-F-]{36}")) { resp.sendError(404); return; }
-        if (MEMBERS_ONLY && !signedIn(req)) { resp.sendRedirect("/login.jsp?next=" + URLEncoder.encode("/karaoke-kino/" + uuid, StandardCharsets.UTF_8)); return; }
+        if (!canSing(req)) { resp.sendRedirect("/login.jsp?next=" + URLEncoder.encode("/karaoke-kino/" + uuid, StandardCharsets.UTF_8)); return; }
         String[] song;
         String manual;
         try {
@@ -54,7 +54,7 @@ public class KaraokeCinemaServlet extends HttpServlet {
         if (song == null) { resp.sendError(404); return; }
         String yt = song[0];
         String[] lines = KaraokeDao.lines(song[3]);
-        JsonNode timing = manual != null ? JSON.readTree(manual) : file("/karaoke/" + yt + ".json");
+        JsonNode timing = manual != null ? JSON.readTree(manual) : file(getServletContext(), "/karaoke/" + yt + ".json");
         if (timing == null || timing.path("lines").asInt() != lines.length) { resp.sendError(404); return; }
 
         SongTitle title = SongTitle.of(song[1]);
@@ -68,7 +68,7 @@ public class KaraokeCinemaServlet extends HttpServlet {
         for (String l : lines) ls.add(l);
         data.set("times", timing.path("times"));
         data.set("words", timing.has("words") ? timing.get("words") : JSON.createArrayNode());
-        JsonNode eq = file("/eq/" + yt + ".json");
+        JsonNode eq = file(getServletContext(), "/eq/" + yt + ".json");
         data.set("eq", eq != null ? eq : calmEq());
 
         // safe inside <script>: no "</script>", no line separators that end a JavaScript string
@@ -88,32 +88,34 @@ public class KaraokeCinemaServlet extends HttpServlet {
         req.getRequestDispatcher("/WEB-INF/views/kino.jsp").forward(req, resp);
     }
 
-    private void list(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    /**
+     * Písně, které jdou opravdu zazpívat: mají klip, český text a časy pro každý řádek (ruční oprava z adminu
+     * má přednost před karaoke/<id>.json). Nejnovější první. Používá Texty (texty.jsp) pro režim Karaoke.
+     */
+    public static java.util.List<com.github.skeliit.model.KaraokeSong> playable(jakarta.servlet.ServletContext ctx) throws IOException, SQLException {
         java.util.List<com.github.skeliit.model.KaraokeSong> songs = new java.util.ArrayList<>();
-        try {
-            KaraokeDao dao = new KaraokeDao();
-            for (com.github.skeliit.model.KaraokeSong s : dao.cinemaSongs()) {
-                String manual = dao.manual(s.youtubeId);
-                JsonNode timing = manual != null ? JSON.readTree(manual) : file("/karaoke/" + s.youtubeId + ".json");
-                if (timing != null && timing.path("lines").asInt() == s.lines.length) songs.add(s);
-            }
-        } catch (SQLException e) {
-            throw new ServletException(e);
+        KaraokeDao dao = new KaraokeDao();
+        for (com.github.skeliit.model.KaraokeSong s : dao.cinemaSongs()) {
+            String manual = dao.manual(s.youtubeId);
+            JsonNode timing = manual != null ? JSON.readTree(manual) : file(ctx, "/karaoke/" + s.youtubeId + ".json");
+            if (timing != null && timing.path("lines").asInt() == s.lines.length) songs.add(s);
         }
-        req.setAttribute("karaokeSongs", songs);
-        req.setAttribute("karaokeSignedIn", !MEMBERS_ONLY || signedIn(req));
-        req.setAttribute("pageTitle", I18n.bundle(req).getProperty("menu.karaoke"));
-        req.getRequestDispatcher("/WEB-INF/views/karaoke-list.jsp").forward(req, resp);
+        return songs;
     }
 
-    /** Karaoke is for members: the list shows everyone the songs, only a signed-in visitor gets into the cinema. */
+    /** Smí návštěvník do kina? Karaoke je pro členy (MEMBERS_ONLY), text si přečte každý. */
+    public static boolean canSing(HttpServletRequest req) {
+        return !MEMBERS_ONLY || signedIn(req);
+    }
+
+    /** Karaoke is for members: only a signed-in visitor gets into the cinema. */
     private static boolean signedIn(HttpServletRequest req) {
         HttpSession s = req.getSession(false);
         return s != null && s.getAttribute("userId") instanceof Integer;
     }
 
-    private JsonNode file(String name) throws IOException {
-        try (InputStream in = getServletContext().getResourceAsStream(name)) {
+    private static JsonNode file(jakarta.servlet.ServletContext ctx, String name) throws IOException {
+        try (InputStream in = ctx.getResourceAsStream(name)) {
             return in == null ? null : JSON.readTree(in);
         }
     }
