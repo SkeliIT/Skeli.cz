@@ -26,7 +26,7 @@
     <section class="kp-stage" aria-live="off">
       <div class="kp-glow" id="kpGlow" aria-hidden="true"><img src="<%= kFirst.getThumb() %>" alt=""></div>
       <p class="kp-now"><span><%= WebUtils.escapeHtml(t.getProperty("karaoke.page.now")) %></span><b id="kpNow"><%= WebUtils.escapeHtml(kFirst.title) %></b></p>
-      <div class="kp-lyr" id="kpLyr" aria-hidden="true"><span class="kp-line kp-cur">&nbsp;</span><span class="kp-line kp-nxt"></span></div>
+      <div class="kp-lyr" id="kpLyr" aria-hidden="true"><div class="kp-slot"></div><div class="kp-slot"></div></div>
       <div class="kp-cta">
         <% if (kCanSing) { %>
         <a class="kp-sing" id="kpSing" href="/karaoke-kino/<%= kFirst.uuid %>"><i class="fa-solid fa-microphone" aria-hidden="true"></i><%= WebUtils.escapeHtml(t.getProperty("karaoke.sing")) %></a>

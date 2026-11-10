@@ -2756,25 +2756,25 @@ body.light .kp-pass { background: color-mix(in srgb, var(--accent) 10%, rgba(255
 .kp-glow img { width: 100%; height: 100%; object-fit: cover; }
 .kp-now { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; margin: 0; font-size: var(--fs-small); letter-spacing: .18em; color: var(--text-dim); text-transform: uppercase; }
 .kp-now b { color: var(--text); font-weight: 400; letter-spacing: .06em; text-transform: none; }
-.kp-lyr { position: relative; min-height: 8em; margin: 18px auto 0; }
-.kp-line { display: block; line-height: 1.2; }
-.kp-cur { font-size: clamp(1.5rem, 5.4vw, 3.4rem); color: color-mix(in srgb, var(--text) 22%, transparent); }
-.kp-nxt { margin-top: 10px; font-family: var(--font-text); font-weight: 300; font-size: clamp(.9rem, 1.8vw, 1.2rem); color: color-mix(in srgb, var(--text) 55%, transparent); }
-.kp-cur.in { animation: kpSmokeIn .9s cubic-bezier(.2, .8, .2, 1); }
-.kp-cur.out { position: absolute; left: 0; right: 0; top: 0; animation: kpSmokeOut 1.2s ease-in forwards; pointer-events: none; }
-.kp-nxt.in { animation: kpUp .7s cubic-bezier(.2, .8, .2, 1); }
-@keyframes kpSmokeIn { from { opacity: 0; filter: blur(12px); transform: translateY(16px) scale(.98); letter-spacing: .12em; } }
-@keyframes kpSmokeOut { to { opacity: 0; filter: blur(16px); transform: translateY(-40px) scale(1.04); letter-spacing: .14em; } }
-@keyframes kpUp { from { opacity: 0; transform: translateY(10px); } }
-/* slovo: rozžhavené do bíla, po odzpívání vychladne do barvy fotky */
-.kp-w { position: relative; display: inline-block; white-space: pre; }
+/* dva řádky nad sebou se střídají (jako opravdové karaoke): zpívaný svítí, v druhém už čeká další */
+.kp-lyr { position: relative; margin: 26px auto 0; display: grid; gap: 6px; }
+.kp-slot { position: relative; min-height: 2.5em; display: grid; align-items: center; font-size: clamp(1.3rem, 4.6vw, 2.8rem); line-height: 1.2; }
+.kp-line { grid-area: 1 / 1; color: color-mix(in srgb, var(--text) 22%, transparent); transition: color .6s; }
+.kp-slot.active .kp-line { color: color-mix(in srgb, var(--text) 38%, transparent); }
+/* starý řádek rychle zmizí a nový přijde až po něm – nikdy se nepřekrývají */
+.kp-line.in { animation: kpLineIn .5s .35s cubic-bezier(.2, .8, .2, 1) both; }
+.kp-line.out { animation: kpLineOut .35s ease-in forwards; pointer-events: none; }
+@keyframes kpLineIn { from { opacity: 0; transform: translateY(8px); } }
+@keyframes kpLineOut { to { opacity: 0; transform: translateY(-8px); } }
+/* slovo: rozžhavené do bíla, po odzpívání vychladne do barvy fotky a pak se rozplyne (nepřekáží bludičce) */
+.kp-w { position: relative; display: inline-block; white-space: pre; transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s ease; }
 .kp-w::after { content: attr(data-t); position: absolute; left: 0; top: 0; color: #fff6e8; text-shadow: 0 0 6px #fff, 0 0 18px var(--accent), 0 0 42px var(--accent);
-  clip-path: inset(-30% calc(100% - var(--p, 0) * 100%) -30% -4%); }
+  clip-path: inset(-30% calc((1 - var(--kp, 0)) * 108% - 4%) -30% -4%); }   /* kp 0 = celé schované i se září, 1 = celé vidět */
 .kp-w.done::after { color: var(--accent); text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent); transition: color 1.2s, text-shadow 1.2s; }
+.kp-w.gone { opacity: .12; filter: blur(3px); transform: translateY(-3px); }
 body.light .kp-w::after, body.light .kp-w.done::after { color: var(--accent); text-shadow: 0 0 1px var(--accent); }
-.kp-dots { display: inline-flex; gap: 12px; height: 1em; align-items: center; }
-.kp-dots i { width: .34em; height: .34em; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); transition: opacity .3s, transform .3s; }
-.kp-dots i.off { opacity: .15; transform: scale(.55); box-shadow: none; }
+/* čára letu bludičky (plátno sahá 120 px nad text kvůli obloukům) */
+.kp-trail { position: absolute; z-index: 1; left: 0; top: -120px; width: 100%; height: calc(100% + 120px); pointer-events: none; }
 .kp-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
 .kp-sing { position: relative; overflow: hidden; display: inline-flex; gap: 10px; align-items: center; justify-content: center; min-height: 52px; padding: 0 30px; border-radius: 999px;
   font-size: var(--fs-body); letter-spacing: .08em; color: var(--accent-ink, #111); text-decoration: none;
@@ -2812,14 +2812,18 @@ body.light .kp-ghost { background: rgba(255, 255, 255, .5); }
   .kp-row .n { font-size: 2.4rem; }
   .kp-row .th { width: 60px; height: 60px; }
 }
-html.low-fx .kp-sing::after, html.low-fx .kp-row .eqr i, html.low-fx .kp-pass .dot { animation: none; }
+html.low-fx .kp-sing::after, html.low-fx .kp-row .eqr i, html.low-fx .kp-pass .dot, html.low-fx .kp-orb i { animation: none; }
 html.low-fx .kp-glow { display: none; }
-/* bludička (js/karaoke-page.js): žhavá kulička skáče ze slova na slovo podle zpěvu, za sebou stopa jisker */
-.kp-orb, .kp-orb-trail { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; border-radius: 50%; will-change: transform; }
-.kp-orb { width: 14px; height: 14px; margin: -7px 0 0 -7px; opacity: 0; transition: opacity .3s;
-  background: radial-gradient(circle at 40% 35%, #fff 0 22%, color-mix(in srgb, var(--accent) 40%, #fff) 40%, var(--accent) 75%);
-  box-shadow: 0 0 10px var(--accent), 0 0 26px color-mix(in srgb, var(--accent) 70%, transparent); transform-origin: 50% 100%; }
+/* bludička (js/karaoke-page.js): mihotavý plamínek letí nad textem tam, kde se zpívá, za sebou čára letu */
+.kp-orb { position: absolute; left: 0; top: 0; z-index: 2; width: 0; height: 0; pointer-events: none; opacity: 0; transition: opacity .4s; will-change: transform; }
 .kp-orb.on { opacity: 1; }
-.kp-orb-trail { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; opacity: 0; background: var(--accent); filter: blur(1px); box-shadow: 0 0 8px var(--accent); }
-body.light .kp-orb { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent) 60%, #000), 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent); }
-body.light .kp-orb-trail { filter: none; box-shadow: none; }
+/* plamínek: velká měkká záře a v ní malé bílé jádro ve tvaru kapky; oboje se mihotá */
+.kp-orb i { position: absolute; left: 0; top: 0; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; }
+.kp-orb i:first-child { width: 26px; height: 32px; margin: -20px 0 0 -13px; filter: blur(5px);
+  background: radial-gradient(ellipse at 50% 62%, color-mix(in srgb, var(--accent) 85%, #fff) 0, var(--accent) 38%, transparent 70%);
+  animation: kpFlicker 1.3s ease-in-out infinite alternate; }
+.kp-orb i:last-child { width: 8px; height: 11px; margin: -8px 0 0 -4px; filter: blur(.6px);
+  background: radial-gradient(ellipse at 50% 65%, #fff 0 35%, color-mix(in srgb, var(--accent) 40%, #fff) 70%, transparent 100%);
+  animation: kpFlicker .7s ease-in-out infinite alternate-reverse; }
+@keyframes kpFlicker { 0% { transform: scale(1, 1); opacity: .9; } 40% { transform: scale(.88, 1.12) translateY(-1px); opacity: 1; } 100% { transform: scale(1.08, .92); opacity: .75; } }
+body.light .kp-orb i:first-child { background: radial-gradient(ellipse at 50% 62%, var(--accent) 0, color-mix(in srgb, var(--accent) 60%, transparent) 40%, transparent 70%); }
