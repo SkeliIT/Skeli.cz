@@ -1,7 +1,8 @@
 // Texty a Karaoke (texty.jsp): Kolotoč písní. Svislé kolo, píseň na „čáře výběru“ (horní třetina kola) se rozsvítí
 // a ukáže verš a tlačítka Číst text / Zpívej, ostatní se naklánějí a mizí. Přepínač Texty | Karaoke nechá v Karaoke
 // jen písně s časy (data-k) a hlavní tlačítko je Zpívej. Hledání (/api/search) a roky filtrují stejně jako dřív.
-// Na konci kola (nahoře i dole) se dál posouvá stránka, prst se nikde nezasekne.
+// Kolo NEMÁ vlastní posouvání: jede celá stránka (dřív se na telefonu posouvala zvlášť stránka a zvlášť kolo uvnitř
+// a vypadalo to jako rozbitý web). Čára výběru je pevně v horní třetině obrazovky pod hlavičkou.
 (function () {
   var wheel = document.getElementById('songGrid'), wrap = document.getElementById('wheelWrap');
   var input = document.getElementById('lyricSearch'), chips = document.getElementById('yearChips');
@@ -14,28 +15,37 @@
   var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mode = main.classList.contains('k-mode') ? 'k' : 't';
   var year = '', hits = null, timer = 0, kevinTimer = 0, asked = '';
-  var shown = items.slice(), mid = null, padTop = 0, raf = 0;
+  var shown = items.slice(), mid = null, raf = 0;
 
   // ---- geometrie kola ----
+  // čára výběru = kousek pod hlavičkou a lištou roků, v horní třetině toho, co zbývá z obrazovky
+  function head() {
+    var h = document.querySelector('.site-header'), b = h ? h.getBoundingClientRect().bottom : 64;
+    return Math.max(0, b) + (rail && rail.offsetHeight && getComputedStyle(rail).position === 'sticky' && innerWidth <= 1024 ? rail.offsetHeight : 0);
+  }
+  function lineY() { var top = head(); return top + (innerHeight - top) * 0.32; }
   function layout() {
     var first = shown[0] || items[0];
     if (!first) return;
-    var ih = first.offsetHeight, h = wheel.clientHeight;
-    padTop = Math.max(12, Math.round(h * 0.3 - ih / 2));
-    pads[0].style.height = padTop + 'px';
-    pads[1].style.height = Math.max(0, h - padTop - ih - 16) + 'px';
-    wheel.style.scrollPaddingTop = padTop + 'px';
+    var ih = first.offsetHeight;
+    pads[0].style.height = '0px';
+    // dole místo, aby i poslední píseň dojela na čáru výběru
+    pads[1].style.height = Math.max(0, Math.round(innerHeight - lineY() - ih / 2 - 30)) + 'px';
+    // přichycení stránky (html:has(main.texty-page) v pages.css): píseň se zastaví na čáře výběru
+    wheel.style.setProperty('--wheel-snap', Math.round(lineY() - ih / 2) + 'px');
     update();
   }
+  // kde by stránka musela být, aby píseň stála na čáře výběru
+  function targetOf(el) { return wheel.getBoundingClientRect().top + scrollY + el.offsetTop + el.offsetHeight / 2 - lineY(); }
   function update() {
     raf = 0;
     if (!shown.length) return setMid(null);
-    var ih = shown[0].offsetHeight, step = ih + 14, line = wheel.scrollTop + padTop + ih / 2, best = null, bd = 1e9;
+    var ih = shown[0].offsetHeight, step = ih + 14, line = lineY() - wheel.getBoundingClientRect().top, best = null, bd = 1e9;
     var flat = low() || still;
     shown.forEach(function (el) {
       var d = (el.offsetTop + el.offsetHeight / 2 - line) / step, a = Math.abs(d);
       if (a < 3.5) {   // daleké písně se nepočítají (výkon) – stejně jsou skoro neviditelné
-        el.style.transform = flat ? '' : 'rotateX(' + (-d * 22).toFixed(1) + 'deg) scale(' + Math.max(0.74, 1 - a * 0.11).toFixed(3) + ')';
+        el.style.transform = flat ? '' : 'perspective(900px) rotateX(' + (-d * 22).toFixed(1) + 'deg) scale(' + Math.max(0.74, 1 - a * 0.11).toFixed(3) + ')';
         el.style.opacity = Math.max(0.12, 1 - a * 0.42).toFixed(2);
       } else { el.style.opacity = '0.12'; }
       if (a < bd) { bd = a; best = el; }
@@ -56,11 +66,11 @@
     if (rail) rail.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.year === el.dataset.year); });
     sing();
   }
-  wheel.addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
+  window.addEventListener('scroll', function () { if (!raf && wheel.isConnected) raf = requestAnimationFrame(update); }, { passive: true });
   window.addEventListener('resize', function () { requestAnimationFrame(layout); });
   function goTo(el, smooth) {
     if (!el) return;
-    wheel.scrollTo({ top: el.offsetTop - padTop, behavior: smooth && !still ? 'smooth' : 'auto' });
+    window.scrollTo({ top: Math.max(0, targetOf(el)), behavior: smooth && !still ? 'smooth' : 'auto' });
   }
   // ťuknutí na píseň mimo výběr = dojede na čáru výběru (odkazy v ní fungují až potom)
   // vybraná píseň: klik mimo tlačítka otevře text (jako dřív celý řádek)
@@ -171,7 +181,9 @@
     wrap.hidden = !shown.length;
     setMid(null);
     layout();
-    if (toStart) { wheel.scrollTop = 0; update(); }
+    // nový filtr: když je člověk už dole v seznamu, vrátí ho na první píseň (nahoře u nadpisu ho nechá být)
+    if (toStart && shown[0] && scrollY > targetOf(shown[0]) + 4) goTo(shown[0], false);
+    update();
   }
 
   // ---- přepínač Texty | Karaoke ----

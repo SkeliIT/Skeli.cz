@@ -417,18 +417,24 @@ main:not(.k-mode) .mode-switch [data-mode="t"], main.k-mode .mode-switch [data-m
 
 .wheel-wrap { position: relative; max-width: 1080px; margin: 0 auto; }
 .wheel-wrap[hidden] { display: none; }
-.wheel-years { display: none; }
+/* roky: na telefonu tenká lišta, která se při posouvání přilepí pod hlavičku (skok na první píseň roku) */
+.wheel-years { position: sticky; top: var(--header-h); z-index: 5; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  margin: 0 -16px 10px; padding: 8px 16px; background: color-mix(in srgb, var(--bg) 88%, transparent); }
+.wheel-years::-webkit-scrollbar { display: none; }
+.wheel-years:empty { display: none; }
+.wheel-years button { flex: none; min-height: 36px; padding: 6px 14px; border-radius: 999px; cursor: pointer; font-family: var(--font-display); font-size: var(--fs-small);
+  color: var(--text-dim); background: transparent; border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); }
+.wheel-years button.on { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+/* kolo bez vlastního posuvníku: jede celá stránka a přichytí píseň na čáru výběru (js/texty-wheel.js nastaví --wheel-snap) */
+html:has(main.texty-page .lyric-wheel) { scroll-snap-type: y proximity; }
 .lyric-wheel.song-list {
   --ih: 220px;
-  display: block; max-width: none; height: min(600px, calc(100svh - var(--header-h, 64px) - 40px)); min-height: 300px;
-  overflow-y: auto; overscroll-behavior-y: auto; scroll-snap-type: y mandatory; perspective: 900px; scrollbar-width: none; outline: none;
-  -webkit-mask-image: linear-gradient(transparent, #000 6%, #000 80%, transparent);
-          mask-image: linear-gradient(transparent, #000 6%, #000 80%, transparent);
+  position: relative; display: block; max-width: none; outline: none;
 }
 .lyric-wheel::-webkit-scrollbar { display: none; }
 .lyric-wheel:focus-visible .wheel-item.mid { outline: 2px solid var(--accent); outline-offset: 3px; }
 .lyric-wheel .wheel-item {
-  height: var(--ih); min-height: 0; margin: 0 0 14px; padding: 46px 18px 16px; scroll-snap-align: start;
+  height: var(--ih); min-height: 0; margin: 0 0 14px; padding: 46px 18px 16px; scroll-snap-align: start; scroll-margin-top: var(--wheel-snap, 120px);
   flex-direction: column; justify-content: flex-end; align-items: stretch; gap: 0;
   transform-origin: center; will-change: transform, opacity; cursor: pointer;
   border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius: 22px;
@@ -485,9 +491,10 @@ body.light .wheel-kbadge, body.light .wbtn { background: rgba(255, 255, 255, 0.7
 /* PC: vlevo roky (skok na první píseň roku), karty vyšší, verš větší */
 @media (min-width: 1025px) {
   .wheel-wrap { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 18px; }
-  .wheel-years { display: flex; flex-direction: column; gap: 4px; padding-top: 24px; }
+  .wheel-years { flex-direction: column; gap: 4px; padding: 24px 0 0; margin: 0; background: none; overflow: visible;
+    align-self: start; top: calc(var(--header-h) + 24px); }
   .wheel-years button {
-    padding: 8px 10px; border: 0; border-radius: 10px; background: none; text-align: left; cursor: pointer;
+    min-height: 0; padding: 8px 10px; border: 0; border-radius: 10px; background: none; text-align: left; cursor: pointer;
     font-family: var(--font-display); font-size: var(--fs-card); color: var(--text-dim);
   }
   .wheel-years button.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
