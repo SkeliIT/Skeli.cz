@@ -98,7 +98,7 @@
   }
   function ball(t, i, L, active) {
     if (still) return;
-    var p = null, hop = 0, u = 0;
+    var p = null, hop = 0, u = 0, jump = false;
     if (i < 0) {                                       // přilétne zleva na začátek prvního slova
       var f0 = firstWord(0);
       if (!f0 || t < L[0].a - 1.2) { hide(); draw(t); return; }
@@ -127,6 +127,7 @@
             u = Math.max(0, Math.min(1, (t - st) / fly));
             p = { x: end.x + (dst.x - end.x) * u, y: end.y + (dst.y - end.y) * u };
             hop = 40 * 4 * u * (1 - u);
+            jump = u > 0;                              // při přeskoku na další řádek bez čáry
           }
         }
       }
@@ -137,7 +138,7 @@
     lastX = x; lastT = t;
     orb.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + tilt.toFixed(1) + 'deg)';
     orb.classList.add('on');
-    path.push({ x: x, y: y, t: t });
+    if (jump) path = []; else path.push({ x: x, y: y, t: t });   // čára začne znovu až na novém řádku
     draw(t);
   }
   // čára letu: nejstarší část mizí jako první, u bludičky je nejsilnější
