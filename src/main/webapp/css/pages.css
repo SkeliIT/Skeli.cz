@@ -427,6 +427,10 @@ main:not(.k-mode) .mode-switch [data-mode="t"], main.k-mode .mode-switch [data-m
 .wheel-years button.on { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
 /* kolo bez vlastního posuvníku: jede celá stránka a přichytí píseň na čáru výběru (js/texty-wheel.js nastaví --wheel-snap) */
 html:has(main.texty-page .lyric-wheel) { scroll-snap-type: y proximity; }
+/* začátek a konec stránky jsou taky zastávky – jinak by přichycení u horního okraje stáhlo stránku zpátky na první
+   píseň (kolečkem nahoru se pak nedalo dojet k menu) a u patičky zpátky na poslední */
+main.texty-page { scroll-snap-align: start; scroll-margin-top: 100000px; }
+body:has(main.texty-page) .site-footer { scroll-snap-align: end; }
 .lyric-wheel.song-list {
   --ih: 220px;
   position: relative; display: block; max-width: none; outline: none;
