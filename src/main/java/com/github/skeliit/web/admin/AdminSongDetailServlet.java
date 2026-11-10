@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Song hub in admin: media + per-language lyrics / SEO / meta description.
  * GET  /admin/song?uuid=…
- * POST action=save|save_locale|save_art|save_poster|link_video|unlink_video|translate_locale
+ * POST action=save|save_locale|save_art|save_poster|save_disco_src|link_video|unlink_video|translate_locale
  */
 @WebServlet(name = "AdminSongDetailServlet", urlPatterns = { "/admin/song" })
 public class AdminSongDetailServlet extends HttpServlet {
@@ -72,8 +72,16 @@ public class AdminSongDetailServlet extends HttpServlet {
                     ? "/yt-thumb/" + videos.get(0).youtubeId + "/hqdefault.jpg"
                     : WebUtils.safeUrl(song.previewImageUrl, null);
             req.setAttribute("rowArt", rowArt);
-            // the Karaoke poster always shows the newest clip (songs without a clip have no karaoke)
-            req.setAttribute("posterArt", !videos.isEmpty() && videos.get(0).youtubeId != null ? "/yt-thumb/" + videos.get(0).youtubeId + "/hqdefault.jpg" : null);
+            // Obrázek v Diskografii: automatický (ostrý obrázek z klipu, jinak náhled z YouTube), snímky z YouTube, nahraný
+            String newestYt = !videos.isEmpty() ? videos.get(0).youtubeId : null;
+            String discoAuto = newestYt == null ? WebUtils.safeUrl(song.previewImageUrl, null)
+                    : getServletContext().getResource("/img/disco/" + newestYt + ".webp") != null ? "/img/disco/" + newestYt + ".webp" : "/yt-thumb/" + newestYt + "/maxresdefault.jpg";
+            String discoImage = songs.getDiscoImage(song.id);
+            req.setAttribute("discoAuto", discoAuto);
+            req.setAttribute("discoImage", discoImage);
+            req.setAttribute("discoShown", discoImage != null ? discoImage : discoAuto);
+            req.setAttribute("discoYt", newestYt);
+            req.setAttribute("discoStyle", com.github.skeliit.model.Song.posterStyle(song.posterX, song.posterY, song.posterZoom));
             req.setAttribute("songTitle", com.github.skeliit.model.SongTitle.of(song.name));
             req.setAttribute("locales", buildLocaleMap(song.id));
             req.setAttribute("langs", LANGS);
@@ -221,6 +229,15 @@ public class AdminSongDetailServlet extends HttpServlet {
                     }
                     resp.sendRedirect(hub + "&msg=art_saved#row-art");
                 }
+                case "save_disco_src" -> {   // zdroj obrázku v Diskografii (prázdný = automaticky)
+                    String src = req.getParameter("src");
+                    if (src == null || src.isBlank()) songs.updateDiscoImage(id, null);
+                    else if (src.matches("/yt-thumb/[A-Za-z0-9_-]{6,20}/(maxresdefault|maxres[123]|hq[123]|hqdefault|sddefault)\\.jpg")
+                            || src.matches("/uploads/song-previews/disco-\\d+\\.jpg(\\?v=\\d+)?")
+                            || src.matches("/img/disco/[A-Za-z0-9_-]{6,20}\\.webp")) songs.updateDiscoImage(id, src);
+                    else { resp.sendRedirect(hub + "&msg=bad_art#disco-art"); return; }
+                    resp.sendRedirect(hub + "&msg=disco_saved#disco-art");
+                }
                 case "save_poster" -> {
                     if ("1".equals(req.getParameter("auto"))) {
                         songs.updatePoster(id, null, null, null);
@@ -234,7 +251,7 @@ public class AdminSongDetailServlet extends HttpServlet {
                         }
                         songs.updatePoster(id, Song.clamp(x, 0, 100), Song.clamp(y, 0, 100), Song.clamp(zoom, 1, 3));
                     }
-                    resp.sendRedirect(hub + "&msg=poster_saved#poster-art");
+                    resp.sendRedirect(hub + "&msg=poster_saved#disco-art");
                 }
                 case "save_locale" -> {
                     String lang = I18n.safeLang(req.getParameter("lang"));

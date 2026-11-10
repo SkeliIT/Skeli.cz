@@ -28,7 +28,8 @@
         <c:when test="${param.msg == 'preview_saved'}">Náhledový obrázek uložen.</c:when>
         <c:when test="${param.msg == 'preview_deleted'}">Náhledový obrázek smazán.</c:when>
         <c:when test="${param.msg == 'art_saved'}">Obrázek v seznamu Texty uložen.</c:when>
-        <c:when test="${param.msg == 'poster_saved'}">Plakát v Karaoke uložen.</c:when>
+        <c:when test="${param.msg == 'poster_saved'}">Posun obrázku v Diskografii uložen.</c:when>
+        <c:when test="${param.msg == 'disco_saved'}">Obrázek v Diskografii uložen.</c:when>
         <c:when test="${param.msg == 'bad_art'}">Pozici obrázku se nepodařilo přečíst – zkus to znovu.</c:when>
         <c:when test="${param.msg == 'bad_youtube'}">Neplatné YouTube ID / URL.</c:when>
         <c:when test="${param.msg == 'bad_name'}">Název písně je povinný.</c:when>
@@ -410,24 +411,48 @@
       </c:choose>
     </section>
 
-    <!-- Plakát v Karaoke (/karaoke-kino): výřez a velikost ručně -->
-    <section class="admin-card admin-card-wide" id="poster-art">
-      <h3>Plakát v Karaoke</h3>
-      <c:choose>
-        <c:when test="${empty posterArt}">
-          <p class="text-dim">Song nemá video, v Karaoke se neukazuje.</p>
-        </c:when>
-        <c:otherwise>
-          <p class="text-dim">Obrázek <strong>posuň myší</strong> (prstem), <strong>kolečkem</strong> zvětšíš. Vlevo velký plakát (nejnovější píseň), vpravo běžný.</p>
-          <div class="poster-editor" id="posterEditor"
-               data-x="${song.posterX != null ? song.posterX : ''}" data-y="${song.posterY != null ? song.posterY : ''}" data-zoom="${song.posterZoom != null ? song.posterZoom : ''}">
-            <span class="k-feature-poster poster-drag"><img src="<c:out value='${posterArt}'/>" alt="" draggable="false"></span>
-            <span class="k-poster poster-drag">
-              <span class="k-poster-img"><img src="<c:out value='${posterArt}'/>" alt="" draggable="false"></span>
-              <span class="k-poster-text"><span class="k-poster-title"><c:out value="${songTitle.title}"/></span></span>
-              <span class="k-ticket"><i class="fa-solid fa-ticket"></i></span>
-            </span>
-          </div>
+    <!-- Obrázek v Diskografii (Hudba): zdroj (automaticky / snímek z YouTube / vlastní) a posun se zvětšením -->
+    <section class="admin-card admin-card-wide" id="disco-art">
+      <h3>Obrázek v Diskografii</h3>
+      <p class="text-dim">1) Vyber obrázek, 2) v náhledu karty ho <strong>posuň myší nebo prstem</strong> a <strong>kolečkem / posuvníkem</strong> zvětši, 3) Uložit.</p>
+      <form method="post" action="/admin/song" class="disco-src">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="id" value="${song.id}">
+        <input type="hidden" name="action" value="save_disco_src">
+        <div class="disco-src-grid">
+          <label class="disco-src-tile"><input type="radio" name="src" value="" ${empty discoImage ? 'checked' : ''}>
+            <span class="disco-src-img"><c:if test="${not empty discoAuto}"><img src="<c:out value='${discoAuto}'/>" alt="" loading="lazy"></c:if></span><span>Automaticky</span></label>
+          <c:if test="${not empty discoYt}">
+            <c:forEach var="n" items="maxresdefault,maxres1,maxres2,maxres3">
+              <c:set var="ytSrc" value="/yt-thumb/${discoYt}/${n}.jpg"/>
+              <label class="disco-src-tile"><input type="radio" name="src" value="${ytSrc}" ${discoImage == ytSrc ? 'checked' : ''}>
+                <span class="disco-src-img"><img src="${ytSrc}" alt="" loading="lazy" onerror="this.closest('label').hidden=true"></span>
+                <span>${n == 'maxresdefault' ? 'Titulní z YouTube' : 'Snímek z klipu '.concat(n.substring(6))}</span></label>
+            </c:forEach>
+          </c:if>
+          <c:if test="${not empty discoImage and discoImage.startsWith('/uploads/')}">
+            <label class="disco-src-tile"><input type="radio" name="src" value="<c:out value='${discoImage}'/>" checked>
+              <span class="disco-src-img"><img src="<c:out value='${discoImage}'/>" alt="" loading="lazy"></span><span>Vlastní obrázek</span></label>
+          </c:if>
+        </div>
+        <button type="submit">Použít vybraný</button>
+      </form>
+      <form method="post" action="/admin/songs/preview" enctype="multipart/form-data" class="admin-inline-form disco-upload">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="song_id" value="${song.id}">
+        <input type="hidden" name="target" value="disco">
+        <input type="hidden" name="redirect" value="/admin/song?id=${song.id}">
+        <label>Nahrát vlastní obrázek (fotka, snímek obrazovky z klipu): <input type="file" name="file" accept="image/*" required></label>
+        <button type="submit" class="control-btn">Nahrát</button>
+      </form>
+
+      <c:if test="${not empty discoShown}">
+      <div class="disco-edit-wrap">
+        <div class="disco-edit" id="discoEditor" data-x="${song.posterX != null ? song.posterX : ''}" data-y="${song.posterY != null ? song.posterY : ''}" data-zoom="${song.posterZoom != null ? song.posterZoom : ''}">
+          <img class="placed" src="<c:out value='${discoShown}'/>" alt="" draggable="false">
+          <span class="disco-edit-name"><c:out value="${songTitle.title}"/></span>
+        </div>
+        <div>
           <div class="art-controls">
             <label class="art-zoom">Velikost
               <input type="range" id="posterZoom" min="100" max="300" step="1" value="100">
@@ -442,12 +467,13 @@
             <input type="hidden" name="poster_x" id="posterX">
             <input type="hidden" name="poster_y" id="posterY">
             <input type="hidden" name="poster_zoom" id="posterZoomVal">
-            <button type="submit">Uložit</button>
-            <button type="submit" name="auto" value="1" class="control-btn">Vrátit automaticky</button>
-            <span class="text-dim">${song.posterZoom != null ? 'Teď: nastaveno ručně' : 'Teď: automaticky'}</span>
+            <button type="submit">Uložit posun</button>
+            <button type="submit" name="auto" value="1" class="control-btn">Bez posunu</button>
+            <span class="text-dim">${song.posterZoom != null ? 'Teď: posunuto ručně' : 'Teď: střed obrázku'}</span>
           </form>
-        </c:otherwise>
-      </c:choose>
+        </div>
+      </div>
+      </c:if>
     </section>
 
   </div>
@@ -747,41 +773,35 @@
 })();
 </script>
 <script>
-// the Karaoke poster: drag the picture, wheel / slider to zoom; the same CSS variables as the karaoke list
-// (--px / --py = the point of the thumbnail in the middle of the poster, --pz = zoom)
+// Obrázek v Diskografii: obrázek táhneš myší / prstem, kolečkem nebo posuvníkem zvětšíš. Stejné CSS proměnné jako
+// karta na Hudbě (--px / --py = bod obrázku v procentech, který je vidět uprostřed; --pz = zvětšení).
 (function () {
-  var ed = document.getElementById('posterEditor');
+  var ed = document.getElementById('discoEditor');
   if (!ed) return;
-  var boxes = [].slice.call(ed.querySelectorAll('.poster-drag')), imgs = [].slice.call(ed.querySelectorAll('img'));
-  var range = document.getElementById('posterZoom'), out = document.getElementById('posterZoomOut');
+  var img = ed.querySelector('img'), range = document.getElementById('posterZoom'), out = document.getElementById('posterZoomOut');
   var num = function (v, d) { v = parseFloat(v); return isFinite(v) ? v : d; };
   var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var st = { x: num(ed.dataset.x, 50), y: num(ed.dataset.y, 50), z: num(ed.dataset.zoom, 1) };
   function apply() {
     st.z = clamp(st.z, 1, 3); st.x = clamp(st.x, 0, 100); st.y = clamp(st.y, 0, 100);
-    imgs.forEach(function (i) { i.style.setProperty('--px', st.x.toFixed(2)); i.style.setProperty('--py', st.y.toFixed(2)); i.style.setProperty('--pz', st.z.toFixed(3)); });
+    img.style.setProperty('--px', st.x.toFixed(2)); img.style.setProperty('--py', st.y.toFixed(2)); img.style.setProperty('--pz', st.z.toFixed(3));
     range.value = Math.round(st.z * 100); out.textContent = Math.round(st.z * 100) + ' %';
     document.getElementById('posterX').value = st.x.toFixed(2);
     document.getElementById('posterY').value = st.y.toFixed(2);
     document.getElementById('posterZoomVal').value = st.z.toFixed(2);
   }
-  boxes.forEach(function (box) {
-    var drag = null, frame = box.querySelector('img').parentNode;
-    box.addEventListener('pointerdown', function (e) {
-      var r = frame.getBoundingClientRect();
-      drag = { px: e.clientX, py: e.clientY, x: st.x, y: st.y, w: r.width * 2.6667 * st.z, h: r.height * 1.3334 * st.z };
-      box.setPointerCapture(e.pointerId); e.preventDefault();
-    });
-    box.addEventListener('pointermove', function (e) {
-      if (!drag) return;
-      st.x = drag.x - (e.clientX - drag.px) / drag.w * 100;
-      st.y = drag.y - (e.clientY - drag.py) / drag.h * 100;
-      apply();
-    });
-    var end = function () { drag = null; };
-    box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
-    box.addEventListener('wheel', function (e) { e.preventDefault(); st.z *= e.deltaY < 0 ? 1.06 : 1 / 1.06; apply(); }, { passive: false });
+  var drag = null;
+  ed.addEventListener('pointerdown', function (e) { drag = { px: e.clientX, py: e.clientY, x: st.x, y: st.y }; ed.setPointerCapture(e.pointerId); e.preventDefault(); });
+  ed.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var r = ed.getBoundingClientRect();
+    st.x = drag.x - (e.clientX - drag.px) / r.width * 100 / st.z;
+    st.y = drag.y - (e.clientY - drag.py) / r.height * 100 / st.z;
+    apply();
   });
+  var end = function () { drag = null; };
+  ed.addEventListener('pointerup', end); ed.addEventListener('pointercancel', end);
+  ed.addEventListener('wheel', function (e) { e.preventDefault(); st.z *= e.deltaY < 0 ? 1.06 : 1 / 1.06; apply(); }, { passive: false });
   range.addEventListener('input', function () { st.z = range.value / 100; apply(); });
   document.getElementById('posterCenter').addEventListener('click', function () { st.x = 50; st.y = 50; apply(); });
   apply();

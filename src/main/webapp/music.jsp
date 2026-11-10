@@ -40,6 +40,9 @@
       // ostré náhledy na výšku z klipů (tools/disco-nahledy.py, img/disco/<id>.webp); bez nich malý náhled z YouTube
       java.util.Set<String> discoImgs = application.getResourcePaths("/img/disco/");
       if (discoImgs == null) discoImgs = java.util.Set.of();
+      // obrázek a jeho posun vybraný v adminu (karta „Obrázek v Diskografii“)
+      java.util.Map<Integer, String[]> discoPicked = java.util.Map.of();
+      try { discoPicked = new com.github.skeliit.dao.SongDao().discoPictures(); } catch (Exception e) { application.log("Diskografie obrázky", e); }
       if (disco != null) for (DiscoItem d : disco) {
         String nameHtml = WebUtils.escapeHtml(d.name);
         String yt = d.youtubeId;
@@ -58,7 +61,10 @@
        <div class="flip-in">
         <div class="flip-face flip-front">
           <span class="song-thumb">
-          <% if (versions != null && versions.size() > 1) { %>
+          <% String[] picked = d.song ? discoPicked.get(d.id) : null; %>
+          <% if (picked != null && picked[0] != null) { %>
+            <img class="disco-picked<%= picked[1].isEmpty() ? "" : " placed" %>" src="<%= WebUtils.escapeHtml(picked[0]) %>" alt="" loading="lazy" style="<%= picked[1] %>">
+          <% } else if (versions != null && versions.size() > 1) { %>
             <span class="thumb-split">
               <% String vb = versions.get(versions.size() - 1).youtubeId, vt = versions.get(0).youtubeId; %>
               <img class="split-bottom" src="<%= discoImgs.contains("/img/disco/" + vb + ".webp") ? "/img/disco/" + WebUtils.escapeHtml(vb) + ".webp" : "/yt-thumb/" + WebUtils.escapeHtml(vb) + "/mqdefault.jpg" %>" alt="" loading="lazy">
@@ -67,7 +73,7 @@
               <span class="split-tag split-tag-bottom"><%= WebUtils.escapeHtml(versions.get(versions.size() - 1).label(t)) %></span>
             </span>
           <% } else if (yt != null) { %>
-            <img src="<%= discoImgs.contains("/img/disco/" + yt + ".webp") ? "/img/disco/" + ytHtml + ".webp" : "/yt-thumb/" + ytHtml + "/mqdefault.jpg" %>" alt="" loading="lazy">
+            <img class="<%= picked != null && !picked[1].isEmpty() ? "placed" : "" %>" src="<%= discoImgs.contains("/img/disco/" + yt + ".webp") ? "/img/disco/" + ytHtml + ".webp" : "/yt-thumb/" + ytHtml + "/mqdefault.jpg" %>" alt="" loading="lazy" style="<%= picked != null ? picked[1] : "" %>">
           <% } else if (preview != null) { %>
             <img src="<%= WebUtils.escapeHtml(preview) %>" alt="" loading="lazy">
           <% } else { %>

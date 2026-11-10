@@ -250,6 +250,36 @@ public class SongDao {
         }
     }
 
+    /** Obrázek písně v Diskografii (null = automaticky), viz V137. */
+    public void updateDiscoImage(int songId, String url) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE songs SET disco_image=? WHERE id=?")) {
+            ps.setString(1, url);
+            ps.setInt(2, songId);
+            ps.executeUpdate();
+        }
+    }
+
+    public String getDiscoImage(int songId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT disco_image FROM songs WHERE id=?")) {
+            ps.setInt(1, songId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getString(1) : null; }
+        }
+    }
+
+    /** Diskografie: id písně → [vybraný obrázek nebo null, CSS proměnné posunu a zvětšení nebo ""]. */
+    public java.util.Map<Integer, String[]> discoPictures() throws SQLException {
+        java.util.Map<Integer, String[]> out = new java.util.HashMap<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT id, disco_image, poster_x, poster_y, poster_zoom FROM songs WHERE disco_image IS NOT NULL OR poster_zoom IS NOT NULL");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                out.put(rs.getInt("id"), new String[] { rs.getString("disco_image"),
+                        Song.posterStyle(nullableDouble(rs, "poster_x"), nullableDouble(rs, "poster_y"), nullableDouble(rs, "poster_zoom")) });
+            }
+        }
+        return out;
+    }
+
     public String getPreviewImageUrl(int songId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT preview_image_url FROM songs WHERE id=?")) {
             ps.setInt(1, songId);

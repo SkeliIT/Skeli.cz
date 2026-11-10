@@ -431,6 +431,33 @@ public class AdminPanelIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Píseň: obrázek v Diskografii jde vybrat ze snímků klipu a na Hudbě je pak vidět")
+    void discoImagePicked() throws Exception {
+        String songName = "IT Disco " + uniq(), yt = ("itd" + uniq()).substring(0, 11);
+        update("INSERT INTO songs (uuid, name, year) VALUES (UUID(), ?, 2026)", songName);
+        int songId = queryInt("SELECT id FROM songs WHERE name=?", songName);
+        update("INSERT INTO videos (youtube_id, song_id, title, published_at) VALUES (?, ?, ?, NOW())", yt, songId, songName);
+        try {
+            driver.get(BASE_URL + "/admin/song?id=" + songId + "#disco-art");
+            String src = "/yt-thumb/" + yt + "/maxres2.jpg";
+            WebElement radio = driver.findElement(By.cssSelector("#disco-art input[name=src][value='" + src + "']"));
+            jsClick(radio);
+            clickAndWaitReload(driver.findElement(By.cssSelector("#disco-art .disco-src button[type=submit]")), false);
+            assertEquals(src, queryString("SELECT disco_image FROM songs WHERE id=?", songId));
+            driver.get(BASE_URL + "/music.jsp");
+            assertTrue(driver.findElements(By.cssSelector(".discography img.disco-picked[src='" + src + "']")).size() > 0, "Diskografie bere vybraný snímek");
+            // zpátky na automatický
+            driver.get(BASE_URL + "/admin/song?id=" + songId + "#disco-art");
+            jsClick(driver.findElement(By.cssSelector("#disco-art input[name=src][value='']")));
+            clickAndWaitReload(driver.findElement(By.cssSelector("#disco-art .disco-src button[type=submit]")), false);
+            assertNull(queryString("SELECT disco_image FROM songs WHERE id=?", songId));
+        } finally {
+            update("DELETE FROM videos WHERE youtube_id=?", yt);
+            update("DELETE FROM songs WHERE id=?", songId);
+        }
+    }
+
+    @Test
     @DisplayName("Song hub: the picture in the Texty row is dragged and resized by hand, then automatic again")
     void rowArtPlacedByHand() throws Exception {
         String songName = "IT Row Art " + uniq();
