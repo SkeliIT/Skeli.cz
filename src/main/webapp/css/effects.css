@@ -1805,3 +1805,15 @@ body::before { --fx: var(--bbfx, 0px); --fy: var(--bbfy, 0px); }
 .bg-slides > div.fit { inset: 0; margin: auto; width: var(--bw); height: var(--bh); }
 body.bg-fit::before { inset: 0; margin: auto; width: var(--bbw); height: var(--bbh); }
 .bg-slides > div.fit, body.bg-fit::before { -webkit-mask-image: var(--fit-x), var(--fit-y); mask-image: var(--fit-x), var(--fit-y); -webkit-mask-composite: source-in; mask-composite: intersect; }
+
+/* VÝMĚNA FOTEK POZADÍ: nová fotka se prolíná nahoře (js/effects.js jí dá nejvyšší z-index), ta pod ní a obvyklé
+   pozadí (body::before) mizí až ke konci prolínání. Zmenšená fotka na velkém monitoru má okraje do průhledna – dřív
+   pod nimi zůstala vidět obvyklá rudá fotka a vypadalo to jako dvě zaseknuté fotky přes sebe. */
+.bg-slides > div, body:has(main.home-page.ulice) .bg-slides > div { transition: opacity 4s cubic-bezier(.75, 0, .9, 1), translate .9s ease; }
+.bg-slides > div.on, body:has(main.home-page.ulice) .bg-slides > div.on { transition: opacity 4s ease-in-out, translate .9s ease; }
+.bg-slides > div.instant, body:has(main.home-page.ulice) .bg-slides > div.instant { transition: none; }
+body::before { transition: opacity 4s ease-in-out, translate .9s ease; }
+body.slide-on::before { opacity: 0; transition: opacity 4s cubic-bezier(.75, 0, .9, 1), translate .9s ease; }
+body.slide-instant::before { transition: none; }
+/* lehký režim fotky nestřídá (vrstva je schovaná) – obvyklé pozadí musí zůstat vidět */
+html.low-fx body.slide-on::before { opacity: 1; }

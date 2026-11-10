@@ -232,6 +232,7 @@
     var box = document.querySelector('.bg-slides');
     if (!box || reduced || low()) return;
     var step = 0, wait = 0, every = 0;   // step 0 = the usual background, 1..n = the photos
+    var topZ = 1;                        // poslední ukázaná fotka leží vždy nahoře
     function theme() { return document.body.classList.contains('light') ? 'light' : 'dark'; }
     function build() {
       var size = window.innerWidth * (window.devicePixelRatio || 1) > 1400 ? 'lg' : 'md';
@@ -256,10 +257,18 @@
           layers[i].classList.toggle('instant', !!instant);
           layers[i].classList.toggle('on', layers[i] === cur);
         }
+        // nová fotka se prolíná nahoře; obvyklé pozadí (body::before) pod ní zmizí, jinak by u zmenšené fotky
+        // na velkém monitoru prosvítalo jejími průhlednými okraji (vypadalo to jako dvě zaseknuté fotky)
+        if (cur) cur.style.zIndex = ++topZ;
+        document.body.classList.toggle('slide-instant', !!instant);
+        document.body.classList.toggle('slide-on', !!cur);
         paint(cur ? cur.dataset.name : 'base', instant);   // web se přebarví spolu s fotkou
 
         if (instant) requestAnimationFrame(function () {
-          requestAnimationFrame(function () { for (var i = 0; i < layers.length; i++) layers[i].classList.remove('instant'); });
+          requestAnimationFrame(function () {
+            for (var i = 0; i < layers.length; i++) layers[i].classList.remove('instant');
+            document.body.classList.remove('slide-instant');
+          });
         });
       }
       if (cur && !cur.style.getPropertyValue('--slide')) {
@@ -284,6 +293,7 @@
       clearTimeout(wait);
       clearInterval(every);
       build();
+      document.body.classList.remove('slide-on');   // nová sada fotek začíná na obvyklém pozadí
       // kontrola fotek: ?bgshow=<jméno fotky> (např. skull) ukáže jen tu jednu a nestřídá se
       var only = new URLSearchParams(location.search).get('bgshow');
       if (only) {
