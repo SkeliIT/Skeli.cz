@@ -100,8 +100,33 @@
   <% } %>
 
   <div class="pt-tab pt-grid" id="prehled">
+  <%
+    @SuppressWarnings("unchecked")
+    java.util.List<com.github.skeliit.model.UserTrack> tracksList = (java.util.List<com.github.skeliit.model.UserTrack>) request.getAttribute("playerTracks");
+    if (tracksList == null) tracksList = java.util.List.of();
+    String tracksTitle = "profile.tracks.others", tracksBack = plBack;
+    boolean tracksAdmin = "ADMIN".equals(session.getAttribute("role"));
+    @SuppressWarnings("unchecked")
+    java.util.List<com.github.skeliit.model.LikedSong> likesList = (java.util.List<com.github.skeliit.model.LikedSong>) request.getAttribute("playerLikes");
+    if (likesList == null) likesList = java.util.List.of();
+    String likesTitle = "profile.likes.others";
+    boolean likesOwn = false;
+    boolean siteOwn = false;
+    @SuppressWarnings("unchecked")
+    java.util.List<com.github.skeliit.model.ActivityItem> activityList = (java.util.List<com.github.skeliit.model.ActivityItem>) request.getAttribute("playerActivity");
+    if (activityList == null) activityList = java.util.List.of();
+    @SuppressWarnings("unchecked")
+    java.util.List<com.github.skeliit.model.Friend> plFriends = (java.util.List<com.github.skeliit.model.Friend>) request.getAttribute("playerFriends");
+  %>
+  <%-- styl „Časová osa“: vlevo aktivita a tvorba, vpravo boční panel (hry, oblíbená píseň, oblíbené, odznaky, přátelé) --%>
+  <div class="pt-cols">
+  <div class="pt-main">
+  <%@ include file="/includes/profile-activity.jspf" %>
+  <%@ include file="/includes/profile-tracks.jspf" %>
+  </div>
+  <aside class="pt-side">
   <% if (!plAnon) { %>
-  <a class="pt pt-stat pt-games pt-big-tile" href="#hry" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-gamepad pt-ghost" aria-hidden="true"></i>
+  <a class="pt pt-stat pt-games" href="#hry" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-gamepad pt-ghost" aria-hidden="true"></i>
     <span class="pt-in"><span class="pt-label"><%= t.getProperty("profile.tab.games") %></span><b class="pt-big"><%= pp.wins %></b><span class="pt-note"><%= t.getProperty("account.stats.wins") %></span></span></a>
   <% } %>
   <% if (sc[0] != null) { %>
@@ -112,35 +137,9 @@
     <span class="pt-song-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
   </a>
   <% } %>
-  <%
-    @SuppressWarnings("unchecked")
-    java.util.List<com.github.skeliit.model.UserTrack> tracksList = (java.util.List<com.github.skeliit.model.UserTrack>) request.getAttribute("playerTracks");
-    if (tracksList == null) tracksList = java.util.List.of();
-    String tracksTitle = "profile.tracks.others", tracksBack = plBack;
-    boolean tracksAdmin = "ADMIN".equals(session.getAttribute("role"));
-  %>
-  <%@ include file="/includes/profile-tracks.jspf" %>
-  <%
-    @SuppressWarnings("unchecked")
-    java.util.List<com.github.skeliit.model.LikedSong> likesList = (java.util.List<com.github.skeliit.model.LikedSong>) request.getAttribute("playerLikes");
-    if (likesList == null) likesList = java.util.List.of();
-    String likesTitle = "profile.likes.others";
-    boolean likesOwn = false;
-  %>
   <%@ include file="/includes/profile-likes.jspf" %>
-  <%
-    boolean siteOwn = false;
-    @SuppressWarnings("unchecked")
-    java.util.List<com.github.skeliit.model.ActivityItem> activityList = (java.util.List<com.github.skeliit.model.ActivityItem>) request.getAttribute("playerActivity");
-    if (activityList == null) activityList = java.util.List.of();
-  %>
   <%@ include file="/includes/profile-sitebadges.jspf" %>
-  <%@ include file="/includes/profile-activity.jspf" %>
-  <%
-    @SuppressWarnings("unchecked")
-    java.util.List<com.github.skeliit.model.Friend> plFriends = (java.util.List<com.github.skeliit.model.Friend>) request.getAttribute("playerFriends");
-    if (plFriends != null && !plFriends.isEmpty()) {
-  %>
+  <% if (plFriends != null && !plFriends.isEmpty()) { %>
   <section class="pt pt-friends" id="pratele-hrace">
     <div class="pt-in">
       <span class="pt-label"><i class="fa-solid fa-user-group" aria-hidden="true"></i> <%= t.getProperty("profile.tab.friends") %></span>
@@ -152,6 +151,8 @@
     </div>
   </section>
   <% } %>
+  </aside>
+  </div>
 
   </div>
 

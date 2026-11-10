@@ -129,6 +129,14 @@
     </div>
   </section>
 
+  <%-- čísla jako štítky (styl „Časová osa“), každý vede do své části profilu --%>
+  <nav class="pt-chips" aria-label="<%= t.getProperty("menu.account") %>">
+    <a class="pt-chip" href="#komentare"><b><%= me != null ? me.comments : 0 %></b> <span><%= t.getProperty("account.stats.comments") %></span></a>
+    <a class="pt-chip" href="#komentare"><b><%= me != null ? me.hearts : 0 %></b> <span><%= t.getProperty("account.stats.hearts") %></span></a>
+    <a class="pt-chip" href="#pratele"><b><%= frFriends.size() %></b> <span><%= t.getProperty("profile.tab.friends") %></span></a>
+    <a class="pt-chip" href="#hry"><b><%= shownEarned.size() %></b> <span><%= t.getProperty("pong.badges.title") %></span></a>
+    <a class="pt-chip" href="#hry"><b><%= pong.wins %></b> <span><%= t.getProperty("account.stats.wins") %></span></a>
+  </nav>
   <% Integer bestAll = null; for (Integer b : pong.bestMs) if (b != null && (bestAll == null || b < bestAll)) bestAll = b; %>
   <%-- části profilu: co je o mně, co je ze her (každá hra má v Hrách svůj blok), přátelé a komentáře --%>
   <nav class="acct-tabs profile-tabs" aria-label="<%= t.getProperty("menu.account") %>">
@@ -139,6 +147,8 @@
   </nav>
 
   <div class="pt-tab pt-grid" id="prehled">
+  <div class="pt-cols">
+  <div class="pt-main">
   <% if (startOpen) { %>
   <section class="pt pt-start" id="prvni-kroky">
     <div class="pt-in">
@@ -156,28 +166,6 @@
     </div>
   </section>
   <% } %>
-  <% if (hasStats) { %>
-  <a class="pt pt-stat pt-stat3 pt-comments" href="#komentare" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-comments pt-ghost" aria-hidden="true"></i>
-    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.comments") %></span><b class="pt-big"><%= me != null ? me.comments : 0 %></b></span></a>
-  <a class="pt pt-stat pt-stat3 pt-hearts" href="#komentare" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-heart pt-ghost" aria-hidden="true"></i>
-    <span class="pt-in"><span class="pt-label"><%= t.getProperty("account.stats.hearts") %></span><b class="pt-big"><%= me != null ? me.hearts : 0 %></b></span></a>
-  <a class="pt pt-stat pt-stat3 pt-stat-last pt-games" href="#hry" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-gamepad pt-ghost" aria-hidden="true"></i>
-    <span class="pt-in"><span class="pt-label"><%= t.getProperty("profile.tab.games") %></span><b class="pt-big"><%= pong.wins %></b><span class="pt-note"><%= t.getProperty("account.stats.wins") %></span></span></a>
-  <% } %>
-  <%-- oblíbený song: kdo ho nemá, dostane odkaz do nastavení (dokud je vidět seznam prvních kroků, je to jeden z nich) --%>
-  <% if (showcase[0] != null) { %>
-  <a class="pt pt-song<%= hasComments ? "" : " pt-solo" %>" href="<%= com.github.skeliit.I18n.songPath(request, showcase[0], 0) %>" data-tilt>
-    <% if (showcase[3] != null) { %><img class="pt-song-img" src="<%= WebUtils.escapeHtml(showcase[3]) %>" alt="" loading="lazy"><% } %>
-    <span class="pt-sheen"></span>
-    <span class="pt-in"><span class="pt-label"><i class="fa-solid fa-heart" aria-hidden="true"></i> <%= t.getProperty("profile.favSong") %></span><b class="pt-song-name"><%= WebUtils.escapeHtml(showcase[1]) %></b></span>
-    <span class="pt-song-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
-  </a>
-  <% } else { %>
-  <a class="pt pt-song pt-empty<%= hasComments ? "" : " pt-solo" %>" href="/nastaveni.jsp#profil" data-tilt<%= startOpen ? " data-start-fallback hidden" : "" %>>
-    <span class="pt-sheen"></span><i class="fa-solid fa-music pt-ghost" aria-hidden="true"></i>
-    <span class="pt-in"><span class="pt-label"><i class="fa-solid fa-heart" aria-hidden="true"></i> <%= t.getProperty("profile.favSong") %></span><span class="pt-note"><%= t.getProperty("profile.favSong.pick") %></span></span>
-  </a>
-  <% } %>
 
   <%-- poslední komentář a palce nahoru; všechny komentáře jsou v Komentářích --%>
   <% if (!myComments.isEmpty()) { UserComment lastC = myComments.get(0); %>
@@ -192,14 +180,35 @@
   </a>
   <% } %>
 
+  <%@ include file="includes/profile-activity.jspf" %>
+  <% if (myTracks.isEmpty()) { %><a class="pt-show-add pt-tracks-invite" href="/nastaveni.jsp#tvorba"><i class="fa-solid fa-music" aria-hidden="true"></i> <%= t.getProperty("profile.tracks.invite") %></a><% } %>
+  </div>
+  <aside class="pt-side">
+  <%-- oblíbený song: kdo ho nemá, dostane odkaz do nastavení (dokud je vidět seznam prvních kroků, je to jeden z nich) --%>
+  <% if (showcase[0] != null) { %>
+  <a class="pt pt-song<%= hasComments ? "" : " pt-solo" %>" href="<%= com.github.skeliit.I18n.songPath(request, showcase[0], 0) %>" data-tilt>
+    <% if (showcase[3] != null) { %><img class="pt-song-img" src="<%= WebUtils.escapeHtml(showcase[3]) %>" alt="" loading="lazy"><% } %>
+    <span class="pt-sheen"></span>
+    <span class="pt-in"><span class="pt-label"><i class="fa-solid fa-heart" aria-hidden="true"></i> <%= t.getProperty("profile.favSong") %></span><b class="pt-song-name"><%= WebUtils.escapeHtml(showcase[1]) %></b></span>
+    <span class="pt-song-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
+  </a>
+  <% } else { %>
+  <a class="pt pt-song pt-empty<%= hasComments ? "" : " pt-solo" %>" href="/nastaveni.jsp#profil" data-tilt<%= startOpen ? " data-start-fallback hidden" : "" %>>
+    <span class="pt-sheen"></span><i class="fa-solid fa-music pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label"><i class="fa-solid fa-heart" aria-hidden="true"></i> <%= t.getProperty("profile.favSong") %></span><span class="pt-note"><%= t.getProperty("profile.favSong.pick") %></span></span>
+  </a>
+  <% } %>
   <% java.util.List<com.github.skeliit.model.UserTrack> tracksList = myTracks; String tracksTitle = "profile.tracks.title", tracksBack = "/uzivatel.jsp"; boolean tracksAdmin = false; %>
   <%@ include file="includes/profile-tracks.jspf" %>
   <% String likesTitle = "profile.likes.title"; boolean likesOwn = true; %>
   <%@ include file="includes/profile-likes.jspf" %>
   <% boolean siteOwn = true; %>
   <%@ include file="includes/profile-sitebadges.jspf" %>
-  <%@ include file="includes/profile-activity.jspf" %>
-  <% if (myTracks.isEmpty()) { %><a class="pt-show-add pt-tracks-invite" href="/nastaveni.jsp#tvorba"><i class="fa-solid fa-music" aria-hidden="true"></i> <%= t.getProperty("profile.tracks.invite") %></a><% } %>
+  <%-- CatSmash v kostce: výhry a nejlepší čas, celé v Hrách --%>
+  <a class="pt pt-stat pt-games" href="#hry" data-tilt><span class="pt-sheen"></span><i class="fa-solid fa-gamepad pt-ghost" aria-hidden="true"></i>
+    <span class="pt-in"><span class="pt-label">CatSmash</span><b class="pt-big"><%= pong.wins %></b><span class="pt-note"><%= t.getProperty("account.stats.wins") %></span></span></a>
+  </aside>
+  </div>
 
   </div>
 

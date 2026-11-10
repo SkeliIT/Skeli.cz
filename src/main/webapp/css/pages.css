@@ -2841,3 +2841,30 @@ html.low-fx .kp-sing::after, html.low-fx .kp-row .eqr i, html.low-fx .kp-pass .d
   animation: kpFlicker .7s ease-in-out infinite alternate-reverse; }
 @keyframes kpFlicker { 0% { transform: scale(1, 1); opacity: .9; } 40% { transform: scale(.88, 1.12) translateY(-1px); opacity: 1; } 100% { transform: scale(1.08, .92); opacity: .75; } }
 body.light .kp-orb i:first-child { background: radial-gradient(ellipse at 50% 62%, var(--accent) 0, color-mix(in srgb, var(--accent) 60%, transparent) 40%, transparent 70%); }
+
+/* ===== Profil – styl „Časová osa“: štítky s čísly, přehled ve dvou sloupcích (osa vlevo, boční panel vpravo), záložky jako podtržení ===== */
+.pt-chips { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 4px; }
+.pt-chip { display: inline-flex; gap: 8px; align-items: baseline; min-height: 40px; padding: 8px 14px; border-radius: 999px; text-decoration: none; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); background: color-mix(in srgb, var(--accent) 6%, var(--panel)); transition: border-color .3s, transform .3s; }
+.pt-chip b { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-h4); color: var(--accent); }
+.pt-chip:hover { border-color: var(--accent); transform: translateY(-1px); text-decoration: none; }
+.pt-cols { grid-column: 1 / -1; display: grid; gap: 12px; }
+.pt-main, .pt-side { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.pt-cols .pt, .pt-cols .pt-show-add { grid-column: auto; }
+.pt-side .pt-stat { min-height: 0; }
+@media (min-width: 1025px) {
+  .pt-cols { grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; }
+  .pt-side { position: sticky; top: calc(var(--header-h) + 14px); }
+  /* osa aktivity v užším sloupci: čára vlevo (jako na telefonu) */
+  .pt-main .pt-activity .pt-feed::before { left: 15px; }
+  .pt-main .pt-activity .pt-feed li, .pt-main .pt-activity .pt-feed li:nth-child(even) { width: auto; margin-left: 0; align-items: flex-start; text-align: left; padding: 0 0 18px 44px; }
+  .pt-main .pt-activity .pt-feed li > i, .pt-main .pt-activity .pt-feed li:nth-child(even) > i { left: 0; right: auto; }
+  /* tvorba v bočním panelu: karty pod sebou po dvou */
+  .pt-side .pt-track-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* záložky profilu jako podtržení (ne kapsle) */
+.profile-tabs.acct-tabs { background: none; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--text) 12%, transparent); border-radius: 0; padding: 0; gap: 4px; }
+.profile-tabs.acct-tabs a { border-radius: 0; background: none; }
+.profile-tabs.acct-tabs a.active { background: none; color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); }
+/* levý sloupec bez obsahu (cizí profil bez aktivity a tvorby): boční panel přes celou šířku */
+@media (min-width: 1025px) { .pt-cols:not(:has(.pt-main > .pt)) { grid-template-columns: minmax(0, 1fr); } .pt-cols:not(:has(.pt-main > .pt)) .pt-main { display: none; } }

@@ -26,8 +26,9 @@ class ProfileTilesIT extends UiTestSupport {
         try {
             driver.get(BASE_URL + "/uzivatel.jsp");
             waitReady();
-            assertEquals(5, driver.findElements(By.cssSelector(".pt-stat")).size(), "tři v Přehledu, dvě v Hrách");
-            assertEquals("1", driver.findElement(By.cssSelector(".pt-comments .pt-big")).getText());
+            assertEquals(3, driver.findElements(By.cssSelector(".pt-stat")).size(), "CatSmash v bočním panelu Přehledu, dvě v Hrách");
+            assertEquals(5, driver.findElements(By.cssSelector(".pt-chips .pt-chip")).size(), "čísla jako štítky pod hlavičkou");
+            assertEquals("1", driver.findElement(By.cssSelector(".pt-chips a[href='#komentare'] b")).getText());
             assertEquals("<b>muj komentar</b>", driver.findElement(By.cssSelector(".pt-quote")).getText());
             assertTrue(driver.findElement(By.cssSelector(".pt-song.pt-empty")).getAttribute("href").endsWith("/nastaveni.jsp#profil"));
             driver.get(BASE_URL + "/uzivatel.jsp#hry");
