@@ -3,10 +3,18 @@
    Design tokens, typography, page layout
    ============================================ */
 
-/* Hlavní barva webu se mění podle fotky v pozadí (js/effects.js, paint). Zaregistrované jako barvy,
-   aby se mezi fotkami plynule přelila (přechod na body níž), ne skočila. */
+/* Hlavní barva webu se mění podle fotky v pozadí (js/effects.js, paint). Skript nastaví na body
+   --accent: hsl(var(--a1h) var(--a1s) var(--a1l)) a plynule se přelévají jen tahle čísla (přechod na body níž):
+   odstín se otočí po barevném kruhu. Přímé přelití barvy by šlo „rovně“ přes RGB a mezi skoro protilehlými
+   barvami (oranžová ↔ modrá) by prošlo světle šedou – ikonky a nápisy by na chvíli zbělaly. */
 @property --accent { syntax: '<color>'; inherits: true; initial-value: #ffd23f; }
 @property --accent-2 { syntax: '<color>'; inherits: true; initial-value: #ff8a3d; }
+@property --a1h { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --a1s { syntax: '<percentage>'; inherits: false; initial-value: 100%; }
+@property --a1l { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+@property --a2h { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --a2s { syntax: '<percentage>'; inherits: false; initial-value: 100%; }
+@property --a2l { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
 
 /* Design tokens (dark theme is the default) */
 :root {
@@ -110,7 +118,8 @@ body {
   color: var(--text);
   background-color: var(--bg);
   /* barva podle fotky se přelije pomalu, spolu s prolnutím fotky */
-  transition: --accent 4s ease-in-out, --accent-2 4s ease-in-out;
+  transition: --a1h 4s ease-in-out, --a1s 4s ease-in-out, --a1l 4s ease-in-out,
+              --a2h 4s ease-in-out, --a2s 4s ease-in-out, --a2l 4s ease-in-out;
   margin: 0;
   display: flex;
   flex-direction: column;
