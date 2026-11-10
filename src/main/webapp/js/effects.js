@@ -577,6 +577,60 @@
   }
   fireflies();
 
+  // Kyselinové bublinky (nápad uživatele): když je web v kyselinově zelené (fotka s mikrofonem, tmavý režim),
+  // zespodu pomalu stoupá pár bublin a dají se praskat (klik / ťuknutí) – rozstříknou se na kapičky.
+  // ?bubliny=1 v adrese je pustí pořád (na zkoušku). Ne v lehkém režimu, při omezení pohybu, v adminu a pod hrou.
+  function bubbles() {
+    if (reduced || document.body.classList.contains('is-admin')) return;
+    var always = /[?&]bubliny=1/.test(location.search), box = document.createElement('div'), count = 0;
+    box.className = 'acid-bubbles'; box.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(box);
+    function green() { return always || (painted === 'mic' && !document.body.classList.contains('light')); }
+    function spawn() {
+      var b = document.createElement('div'), s = 26 + Math.random() * 38;
+      b.className = 'acid-b';
+      b.style.setProperty('--s', s.toFixed(0) + 'px');
+      b.style.setProperty('--x', (4 + Math.random() * 92).toFixed(1) + 'vw');
+      b.style.setProperty('--dur', (11 + Math.random() * 8).toFixed(1) + 's');
+      b.style.setProperty('--sway', (2.4 + Math.random() * 2).toFixed(1) + 's');
+      b.innerHTML = '<i></i>';
+      b.addEventListener('animationend', function (e) { if (e.target === b) { b.remove(); count--; } });
+      b.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); pop(b); });
+      box.appendChild(b); count++;
+    }
+    function pop(b) {
+        if (b.classList.contains('pop') || !b.isConnected) return;
+        // prásk: bublina se nafoukne a zmizí, kolem se rozletí kapičky
+        var r = b.getBoundingClientRect(), splash = document.createElement('div');
+        splash.className = 'acid-splash';
+        splash.style.left = (r.left + r.width / 2) + 'px'; splash.style.top = (r.top + r.height / 2) + 'px';
+        splash.style.setProperty('--s', r.width + 'px');
+        for (var k = 0; k < 9; k++) {
+          var d = document.createElement('i'), a = k / 9 * 6.283 + Math.random() * 0.5, dist = r.width * (0.7 + Math.random() * 0.6);
+          d.style.setProperty('--dx', (Math.cos(a) * dist).toFixed(0) + 'px'); d.style.setProperty('--dy', (Math.sin(a) * dist).toFixed(0) + 'px');
+          splash.appendChild(d);
+        }
+        box.appendChild(splash);
+        setTimeout(function () { splash.remove(); }, 650);
+        b.classList.add('pop');
+        setTimeout(function () { if (b.isConnected) { b.remove(); count--; } }, 260);
+    }
+    (function tick() {
+      setTimeout(tick, 1400 + Math.random() * 1800);
+      if (document.hidden || low() || document.documentElement.classList.contains('kpong-open')) return;
+      if (!green()) {
+        // barva se přepnula pryč ze zelené: zbylé bublinky ještě kousek letí a pak každá sama praskne
+        box.querySelectorAll('.acid-b:not(.leaving)').forEach(function (b) {
+          b.classList.add('leaving');
+          setTimeout(function () { pop(b); }, 500 + Math.random() * 2500);
+        });
+        return;
+      }
+      if (count < (innerWidth < 700 ? 5 : 8)) spawn();
+    })();
+  }
+  bubbles();
+
   // Diskografie: na dotykové obrazovce se karta otočí ťuknutím (odkazy vzadu fungují normálně), další ťuknutí ji vrátí
   document.addEventListener('click', function (e) {
     var card = e.target.closest('.flip-card');

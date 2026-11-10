@@ -1817,3 +1817,20 @@ body.bg-fit::before { inset: 0; margin: auto; width: var(--bbw); height: var(--b
 body::before { transition: opacity 4s ease-in-out, translate .9s ease; }
 body.slide-on::before { opacity: 0; transition: opacity 4s cubic-bezier(.75, 0, .9, 1), translate .9s ease; }
 body.slide-instant::before { transition: none; }
+
+/* KYSELINOVÉ BUBLINKY (js/effects.js bubbles): v kyselinově zelené stoupají zespodu, dají se praskat */
+.acid-bubbles { position: fixed; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; }
+.acid-b { position: absolute; left: var(--x); top: 100%; width: var(--s); height: var(--s); margin-left: calc(var(--s) / -2); pointer-events: auto; cursor: pointer;
+  animation: acidRise var(--dur) linear forwards; touch-action: manipulation; }
+.acid-b i { position: absolute; inset: 0; border-radius: 50%; animation: acidSway var(--sway) ease-in-out infinite alternate;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .9) 0 7%, rgba(255, 255, 255, 0) 16%),
+    radial-gradient(circle at 50% 55%, rgba(125, 255, 58, .05) 0 55%, rgba(125, 255, 58, .32) 72%, rgba(212, 255, 31, .85) 90%, rgba(212, 255, 31, 0) 100%);
+  box-shadow: 0 0 14px rgba(125, 255, 58, .45), inset 0 0 10px rgba(212, 255, 31, .35); transition: transform .25s ease-out, opacity .25s ease-out; }
+.acid-b.pop i { transform: scale(1.45); opacity: 0; animation: none; }
+@keyframes acidRise { to { transform: translateY(calc(-100vh - var(--s) * 2)); } }
+@keyframes acidSway { from { transform: translateX(-10px) scale(1, .97); } to { transform: translateX(10px) scale(.97, 1); } }
+.acid-splash { position: fixed; z-index: 6; width: 0; height: 0; pointer-events: none; }
+.acid-splash i { position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: #b8ff2e; box-shadow: 0 0 8px #7dff3a;
+  animation: acidDrop .6s cubic-bezier(.2, .7, .3, 1) forwards; }
+@keyframes acidDrop { to { transform: translate(var(--dx), calc(var(--dy) + 14px)) scale(.3); opacity: 0; } }
+html.low-fx .acid-bubbles { display: none; }
