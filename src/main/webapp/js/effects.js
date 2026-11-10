@@ -162,14 +162,35 @@
     return [h, s * 100, l * 100];
   }
   // n = 1 (--accent) nebo 2 (--accent-2); přelévá se odstín po kruhu, ne barva přes šedou (viz base.css)
-  function setAccent(b, n, hex) {
-    var v = toHsl(hex), h = v[0], p = '--a' + n;
-    if (lastHue[n] != null) h += 360 * Math.round((lastHue[n] - h) / 360);
-    lastHue[n] = h;
-    b.style.setProperty(p + 'h', h.toFixed(2));
+  // Telefon (dotyk): přelití barvy přes CSS by 4 s v každém snímku překreslovalo celý web (vše, co má barvu fotky)
+  // a sekalo to – tam se barva přelije v STEPS krocích z JS (body.paint-steps vypne CSS přechod).
+  var STEPPED = matchMedia('(pointer: coarse)').matches, STEPS = 8, curVal = {}, stepT = 0;
+  if (STEPPED) document.body.classList.add('paint-steps');
+  function applyAccent(b, n, v) {
+    var p = '--a' + n;
+    curVal[n] = v;
+    b.style.setProperty(p + 'h', v[0].toFixed(2));
     b.style.setProperty(p + 's', v[1].toFixed(2) + '%');
     b.style.setProperty(p + 'l', v[2].toFixed(2) + '%');
     b.style.setProperty(n === 1 ? '--accent' : '--accent-2', 'hsl(var(' + p + 'h) var(' + p + 's) var(' + p + 'l))');
+  }
+  function accentTarget(n, hex) {
+    var v = toHsl(hex), h = v[0];
+    if (lastHue[n] != null) h += 360 * Math.round((lastHue[n] - h) / 360);
+    lastHue[n] = h;
+    return [h, v[1], v[2]];
+  }
+  function setAccents(b, c, instant) {
+    var to = [null, accentTarget(1, c[0]), accentTarget(2, c[1])];
+    clearInterval(stepT);
+    if (!STEPPED || instant || !curVal[1]) { applyAccent(b, 1, to[1]); applyAccent(b, 2, to[2]); return; }
+    var from = [null, curVal[1], curVal[2]], k = 0;
+    stepT = setInterval(function () {
+      k++;
+      var u = k / STEPS, e = u * u * (3 - 2 * u);   // plynulý náběh i dojezd
+      [1, 2].forEach(function (n) { applyAccent(b, n, from[n].map(function (x, i) { return x + (to[n][i] - x) * e; })); });
+      if (k >= STEPS) clearInterval(stepT);
+    }, 4000 / STEPS);
   }
   // instant = bez přelévání (načtení stránky, nová stránka navazuje na fotku té předchozí)
   function paint(name, instant) {
@@ -181,8 +202,8 @@
     }
     var mode = b.classList.contains('light') ? 'light' : 'dark';
     var c = own ? OWN[mode] : (songColor ? songColor[mode === 'light' ? 1 : 0] : PALETTE[mode][painted]);
-    if (c) { setAccent(b, 1, c[0]); setAccent(b, 2, c[1]); }
-    else { b.style.removeProperty('--accent'); b.style.removeProperty('--accent-2'); }
+    if (c) setAccents(b, c, instant);
+    else { clearInterval(stepT); curVal = {}; b.style.removeProperty('--accent'); b.style.removeProperty('--accent-2'); }
     // sníh ve světlém režimu: bílý jen u sněhové fotky, jinak v barvě fotky
     if (b.classList.contains('light') && painted !== 'base' && c && !own) b.style.setProperty('--flake', c[1]); else b.style.removeProperty('--flake');
   }
@@ -248,7 +269,23 @@
         box.appendChild(layer);
       });
     }
-    // a photo is fetched just before its turn
+    // fotka se stáhne a rozbalí dopředu (prep), aby se při výměně nemusela stahovat zároveň s prolínáním
+    function prep(layer, done) {
+      if (!layer) { if (done) done(); return; }
+      if (layer.style.getPropertyValue('--slide')) { if (done) done(); return; }
+      if (layer._prep) { if (done) layer._prep.push(done); return; }
+      layer._prep = done ? [done] : [];
+      var img = new Image();
+      function ready() {
+        layer.dataset.nw = img.naturalWidth; layer.dataset.nh = img.naturalHeight; fitLayer(layer);
+        layer.style.setProperty('--slide', 'url("' + layer.dataset.src + '")');
+        var q = layer._prep; layer._prep = null; q.forEach(function (f) { f(); });
+      }
+      img.onload = function () { if (img.decode) img.decode().then(ready, ready); else ready(); };
+      img.src = layer.dataset.src;
+    }
+    // další fotka v pořadí (krok step + 1; po poslední přijde obvyklé pozadí = nic)
+    function prepNext() { var nx = box.children[step]; if (nx) setTimeout(function () { prep(nx); }, 4500); }
     function show(instant) {
       var layers = box.children, cur = layers[step - 1];
       function swap() {
@@ -270,14 +307,7 @@
           });
         });
       }
-      if (cur && !cur.style.getPropertyValue('--slide')) {
-        var img = new Image();
-        img.onload = function () {
-          cur.dataset.nw = img.naturalWidth; cur.dataset.nh = img.naturalHeight; fitLayer(cur);
-          cur.style.setProperty('--slide', 'url("' + cur.dataset.src + '")'); swap();
-        };
-        img.src = cur.dataset.src;
-      } else swap();
+      prep(cur, function () { swap(); prepNext(); });
     }
     function save() {
       try { sessionStorage.setItem(SLIDE_KEY, JSON.stringify({ step: step, at: Date.now(), theme: theme() })); } catch (e) { }
@@ -309,6 +339,7 @@
       } else {
         step = 0;
         save();
+        prepNext();
       }
       wait = setTimeout(function () { next(); every = setInterval(next, SLIDE_MS); }, delay);
     }

@@ -61,7 +61,7 @@
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
     var loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     var U = {}; ['res', 'mp', 't', 'seed', 'base', 'ms', 'acc', 'bg'].forEach(function (k) { U[k] = gl.getUniformLocation(pr, k); });
-    var flip = cv.parentNode.classList.contains('t'), t0 = performance.now(), seen = false, raf = 0, ms = 0, skip = 0;
+    var flip = cv.parentNode.classList.contains('t'), t0 = performance.now(), seen = false, raf = 0, ms = 0, skip = 0, fr = 0, cs = null;
     new IntersectionObserver(function (en) {
       seen = en[0].isIntersecting;
       if (seen && !raf) raf = requestAnimationFrame(loop);
@@ -75,10 +75,11 @@
       if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; gl.viewport(0, 0, W, H); }
       var r = cv.getBoundingClientRect(), k = W / (r.width || 1);
       ms = now - pAt < 120 ? 1 : ms * .95;
-      var cs = getComputedStyle(document.body);
+      // barvu stránky stačí zjistit jednou za 10 snímků (čtení stylu v každém snímku na telefonu sekalo)
+      if (!(fr++ % 10) || !cs) { var st = getComputedStyle(document.body); cs = { acc: rgb(st.getPropertyValue('--accent')), bg: rgb(st.getPropertyValue('--bg')) }; }
       gl.uniform2f(U.res, W, H); gl.uniform1f(U.base, H / TALL); gl.uniform1f(U.t, (now - t0) / 1000); gl.uniform1f(U.seed, seed);
       gl.uniform2f(U.mp, (px - r.left) * k, (flip ? py - r.top : r.bottom - py) * k); gl.uniform1f(U.ms, ms);
-      gl.uniform3fv(U.acc, rgb(cs.getPropertyValue('--accent'))); gl.uniform3fv(U.bg, rgb(cs.getPropertyValue('--bg')));
+      gl.uniform3fv(U.acc, cs.acc); gl.uniform3fv(U.bg, cs.bg);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       raf = requestAnimationFrame(loop);
     }

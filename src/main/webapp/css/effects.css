@@ -1834,3 +1834,6 @@ body.slide-instant::before { transition: none; }
   animation: acidDrop .6s cubic-bezier(.2, .7, .3, 1) forwards; }
 @keyframes acidDrop { to { transform: translate(var(--dx), calc(var(--dy) + 14px)) scale(.3); opacity: 0; } }
 html.low-fx .acid-bubbles { display: none; }
+
+/* telefon: barva webu se přelévá po krocích z js/effects.js (setAccents), ne CSS přechodem v každém snímku */
+body.paint-steps { transition: none; }
