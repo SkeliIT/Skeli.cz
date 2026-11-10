@@ -1,7 +1,7 @@
 <%@ page import="com.github.skeliit.dao.SongDao, com.github.skeliit.model.LyricListItem, com.github.skeliit.model.SongClip, com.github.skeliit.model.SongTitle, com.github.skeliit.WebUtils" %>
-<%-- režim Karaoke (?karaoke=1, odkaz Karaoke v menu): název záložky se musí nastavit před hlavičkou --%>
-<% boolean karaokeMode = "1".equals(request.getParameter("karaoke"));
-   if (karaokeMode) request.setAttribute("pageTitle", com.github.skeliit.I18n.bundle(request).getProperty("menu.karaoke")); %>
+<%-- Karaoke má vlastní stránku /karaoke (KaraokeCinemaServlet); staré texty.jsp?karaoke=1 tam přesměruje --%>
+<% if ("1".equals(request.getParameter("karaoke"))) { response.setStatus(301); response.setHeader("Location", "/karaoke"); return; }
+   boolean karaokeMode = false; %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
@@ -15,15 +15,6 @@
 <main class="texty-page<%= karaokeMode ? " k-mode" : "" %>">
     <sk:pageHero kicker='<%= karaokeMode ? kickerK : kickerT %>'
                  title='<%= karaokeMode ? titleK : titleT %>' lead='<%= karaokeMode ? leadK : leadT %>'>
-      <%-- přepínač Texty | Karaoke (texty pro oba režimy má v data-*, skript je vymění bez načtení stránky) --%>
-      <div class="mode-switch" id="lyricMode" role="group" aria-label="${t['lyrics.mode']}"
-           data-t-kicker="${t['hero.kicker.lyrics']}" data-k-kicker="${t['karaoke.kicker']}"
-           data-t-title="${t['menu.lyrics']}" data-k-title="${t['menu.karaoke']}"
-           data-t-lead="${t['lyrics.subtitle']}" data-k-lead="${t['karaoke.list.lead']}">
-        <span class="mode-pill" aria-hidden="true"></span>
-        <button type="button" data-mode="t"><i class="fa-solid fa-align-left" aria-hidden="true"></i>${t['menu.lyrics']}</button>
-        <button type="button" data-mode="k"><i class="fa-solid fa-microphone" aria-hidden="true"></i>${t['menu.karaoke']}</button>
-      </div>
       <%-- search by the name or by a word from the lyrics (/api/search), then by year --%>
       <form class="lyric-search" role="search" onsubmit="return false">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>

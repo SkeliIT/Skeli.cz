@@ -190,13 +190,15 @@
   function setMode(m, push) {
     mode = m;
     main.classList.toggle('k-mode', m === 'k');
-    sw.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === m)); });
+    if (sw) sw.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === m)); });
     var title = main.querySelector('.page-hero-title'), lead = main.querySelector('.page-hero-lead'), kick = main.querySelector('.hero-kicker');
     var oldTitle = title ? title.textContent : '';
-    if (title) title.textContent = sw.dataset[m + 'Title'];
-    if (lead) lead.textContent = sw.dataset[m + 'Lead'];
-    if (kick && kick.lastChild && kick.lastChild.nodeType === 3) kick.lastChild.textContent = sw.dataset[m + 'Kicker'];
-    if (oldTitle && document.title.indexOf(oldTitle) >= 0) document.title = document.title.replace(oldTitle, sw.dataset[m + 'Title']);
+    if (sw) {   // přepínač Texty | Karaoke (Karaoke má od 2026-11-10 vlastní stránku /karaoke, přepínač na Textech není)
+      if (title) title.textContent = sw.dataset[m + 'Title'];
+      if (lead) lead.textContent = sw.dataset[m + 'Lead'];
+      if (kick && kick.lastChild && kick.lastChild.nodeType === 3) kick.lastChild.textContent = sw.dataset[m + 'Kicker'];
+      if (oldTitle && document.title.indexOf(oldTitle) >= 0) document.title = document.title.replace(oldTitle, sw.dataset[m + 'Title']);
+    }
     if (push) {
       var u = new URL(location.href);
       if (m === 'k') u.searchParams.set('karaoke', '1'); else u.searchParams.delete('karaoke');

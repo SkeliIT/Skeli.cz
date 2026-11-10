@@ -21,15 +21,16 @@ import java.sql.SQLException;
 import java.util.Base64;
 
 /**
- * GET /karaoke-kino: dřív samostatný seznam („hala kina“), teď přesměruje na Texty v režimu Karaoke
- * (texty.jsp?karaoke=1 – Kolotoč písní, playable() a canSing() používá i texty.jsp).
+ * GET /karaoke: stránka Karaoke (WEB-INF/views/karaoke.jsp) – nahoře „pódium“ s ukázkou písně, jejíž text se
+ * rozžhaví slovo po slovu podle opravdových časů, pod ním Setlist všech písní, které jdou zazpívat.
+ * GET /karaoke-kino a staré texty.jsp?karaoke=1 přesměrují sem.
  * GET /karaoke-kino/{song uuid}: the karaoke cinema (a preview of the coming big karaoke, WEB-INF/views/kino.jsp).
  * The page gets everything in one object (window.KDATA): the newest clip, the Czech lines, when every line
  * and word is sung (as /api/karaoke: the admin's correction wins over karaoke/<id>.json) and the clip's
  * colours and bass (eq/<id>.json; without it a calm grey). 404 when the song has no clip, lyrics or timings.
  * Only signed-in visitors get into the cinema; the others go to the sign-in page and come back.
  */
-@WebServlet(name = "KaraokeCinemaServlet", urlPatterns = {"/karaoke-kino", "/karaoke-kino/*"})
+@WebServlet(name = "KaraokeCinemaServlet", urlPatterns = {"/karaoke", "/karaoke-kino", "/karaoke-kino/*"})
 public class KaraokeCinemaServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
     /** Karaoke for signed-in visitors only (false = open to everyone, e.g. while working on the cinema). */
@@ -39,7 +40,8 @@ public class KaraokeCinemaServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String path = req.getPathInfo();
         String uuid = path == null ? "" : path.substring(1);
-        if (uuid.isEmpty()) { resp.sendRedirect("/texty.jsp?karaoke=1"); return; }
+        if ("/karaoke".equals(req.getServletPath())) { listPage(req, resp); return; }
+        if (uuid.isEmpty()) { resp.setStatus(301); resp.setHeader("Location", "/karaoke"); return; }
         if (!uuid.matches("[0-9a-fA-F-]{36}")) { resp.sendError(404); return; }
         if (!canSing(req)) { resp.sendRedirect("/login.jsp?next=" + URLEncoder.encode("/karaoke-kino/" + uuid, StandardCharsets.UTF_8)); return; }
         String[] song;
@@ -101,6 +103,46 @@ public class KaraokeCinemaServlet extends HttpServlet {
             if (timing != null && timing.path("lines").asInt() == s.lines.length) songs.add(s);
         }
         return songs;
+    }
+
+    /** Délka klipu v sekundách podle eq/<id>.json (snímky ÷ snímky za sekundu); čte se jednou a pamatuje. */
+    private static final java.util.Map<String, Integer> DURATION = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Stránka Karaoke: Setlist + data pro pódium (prvních 6 řádků každé písně s časy řádků i slov). */
+    private void listPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        java.util.List<com.github.skeliit.model.KaraokeSong> songs;
+        ArrayNode stage = JSON.createArrayNode();
+        try {
+            songs = playable(getServletContext());
+            KaraokeDao dao = new KaraokeDao();
+            for (com.github.skeliit.model.KaraokeSong s : songs) {
+                String manual = dao.manual(s.youtubeId);
+                JsonNode timing = manual != null ? JSON.readTree(manual) : file(getServletContext(), "/karaoke/" + s.youtubeId + ".json");
+                s.duration = DURATION.computeIfAbsent(s.youtubeId, id -> {
+                    try {
+                        JsonNode eq = file(getServletContext(), "/eq/" + id + ".json");
+                        return eq == null || eq.path("fps").asInt() == 0 ? 0 : eq.path("frames").asInt() / eq.path("fps").asInt();
+                    } catch (IOException e) { return 0; }
+                });
+                ObjectNode o = stage.addObject();
+                o.put("uuid", s.uuid).put("title", s.title).put("yt", s.youtubeId);
+                ArrayNode ls = o.putArray("lines");
+                JsonNode times = timing.path("times"), words = timing.path("words");
+                for (int i = 0; i < Math.min(6, s.lines.length); i++) {
+                    ObjectNode l = ls.addObject();
+                    l.put("t", s.lines[i]).put("a", times.path(i).path(0).asDouble()).put("b", times.path(i).path(1).asDouble());
+                    if (words.path(i).isArray()) l.set("w", words.get(i));
+                }
+            }
+        } catch (SQLException e) {
+            throw new ServletException(e);
+        }
+        String json = JSON.writeValueAsString(stage).replace("</", "<\\/").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029");
+        req.setAttribute("karaokeSongs", songs);
+        req.setAttribute("karaokeJson", json);
+        req.setAttribute("canSing", canSing(req));
+        req.setAttribute("pageTitle", com.github.skeliit.I18n.bundle(req).getProperty("menu.karaoke"));
+        req.getRequestDispatcher("/WEB-INF/views/karaoke.jsp").forward(req, resp);
     }
 
     /** Smí návštěvník do kina? Karaoke je pro členy (MEMBERS_ONLY), text si přečte každý. */

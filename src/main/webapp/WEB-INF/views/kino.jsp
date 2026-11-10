@@ -264,7 +264,7 @@ body.fading::after { opacity: 1; pointer-events: auto; }
 
 <canvas class="layer" id="fx" aria-hidden="true"></canvas>
 <div class="credits" id="credits" hidden><div class="roll" id="roll"></div></div>
-<a class="kino-exit" id="kinoExit" href="/texty.jsp?karaoke=1"><span class="ke-ico" aria-hidden="true">←</span> <span class="ke-txt">Zpět na web</span></a>
+<a class="kino-exit" id="kinoExit" href="/karaoke"><span class="ke-ico" aria-hidden="true">←</span> <span class="ke-txt">Zpět na web</span></a>
 <div class="brand"><div class="squad" role="img" aria-label="SKELO SQUAD"></div><span class="brand-k">Karaoke</span></div>
 <div class="song-tag"><b id="tagTitle"></b><span id="tagArtist"></span></div>
 <div class="lyrics" id="lyrics" aria-live="off">
@@ -297,7 +297,7 @@ body.fading::after { opacity: 1; pointer-events: auto; }
       <button type="button" class="room" data-room="a" aria-pressed="false"><span class="rt"><b>Ořechový salon</b><small>Ořech, kůže, noční město</small></span><img src="/kino/rooms/a.webp" loading="lazy" alt=""></button>
     </div>
     <button class="enter" id="enter"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Vstoupit do kina</button>
-    <small>Pusť si zvuk a dej celou obrazovku (F). <a class="back-song" href="/texty.jsp?karaoke=1">← všechny písně</a></small>
+    <small>Pusť si zvuk a dej celou obrazovku (F). <a class="back-song" href="/karaoke">← všechny písně</a></small>
     <div class="pc-hint"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2zM4 6h16v10H4z"/></svg> Kino si nejlíp užiješ na počítači s velkou obrazovkou.</div>
   </div>
 </div>

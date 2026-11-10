@@ -339,7 +339,7 @@ function leave() {   // like the end of a film: the picture fades to black, back
   if (leave.done) return; leave.done = true;
   entered = false; pause(); onTo = 0;
   setTimeout(() => document.body.classList.add('fading'), 500);
-  setTimeout(() => { try { sessionStorage.setItem('kinoOut', '1'); } catch (er) { /* no storage */ } location.href = '/karaoke-kino'; }, 1900);
+  setTimeout(() => { try { sessionStorage.setItem('kinoOut', '1'); } catch (er) { /* no storage */ } location.href = '/karaoke'; }, 1900);
 }
 if (qs.has('auto')) { entered = true; $('lobby').classList.add('gone'); on = onTo = 1; play(); }
 

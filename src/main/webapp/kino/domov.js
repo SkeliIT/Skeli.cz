@@ -696,7 +696,7 @@ function exitKino() {
   setTimeout(() => { lightsTo = .1; power(0, 1200); }, 900);
   setTimeout(() => { camFrom = new THREE.Vector3(0, 1.9, 6.2); camBack = true; camAt = performance.now(); camMs = 2600; }, 700);
   setTimeout(() => document.body.classList.add('fading'), 1900);
-  setTimeout(() => { try { sessionStorage.setItem('kinoOut', '1'); } catch (er) { /* no storage */ } location.href = '/karaoke-kino'; }, 3300);
+  setTimeout(() => { try { sessionStorage.setItem('kinoOut', '1'); } catch (er) { /* no storage */ } location.href = '/karaoke'; }, 3300);
 }
 function leave() { exitKino(); }
 if (qs.has('auto')) { entered = true; $('lobby').classList.add('gone'); on = onTo = 1; lights = lightsTo = 1; camAt = -1e9; play(); if (!qs.has('end')) curtainOpen = 1; }

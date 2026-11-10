@@ -2731,3 +2731,86 @@ a.people-name:hover { color: var(--accent); }
 .people-card .friend-btn { min-height: 40px; }
 .people-pager { display: flex; justify-content: center; gap: 10px; }
 
+
+/* ===== Karaoke (WEB-INF/views/karaoke.jsp + js/karaoke-page.js): vzhled Ulice, návrh C „Vypálené“ =====
+   Nahoře korunka a KARAOKE sprejem v barvě fotky, pódium bez rámu: řádek písně se rozžhaví slovo po slovu
+   do bíla a vychladne do barvy fotky. Pod kouřem Setlist s čísly sprejem. */
+.kp-head { position: relative; text-align: center; padding: 18px 16px 6px; }
+.kp-crown { display: inline-block; color: var(--accent); font-size: 1.9rem; transform: rotate(-10deg); filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 70%, transparent)); }
+.kp-name { margin: 0; line-height: .9; font-weight: 400; }
+.kp-sign { display: inline-block; font-family: "Permanent Marker", cursive; font-size: clamp(3.4rem, 15vw, 8.5rem); letter-spacing: .01em; transform: rotate(-3deg);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 35%, #fff) 0%, var(--accent) 45%, var(--accent-2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .45)) drop-shadow(0 0 26px color-mix(in srgb, var(--accent) 45%, transparent)); }
+body.light .kp-sign { background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 70%, #000), var(--accent) 50%, var(--accent-2)); filter: drop-shadow(0 3px 0 rgba(255, 255, 255, .6)); }
+.kp-roles { margin: 10px auto 0; font-size: var(--fs-small); letter-spacing: .26em; text-transform: uppercase; color: var(--text); opacity: .85; }
+.kp-roles b { color: var(--accent); font-weight: 400; }
+.kp-pass { display: inline-flex; gap: 8px; align-items: center; margin-top: 14px; padding: 7px 14px; border-radius: 999px; font-size: var(--fs-small); letter-spacing: .14em;
+  color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 10%, rgba(0, 0, 0, .35)); }
+body.light .kp-pass { background: color-mix(in srgb, var(--accent) 10%, rgba(255, 255, 255, .6)); }
+.kp-pass .dot { width: 7px; height: 7px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 10px #ff3b30; animation: kpBlink 1.6s infinite; }
+@keyframes kpBlink { 50% { opacity: .25; } }
+
+/* pódium: bez rámu, za textem jen rozmazaná záře z náhledu klipu */
+.kp-stage { position: relative; max-width: 980px; margin: 26px auto 0; padding: 0 16px 120px; text-align: center; }
+.kp-glow { position: absolute; z-index: -1; inset: -10% -20% auto; height: 120%; filter: blur(80px) saturate(1.8); opacity: .25; pointer-events: none; }
+.kp-glow img { width: 100%; height: 100%; object-fit: cover; }
+.kp-now { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; margin: 0; font-size: var(--fs-small); letter-spacing: .18em; color: var(--text-dim); text-transform: uppercase; }
+.kp-now b { color: var(--text); font-weight: 400; letter-spacing: .06em; text-transform: none; }
+.kp-lyr { position: relative; min-height: 8em; margin: 18px auto 0; }
+.kp-line { display: block; line-height: 1.2; }
+.kp-cur { font-size: clamp(1.5rem, 5.4vw, 3.4rem); color: color-mix(in srgb, var(--text) 22%, transparent); }
+.kp-nxt { margin-top: 10px; font-family: var(--font-text); font-weight: 300; font-size: clamp(.9rem, 1.8vw, 1.2rem); color: color-mix(in srgb, var(--text) 55%, transparent); }
+.kp-cur.in { animation: kpSmokeIn .9s cubic-bezier(.2, .8, .2, 1); }
+.kp-cur.out { position: absolute; left: 0; right: 0; top: 0; animation: kpSmokeOut 1.2s ease-in forwards; pointer-events: none; }
+.kp-nxt.in { animation: kpUp .7s cubic-bezier(.2, .8, .2, 1); }
+@keyframes kpSmokeIn { from { opacity: 0; filter: blur(12px); transform: translateY(16px) scale(.98); letter-spacing: .12em; } }
+@keyframes kpSmokeOut { to { opacity: 0; filter: blur(16px); transform: translateY(-40px) scale(1.04); letter-spacing: .14em; } }
+@keyframes kpUp { from { opacity: 0; transform: translateY(10px); } }
+/* slovo: rozžhavené do bíla, po odzpívání vychladne do barvy fotky */
+.kp-w { position: relative; display: inline-block; white-space: pre; }
+.kp-w::after { content: attr(data-t); position: absolute; left: 0; top: 0; color: #fff6e8; text-shadow: 0 0 6px #fff, 0 0 18px var(--accent), 0 0 42px var(--accent);
+  clip-path: inset(-30% calc(100% - var(--p, 0) * 100%) -30% -4%); }
+.kp-w.done::after { color: var(--accent); text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent); transition: color 1.2s, text-shadow 1.2s; }
+body.light .kp-w::after, body.light .kp-w.done::after { color: var(--accent); text-shadow: 0 0 1px var(--accent); }
+.kp-dots { display: inline-flex; gap: 12px; height: 1em; align-items: center; }
+.kp-dots i { width: .34em; height: .34em; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); transition: opacity .3s, transform .3s; }
+.kp-dots i.off { opacity: .15; transform: scale(.55); box-shadow: none; }
+.kp-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.kp-sing { position: relative; overflow: hidden; display: inline-flex; gap: 10px; align-items: center; justify-content: center; min-height: 52px; padding: 0 30px; border-radius: 999px;
+  font-size: var(--fs-body); letter-spacing: .08em; color: var(--accent-ink, #111); text-decoration: none;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 55%, #fff), var(--accent) 55%, var(--accent-2)); box-shadow: 0 10px 34px -10px var(--accent); }
+.kp-sing::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .6) 50%, transparent 65%); transform: translateX(-120%); animation: kpSwipe 5s ease-in-out infinite; }
+@keyframes kpSwipe { 0%, 65% { transform: translateX(-120%); } 90%, 100% { transform: translateX(120%); } }
+.kp-ghost { display: inline-flex; align-items: center; min-height: 52px; padding: 0 22px; border-radius: 999px; color: var(--text); text-decoration: none; font-size: var(--fs-card);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: rgba(0, 0, 0, .25); }
+body.light .kp-ghost { background: rgba(255, 255, 255, .5); }
+
+/* Setlist: číslo sprejem, název, délka, kulatý náhled; hrající píseň svítí a má ekvalizér */
+.kp-setlist { max-width: 1180px; margin: 0 auto; padding: 10px 16px 60px; }
+.kp-setlist-head { margin: 0 0 14px; font-size: var(--fs-h2); font-weight: 400; color: var(--accent); }
+.kp-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto 52px; gap: 12px; align-items: center; width: 100%; min-height: 72px; padding: 10px 8px; cursor: pointer;
+  border: 0; border-bottom: 1px solid color-mix(in srgb, var(--text) 10%, transparent); border-radius: 12px; background: none; color: var(--text); text-align: left; font: inherit; transition: background .3s; }
+.kp-row:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.kp-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.kp-row .n { font-family: "Permanent Marker", cursive; font-size: 1.9rem; color: color-mix(in srgb, var(--accent) 55%, transparent); transform: rotate(-4deg); }
+.kp-row .t { min-width: 0; }
+.kp-row .t b { display: block; font-weight: 400; font-size: var(--fs-h4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kp-row .t span { display: block; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-small); color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kp-row .d { display: flex; gap: 10px; align-items: center; font-size: var(--fs-small); color: var(--text-dim); }
+.kp-row .eqr { display: none; gap: 2px; align-items: flex-end; height: 16px; }
+.kp-row .eqr i { width: 3px; height: 40%; border-radius: 2px; background: var(--accent); animation: kpBar .9s ease-in-out infinite alternate; }
+.kp-row .eqr i:nth-child(2) { animation-delay: -.3s; }
+.kp-row .eqr i:nth-child(3) { animation-delay: -.6s; }
+@keyframes kpBar { to { height: 100%; } }
+.kp-row .th { position: relative; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
+.kp-row .th img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.34); }   /* hqdefault má černé pruhy */
+.kp-row.sel { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 18%, transparent), transparent 75%); }
+.kp-row.sel .n { color: var(--accent); text-shadow: 0 0 16px var(--accent); }
+.kp-row.sel .eqr { display: inline-flex; }
+@media (min-width: 900px) {
+  .kp-row { grid-template-columns: 80px minmax(0, 1fr) auto 60px; }
+  .kp-row .n { font-size: 2.4rem; }
+  .kp-row .th { width: 60px; height: 60px; }
+}
+html.low-fx .kp-sing::after, html.low-fx .kp-row .eqr i, html.low-fx .kp-pass .dot { animation: none; }
+html.low-fx .kp-glow { display: none; }

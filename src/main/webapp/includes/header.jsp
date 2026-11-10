@@ -188,7 +188,7 @@
                 <div class="nav-sub" id="navSubMusic">
                   <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.discography") %></span><small><%= t.getProperty("menu.d.discography") %></small></a>
                   <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.lyrics") %></span><small><%= t.getProperty("menu.d.lyrics") %></small></a>
-                  <a href="<%= ctx %>/texty.jsp?karaoke=1" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><i class="fa-solid fa-star" aria-hidden="true"></i><span><%= t.getProperty("menu.membersOnly") %></span></span><% } %></span><small><%= t.getProperty("menu.d.karaoke") %></small></a>
+                  <a href="<%= ctx %>/karaoke" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><i class="fa-solid fa-star" aria-hidden="true"></i><span><%= t.getProperty("menu.membersOnly") %></span></span><% } %></span><small><%= t.getProperty("menu.d.karaoke") %></small></a>
                 </div>
               </div>
               <a href="<%= ctx %>/aktuality.jsp" class="nav-top"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.news") %></a>
@@ -523,7 +523,7 @@
                 // allow full reload for language switch to refresh header/nav strings
                 if (href.includes('lang=')) return;
                 // disable PJAX for pages that need full refresh or include page-scoped styles/scripts
-                const noPjax = ['/auth/', '/karaoke-kino/', '/lyrics/', '/texty', '/admin', '/logout', '/login.jsp', '/register.jsp', '/uzivatel.jsp', '/nastaveni.jsp', '/profile.jsp'];
+                const noPjax = ['/auth/', '/karaoke', '/lyrics/', '/texty', '/admin', '/logout', '/login.jsp', '/register.jsp', '/uzivatel.jsp', '/nastaveni.jsp', '/profile.jsp'];
                 if (noPjax.some(p => href.includes(p))) return;
                 if (document.body.classList.contains('is-admin')) return;   // z adminu ven vždy celou stránkou (jiné pozadí a patička)
                 e.preventDefault();
@@ -546,8 +546,6 @@
                   const normalized = (href.split('?')[0] || '').split('/').pop() || '';
                   if (!normalized) return;
                   let isActive = ((cur === '' || cur === '/') && (normalized === '/' || normalized === 'index.jsp')) || (cur === normalized || (location.pathname.endsWith('/') && normalized === 'index.jsp'));
-                  // Texty a Karaoke jsou jedna stránka (texty.jsp, Karaoke = ?karaoke=1): svítí jen ta podle režimu
-                  if (isActive && normalized === 'texty.jsp') isActive = href.includes('karaoke=1') === /[?&]karaoke=1/.test(location.search);
                   a.classList.toggle('active', isActive);
                 } catch { }
               });
