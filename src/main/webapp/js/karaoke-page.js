@@ -37,6 +37,21 @@
 
   // ---- promítaná ukázka ----
   var video = film ? film.querySelector('video') : null;
+  // naklání se pod myší i prstem jako dlaždice webu (k základnímu natočení z CSS se přičte --rx/--ry)
+  if (film && !still) {
+    film.addEventListener('pointermove', function (e) {
+      var r = film.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+      film.classList.add('tilting');
+      film.style.setProperty('--rx', (-y * 10).toFixed(2) + 'deg');
+      film.style.setProperty('--ry', (x * 14).toFixed(2) + 'deg');
+    });
+    ['pointerleave', 'pointercancel', 'pointerup'].forEach(function (ev) {
+      film.addEventListener(ev, function (e) {
+        if (ev === 'pointerup' && e.pointerType === 'mouse') return;
+        film.classList.remove('tilting'); film.style.removeProperty('--rx'); film.style.removeProperty('--ry');
+      });
+    });
+  }
   function load(s) {
     if (!video) return;
     film.classList.toggle('none', !s.clip);

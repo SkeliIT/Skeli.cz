@@ -2752,15 +2752,23 @@ body.light .kp-pass { background: color-mix(in srgb, var(--accent) 10%, rgba(255
 
 /* pódium: bez rámu, za textem jen rozmazaná záře z náhledu klipu */
 .kp-stage { position: relative; max-width: 980px; margin: 26px auto 0; padding: 0 16px 120px; text-align: center; }
-/* promítaná ukázka z klipu: jen malý detail k textu (menší než okno přehrávače YouTube – zvětšená by byla rozmazaná),
-   bez okrajů, do všech stran se rozplývá do ztracena */
-.kp-film { position: relative; width: min(520px, 88vw); margin: 0 auto; aspect-ratio: 16 / 9; overflow: hidden; pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent), linear-gradient(180deg, transparent, #000 16%, #000 80%, transparent);
-  -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent), linear-gradient(180deg, transparent, #000 16%, #000 80%, transparent);
-  mask-composite: intersect; }
+/* promítaná ukázka z klipu: přiznaný rámeček v barvě webu, natočená šikmo k divákovi jako karty v kolotoči
+   na Hudbě (pravá strana dál), pod myší i prstem se jemně naklání (js/karaoke-page.js nastaví --rx/--ry) */
+.kp-film { position: relative; width: min(76vw, 420px); margin: 0 auto 26px; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; touch-action: pan-y;
+  border: 2px solid var(--accent); background: #000; --base: -16deg;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45), 0 0 34px -6px var(--accent), 0 34px 60px -30px #000;
+  transform: perspective(900px) rotateY(calc(var(--base) + var(--ry, 0deg))) rotateX(var(--rx, 0deg)); transition: transform .5s cubic-bezier(.2, .8, .2, 1), border-color .6s, box-shadow .6s; }
+.kp-film.tilting { transition: transform .12s linear, border-color .6s, box-shadow .6s; }
+/* odlesk skla, posouvá se s nakloněním */
+.kp-film::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, .14) 50%, transparent 62%);
+  transform: translateX(calc(var(--ry, 0deg) / 1deg * 3%)); }
+@media (min-width: 900px) {
+  .kp-stage { max-width: 1180px; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); grid-template-areas: "now film" "lyr film" "cta film"; column-gap: 40px; align-items: center; }
+  .kp-stage .kp-now { grid-area: now; } .kp-stage .kp-lyr { grid-area: lyr; } .kp-stage .kp-cta { grid-area: cta; }
+  .kp-film { grid-area: film; width: 100%; margin: 0; --base: -24deg; }
+}
 .kp-film video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .kp-film.none { display: none; }
-.kp-film + .kp-now { position: relative; margin-top: -1em; }
 .kp-now { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; margin: 0; font-size: var(--fs-small); letter-spacing: .18em; color: var(--text-dim); text-transform: uppercase; }
 .kp-now b { color: var(--text); font-weight: 400; letter-spacing: .06em; text-transform: none; }
 /* dva řádky nad sebou se střídají (jako opravdové karaoke): zpívaný svítí, v druhém už čeká další */
