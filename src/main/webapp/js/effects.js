@@ -139,13 +139,14 @@
 
   // Barva webu podle fotky v pozadí: [hlavní, druhá]. „base“ = obvyklé pozadí (tmavý: rudá fotka IMG_0090,
   // světlý: sníh lightnaweb). Světlé barvy jsou tmavší, aby byly na světlém podkladu čitelné.
-  // Texty mají vlastní video pozadí a admin klidný vzhled – tam zůstává barva z CSS.
+  // Admin má klidný vzhled – tam zůstává zlatá (OWN níž).
   var PALETTE = {
     dark: { base: ['#ff3b30', '#ff8a3d'], skull: ['#ff3d8b', '#ff7ab8'], mic: ['#7dff3a', '#d4ff1f'],
             square: ['#ffad42', '#ff6a1f'], walker: ['#3fb4ff', '#7cf3ff'] },
     light: { base: ['#1f6fc4', '#4aa3ea'], field: ['#c4521a', '#e8892a'], point: ['#a87400', '#d6a019'], rocks: ['#4e7a1c', '#86a83a'] }
   };
-  // Texty a admin mají vlastní zlatou (stejná jako v base.css) – nastaví se stejnou cestou, ať se přelije i ona
+  // Admin má vlastní klidnou zlatou (stejná jako v base.css) – nastaví se stejnou cestou, ať se přelije i ona.
+  // Texty se přebarvují s fotkami jako zbytek webu (video pozadí přebarví js/texty-bg.js).
   var OWN = { dark: ['#ffd23f', '#ff8a3d'], light: ['#a37b00', '#2f7fd6'] };
   var painted = 'base', songColor = null;   // songColor = barva písně z náhledu jejího klipu (stránka písně)
   var lastHue = {};                          // poslední nastavený odstín: nový se volí kratší cestou po kruhu
@@ -173,7 +174,7 @@
   // instant = bez přelévání (načtení stránky, nová stránka navazuje na fotku té předchozí)
   function paint(name, instant) {
     if (name) painted = name;
-    var b = document.body, own = document.querySelector('main.texty-page') || b.classList.contains('is-admin');
+    var b = document.body, own = b.classList.contains('is-admin');
     if (instant) {
       b.style.transition = 'none';
       requestAnimationFrame(function () { requestAnimationFrame(function () { b.style.removeProperty('transition'); }); });
@@ -453,7 +454,7 @@
     songPaint(e.detail.thumb);
   });
 
-  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); floor(); songPaint(); }   // paint: Texty mají vlastní barvu
+  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); floor(); songPaint(); }   // paint: admin má vlastní barvu
   init(document);
   // Hlídač plynulosti: po načtení 3 s počítá snímky. Když telefon nestíhá, přepne se na lehký režim hned a po druhém
   // takovém měření natrvalo. Testy (webdriver) mají softwarové kreslení, u nich neměří.

@@ -4,7 +4,7 @@
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 
 <main class="texty-page">
-    <sk:pageHero smoke="false" kicker='<%= t.getProperty("hero.kicker.lyrics") %>'
+    <sk:pageHero kicker='<%= t.getProperty("hero.kicker.lyrics") %>'
                  title='<%= t.getProperty("menu.lyrics") %>' lead='<%= t.getProperty("lyrics.subtitle") %>'>
       <%-- search by the name or by a word from the lyrics (/api/search), then by year --%>
       <form class="lyric-search" role="search" onsubmit="return false">

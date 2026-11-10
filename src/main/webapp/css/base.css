@@ -95,9 +95,9 @@ body.light {
   --shadow: 0 20px 45px -24px rgba(0, 0, 0, 0.30);
 }
 
-/* Admin a Texty si nechávají zlatou (Texty mají vlastní video pozadí, admin má být klidný) */
-body.is-admin, body:has(main.texty-page) { --accent: #ffd23f; --accent-2: #ff8a3d; }
-body.light.is-admin, body.light:has(main.texty-page) { --accent: #a37b00; --accent-2: #2f7fd6; }
+/* Admin si nechává klidnou zlatou (Texty se přebarvují s webem, video přebarví js/texty-bg.js) */
+body.is-admin { --accent: #ffd23f; --accent-2: #ff8a3d; }
+body.light.is-admin { --accent: #a37b00; --accent-2: #2f7fd6; }
 
 /* Reset-ish */
 *, *::before, *::after { box-sizing: border-box; }
