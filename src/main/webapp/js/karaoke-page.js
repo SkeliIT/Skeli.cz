@@ -65,13 +65,61 @@
     if (gap) {
       var d = lyr.querySelectorAll('.kp-cur:not(.out) .kp-dots i'), left = next.a - t;
       for (var j = 0; j < d.length; j++) d[j].classList.toggle('off', left < 3 - j);
+      ball(null, t);
     } else {
-      lyr.querySelectorAll('.kp-cur:not(.out) .kp-w').forEach(function (w) {
+      var ws = lyr.querySelectorAll('.kp-cur:not(.out) .kp-w');
+      ws.forEach(function (w) {
         w.style.setProperty('--p', Math.max(0, Math.min(1, (t - w.dataset.a) / Math.max(0.08, w.dataset.b - w.dataset.a))));
         w.classList.toggle('done', t > +w.dataset.b + 0.25);
       });
+      ball(ws, t);
     }
     loop();
+  }
+
+  // ---- bludička: žhavá kulička skáče ze slova na slovo přesně podle zpěvu ----
+  // Dopadne na slovo ve chvíli, kdy se začne zpívat; skok trvá do začátku dalšího slova, takže rychlá slova =
+  // krátké rychlé hopy, dlouhé slovo = vyšší pomalý oblouk. Při dopadu se zplácne, za sebou nechá slabou stopu.
+  var orb = document.createElement('span'), trail = [], TRAIL = 6;
+  orb.className = 'kp-orb'; orb.setAttribute('aria-hidden', 'true');
+  for (var q = 0; q < TRAIL; q++) { var dot = document.createElement('i'); dot.className = 'kp-orb-trail'; lyr.appendChild(dot); trail.push({ el: dot, x: 0, y: 0 }); }
+  lyr.appendChild(orb);
+  var lastX = null, lastY = null;
+  function spot(w) {   // horní střed slova v souřadnicích textu
+    var r = w.getBoundingClientRect(), box = lyr.getBoundingClientRect();
+    return { x: r.left - box.left + r.width / 2, y: r.top - box.top };
+  }
+  function ball(ws, t) {
+    if (still || !ws || !ws.length) { orb.classList.remove('on'); trail.forEach(function (d) { d.el.style.opacity = 0; }); lastX = null; return; }
+    var first = +ws[0].dataset.a, end = +ws[ws.length - 1].dataset.b;
+    if (t < first - 0.6 || t > end + 0.4) { orb.classList.remove('on'); trail.forEach(function (d) { d.el.style.opacity = 0; }); lastX = null; return; }
+    // slovo, na kterém kulička právě je (poslední, které už začalo), a další, kam skáče
+    var j = -1;
+    for (var k = 0; k < ws.length; k++) if (+ws[k].dataset.a <= t) j = k;
+    var from, to, a, b;
+    if (j < 0) {   // přískok na první slovo zleva
+      to = spot(ws[0]); from = { x: to.x - 60, y: to.y }; a = first - 0.6; b = first;
+    } else if (j < ws.length - 1) {
+      from = spot(ws[j]); to = spot(ws[j + 1]); a = +ws[j].dataset.a; b = +ws[j + 1].dataset.a;
+    } else {      // poslední slovo: doskočí a zůstane na něm, než řádek odejde
+      from = to = spot(ws[j]); a = +ws[j].dataset.a; b = Math.max(a + 0.3, +ws[j].dataset.b);
+    }
+    var dur = Math.max(0.12, b - a), u = Math.max(0, Math.min(1, (t - a) / dur));
+    var hop = Math.min(56, Math.max(12, dur * 34));            // delší slovo = vyšší skok
+    if (from === to) hop = j === ws.length - 1 && t > b ? 0 : hop * 0.35;   // na posledním slově jen malý poskok
+    var x = from.x + (to.x - from.x) * u, y = from.y + (to.y - from.y) * u - hop * 4 * u * (1 - u) - 10;
+    var squash = u < 0.12 ? 1 - (0.12 - u) * 3 : 1;           // chvilku po dopadu zplácnutá
+    orb.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) scale(' + (2 - squash).toFixed(2) + ',' + squash.toFixed(2) + ')';
+    orb.classList.add('on');
+    // stopa: body jdou za kuličkou se zpožděním
+    if (lastX === null) { trail.forEach(function (d) { d.x = x; d.y = y; }); }
+    var px = x, py = y;
+    trail.forEach(function (d, i) {
+      d.x += (px - d.x) * 0.45; d.y += (py - d.y) * 0.45; px = d.x; py = d.y;
+      d.el.style.transform = 'translate(' + d.x.toFixed(1) + 'px,' + d.y.toFixed(1) + 'px) scale(' + (1 - (i + 1) / (TRAIL + 2)).toFixed(2) + ')';
+      d.el.style.opacity = (0.45 * (1 - i / TRAIL)).toFixed(2);
+    });
+    lastX = x; lastY = y;
   }
   // kreslí se jen na viditelné stránce a jen když je pódium na obrazovce
   var seen = true;

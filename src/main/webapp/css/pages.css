@@ -2814,3 +2814,12 @@ body.light .kp-ghost { background: rgba(255, 255, 255, .5); }
 }
 html.low-fx .kp-sing::after, html.low-fx .kp-row .eqr i, html.low-fx .kp-pass .dot { animation: none; }
 html.low-fx .kp-glow { display: none; }
+/* bludička (js/karaoke-page.js): žhavá kulička skáče ze slova na slovo podle zpěvu, za sebou stopa jisker */
+.kp-orb, .kp-orb-trail { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; border-radius: 50%; will-change: transform; }
+.kp-orb { width: 14px; height: 14px; margin: -7px 0 0 -7px; opacity: 0; transition: opacity .3s;
+  background: radial-gradient(circle at 40% 35%, #fff 0 22%, color-mix(in srgb, var(--accent) 40%, #fff) 40%, var(--accent) 75%);
+  box-shadow: 0 0 10px var(--accent), 0 0 26px color-mix(in srgb, var(--accent) 70%, transparent); transform-origin: 50% 100%; }
+.kp-orb.on { opacity: 1; }
+.kp-orb-trail { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; opacity: 0; background: var(--accent); filter: blur(1px); box-shadow: 0 0 8px var(--accent); }
+body.light .kp-orb { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent) 60%, #000), 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent); }
+body.light .kp-orb-trail { filter: none; box-shadow: none; }
