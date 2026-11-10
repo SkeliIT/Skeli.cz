@@ -2,7 +2,7 @@
    (--accent), dole splyne s barvou stránky (--bg). Pod myší nebo prstem jemně prosvítí („svítilna“).
    Vkládá se přes includes/smoke.jspf: <div class="smoke-edge b|t"><canvas></canvas></div>
    (b = pod obsahem, kouř nahoru do fotky; t = převrácený, nad obsahem).
-   Kreslí se jen tehdy, když je předěl vidět. Na slabém telefonu (html.low-fx), při omezení pohybu
+   Kreslí se jen tehdy, když je předěl vidět. Na slabém telefonu (html.low-fx) kreslí v menším rozlišení a pomaleji, při omezení pohybu
    a bez WebGL se nespustí – zůstane klidný přechod z CSS (css/effects.css, .smoke-edge). */
 (function () {
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -61,16 +61,17 @@
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
     var loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     var U = {}; ['res', 'mp', 't', 'seed', 'base', 'ms', 'acc', 'bg'].forEach(function (k) { U[k] = gl.getUniformLocation(pr, k); });
-    var flip = cv.parentNode.classList.contains('t'), t0 = performance.now(), seen = false, raf = 0, ms = 0;
+    var flip = cv.parentNode.classList.contains('t'), t0 = performance.now(), seen = false, raf = 0, ms = 0, skip = 0;
     new IntersectionObserver(function (en) {
       seen = en[0].isIntersecting;
       if (seen && !raf) raf = requestAnimationFrame(loop);
     }).observe(cv);
     function loop(now) {
       raf = 0;
-      if (!cv.isConnected || low()) return;                 // stránka se změnila (PJAX) nebo se zapnul lehký režim
+      if (!cv.isConnected) return;                          // stránka se změnila (PJAX)
       if (!seen || document.hidden) return;                 // mimo obrazovku se nekreslí; IntersectionObserver ho znovu spustí
-      var dpr = Math.min(1.5, devicePixelRatio || 1), W = Math.round(cv.clientWidth * dpr), H = Math.round(cv.clientHeight * dpr);
+      if (low() && (skip = (skip + 1) % 3)) { raf = requestAnimationFrame(loop); return; }   // lehký režim: 20 snímků za sekundu
+      var dpr = low() ? 0.5 : Math.min(1.5, devicePixelRatio || 1), W = Math.round(cv.clientWidth * dpr), H = Math.round(cv.clientHeight * dpr);
       if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; gl.viewport(0, 0, W, H); }
       var r = cv.getBoundingClientRect(), k = W / (r.width || 1);
       ms = now - pAt < 120 ? 1 : ms * .95;
@@ -86,7 +87,7 @@
 
   var n = 0;
   function init() {
-    if (reduced || low()) return;
+    if (reduced) return;   // v lehkém režimu poloviční rozlišení a 20 snímků za sekundu
     document.querySelectorAll('.smoke-edge canvas:not([data-on])').forEach(function (cv) {
       cv.setAttribute('data-on', '');
       if (start(cv, ++n * 3.7)) cv.parentNode.classList.add('live');

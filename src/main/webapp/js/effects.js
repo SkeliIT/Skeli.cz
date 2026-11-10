@@ -230,7 +230,7 @@
 
   function slides() {
     var box = document.querySelector('.bg-slides');
-    if (!box || reduced || low()) return;
+    if (!box || reduced) return;   // i v lehkém režimu: prolnutí fotek je levné a nese barvu webu
     var step = 0, wait = 0, every = 0;   // step 0 = the usual background, 1..n = the photos
     var topZ = 1;                        // poslední ukázaná fotka leží vždy nahoře
     function theme() { return document.body.classList.contains('light') ? 'light' : 'dark'; }
@@ -250,7 +250,6 @@
     }
     // a photo is fetched just before its turn
     function show(instant) {
-      if (low()) return;   // lehký režim se může zapnout i za běhu (watchSmooth)
       var layers = box.children, cur = layers[step - 1];
       function swap() {
         for (var i = 0; i < layers.length; i++) {
@@ -476,13 +475,15 @@
       requestAnimationFrame(function tick(now) {
         frames++;
         if (now - t0 < 3000) { requestAnimationFrame(tick); return; }
-        if (document.hidden || frames / 3 >= 20) return;
+        if (document.hidden) return;
+        if (frames / 3 >= 20) { try { localStorage.setItem('fxSlow', 0); } catch (e) { } return; }   // stíhá = počítadlo od nuly
         document.documentElement.classList.add('low-fx');
         try {
           sessionStorage.setItem('fxLowNow', '1');
+          // třetí pomalé měření = lehký režim na 7 dní (fxAuto, hlavička stránky), pak se měří znovu
           var strikes = (+localStorage.getItem('fxSlow') || 0) + 1;
-          localStorage.setItem('fxSlow', strikes);
-          if (strikes >= 2 && localStorage.getItem('fxLow') !== '0') localStorage.setItem('fxLow', '1');
+          localStorage.setItem('fxSlow', strikes >= 3 ? 0 : strikes);
+          if (strikes >= 3 && localStorage.getItem('fxLow') !== '0') localStorage.setItem('fxAuto', Date.now());
         } catch (e) { /* bez úložiště to platí jen pro tuhle stránku */ }
       });
     }, 1500);
@@ -494,13 +495,13 @@
   // Ve světlém režimu padá sníh – bílý u sněhové fotky, jinak v barvě fotky. Dvě plátna přes celou obrazovku
   // (ne přes celou stránku), kreslí se jen na viditelné stránce. Ne na slabém telefonu, v adminu a pod hrou.
   function fireflies() {
-    if (reduced || low() || document.body.classList.contains('is-admin')) return;
+    if (reduced || document.body.classList.contains('is-admin')) return;   // v lehkém režimu méně a pomaleji (níž)
     var back = document.createElement('canvas'), front = document.createElement('canvas');
     back.className = 'ff-layer'; front.className = 'ff-layer ff-front';
     back.setAttribute('aria-hidden', 'true'); front.setAttribute('aria-hidden', 'true');
     document.body.appendChild(back); document.body.appendChild(front);
     var gb = back.getContext('2d'), gf = front.getContext('2d'), W = 0, H = 0, P = [], t = 0;
-    var mx = -1e4, my = -1e4, vx = 0, vy = 0, col = '#ff3b30', col2 = '#ff8a3d', flake = '#ffffff';
+    var skip = false, mx = -1e4, my = -1e4, vx = 0, vy = 0, col = '#ff3b30', col2 = '#ff8a3d', flake = '#ffffff';
     function mk(y) {
       return { front: Math.random() < 0.1, x: Math.random() * W, y: y, r: 0.6 + Math.random() * 1.6, s: 0.2 + Math.random() * 0.55,
                ph: Math.random() * 6.3, dx: 0, dy: 0, a: 0.35 + Math.random() * 0.55 };
@@ -508,6 +509,7 @@
     function size() {
       W = back.width = front.width = innerWidth; H = back.height = front.height = innerHeight;
       var n = Math.min(innerWidth < 700 ? 34 : 70, Math.round(W * H / 16000));
+      if (low()) n = Math.round(n * 0.55);
       P = []; for (var i = 0; i < n; i++) P.push(mk(Math.random() * H));
     }
     function colors() {
@@ -535,7 +537,8 @@
     addEventListener('touchmove', function (e) { var p = e.touches[0]; if (!p) return; if (mx > -1e4) { vx = p.clientX - mx; vy = p.clientY - my; } mx = p.clientX; my = p.clientY; }, { passive: true });
     (function loop() {
       requestAnimationFrame(loop);
-      if (document.hidden || low() || document.documentElement.classList.contains('kpong-open')) { gb.clearRect(0, 0, W, H); gf.clearRect(0, 0, W, H); return; }
+      if (document.hidden || document.documentElement.classList.contains('kpong-open')) { gb.clearRect(0, 0, W, H); gf.clearRect(0, 0, W, H); return; }
+      if (low() && (skip = !skip)) return;   // lehký režim: každý druhý snímek
       t++;
       if (t % 20 === 0) colors();   // barva se mění s fotkou (přelévá se 4 s), stačí ji číst občas
       var snow = document.body.classList.contains('light');

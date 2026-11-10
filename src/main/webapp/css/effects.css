@@ -1411,7 +1411,9 @@ body.light .kevin-bubble:has(.kevin-extra:not([hidden])) { --glass: rgba(255, 25
 html.low-fx *, html.low-fx *::before, html.low-fx *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 html.low-fx body { --panel: rgba(18, 18, 21, .92); }
 html.low-fx body.light { --panel: rgba(255, 255, 255, .93); }
-html.low-fx body::after, html.low-fx .hero-particles, html.low-fx .bg-slides, html.low-fx .lyric-ambient { display: none !important; }
+html.low-fx body::after, html.low-fx .hero-particles, html.low-fx .lyric-ambient { display: none !important; }
+/* fotky pozadí se střídají i tady (nesou barvu webu), jen nedýchají */
+html.low-fx .bg-slides { animation: none !important; will-change: auto; }
 html.low-fx body::before, html.low-fx .auth-art::before,
 html.low-fx .hero-title .logo-mark, html.low-fx .hero-title .logo-mark::after,
 html.low-fx .masthead-brand .squad-mark, html.low-fx .masthead-brand .squad-mark::after,
@@ -1540,10 +1542,8 @@ body.light:has(main.home-page.ulice) { --bg-overlay: linear-gradient(180deg, rgb
 /* světlušky / sníh přes celou obrazovku (js/effects.js, fireflies): zadní vrstva za obsahem, přední (pár kusů) přes něj */
 .ff-layer { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
 .ff-layer.ff-front { z-index: 5; }
-html.low-fx .ff-layer { display: none; }
 /* plátno světlušek pod hlavičkou úvodu: lepí se k obrazovce, leží za kartami (přes celou šířku) */
 .ff-local { position: sticky; top: 0; display: block; width: 100vw; height: 100vh; margin: 0 calc(50% - 50vw) -100vh; pointer-events: none; }
-html.low-fx .ff-local { display: none; }
 /* pás s fotkou na úvodu: noční ulice s maskou (tmavý) / silueta na poli (světlý), citát z písně štětcem */
 .home-page.ulice .photo-band { --band: url('/img/photos/walker-lg.webp'); }
 body.light .home-page.ulice .photo-band { --band: url('/img/photos/field-wide.webp'); }
@@ -1815,5 +1815,3 @@ body.bg-fit::before { inset: 0; margin: auto; width: var(--bbw); height: var(--b
 body::before { transition: opacity 4s ease-in-out, translate .9s ease; }
 body.slide-on::before { opacity: 0; transition: opacity 4s cubic-bezier(.75, 0, .9, 1), translate .9s ease; }
 body.slide-instant::before { transition: none; }
-/* lehký režim fotky nestřídá (vrstva je schovaná) – obvyklé pozadí musí zůstat vidět */
-html.low-fx body.slide-on::before { opacity: 1; }

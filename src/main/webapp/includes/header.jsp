@@ -13,9 +13,11 @@
   <head>
     <meta charset="utf-8" />
     <%-- lehký režim pro slabé telefony (css/effects.css, js/effects.js): rozhodne se dřív, než se stránka vykreslí.
-         Slabý = telefon s nejvýš 4 GB paměti, zapnuté šetření dat, nebo mu web při měření nestíhal. fxLow = 0 ho vypne. --%>
-    <script>try { (function () { var n = navigator, c = n.connection, m = n.deviceMemory, s = localStorage.getItem('fxLow');
-      if (s !== '0' && (s === '1' || sessionStorage.getItem('fxLowNow') === '1' || (c && c.saveData) || (m && m <= 4 && matchMedia('(pointer: coarse)').matches))) document.documentElement.classList.add('low-fx');
+         Slabý = telefon s nejvýš 2 GB paměti, zapnuté šetření dat, nebo mu web při měření nestíhal (fxAuto = kdy, platí 7 dní,
+         pak se měří znovu). fxLow = 0 ho vypne, fxLow = on zapne natrvalo. Dřívější fxLow = 1 zapisoval web sám natrvalo
+         i telefonům, které jen jednou chvíli nestíhaly – už se nebere. Lehký režim šetří jen to drahé, vzhled zůstává. --%>
+    <script>try { (function () { var n = navigator, c = n.connection, m = n.deviceMemory, s = localStorage.getItem('fxLow'), a = +localStorage.getItem('fxAuto') || 0;
+      if (s !== '0' && (s === 'on' || Date.now() - a < 7 * 864e5 || sessionStorage.getItem('fxLowNow') === '1' || (c && c.saveData) || (m && m <= 2 && matchMedia('(pointer: coarse)').matches))) document.documentElement.classList.add('low-fx');
     })(); } catch (e) { /* bez úložiště běží web normálně */ }</script>
     <meta name="viewport" content="width=device-width, viewport-fit=cover">
 <%
