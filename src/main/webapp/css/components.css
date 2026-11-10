@@ -558,6 +558,8 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     font-size: var(--fs-card);
   }
   .main-nav .nav-account .logout-form { margin: 0; }
+  /* lichý počet tlačítek: poslední (Odhlásit) přes celý řádek, ať nevisí samo na půlce */
+  .main-nav .nav-account > :last-child:nth-child(odd) { grid-column: 1 / -1; }
   .main-nav .nav-account > .nav-register { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .main-nav .nav-account > .nav-register i { color: var(--accent-ink); }
   .main-nav .nav-account .nav-user { display: none; }   /* jméno je v kartě účtu, tady by tlačítko natáhlo */

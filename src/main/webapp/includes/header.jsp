@@ -226,8 +226,8 @@
                 <a href="<%= ctx %>/login.jsp"><i class="fa-solid fa-right-to-bracket"></i> <%= t.getProperty("btn.login") %></a>
                 <a href="<%= ctx %>/register.jsp" class="nav-register"><i class="fa-solid fa-user-plus"></i> <%= t.getProperty("btn.register") %></a>
               <% } else { %>
+                <%-- Zprávy tu nejsou: bublina chatu je vidět na každé stránce (includes/chat-dock.jspf) --%>
                 <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %> <span class="nav-user">· <%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></span></a>
-                <a href="<%= ctx %>/zpravy"><i class="fa-solid fa-comments"></i> <%= t.getProperty("chat.title") %> <span class="acct-count" data-chat-count hidden></span></a>
                 <a href="<%= ctx %>/nastaveni.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
                 <button type="button" class="nav-notif" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> <span><%= t.getProperty("sound.off") %></span></button>
                 <button type="button" class="nav-notif" data-notif-open aria-controls="notifPanel"><i class="fa-regular fa-bell"></i> <%= t.getProperty("notif.title") %> <span class="notif-badge" hidden></span></button>
@@ -302,7 +302,6 @@
                   </button>
                   <div class="user-dropdown">
                     <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %></a>
-                    <a href="<%= ctx %>/zpravy"><i class="fa-solid fa-comments"></i> <%= t.getProperty("chat.title") %> <span class="acct-count" data-chat-count hidden></span></a>
                     <a href="<%= ctx %>/nastaveni.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
                     <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
                     <%-- a POST with the CSRF token: another site cannot log people out with a link --%>

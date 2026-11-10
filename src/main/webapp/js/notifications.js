@@ -36,7 +36,7 @@
     });
   }
 
-  // nepřečtené zprávy: číslo u odkazu Zprávy v menu a v názvu záložky
+  // nepřečtené zprávy: číslo na bublině chatu a v názvu záložky
   function paintChat(n) {
     document.querySelectorAll('[data-chat-count]').forEach(function (b) { b.textContent = n; b.hidden = !n; });
     var base = document.title.replace(/^\(\d+\) /, '');
