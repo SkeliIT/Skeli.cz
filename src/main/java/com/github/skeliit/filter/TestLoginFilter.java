@@ -133,7 +133,7 @@ public class TestLoginFilter implements Filter {
     private static Cookie cookie(HttpServletRequest req, String value, int maxAge) {
         Cookie c = new Cookie(COOKIE, value);
         c.setHttpOnly(true);
-        c.setSecure(req.isSecure() || "https".equalsIgnoreCase(req.getHeader("X-Forwarded-Proto")));
+        c.setSecure(req.isSecure() || "https".equalsIgnoreCase(req.getHeader("X-Forwarded-Proto")) || SecurityHeadersFilter.httpsOnly());
         c.setComment("__SAME_SITE_LAX__");                  // Jetty pošle SameSite=Lax
         c.setPath("/");
         c.setMaxAge(maxAge);
