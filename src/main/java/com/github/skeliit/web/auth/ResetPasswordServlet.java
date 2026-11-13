@@ -51,7 +51,9 @@ public class ResetPasswordServlet extends HttpServlet {
                 }
                 if (userId != null) {
                     String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
-                    try (PreparedStatement ps = conn.prepareStatement("UPDATE users SET password_hash=? WHERE id=?")) {
+                    // odkaz z e-mailu = důkaz, že e-mail patří jemu: od teď je ověřený (přihlášení Googlem pak účet nevyčistí)
+                    try (PreparedStatement ps = conn.prepareStatement(
+                            "UPDATE users SET password_hash=?, email_verified_at=COALESCE(email_verified_at, NOW()) WHERE id=?")) {
                         ps.setString(1, hash);
                         ps.setInt(2, userId);
                         ps.executeUpdate();
