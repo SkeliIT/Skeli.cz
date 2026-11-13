@@ -62,8 +62,11 @@ public final class AccountDeletion {
         c.setAutoCommit(false);
         try {
             run(c, "DELETE FROM password_resets WHERE user_id = ?", userId);
+            run(c, "DELETE FROM user_recovery_codes WHERE user_id = ?", userId);
             run(c, "DELETE FROM comment_reports WHERE reporter_id = ?", userId);
-            run(c, "DELETE FROM user_reports WHERE reporter_id = ? OR reported_id = ?", userId, userId);
+            // Nahlášení NA tohoto člověka zůstanou: jsou to důkazy pro admina (i pro policii), smazáním účtu nesmí zmizet
+            // (audit B3). Vyřízená se mažou po roce (ChatDao.upkeep). Jeho vlastní nahlášení jdou pryč, jen když je admin už vyřídil.
+            run(c, "DELETE FROM user_reports WHERE reporter_id = ? AND resolved_at IS NOT NULL", userId);
             run(c, "DELETE FROM friendships WHERE user_a = ? OR user_b = ?", userId, userId);
             run(c, "DELETE FROM user_blocks WHERE blocker_id = ? OR blocked_id = ?", userId, userId);
             run(c, "DELETE FROM site_badges WHERE user_id = ?", userId);
@@ -71,16 +74,28 @@ public final class AccountDeletion {
             run(c, "DELETE FROM user_chat_prefs WHERE user_id = ?", userId);
             run(c, "DELETE FROM chat_muted WHERE user_id = ? OR other_id = ?", userId, userId);
             run(c, "DELETE FROM chat_reactions WHERE user_id = ?", userId);
-            run(c, "DELETE FROM chat_reports WHERE reporter_id = ? OR sender_id = ?", userId, userId);
+            // nahlášené zprávy od něj (kopie textu) zůstávají jako důkaz, viz výš; jeho vyřízená nahlášení jdou pryč
+            run(c, "DELETE FROM chat_reports WHERE reporter_id = ? AND resolved_at IS NOT NULL", userId);
             run(c, "DELETE FROM chat_hidden WHERE user_id = ? OR other_id = ?", userId, userId);
             run(c, "DELETE FROM chat_messages WHERE user_a = ? OR user_b = ?", userId, userId);
             run(c, "DELETE FROM user_profiles WHERE user_id = ?", userId);
             run(c, "DELETE FROM notifications WHERE user_id = ?", userId);
+            // hry a vzkazy (audit C4: dřív tu zůstávaly); hlasy zůstávají započítané pod skořápkou, jak říkají zásady
+            run(c, "DELETE FROM pong_results WHERE user_id = ?", userId);
+            run(c, "DELETE FROM pong_scores WHERE user_id = ?", userId);
+            run(c, "DELETE FROM pong_badges WHERE user_id = ?", userId);
+            run(c, "DELETE FROM site_feedback WHERE user_id = ?", userId);
+            // pomoc s texty a nahlášené chyby webu zůstanou, ale už bez jména
+            run(c, "UPDATE lyric_help SET user_id = NULL WHERE user_id = ?", userId);
+            run(c, "UPDATE site_reports SET user_id = NULL WHERE user_id = ?", userId);
             deleteNewsletter(c, l.email);
-            // an empty shell for the comments: no name, e-mail, password or avatar; it can't sign in
+            // an empty shell for the comments: no name, e-mail, password, avatar, Google or 2FA; it can't sign in.
+            // (google_sub pryč, jinak by se dotyčný už nikdy nemohl přes Google znovu registrovat)
             try (PreparedStatement ps = c.prepareStatement(
                     "UPDATE users SET username = ?, email = NULL, password_hash = '', avatar_url = NULL, cover_url = NULL, role = 'DELETED', "
-                    + "email_verified_at = NULL, verify_token_hash = NULL, verify_expires_at = NULL WHERE id = ?")) {
+                    + "email_verified_at = NULL, verify_token_hash = NULL, verify_expires_at = NULL, google_sub = NULL, "
+                    + "totp_secret = NULL, totp_enabled_at = NULL, totp_last_step = NULL, pong_title = NULL, pong_frame = NULL, pong_mark = NULL "
+                    + "WHERE id = ?")) {
                 ps.setString(1, "deleted_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12));
                 ps.setInt(2, userId);
                 ps.executeUpdate();
@@ -112,10 +127,26 @@ public final class AccountDeletion {
             for (int id : comments.idsByUser(kind, userId)) comments.delete(kind, id);
         }
         run(c, "DELETE FROM video_comment_votes WHERE user_id = ?", userId);
+        // Nahlášení na něj (profil, zprávy) jsou důkaz: řádek users by je smazal cizími klíči (audit B3).
+        // Pak zůstane jen anonymní skořápka (stejně jako po smazání účtu samotným uživatelem).
+        if (hasEvidence(c, userId)) {
+            if (l != null) delete(c, userId, ctx);
+            return true;
+        }
         if (l != null) deleteNewsletter(c, l.email);
         run(c, "DELETE FROM users WHERE id = ?", userId);
         if (l != null) deleteFiles(l, ctx);
         return true;
+    }
+
+    /** Je na tohohle člověka nějaké nahlášení (profil nebo zpráva)? */
+    static boolean hasEvidence(Connection c, int userId) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement(
+                "SELECT 1 FROM user_reports WHERE reported_id = ? UNION ALL SELECT 1 FROM chat_reports WHERE sender_id = ? LIMIT 1")) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        }
     }
 
     private static void run(Connection c, String sql, int a, int b) throws SQLException {

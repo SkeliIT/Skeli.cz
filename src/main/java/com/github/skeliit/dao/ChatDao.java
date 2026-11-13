@@ -324,6 +324,8 @@ public class ChatDao {
         try (Connection c = Db.get(); Statement st = c.createStatement()) {
             int removed = st.executeUpdate("DELETE FROM chat_messages WHERE created_at < NOW() - INTERVAL 1 YEAR");
             st.executeUpdate("DELETE FROM chat_reports WHERE resolved_at IS NOT NULL AND resolved_at < NOW() - INTERVAL 1 YEAR");
+            // stejné pravidlo pro nahlášené profily (zůstávají i po smazání účtu, viz AccountDeletion)
+            st.executeUpdate("DELETE FROM user_reports WHERE resolved_at IS NOT NULL AND resolved_at < NOW() - INTERVAL 1 YEAR");
             return removed;
         }
     }

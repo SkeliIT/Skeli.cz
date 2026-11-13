@@ -15,7 +15,10 @@ import java.util.logging.Logger;
 /**
  * Šifrování textu v databázi (zprávy, klíče 2FA; AES-256-GCM) klíčem DATA_KEY z .env. Kdo získá jen databázi nebo její zálohu, nepřečte je.
  * Správce serveru, který má i .env, by je přečíst uměl: není to šifrování mezi dvěma telefony.
- * Bez klíče (lokální vývoj, server před doplněním klíče) se text ukládá tak, jak je, a starý nezašifrovaný text jde číst dál.
+ * Bez platného klíče se citlivý text NEULOŽÍ (seal vyhodí chybu) – nikdy ne potichu jako čitelný text (audit B2).
+ * Starý nezašifrovaný text z doby před klíčem jde číst dál a job/ChatUpkeep ho dodatečně zašifruje.
+ * {@link #health()} ověří i to, že klíč je ten správný (kontrolní text v app_settings); /healthz to hlásí a nasazení
+ * bez klíče nebo se špatným klíčem se vrátí zpět.
  * Pozor: když se klíč ztratí, zašifrované zprávy už nikdo nepřečte. Klíč proto patří i mimo server.
  */
 public final class SecretBox {
@@ -45,17 +48,60 @@ public final class SecretBox {
         return KEY != null;
     }
 
+    /** Text, který se při prvním startu s klíčem zašifruje do app_settings; jiný klíč ho pak nepřečte. */
+    static final String CHECK_TEXT = "skeli-data-key-ok";
+    private static volatile String health;   // null = ještě nezjištěno, "ok" = v pořádku, jinak důvod
+
+    /**
+     * Je šifrování v pořádku? "ok", "missing" (klíč chybí nebo nemá 32 bajtů) nebo "mismatch" (klíč je jiný než ten,
+     * kterým se šifrovalo dřív – staré zprávy by nešly přečíst). Výsledek se pamatuje; chyba databáze se nepamatuje.
+     */
+    public static String health() {
+        String h = health;
+        if (h != null) return h;
+        if (KEY == null) return health = "missing";
+        try (java.sql.Connection c = com.github.skeliit.Db.get()) {
+            return health = check(c, KEY, "data_key_check");
+        } catch (java.sql.SQLException e) {
+            LOG.log(Level.WARNING, "Kontrola DATA_KEY: databáze nejde přečíst: {0}", e.getMessage());
+            return "db";
+        }
+    }
+
+    /** Porovná klíč s kontrolním textem v app_settings (první start s klíčem ho tam uloží). */
+    static String check(java.sql.Connection c, SecretKeySpec key, String name) throws java.sql.SQLException {
+        String stored = null;
+        try (java.sql.PreparedStatement ps = c.prepareStatement("SELECT v FROM app_settings WHERE k = ?")) {
+            ps.setString(1, name);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) stored = rs.getString(1);
+            }
+        }
+        if (stored == null) {
+            try (java.sql.PreparedStatement ps = c.prepareStatement("INSERT IGNORE INTO app_settings (k, v) VALUES (?, ?)")) {
+                ps.setString(1, name);
+                ps.setString(2, seal(CHECK_TEXT, key));
+                ps.executeUpdate();
+            }
+            return "ok";
+        }
+        if (CHECK_TEXT.equals(open(stored, key))) return "ok";
+        LOG.severe("DATA_KEY nesedí s klíčem, kterým se dřív šifrovalo – staré zprávy by nešly přečíst.");
+        return "mismatch";
+    }
+
     public static boolean isSealed(String stored) {
         return stored != null && stored.startsWith(PREFIX);
     }
 
-    /** Zašifruje text. Prázdný text (smazaná zpráva) a text bez klíče zůstanou, jak jsou. */
+    /** Zašifruje text. Prázdný text (smazaná zpráva) zůstane prázdný. Bez klíče chyba: citlivý text se neuloží čitelně. */
     public static String seal(String plain) {
         return seal(plain, KEY);
     }
 
     static String seal(String plain, SecretKeySpec key) {
-        if (key == null || plain == null || plain.isEmpty()) return plain;
+        if (plain == null || plain.isEmpty()) return plain;
+        if (key == null) throw new IllegalStateException("DATA_KEY chybí nebo je špatný: citlivý text se neuloží nešifrovaně");
         try {
             byte[] iv = new byte[IV_BYTES];
             RANDOM.nextBytes(iv);

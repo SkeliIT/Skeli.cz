@@ -89,6 +89,17 @@ public class ProfileExportServlet extends HttpServlet {
             section(c, m, root, "friends", "SELECT u.username, f.status, f.created_at FROM friendships f JOIN users u ON u.id = IF(f.user_a = " + uid + ", f.user_b, f.user_a) WHERE f.user_a = ? OR f.user_b = " + uid, uid);
             section(c, m, root, "blocked_users", "SELECT u.username, b.created_at FROM user_blocks b JOIN users u ON u.id = b.blocked_id WHERE b.blocker_id = ?", uid);
             section(c, m, root, "reported_profiles", "SELECT reported_id, reason, note, created_at FROM user_reports WHERE reporter_id=?", uid);
+            // doplněno po auditu C4: tohle v kopii dat chybělo
+            section(c, m, root, "reported_messages", "SELECT reason, note, created_at, resolved_at FROM chat_reports WHERE reporter_id=?", uid);
+            section(c, m, root, "chat_reactions", "SELECT message_id, emoji FROM chat_reactions WHERE user_id=?", uid);
+            section(c, m, root, "chat_muted", "SELECT u.username FROM chat_muted x JOIN users u ON u.id = x.other_id WHERE x.user_id=?", uid);
+            section(c, m, root, "chat_hidden", "SELECT u.username, x.up_to FROM chat_hidden x JOIN users u ON u.id = x.other_id WHERE x.user_id=?", uid);
+            section(c, m, root, "catsmash_wins", "SELECT * FROM pong_results WHERE user_id=?", uid);
+            section(c, m, root, "catsmash_scores", "SELECT * FROM pong_scores WHERE user_id=?", uid);
+            section(c, m, root, "catsmash_badges", "SELECT * FROM pong_badges WHERE user_id=?", uid);
+            section(c, m, root, "site_feedback", "SELECT * FROM site_feedback WHERE user_id=?", uid);
+            section(c, m, root, "lyric_help", "SELECT * FROM lyric_help WHERE user_id=?", uid);
+            section(c, m, root, "site_reports", "SELECT * FROM site_reports WHERE user_id=?", uid);
             if (email != null && !email.isBlank()) {
                 section(c, m, root, "newsletter",
                         "SELECT email, subscribed_at, confirmed_at, unsubscribed_at FROM newsletter_emails WHERE email=?", email);

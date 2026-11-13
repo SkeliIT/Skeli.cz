@@ -111,6 +111,7 @@ public class ChatApiServlet extends HttpServlet {
                     String raw = req.getParameter("body");
                     String body = raw != null && raw.length() > ChatDao.MAX_BODY ? null : WebUtils.cleanComment(raw);
                     if (body == null || body.isBlank()) { json(resp, 400, Map.of("error", "empty")); return; }
+                    if (!com.github.skeliit.service.SecretBox.enabled()) { json(resp, 503, Map.of("error", "unavailable")); return; }
                     json(resp, chat.edit(me, number(req.getParameter("id")), body) ? 200 : 404, Map.of("ok", true));
                 }
                 case "react" -> {
@@ -150,6 +151,8 @@ public class ChatApiServlet extends HttpServlet {
 
     private void send(HttpServletRequest req, HttpServletResponse resp, int me) throws IOException, SQLException {
         if (!EmailVerification.isVerified(req.getSession(false))) { json(resp, 403, Map.of("error", "verify")); return; }
+        // bez šifrovacího klíče se zpráva neuloží (nikdy ne čitelně) – audit B2
+        if (!com.github.skeliit.service.SecretBox.enabled()) { json(resp, 503, Map.of("error", "unavailable")); return; }
         Integer other = chat.userId(req.getParameter("with"));
         if (other == null || other.equals(me) || !chat.canSend(me, other)) { json(resp, 403, Map.of("error", "closed")); return; }
         String raw = req.getParameter("body");

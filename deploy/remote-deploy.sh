@@ -79,7 +79,8 @@ wait_up || { echo "::error::$SERVICE did not answer on port $PORT within 5 minut
 
 log "Smoke test"
 ok=1
-for check in "/ 200" "/texty.jsp 200" "/login.jsp 200" "/css/base.css 200" "/admin.jsp 403"; do
+# /healthz 200 = i šifrování (DATA_KEY) je v pořádku; bez něj by se zprávy neuložily (audit B2)
+for check in "/ 200" "/texty.jsp 200" "/login.jsp 200" "/css/base.css 200" "/admin.jsp 403" "/healthz 200"; do
   set -- $check
   got=$(status "$1")
   echo "$1 -> $got (expected $2)"

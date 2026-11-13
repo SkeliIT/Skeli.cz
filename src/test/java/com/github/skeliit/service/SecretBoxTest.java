@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Šifrování zpráv: tam a zpět, stará nezašifrovaná data a špatný klíč. */
@@ -49,9 +50,11 @@ class SecretBoxTest {
     }
 
     @Test
-    @DisplayName("Bez klíče se neukládá nic zašifrovaného a cizí klíč zprávu nepřečte")
+    @DisplayName("Bez klíče se text NEULOŽÍ čitelně (chyba) a cizí klíč zprávu nepřečte – audit B2")
     void wrongOrMissingKey() {
-        assertEquals("ahoj", SecretBox.seal("ahoj", null));
+        assertThrows(IllegalStateException.class, () -> SecretBox.seal("ahoj", null), "bez klíče nikdy čitelně");
+        assertThrows(IllegalStateException.class, () -> SecretBox.seal("ahoj", SecretBox.readKey("kratky")), "špatný klíč = žádný klíč");
+        assertEquals("", SecretBox.seal("", null), "prázdný text (smazaná zpráva) projde i bez klíče");
         String sealed = SecretBox.seal("ahoj", key(7));
         assertEquals("", SecretBox.open(sealed, key(8)));
         assertEquals("", SecretBox.open(sealed, null));
