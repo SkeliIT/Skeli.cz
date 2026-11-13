@@ -259,6 +259,9 @@ function startPlayer() {
   clock = new window.YtClock(f, noCaptions);
   [800, 2000, 4000, 8000].forEach((ms) => setTimeout(noCaptions, ms));
   catcher.onclick = () => (playing() ? pause() : play());
+  // Telefon (přísné pravidlo zvuku): když se video do 3 s samo nespustí, ťuknutí jde přímo do přehrávače YouTube
+  // (ze stránky ho prohlížeč pustit nedovolí, přímo v něm ano – ověřeno). Velké ▶ ukáže kam; po rozjetí zmizí.
+  setTimeout(() => { if (!started) host.classList.add('st-tap'); }, 3000);
 }
 
 // ---------------- ovládání (stejné jako v pokojích) ----------------
@@ -297,7 +300,9 @@ $('enter').onclick = () => {
   entered = true;
   $('lobby').classList.add('gone');
   document.body.classList.add('st-in');
-  setTimeout(startPlayer, 600);
+  // přehrávač hned v tomhle kliknutí: prohlížeče pustí zvuk jen „po kliknutí“ a 600 ms později už to za kliknutí
+  // nepovažovaly – video v kině vůbec nezačalo hrát (ověřeno 13. 11. 2026 v Chrome s běžným pravidlem zvuku)
+  startPlayer();
   askToTurn(); wake();
 };
 function leave() {   // jako konec filmu: obraz ztmavne, zpátky na stránku Karaoke
@@ -328,7 +333,7 @@ function frame(ts) {
   const ended = entered && started && t > Math.min(duration() - 1.5, LAST_END + 6);
   if (ended && !credited) { credited = true; $('roll').innerHTML = credits(); $('credits').hidden = false; $('credits').classList.add('run'); }
   if (!ended && credited) { credited = false; $('credits').hidden = true; $('credits').classList.remove('run'); }
-  if (pl && !started && (!clock || clock.time() > .3)) { started = true; if (clock) poster.style.opacity = '0'; }
+  if (pl && !started && (!clock || clock.time() > .3)) { started = true; host.classList.remove('st-tap'); if (clock) poster.style.opacity = '0'; }
   $('fill').style.width = (t / duration() * 100) + '%';
   $('time').textContent = fmt(t) + ' / ' + fmt(duration());
   if (pl !== wasPlaying) { wasPlaying = pl; $('ppIcon').innerHTML = pl ? '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>'; }

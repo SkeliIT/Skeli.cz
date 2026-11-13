@@ -10,6 +10,14 @@
 .st-player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .st-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .8s; pointer-events: none; z-index: 1; }
 .st-catch { position: absolute; inset: 0; z-index: 2; cursor: pointer; }
+/* video se samo nespustilo (telefon): ťuknutí propustit přímo do přehrávače YouTube, velké ▶ ukazuje kam (styly.js) */
+.st-player.st-tap .st-catch { pointer-events: none; }
+.st-player.st-tap .st-poster { opacity: .35; }
+.st-player.st-tap::after { content: "▶"; position: absolute; left: 50%; top: 50%; z-index: 3; width: 76px; height: 76px; margin: -38px 0 0 -38px;
+  display: grid; place-items: center; padding-left: 6px; box-sizing: border-box; border-radius: 50%; pointer-events: none;
+  font: 34px/1 sans-serif; color: #fff; background: color-mix(in srgb, var(--acc, #ffb02e) 80%, #000); box-shadow: 0 0 0 0 var(--acc, #ffb02e);
+  animation: stTap 1.6s ease-out infinite; }
+@keyframes stTap { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--acc, #ffb02e) 60%, transparent); } 100% { box-shadow: 0 0 0 26px transparent; } }
 .st-stage .w { position: relative; display: inline-block; white-space: pre; }
 @keyframes stIn { from { opacity: 0; transform: translateY(8px); } }
 @keyframes stOut { to { opacity: 0; transform: translateY(-8px); } }
