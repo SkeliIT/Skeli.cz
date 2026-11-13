@@ -42,6 +42,17 @@
     }
     el.innerHTML = ws.map(function (w) { return '<span class="kp-w" data-t="' + esc(w.t) + '" data-a="' + w.a + '" data-b="' + w.b + '">' + esc(w.t) + '</span>'; }).join(' ');
     box.appendChild(el);
+    fitLine(el, box);
+  }
+  // po načtení písma a při změně velikosti okna znovu změřit (písmo mění šířku textu)
+  function refit() { slots.forEach(function (b) { var l = b.querySelector('.kp-line:not(.out)'); if (l) fitLine(l, b); }); }
+  if (document.fonts) document.fonts.ready.then(refit);
+  addEventListener('resize', refit);
+  // okno s textem má pevnou výšku na 2 řádky (css .kp-slot); delší verš se zmenší, aby se vešel a nic neskákalo
+  function fitLine(el, box) {
+    var max = box.clientHeight, size = 1;
+    el.style.fontSize = '';
+    while (el.scrollHeight > max + 2 && size > 0.6) { size -= 0.05; el.style.fontSize = size.toFixed(2) + 'em'; }
   }
 
   // ---- promítaná ukázka ----

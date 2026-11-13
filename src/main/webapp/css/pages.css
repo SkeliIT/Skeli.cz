@@ -2778,7 +2778,9 @@ body.light .kp-pass { background: color-mix(in srgb, var(--accent) 10%, rgba(255
 .kp-now b { color: var(--text); font-weight: 400; letter-spacing: .06em; text-transform: none; }
 /* dva řádky nad sebou se střídají (jako opravdové karaoke): zpívaný svítí, v druhém už čeká další */
 .kp-lyr { position: relative; margin: 26px auto 0; display: grid; gap: 6px; }
-.kp-slot { position: relative; min-height: 2.5em; display: grid; align-items: center; font-size: clamp(1.3rem, 4.6vw, 2.8rem); line-height: 1.2; }
+/* pevná výška pro 2 řádky (dřív min-height: delší verš zalomený do 3 řádků okno roztáhl a tlačítko pod ním skákalo);
+   verš, který se nevejde, zmenší js/karaoke-page.js (fitLine) */
+.kp-slot { position: relative; height: 2.5em; display: grid; align-items: center; font-size: clamp(1.3rem, 4.6vw, 2.8rem); line-height: 1.2; }
 .kp-line { grid-area: 1 / 1; color: color-mix(in srgb, var(--text) 22%, transparent); transition: color .6s; }
 .kp-slot.active .kp-line { color: color-mix(in srgb, var(--text) 38%, transparent); }
 /* starý řádek rychle zmizí a nový přijde až po něm – nikdy se nepřekrývají */
