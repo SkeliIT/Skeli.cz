@@ -14,6 +14,7 @@
   var slots = [].slice.call(lyr.querySelectorAll('.kp-slot'));
   var cur = 0, t0 = performance.now(), shown = [null, null], raf = 0;
 
+  var FLY_MIN = 0.25;   // nejkratší let bludičky z konce řádku na další řádek (s)
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   // časy slov; když k řádku chybí, rozdělí se čas řádku rovnoměrně
   function words(l) {
@@ -31,7 +32,15 @@
     var el = document.createElement('span');
     el.className = 'kp-line in';
     el.dataset.j = j;
-    el.innerHTML = words(L[j]).map(function (w) { return '<span class="kp-w" data-t="' + esc(w.t) + '" data-a="' + w.a + '" data-b="' + w.b + '">' + esc(w.t) + '</span>'; }).join(' ');
+    // Poslední slovo řádku se musí dobarvit dřív, než bludička odletí na další řádek (aspoň FLY_MIN s před ním).
+    // Dřív, když další řádek začínal hned (nebo podle časů dokonce dřív), bludička už byla dole, zatímco se
+    // slovo, ze kterého odskočila, teprve barvilo – oko sleduje bludičku a bylo to matoucí.
+    var ws = words(L[j]), next = L[j + 1];
+    if (next && ws.length) {
+      var lw = ws[ws.length - 1];
+      lw.b = Math.max(lw.a + 0.08, Math.min(lw.b, next.a - FLY_MIN));
+    }
+    el.innerHTML = ws.map(function (w) { return '<span class="kp-w" data-t="' + esc(w.t) + '" data-a="' + w.a + '" data-b="' + w.b + '">' + esc(w.t) + '</span>'; }).join(' ');
     box.appendChild(el);
   }
 
@@ -151,7 +160,8 @@
           var nf = i + 1 < L.length ? firstWord(i + 1) : null, end = edge(w, 1);
           if (!nf) { if (t > b + 0.8) { hide(); draw(t); return; } from = to = end; }
           else {                                       // konec řádku: oblouk na začátek druhého řádku, bez čáry
-            var nA = L[i + 1].a, fly = Math.min(0.9, Math.max(0.3, nA - b)), st = nA - fly;
+            // odlétá až po dobarvení slova (b), nejdřív 0,9 s před dalším řádkem – nikdy uprostřed oblouku
+            var nA = L[i + 1].a, st = Math.max(b, nA - 0.9), fly = Math.max(0.08, nA - st);
             from = end; to = edge(nf, 0); u = (t - st) / fly; hop = 40; jump = t >= st;
           }
         }
