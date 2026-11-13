@@ -29,7 +29,7 @@ public class SecurityHeadersFilter implements Filter {
     /** Only restrictions that cannot break the page: the inline scripts, YouTube and Spotify stay allowed. */
     static final String CSP = "frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'";
 
-    static boolean httpsOnly() {
+    public static boolean httpsOnly() {
         return !"false".equalsIgnoreCase(Config.get("HTTPS_ONLY", "true").trim());
     }
 

@@ -3,7 +3,7 @@ package com.github.skeliit.web.auth;
 import com.github.skeliit.Db;
 import com.github.skeliit.I18n;
 import com.github.skeliit.WebUtils;
-import com.github.skeliit.security.LoginRateLimiter;
+import com.github.skeliit.security.KnownDevice;
 import com.github.skeliit.security.RequestLimiter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,6 +21,10 @@ public class LoginServlet extends HttpServlet {
 
     /** Failed sign-ins from one address in 15 minutes before it has to wait (a household or school shares an address). */
     static final int IP_FAILURES = 30;
+    /** Chybné pokusy na jeden účet z jedné adresy za 15 minut. */
+    static final int PAIR_FAILURES = 10;
+    /** Chybné pokusy na jeden účet ze všech adres za hodinu (pak jen známé zařízení). */
+    static final int ACCOUNT_FAILURES = 100;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -37,14 +41,14 @@ public class LoginServlet extends HttpServlet {
             req.getRequestDispatcher("/login.jsp").forward(req, resp);
             return;
         }
-        // per account (guessing one password) and per address (one password tried on many accounts)
+        // Limity chybných pokusů (audit C8 – dřív šlo cizí účet zamknout na 15 minut):
+        //  - adresa: 30 za 15 min (jedno heslo zkoušené na mnoho účtů),
+        //  - účet + adresa: 10 za 15 min – útočník zablokuje jen sám sebe, majitel z jiné adresy projde,
+        //  - celý účet: 100 za hodinu (útok z mnoha adres) – a i pak projde prohlížeč, kde se majitel už přihlásil (KnownDevice).
         String ip = WebUtils.clientIp(req);
-        boolean ipBlocked = !WebUtils.isDirectLocalRequest(req)
-                && RequestLimiter.isFull("login-fail-ip", ip, IP_FAILURES, 15 * RequestLimiter.MINUTE);
-        if (ipBlocked || LoginRateLimiter.isBlocked(username)) {
-            req.setAttribute("loginError", I18n.getText(req, "auth.error.tooManyAttempts", "Příliš mnoho neúspěšných pokusů. Zkuste to znovu za 15 minut."));
-            req.setAttribute("username", username);
-            req.getRequestDispatcher("/login.jsp").forward(req, resp);
+        boolean local = WebUtils.isDirectLocalRequest(req);
+        if (!local && RequestLimiter.isFull("login-fail-ip", ip, IP_FAILURES, 15 * RequestLimiter.MINUTE)) {
+            tooMany(req, resp, username);
             return;
         }
         try (Connection conn = Db.get();
@@ -54,26 +58,43 @@ public class LoginServlet extends HttpServlet {
             ps.setString(1, username);
             ps.setString(2, username.toLowerCase(java.util.Locale.ROOT));
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
+                Integer uid = rs.next() ? rs.getInt("id") : null;
+                // klíč pro limit: číslo účtu (jméno i e-mail tak počítají společně), u neznámého jména to, co napsal
+                String who = uid != null ? "u" + uid : "n:" + username.strip().toLowerCase(java.util.Locale.ROOT);
+                if (RequestLimiter.isFull("login-fail-pair", who + "|" + ip, PAIR_FAILURES, 15 * RequestLimiter.MINUTE)
+                        || uid != null && RequestLimiter.isFull("login-fail-acct", uid, ACCOUNT_FAILURES, RequestLimiter.HOUR)
+                                && !KnownDevice.isKnown(req, uid)) {
+                    tooMany(req, resp, username);
+                    return;
+                }
+                if (uid != null) {
                     String hash = rs.getString("password_hash");
                     // a deleted account (role DELETED, no password) can never sign in
                     if (hash != null && hash.startsWith("$2") && !"DELETED".equals(rs.getString("role"))
                             && BCrypt.checkpw(password, hash)) {
-                        LoginRateLimiter.reset(username);
+                        RequestLimiter.reset("login-fail-pair", who + "|" + ip);
+                        KnownDevice.remember(req, resp, uid);
                         String next = safeNext(req.getParameter("next"));
-                        finish(req, resp, rs.getInt("id"), rs.getString("username"), rs.getString("role"),
+                        finish(req, resp, uid, rs.getString("username"), rs.getString("role"),
                                 rs.getString("avatar_url"), rs.getTimestamp("email_verified_at") != null,
                                 "1".equals(req.getParameter("remember")), next != null ? next : "/index.jsp");
                         return;
                     }
                 }
+                RequestLimiter.tryAcquire("login-fail-pair", who + "|" + ip, PAIR_FAILURES, 15 * RequestLimiter.MINUTE);
+                if (uid != null) RequestLimiter.tryAcquire("login-fail-acct", uid, ACCOUNT_FAILURES, RequestLimiter.HOUR);
             }
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        LoginRateLimiter.recordFailure(username);
-        RequestLimiter.tryAcquire("login-fail-ip", ip, IP_FAILURES, 15 * RequestLimiter.MINUTE);
+        if (!local) RequestLimiter.tryAcquire("login-fail-ip", ip, IP_FAILURES, 15 * RequestLimiter.MINUTE);
         req.setAttribute("loginError", I18n.getText(req, "auth.error.invalidCredentials", "Neplatné uživatelské jméno nebo heslo."));
+        req.setAttribute("username", username);
+        req.getRequestDispatcher("/login.jsp").forward(req, resp);
+    }
+
+    private static void tooMany(HttpServletRequest req, HttpServletResponse resp, String username) throws ServletException, IOException {
+        req.setAttribute("loginError", I18n.getText(req, "auth.error.tooManyAttempts", "Příliš mnoho neúspěšných pokusů. Zkuste to znovu za 15 minut."));
         req.setAttribute("username", username);
         req.getRequestDispatcher("/login.jsp").forward(req, resp);
     }
@@ -107,7 +128,7 @@ public class LoginServlet extends HttpServlet {
         session.setMaxInactiveInterval(60 * 60 * 24 * 30);
         jakarta.servlet.http.Cookie c = new jakarta.servlet.http.Cookie("JSESSIONID", session.getId());
         c.setHttpOnly(true);
-        c.setSecure(isHttps(req));
+        c.setSecure(isHttps(req) || com.github.skeliit.filter.SecurityHeadersFilter.httpsOnly());   // za Apachem Jetty https nevidí (audit C6)
         c.setComment("__SAME_SITE_LAX__"); // Jetty emits SameSite=Lax
         c.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
         c.setMaxAge(60 * 60 * 24 * 30);
