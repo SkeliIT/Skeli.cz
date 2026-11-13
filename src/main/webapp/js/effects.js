@@ -494,7 +494,18 @@
     songPaint(e.detail.thumb);
   });
 
-  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); floor(); songPaint(); }   // paint: admin má vlastní barvu
+  // Galerie O mně: na PC je fotka černobílá a zbarví se pod myší. Na dotyku myš není, takže se zbarví fotka,
+  // která je zrovna uprostřed obrazovky (dřív tam byly barevné všechny a vypadalo to jinak než na PC).
+  function galleryColor(root) {
+    if (!('IntersectionObserver' in window) || !matchMedia('(hover: none)').matches) return;
+    var items = root.querySelectorAll('.gallery-item');
+    if (!items.length) return;
+    var io = new IntersectionObserver(function (en) {
+      en.forEach(function (e) { e.target.classList.toggle('in-view', e.isIntersecting); });
+    }, { rootMargin: '-35% 0px -35% 0px' });   // jen pruh uprostřed obrazovky
+    items.forEach(function (it) { io.observe(it); });
+  }
+  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); floor(); songPaint(); galleryColor(root); }   // paint: admin má vlastní barvu
   init(document);
   // Hlídač plynulosti: po načtení 3 s počítá snímky. Když telefon nestíhá, přepne se na lehký režim hned a po druhém
   // takovém měření natrvalo. Testy (webdriver) mají softwarové kreslení, u nich neměří.

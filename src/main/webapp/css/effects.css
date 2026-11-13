@@ -388,7 +388,8 @@ body.light .photo-band::before {
 .gallery-item.tall { grid-row: span 2; }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05); transform: scale(1.01); transition: filter .6s ease, transform .9s cubic-bezier(.2, .7, .2, 1); }
 .gallery-item:hover img, .gallery-item:focus-visible img { filter: none; transform: scale(1.06); }
-@media (hover: none) { .gallery-item img { filter: none; } }
+/* dotyk: barevná je fotka uprostřed obrazovky (js/effects.js galleryColor), ostatní černobílé jako na PC */
+@media (hover: none) { .gallery-item.in-view img { filter: none; transform: scale(1.06); } }
 @media (max-width: 760px) {
   .gallery-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; }
   .photo-band { min-height: 360px; }

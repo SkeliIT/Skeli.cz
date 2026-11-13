@@ -1423,9 +1423,15 @@
         if (!bubble.hidden) hideBubble('idle');
         return;
       }
+      // tajemství objeveno: nápověda „neklikej“ už nesmí přijít – ani naplánovaná, ani čekající v tlapce.
+      // (Dřív přišla po kliknutí a přepsala komentář k fotce, takže to vypadalo, že Kevin k fotkám nic neříká.)
+      store.set('kevinSecretSeen', '1');
+      session.set('kevinSecretHint', '1');
+      clearTimeout(secretTimer);
+      if (secretWatch) { secretWatch.disconnect(); secretWatch = null; }
+      if (pending && pending[0] === L.photos.hint) { pending = null; paw.classList.remove('has-news'); }
       if (root.hidden && !canPop()) return;              // kdo si Kevina zavřel, tomu nevyskakuje
       acted = true;
-      store.set('kevinSecretSeen', '1');                 // tajemství objeveno: nápověda už není potřeba
       if (peeking) {                                     // vykukoval z okraje nakloněný: nad fotkou stojí rovně
         peeking = false;
         root.classList.remove('peek', 'peek-left', 'peek-right', 'peek-out', 'peek-stack');
