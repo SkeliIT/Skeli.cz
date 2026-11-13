@@ -66,3 +66,7 @@ are easy to get wrong.
 - `mvn test` runs the unit tests (`*Test`, also part of `mvn verify`).
 - `*IT` are Selenium tests (headless Chrome) against a running local site and the local database
   `skeliweb`: `mvn test -Dtest='*IT'`.
+- **Before every release to www** run the whole-site check `mvn test -Dtest=SiteAuditIT` (~25 min, every page on phone
+  upright/sideways and PC, dark and light, 5 languages; script errors, overflow, untranslated keys, broken images, menu
+  out of reach = failure; tiny text and small tap targets = warnings). Report in Czech: `target/site-audit/zprava.txt`.
+  Quick version while working: `-Dquick=true` (phone, dark, Czech). `PersonalDataCoverageTest` guards deletion/export of user data.
