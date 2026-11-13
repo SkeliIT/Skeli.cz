@@ -738,6 +738,9 @@ body.light .listen-icon { background: rgba(0, 0, 0, 0.02); }
   transition: border-color .2s, color .2s;
 }
 .tool-btn::-webkit-details-marker { display: none; }
+/* při posouvání jede text pod tlačítky: skoro plná výplň, ať písmena neprosvítají (dřív to vypadalo rozházeně) */
+.lyric-tools .tool-btn { background: color-mix(in srgb, var(--bg) 88%, var(--accent) 12%); box-shadow: 0 6px 18px -6px rgba(0, 0, 0, .6); }
+body.light .lyric-tools .tool-btn { box-shadow: 0 6px 16px -8px rgba(0, 0, 0, .35); }
 .tool-btn:hover, .lyric-view[open] > .tool-btn { border-color: var(--accent); color: var(--accent); }
 .lyric-view { position: relative; }
 .lyric-view-menu {
