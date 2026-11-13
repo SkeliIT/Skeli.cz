@@ -706,10 +706,25 @@
   }
   bubbles();
 
-  // Diskografie: na dotykové obrazovce se karta otočí ťuknutím (odkazy vzadu fungují normálně), další ťuknutí ji vrátí
+  // Diskografie: ▶ Přehrát (a na PC klik kamkoli na kartu) pustí video přímo tady v přehrávači nahoře – nikam se neodchází.
+  // Píseň bez videa: na PC klik otevře text, nebo Spotify. Přehrávač poslouchá událost skeli:playClip (EllipticPlayerServlet).
+  function playHere(yt) {
+    window.dispatchEvent(new CustomEvent('skeli:playClip', { detail: { yt: yt } }));
+    var stage = document.querySelector('.ep-stage');
+    if (stage) stage.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+  }
   document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-play-yt]');
+    if (btn && document.querySelector('.ep-stage')) { e.preventDefault(); playHere(btn.getAttribute('data-play-yt')); return; }
     var card = e.target.closest('.flip-card');
-    if (!card || e.target.closest('a, summary, details') || window.matchMedia('(hover: hover)').matches) return;
+    if (!card || e.target.closest('a, summary, details, button')) return;
+    if (window.matchMedia('(hover: hover)').matches) {
+      var main = card.querySelector('.flip-play');
+      if (main) { playHere(main.getAttribute('data-play-yt')); return; }
+      var link = card.querySelector('.flip-open, .disco-spotify');
+      if (link) link.click();
+      return;
+    }
     document.querySelectorAll('.flip-card.open').forEach(function (c) { if (c !== card) c.classList.remove('open'); });
     card.classList.toggle('open');
   });

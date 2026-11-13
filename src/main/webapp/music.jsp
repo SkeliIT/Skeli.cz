@@ -96,11 +96,15 @@
             <summary><%= versions.size() %> <%= t.getProperty("music.versions") %> <i class="fa-solid fa-chevron-down"></i></summary>
             <ul>
             <% for (SongClip clip : versions) { String cid = WebUtils.escapeHtml(clip.youtubeId); %>
-              <li><a href="https://www.youtube.com/watch?v=<%= cid %>" target="_blank" rel="noopener"><img src="/yt-thumb/<%= cid %>/mqdefault.jpg" alt="" loading="lazy"><span><%= WebUtils.escapeHtml(clip.label(t)) %></span><i class="fab fa-youtube"></i></a></li>
+              <li><a href="https://www.youtube.com/watch?v=<%= cid %>" target="_blank" rel="noopener" data-play-yt="<%= cid %>"><img src="/yt-thumb/<%= cid %>/mqdefault.jpg" alt="" loading="lazy"><span><%= WebUtils.escapeHtml(clip.label(t)) %></span><i class="fab fa-youtube"></i></a></li>
             <% } %>
             </ul>
           </details>
           <% } %>
+          <%-- ▶ Přehrát: video hraje přímo tady v přehrávači nahoře (EllipticPlayerServlet, událost skeli:playClip); na PC i klik na kartu.
+               Bez videa velké tlačítko na text (s videem je text jen první ikona v liště, místo na telefonu nestačí). --%>
+          <% if (yt != null) { %><button type="button" class="flip-play" data-play-yt="<%= ytHtml %>"><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("music.play") %></button>
+          <% } else if (hasLyrics) { %><a class="flip-open" href="<%= lyricsHref %>"><%= t.getProperty("music.link.lyrics") %> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a><% } %>
           <%-- vždy čtyři místa (Text, YouTube, Spotify, Apple), co píseň nemá, zůstane prázdné --%>
           <nav class="disco-dock" aria-label="<%= nameHtml %>">
             <% if (lyricsHref != null) { %><a class="disco-lyrics" href="<%= lyricsHref %>" title="<%= t.getProperty("music.link.lyrics") %>" aria-label="<%= t.getProperty("music.link.lyrics") %>"><i class="fa-solid fa-align-left" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
@@ -108,7 +112,6 @@
             <a class="disco-spotify" href="<%= spotifyHref %>" target="_blank" rel="noopener" title="Spotify" aria-label="Spotify"><i class="fab fa-spotify" aria-hidden="true"></i></a>
             <% if (appleHref != null) { %><a class="disco-apple" href="<%= appleHref %>" target="_blank" rel="noopener" title="Apple Music" aria-label="Apple Music"><i class="fab fa-apple" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
           </nav>
-          <% if (mainHref != null) { %><a class="flip-open" href="<%= mainHref %>"<% if (!hasLyrics) { %> target="_blank" rel="noopener"<% } %>><%= hasLyrics ? t.getProperty("music.link.lyrics") : "YouTube" %> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a><% } %>
         </div>
        </div>
       </article>

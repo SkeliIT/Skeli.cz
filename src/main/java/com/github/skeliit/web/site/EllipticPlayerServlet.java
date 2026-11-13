@@ -189,6 +189,12 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("viewport.addEventListener('pointerup', e => { if (tx !== null && Math.abs(e.clientX - tx) > 40 && Math.abs(e.clientX - tx) > Math.abs(e.clientY - ty) * 1.5) goTo(currentIndex + (e.clientX < tx ? 1 : -1), true); tx = null; });");
                 out.println("let wheelAt = 0; viewport.addEventListener('wheel', e => { const dx = e.shiftKey ? (e.deltaX || e.deltaY) : e.deltaX; if (Math.abs(dx) < 8 || (!e.shiftKey && Math.abs(dx) < Math.abs(e.deltaY))) return; e.preventDefault(); const t = Date.now(); if (t - wheelAt < 350) return; wheelAt = t; goTo(currentIndex + (dx > 0 ? 1 : -1), true); }, { passive: false });");
                 out.println("window.addEventListener('resize', place);");
+                // ▶ Přehrát z Diskografie (js/effects.js): video najde v kolotoči, jinak (třeba starší verze) ho pustí rovnou.
+                // Posluchač jen jeden: po návratu na stránku (PJAX) se starý odebere, ať se nehromadí.
+                out.println("if (window.__epPlayClip) window.removeEventListener('skeli:playClip', window.__epPlayClip);");
+                out.println("window.__epPlayClip = e => { if (!frame.isConnected) return; const id = e.detail && e.detail.yt; if (!id) return;");
+                out.println("  const i = videos.findIndex(v => v.id === id); if (i >= 0) goTo(i, true); else play(id, true); };");
+                out.println("window.addEventListener('skeli:playClip', window.__epPlayClip);");
                 out.println("if (videos.length > 0) {");
                 out.println("  build();");
                 // ?clip=<YouTube id> (a link from the admin to a comment) starts on that clip
