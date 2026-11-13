@@ -3,7 +3,9 @@
 <%-- Karaoke cinema (preview of the coming big karaoke): /karaoke/{song uuid}, KaraokeCinemaServlet fills kinoJson.
      Two rooms: Prostor (/kino/prostor.js, a looping video; the default) and Ořechový salon (/kino/domov.js); switching loads the page again.
      A loading screen stays up until the room is built (no jerk on the way in). Czech only for now. --%>
-<% String v = "6.0.3"; %>
+<% String v = "6.0.4";
+   // ostatní styly a pokoje (zatím se dolaďují) vidí jen admin; role se čte z DB při přihlášení a AdminFilter ji obnovuje
+   boolean allStyles = "ADMIN".equals(session.getAttribute("role")); %>
 <!doctype html>
 <html lang="cs">
 <head>
@@ -279,6 +281,8 @@ body.fading::after { opacity: 1; pointer-events: auto; }
   <span class="time" id="time">0:00 / 0:00</span>
   <div class="bar" id="bar"><div class="track"></div><div class="fill" id="fill"></div></div>
   <input class="vol" id="vol" type="range" min="0" max="100" value="90" aria-label="Hlasitost">
+  <%-- Do vydání ostatní styly vidí jen admin (dolaďují se přímo na webu); návštěvník má jen Lyric video a výběr nevidí. --%>
+  <% if (allStyles) { %>
   <button class="cb room-btn" id="roomBtn" title="Změnit styl" aria-label="Změnit styl"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-6H4zm15-8h3v3h-3zM2 10h3v3H2zm15 3H7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2z"/></svg><span>Styl</span></button>
   <div class="rooms" id="rooms" hidden>
       <button type="button" class="room" data-room="l" aria-pressed="false"><span class="rt"><b>Lyric video</b><small>Slova vlétají přes celý klip</small></span><span class="st-sw" data-word="BOOM"></span></button>
@@ -286,6 +290,7 @@ body.fading::after { opacity: 1; pointer-events: auto; }
       <button type="button" class="room" data-room="c" aria-pressed="false"><span class="rt"><b>Čisté plátno</b><small>Tma, plátno a text</small></span><span class="st-sw"></span></button>
       <button type="button" class="room" data-room="t" aria-pressed="false"><span class="rt"><b>Tunel</b><small>Slova letí z hloubky</small></span><span class="st-sw"></span></button>
   </div>
+  <% } %>
   <button class="cb" id="fs" title="Celá obrazovka (F)" aria-label="Celá obrazovka"><svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm-2-4h2V7h3V5H5zm12 7h-3v2h5v-5h-2zM14 5v2h3v3h2V5z"/></svg></button>
 </div>
 <div class="lobby" id="lobby">
@@ -293,13 +298,15 @@ body.fading::after { opacity: 1; pointer-events: auto; }
     <div class="k">KARAOKE</div>
     <h1 id="lobbyTitle"></h1>
     <p id="lobbyArtist"></p>
+    <% if (allStyles) { %>
     <div class="room-pick" aria-label="Vyber si styl">
-      <div class="room-k">Vyber si styl</div>
+      <div class="room-k">Vyber si styl <small>(ostatní styly vidí zatím jen admin)</small></div>
       <button type="button" class="room" data-room="l" aria-pressed="false"><span class="rt"><b>Lyric video</b><small>Slova vlétají přes celý klip</small></span><span class="st-sw" data-word="BOOM"></span></button>
       <button type="button" class="room" data-room="o" aria-pressed="false"><span class="rt"><b>Kouř a oheň</b><small>Text se vypaluje, jiskry do rytmu</small></span><span class="st-sw"></span></button>
       <button type="button" class="room" data-room="c" aria-pressed="false"><span class="rt"><b>Čisté plátno</b><small>Tma, plátno a text</small></span><span class="st-sw"></span></button>
       <button type="button" class="room" data-room="t" aria-pressed="false"><span class="rt"><b>Tunel</b><small>Slova letí z hloubky</small></span><span class="st-sw"></span></button>
     </div>
+    <% } %>
     <button class="enter" id="enter"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Vstoupit do kina</button>
     <small>Pusť si zvuk a dej celou obrazovku (F). <a class="back-song" href="/karaoke">← všechny písně</a></small>
     <div class="pc-hint"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2zM4 6h16v10H4z"/></svg> Kino si nejlíp užiješ na počítači s velkou obrazovkou.</div>
@@ -320,10 +327,12 @@ body.fading::after { opacity: 1; pointer-events: auto; }
   // Styl zpívání (kino/styly.js): l = Lyric video (výchozí), o = Kouř a oheň, c = Čisté plátno, t = Tunel.
   // Pokoje Prostor (p, prostor.js) a Ořechový salon (a, domov.js) jsou z výběru schované (zatím se nevylepšují),
   // přes ?v=p / ?v=a se dají otevřít. Přepnutí = stránka se načte znovu.
-  var STYLES = { l: 1, o: 1, c: 1, t: 1 };
+  // do vydání: návštěvník jen Lyric video, admin všechny (allStyles výš v šabloně); pokoje p/a jen pro admina
+  var STYLES = <%= allStyles ? "{ l: 1, o: 1, c: 1, t: 1 }" : "{ l: 1 }" %>;
+  var ADMIN_ROOMS = <%= allStyles %>;
   var ROOM = new URLSearchParams(location.search).get("v");
   try { if (!ROOM) ROOM = localStorage.getItem("kinoStyle"); } catch (e) {}
-  if (!STYLES[ROOM] && ROOM !== "p" && ROOM !== "a") ROOM = "l";
+  if (!STYLES[ROOM] && !(ADMIN_ROOMS && (ROOM === "p" || ROOM === "a"))) ROOM = "l";
   // Ořechový salon je těžký 3D pokoj: na telefonu nebo slabém počítači prohlížeči dojde paměť → místo něj Prostor
   var weak = /iP(hone|od|ad)|Android/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
     || Math.min(screen.width, screen.height) < 600 || (navigator.deviceMemory && navigator.deviceMemory < 4);
@@ -336,7 +345,9 @@ body.fading::after { opacity: 1; pointer-events: auto; }
     if (k !== ROOM) { try { localStorage.setItem("kinoStyle", k); } catch (er) {} location.search = "?v=" + k; }
   });
   document.querySelectorAll("[data-room]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.room === ROOM ? "true" : "false"); });
-  document.getElementById("roomBtn").onclick = function (e) { e.stopPropagation(); var r = document.getElementById("rooms"); r.hidden = !r.hidden; };
+  // výběr stylu má jen admin (u návštěvníka tlačítko na stránce není)
+  var roomBtn = document.getElementById("roomBtn");
+  if (roomBtn) roomBtn.onclick = function (e) { e.stopPropagation(); var r = document.getElementById("rooms"); r.hidden = !r.hidden; };
 </script>
 <script>
   // a broken script shows its error on the page (preview only)
