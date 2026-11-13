@@ -1387,9 +1387,14 @@ body.light .lyric-page .video-wrapper.is-mini .mini-close {
   cursor: pointer;
 }
 @media (max-width: 600px) {
-  .lyric-page .video-wrapper.is-mini { left: 12px; bottom: 12px; width: 62vw; }
+  /* telefon: mini přehrávač dole uprostřed, ne přilepený ke kraji (bublina chatu je vpravo a nepřekrývá se) */
+  .lyric-page .video-wrapper.is-mini { left: 0; right: 0; margin-inline: auto; bottom: 12px; width: 62vw; }
   .lyric-main { padding: 8px 8px 70px; }
   .lyric-page .lyric-body { padding: 20px 10px 0; }
+}
+/* telefon na šířku: taky uprostřed, ale menší – 62 % šířky by zakrylo skoro celou výšku obrazovky */
+@media (orientation: landscape) and (max-height: 500px) {
+  .lyric-page .video-wrapper.is-mini { left: 0; right: 0; margin-inline: auto; bottom: 10px; width: min(300px, 38vw); }
 }
 
 /* A− / A+ for the lyrics */
