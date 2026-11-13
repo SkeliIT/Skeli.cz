@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.skeliit.Config;
 import com.github.skeliit.Db;
 import com.github.skeliit.WebUtils;
+import com.github.skeliit.dao.GoogleAccountDao;
+import com.github.skeliit.security.SessionRegistry;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,11 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.Normalizer;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Locale;
@@ -139,20 +137,13 @@ public class GoogleSignInServlet extends HttpServlet {
         boolean verified = id.path("email_verified").asBoolean(false) && !email.isEmpty();
         String name = id.path("name").asText(""), picture = id.path("picture").asText("");
         try (Connection c = Db.get()) {
-            Account a = find(c, "google_sub = ?", sub);
-            boolean fresh = false;
-            if (a == null && verified) {   // an account with this e-mail: link it (Google has verified the address)
-                a = find(c, "email = ?", email);
-                if (a != null) {
-                    try (PreparedStatement ps = c.prepareStatement(
-                            "UPDATE users SET google_sub = ?, email_verified_at = COALESCE(email_verified_at, NOW()) WHERE id = ?")) {
-                        ps.setString(1, sub); ps.setInt(2, a.id); ps.executeUpdate();
-                    }
-                    a.verified = true;
-                }
-            }
-            if (a == null) { a = create(c, sub, verified ? email : null, name, picture); fresh = true; }
-            if ("DELETED".equals(a.role)) { fail(req, resp); return; }
+            // komu přihlášení patří a jak bezpečně propojit účty: dao/GoogleAccountDao (e-mail patří tomu, kdo ho prokáže)
+            GoogleAccountDao.Result r = new GoogleAccountDao().resolve(c, sub, email, verified, name, picture);
+            GoogleAccountDao.Account a = r.account();
+            if (a == null || "DELETED".equals(a.role)) { fail(req, resp); return; }
+            boolean fresh = r.fresh();
+            // neověřený účet se stejným e-mailem: kdo ho založil, je odhlášený všude (i z paměti serveru)
+            if (r.secured()) SessionRegistry.signOut(a.id, null);
             // signed in, or on to the code from the app when the account has two-factor sign-in
             HttpSession gs = req.getSession(false);
             boolean remember = gs != null && Boolean.TRUE.equals(gs.getAttribute("googleRemember"));
@@ -192,63 +183,8 @@ public class GoogleSignInServlet extends HttpServlet {
         return ok ? c : null;
     }
 
-    private static final class Account { int id; String username, role, avatar; boolean verified; }
-
-    private static Account find(Connection c, String where, String value) throws SQLException {
-        try (PreparedStatement ps = c.prepareStatement(
-                "SELECT id, username, role, avatar_url, email_verified_at FROM users WHERE " + where + " LIMIT 1")) {
-            ps.setString(1, value);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return null;
-                Account a = new Account();
-                a.id = rs.getInt(1); a.username = rs.getString(2); a.role = rs.getString(3); a.avatar = rs.getString(4);
-                a.verified = rs.getTimestamp(5) != null;
-                return a;
-            }
-        }
-    }
-
-    private static Account create(Connection c, String sub, String email, String name, String picture) throws SQLException {
-        String base = usernameFrom(name, email);
-        for (int n = 0; n < 50; n++) {
-            String username = n == 0 ? base : trim(base, 50 - String.valueOf(n + 1).length()) + (n + 1);
-            if (find(c, "username = ?", username) != null) continue;
-            try (PreparedStatement ps = c.prepareStatement(
-                    "INSERT INTO users (username, email, password_hash, role, created_at, email_verified_at, google_sub, avatar_url) "
-                            + "VALUES (?, ?, '', 'USER', NOW(), NOW(), ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
-                ps.setString(1, username);
-                ps.setString(2, email);
-                ps.setString(3, sub);
-                ps.setString(4, picture.startsWith("https://") && picture.length() <= 255 ? picture : null);
-                ps.executeUpdate();
-                try (ResultSet k = ps.getGeneratedKeys()) {
-                    k.next();
-                    Account a = new Account();
-                    a.id = k.getInt(1); a.username = username; a.role = "USER"; a.verified = true;
-                    a.avatar = picture.startsWith("https://") && picture.length() <= 255 ? picture : null;
-                    return a;
-                }
-            }
-        }
-        throw new SQLException("no free username for " + base);
-    }
-
-    /** A username the site allows ([A-Za-z0-9._-], 3–50): the Google name without accents, or the e-mail's first part. */
-    static String usernameFrom(String name, String email) {
-        String s = slug(name);
-        if (s.length() < 3 && email != null && email.contains("@")) s = slug(email.substring(0, email.indexOf('@')));
-        if (s.length() < 3) s = "fanousek";
-        return trim(s, 50);
-    }
-
-    private static String slug(String v) {
-        if (v == null) return "";
-        String s = Normalizer.normalize(v.trim(), Normalizer.Form.NFD).replaceAll("\\p{M}", "");
-        s = s.replaceAll("\\s+", ".").replaceAll("[^A-Za-z0-9._-]", "").replaceAll("\\.{2,}", ".");
-        return s.replaceAll("^[._-]+|[._-]+$", "");
-    }
-
-    private static String trim(String s, int max) { return s.length() <= max ? s : s.substring(0, max); }
+    /** Jméno z Googlu pro nový účet (logika je v dao/GoogleAccountDao). */
+    static String usernameFrom(String name, String email) { return GoogleAccountDao.usernameFrom(name, email); }
 
     private static void fail(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.sendRedirect("/login.jsp?google=failed");
