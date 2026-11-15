@@ -237,7 +237,7 @@ public class LyricDao {
         }
     }
 
-    /** Has this user given the song (in any language) a heart? */
+    /** Dal tenhle člověk písni (v kterémkoli jazyce) srdíčko? */
     public boolean likedBy(int songId, int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "SELECT 1 FROM lyrics_votes v JOIN lyrics l ON l.id = v.lyric_id WHERE l.song_id = ? AND v.user_id = ? AND v.vote = 1 LIMIT 1")) {
@@ -247,32 +247,60 @@ public class LyricDao {
         }
     }
 
-    /** Gives or takes back the heart; returns {liked (1/0), count} afterwards, or null for an unknown lyric. */
+    /**
+     * Dá nebo vezme srdíčko; vrátí {líbí se (1/0), počet} po změně, nebo null u neznámého textu.
+     * Celé v transakci se zámkem na řádek uživatele: dvojklik (dva požadavky naráz) proběhne po sobě
+     * (srdíčko dá a zase vezme), místo chyby 500 na duplicitním klíči (audit D6). Jiní lidé nečekají.
+     */
     public int[] toggleLike(int lyricId, int userId) throws SQLException {
         try (Connection c = Db.get()) {
-            Integer songId = null;
-            try (PreparedStatement ps = c.prepareStatement("SELECT song_id FROM lyrics WHERE id = ?")) {
-                ps.setInt(1, lyricId);
-                try (ResultSet rs = ps.executeQuery()) { if (rs.next()) songId = rs.getInt(1); }
+            c.setAutoCommit(false);
+            try {
+                int[] out = toggleLike(c, lyricId, userId);
+                c.commit();
+                return out;
+            } catch (SQLException | RuntimeException e) {
+                c.rollback();
+                throw e;
+            } finally {
+                c.setAutoCommit(true);
             }
-            if (songId == null) return null;
-            boolean liked = likedBy(songId, userId);
-            // old thumbs down and the rows of the other languages go too: one heart per person and song
-            try (PreparedStatement ps = c.prepareStatement(
-                    "DELETE v FROM lyrics_votes v JOIN lyrics l ON l.id = v.lyric_id WHERE l.song_id = ? AND v.user_id = ?")) {
-                ps.setInt(1, songId);
+        }
+    }
+
+    private int[] toggleLike(Connection c, int lyricId, int userId) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT id FROM users WHERE id = ? FOR UPDATE")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { if (!rs.next()) return null; }
+        }
+        Integer songId = null;
+        try (PreparedStatement ps = c.prepareStatement("SELECT song_id FROM lyrics WHERE id = ?")) {
+            ps.setInt(1, lyricId);
+            try (ResultSet rs = ps.executeQuery()) { if (rs.next()) songId = rs.getInt(1); }
+        }
+        if (songId == null) return null;
+        boolean liked;
+        try (PreparedStatement ps = c.prepareStatement(
+                "SELECT 1 FROM lyrics_votes v JOIN lyrics l ON l.id = v.lyric_id WHERE l.song_id = ? AND v.user_id = ? AND v.vote = 1 LIMIT 1")) {
+            ps.setInt(1, songId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) { liked = rs.next(); }
+        }
+        // zmizí i starý palec dolů a řádky v ostatních jazycích: jedno srdíčko na člověka a píseň
+        try (PreparedStatement ps = c.prepareStatement(
+                "DELETE v FROM lyrics_votes v JOIN lyrics l ON l.id = v.lyric_id WHERE l.song_id = ? AND v.user_id = ?")) {
+            ps.setInt(1, songId);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+        if (!liked) {
+            try (PreparedStatement ps = c.prepareStatement("INSERT IGNORE INTO lyrics_votes (lyric_id, user_id, vote) VALUES (?, ?, 1)")) {
+                ps.setInt(1, lyricId);
                 ps.setInt(2, userId);
                 ps.executeUpdate();
             }
-            if (!liked) {
-                try (PreparedStatement ps = c.prepareStatement("INSERT INTO lyrics_votes (lyric_id, user_id, vote) VALUES (?, ?, 1)")) {
-                    ps.setInt(1, lyricId);
-                    ps.setInt(2, userId);
-                    ps.executeUpdate();
-                }
-            }
-            return new int[] { liked ? 0 : 1, likes(c, songId) };
         }
+        return new int[] { liked ? 0 : 1, likes(c, songId) };
     }
 
     public record LyricExportRow(int songId, String songName, Integer year, String lang, String words, String timedLyrics) {}

@@ -67,7 +67,8 @@ class ModerationIT extends UiTestSupport {
         WebElement form = driver.findElement(By.cssSelector("form.player-report"));
         form.findElement(By.name("note")).sendKeys("<script>poznamka</script>");
         js.executeScript("arguments[0].submit()", form);
-        waitReady();
+        // odeslání formuláře je asynchronní: počkat na novou adresu, jinak test čte ještě tu starou
+        new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10)).until(d -> d.getCurrentUrl().contains("reported="));
         assertTrue(driver.getCurrentUrl().contains("reported=1"), driver.getCurrentUrl());
         assertTrue(exists("SELECT 1 FROM user_reports WHERE reported_id=? AND reporter_id=? AND resolved_at IS NULL", tid, rid));
 

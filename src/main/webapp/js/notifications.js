@@ -45,7 +45,8 @@
 
   var lastBell = null, lastChat = 0;
   function count() {
-    // ptá se i na skryté záložce: počet nepřečtených zpráv v názvu záložky je právě pro ni
+    // ptá se i na skryté záložce (počet nepřečtených v názvu záložky a zvuk zprávy jsou právě pro ni), ale jen
+    // jednou za minutu – šetří server i baterku (audit D2); okamžité doručení přinese až WebSocket
     fetch('/api/notifications?count=1', { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
@@ -134,7 +135,17 @@
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
 
-  count();
-  setInterval(count, 12000);
-  document.addEventListener('visibilitychange', count);
+  var timer = 0, lastAsk = 0;
+  function ask() { lastAsk = Date.now(); count(); }
+  function plan() {
+    clearTimeout(timer);
+    timer = setTimeout(function () { ask(); plan(); }, document.hidden ? 60000 : 12000);
+  }
+  ask();
+  plan();
+  document.addEventListener('visibilitychange', function () {
+    // návrat do záložky: hned čerstvý stav (když poslední dotaz není úplně čerstvý), pak zase po 12 s
+    if (!document.hidden && Date.now() - lastAsk > 3000) ask();
+    plan();
+  });
 })();

@@ -92,7 +92,7 @@ public class NotificationsIT extends UiTestSupport {
             driver.get(BASE_URL + "/profile.jsp");
             waitReady();
             assertTrue(driver.getCurrentUrl().endsWith("/uzivatel.jsp"), "Profile and Settings are one page now");
-            assertEquals("2", driver.findElement(By.cssSelector(".pt-comments .pt-big")).getText());
+            assertEquals("2", driver.findElement(By.cssSelector("a.pt-chip[href='#komentare'] b")).getText());
             driver.get(BASE_URL + "/uzivatel.jsp#komentare");
             WebElement list = driver.findElement(By.id("komentare"));
             assertTrue(list.getText().contains(lyricText));
