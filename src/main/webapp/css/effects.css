@@ -529,6 +529,7 @@ body.light .photo-band::before {
 @media (max-width: 1024px) {
   .header-inner > .kevin-paw.in-header {
     width: 40px; height: 40px; margin-left: auto;
+    flex-shrink: 0; min-width: 40px;   /* hlavička je pružný řádek a tlapku vedle loga a Menu smačkla na 12–18 px */
     border-color: var(--panel-border); background: var(--panel); bottom: auto;
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
