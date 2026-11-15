@@ -1,47 +1,47 @@
 [
   {
-    "d": "2026-11-08",
-    "href": "/zpravy",
-    "cs": "Chat má 25 vzhledů, zvlášť pro tmavý a světlý režim. Stav změníš jedním ťuknutím na svou tečku nahoře.",
-    "en": "The chat has 25 looks, separately for dark and light mode. Change your status with one tap on your dot at the top.",
-    "de": "Der Chat hat 25 Looks, getrennt für den dunklen und hellen Modus. Deinen Status änderst du mit einem Tipp auf deinen Punkt oben.",
-    "uk": "Чат має 25 виглядів, окремо для темного й світлого режиму. Статус зміниш одним дотиком на свою крапку вгорі.",
-    "vi": "Chat có 25 giao diện, riêng cho chế độ tối và sáng. Đổi trạng thái chỉ bằng một chạm vào chấm của bạn ở trên."
+    "d": "2026-11-15",
+    "href": "/karaoke",
+    "cs": "Nová stránka Karaoke. Vybereš si písničku a zpíváš se Skelim, text svítí slovo po slově. Stačí se přihlásit.",
+    "en": "A new Karaoke page. Pick a song and sing along with Skeli, the lyrics light up word by word. Just sign in.",
+    "de": "Eine neue Karaoke-Seite. Such dir einen Song aus und sing mit Skeli, der Text leuchtet Wort für Wort auf. Du musst dich nur anmelden.",
+    "uk": "Нова сторінка Караоке. Обери пісню й співай зі Skeli, текст світиться слово за словом. Достатньо увійти.",
+    "vi": "Trang Karaoke mới. Chọn một bài và hát cùng Skeli, lời bài hát sáng lên từng chữ. Chỉ cần đăng nhập."
   },
   {
-    "d": "2026-11-06",
-    "href": "/uzivatel.jsp?najit=1#pratele",
-    "cs": "Na profilu v Přátelích je tlačítko Hledat přátele. Ukážeš se tam, jen když si to zapneš.",
-    "en": "Your profile's Friends part now has a Find friends button. You only show up there if you switch it on yourself.",
-    "de": "Im Bereich Freunde auf deinem Profil gibt es jetzt den Knopf Freunde finden. Du erscheinst dort nur, wenn du es selbst einschaltest.",
-    "uk": "У розділі Друзі на твоєму профілі тепер є кнопка Знайти друзів. Ти з’явишся там, лише якщо це ввімкнеш.",
-    "vi": "Mục Bạn bè trên hồ sơ của bạn giờ có nút Tìm bạn bè. Bạn chỉ xuất hiện ở đó nếu tự bật."
+    "d": "2026-11-15",
+    "href": "/texty.jsp",
+    "cs": "Texty se teď točí jako kolotoč. Vybraná píseň ukáže kus textu, jedním ťuknutím čteš nebo zpíváš.",
+    "en": "The lyrics now spin like a carousel. The chosen song shows a piece of its lyrics, one tap and you read or sing.",
+    "de": "Die Texte drehen sich jetzt wie ein Karussell. Der gewählte Song zeigt ein Stück Text, ein Tipp und du liest oder singst.",
+    "uk": "Тексти тепер крутяться, як карусель. Обрана пісня покаже шматок тексту, одним дотиком читаєш або співаєш.",
+    "vi": "Lời bài hát giờ xoay như vòng quay ngựa gỗ. Bài được chọn hiện một đoạn lời, chạm một lần là đọc hoặc hát."
   },
   {
-    "d": "2026-11-05",
-    "href": "/index.jsp",
-    "cs": "Web má nové menu. Hudba a Squad se rozbalují, CatSmash je ve Squadu a tlačítka pro vzhled a zvuk jsou pod jedním kolečkem.",
-    "en": "The site has a new menu. Music and Squad fold out, CatSmash is in Squad, and the look and sound buttons sit under one icon.",
-    "de": "Die Website hat ein neues Menü. Musik und Squad klappen auf, CatSmash ist im Squad, und die Knöpfe für Aussehen und Ton liegen unter einem Symbol.",
-    "uk": "На сайті нове меню. Музика та Squad розгортаються, CatSmash тепер у Squad, а кнопки вигляду й звуку зібрані під одним значком.",
-    "vi": "Trang web có menu mới. Âm nhạc và Squad mở ra được, CatSmash nằm trong Squad, còn nút giao diện và âm thanh nằm chung dưới một biểu tượng."
+    "d": "2026-11-15",
+    "href": "/texty.jsp",
+    "cs": "Každá písnička má barvy svého videa. Kolem videa teče jeho nálada a celá stránka se přebarví podle něj.",
+    "en": "Every song has the colours of its video. Its mood flows around the video and the whole page takes on its colours.",
+    "de": "Jeder Song hat die Farben seines Videos. Seine Stimmung fließt um das Video, und die ganze Seite färbt sich danach.",
+    "uk": "Кожна пісня має кольори свого відео. Довкола відео тече його настрій, і вся сторінка перефарбовується під нього.",
+    "vi": "Mỗi bài hát mang màu sắc video của nó. Không khí của video lan tỏa xung quanh và cả trang đổi màu theo."
   },
   {
-    "d": "2026-11-05",
-    "href": "/nastaveni.jsp#soukromi",
-    "cs": "O tom, co o tobě ostatní uvidí, rozhoduješ ty: veřejný nebo soukromý profil a vypínač u každé věci. Zprávy jsou v databázi zašifrované a po roce se samy smažou.",
-    "en": "You decide what others see about you: a public or private profile and a switch for every item. Messages are encrypted in the database and delete themselves after a year.",
-    "de": "Du entscheidest, was andere über dich sehen: öffentliches oder privates Profil und ein Schalter für alles. Nachrichten sind in der Datenbank verschlüsselt und löschen sich nach einem Jahr von selbst.",
-    "uk": "Саме ти вирішуєш, що інші бачать про тебе: публічний чи приватний профіль і перемикач для кожної речі. Повідомлення зашифровані в базі даних і через рік видаляються самі.",
-    "vi": "Bạn tự quyết định người khác thấy gì về bạn: hồ sơ công khai hoặc riêng tư và công tắc cho từng mục. Tin nhắn được mã hóa trong cơ sở dữ liệu và tự xóa sau một năm."
+    "d": "2026-11-15",
+    "href": "/",
+    "cs": "Web se převlíkl. Barvy se mění s fotkami v pozadí, valí se kouř a jiskry uhýbají tvé myši.",
+    "en": "The site got a new look. The colours change with the photos in the background, smoke rolls and sparks dodge your mouse.",
+    "de": "Die Seite hat sich umgezogen. Die Farben wechseln mit den Fotos im Hintergrund, Rauch zieht vorbei und Funken weichen deiner Maus aus.",
+    "uk": "Сайт перевдягнувся. Кольори змінюються з фото на тлі, клубочиться дим, а іскри ухиляються від твоєї миші.",
+    "vi": "Trang web đã thay áo mới. Màu sắc đổi theo ảnh nền, khói cuộn và tia lửa né con chuột của bạn."
   },
   {
-    "d": "2026-11-05",
-    "href": "/zpravy",
-    "cs": "Zprávy máš teď vždycky po ruce: na počítači vpravo dole, na telefonu jako kolečko. A nová zpráva umí cinknout. Když to vadí, ztlumíš to reproduktorem nahoře.",
-    "en": "Messages are now always at hand: bottom right on a computer, a bubble on a phone. A new message can also chime. If that bothers you, mute it with the speaker at the top.",
-    "de": "Nachrichten sind jetzt immer griffbereit: am Computer unten rechts, am Handy als Kreis. Eine neue Nachricht kann auch klingeln. Wenn dich das stört, schalte es oben mit dem Lautsprecher stumm.",
-    "uk": "Повідомлення тепер завжди під рукою: на комп’ютері внизу праворуч, на телефоні як кружечок. Нове повідомлення може ще й дзенькнути. Якщо заважає, вимкни звук динаміком угорі.",
-    "vi": "Tin nhắn giờ luôn trong tầm tay: góc dưới bên phải trên máy tính, vòng tròn trên điện thoại. Tin mới còn có thể kêu chuông. Nếu thấy phiền, hãy tắt bằng biểu tượng loa ở trên cùng."
+    "d": "2026-11-15",
+    "href": "/uzivatel.jsp",
+    "cs": "Přátelé, zprávy a profil, kde si sám určíš, co o tobě ostatní uvidí.",
+    "en": "Friends, messages and a profile where you decide yourself what others see about you.",
+    "de": "Freunde, Nachrichten und ein Profil, bei dem du selbst bestimmst, was andere über dich sehen.",
+    "uk": "Друзі, повідомлення й профіль, де ти сам вирішуєш, що про тебе бачать інші.",
+    "vi": "Bạn bè, tin nhắn và hồ sơ nơi chính bạn quyết định người khác thấy gì về mình."
   }
 ]
