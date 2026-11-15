@@ -18,7 +18,7 @@ public class ChatPrefs {
     public String size = "m";
     public String lookDark = "";
     public String lookLight = "";
-    public boolean receipts = true;   // „Viděno“: kdo si to vypne, nevidí to ani u ostatních
+    public boolean receipts = true;   // „Viděno“ platí oboustranně: ukáže se, jen když ho mají zapnuté oba
 
     /** Platná hodnota vzhledu: prázdná, nebo ze seznamu. */
     public static boolean validLook(String look, List<String> allowed) {
