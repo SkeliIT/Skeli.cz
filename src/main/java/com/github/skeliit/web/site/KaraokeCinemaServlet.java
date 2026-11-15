@@ -75,9 +75,6 @@ public class KaraokeCinemaServlet extends HttpServlet {
         data.set("words", timing.has("words") ? timing.get("words") : JSON.createArrayNode());
         JsonNode eq = file(getServletContext(), "/eq/" + yt + ".json");
         data.set("eq", eq != null ? eq : calmEq());
-        // mapa klidu (tools/karaoke-klid.js): kam v obraze položit text, aby nezakrýval to hlavní; bez ní spodní třetina
-        JsonNode calm = file(getServletContext(), "/karaoke/klid/" + yt + ".json");
-        if (calm != null) data.set("calm", calm);
 
         // safe inside <script>: no "</script>", no line separators that end a JavaScript string
         String json = JSON.writeValueAsString(data).replace("</", "<\\/").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029");

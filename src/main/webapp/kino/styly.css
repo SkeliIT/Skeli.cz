@@ -26,33 +26,25 @@
 .st-l .l-video { position: absolute; inset: 0; }
 .st-l .l-video .st-player { inset: -6%; transform: scale(calc(1.02 + var(--bass) * .03)); }   /* přesah = ořízne pruhy a nechá místo na pulz */
 .st-l .l-video iframe { width: 100%; height: 100%; }
-/* video zůstává jasné: ztmavení jen slabě ke krajům, pod textem má každý řádek vlastní měkký stín (.blk::before) */
-.st-l .l-shade { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, .18), rgba(0, 0, 0, .55)); }
-/* plocha pro text: nahoře název, dole nápověda a ovládání; řádek leží v jednom z 8 míst (c0–c2 sloupec, r0–r2 řádek),
-   které vybere styly.js podle mapy klidu = kde se ve videu zrovna nejmíň děje, nikdy uprostřed */
-.st-l .l-stack { position: absolute; inset: 70px 6vw 150px; pointer-events: none; z-index: 2; --bw: 52%; }
-.st-l .blk { position: absolute; width: var(--bw); isolation: isolate; display: flex; flex-direction: column; gap: .05em; font-family: 'Bruno Ace SC', sans-serif; text-transform: uppercase; letter-spacing: .01em;
-  font-size: clamp(22px, min(4.6vw, 8.5vh), 78px); line-height: 1.04; transform: scale(calc(1 + var(--bass) * .06)) rotate(var(--rot, 0deg));
-  animation: lDrift .7s cubic-bezier(.2, .8, .3, 1); }
-.st-l .blk::before { content: ''; position: absolute; z-index: -1; inset: -35% -12%; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(closest-side, rgba(0, 0, 0, .55), rgba(0, 0, 0, .25) 60%, transparent); }
-@keyframes lDrift { from { translate: var(--fx, 0) var(--fy, 0); } }
-.st-l .blk.c0 { left: 0; } .st-l .blk.c1 { left: calc(50% - var(--bw) / 2); } .st-l .blk.c2 { right: 0; }
-.st-l .blk.r0 { top: 0; } .st-l .blk.r2 { bottom: 0; } .st-l .blk.r1 { top: 0; bottom: 0; justify-content: center; }
-@media (orientation: portrait) and (max-width: 600px) { .st-l .l-stack { --bw: 100%; } }
-.st-l .blk.left { align-items: flex-start; } .st-l .blk.right { align-items: flex-end; } .st-l .blk.center { align-items: center; }
-.st-l .row { display: flex; gap: .28em; flex-wrap: wrap; }
-.st-l .blk.right .row { justify-content: flex-end; } .st-l .blk.center .row { justify-content: center; }
-.st-l .w { opacity: 0; color: #fff; text-shadow: 0 4px 24px rgba(0, 0, 0, .7); }
-.st-l .w.on { opacity: 1; animation: lPop .35s cubic-bezier(.2, 1.5, .4, 1); }
-.st-l .w.big { font-size: 1.35em; color: var(--acc); text-shadow: 0 0 30px color-mix(in srgb, var(--acc) 60%, transparent); }
-.st-l .w.small { font-size: .62em; align-self: flex-end; }
-.st-l .w.now { text-shadow: 0 0 22px #fff, 0 0 50px var(--acc); }
-@keyframes lPop { from { opacity: 0; transform: scale(1.9) translateY(-8%); filter: blur(10px); } }
-.st-l .blk.out { animation: lOut .45s ease-in forwards; }
-@keyframes lOut { to { opacity: 0; transform: scale(1.25) translateY(-12%); filter: blur(14px); } }
-.st-l .l-hint { position: absolute; z-index: 2; left: 0; right: 0; bottom: 92px; text-align: center; font-family: 'Oswald', sans-serif; font-weight: 300;
-  font-size: clamp(14px, 1.6vw, 20px); color: rgba(255, 255, 255, .5); letter-spacing: .04em; padding: 0 20px; pointer-events: none; }
+/* ztmavení jen vlevo a dole, kde je text; zbytek videa zůstane jasný */
+.st-l .l-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(0, 0, 0, .65), transparent 70%), linear-gradient(transparent 50%, rgba(0, 0, 0, .55)); }
+/* text pořád na jednom místě: dole vlevo nad ovládáním, každý řádek začíná na stejném bodě (zlatá čárka) */
+/* přichycené shora (ne odspodu): začátek řádku je vždy na stejném bodě, i když se řádek zalomí; místo na 2 řádky + další */
+.st-l .l-sub { position: absolute; z-index: 2; left: 7vw; right: 28vw; top: calc(100% - 150px - 3.3em); pointer-events: none; font-size: clamp(20px, min(3.3vw, 6vh), 52px); }
+.st-l .l-sub::before { content: ''; position: absolute; left: -2.2vw; top: .25em; bottom: .25em; width: 4px; border-radius: 2px; background: var(--acc); box-shadow: 0 0 14px var(--acc); }
+.st-l .l-sub:has(.cur:empty)::before { opacity: 0; }
+.st-l .l-sub .cur, .st-l .l-sub .nxt { display: block; }
+.st-l .l-sub .cur { font-family: 'Bruno Ace SC', sans-serif; text-transform: uppercase; line-height: 1.15; }
+.st-l .l-sub .cur.swap { animation: lSwap .28s ease-out; }
+@keyframes lSwap { from { opacity: 0; transform: translateY(.35em); } }
+.st-l .l-sub .nxt { font-family: 'Oswald', sans-serif; font-weight: 300; letter-spacing: .03em; font-size: .5em; margin-top: .5em; color: rgba(255, 255, 255, .55); text-shadow: 0 2px 10px rgba(0, 0, 0, .8); }
+.st-l .w { color: rgba(255, 255, 255, .32); text-shadow: 0 2px 14px rgba(0, 0, 0, .8); transition: color .12s; }
+.st-l .w.on { color: #fff; }
+.st-l .w.now { color: var(--acc); text-shadow: 0 0 18px color-mix(in srgb, var(--acc) 70%, transparent), 0 2px 14px rgba(0, 0, 0, .8); animation: lPop .3s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes lPop { from { transform: scale(1.25); } }
+/* telefon na výšku: video je pruh uprostřed, text pod ním přes celou šířku */
+@media (orientation: portrait) and (max-width: 600px) { .st-l .l-sub { left: 9vw; right: 7vw; top: calc(100% - 140px - 4.5em); font-size: clamp(18px, 6vw, 30px); } .st-l .l-sub::before { left: -4vw; } }
+@media (prefers-reduced-motion: reduce) { .st-l .w.now, .st-l .l-sub .cur.swap { animation: none; } }
 
 /* ===== 2 · KOUŘ A OHEŇ ===== */
 .st-o .o-bg { position: absolute; inset: 0; background: radial-gradient(90% 70% at 50% 30%, color-mix(in srgb, var(--acc) 18%, #0b0807), #050404 70%); }
