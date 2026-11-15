@@ -21,7 +21,7 @@
              int stars; try { stars = Integer.parseInt(arg); } catch (NumberFormatException e) { stars = 1; }
              head = t.getProperty("activity.winTitle", "").replace("{0}", "★".repeat(Math.max(1, Math.min(3, stars))));
              int sec = Math.max(0, a.ms / 1000);
-             sub = t.getProperty("activity.winSub", "").replace("{0}", (sec / 60) + ":" + String.format("%02d", sec % 60))
+             if (a.ms > 0) sub = t.getProperty("activity.winSub", "").replace("{0}", (sec / 60) + ":" + String.format("%02d", sec % 60))
                      .replace("{1}", String.valueOf(a.you)).replace("{2}", String.valueOf(a.kevin));
            } else if ("track".equals(a.kind)) {
              icon = "fa-music"; head = arg; sub = t.getProperty("activity.trackSub", "");

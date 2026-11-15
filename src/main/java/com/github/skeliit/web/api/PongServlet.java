@@ -75,8 +75,8 @@ public class PongServlet extends HttpServlet {
             for (int i = 0; i < top.size(); i++) {
                 PongRank r = top.get(i);
                 if (i > 0) b.append(',');
-                b.append("{\"place\":").append(r.place).append(",\"name\":\"").append(WebUtils.escapeJs(r.username))
-                        .append("\",\"avatar\":").append(r.avatarUrl == null ? "null" : "\"" + WebUtils.escapeJs(r.avatarUrl) + "\"")
+                b.append("{\"place\":").append(r.place).append(",\"name\":").append(r.username == null ? "null" : "\"" + WebUtils.escapeJs(r.username) + "\"")
+                        .append(",\"anon\":").append(r.anon).append(",\"avatar\":").append(r.avatarUrl == null ? "null" : "\"" + WebUtils.escapeJs(r.avatarUrl) + "\"")
                         .append(",\"ms\":").append(r.durationMs).append(",\"kevin\":").append(r.kevinGoals).append(",\"me\":").append(r.me)
                         .append(",\"title\":").append(titleJson(req, r.title))
                         .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"")
@@ -255,8 +255,8 @@ public class PongServlet extends HttpServlet {
             for (int i = 0; i < top.size(); i++) {
                 PongScoreRank r = top.get(i);
                 if (i > 0) b.append(',');
-                b.append("{\"place\":").append(r.place).append(",\"name\":\"").append(WebUtils.escapeJs(r.username))
-                        .append("\",\"avatar\":").append(r.avatarUrl == null ? "null" : "\"" + WebUtils.escapeJs(r.avatarUrl) + "\"")
+                b.append("{\"place\":").append(r.place).append(",\"name\":").append(r.username == null ? "null" : "\"" + WebUtils.escapeJs(r.username) + "\"")
+                        .append(",\"anon\":").append(r.anon).append(",\"avatar\":").append(r.avatarUrl == null ? "null" : "\"" + WebUtils.escapeJs(r.avatarUrl) + "\"")
                         .append(",\"score\":").append(r.score).append(",\"d\":").append(r.difficulty)
                         .append(",\"you\":").append(r.you).append(",\"kevin\":").append(r.kevin).append(",\"me\":").append(r.me)
                         .append(",\"frame\":").append(r.frame == null ? "null" : "\"" + r.frame + "\"")

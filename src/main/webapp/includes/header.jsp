@@ -332,6 +332,7 @@
              data-t-passed-place="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.passedPlace")) %>"
              data-t-pong-score="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.pongScore")) %>"
              data-t-pong-time="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.pongTime")) %>"
+             data-t-someone="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.someone")) %>"
              data-t-deleted="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("account.deleted")) %>">
           <div class="notif-head">
             <strong><%= t.getProperty("notif.title") %></strong>

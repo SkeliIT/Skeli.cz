@@ -26,6 +26,7 @@
     java.util.List<String[]> songChoices = new java.util.ArrayList<>();
     boolean profilePublic = true, coverPublic = true, friendRequests = true;
     boolean communityPublic = false;
+    boolean pongPublic = false;
     boolean[] sharing = new boolean[8];   // {pár slov o sobě, město, písně se srdcem, přátelé, stav online, moje tvorba, profil i pro nepřihlášené, aktivita}
     java.util.Set<String> siteEarned = java.util.Set.of();
     java.util.List<String> shownBadges = java.util.List.of();
@@ -44,6 +45,7 @@
       friendRequests = users.friendRequests(uid);
       sharing = users.sharing(uid);
       communityPublic = users.communityPublic(uid);
+      pongPublic = users.pongPublic(uid);
       shownBadges = users.showcaseBadges(uid);
       chatOpen = users.chatOpen(uid);
       siteEarned = new com.github.skeliit.dao.SiteBadgeDao().sync(uid);
@@ -372,6 +374,11 @@
           <span class="vis-ico"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
           <span class="vis-text"><b id="visPeopleT"><%= t.getProperty("vis.people.title") %></b><small><%= t.getProperty("vis.people.lead") %></small></span>
           <label class="vis-switch"><input type="checkbox" name="people" value="1" aria-labelledby="visPeopleT"<%= communityPublic ? " checked" : "" %>><span aria-hidden="true"></span></label>
+        </li>
+        <li class="vis-row">
+          <span class="vis-ico"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
+          <span class="vis-text"><b id="visPongT"><%= t.getProperty("vis.pong.title") %></b><small><%= t.getProperty("vis.pong.lead") %></small></span>
+          <label class="vis-switch"><input type="checkbox" name="pong" value="1" aria-labelledby="visPongT"<%= pongPublic ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
         <li class="vis-row">
           <span class="vis-ico"><i class="fa-solid fa-comments" aria-hidden="true"></i></span>

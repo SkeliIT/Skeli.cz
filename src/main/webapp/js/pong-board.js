@@ -77,7 +77,7 @@
           var val = st.kind === 'time' ? time(r.ms) : (T.points || '{n}').replace('{n}', num(r.score)), av = '<img src="' + esc(safe(r.avatar)) + '" alt="" width="30" height="30" loading="lazy">';
           return '<li class="' + (r.place <= 3 ? 'p' + r.place : '') + (r.me ? ' me' : '') + '"><span class="pb-pl">' + r.place + '.</span>' +
             (r.frame ? '<span class="av-frame f-' + esc(r.frame) + '">' + av + '</span>' : av) +
-            '<span class="pb-nm">' + (r.pub ? '<a class="pb-prof" href="/hrac/' + encodeURIComponent(r.name) + '">' + esc(r.name) + '</a>' : esc(r.name)) + '<small>' + (st.kind === 'time' ? st.len : r.you) + ':' + r.kevin + '</small></span><span class="pb-val">' + esc(val) + '</span></li>';
+            '<span class="pb-nm">' + (r.anon || r.name == null ? '<span class="pb-anon">' + esc(T.anon || '?') + '</span>' : r.pub ? '<a class="pb-prof" href="/hrac/' + encodeURIComponent(r.name) + '">' + esc(r.name) + '</a>' : esc(r.name)) + '<small>' + (st.kind === 'time' ? st.len : r.you) + ':' + r.kevin + '</small></span><span class="pb-val">' + esc(val) + '</span></li>';
         }).join('') : '<li class="pb-empty">' + esc(T.empty) + '</li>';
         // moje místo (mimo první desítku) a kolik chybí na 3. místo
         var mine = box.querySelector('.pb-mine'), txt = '';

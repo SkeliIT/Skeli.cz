@@ -86,7 +86,8 @@
   function render(items) {
     if (!items.length) { list.innerHTML = empty; return; }
     list.innerHTML = items.map(function (n) {
-      var who = n.actor == null ? panel.dataset.tDeleted : n.actor;
+      // anonymní hráč CatSmash: server jméno neposlal, ukáže se „Někdo“ (ne „Smazaný účet“)
+      var who = n.anon ? panel.dataset.tSomeone : n.actor == null ? panel.dataset.tDeleted : n.actor;
       if (n.type === 'passed') return passedItem(n, who);
       if (n.type === 'friend_request' || n.type === 'friend_accept' || n.type === 'message') return friendItem(n, who);
       var text = n.type === 'heart' ? panel.dataset.tHeart : (panel.dataset.tReply || '').replace('{name}', who);

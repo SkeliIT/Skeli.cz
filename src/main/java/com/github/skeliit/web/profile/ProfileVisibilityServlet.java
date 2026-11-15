@@ -45,6 +45,7 @@ public class ProfileVisibilityServlet extends HttpServlet {
                         "1".equals(req.getParameter("friendsPublic")), "1".equals(req.getParameter("online")), "1".equals(req.getParameter("tracks")), "1".equals(req.getParameter("web")), "1".equals(req.getParameter("activity")));
                 new UserDao().setChatOpen(me, "1".equals(req.getParameter("chat")));
                 new UserDao().setCommunityPublic(me, "1".equals(req.getParameter("people")));
+                new UserDao().setPongPublic(me, "1".equals(req.getParameter("pong")));   // jméno v tabulkách CatSmash
                 // vitrína: jen získané odznaky, každý jednou, nejvýš tři
                 java.util.Set<String> shown = new java.util.LinkedHashSet<>();
                 java.util.Set<String> siteEarned = new com.github.skeliit.dao.SiteBadgeDao().sync(me);

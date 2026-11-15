@@ -334,6 +334,7 @@ window.KEVIN_LINES.en.pong = {
   "tabTime": "Time",
   "champ": "CHAMPION",
   "champCall": "Can you beat them?",
+  "anon": "Anonymous player",
   "champEmpty": "Nobody has beaten me yet · Be the first!",
   "lossNote": "A loss doesn’t go on the leaderboard – beat Kevin to get there.",
   "scoreRecord": "New record!",

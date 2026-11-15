@@ -117,7 +117,7 @@ public class NotificationDao {
             try (PreparedStatement ps = c.prepareStatement(
                     "SELECT n.id, n.type, n.comment_kind, n.comment_id, n.created_at, n.read_at, n.info, "
                             + "CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.username END, "
-                            + "CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.avatar_url END "
+                            + "CASE WHEN u.role = 'DELETED' THEN NULL ELSE u.avatar_url END, u.pong_public "
                             + "FROM notifications n LEFT JOIN users u ON u.id = n.actor_id "
                             + "WHERE n.user_id = ? AND NOT " + BlockDao.blockedBy("n.actor_id") + " ORDER BY n.created_at DESC, n.id DESC LIMIT ?")) {
                 ps.setInt(1, userId);
@@ -142,6 +142,7 @@ public class NotificationDao {
                             out.add(n);
                         } else if ("passed".equals(n.type)) {                // CatSmash: tabulka a nové místo, odkaz otevře hru
                             n.place = "pong"; n.placeName = rs.getString(7); n.snippet = ""; n.link = "/?kevin=pong";
+                            if (!rs.getBoolean(10)) { n.actor = null; n.actorAvatar = ""; n.anon = true; }   // jméno v tabulkách nechce ukazovat
                             out.add(n);
                         } else if (where(c, n, rs.getString(3), rs.getInt(4))) out.add(n);
                     }

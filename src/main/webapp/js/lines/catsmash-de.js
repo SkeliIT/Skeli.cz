@@ -334,6 +334,7 @@ window.KEVIN_LINES.de.pong = {
   "tabTime": "Zeit",
   "champ": "CHAMPION",
   "champCall": "Schaffst du es schneller?",
+  "anon": "Anonymer Spieler",
   "champEmpty": "Mich hat noch keiner geschlagen · Sei der Erste!",
   "lossNote": "Eine Niederlage zählt nicht für die Tabelle – schlag Kevin, dann bist du drin.",
   "scoreRecord": "Neuer Rekord!",

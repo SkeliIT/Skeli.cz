@@ -334,6 +334,7 @@ window.KEVIN_LINES.cs.pong = {
   "tabTime": "Čas",
   "champ": "ŠAMPION",
   "champCall": "Dokážeš ho porazit?",
+  "anon": "Anonymní hráč",
   "champEmpty": "Zatím mě nikdo neporazil · Buď první, kdo to dá!",
   "lossNote": "Prohra se do tabulky nepočítá – porazit Kevina, to je ono.",
   "scoreRecord": "Nový rekord!",

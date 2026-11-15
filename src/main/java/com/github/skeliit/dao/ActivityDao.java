@@ -43,13 +43,20 @@ public class ActivityDao {
     public List<ActivityItem> recent(int userId, boolean forOthers, int limit) throws SQLException {
         List<ActivityItem> out = new ArrayList<>();
         try (Connection c = Db.get()) {
+            // výhra pro ostatní: čas a skóre jen u toho, kdo má jméno v tabulkách CatSmash zapnuté (jinak by šel spárovat s anonymním řádkem)
+            boolean winDetails = !forOthers;
+            if (forOthers) try (PreparedStatement ps = c.prepareStatement("SELECT pong_public FROM users WHERE id = ?")) {
+                ps.setInt(1, userId);
+                try (ResultSet rs = ps.executeQuery()) { winDetails = rs.next() && rs.getBoolean(1); }
+            }
+            final boolean showWin = winDetails;
             Row badge = rs -> new ActivityItem("badge", rs.getString(1), rs.getTimestamp(2));
             read(c, out, "SELECT badge, earned_at FROM site_badges WHERE user_id = ? ORDER BY earned_at DESC LIMIT " + EACH, badge, userId);
             read(c, out, "SELECT badge, earned_at FROM pong_badges WHERE user_id = ? ORDER BY earned_at DESC LIMIT " + EACH, badge, userId);
             // výhra nad Kevinem: ukládají se jen výhry, takže skóre je délka zápasu : Kevinovy góly
             read(c, out, "SELECT difficulty, created_at, duration_ms, match_len, kevin_goals FROM pong_results WHERE user_id = ? ORDER BY created_at DESC LIMIT " + EACH, rs -> {
                 ActivityItem a = new ActivityItem("win", rs.getString(1), rs.getTimestamp(2));
-                a.ms = rs.getInt(3); a.you = rs.getInt(4); a.kevin = rs.getInt(5);
+                if (showWin) { a.ms = rs.getInt(3); a.you = rs.getInt(4); a.kevin = rs.getInt(5); }
                 return a;
             }, userId);
             read(c, out, "SELECT title, created_at FROM user_tracks WHERE user_id = ? AND hidden_at IS NULL ORDER BY created_at DESC LIMIT " + EACH,

@@ -8,6 +8,8 @@ public class Notification {
     /** who answered (null when the account was deleted) */
     public String actor;
     public String actorAvatar;
+    /** CatSmash „předběhl tě“ od hráče, který nechce jméno v tabulkách: jméno i fotka se neposílají. */
+    public boolean anon;
     /** the start of the reply, or of the comment that got the heart */
     public String snippet;
     /** "song" or "clip", and its name */

@@ -2789,7 +2789,7 @@
         if (seq !== champSeq) return;
         var top = (j.top || []).slice(0, 3);
         el.textContent = top.length
-          ? '👑 ' + (label || 'ŠAMPION') + ': ' + top.map(function (r, i) { return (i ? (i + 1) + '. ' : '') + r.name + ' ' + time(r.ms); }).join(' · ') + ' · ' + (T.champCall || '')
+          ? '👑 ' + (label || 'ŠAMPION') + ': ' + top.map(function (r, i) { return (i ? (i + 1) + '. ' : '') + (r.anon || r.name == null ? (T.anon || '?') : r.name) + ' ' + time(r.ms); }).join(' · ') + ' · ' + (T.champCall || '')
           : (T.champEmpty || '');
       }).catch(function () { el.textContent = T.champEmpty || ''; });
     }
@@ -4154,7 +4154,8 @@
     if (TRY_HOST) window.__kpCeleb = function (k) { celebrate(k); };   // test: přehrát oslavu
     // jméno v tabulce = odkaz na veřejný profil (/hrac/jméno), jen když ho hráč nemá skrytý; profil se otevře
     // normálním načtením stránky, aby hra nezůstala navrchu (PJAX by vyměnil jen obsah pod ní)
-    function profName(r) { return r.pub ? '<a class="kp-prof" href="/hrac/' + encodeURIComponent(r.name) + '">' + esc(r.name) + '</a>' : esc(r.name); }
+    // anonymní hráč (jméno v tabulkách nechce ukazovat): server jméno vůbec nepošle, tady jen „Anonymní hráč“ bez odkazu
+    function profName(r) { if (r.anon || r.name == null) return '<span class="kp-anon">' + esc(T.anon || '?') + '</span>'; return r.pub ? '<a class="kp-prof" href="/hrac/' + encodeURIComponent(r.name) + '">' + esc(r.name) + '</a>' : esc(r.name); }
     root.addEventListener('click', function (e) {
       var a = e.target.closest && e.target.closest('a.kp-prof');
       if (!a) return;

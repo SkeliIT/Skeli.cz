@@ -226,6 +226,22 @@ public class UserDao {
         }
     }
 
+    /** Jméno a fotka v tabulkách CatSmash (Skóre, Čas, šampioni, „předběhl tě“)? Výchozí ne = anonymně. */
+    public boolean pongPublic(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT pong_public FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() && rs.getBoolean(1); }
+        }
+    }
+
+    public void setPongPublic(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET pong_public = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
     /** Ukázat mě v Komunitě (seznam Lidé)? Výchozí ne. */
     public boolean communityPublic(int userId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT community_public FROM users WHERE id = ?")) {

@@ -93,7 +93,13 @@ public class PlayerProfileServlet extends HttpServlet {
             req.setAttribute("playerAvatar", users.avatar(id));
             req.setAttribute("playerCover", users.coverForOthers(id));
             req.setAttribute("playerShowcase", users.showcase(id));
-            req.setAttribute("playerPong", new PongDao().profile(id));
+            var playerPong = new PongDao().profile(id);
+            // jméno v tabulkách CatSmash vypnuté: bez časů a míst, jinak by šel anonymní řádek v tabulce spárovat s profilem
+            if (!users.pongPublic(id)) {
+                java.util.Arrays.fill(playerPong.bestMs, null);
+                java.util.Arrays.fill(playerPong.place, null);
+            }
+            req.setAttribute("playerPong", playerPong);
             // jen to, co si člověk v Nastavení sám zapnul
             boolean[] sharing = users.sharing(id);
             var details = users.profile(id);

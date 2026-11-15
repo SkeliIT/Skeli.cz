@@ -53,6 +53,14 @@ public class PongDao {
     }
 
     /** Sezóna: od kdy se počítá (začátek měsíce), null = věčná tabulka. */
+    /**
+     * Soukromí v tabulkách: kdo nemá zapnuté „Moje jméno v tabulkách CatSmash“ (users.pong_public), je anonymní –
+     * bez jména, fotky, odkazu na profil, rámečku i znaku, aby nešel poznat ani přes API. Sám sebe vidí vždy.
+     */
+    static void hide(PongScoreRank r) {
+        r.anon = true; r.username = null; r.avatarUrl = null; r.frame = null; r.mark = null; r.pub = false;
+    }
+
     static Timestamp since(java.time.LocalDateTime from) {
         return Timestamp.valueOf(from == null ? java.time.LocalDateTime.of(1970, 1, 2, 0, 0) : from);
     }
@@ -61,7 +69,7 @@ public class PongDao {
         List<PongScoreRank> out = new ArrayList<>();
         Timestamp t = since(from);
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT u.id, u.username, u.avatar_url, u.pong_frame, s.score, s.difficulty, s.you, s.kevin, u.pong_mark, u.pong_champ, u.profile_public "
+                "SELECT u.id, u.username, u.avatar_url, u.pong_frame, s.score, s.difficulty, s.you, s.kevin, u.pong_mark, u.pong_champ, u.profile_public, u.pong_public "
                         + "FROM pong_scores s JOIN users u ON u.id = s.user_id "
                         + "WHERE s.match_len = ? AND s.difficulty = ? AND s.created_at >= ? AND s.id = (SELECT s2.id FROM pong_scores s2 WHERE s2.user_id = s.user_id "
                         + "  AND s2.match_len = ? AND s2.difficulty = ? AND s2.created_at >= ? ORDER BY s2.score DESC, s2.id LIMIT 1) "
@@ -77,6 +85,7 @@ public class PongDao {
                     r.mark = PongBadges.isMark(rs.getString(9)) ? rs.getString(9) : null;
                     r.score = rs.getInt(5); r.difficulty = rs.getInt(6); r.you = rs.getInt(7); r.kevin = rs.getInt(8);
                     r.me = meId != null && meId == rs.getInt(1);
+                    if (!r.me && !rs.getBoolean(12)) hide(r);
                     out.add(r);
                 }
             }
@@ -92,7 +101,7 @@ public class PongDao {
         List<PongScoreRank> out = new ArrayList<>();
         Timestamp t = since(from);
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT u.username, u.avatar_url, u.pong_frame, u.pong_mark, s.score, s.difficulty, s.match_len, u.id, u.pong_champ, u.profile_public "
+                "SELECT u.username, u.avatar_url, u.pong_frame, u.pong_mark, s.score, s.difficulty, s.match_len, u.id, u.pong_champ, u.profile_public, u.pong_public "
                         + "FROM pong_scores s JOIN users u ON u.id = s.user_id "
                         + "WHERE s.created_at >= ? AND u.role <> 'DELETED' AND s.id = (SELECT s2.id FROM pong_scores s2 "
                         + "  WHERE s2.user_id = s.user_id AND s2.created_at >= ? ORDER BY s2.score DESC, s2.id LIMIT 1) "
@@ -107,6 +116,7 @@ public class PongDao {
                     r.pub = rs.getBoolean(10);
                     r.mark = PongBadges.isMark(rs.getString(4)) ? rs.getString(4) : null;
                     r.score = rs.getInt(5); r.difficulty = rs.getInt(6); r.len = rs.getInt(7);
+                    if (!rs.getBoolean(11)) hide(r);
                     out.add(r);
                 }
             }
@@ -192,7 +202,7 @@ public class PongDao {
         List<PongRank> out = new ArrayList<>();
         Timestamp t = since(from);
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT u.id, u.username, u.avatar_url, b.best, u.pong_title, u.pong_frame, u.pong_mark, u.pong_champ, u.profile_public, "
+                "SELECT u.id, u.username, u.avatar_url, b.best, u.pong_title, u.pong_frame, u.pong_mark, u.pong_champ, u.profile_public, u.pong_public, "
                         + " (SELECT r2.kevin_goals FROM pong_results r2 WHERE r2.user_id = b.user_id AND r2.difficulty = ? AND r2.match_len = ? AND r2.created_at >= ? AND r2.duration_ms = b.best ORDER BY r2.id LIMIT 1) "
                         + "FROM (SELECT user_id, MIN(duration_ms) AS best, MIN(created_at) AS first_at FROM pong_results WHERE difficulty = ? AND match_len = ? AND created_at >= ? GROUP BY user_id) b "
                         + "JOIN users u ON u.id = b.user_id ORDER BY b.best, b.first_at LIMIT ?")) {
@@ -207,11 +217,15 @@ public class PongDao {
                 int place = 0;
                 while (rs.next()) {
                     place++;
-                    PongRank r = new PongRank(place, rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(10), meId != null && meId == rs.getInt(1));
-                    r.title = PongBadges.TITLES_ON && PongBadges.exists(rs.getString(5)) ? rs.getString(5) : null;
-                    r.frame = PongChampions.frame(rs.getInt(1), rs.getString(6));
-                    r.pub = rs.getBoolean(9);
-                    r.mark = PongBadges.isMark(rs.getString(7)) ? rs.getString(7) : null;
+                    boolean me = meId != null && meId == rs.getInt(1), shown = me || rs.getBoolean(10);
+                    // anonymní hráč: jméno a fotka se z databáze vůbec nepředají dál
+                    PongRank r = new PongRank(place, shown ? rs.getString(2) : null, shown ? rs.getString(3) : null, rs.getInt(4), rs.getInt(11), me);
+                    if (shown) {
+                        r.title = PongBadges.TITLES_ON && PongBadges.exists(rs.getString(5)) ? rs.getString(5) : null;
+                        r.frame = PongChampions.frame(rs.getInt(1), rs.getString(6));
+                        r.pub = rs.getBoolean(9);
+                        r.mark = PongBadges.isMark(rs.getString(7)) ? rs.getString(7) : null;
+                    } else r.anon = true;
                     out.add(r);
                 }
             }
