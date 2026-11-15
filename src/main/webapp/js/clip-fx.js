@@ -1,7 +1,8 @@
-/* Water and fire around a clip (song page and the Music page's player): blue water flows out of the left of the
-   video, fire out of the right, they meet under it, and everything fades out at an invisible
-   ellipse round the video (never above it). It swells with the music: bass at the bottom,
-   treble up the sides.
+/* Atmosféra písně kolem videa (stránka písně a přehrávač na Hudbě): z videa vytéká tekutina v barvách písně –
+   vlevo barva levého okraje obrazu, vpravo pravého (mění se s videem), pod videem se slévají a vše mizí na
+   neviditelné elipse kolem videa (nikdy nad ním). Černobílé video = stříbrný kouř s nádechem barvy písně.
+   Povaha podle energie celé písně: klidná píseň teče pomalu a hladce, energická rychleji a s ostrými jasnými
+   hranami jako plameny. Do hudby se vzdouvá: basy dole, výšky po stranách. (Do 2026-11-15 napevno voda a oheň.)
 
    The YouTube player can't be listened to from our page, so the music comes from data made
    in advance (/eq/<clip>.json: loudness of 16 bands 20x a second, the colours of the
@@ -61,7 +62,11 @@
     clipId = id; data = null; thumb = null;
     fetch('/eq/' + id + '.json').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
       if (!d || clipId !== id) return;
-      d.energy = unb64(d.energy); d.l = unb64(d.l); d.r = unb64(d.r); d.b = unb64(d.b); data = d;
+      d.energy = unb64(d.energy); d.l = unb64(d.l); d.r = unb64(d.r); d.b = unb64(d.b);
+      // povaha písně: průměrná hlasitost celé písně (0 = klidná, 1 = energická)
+      var sum = 0; for (var i = 0; i < d.energy.length; i++) sum += d.energy[i];
+      d.mood = Math.max(0, Math.min(1, (sum / d.energy.length / 255 - .12) / .3));
+      data = d;
     }).catch(function () {});
     var img = new Image();
     img.onload = function () {
@@ -118,7 +123,7 @@
   // ---------- the liquid (WebGL) ----------
   var fs = [
     'precision highp float;',
-    'uniform float uQ; uniform vec2 uRes; uniform vec4 uRect; uniform vec2 uEll; uniform float uTime, uKick, uScale, uLight, uTopFade; uniform sampler2D uTex;',
+    'uniform float uQ; uniform vec2 uRes; uniform vec4 uRect; uniform vec2 uEll; uniform float uTime, uKick, uScale, uLight, uTopFade, uMood; uniform vec3 uCL, uCR; uniform sampler2D uTex;',
     'float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}',
     'float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);}',
     'float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);for(int i=0;i<5;i++){v+=a*noise(p);p=m*p;a*=.5;}return v;}',
@@ -144,11 +149,11 @@
     '  float body=clamp(n*1.9-u/max(reach,.05)*1.05+.25,0.,1.);',
     '  body*=1.-smoothstep(.72,1.,u);',                                            // everything ends at the ellipse
     '  body*=smoothstep(uRect.y+4.*uQ,uRect.y+uTopFade,P.y);',                     // nothing above the video
-    '  float hi=pow(ridge,6.)*body;',
-    '  float mixF=smoothstep(-.28,.28,side+(n-.5)*.7);',                           // water left, fire right, a wavy border under the video
-    '  vec3 water=mix(vec3(.02,.16,.36),vec3(.2,.62,.95),body); water=mix(water,vec3(.85,.97,1.),hi);',
-    '  vec3 fire=mix(vec3(.45,.07,0.),vec3(1.,.42,.04),body); fire=mix(fire,vec3(1.,.86,.45),hi);',
-    '  vec3 col=mix(water,fire,mixF);',
+    '  float hi=pow(ridge,mix(9.,4.5,uMood))*body;',                               // energická píseň = víc jasných hran (plameny)
+    '  float mixF=smoothstep(-.28,.28,side+(n-.5)*.7);',                           // barva levého okraje vlevo, pravého vpravo, vlnitá hranice pod videem
+    '  vec3 cl=mix(uCL*.1,uCL,body); cl=mix(cl,mix(uCL,vec3(1.),.7),hi);',
+    '  vec3 cr=mix(uCR*.1,uCR,body); cr=mix(cr,mix(uCR,vec3(1.),.7),hi);',
+    '  vec3 col=mix(cl,cr,mixF);',
     // next to the video the liquid takes the picture's own colour, if it has one
     '  float sideW=abs(D.x)/(abs(D.x)+abs(D.y)+.001); float ey=(E.y-uRect.y)/(hs.y*2.), ex=(E.x-uRect.x)/(hs.x*2.);',
     '  vec3 vc=mix(row(3.,ex).rgb,P.x<C.x?row(1.,ey).rgb:row(2.,ey).rgb,sideW);',
@@ -168,7 +173,7 @@
   gl.useProgram(prog);
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   var aLoc = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(aLoc); gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
-  var U = {}; ['uQ', 'uRes', 'uRect', 'uEll', 'uTime', 'uKick', 'uScale', 'uLight', 'uTopFade', 'uTex'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+  var U = {}; ['uQ', 'uRes', 'uRect', 'uEll', 'uTime', 'uKick', 'uScale', 'uLight', 'uTopFade', 'uMood', 'uCL', 'uCR', 'uTex'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
   var tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
   [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(function (p) { gl.texParameteri(gl.TEXTURE_2D, p, gl.LINEAR); });
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -177,6 +182,8 @@
   // ---------- state ----------
   var energy = new Float32Array(32), cols = { l: new Float32Array(96), r: new Float32Array(96), b: new Float32Array(96) };
   var kick = 0, bassSlow = 0, alive = 0, last = performance.now(), fxTime = 0, speed = .3, carry = 0, bits = [], show = 0;
+  // barvy atmosféry (0–1) vlevo a vpravo, plynule se mění s videem; mood = povaha písně
+  var colL = [.6, .62, .68], colR = [.6, .62, .68], mood = .4, accent = [.9, .72, .19], accentAt = 0;
   var phone = matchMedia('(pointer: coarse), (max-width: 760px)').matches;
   var quality = phone ? .5 : 1, slowFrames = 0, visible = true, idleWait = 0;
   if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }).observe(stage);
@@ -184,6 +191,26 @@
     for (var i = 0; i < 32; i++) { var f = i / 31 * (n - 1), a = Math.floor(f), b = Math.min(n - 1, a + 1), w = f - a;
       for (var k = 0; k < 3; k++) { var v = (src[(frameNo * n + a) * 3 + k] * (1 - w) + src[(frameNo * n + b) * 3 + k] * w) / 255; out[i * 3 + k] += (v - out[i * 3 + k]) * .12; } }
   }
+  // průměrná barva okraje → sytá a světlá barva atmosféry; skoro šedý okraj (černobílé video) = null
+  function edgeMood(a) {
+    var r = 0, g = 0, b = 0; for (var i = 0; i < 32; i++) { r += a[i * 3]; g += a[i * 3 + 1]; b += a[i * 3 + 2]; }
+    r /= 32; g /= 32; b /= 32;
+    var mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    if (d < .07) return null;
+    var h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; if (h < 0) h += 360;
+    var s = .75, l = .55, C = (1 - Math.abs(2 * l - 1)) * s, X = C * (1 - Math.abs((h / 60) % 2 - 1)), m = l - C / 2;
+    var o = h < 60 ? [C, X, 0] : h < 120 ? [X, C, 0] : h < 180 ? [0, C, X] : h < 240 ? [0, X, C] : h < 300 ? [X, 0, C] : [C, 0, X];
+    return [o[0] + m, o[1] + m, o[2] + m];
+  }
+  function pageAccent(now) {   // barva písně na stránce (--accent), čte se jednou za sekundu
+    if (now - accentAt < 1000) return accent;
+    accentAt = now;
+    var m = (getComputedStyle(document.body).getPropertyValue('--accent').match(/[0-9.]+/g) || []).map(Number);
+    if (m.length >= 3) accent = [m[0] / 255, m[1] / 255, m[2] / 255];
+    return accent;
+  }
+  function ease(cur, to, k) { for (var c = 0; c < 3; c++) cur[c] += (to[c] - cur[c]) * k; }
+  function bright(c, light) { return light ? c.map(function (v) { return Math.round(v * 150); }) : c.map(function (v) { return Math.round((v * .55 + .45) * 255); }); }
   function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + Math.max(0, Math.min(1, a)).toFixed(3) + ')'; }
 
   function draw(now) {
@@ -207,7 +234,8 @@
     var light = document.body.classList.contains('light'), soft = mode === 'soft' || reduce;
     var t = clipTime(now);
     alive += ((playing ? 1 : 0) - alive) * Math.min(1, dt * 2.5);
-    speed += ((reduce ? .12 : (.25 + .5 * alive + .35 * Math.min(1, kick))) * (soft ? .6 : 1) - speed) * Math.min(1, dt * 2.5);
+    mood += ((data ? data.mood : .4) - mood) * Math.min(1, dt);
+    speed += ((reduce ? .12 : (.25 + .5 * alive + .35 * Math.min(1, kick))) * (soft ? .6 : 1) * (.7 + .6 * mood) - speed) * Math.min(1, dt * 2.5);
     fxTime += dt * speed;
 
     // loudness: the clip's data while it plays, otherwise a calm steady breathing
@@ -235,6 +263,10 @@
       var cf = src === data ? Math.min(data.cframes - 1, Math.max(0, Math.floor(t * data.cfps))) : 0;
       resample(src.l, src.rows, cf, cols.l); resample(src.r, src.rows, cf, cols.r); resample(src.b, src.cols, cf, cols.b);
     }
+    // barvy atmosféry z okrajů videa; černobílá strana = stříbro (vlevo) / barva písně (vpravo)
+    var silver = [.72, .75, .8], ml = edgeMood(cols.l), mr = edgeMood(cols.r), acc = pageAccent(now);
+    ease(colL, ml || (mr ? mr : silver), Math.min(1, dt * 1.2));
+    ease(colR, mr || (ml ? ml : acc), Math.min(1, dt * 1.2));
     for (i = 0; i < 32; i++) {
       var e8 = Math.round(Math.min(1, energy[i]) * 255); pix[i * 4] = pix[i * 4 + 1] = pix[i * 4 + 2] = e8; pix[i * 4 + 3] = 255;
       ['l', 'r', 'b'].forEach(function (k, r) { for (var c = 0; c < 3; c++) pix[((r + 1) * 32 + i) * 4 + c] = Math.round(cols[k][i * 3 + c] * 255); pix[((r + 1) * 32 + i) * 4 + 3] = 255; });
@@ -253,10 +285,11 @@
     gl.uniform1f(U.uQ, q); gl.uniform2f(U.uRes, glCanvas.width, glCanvas.height);
     gl.uniform4f(U.uRect, X0 * q, Y0 * q, X1 * q, Y1 * q); gl.uniform2f(U.uEll, ea * q, eb * q);
     gl.uniform1f(U.uTime, fxTime); gl.uniform1f(U.uKick, Math.min(1, kick)); gl.uniform1f(U.uScale, scale);
+    gl.uniform1f(U.uMood, mood); gl.uniform3fv(U.uCL, colL); gl.uniform3fv(U.uCR, colR);
     gl.uniform1f(U.uLight, light ? 1 : 0); gl.uniform1f(U.uTopFade, vh * .28 * q); gl.uniform1i(U.uTex, 0);
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLES, 0, 3);
 
-    // embers fly off the fire, bubbles rise from the water; gone at the ellipse
+    // vpravo létají jiskry, vlevo stoupají bublinky – obojí v barvě své strany; mizí na elipse
     var cx = (X0 + X1) / 2 * dpr, cy = (Y0 + Y1) / 2 * dpr, EA = ea * dpr, EB = eb * dpr, top = (Y0 + vh * .12) * dpr;
     carry += dt * (14 + 150 * level + 220 * kick) * (soft ? .4 : 1) * (.25 + .75 * alive);
     while (carry >= 1) {
@@ -282,10 +315,10 @@
       fade *= .6 + .4 * Math.sin(k.tw + k.age * 9);
       if (fade <= .01) continue;
       if (k.fire) {
-        ctx.strokeStyle = rgba(light ? [190, 70, 0] : [255, 170 + Math.round(60 * fade), 60], .9 * fade); ctx.lineWidth = k.size;
+        ctx.strokeStyle = rgba(bright(colR, light), .9 * fade); ctx.lineWidth = k.size;
         ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(k.x + .01, k.y); ctx.stroke();
       } else {
-        var wc = light ? [10, 90, 160] : [190, 235, 255];
+        var wc = bright(colL, light);
         ctx.strokeStyle = rgba(wc, .7 * fade); ctx.lineWidth = .8 * dpr;
         ctx.beginPath(); ctx.arc(k.x, k.y, k.size, 0, 6.283); ctx.stroke();
         ctx.fillStyle = rgba(wc, .5 * fade); ctx.fillRect(k.x - k.size * .45, k.y - k.size * .45, k.size * .35, k.size * .35);
