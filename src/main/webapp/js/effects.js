@@ -464,8 +464,25 @@
     function f(n) { var k = (n + h / 30) % 12, a = s * Math.min(l, 1 - l); return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); }
     return '#' + [f(0), f(8), f(4)].map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('');
   }
+  // barva písně z jedné průměrné barvy (0–1): nadpis, odkazy, kouř…, na stránce písně i podlaha
+  function setSongColor(R, G, B) {
+    var M = Math.max(R, G, B), N = Math.min(R, G, B), h = 0;
+    if (M !== N) h = M === R ? 60 * (((G - B) / (M - N)) % 6) : M === G ? 60 * ((B - R) / (M - N) + 2) : 60 * ((R - G) / (M - N) + 4);
+    if (h < 0) h += 360;
+    songColor = [[hsl(h, 0.9, 0.6), hsl((h + 28) % 360, 0.95, 0.66)], [hsl(h, 0.75, 0.36), hsl((h + 28) % 360, 0.8, 0.45)]];
+    songFloor = document.querySelector('main.lyric-page') ? [hsl(h, 0.32, 0.065), hsl(h, 0.3, 0.935)] : null;   // jen stránka písně (ne Hudba)
+  }
+  // Barva z celého videa (js/clip-fx.js spočítá z eq dat, událost skeli:songcolor) má přednost před náhledem:
+  // náhled bývá úvodní karta s jinou barvou (Machine gun: fialový nápis, ale zelené video). Počítá se jednou na video,
+  // stránka se jednou přelije – za běhu se nepřebarvuje (šetří slabší telefony).
+  var videoColor = null, paintToken = 0;
+  window.addEventListener('skeli:songcolor', function (e) {
+    var c = e.detail; if (!c) return;
+    videoColor = c; paintToken++;
+    setSongColor(c.r, c.g, c.b); paint();
+  });
   function songPaint(url) {
-    var amb = document.querySelector('main.lyric-page .lyric-ambient');
+    var amb = document.querySelector('main.lyric-page .lyric-ambient'), token = ++paintToken;
     songFloor = null;
     var m = amb && /url\(['"]?([^'")]+)/.exec(amb.getAttribute('style') || '');
     // Hudba: přehrávač už má vybrané video dřív, než se tenhle skript načte – vezme se z něj
@@ -474,8 +491,11 @@
     document.body.classList.toggle('clip-on', !!url);
     if (url) m = [0, url];
     if (!m) { if (songColor) { songColor = null; paint(); } return; }
+    var id = (/\/yt-thumb\/([^/]+)\//.exec(m[1]) || [])[1];
+    if (videoColor && id && videoColor.id === id) { setSongColor(videoColor.r, videoColor.g, videoColor.b); paint(); return; }
     var img = new Image();
     img.onload = function () {
+      if (token !== paintToken) return;   // mezitím přišla barva z videa (nebo jiné video)
       try {
         var c = document.createElement('canvas'); c.width = 32; c.height = 18;
         var x = c.getContext('2d'); x.drawImage(img, 0, 0, 32, 18);
@@ -485,12 +505,8 @@
           var w = Math.pow(mx - mn, 2) * mx;   // syté a jasné pixely váží víc, šedé a černé skoro nic
           sr += r * w; sg += g * w; sb += bl * w; sw += w;
         }
-        if (sw < 0.5) { songColor = null; paint(); return; }   // černobílý náhled: zůstává barva fotky v pozadí
-        var R = sr / sw, G = sg / sw, B = sb / sw, M = Math.max(R, G, B), N = Math.min(R, G, B), h = 0;
-        if (M !== N) h = M === R ? 60 * (((G - B) / (M - N)) % 6) : M === G ? 60 * ((B - R) / (M - N) + 2) : 60 * ((R - G) / (M - N) + 4);
-        if (h < 0) h += 360;
-        songColor = [[hsl(h, 0.9, 0.6), hsl((h + 28) % 360, 0.95, 0.66)], [hsl(h, 0.75, 0.36), hsl((h + 28) % 360, 0.8, 0.45)]];
-        if (document.querySelector('main.lyric-page')) songFloor = [hsl(h, 0.32, 0.065), hsl(h, 0.3, 0.935)];   // jen stránka písně (ne Hudba)
+        if (sw < 0.5) { songColor = null; songFloor = null; paint(); return; }   // černobílý náhled: zůstává barva fotky v pozadí
+        setSongColor(sr / sw, sg / sw, sb / sw);
         paint(null, !url);   // video na Hudbě: barva se přelije, stránka písně: hned
       } catch (e) { /* obrázek z jiného webu nejde přečíst – zůstává barva fotky */ }
     };

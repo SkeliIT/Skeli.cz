@@ -1870,3 +1870,6 @@ main.texty-page.has-floor::before {
   -webkit-mask-position: center top; mask-position: center top;
   -webkit-mask-repeat: repeat; mask-repeat: repeat;
 }
+/* rozmazaný náhled nahoře na stránce písně dobarvený barvou písně (z celého videa, js/effects.js): náhled bývá úvodní
+   karta v jiné barvě (Machine gun fialový, video zelené). Ne úplně – trochu z obrazu zůstane. Barva se mění jen jednou. */
+.lyric-ambient::after { content: ""; position: absolute; inset: 0; background: var(--accent); mix-blend-mode: hue; opacity: .75; }

@@ -2,6 +2,8 @@
    (--accent), dole splyne s barvou stránky (--bg). Pod myší nebo prstem jemně prosvítí („svítilna“).
    Vkládá se přes includes/smoke.jspf: <div class="smoke-edge b|t"><canvas></canvas></div>
    (b = pod obsahem, kouř nahoru do fotky; t = převrácený, nad obsahem).
+   Dvě barvy: předěl může mít v --smoke-l / --smoke-r barvu levé a pravé poloviny (stránka písně je dostává od efektu
+   u videa, js/clip-fx.js), uprostřed se nepravidelně slijí; bez nich je celý v --accent.
    Kreslí se jen tehdy, když je předěl vidět. Na slabém telefonu (html.low-fx) kreslí v menším rozlišení a pomaleji, při omezení pohybu
    a bez WebGL se nespustí – zůstane klidný přechod z CSS (css/effects.css, .smoke-edge). */
 (function () {
@@ -11,17 +13,17 @@
   var VS = 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }';
   var FS = [
     'precision highp float;',
-    'uniform vec2 res, mp; uniform float t, seed, base, ms; uniform vec3 acc, bg;',
+    'uniform vec2 res, mp; uniform float t, seed, base, ms; uniform vec3 acc, acc2, bg;',
     'float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7)) + seed) * 43758.5453); }',
     'float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);',
     '  return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }',
     'float fbm(vec2 p){ float v = 0., a = .5; for (int i = 0; i < 5; i++) { v += a * n(p); p = p * 2.03 + 7.1; a *= .5; } return v; }',
     'void main(){',
     '  vec2 fc = gl_FragCoord.xy; vec2 uv = vec2(fc.x / res.x, fc.y / base); float x = fc.x / base;',
-    '  float body = 0., wisp = 0., rim = 0.;',
+    '  float body = 0., wisp = 0., rim = 0., sm = .5;',
     '  if (uv.y < 1.15) {',                                    // nad pásem kouře se nic nepočítá
     '    vec2 q = vec2(fbm(vec2(x * .9 + t * .02, uv.y * 1.6 - t * .05)), fbm(vec2(x * .9 - t * .015 + 3.1, uv.y * 1.6)));',
-    '    float sm = fbm(vec2(x * 1.4, uv.y * 2.4 - t * .09) + q * 1.8);',                   // valící se kouř
+    '    sm = fbm(vec2(x * 1.4, uv.y * 2.4 - t * .09) + q * 1.8);',                   // valící se kouř
     '    float edge = .42 + (fbm(vec2(x * .7 + t * .01, t * .03)) - .5) * .35;',             // hranice tmy
     '    float y = uv.y + (sm - .5) * .32;',
     '    body = smoothstep(edge + .06, edge - .14, y);',                                     // tmavá stránka dole
@@ -30,7 +32,8 @@
     '  }',
     '  vec2 md = (fc - mp) / base; float L = exp(-dot(md, md) * 5.) * ms;',                 // svítilna pod kurzorem
     '  wisp *= 1. + L * 1.3; rim *= 1. + L * 1.2;',
-    '  vec3 col = mix(acc * (wisp * .9 + rim * 1.3), bg, body) + vec3(1.) * pow(rim, 3.) * .25 + acc * L * .2 * wisp;',
+    '  vec3 ac = mix(acc, acc2, smoothstep(.32, .68, fc.x / res.x + (sm - .5) * .3));',   // levá a pravá barva, nepravidelně slité
+    '  vec3 col = mix(ac * (wisp * .9 + rim * 1.3), bg, body) + vec3(1.) * pow(rim, 3.) * .25 + ac * L * .2 * wisp;',
     '  float A = clamp(max(body, wisp * .75 + rim * .8), 0., 1.);',
     '  float top = smoothstep(res.y * .98, res.y * .45, fc.y); A *= top * top;',            // horní část se ztrácí
     '  gl_FragColor = vec4(col, A);',
@@ -60,7 +63,7 @@
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
     var loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    var U = {}; ['res', 'mp', 't', 'seed', 'base', 'ms', 'acc', 'bg'].forEach(function (k) { U[k] = gl.getUniformLocation(pr, k); });
+    var U = {}; ['res', 'mp', 't', 'seed', 'base', 'ms', 'acc', 'acc2', 'bg'].forEach(function (k) { U[k] = gl.getUniformLocation(pr, k); });
     var flip = cv.parentNode.classList.contains('t'), t0 = performance.now(), seen = false, raf = 0, ms = 0, skip = 0, fr = 0, cs = null;
     new IntersectionObserver(function (en) {
       seen = en[0].isIntersecting;
@@ -76,10 +79,14 @@
       var r = cv.getBoundingClientRect(), k = W / (r.width || 1);
       ms = now - pAt < 120 ? 1 : ms * .95;
       // barvu stránky stačí zjistit jednou za 10 snímků (čtení stylu v každém snímku na telefonu sekalo)
-      if (!(fr++ % 10) || !cs) { var st = getComputedStyle(document.body); cs = { acc: rgb(st.getPropertyValue('--accent')), bg: rgb(st.getPropertyValue('--bg')) }; }
+      if (!(fr++ % 10) || !cs) {
+        var st = getComputedStyle(document.body), es = getComputedStyle(cv.parentNode), acc = st.getPropertyValue('--accent');
+        var l = es.getPropertyValue('--smoke-l').trim(), rr = es.getPropertyValue('--smoke-r').trim();
+        cs = { acc: rgb(l || acc), acc2: rgb(rr || l || acc), bg: rgb(st.getPropertyValue('--bg')) };
+      }
       gl.uniform2f(U.res, W, H); gl.uniform1f(U.base, H / TALL); gl.uniform1f(U.t, (now - t0) / 1000); gl.uniform1f(U.seed, seed);
       gl.uniform2f(U.mp, (px - r.left) * k, (flip ? py - r.top : r.bottom - py) * k); gl.uniform1f(U.ms, ms);
-      gl.uniform3fv(U.acc, cs.acc); gl.uniform3fv(U.bg, cs.bg);
+      gl.uniform3fv(U.acc, cs.acc); gl.uniform3fv(U.acc2, cs.acc2); gl.uniform3fv(U.bg, cs.bg);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       raf = requestAnimationFrame(loop);
     }

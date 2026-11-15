@@ -67,6 +67,17 @@
       var sum = 0; for (var i = 0; i < d.energy.length; i++) sum += d.energy[i];
       d.mood = Math.max(0, Math.min(1, (sum / d.energy.length / 255 - .12) / .3));
       data = d;
+      // barva celého videa (syté a jasné body okrajů všech snímků váží víc) → celá stránka v barvě videa (js/effects.js);
+      // černobílé video nic neposílá
+      var sr = 0, sg = 0, sb = 0, sw = 0, cnt = 0;
+      [d.l, d.r, d.b].forEach(function (a) {
+        for (var j = 0; j + 2 < a.length; j += 3) {
+          var r = a[j] / 255, g = a[j + 1] / 255, b = a[j + 2] / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), w = Math.pow(mx - mn, 2) * mx;
+          sr += r * w; sg += g * w; sb += b * w; sw += w; cnt++;
+        }
+      });
+      if (cnt && sw / cnt > .001) d.avg = edgeMoodOf(sr / sw, sg / sw, sb / sw);
+      if (cnt && sw / cnt > .001) window.dispatchEvent(new CustomEvent('skeli:songcolor', { detail: { id: id, r: sr / sw, g: sg / sw, b: sb / sw } }));
     }).catch(function () {});
     var img = new Image();
     img.onload = function () {
@@ -184,6 +195,7 @@
   var kick = 0, bassSlow = 0, alive = 0, last = performance.now(), fxTime = 0, speed = .3, carry = 0, bits = [], show = 0;
   // barvy atmosféry (0–1) vlevo a vpravo, plynule se mění s videem; mood = povaha písně
   var colL = [.6, .62, .68], colR = [.6, .62, .68], mood = .4, accent = [.9, .72, .19], accentAt = 0;
+  var smokeEdge = stage.querySelector('.smoke-edge'), smokeAt = 0;
   var phone = matchMedia('(pointer: coarse), (max-width: 760px)').matches;
   var quality = phone ? .5 : 1, slowFrames = 0, visible = true, idleWait = 0;
   if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }).observe(stage);
@@ -194,7 +206,9 @@
   // průměrná barva okraje → sytá a světlá barva atmosféry; skoro šedý okraj (černobílé video) = null
   function edgeMood(a) {
     var r = 0, g = 0, b = 0; for (var i = 0; i < 32; i++) { r += a[i * 3]; g += a[i * 3 + 1]; b += a[i * 3 + 2]; }
-    r /= 32; g /= 32; b /= 32;
+    return edgeMoodOf(r / 32, g / 32, b / 32);
+  }
+  function edgeMoodOf(r, g, b) {
     var mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
     if (d < .07) return null;
     var h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; if (h < 0) h += 360;
@@ -265,8 +279,16 @@
     }
     // barvy atmosféry z okrajů videa; černobílá strana = stříbro (vlevo) / barva písně (vpravo)
     var silver = [.72, .75, .8], ml = edgeMood(cols.l), mr = edgeMood(cols.r), acc = pageAccent(now);
+    // před spuštěním: barva celé písně (stejná jako stránka), ne náhledový obrázek – ten bývá jinak barevný
+    if (!playing && data && data.avg) ml = mr = data.avg;
     ease(colL, ml || (mr ? mr : silver), Math.min(1, dt * 1.2));
     ease(colR, mr || (ml ? ml : acc), Math.min(1, dt * 1.2));
+    // kouř pod videem (js/smoke.js) má vlevo a vpravo stejné barvy jako efekt – navazují na sebe; posílá se 5× za sekundu
+    if (smokeEdge && now - smokeAt > 200) {
+      smokeAt = now;
+      var tone = function (c) { return 'rgb(' + c.map(function (v) { return Math.round(v * 255); }).join(',') + ')'; };
+      smokeEdge.style.setProperty('--smoke-l', tone(colL)); smokeEdge.style.setProperty('--smoke-r', tone(colR));
+    }
     for (i = 0; i < 32; i++) {
       var e8 = Math.round(Math.min(1, energy[i]) * 255); pix[i * 4] = pix[i * 4 + 1] = pix[i * 4 + 2] = e8; pix[i * 4 + 3] = 255;
       ['l', 'r', 'b'].forEach(function (k, r) { for (var c = 0; c < 3; c++) pix[((r + 1) * 32 + i) * 4 + c] = Math.round(cols[k][i * 3 + c] * 255); pix[((r + 1) * 32 + i) * 4 + 3] = 255; });
