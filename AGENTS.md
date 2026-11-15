@@ -59,7 +59,8 @@ are easy to get wrong.
 - RSS/Atom feeds (`/{lang}/feed/*`, `web/site/FeedServlet` + `dao/FeedDao`): entry ids are `tag:skeli.cz,2025:…`
   URIs and must never change (readers would show everything as new). PJAX navigation swaps only `<main>`,
   so the feed `<link rel="alternate">` in `<head>` stays from the first page until a full reload.
-- The water-and-fire effect round a clip (`js/clip-fx.js`) reads `eq/<youtubeId>.json`, made once per clip
+- The song-atmosphere effect round a clip (`js/clip-fx.js`: colours of the clip's left/right edges, calm or fiery by the
+  song's loudness; was water and fire until 2026-11-15) reads `eq/<youtubeId>.json`, made once per clip
   with `tools/clip-fx-data.js`; a clip without the file still works (calm rhythm, thumbnail colours).
 - Karaoke style Lyric video (`kino/styly.js`): the text always stands in one place, bottom left (every line starts at
   the same point), the whole line shows in advance and words light up as sung, so people can recite. Never move it
