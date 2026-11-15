@@ -35,10 +35,11 @@
           <img class="acct-avatar" src="<%= WebUtils.escapeHtml(plAvatar) %>" alt="">
         </span>
         <div class="pt-who-text">
-          <h2 class="acct-name"><%= WebUtils.escapeHtml(pl.username) %>
+          <h2 class="acct-name"><%= WebUtils.escapeHtml(pl.username) %></h2>
+          <% if (pl.artist || pp.mark != null) { %><p class="pt-tags">
             <% if (pl.artist) { %><span class="acct-badge artist"><i class="fa-solid fa-circle-check"></i> <%= t.getProperty("cmt.artist") %></span><% } %>
             <% if (pp.mark != null) { %><i class="fa-solid <%= com.github.skeliit.model.PongBadges.icon(pp.mark) %> acct-mark" title="<%= WebUtils.escapeHtml(t.getProperty("pong.badge." + pp.mark)) %>"></i><% } %>
-          </h2>
+          </p><% } %>
           <p class="acct-meta">
             <% if (!plAnon && pl.memberSince != null) { %><%= WebUtils.escapeHtml(t.getProperty("account.memberSince").replace("{0}",
                  java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.LONG).withLocale(java.util.Locale.forLanguageTag(cur)).format(pl.memberSince.toLocalDateTime()))) %><% } %>

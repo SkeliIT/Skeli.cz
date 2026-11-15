@@ -31,6 +31,21 @@
   }
   show(true);
 
+  // Jméno v hlavičce je vždy na jednom řádku: když se nevejde, písmo se zmenší (nejvýš na 45 %), nikdy se nezlomí v půlce.
+  function fitNames() {
+    document.querySelectorAll('.pt-hero .acct-name').forEach(function (h) {
+      h.style.fontSize = '';
+      var w = h.clientWidth, sw = h.scrollWidth;
+      if (w && sw > w) {
+        var max = parseFloat(getComputedStyle(h).fontSize);
+        h.style.fontSize = Math.max(max * 0.45, max * w / sw * 0.97) + 'px';
+      }
+    });
+  }
+  fitNames();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNames);
+  var fitT; window.addEventListener('resize', function () { clearTimeout(fitT); fitT = setTimeout(fitNames, 150); });
+
   // První kroky: kdo je schová, tomu se vrátí dlaždice s výběrem oblíbeného songu, kterou seznam nahrazuje.
   var start = document.querySelector('.pt-start');
   if (start) {

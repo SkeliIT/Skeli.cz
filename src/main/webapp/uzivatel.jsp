@@ -103,11 +103,13 @@
           <span class="sr-only"><%= t.getProperty("account.changePhoto") %></span>
         </a>
         <div class="pt-who-text">
-          <h2 class="acct-name"><%= WebUtils.escapeHtml(shownName) %>
+          <%-- jméno na jednom řádku (dlouhé zmenší js/profile-tabs.js), štítky pod ním – v nadpisu ho lámaly --%>
+          <h2 class="acct-name"><%= WebUtils.escapeHtml(shownName) %></h2>
+          <% if ((me != null && (me.artist || me.admin)) || !profilePublic) { %><p class="pt-tags">
             <% if (me != null && me.artist) { %><span class="acct-badge artist"><i class="fa-solid fa-circle-check"></i> <%= t.getProperty("cmt.artist") %></span><% } %>
             <% if (me != null && me.admin) { %><span class="acct-badge">★ Admin</span><% } %>
             <% if (!profilePublic) { %><a class="acct-badge" href="/nastaveni.jsp#soukromi"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= t.getProperty("profile.private.badge") %></a><% } %>
-          </h2>
+          </p><% } %>
           <% if (com.github.skeliit.model.PongBadges.TITLES_ON && pong.title != null) { %><p class="acct-title"><i class="fa-solid fa-crown" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pong.badge." + pong.title)) %></p><% } %>
           <p class="acct-meta">
             <% if (me != null) { %>@<%= WebUtils.escapeHtml(me.username) %><% } %>
@@ -150,21 +152,24 @@
   <div class="pt-cols">
   <div class="pt-main">
   <% if (startOpen) { %>
-  <section class="pt pt-start" id="prvni-kroky">
+  <%-- první kroky: jen malý pruh s ukazatelem, seznam se rozbalí ťuknutím (dřív zabíral nejvíc místa nahoře) --%>
+  <details class="pt pt-start" id="prvni-kroky">
+    <summary class="pt-start-sum">
+      <span class="pt-start-title"><%= t.getProperty("profile.start.title") %></span>
+      <span class="pt-start-count"><%= startDone %>/<%= startSteps.length %></span>
+      <span class="pt-start-bar" role="img" aria-label="<%= startDone %> / <%= startSteps.length %>"><span style="--start:<%= startDone * 100 / startSteps.length %>%"></span></span>
+      <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+    </summary>
     <div class="pt-in">
-      <div class="pt-start-top">
-        <h2><%= t.getProperty("profile.start.title") %></h2>
-        <button type="button" class="pt-start-hide"><%= t.getProperty("profile.start.hide") %></button>
-      </div>
       <p class="pt-note"><%= t.getProperty("profile.start.lead") %></p>
-      <div class="pt-start-bar" role="img" aria-label="<%= startDone %> / <%= startSteps.length %>"><span style="--start:<%= startDone * 100 / startSteps.length %>%"></span></div>
       <ol class="pt-steps">
         <% for (String[] step : startSteps) { boolean stepDone = !step[2].isEmpty(); %>
         <li<%= stepDone ? " class=\"done\"" : "" %>><a href="<%= step[1] %>"<%= "game".equals(step[0]) ? " data-play-game" : "" %>><i class="<%= stepDone ? "fa-solid fa-circle-check" : "fa-regular fa-circle" %>" aria-hidden="true"></i> <%= t.getProperty("profile.start." + step[0]) %></a></li>
         <% } %>
       </ol>
+      <button type="button" class="pt-start-hide"><%= t.getProperty("profile.start.hide") %></button>
     </div>
-  </section>
+  </details>
   <% } %>
 
   <%-- poslední komentář a palce nahoru; všechny komentáře jsou v Komentářích --%>

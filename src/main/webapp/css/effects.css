@@ -1863,3 +1863,41 @@ main.lyric-page.has-floor::after { content: ""; position: absolute; z-index: -1;
 /* rozmazaný náhled nahoře na stránce písně dobarvený barvou písně (z celého videa, js/effects.js): náhled bývá úvodní
    karta v jiné barvě (Machine gun fialový, video zelené). Ne úplně – trochu z obrazu zůstane. Barva se mění jen jednou. */
 .lyric-ambient::after { content: ""; position: absolute; inset: 0; background: var(--accent); mix-blend-mode: hue; opacity: .75; }
+
+/* ===== Profil v2 (2026-11-15, podle návrhu „Časová osa“) – hlavička, čísla, záložky, první kroky =====
+   Záhlaví vyšší, jméno přes jeho spodní okraj vedle fotky, vždy na jednom řádku (dlouhé zmenší js/profile-tabs.js),
+   štítky (Umělec, Admin, Soukromý) pod jménem. Nejdřív telefon. */
+.pt-hero .pt-cover { aspect-ratio: auto; height: clamp(150px, 44vw, 320px); max-height: none; }
+.pt-hero .pt-who { align-items: flex-end; gap: 14px; }
+.pt-hero .pt-who-text { flex: 1 1 auto; padding-top: 0; margin-top: -34px; position: relative; z-index: 2; }
+.pt-hero .acct-name { display: block; white-space: nowrap; font-size: clamp(2rem, 10vw, 2.8rem); padding-bottom: .06em; }
+.pt-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 0; }
+.pt-tags .acct-badge { font-size: var(--fs-small); letter-spacing: .06em; color: var(--text); }
+.pt-tags .acct-badge.artist { color: var(--accent-ink); background: var(--accent); }
+.pt-tags .acct-mark { color: var(--accent); font-size: 1.1rem; }
+.pt-hero .acct-meta { margin-top: 6px; }
+/* čísla v jednom řádku, na telefonu se posouvají do strany (okraj se rozplyne) */
+.pt-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px;
+  -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+.pt-chips::-webkit-scrollbar { display: none; }
+.pt-chip { flex: 0 0 auto; white-space: nowrap; }
+/* záložky s popiskem i na telefonu (dřív jen ikony), řádek se posouvá */
+.profile-tabs.acct-tabs { overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
+.profile-tabs.acct-tabs::-webkit-scrollbar { display: none; }
+.profile-tabs.acct-tabs a, .profile-tabs.acct-tabs a.active { flex: 1 0 auto; min-height: 44px; padding-inline: 12px; justify-content: center; white-space: nowrap; }
+.profile-tabs a:not(.active) .tab-name { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+/* první kroky: malý pruh, seznam po rozbalení */
+.pt-start { padding: 0; min-height: 0; }
+.pt-start-sum { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px 16px; cursor: pointer; list-style: none; }
+.pt-start-sum::-webkit-details-marker { display: none; }
+.pt-start-title { flex: 0 1 auto; font-family: var(--font-display); font-size: var(--fs-card); color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-start-count { flex: none; font-size: var(--fs-small); color: var(--text-dim); }
+.pt-start-sum .pt-start-bar { flex: 1 1 60px; min-width: 40px; }
+.pt-start-sum .fa-chevron-down { flex: none; color: var(--text-dim); transition: transform .2s ease; }
+.pt-start[open] .pt-start-sum .fa-chevron-down { transform: rotate(180deg); }
+.pt-start > .pt-in { padding-top: 0; }
+.pt-start .pt-start-hide { align-self: flex-start; }
+@media (min-width: 768px) {
+  .pt-hero .pt-who-text { margin-top: -48px; }
+  .pt-hero .acct-name { font-size: clamp(2.6rem, 5vw, 4rem); }
+}
