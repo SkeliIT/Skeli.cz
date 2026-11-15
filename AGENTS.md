@@ -61,6 +61,9 @@ are easy to get wrong.
   so the feed `<link rel="alternate">` in `<head>` stays from the first page until a full reload.
 - The water-and-fire effect round a clip (`js/clip-fx.js`) reads `eq/<youtubeId>.json`, made once per clip
   with `tools/clip-fx-data.js`; a clip without the file still works (calm rhythm, thumbnail colours).
+- Karaoke style Lyric video (`kino/styly.js`) puts each line where the clip is calmest, from `karaoke/klid/<youtubeId>.json`
+  (`node tools/karaoke-klid.js <folders with clips>`, needs ffmpeg). A new karaoke clip gets the file too; without it the
+  lines go to the lower third. Never place the text in the middle of the picture.
 
 ## Tests
 - `mvn test` runs the unit tests (`*Test`, also part of `mvn verify`).

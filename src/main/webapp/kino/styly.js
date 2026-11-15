@@ -81,6 +81,8 @@ poster.src = D.thumb.replace('hqdefault', 'maxresdefault'); poster.onerror = () 
 host.appendChild(poster);
 const lyr = document.createElement('div'); lyr.className = 'st-lyr'; lyr.setAttribute('aria-hidden', 'true');
 const STYLES = {};
+// mapa klidu z tools/karaoke-klid.js (jen pro Lyric video): snímky × řádky × sloupce, 0 = nic se neděje
+const CALM = D.calm && D.calm.a ? { ...D.calm, A: unb64(D.calm.a) } : null;
 
 // ===== 1 · Lyric video =====
 STYLES.l = {
@@ -88,6 +90,51 @@ STYLES.l = {
     stage.innerHTML = '<div class="l-video"></div><div class="l-shade"></div><div class="l-stack"></div><div class="l-hint"></div>';
     stage.querySelector('.l-video').appendChild(host);
     this.key = null; this.stack = stage.querySelector('.l-stack'); this.hint = stage.querySelector('.l-hint');
+    this.plan();
+  },
+  place() { this.plan(); },
+  // Kam s každým řádkem: do místa obrazu, kde se během jeho zpěvu nejmíň děje (mapa klidu karaoke/klid/<id>.json).
+  // 8 míst (rohy, horní a spodní střed, kraje uprostřed), střed obrazu nikdy. Řádek zůstane na místě předchozího,
+  // dokud jinde není výrazně klidněji – text tak neposkakuje. Bez mapy střídá místa ve spodní třetině.
+  plan() {
+    const n = D.lines.length, W = innerWidth, H = innerHeight;
+    const portrait = PHONE && H > W;
+    const sx = W * .06, sy = 70, sw = W - 2 * sx, sh = Math.max(120, H - 70 - 150);   // plocha .l-stack
+    const bw = portrait ? 1 : .52;                                                    // = --bw v styly.css
+    const fs = Math.max(22, Math.min(78, W * .046, H * .085));
+    const spots = portrait ? [[1, 0], [1, 2]] : [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [0, 2], [1, 2], [2, 2]];
+    this.out = [];
+    if (!CALM) { for (let i = 0; i < n; i++) this.out.push(portrait ? [1, 2] : [[0, 2], [2, 2], [1, 2]][i % 3]); return; }
+    // obdélník videa na obrazovce: přehrávač přesahuje o 6 % na každou stranu (+ zvětšení 1,02), YouTube video vepíše
+    const hw = W * 1.12 * 1.02, hh = H * 1.12 * 1.02;
+    const vw = hw / hh > CALM.ar ? hh * CALM.ar : hw, vh = vw / CALM.ar, vx = (W - vw) / 2, vy = (H - vh) / 2;
+    const busy = (x, y, f0, f1) => {   // ruch v bodě obrazovky za snímky f0..f1 (mimo video = černá = klid)
+      const u = (x - vx) / vw, v = (y - vy) / vh;
+      if (u < 0 || u >= 1 || v < 0 || v >= 1) return 0;
+      const cell = Math.floor(v * CALM.rows) * CALM.cols + Math.floor(u * CALM.cols);
+      let s = 0; for (let f = f0; f <= f1; f++) s += CALM.A[f * CALM.rows * CALM.cols + cell];
+      return s / (f1 - f0 + 1);
+    };
+    let prev = null;
+    for (let i = 0; i < n; i++) {
+      const words = D.lines[i].split(/\s+/).filter(Boolean).length;
+      const zh = Math.min(sh, Math.ceil(words / 2.5) * fs * 1.2), zw = sw * bw;
+      const f0 = Math.max(0, Math.floor((D.times[i][0] - .3) * CALM.fps)), f1 = Math.min(CALM.frames - 1, Math.max(f0, Math.ceil((D.times[i][1] + .3) * CALM.fps)));
+      let best = null, bestS = Infinity;
+      for (const sp of spots) {
+        const x0 = sx + (sw - zw) * sp[0] / 2, y0 = sy + (sh - zh) * sp[1] / 2;
+        const v = []; for (let a = 0; a < 6; a++) for (let b = 0; b < 4; b++) v.push(busy(x0 + zw * (a + .5) / 6, y0 + zh * (b + .5) / 4, f0, f1));
+        v.sort((p, q) => p - q);
+        // průměr + 4 nejrušnější body (obličej v rohu rámečku místo shodí, i když je zbytek tmavý);
+        // +4: ať v úplné tmě rozhodne hlavně „zůstaň na místě“
+        let s = v.reduce((p, q) => p + q, 0) / 24 + .6 * (v[20] + v[21] + v[22] + v[23]) / 4 + 4;
+        if (sp[1] === 1) s *= 1.15;                          // kraje uprostřed jen když jinde je rušno
+        if (prev && sp[0] === prev[0] && sp[1] === prev[1]) s *= .78;
+        else if (prev && Math.abs(sp[0] - prev[0]) + Math.abs(sp[1] - prev[1]) === 1) s *= .93;
+        if (s < bestS) { bestS = s; best = sp; }
+      }
+      this.out.push(best); prev = best;
+    }
   },
   frame(t) {
     const i = lineAt(t);
@@ -104,8 +151,11 @@ STYLES.l = {
           if (row.length >= (k % 2 ? 2 : 3) || cls === 'big') { rows.push(row); row = []; }
         });
         if (row.length) rows.push(row);
-        const lay = ['left', 'center', 'right', 'center'][i % 4], rot = [-3, 2, -1.5, 3][i % 4];
-        this.stack.insertAdjacentHTML('beforeend', '<div class="blk ' + lay + '" style="--rot:' + rot + 'deg">' + rows.map((r) => '<div class="row">' + r.join('') + '</div>').join('') + '</div>');
+        const sp = this.out[i] || [1, 2], from = this.last || sp, rot = [-3, 2, -1.5, 3][i % 4];
+        const lay = ['left', 'center', 'right'][sp[0]];
+        // nový řádek připlave kousek ze směru, kde byl ten předchozí
+        const fx = (from[0] - sp[0]) * 4 + 'vw', fy = (from[1] - sp[1]) * 4 + 'vh'; this.last = sp;
+        this.stack.insertAdjacentHTML('beforeend', '<div class="blk ' + lay + ' c' + sp[0] + ' r' + sp[1] + '" style="--rot:' + rot + 'deg;--fx:' + fx + ';--fy:' + fy + '">' + rows.map((r) => '<div class="row">' + r.join('') + '</div>').join('') + '</div>');
       }
       this.hint.textContent = D.lines[i + 1] || '';
     }
