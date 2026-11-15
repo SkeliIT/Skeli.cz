@@ -204,6 +204,8 @@
   var firstId = 0, busy = false, replyTo = 0, editId = 0, muted = false, loaded = false;
   var timeFmt = new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit' });
   var dayFmt = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long', year: 'numeric' });
+  var dateFmt = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long' });                    // letos: bez roku
+  var weekFmt = new Intl.DateTimeFormat(lang, { weekday: 'long', day: 'numeric', month: 'long' });   // poslední týden: i den v týdnu
   var relFmt = Intl.RelativeTimeFormat ? new Intl.RelativeTimeFormat(lang, { numeric: 'auto' }) : null;
 
   function post(params) {
@@ -366,15 +368,18 @@
     return li;
   }
 
-  // oddělení po dnech: Dnes, Včera, jinak datum
+  // oddělení po dnech: první zpráva dne má nad sebou datum („Dnes · 15. listopadu“, „pondělí 10. listopadu“,
+  // z jiného roku i s rokem)
   function dayLabel(at) {
     var d = new Date(at), now = new Date();
     var days = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+    if (d.getFullYear() !== now.getFullYear()) return dayFmt.format(d);
     if (relFmt && days <= 1) {
       var text = relFmt.format(-days, 'day');
-      return text.charAt(0).toUpperCase() + text.slice(1);
+      return text.charAt(0).toUpperCase() + text.slice(1) + ' · ' + dateFmt.format(d);
     }
-    return dayFmt.format(d);
+    var t = days < 7 ? weekFmt.format(d) : dateFmt.format(d);
+    return t.charAt(0).toUpperCase() + t.slice(1);
   }
   function markDays() {
     list.querySelectorAll('.chat-day').forEach(function (n) { n.remove(); });
