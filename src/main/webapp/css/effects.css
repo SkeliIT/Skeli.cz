@@ -1859,26 +1859,6 @@ body.paint-steps { transition: none; }
 main.lyric-page.has-floor::before { display: none; }
 main.lyric-page.has-floor::after { content: ""; position: absolute; z-index: -1; top: var(--floor-top, 0px); bottom: 0; left: calc(50% - 50vw); width: 100vw; background: var(--bg); pointer-events: none; }
 
-/* Texty: podlaha pod úvodním pásem je děravá jako ementál – pár větších, nepravidelných, různě natočených děr,
-   kterými prosvítá animované video pozadí (js/texty-bg.js); každou lemuje světelná vlnovka v barvě webu (jako lem
-   kouře). Masky jsou předkreslené obrázky (img/texty/diry.webp = díry, diry-lem.webp = lem; 1200 px, zobrazené jako
-   dlaždice 2400×2400) – SVG s filtrem se při posouvání přepočítávalo a sekalo. Díry jsou daleko od okrajů dlaždice,
-   takže se nikde neuseknou. Lem je taky jen maska (žádný CSS filtr) – překreslí se jen při přelití barvy. */
-main.texty-page.has-floor::before {
-  -webkit-mask-image: url("/img/texty/diry.webp?v=1"); mask-image: url("/img/texty/diry.webp?v=1");
-  -webkit-mask-size: 2400px 2400px; mask-size: 2400px 2400px;
-  -webkit-mask-position: center top; mask-position: center top;
-  -webkit-mask-repeat: repeat; mask-repeat: repeat;
-}
-main.texty-page.has-floor::after {
-  content: ""; position: absolute; z-index: -1; top: var(--floor-top, 0px); bottom: 0; left: calc(50% - 50vw); width: 100vw; pointer-events: none;
-  background: var(--accent); opacity: .9;
-  -webkit-mask-image: url("/img/texty/diry-lem.webp?v=1"); mask-image: url("/img/texty/diry-lem.webp?v=1");
-  -webkit-mask-size: 2400px 2400px; mask-size: 2400px 2400px;
-  -webkit-mask-position: center top; mask-position: center top;
-  -webkit-mask-repeat: repeat; mask-repeat: repeat;
-}
-body.light main.texty-page.has-floor::after { opacity: .6; }
 /* rozmazaný náhled nahoře na stránce písně dobarvený barvou písně (z celého videa, js/effects.js): náhled bývá úvodní
    karta v jiné barvě (Machine gun fialový, video zelené). Ne úplně – trochu z obrazu zůstane. Barva se mění jen jednou. */
 .lyric-ambient::after { content: ""; position: absolute; inset: 0; background: var(--accent); mix-blend-mode: hue; opacity: .75; }
