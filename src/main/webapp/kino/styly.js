@@ -34,6 +34,8 @@ function words(k) {
 }
 // řádek, který se zpívá (přepne se přesně se svým prvním slovem)
 function lineAt(t) { let i = -1; for (let k = 0; k < D.times.length; k++) if (D.times[k][0] - .05 <= t) i = k; return i; }
+// před rapem je dole prázdno: první řádek se ukáže až 1,2 s před prvním veršem (jako u Lyric videa)
+function tooEarly(t) { return !D.times.length || t < D.times[0][0] - 1.2; }
 
 // ---------------- basy a barvy klipu (eq/<id>.json) ----------------
 const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
@@ -127,7 +129,8 @@ STYLES.o = {
   },
   frame(t, dt) {
     const i = lineAt(t), n = D.lines.length;
-    if (i < 0) { this.fill(0, 0); this.fill(1, n > 1 ? 1 : null); } else { this.fill(i % 2, i); this.fill((i + 1) % 2, i + 1 < n ? i + 1 : null); }
+    if (i < 0 && tooEarly(t)) { this.fill(0, null); this.fill(1, null); }
+    else if (i < 0) { this.fill(0, 0); this.fill(1, n > 1 ? 1 : null); } else { this.fill(i % 2, i); this.fill((i + 1) % 2, i + 1 < n ? i + 1 : null); }
     this.slots.forEach((s, q) => s.classList.toggle('act', i >= 0 && q === i % 2));
     const cv = this.cv, g = this.g, dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight;
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
@@ -169,14 +172,14 @@ STYLES.c = {
       p.setAttribute('stroke', k % 2 ? rgb(pal.l) : rgb(pal.acc));
       p.style.opacity = (.04 + Math.pow(this.energy, 1.5) * .55 * (1 - (k % 4) * .15)).toFixed(3);
     });
-    const i = lineAt(t);
-    if (i !== this.key) {
-      this.key = i;
+    const i = lineAt(t), early = i < 0 && tooEarly(t);
+    if ((early ? -2 : i) !== this.key) {
+      this.key = early ? -2 : i;
       const line = i >= 0 ? i : 0, cur = stage.querySelector('.c-lyr .cur');
       const el = document.createElement('div'); el.className = 'cur in';
-      el.innerHTML = words(line).map((w) => '<span class="w" data-a="' + w.a + '" data-b="' + w.b + '">' + esc(w.t) + '</span>').join(' ');
+      el.innerHTML = early ? '' : words(line).map((w) => '<span class="w" data-a="' + w.a + '" data-b="' + w.b + '">' + esc(w.t) + '</span>').join(' ');
       cur.replaceWith(el);
-      stage.querySelector('.c-lyr .nxt').textContent = D.lines[line + 1] || '';   // před prvním veršem je „teď“ 1. řádek, další tedy 2. (dřív se 1. ukázal dvakrát)
+      stage.querySelector('.c-lyr .nxt').textContent = early ? '' : D.lines[line + 1] || '';   // před prvním veršem je „teď“ 1. řádek, další tedy 2. (dřív se 1. ukázal dvakrát)
     }
     stage.querySelectorAll('.c-lyr .cur .w').forEach((w) => { const a = +w.dataset.a, b = +w.dataset.b; w.classList.toggle('on', t >= a); w.classList.toggle('done', t > b + .15); });
   }
@@ -208,15 +211,16 @@ STYLES.t = {
       r.el.style.opacity = (op * (.22 + bass * .5)).toFixed(3);
     }
     const i = lineAt(t > 0 ? t + .8 : t);   // slova přilétají předem, řádek se ukáže 0,8 s dřív
-    if (i !== this.key) {
+    const early = i < 0 && tooEarly(t);
+    if ((early ? -2 : i) !== this.key) {
       // odzpívaná slova proletí kolem diváka ven
       this.fw.forEach((f) => { f.el.classList.add('past'); f.el.style.transform = 'translate(' + (f.x + (f.x - innerWidth / 2) * .8).toFixed(0) + 'px,' + (f.y * 1.8).toFixed(0) + 'px) translateZ(500px)'; f.el.style.opacity = '0'; setTimeout(() => f.el.remove(), 700); });
-      this.key = i; this.fw = [];
+      this.key = early ? -2 : i; this.fw = [];
       if (i >= 0) {
         words(i).forEach((w) => { const el = document.createElement('span'); el.className = 'fw'; el.textContent = w.t; this.box.appendChild(el); this.fw.push({ el, a: w.a, b: w.b }); });
         this.place();
       }
-      stage.querySelector('.t-hint').textContent = D.lines[i + 1] || '';
+      stage.querySelector('.t-hint').textContent = early ? '' : D.lines[i + 1] || '';
     }
     // slovo přilétá z hloubky a dorazí přesně ve chvíli, kdy se má zpívat
     for (const f of this.fw) {
