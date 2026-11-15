@@ -1844,3 +1844,13 @@ html.low-fx .acid-layer { display: none; }
 
 /* telefon: barva webu se přelévá po krocích z js/effects.js (setAccents), ne CSS přechodem v každém snímku */
 body.paint-steps { transition: none; }
+
+/* Stránka písně ve vzhledu „Ulice“ (2026-11-15): nahoře rozmazaný náhled videa = nálada písně (.lyric-ambient zůstává),
+   pod videem kouř (js/smoke.js), pod ním podlaha v odstínu písně (--bg nastaví js/effects.js songFloor; kouř si ho čte taky,
+   takže mezi kouřem a podlahou není šev). Kouř je za efektem vody a ohně (z-index -1). Text na skle zabarveném barvou písně. */
+.lyric-stage.with-smoke .smoke-edge.b { bottom: 0; height: 280px; z-index: -1; left: var(--edge-x, calc(50% - 50vw)); }
+.lyric-page .lyric-main::before { background: color-mix(in srgb, var(--accent) 6%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 26%, var(--panel-border)); }
+/* plátno kouře v sekci s videem nesmí převzít pravidla efektu vody a ohně (.clip-stage canvas: posun o 140 px, prolínání,
+   schování při vypnutém efektu) – kouř patří ke vzhledu stránky, ne k efektu u videa */
+.clip-stage .smoke-edge canvas { position: static; inset: auto; width: 100%; height: 100%; opacity: 1; mix-blend-mode: normal; z-index: auto; }
+.clip-stage.no-fx .smoke-edge.live canvas { display: block; }

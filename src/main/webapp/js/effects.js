@@ -148,7 +148,7 @@
   // Admin má vlastní klidnou zlatou (stejná jako v base.css) – nastaví se stejnou cestou, ať se přelije i ona.
   // Texty se přebarvují s fotkami jako zbytek webu (video pozadí přebarví js/texty-bg.js).
   var OWN = { dark: ['#ffd23f', '#ff8a3d'], light: ['#a37b00', '#2f7fd6'] };
-  var painted = 'base', songColor = null;   // songColor = barva písně z náhledu jejího klipu (stránka písně)
+  var painted = 'base', songColor = null, songFloor = null;   // songColor = barva písně z náhledu jejího klipu (stránka písně), songFloor = barva podlahy pod kouřem [tmavý, světlý]
   var lastHue = {};                          // poslední nastavený odstín: nový se volí kratší cestou po kruhu
   // #rrggbb → [odstín 0–360, sytost %, světlost %]
   function toHsl(hex) {
@@ -204,6 +204,8 @@
     var c = own ? OWN[mode] : (songColor ? songColor[mode === 'light' ? 1 : 0] : PALETTE[mode][painted]);
     if (c) setAccents(b, c, instant);
     else { clearInterval(stepT); curVal = {}; b.style.removeProperty('--accent'); b.style.removeProperty('--accent-2'); }
+    // stránka písně: podlaha pod kouřem (a kouř sám) v odstínu písně, aby nálada písně pokračovala i pod videem
+    if (songFloor && !own) b.style.setProperty('--bg', songFloor[mode === 'light' ? 1 : 0]); else b.style.removeProperty('--bg');
     // sníh ve světlém režimu: bílý jen u sněhové fotky, jinak v barvě fotky
     if (b.classList.contains('light') && painted !== 'base' && c && !own) b.style.setProperty('--flake', c[1]); else b.style.removeProperty('--flake');
   }
@@ -443,10 +445,15 @@
   // Hranici (kde pás končí) dostane CSS jako --floor-top na <main> (css/effects.css, main.has-floor).
   var floorObs = null;
   function floor() {
-    var main = document.querySelector('main'), hero = main && main.querySelector('.page-hero.with-smoke');
+    var main = document.querySelector('main'), hero = main && main.querySelector('.page-hero.with-smoke, .lyric-stage.with-smoke');
     if (floorObs) { floorObs.disconnect(); floorObs = null; }
     if (!hero) { if (main) main.classList.remove('has-floor'); return; }
-    function set() { main.style.setProperty('--floor-top', Math.round(hero.getBoundingClientRect().bottom - main.getBoundingClientRect().top) + 'px'); }
+    function set() {
+      var hr = hero.getBoundingClientRect();
+      main.style.setProperty('--floor-top', Math.round(hr.bottom - main.getBoundingClientRect().top) + 'px');
+      // stránka písně: sekce s videem není vždy uprostřed okna – kouř se natáhne přesně od levého okraje okna
+      if (hero.classList.contains('lyric-stage')) hero.style.setProperty('--edge-x', Math.round(-hr.left) + 'px');
+    }
     main.classList.add('has-floor'); set();
     if (window.ResizeObserver) { floorObs = new ResizeObserver(set); floorObs.observe(hero); floorObs.observe(main); }
   }
@@ -459,6 +466,7 @@
   }
   function songPaint(url) {
     var amb = document.querySelector('main.lyric-page .lyric-ambient');
+    songFloor = null;
     var m = amb && /url\(['"]?([^'")]+)/.exec(amb.getAttribute('style') || '');
     // Hudba: přehrávač už má vybrané video dřív, než se tenhle skript načte – vezme se z něj
     var cp = !url && document.querySelector('[data-clip-player][data-yt]');
@@ -482,6 +490,7 @@
         if (M !== N) h = M === R ? 60 * (((G - B) / (M - N)) % 6) : M === G ? 60 * ((B - R) / (M - N) + 2) : 60 * ((R - G) / (M - N) + 4);
         if (h < 0) h += 360;
         songColor = [[hsl(h, 0.9, 0.6), hsl((h + 28) % 360, 0.95, 0.66)], [hsl(h, 0.75, 0.36), hsl((h + 28) % 360, 0.8, 0.45)]];
+        if (document.querySelector('main.lyric-page')) songFloor = [hsl(h, 0.32, 0.065), hsl(h, 0.3, 0.935)];   // jen stránka písně (ne Hudba)
         paint(null, !url);   // video na Hudbě: barva se přelije, stránka písně: hned
       } catch (e) { /* obrázek z jiného webu nejde přečíst – zůstává barva fotky */ }
     };

@@ -97,7 +97,7 @@
 
       <%-- the clip on its own wide stage above the lyrics; water and fire flow out of it with the music (js/clip-fx.js) --%>
       <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
-      <section class="clip-stage lyric-stage${not empty lyric.youtubeId ? ' has-fx' : ''}"${not empty lyric.youtubeId ? ' data-clip-fx' : ''}>
+      <section class="clip-stage lyric-stage with-smoke${not empty lyric.youtubeId ? ' has-fx' : ''}"${not empty lyric.youtubeId ? ' data-clip-fx' : ''}>
       <c:if test="${not empty lyric.youtubeId}"><canvas class="clip-fx-gl" aria-hidden="true"></canvas><canvas class="clip-fx-2d" aria-hidden="true"></canvas></c:if>
       <div class="lyric-media">
       <c:choose>
@@ -198,6 +198,8 @@
       </c:if>
       </div>
       <c:if test="${not empty lyric.youtubeId}"><div class="stage-under"><%@ include file="/includes/clip-fx-switch.jspf" %></div></c:if>
+      <%-- vzhled „Ulice“: pod videem kouř (js/smoke.js), pod ním podlaha v odstínu písně (main.has-floor, js/effects.js) --%>
+      <div class="smoke-edge b" aria-hidden="true"><canvas></canvas></div>
       </section>
       </c:if>
 

@@ -36,7 +36,7 @@ class SongStageIT extends UiTestSupport {
         String song = songWithClip();
         assertNotNull(song, "some song has a clip");
         WebElement stage = driver.findElement(By.cssSelector(".lyric-stage.has-fx"));
-        assertEquals(2, stage.findElements(By.tagName("canvas")).size(), "the liquid and the sparks have their canvases");
+        assertEquals(2, stage.findElements(By.cssSelector("canvas.clip-fx-gl, canvas.clip-fx-2d")).size(), "the liquid and the sparks have their canvases");
         assertFalse(stage.getAttribute("class").contains("no-fx"), "WebGL works in the test browser, so the effect runs");
         // the stage comes before the lyrics frame
         Number stageTop = (Number) ((JavascriptExecutor) driver).executeScript("return document.querySelector('.lyric-stage').getBoundingClientRect().top");
@@ -70,7 +70,7 @@ class SongStageIT extends UiTestSupport {
     void musicPagePlayerHasTheEffectToo() {
         driver.get(BASE_URL + "/music.jsp");
         WebElement stage = driver.findElement(By.cssSelector(".ep-stage[data-clip-fx]"));
-        assertEquals(2, stage.findElements(By.tagName("canvas")).size());
+        assertEquals(2, stage.findElements(By.cssSelector("canvas.clip-fx-gl, canvas.clip-fx-2d")).size());
         new WebDriverWait(driver, Duration.ofSeconds(5)).until(d -> "1".equals(stage.getAttribute("data-fx")));
         assertFalse(stage.getAttribute("class").contains("no-fx"));
         String clip = driver.findElement(By.cssSelector(".ep-frame-wrap[data-clip-player]")).getAttribute("data-yt");
