@@ -6,6 +6,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,11 +30,13 @@ class ProfileFirstStepsIT extends UiTestSupport {
         waitReady();
         assertTrue(visible(".pt-start"), "seznam prvních kroků");
         assertEquals(5, driver.findElements(By.cssSelector(".pt-steps li")).size());
-        assertEquals(0, driver.findElements(By.cssSelector("#prehled .pt-stat")).size(), "žádné dlaždice s nulou");
+        // štítky s čísly: nováček nevidí žádnou nulu (štítek s nulou se neukáže)
+        for (org.openqa.selenium.WebElement b : driver.findElements(By.cssSelector(".pt-chip b"))) assertNotEquals("0", b.getText().trim(), "žádný štítek s nulou");
         assertFalse(visible(".pt-song.pt-empty"), "výběr songu je jeden z kroků");
         assertTrue(visible(".pt-likes .pt-likes-go"), "prázdné oblíbené vedou na texty");
 
-        driver.findElement(By.cssSelector(".pt-start-hide")).click();
+        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click()", driver.findElement(By.cssSelector(".pt-start-sum")));   // první kroky jsou zabalený pruh – nejdřív rozbalit
+        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click()", driver.findElement(By.cssSelector(".pt-start-hide")));   // cookie lišta může tlačítko překrýt
         assertFalse(visible(".pt-start"));
         assertTrue(visible(".pt-song.pt-empty"), "po schování se výběr songu vrátí");
         driver.get(BASE_URL + "/uzivatel.jsp");
@@ -59,7 +62,7 @@ class ProfileFirstStepsIT extends UiTestSupport {
             driver.get(BASE_URL + "/uzivatel.jsp");
             waitReady();
             assertFalse(visible(".pt-start"), "hotovo");
-            assertTrue(visible("#prehled .pt-comments"), "čísla jsou zpět");
+            assertTrue(visible(".pt-chip[href='#komentare']"), "štítek s komentáři je zpět");
         } finally {
             update("DELETE FROM video_comments WHERE user_id=?", id);
             update("DELETE FROM pong_results WHERE user_id=?", id);

@@ -1809,6 +1809,34 @@ html.low-fx .ep-hud::after, html.low-fx .ep-holo .ep-floor { animation: none; }
   .pt-activity .pt-feed li, .pt-activity .pt-feed li:nth-child(even) { width: auto; margin-left: 0; align-items: flex-start; text-align: left; padding: 0 0 16px 44px; }
   .pt-activity .pt-feed li > i, .pt-activity .pt-feed li:nth-child(even) > i { left: 0; right: auto; }
 }
+/* Velké karty na ose (2026-11-15): komentář s náhledem písně, odznak jako medaile v barvě vzácnosti, přítel s fotkou,
+   výhra v CatSmash s časem. Karta s odkazem vede přímo na místo (komentář u písně, profil přítele).
+   Selektory začínají .pt-activity .pt-feed, aby přebily obecné „.pt-feed span“ výš. */
+.pt-activity .pt-feed .pt-act-card { display: grid; gap: 8px; width: 100%; max-width: 520px; margin-top: 4px; padding: 12px 14px; text-align: left; color: inherit; text-decoration: none;
+  border-radius: var(--radius); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--panel)); transition: border-color .2s, transform .2s; }
+.pt-activity .pt-feed a.pt-act-card:hover, .pt-activity .pt-feed a.pt-act-card:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
+.pt-activity .pt-feed .pt-act-k { font-family: var(--font-body); font-size: var(--fs-small); letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); }
+.pt-activity .pt-feed .pt-act-quote { margin: 0; font-family: var(--font-text); font-size: var(--fs-text); line-height: 1.4; overflow-wrap: anywhere; }
+.pt-activity .pt-feed .pt-act-thumb { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: calc(var(--radius) * .7); background: color-mix(in srgb, var(--accent) 12%, #000); }
+.pt-activity .pt-feed .pt-act-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pt-activity .pt-feed .pt-act-thumb b { position: absolute; left: 10px; bottom: 10px; max-width: calc(100% - 20px); padding: 5px 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  border-radius: 999px; background: rgba(0, 0, 0, .68); color: #fff; font-family: var(--font-body); font-size: var(--fs-small); font-weight: 400; }
+.pt-activity .pt-feed .pt-act-song { font-size: var(--fs-card); color: var(--accent); }
+.pt-activity .pt-feed .pt-act-medal { display: flex; align-items: center; gap: 14px; }
+.pt-activity .pt-feed .pt-act-medal > span:last-child { display: grid; gap: 2px; min-width: 0; }
+.pt-activity .pt-feed .pt-act-medal b { font-family: var(--font-body); font-size: var(--fs-card); font-weight: 400; overflow-wrap: anywhere; }
+.pt-activity .pt-feed .pt-act-medal small { font-family: var(--font-text); font-size: var(--fs-card); color: var(--text-dim); }
+.pt-activity .pt-feed .pt-act-coin { --rar: var(--accent); flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; color: #fff; font-size: 1.35rem;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--rar) 35%, #fff), var(--rar) 55%, color-mix(in srgb, var(--rar) 50%, #000));
+  box-shadow: 0 0 16px -4px var(--rar); }
+.pt-activity .pt-feed .pt-act-coin i { color: inherit; }
+.pt-activity .pt-feed .pt-act-coin[data-rar="c"] { --rar: #9aa0a8; } .pt-activity .pt-feed .pt-act-coin[data-rar="u"] { --rar: #4fd17a; } .pt-activity .pt-feed .pt-act-coin[data-rar="r"] { --rar: #4ea3ff; }
+.pt-activity .pt-feed .pt-act-coin[data-rar="e"] { --rar: #b06bff; } .pt-activity .pt-feed .pt-act-coin[data-rar="l"] { --rar: #ff9a2e; }
+body.light .pt-activity .pt-feed .pt-act-coin[data-rar="c"] { --rar: #5f6670; } body.light .pt-activity .pt-feed .pt-act-coin[data-rar="u"] { --rar: #16803c; } body.light .pt-activity .pt-feed .pt-act-coin[data-rar="r"] { --rar: #1d62b8; }
+body.light .pt-activity .pt-feed .pt-act-coin[data-rar="e"] { --rar: #7a35c9; } body.light .pt-activity .pt-feed .pt-act-coin[data-rar="l"] { --rar: #c0570a; }
+.pt-activity .pt-feed .pt-act-face { flex: none; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
+@media (prefers-reduced-motion: reduce) { .pt-activity .pt-feed a.pt-act-card { transition: none; } .pt-activity .pt-feed a.pt-act-card:hover { transform: none; } }
 /* žhavý okraj nad patičkou: lem kouře leží přesně na horní hraně patičky, kouř stoupá do konce stránky */
 .footer-smoke { display: none; }
 body:has(main.has-floor) .site-footer { position: relative; border-top: 0; }
@@ -1888,7 +1916,7 @@ main.lyric-page.has-floor::after { content: ""; position: absolute; z-index: -1;
 .profile-tabs a:not(.active) .tab-name { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
 /* první kroky: malý pruh, seznam po rozbalení */
 .pt-start { padding: 0; min-height: 0; }
-.pt-start-sum { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px 16px; cursor: pointer; list-style: none; }
+.pt-start-sum { position: relative; z-index: 2; /* nad září dlaždice (.pt::before), jinak je text schovaný */ display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px 16px; cursor: pointer; list-style: none; }
 .pt-start-sum::-webkit-details-marker { display: none; }
 .pt-start-title { flex: 0 1 auto; font-family: var(--font-display); font-size: var(--fs-card); color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pt-start-count { flex: none; font-size: var(--fs-small); color: var(--text-dim); }

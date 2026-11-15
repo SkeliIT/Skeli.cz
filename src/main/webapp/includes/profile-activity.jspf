@@ -1,4 +1,6 @@
-<%-- Aktivita na profilu. Předem nastavit activityList (List<ActivityItem>). Vkládaná šablona se nečte jako UTF-8: žádné české znaky přímo ve výstupu. --%>
+<%-- Časová osa na profilu: každá aktivita je karta (komentář s náhledem písně, odznak jako medaile, přítel s fotkou,
+     výhra v CatSmash s časem a skóre, nová skladba). Předem nastavit activityList (List<ActivityItem>).
+     Vkládaná šablona se nečte jako UTF-8: žádné české ani jiné zvláštní znaky přímo ve výstupu (jen \u escapy v Javě). --%>
 <% if (!activityList.isEmpty()) { %>
 <section class="pt pt-activity" id="aktivita">
   <div class="pt-in">
@@ -7,15 +9,49 @@
       <% java.text.DateFormat activityDate = java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, java.util.Locale.forLanguageTag(cur));
          for (com.github.skeliit.model.ActivityItem a : activityList) {
            String arg = a.arg == null ? "" : a.arg;
-           String icon = "fa-comments";
-           if ("badge".equals(a.kind)) { icon = com.github.skeliit.model.SiteBadges.icon(arg); arg = t.getProperty(com.github.skeliit.model.SiteBadges.nameKey(arg), arg); }
-           else if ("win".equals(a.kind)) { icon = "fa-trophy"; int stars; try { stars = Integer.parseInt(arg); } catch (NumberFormatException e) { stars = 1; } arg = "★".repeat(Math.max(1, Math.min(3, stars))); }
-           else if ("track".equals(a.kind)) icon = "fa-music";
-           else if ("friend".equals(a.kind)) icon = "fa-user-group"; %>
-      <li>
+           String icon = "fa-comment", head = "", sub = "", rarity = "";
+           if ("badge".equals(a.kind)) {
+             icon = com.github.skeliit.model.SiteBadges.icon(arg);
+             rarity = com.github.skeliit.model.SiteBadges.rarity(arg);
+             String nameKey = com.github.skeliit.model.SiteBadges.nameKey(arg);
+             head = t.getProperty(nameKey, arg);
+             sub = t.getProperty(nameKey + ".how", "");
+           } else if ("win".equals(a.kind)) {
+             icon = "fa-trophy";
+             int stars; try { stars = Integer.parseInt(arg); } catch (NumberFormatException e) { stars = 1; }
+             head = t.getProperty("activity.winTitle", "").replace("{0}", "★".repeat(Math.max(1, Math.min(3, stars))));
+             int sec = Math.max(0, a.ms / 1000);
+             sub = t.getProperty("activity.winSub", "").replace("{0}", (sec / 60) + ":" + String.format("%02d", sec % 60))
+                     .replace("{1}", String.valueOf(a.you)).replace("{2}", String.valueOf(a.kevin));
+           } else if ("track".equals(a.kind)) {
+             icon = "fa-music"; head = arg; sub = t.getProperty("activity.trackSub", "");
+           } else if ("friend".equals(a.kind)) {
+             icon = "fa-user-group"; head = arg; sub = t.getProperty("activity.friendSub", "");
+           }
+           boolean linked = a.link != null; %>
+      <li class="pt-act act-<%= a.kind %>">
         <i class="fa-solid <%= icon %>" aria-hidden="true"></i>
-        <span><%= WebUtils.escapeHtml(t.getProperty("activity." + a.kind, "").replace("{0}", arg)) %></span>
-        <time><%= activityDate.format(a.at) %></time>
+        <time datetime="<%= a.at.toInstant() %>"><%= activityDate.format(a.at) %></time>
+        <<%= linked ? "a href=\"" + WebUtils.escapeHtml(a.link) + "\"" : "div" %> class="pt-act-card">
+          <span class="pt-act-k"><%= WebUtils.escapeHtml(t.getProperty("activity." + a.kind, "")) %></span>
+          <% if ("comment".equals(a.kind)) { %>
+          <p class="pt-act-quote">&bdquo;<%= WebUtils.escapeHtml(arg) %>&ldquo;</p>
+          <% if (a.thumb != null) { %>
+          <span class="pt-act-thumb"><img src="<%= WebUtils.escapeHtml(a.thumb) %>" alt="" loading="lazy" decoding="async"><% if (a.title != null) { %><b><i class="fa-solid fa-play" aria-hidden="true"></i> <%= WebUtils.escapeHtml(a.title) %></b><% } %></span>
+          <% } else if (a.title != null) { %>
+          <span class="pt-act-song"><i class="fa-solid fa-music" aria-hidden="true"></i> <%= WebUtils.escapeHtml(a.title) %></span>
+          <% } %>
+          <% } else { %>
+          <span class="pt-act-medal">
+            <% if ("friend".equals(a.kind)) { %>
+            <img class="pt-act-face" src="<%= WebUtils.escapeHtml(a.avatar != null ? a.avatar : "/img/avatar-default.svg") %>" alt="" width="56" height="56" loading="lazy">
+            <% } else { %>
+            <span class="pt-act-coin"<%= rarity.isEmpty() ? "" : " data-rar=\"" + rarity + "\"" %>><i class="fa-solid <%= icon %>" aria-hidden="true"></i></span>
+            <% } %>
+            <span><b><%= WebUtils.escapeHtml(head) %></b><% if (!sub.isEmpty()) { %><small><%= WebUtils.escapeHtml(sub) %></small><% } %></span>
+          </span>
+          <% } %>
+        </<%= linked ? "a" : "div" %>>
       </li>
       <% } %>
     </ul>

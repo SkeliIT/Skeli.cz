@@ -131,14 +131,22 @@
     </div>
   </section>
 
-  <%-- čísla jako štítky (styl „Časová osa“), každý vede do své části profilu --%>
+  <%-- čísla jako štítky (styl „Časová osa“), každý vede do své části profilu. Štítek s nulou se neukáže (nováček nevidí
+       samé nuly) a slovo se řídí číslem: 1 komentář, 3 komentáře, 5 komentářů (I18n.countWord). --%>
+  <% Object[][] chips = {
+       { me != null ? me.comments : 0, "#komentare", "profile.chip.comments" },
+       { me != null ? me.hearts : 0, "#komentare", "profile.chip.hearts" },
+       { frFriends.size(), "#pratele", "profile.chip.friends" },
+       { shownEarned.size(), "#hry", "profile.chip.badges" },
+       { pong.wins, "#hry", "profile.chip.wins" } };
+     boolean anyChip = false; for (Object[] ch : chips) if (((Number) ch[0]).longValue() > 0) anyChip = true; %>
+  <% if (anyChip) { %>
   <nav class="pt-chips" aria-label="<%= t.getProperty("menu.account") %>">
-    <a class="pt-chip" href="#komentare"><b><%= me != null ? me.comments : 0 %></b> <span><%= t.getProperty("account.stats.comments") %></span></a>
-    <a class="pt-chip" href="#komentare"><b><%= me != null ? me.hearts : 0 %></b> <span><%= t.getProperty("account.stats.hearts") %></span></a>
-    <a class="pt-chip" href="#pratele"><b><%= frFriends.size() %></b> <span><%= t.getProperty("profile.tab.friends") %></span></a>
-    <a class="pt-chip" href="#hry"><b><%= shownEarned.size() %></b> <span><%= t.getProperty("pong.badges.title") %></span></a>
-    <a class="pt-chip" href="#hry"><b><%= pong.wins %></b> <span><%= t.getProperty("account.stats.wins") %></span></a>
+    <% for (Object[] ch : chips) { long n = ((Number) ch[0]).longValue(); if (n <= 0) continue; %>
+    <a class="pt-chip" href="<%= ch[1] %>"><b><%= com.github.skeliit.I18n.number(cur, n) %></b><span><%= WebUtils.escapeHtml(com.github.skeliit.I18n.countWord(t, cur, (String) ch[2], n)) %></span></a>
+    <% } %>
   </nav>
+  <% } %>
   <% Integer bestAll = null; for (Integer b : pong.bestMs) if (b != null && (bestAll == null || b < bestAll)) bestAll = b; %>
   <%-- části profilu: co je o mně, co je ze her (každá hra má v Hrách svůj blok), přátelé a komentáře --%>
   <nav class="acct-tabs profile-tabs" aria-label="<%= t.getProperty("menu.account") %>">

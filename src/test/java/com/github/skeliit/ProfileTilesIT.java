@@ -27,7 +27,10 @@ class ProfileTilesIT extends UiTestSupport {
             driver.get(BASE_URL + "/uzivatel.jsp");
             waitReady();
             assertEquals(3, driver.findElements(By.cssSelector(".pt-stat")).size(), "CatSmash v bočním panelu Přehledu, dvě v Hrách");
-            assertEquals(5, driver.findElements(By.cssSelector(".pt-chips .pt-chip")).size(), "čísla jako štítky pod hlavičkou");
+            // štítky s čísly: jen nenulové, slovo podle čísla (1 komentář, ne „1 Komentáře“)
+            org.openqa.selenium.WebElement chip = driver.findElement(By.cssSelector(".pt-chips .pt-chip[href='#komentare']"));
+            assertEquals("1", chip.findElement(By.tagName("b")).getText().trim());
+            assertEquals("komentář", chip.findElement(By.tagName("span")).getText().trim().toLowerCase());
             assertEquals("1", driver.findElement(By.cssSelector(".pt-chips a[href='#komentare'] b")).getText());
             assertEquals("<b>muj komentar</b>", driver.findElement(By.cssSelector(".pt-quote")).getText());
             assertTrue(driver.findElement(By.cssSelector(".pt-song.pt-empty")).getAttribute("href").endsWith("/nastaveni.jsp#profil"));

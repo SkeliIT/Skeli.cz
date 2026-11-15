@@ -83,6 +83,40 @@ public final class I18n {
         return getText(req, key, key);
     }
 
+    /**
+     * Tvar slova podle čísla – jediné místo na serveru (v prohlížeči totéž dělá Intl.PluralRules). Vrací one / few / many / other
+     * stejně jako Intl.PluralRules pro celá čísla:
+     * čeština 1 = one (komentář), 2–4 = few (komentáře), 0 a 5+ = other (komentářů) – i 22 je „komentářů“, ne jako v polštině;
+     * ukrajinština podle posledních číslic (21 = one, 22 = few, 11–14 = many); angličtina a němčina one / other; vietnamština jen other.
+     * Překladové klíče mají vždy všechny čtyři varianty (.one/.few/.many/.other), ať jsou klíče ve všech jazycích stejné.
+     */
+    public static String plural(String lang, long n) {
+        long a = Math.abs(n), last = a % 10, lastTwo = a % 100;
+        switch (safeLang(lang)) {
+            case "cs":
+                return a == 1 ? "one" : a >= 2 && a <= 4 ? "few" : "other";
+            case "uk":
+                if (last == 1 && lastTwo != 11) return "one";
+                if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return "few";
+                return "many";
+            case "vi":
+                return "other";
+            default:
+                return a == 1 ? "one" : "other";
+        }
+    }
+
+    /** Slovo ke číslu z klíče s variantami (např. key = "profile.chip.friends" → profile.chip.friends.few). */
+    public static String countWord(Properties t, String lang, String key, long n) {
+        String form = t.getProperty(key + "." + plural(lang, n));
+        return form != null ? form : t.getProperty(key + ".other", key);
+    }
+
+    /** Číslo s oddělením tisíců podle jazyka (1 250 / 1,250 / 1.250). */
+    public static String number(String lang, long n) {
+        return java.text.NumberFormat.getIntegerInstance(java.util.Locale.forLanguageTag(safeLang(lang))).format(n);
+    }
+
     private static Properties loadProperties(ServletContext context, String lang, Properties defaults) {
         Properties props = new Properties(defaults);
         String path = "/WEB-INF/i18n/messages_" + lang + ".properties";
