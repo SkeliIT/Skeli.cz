@@ -78,7 +78,7 @@ export function createKevin(canvas, opts = {}) {
   let pose = 'idle', talking = false, talkClip = 'talk', act = null, actEnd = 0, paused = false, disposed = false;
   let lookX = 0, lookY = 0, spinT = -1, special = null, specialT = 0, frozenUntil = 0, held = null, turnTo = 0;
   let mixer = null, actions = {}, playing = null, head = null, hips = null, hipsRest = null, clock = 0;
-  let foot = null, walkSpeed = 0, travel = {}, hipsH = 1, fbxK = 0, anchor = {}, freeRoots = {};   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
+  let foot = null, takeoff = 0, walkSpeed = 0, travel = {}, hipsH = 1, fbxK = 0, anchor = {}, freeRoots = {};   // walkSpeed: how fast the floor runs under his feet in the walk (world units a second)
   let legs = [], tail = [], jaw = null, jawRest = null, mouth = null, forcedFace = null, forcedUntil = 0;
   let feet = [], footRest = null, groundY = 0, groundK = 0;
 
@@ -131,6 +131,7 @@ export function createKevin(canvas, opts = {}) {
     mixer = new THREE.AnimationMixer(model);
     for (const clip of g.animations) actions[clip.name] = mixer.clipAction(clip);
     walkSpeed = measureWalk(model);
+    takeoff = measureTakeoff(model, 'jump');
     footRest = lowestFoot(model, 'idle');
     crossfade();
     // další pohyby (běh, pády, sezení na hraně…) z kevin/pohyby.json – jen když o ně volající požádá (procházka)
@@ -173,6 +174,21 @@ export function createKevin(canvas, opts = {}) {
     }
     if (steps >= 3) return sum / steps;
     return 1.7 * (Math.max(...z) - Math.min(...z)) / d;   // stance about 60 % of the cycle
+  }
+
+  // skok: ve které chvíli se chodidlo odlepí od země (ms od začátku pohybu). Seskok z webu (js/kevin/prochazky.js)
+  // zvedne celé tělo až v tu chvíli – dřív stoupal už při přikrčení, ještě než nohy odrazily.
+  function measureTakeoff(model, name) {
+    const a = actions[name];
+    if (!a || !foot) return 0;
+    const d = a.getClip().duration, n = 80, v = new THREE.Vector3(), y = [];
+    a.reset().play();
+    for (let i = 0; i <= n; i++) { mixer.setTime(d * i / n); model.updateMatrixWorld(true); foot.getWorldPosition(v); y.push(v.y); }
+    a.stop();
+    mixer.setTime(0);
+    const floor = Math.min(...y.slice(0, Math.ceil(n * 0.6))), rise = Math.max(...y) - floor;
+    for (let i = 1; i <= n; i++) if (y[i] - floor > rise * 0.15 && y[i] > y[i - 1]) return Math.round(d * i / n * 1000);
+    return 0;
   }
 
   // ---------- pusa: nálepka z 24 tvarů (dvě vrstvy přes sebe = plynulé prolnutí), spodek jde s bradou ----------
@@ -571,6 +587,8 @@ export function createKevin(canvas, opts = {}) {
     },
     // délka klipu v ms (0 = nemá ho)
     clipMs(name) { return actions[name] ? actions[name].getClip().duration * 1000 : 0; },
+    // kdy se při skoku odlepí nohy od země (ms od začátku pohybu „jump“)
+    takeoffMs() { return takeoff; },
     // ostrost obrazu (slabý telefon: méně pixelů = plynulejší hra); 0 = výchozí
     setMaxPixelRatio(r) {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, r || 1.75));

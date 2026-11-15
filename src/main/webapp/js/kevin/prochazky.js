@@ -180,6 +180,7 @@ window.KevinWalk = function (K) {
         if (g === 'sprint' && walkK.has('sprintStart')) walkK.once('sprintStart');
         speed = gaitPx(g);
         window.__kevinSpeed = g + ' ' + Math.round(speed) + ' (chůze ' + Math.round(walkK.walkPxPerSec()) + ')';   // pro testy
+        window.__kevinTakeoff = walkK.takeoffMs ? walkK.takeoffMs() : -1;   // pro testy: kdy při skoku odrazí (ms)
       }
       // přechod (rozejde se, zastaví): hraje pohyb jednou a okénko jede stejně jako boky v tom pohybu – když v něm
       // ještě stojí, stojí i okénko (dřív jelo pořád stejně, takže po tanci stál a přitom popojížděl)
@@ -333,11 +334,17 @@ window.KevinWalk = function (K) {
         });
       }
       // at the far end he jumps off the card and is gone
+      // seskok z webu: tělo stoupá až ve chvíli, kdy nohy v pohybu skoku odrazí (do té doby se jen přikrčuje), pak padá
       function jumpOff() {
         walkK.once('jump');
         walker.classList.add('airborne');
-        c.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(' + -h * 0.22 + 'px)', opacity: 1, offset: 0.4 }, { transform: 'translateY(' + h * 0.6 + 'px)', opacity: 0 }],
-          { duration: 900, easing: 'ease-in', fill: 'forwards' }).onfinish = endWalk;
+        var t0 = Math.min(1200, walkK.takeoffMs ? walkK.takeoffMs() : 0), total = t0 + 900, o = t0 / total;
+        c.animate([
+          { transform: 'translateY(0)', opacity: 1, offset: 0 },
+          { transform: 'translateY(0)', opacity: 1, offset: o, easing: 'ease-out' },
+          { transform: 'translateY(' + -h * 0.22 + 'px)', opacity: 1, offset: o + (1 - o) * 0.4, easing: 'ease-in' },
+          { transform: 'translateY(' + h * 0.6 + 'px)', opacity: 0, offset: 1 }],
+          { duration: total, fill: 'forwards' }).onfinish = endWalk;
       }
       // the card stays his ground: it moved (an image loaded above it) → he moves with it; it is gone (another
       // page) or scrolled far out of sight → the walk is over. On the window's edge the page must not scroll under
