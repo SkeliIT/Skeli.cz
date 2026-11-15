@@ -176,7 +176,7 @@ STYLES.c = {
       const el = document.createElement('div'); el.className = 'cur in';
       el.innerHTML = words(line).map((w) => '<span class="w" data-a="' + w.a + '" data-b="' + w.b + '">' + esc(w.t) + '</span>').join(' ');
       cur.replaceWith(el);
-      stage.querySelector('.c-lyr .nxt').textContent = D.lines[i + 1] || '';
+      stage.querySelector('.c-lyr .nxt').textContent = D.lines[line + 1] || '';   // před prvním veršem je „teď“ 1. řádek, další tedy 2. (dřív se 1. ukázal dvakrát)
     }
     stage.querySelectorAll('.c-lyr .cur .w').forEach((w) => { const a = +w.dataset.a, b = +w.dataset.b; w.classList.toggle('on', t >= a); w.classList.toggle('done', t > b + .15); });
   }

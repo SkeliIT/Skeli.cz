@@ -3,7 +3,7 @@
 <%-- Karaoke cinema (preview of the coming big karaoke): /karaoke/{song uuid}, KaraokeCinemaServlet fills kinoJson.
      Two rooms: Prostor (/kino/prostor.js, a looping video; the default) and Ořechový salon (/kino/domov.js); switching loads the page again.
      A loading screen stays up until the room is built (no jerk on the way in). Czech only for now. --%>
-<% String v = "6.0.7";
+<% String v = "6.0.8";
    // ostatní styly a pokoje (zatím se dolaďují) vidí jen admin; role se čte z DB při přihlášení a AdminFilter ji obnovuje
    boolean allStyles = "ADMIN".equals(session.getAttribute("role")); %>
 <!doctype html>
@@ -270,7 +270,8 @@ body.fading::after { opacity: 1; pointer-events: auto; }
 <div class="brand"><div class="squad" role="img" aria-label="SKELO SQUAD"></div><span class="brand-k">Karaoke</span></div>
 <div class="song-tag"><b id="tagTitle"></b><span id="tagArtist"></span></div>
 <div class="lyrics" id="lyrics" aria-live="off">
-  <div class="title-card" id="titleCard"><b></b><span></span></div>
+  <!-- úvodní název je schovaný: video má vlastní úvod a název píše kino vpravo nahoře (přání Skeliho 15. 11.) -->
+  <div class="title-card" id="titleCard" hidden><b></b><span></span></div>
   <div class="dots" id="dots"><i></i><i></i><i></i></div>
 </div>
 <div class="controls" id="controls">
