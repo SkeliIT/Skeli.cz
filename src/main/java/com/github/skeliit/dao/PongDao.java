@@ -72,7 +72,7 @@ public class PongDao {
                 while (rs.next()) {
                     PongScoreRank r = new PongScoreRank();
                     r.place = ++place; r.username = rs.getString(2); r.avatarUrl = rs.getString(3);
-                    r.frame = PongChampions.frame(rs.getInt(1), rs.getString(4), rs.getBoolean(10));
+                    r.frame = PongChampions.frame(rs.getInt(1), rs.getString(4));
                     r.pub = rs.getBoolean(11);
                     r.mark = PongBadges.isMark(rs.getString(9)) ? rs.getString(9) : null;
                     r.score = rs.getInt(5); r.difficulty = rs.getInt(6); r.you = rs.getInt(7); r.kevin = rs.getInt(8);
@@ -103,7 +103,7 @@ public class PongDao {
                 while (rs.next()) {
                     PongScoreRank r = new PongScoreRank();
                     r.place = ++place; r.username = rs.getString(1); r.avatarUrl = rs.getString(2);
-                    r.frame = PongChampions.frame(rs.getInt(8), rs.getString(3), rs.getBoolean(9));
+                    r.frame = PongChampions.frame(rs.getInt(8), rs.getString(3));
                     r.pub = rs.getBoolean(10);
                     r.mark = PongBadges.isMark(rs.getString(4)) ? rs.getString(4) : null;
                     r.score = rs.getInt(5); r.difficulty = rs.getInt(6); r.len = rs.getInt(7);
@@ -209,7 +209,7 @@ public class PongDao {
                     place++;
                     PongRank r = new PongRank(place, rs.getString(2), rs.getString(3), rs.getInt(4), rs.getInt(10), meId != null && meId == rs.getInt(1));
                     r.title = PongBadges.TITLES_ON && PongBadges.exists(rs.getString(5)) ? rs.getString(5) : null;
-                    r.frame = PongChampions.frame(rs.getInt(1), rs.getString(6), rs.getBoolean(8));
+                    r.frame = PongChampions.frame(rs.getInt(1), rs.getString(6));
                     r.pub = rs.getBoolean(9);
                     r.mark = PongBadges.isMark(rs.getString(7)) ? rs.getString(7) : null;
                     out.add(r);
@@ -324,10 +324,9 @@ public class PongDao {
         p.findNextBadge(winsCounted);
         if (p.title != null && !p.has(p.title)) p.title = null;
         p.frame = frame(userId);
-        if (p.frame != null && !p.has(p.frame)) p.frame = null;
+        if (p.frame != null && !PongChampions.CHOICE.equals(p.frame) && !p.has(p.frame)) p.frame = null;
         p.champPlace = PongChampions.place(userId);
-        p.champOn = champOn(userId);
-        p.shownFrame = p.champOn && p.champPlace != null ? "champ" + p.champPlace : p.frame;
+        p.shownFrame = PongChampions.frame(userId, p.frame);
         p.mark = mark(userId);
         if (p.mark != null && !p.has(p.mark)) p.mark = null;
         return p;
@@ -403,21 +402,6 @@ public class PongDao {
         }
     }
 
-    /** Ukazovat rámeček šampiona (users.pong_champ)? */
-    public boolean champOn(int userId) throws SQLException {
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT pong_champ FROM users WHERE id = ?")) {
-            ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) { return !rs.next() || rs.getBoolean(1); }
-        }
-    }
-
-    public void setChampOn(int userId, boolean on) throws SQLException {
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET pong_champ = ? WHERE id = ?")) {
-            ps.setBoolean(1, on);
-            ps.setInt(2, userId);
-            ps.executeUpdate();
-        }
-    }
 
     /** Nastaví rámeček kolem fotky; null = bez rámečku. Volající ověří, že odznak hráč má. */
     public void setFrame(int userId, String key) throws SQLException {

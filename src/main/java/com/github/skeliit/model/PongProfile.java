@@ -20,9 +20,8 @@ public class PongProfile {
     public String frame;
     /** Rámeček, který vidí ostatní: šampion měsíce (champ1–3, když ho nevypnul), jinak vybraný. */
     public String shownFrame;
-    /** Místo mezi šampiony (1–3) nebo null; champOn = rámeček šampiona zapnutý. */
+    /** Místo mezi šampiony (1–3) nebo null. */
     public Integer champPlace;
-    public boolean champOn = true;
     public String mark;               // legendární znak u jména (jen když ho hráč zapnul a má odznak)
     public final List<Badge> badges = new ArrayList<>();
     /** Nejbližší odznak za počet výher (klíč, kolik výher má a kolik je potřeba); null = všechny za výhry získal. */

@@ -12,8 +12,8 @@ import java.util.Map;
 
 /**
  * Šampioni CatSmash = první tři ze „Šampionů měsíce“ na úvodní stránce (když tento měsíc ještě nikdo nehrál,
- * první tři ze Síně slávy – stejně jako úvod). Mají kolem fotky rámeček champ1 / champ2 / champ3, který má přednost
- * před vybraným rámečkem; kdo vypadne z první trojky, má zase svůj. Hráč ho může vypnout (users.pong_champ).
+ * první tři ze Síně slávy – stejně jako úvod). Mohou si kolem fotky zvolit rámeček champ1 / champ2 / champ3 (v Nastavení
+ * volba „champ“ v users.pong_frame); kdo vypadne z první trojky, nemá žádný, dokud se nevrátí nebo nezvolí jiný.
  * Pořadí se drží v paměti minutu, nové skóre ho zneplatní.
  */
 public final class PongChampions {
@@ -53,10 +53,12 @@ public final class PongChampions {
     /** Po zápisu nového skóre: příště se pořadí spočítá znovu. */
     public static void invalidate() { at = 0; }
 
-    /** Rámeček, který ostatní uvidí: šampion (když ho nevypnul), jinak vybraný rámeček z odznaku, jinak žádný. */
-    public static String frame(int userId, String chosen, boolean champOn) {
-        Integer p = champOn ? place(userId) : null;
-        if (p != null) return "champ" + p;
+    /** Volba „medaile šampiona“ v users.pong_frame (jedna z možností v Nastavení, ne povinnost). */
+    public static final String CHOICE = "champ";
+
+    /** Rámeček, který ostatní uvidí: vždy ten, který si člověk vybral. Medaile jen dokud je v první trojce. */
+    public static String frame(int userId, String chosen) {
+        if (CHOICE.equals(chosen)) { Integer p = place(userId); return p != null ? "champ" + p : null; }
         return PongBadges.isFrame(chosen) ? chosen : null;
     }
 }

@@ -99,7 +99,7 @@ public class CommentDao {
             it.titleTier = PongBadges.tier(title);
         }
         String frame = gone ? null : rs.getString("pong_frame");
-        if (!gone) it.frame = PongChampions.frame(it.userId, frame, rs.getBoolean("pong_champ"));   // šampion má přednost
+        if (!gone) it.frame = PongChampions.frame(it.userId, frame);
         String mark = gone ? null : rs.getString("pong_mark");           // legendární znak – jen když ho autor zapnul
         if (PongBadges.isMark(mark)) { it.mark = mark; it.markIcon = PongBadges.icon(mark); }
         it.content = rs.getString("content");

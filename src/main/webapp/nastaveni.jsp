@@ -451,20 +451,19 @@
           <span class="vis-text"><b id="visCoverT"><%= t.getProperty("cover.title") %></b><small><%= t.getProperty("cover.visLead") %></small></span>
           <label class="vis-switch"><input type="checkbox" name="cover" value="1" aria-labelledby="visCoverT"<%= coverPublic ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
-        <li class="vis-row">
-          <span class="vis-ico"><i class="fa-solid fa-crown" aria-hidden="true"></i></span>
-          <span class="vis-text"><b id="visChampT"><%= t.getProperty("pong.champ.title") %></b><small><%= t.getProperty("pong.champ.lead") %></small>
-            <small class="vis-state<%= pong.champPlace != null ? " on" : "" %>"><%= pong.champPlace != null ? t.getProperty("pong.champ.now").replace("{n}", String.valueOf(pong.champPlace)) : t.getProperty("pong.champ.not") %></small></span>
-          <label class="vis-switch"><input type="checkbox" name="champ" value="1" aria-labelledby="visChampT"<%= pong.champOn ? " checked" : "" %>><span aria-hidden="true"></span></label>
-        </li>
         <li class="vis-row vis-pick">
           <span class="vis-ico"><i class="fa-regular fa-circle" aria-hidden="true"></i></span>
           <span class="vis-text"><b><label for="pongFrame"><%= t.getProperty("pong.frame.title") %></label></b><small><%= t.getProperty("pong.frame.lead") %></small></span>
-          <% if (!anyFrame) { %>
+          <% // medaile šampiona je jedna z voleb: nabízí se tomu, kdo je v první trojce, nebo kdo ji má vybranou (pak čeká na návrat)
+             boolean champPick = pong.champPlace != null || "champ".equals(pong.frame); %>
+          <% if (!anyFrame && !champPick) { %>
           <small class="vis-empty"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= t.getProperty("pong.frame.empty") %></small>
           <% } else { %>
           <select id="pongFrame" name="f">
             <option value=""><%= t.getProperty("pong.frame.none") %></option>
+            <% if (champPick) { %>
+            <option value="champ"<%= "champ".equals(pong.frame) ? " selected" : "" %>><%= pong.champPlace != null ? t.getProperty("pong.frame.champNow").replace("{n}", String.valueOf(pong.champPlace)) : t.getProperty("pong.frame.champWait") %></option>
+            <% } %>
             <% for (PongProfile.Badge b : pong.badges) { if (!b.earned || !com.github.skeliit.model.PongBadges.isFrame(b.key)) continue; %>
             <option value="<%= b.key %>"<%= b.key.equals(pong.frame) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("pong.frame." + b.key)) %></option>
             <% } %>
@@ -496,9 +495,10 @@
         document.addEventListener('change', function (e) {
           var form = e.target.closest && e.target.closest('.vis-form');
           if (!form) return;
-          var av = form.querySelector('[data-vis-av]'), champ = form.querySelector('[name=champ]'), fr = form.querySelector('[name=f]'),
+          var av = form.querySelector('[data-vis-av]'), fr = form.querySelector('[name=f]'),
             mk = form.querySelector('[name=m]'), mi = form.querySelector('[data-vis-mark]'), pub = form.querySelector('[name=pub]'), place = form.dataset.champ;
-          var cls = champ && champ.checked && place ? 'champ' + place : (fr ? fr.value : form.dataset.frame);
+          var cls = fr ? fr.value : form.dataset.frame;
+          if (cls === 'champ') cls = place ? 'champ' + place : '';   // medaile jen v první trojce
           av.className = 'av-frame' + (cls ? ' f-' + cls : '');
           if (mk && mi) { var op = mk.options[mk.selectedIndex], ic = op && op.getAttribute('data-icon'); mi.className = 'fa-solid vis-mark ' + (ic || ''); mi.hidden = !ic; }
           form.classList.toggle('vis-hidden', !!pub && !pub.checked);

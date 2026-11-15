@@ -16,8 +16,8 @@ import java.util.Set;
 
 /**
  * POST /profile/visibility – karta „Co o mně vidí ostatní“ v Nastavení → Soukromí, vše najednou:
- * pub=1 (veřejný profil /hrac/jméno pro přihlášené), cover=1 (záhlaví profilu), champ=1 (rámeček šampiona měsíce), f (rámeček kolem fotky –
- * jen získaný odznak z PongBadges.FRAMES, prázdné = bez), m (legendární znak u jména – jen získaný, prázdné = neukazovat).
+ * pub=1 (veřejný profil /hrac/jméno pro přihlášené), cover=1 (záhlaví profilu), f (rámeček kolem fotky –
+ * jen získaný odznak z PongBadges.FRAMES, nebo „champ“ = medaile šampiona, dokud je v první trojce; prázdné = bez), m (legendární znak u jména – jen získaný, prázdné = neukazovat).
  * Zaškrtávátka chybí = vypnuto; rámeček / znak chybí úplně (hráč ještě nemá z čeho vybírat) = beze změny.
  * Zpět na nastaveni.jsp?vis=1 (uloženo) nebo vis=0 (rámeček / znak nesedí – nic se neuložilo).
  */
@@ -34,7 +34,7 @@ public class ProfileVisibilityServlet extends HttpServlet {
         try {
             PongDao pong = new PongDao();
             Set<String> earned = pong.earned(me);
-            boolean frameOk = f == null || f.isBlank() || PongBadges.isFrame(f) && earned.contains(f);
+            boolean frameOk = f == null || f.isBlank() || PongBadges.isFrame(f) && earned.contains(f) || com.github.skeliit.service.PongChampions.CHOICE.equals(f);
             boolean markOk = m == null || m.isBlank() || PongBadges.isMark(m) && earned.contains(m);
             ok = frameOk && markOk;
             if (ok) {
@@ -53,7 +53,6 @@ public class ProfileVisibilityServlet extends HttpServlet {
                     if (key != null && (earned.contains(key) || siteEarned.contains(key))) shown.add(key);
                 }
                 if (req.getParameter("b1") != null) new UserDao().setShowcaseBadges(me, java.util.List.copyOf(shown));
-                pong.setChampOn(me, "1".equals(req.getParameter("champ")));
                 if (f != null) pong.setFrame(me, f.isBlank() ? null : f);
                 if (m != null) pong.setMark(me, m.isBlank() ? null : m);
             }
