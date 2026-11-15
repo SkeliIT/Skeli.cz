@@ -348,12 +348,14 @@
     if (data && fsShow) {
       var time = now(), times = data.times, i = -1;
       for (var k = 0; k < times.length; k++) { if (times[k][0] <= time) i = k; else break; }
-      if (i !== fsIdx) {
-        fsIdx = i;
+      // před rapem prázdno: první řádek (jako další) se ukáže až 2 s před prvním veršem
+      var early = i < 0 && (!times.length || time < times[0][0] - 2);
+      if ((early ? -3 : i) !== fsIdx) {
+        fsIdx = early ? -3 : i;
         fsWords = wordSpans(fsNow, i >= 0 ? allLines[i] : '');
         // v režimu Obojí je pod zpívaným řádkem jeho překlad (titulky), jinak další řádek
         var trLine = window.LyricText && i >= 0 ? LyricText.translation(i) : '';
-        fsNext.textContent = trLine || allLines[i + 1] || '';
+        fsNext.textContent = early ? '' : trLine || allLines[i + 1] || '';
         fsNext.classList.toggle('fs-tr', !!trLine);
       }
       if (i >= 0 && fsWords) paintWords(fsWords, i, time);

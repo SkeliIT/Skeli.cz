@@ -34,8 +34,9 @@ function words(k) {
 }
 // řádek, který se zpívá (přepne se přesně se svým prvním slovem)
 function lineAt(t) { let i = -1; for (let k = 0; k < D.times.length; k++) if (D.times[k][0] - .05 <= t) i = k; return i; }
-// před rapem je dole prázdno: první řádek se ukáže až 1,2 s před prvním veršem (jako u Lyric videa)
-function tooEarly(t) { return !D.times.length || t < D.times[0][0] - 1.2; }
+// před rapem je dole prázdno: první řádek se ukáže až 2 s před prvním veršem (ostatní řádky podle stylu)
+const FIRST_LEAD = 2;
+function tooEarly(t) { return !D.times.length || t < D.times[0][0] - FIRST_LEAD; }
 
 // ---------------- basy a barvy klipu (eq/<id>.json) ----------------
 const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
@@ -96,7 +97,7 @@ STYLES.l = {
     this.key = -2; this.cur = stage.querySelector('.l-sub .cur'); this.nxt = stage.querySelector('.l-sub .nxt');
   },
   frame(t) {
-    let i = -1; for (let k = 0; k < D.times.length; k++) if (D.times[k][0] - LEAD <= t) i = k;
+    let i = -1; for (let k = 0; k < D.times.length; k++) if (D.times[k][0] - (k ? LEAD : FIRST_LEAD) <= t) i = k;
     // dlouhá pauza po řádku (a další ještě není na řadě) = prázdno
     const show = i >= 0 && t > D.times[i][1] + 2.5 && (i + 1 >= D.lines.length || D.times[i + 1][0] - t > LEAD) ? -1 : i;
     if (show !== this.key) {

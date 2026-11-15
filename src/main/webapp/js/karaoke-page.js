@@ -116,7 +116,8 @@
     lastSongT = t;
     // řádek se přepne přesně ve chvíli, kdy začne – do té doby na něj bludička letí (a čeká v druhém řádku)
     for (var k = 0; k < n; k++) if (L[k].a <= t) i = k;
-    if (i < 0) { fill(0, 0, L); fill(1, n > 1 ? 1 : null, L); }
+    if (i < 0 && t < L[0].a - 2) { fill(0, null, L); fill(1, null, L); }   // před rapem prázdno, první řádek až 2 s předem
+    else if (i < 0) { fill(0, 0, L); fill(1, n > 1 ? 1 : null, L); }
     else { fill(i % 2, i, L); fill((i + 1) % 2, i + 1 < n ? i + 1 : null, L); }
     slots.forEach(function (box, q) { box.classList.toggle('active', i >= 0 && q === i % 2); });
 
