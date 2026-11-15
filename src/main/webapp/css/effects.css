@@ -1619,7 +1619,7 @@ body.light .pt-hero .acct-name { background-image: linear-gradient(180deg, color
 @media (max-width: 760px) { .pt-hero .acct-name { font-size: clamp(1.8rem, 9vw, 2.6rem); } }
 /* fotka v kruhu barvy fotky (rámeček z odznaků má přednost) */
 .pt-hero .acct-photo:not(.av-frame) { box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent), 0 0 30px color-mix(in srgb, var(--accent) 55%, transparent); }
-.pt-hero .acct-photo:not(.av-frame) .acct-avatar { border-radius: 50%; }
+.pt-hero .acct-photo:not(.av-frame) .acct-avatar { border-radius: 50%; border: 0; }   /* kroužek dělá jen stín obalu – s okrajem obrázku byly vidět dva */
 /* moto v barvě fotky (dřív zlaté) */
 .acct-motto { color: var(--accent); }
 body.light .acct-motto { color: var(--accent); }

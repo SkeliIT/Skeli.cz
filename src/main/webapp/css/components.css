@@ -1001,12 +1001,12 @@ body.light .card-gold {
 .av-frame { position: relative; display: inline-flex; flex-shrink: 0; border-radius: 50%; line-height: 0; font-size: var(--cmt-av, 40px); --fw: .09em; }
 .av-frame::before, .av-frame::after { content: ""; position: absolute; pointer-events: none; border-radius: 50%; }
 .av-frame::before {
-  inset: calc(var(--fw) * -1.2); padding: var(--fw);
+  inset: calc(var(--fw) * -1.05); padding: var(--fw);   /* prstenec těsně u fotky */
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--fw)), #000 calc(100% - var(--fw) + 1px));
   mask: radial-gradient(farthest-side, transparent calc(100% - var(--fw)), #000 calc(100% - var(--fw) + 1px));
 }
 .acct-photo.av-frame { font-size: 116px; }
-.acct-photo.av-frame .acct-avatar { border-color: transparent; }
+.acct-photo.av-frame .acct-avatar { border: 0; }   /* dřív jen průhledný okraj: fotka se o 3 px zmenšila a mezi ní a rámečkem byla mezera */
 @media (max-width: 600px) { .acct-photo.av-frame { font-size: 84px; } }
 .kpong-board .av-frame { font-size: 24px; --fw: .12em; }
 @keyframes av-spin { to { transform: rotate(1turn); } }
