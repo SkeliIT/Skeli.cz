@@ -49,6 +49,48 @@ public final class VisitStats {
     private static volatile byte[] salt;
     private static volatile LocalDate lastCleanup;
 
+    /**
+     * Počet lidí po dnech (sloupce day, n). Otevřené dny (dnes a včera) se počítají z otisků ve visit_days. Uzavřený den
+     * (visitors_closed = 1) = uložený součet + případné pozdní otisky. Den jen dopočítaný migrací (visitors_closed = 0)
+     * se počítá z otisků, dokud existují, jinak ze součtu – nic se nesčítá dvakrát.
+     */
+    static final String PEOPLE_BY_DAY = "(SELECT d.day, CASE WHEN COALESCE(s.visitors_closed, 0) = 1 THEN s.visitors + COALESCE(r.n, 0) "
+            + "WHEN COALESCE(r.n, 0) > 0 THEN r.n ELSE COALESCE(s.visitors, 0) END AS n "
+            + "FROM (SELECT day FROM visit_days UNION SELECT day FROM site_stats_daily WHERE visitors > 0) d "
+            + "LEFT JOIN (SELECT day, COUNT(*) AS n FROM visit_days GROUP BY day) r ON r.day = d.day "
+            + "LEFT JOIN site_stats_daily s ON s.day = d.day)";
+
+    /**
+     * Uzavřené dny (starší než včera): počet lidí se zapíše do site_stats_daily.visitors a teprve potom se smažou jejich
+     * otisky – obojí v jedné transakci, takže se počet nikdy neztratí. Včerejšek zůstává, dokud půlnoc neproběhla všude.
+     * Opakované spuštění (restart, souběžné požadavky) nic nezkazí: smazané dny už nemají co přepočítat.
+     */
+    static synchronized void rollUp(Connection c, LocalDate today) throws SQLException {
+        LocalDate keepFrom = today.minusDays(1);
+        boolean auto = c.getAutoCommit();
+        c.setAutoCommit(false);
+        try {
+            // poprvé (den jen dopočítaný migrací) se součet nahradí přesným počtem; u uzavřeného dne se pozdní otisky přičtou
+            // (přiřazení v ON DUPLICATE KEY UPDATE jdou zleva: visitors ještě vidí původní visitors_closed)
+            try (PreparedStatement ps = c.prepareStatement("INSERT INTO site_stats_daily (day, visitors, visitors_closed) "
+                    + "SELECT day, COUNT(*), 1 FROM visit_days WHERE day < ? GROUP BY day "
+                    + "ON DUPLICATE KEY UPDATE visitors = IF(visitors_closed = 1, visitors + VALUES(visitors), VALUES(visitors)), visitors_closed = 1")) {
+                ps.setObject(1, keepFrom);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = c.prepareStatement("DELETE FROM visit_days WHERE day < ?")) {
+                ps.setObject(1, keepFrom);
+                ps.executeUpdate();
+            }
+            c.commit();
+        } catch (SQLException | RuntimeException e) {
+            c.rollback();
+            throw e;
+        } finally {
+            c.setAutoCommit(auto);
+        }
+    }
+
     private VisitStats() {}
 
     static LocalDate today() {
@@ -247,6 +289,7 @@ public final class VisitStats {
                         ps.executeUpdate();
                     }
                 }
+                rollUp(c, day);   // denní otisky návštěv: uzavřené dny jen jako počet
                 lastCleanup = day;
             }
         }
@@ -332,7 +375,7 @@ public final class VisitStats {
         long[] out = new long[days];
         LocalDate first = today().minusDays(days - 1L);
         try (Connection c = Db.get();
-             PreparedStatement ps = c.prepareStatement("SELECT day, COUNT(*) FROM visit_days WHERE day >= ? GROUP BY day")) {
+             PreparedStatement ps = c.prepareStatement("SELECT day, SUM(n) FROM " + PEOPLE_BY_DAY + " p WHERE day >= ? GROUP BY day")) {
             ps.setObject(1, first);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -375,11 +418,11 @@ public final class VisitStats {
              PreparedStatement ps = c.prepareStatement("SELECT "
                      + "(SELECT COUNT(*) FROM visit_days WHERE day = ?) AS today, "
                      + "(SELECT COUNT(*) FROM visit_days WHERE day = ?) AS yesterday, "
-                     + "(SELECT COUNT(*) FROM visit_days WHERE day > ?) AS days7, "
-                     + "(SELECT COUNT(*) FROM visit_days WHERE day > ?) AS days30, "
+                     + "(SELECT COALESCE(SUM(n), 0) FROM " + PEOPLE_BY_DAY + " p7 WHERE day > ?) AS days7, "
+                     + "(SELECT COALESCE(SUM(n), 0) FROM " + PEOPLE_BY_DAY + " p30 WHERE day > ?) AS days30, "
                      + "(SELECT COALESCE(SUM(pageviews), 0) FROM site_stats_daily WHERE day = ?) AS pagesToday, "
                      + "(SELECT COALESCE(SUM(pageviews), 0) FROM site_stats_daily WHERE day > ?) AS pages30, "
-                     + "(SELECT COUNT(*) FROM visit_days) AS allVisits, "
+                     + "(SELECT COALESCE(SUM(n), 0) FROM " + PEOPLE_BY_DAY + " pa) AS allVisits, "
                      + "(SELECT COALESCE(SUM(pageviews), 0) FROM site_stats_daily) AS pagesAll, "
                      + "(SELECT v FROM app_settings WHERE k = 'stats_since') AS since")) {
             ps.setObject(1, day);
