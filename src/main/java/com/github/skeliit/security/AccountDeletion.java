@@ -70,6 +70,9 @@ public final class AccountDeletion {
             run(c, "DELETE FROM friendships WHERE user_a = ? OR user_b = ?", userId, userId);
             run(c, "DELETE FROM user_blocks WHERE blocker_id = ? OR blocked_id = ?", userId, userId);
             run(c, "DELETE FROM site_badges WHERE user_id = ?", userId);
+            run(c, "DELETE FROM user_days WHERE user_id = ?", userId);      // vzhled a odměny (V142)
+            run(c, "DELETE FROM user_rewards WHERE user_id = ?", userId);
+            run(c, "DELETE FROM user_looks WHERE user_id = ?", userId);
             run(c, "DELETE FROM user_tracks WHERE user_id = ?", userId);
             run(c, "DELETE FROM user_chat_prefs WHERE user_id = ?", userId);
             run(c, "DELETE FROM chat_muted WHERE user_id = ? OR other_id = ?", userId, userId);

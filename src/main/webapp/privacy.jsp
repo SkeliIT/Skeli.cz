@@ -29,6 +29,7 @@
         <li><%= t.getProperty("privacy.s2.chat") %></li>
         <li><%= t.getProperty("privacy.s2.social") %></li>
         <li><%= t.getProperty("privacy.s2.games") %></li>
+        <li><%= t.getProperty("privacy.s2.rewards") %></li>
         <li><%= t.getProperty("privacy.s2.people") %></li>
         <li><%= t.getProperty("privacy.s2.marketing") %></li>
         <li><%= t.getProperty("privacy.s2.trash") %></li>
