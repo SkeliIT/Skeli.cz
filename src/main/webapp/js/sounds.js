@@ -4,7 +4,8 @@
 // Kdo už na webu klikal, tomu ho prohlížeč často povolí hned po načtení další stránky, proto se o to pokusí sám.
 (function () {
   if (window.SkeliSound) { window.SkeliSound.refresh(); return; }
-  var DEFAULTS = { message: true, bell: true, kevin: false };
+  // pop = praskání kyselinových bublinek (nahrané zvuky sounds/bublina-*.wav), jen když bublinu praskne návštěvník
+  var DEFAULTS = { message: true, bell: true, kevin: false, pop: true };
   var ctx = null;
 
   function get(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
@@ -57,6 +58,36 @@
     return true;
   }
 
+  // ---- nahrané zvuky (malé soubory): stáhnou se jednou, pak se jen přehrávají ----
+  var buffers = {};
+  function load(url) {
+    if (!ctx) return Promise.reject();
+    if (!buffers[url]) {
+      buffers[url] = fetch(url).then(function (r) { return r.arrayBuffer(); }).then(function (data) {
+        // starší Safari umí decodeAudioData jen s callbackem
+        return new Promise(function (ok, bad) { ctx.decodeAudioData(data, ok, bad); });
+      });
+      buffers[url].catch(function () { delete buffers[url]; });
+    }
+    return buffers[url];
+  }
+  function preload(urls) { if (ctx) urls.forEach(function (u) { load(u).catch(function () {}); }); }
+  // jeden z nahraných zvuků náhodně; rate = výška (1 = jak byl nahraný), volume 0–1
+  function sample(kind, urls, volume, rate) {
+    if (!enabled(kind) || !ctx || !urls.length) return false;
+    var url = urls[Math.floor(Math.random() * urls.length)];
+    load(url).then(function (buf) {
+      if (ctx.state !== 'running') ctx.resume();
+      var s = ctx.createBufferSource(), g = ctx.createGain();
+      s.buffer = buf;
+      s.playbackRate.value = rate || 1;
+      g.gain.value = volume == null ? 0.5 : volume;
+      s.connect(g).connect(ctx.destination);
+      s.start();
+    }).catch(function () {});
+    return true;
+  }
+
   function refresh() {
     var off = muted();
     document.querySelectorAll('[data-sound-toggle]').forEach(function (b) {
@@ -93,7 +124,7 @@
     if (kind) set('sound_' + kind, e.target.checked ? '1' : '0');
   });
 
-  window.SkeliSound = { play: play, enabled: enabled, refresh: refresh };
+  window.SkeliSound = { play: play, enabled: enabled, refresh: refresh, sample: sample, preload: preload };
   document.addEventListener('pjax:done', refresh);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', refresh); else refresh();
 })();

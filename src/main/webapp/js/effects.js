@@ -670,14 +670,22 @@
       });
       return out;
     }
+    // zvuk prasknutí: 4 nahrané praskance (sounds/bublina-1..4.wav, z Skeliho nahrávky); stáhnou se, až se objeví první bublinka
+    var POP = ['/sounds/bublina-1.wav', '/sounds/bublina-2.wav', '/sounds/bublina-3.wav', '/sounds/bublina-4.wav'], popReady = false;
     function spawn() {
       var rs = rims(); if (!rs.length) return;
+      if (!popReady && window.SkeliSound && SkeliSound.preload) { popReady = true; SkeliSound.preload(POP); }
       var rm = rs[Math.floor(Math.random() * rs.length)];
       B.push({ x: rm.l + Math.random() * rm.w, y: rm.y + (Math.random() * 12 - 8) + scrollY, r: 1.4 + Math.random() * 3.2,
                vx: 0, vy: 0, rise: 14 + Math.random() * 22, ph: Math.random() * 6.3, age: 0, life: 5 + Math.random() * 6, die: 0 });
     }
-    function pop(b) {
+    function pop(b, byHand) {
       if (b.gone) return; b.gone = true;
+      // zvuk jen když ji praskne návštěvník (samy od sebe praskají potichu); menší bublinka = vyšší a tišší „pop“
+      if (byHand && window.SkeliSound && SkeliSound.sample) {
+        var k = (b.r - 1.4) / 3.2;   // 0 = nejmenší, 1 = největší
+        SkeliSound.sample('pop', POP, 0.35 + k * 0.3, 1.3 - k * 0.4 + (Math.random() - 0.5) * 0.08);
+      }
       for (var k = 0; k < 6; k++) { var a = k / 6 * 6.283 + Math.random(); drops.push({ x: b.x, y: b.y, vx: Math.cos(a) * (30 + b.r * 18), vy: Math.sin(a) * (30 + b.r * 18) - 20, t: 0 }); }
     }
     // pohyb myši / prstu = vítr (jako u jisker), rychlost se počítá z posunu mezi událostmi
@@ -693,7 +701,7 @@
     addEventListener('pointerdown', function (e) {
       var x = e.clientX, y = e.clientY + scrollY, best = null, bd = 1e9;
       B.forEach(function (b) { var d = Math.hypot(b.x - x, b.y - y); if (!b.gone && d < b.r + (e.pointerType === 'touch' ? 18 : 10) && d < bd) { bd = d; best = b; } });
-      if (best) { pop(best); swallow = true; setTimeout(function () { swallow = false; }, 600); start(); }
+      if (best) { pop(best, true); swallow = true; setTimeout(function () { swallow = false; }, 600); start(); }
     }, true);
     addEventListener('click', function (e) { if (swallow) { swallow = false; e.preventDefault(); e.stopPropagation(); } }, true);
     function start() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
