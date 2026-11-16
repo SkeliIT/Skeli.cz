@@ -23,6 +23,8 @@ public class DiscoItem {
     public final String spotifyId;
     /** the title in the page's language, or null */
     public final String translatedTitle;
+    /** true = spolupráce (cizí track, kde Skeli hostuje); Diskografie ji ukáže v části Spolupráce */
+    public boolean collab;
 
     public DiscoItem(boolean song, int id, String name, Integer year, String uuid, int lyricId, String youtubeId,
                      String previewImageUrl, String appleMusicId, String spotifyId, String translatedTitle) {

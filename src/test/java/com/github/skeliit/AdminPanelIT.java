@@ -458,6 +458,39 @@ public class AdminPanelIT extends UiTestSupport {
     }
 
     @Test
+    @DisplayName("Píseň: přepínač Spolupráce ji přesune v Diskografii pod moje skladby; uložení názvu nesmaže Spotify a Apple ID")
+    void collabToggle() throws Exception {
+        String songName = "IT Collab " + uniq(), yt = ("itc" + uniq()).substring(0, 11);
+        update("INSERT INTO songs (uuid, name, year, spotify_id, apple_music_id) VALUES (UUID(), ?, 2099, '4iV5W9uYEdYUVa79Axb7Rh', '1234567890')", songName);
+        int songId = queryInt("SELECT id FROM songs WHERE name=?", songName);
+        update("INSERT INTO videos (youtube_id, song_id, title, published_at) VALUES (?, ?, ?, NOW())", yt, songId, songName);
+        try {
+            driver.get(BASE_URL + "/admin/song?id=" + songId);
+            WebElement box = driver.findElement(By.cssSelector("#zaklad input[name=collab]"));
+            assertFalse(box.isSelected(), "nová píseň není spolupráce");
+            jsClick(box);
+            clickAndWaitReload(box.findElement(By.xpath("ancestor::form//button[@type='submit']")), false);
+            assertEquals(1, queryInt("SELECT collab FROM songs WHERE id=?", songId));
+            // formulář „Píseň“ neposílá Spotify ani Apple Music – dřív je tím smazal
+            assertEquals("4iV5W9uYEdYUVa79Axb7Rh", queryString("SELECT spotify_id FROM songs WHERE id=?", songId));
+            assertEquals("1234567890", queryString("SELECT apple_music_id FROM songs WHERE id=?", songId));
+            driver.get(BASE_URL + "/music.jsp");
+            assertTrue(driver.findElement(By.cssSelector(".discography .collab-grid")).getAttribute("innerHTML").contains(songName),
+                    "spolupráce je v Diskografii až v části Spolupráce");
+            // zpátky mezi moje skladby
+            driver.get(BASE_URL + "/admin/song?id=" + songId);
+            box = driver.findElement(By.cssSelector("#zaklad input[name=collab]"));
+            assertTrue(box.isSelected());
+            jsClick(box);
+            clickAndWaitReload(box.findElement(By.xpath("ancestor::form//button[@type='submit']")), false);
+            assertEquals(0, queryInt("SELECT collab FROM songs WHERE id=?", songId));
+        } finally {
+            update("DELETE FROM videos WHERE youtube_id=?", yt);
+            update("DELETE FROM songs WHERE id=?", songId);
+        }
+    }
+
+    @Test
     @DisplayName("Song hub: the picture in the Texty row is dragged and resized by hand, then automatic again")
     void rowArtPlacedByHand() throws Exception {
         String songName = "IT Row Art " + uniq();

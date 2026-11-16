@@ -16,6 +16,9 @@
   var mode = main.classList.contains('k-mode') ? 'k' : 't';
   var year = '', hits = null, timer = 0, kevinTimer = 0, asked = '';
   var shown = items.slice(), mid = null, raf = 0;
+  // spolupráce (cizí tracky, kde Skeli hostuje) jsou na konci za oddělovačem a mají vlastní štítek místo roku
+  var divider = document.getElementById('collabDivider');
+  function key(el) { return el.dataset.collab ? 'collab' : el.dataset.year; }
 
   // ---- geometrie kola ----
   // čára výběru = kousek pod hlavičkou a lištou roků, v horní třetině toho, co zbývá z obrazovky
@@ -63,7 +66,7 @@
     if (!el) return;
     el.classList.add('mid');
     el.querySelectorAll('a').forEach(function (a) { a.tabIndex = 0; });
-    if (rail) rail.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.year === el.dataset.year); });
+    if (rail) rail.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.year === key(el)); });
     sing();
   }
   window.addEventListener('scroll', function () { if (!raf && wheel.isConnected) raf = requestAnimationFrame(update); }, { passive: true });
@@ -118,12 +121,17 @@
     }, 50);
   }
 
-  // ---- roky: „Vše“ + nejnovější rok, starší se rozbalí; na PC i boční lišta ----
+  // ---- roky: „Vše“ + nejnovější rok, starší se rozbalí, na konci „Spolupráce“; na PC i boční lišta ----
   function buildYears() {
-    var years = [];
-    items.forEach(function (c) { var y = c.dataset.year; if (y && (mode === 't' || c.dataset.k) && years.indexOf(y) < 0) years.push(y); });
+    var years = [], collab = false;
+    items.forEach(function (c) {
+      if (!(mode === 't' || c.dataset.k)) return;
+      if (c.dataset.collab) { collab = true; return; }   // roky počítají jen moje skladby
+      var y = c.dataset.year; if (y && years.indexOf(y) < 0) years.push(y);
+    });
     years.sort().reverse();
-    if (year && years.indexOf(year) < 0) year = '';
+    if (year && year !== 'collab' && years.indexOf(year) < 0) year = '';
+    if (year === 'collab' && !collab) year = '';
     chips.innerHTML = '';
     var all = document.createElement('button');
     all.type = 'button'; all.className = 'chip' + (year ? '' : ' active'); all.dataset.year = ''; all.textContent = chips.dataset.all;
@@ -140,9 +148,21 @@
       t.firstChild.textContent = chips.dataset.older;
       chips.appendChild(t);
     }
+    if (collab) {   // štítek Spolupráce je vidět vždy (není mezi rozbalovacími staršími roky)
+      var cb = document.createElement('button');
+      cb.type = 'button'; cb.className = 'chip chip-collab' + (year === 'collab' ? ' active' : ''); cb.dataset.year = 'collab';
+      cb.textContent = chips.dataset.collab;
+      chips.appendChild(cb);
+    }
     if (rail) {
       rail.innerHTML = '';
-      years.forEach(function (y) { var b = document.createElement('button'); b.type = 'button'; b.dataset.year = y; b.textContent = y; b.tabIndex = -1; rail.appendChild(b); });
+      var rows = years.slice(); if (collab) rows.push('collab');
+      rows.forEach(function (y) {
+        var b = document.createElement('button'); b.type = 'button'; b.dataset.year = y; b.tabIndex = -1;
+        b.textContent = y === 'collab' ? chips.dataset.collab : y;
+        if (y === 'collab') b.className = 'rail-collab';
+        rail.appendChild(b);
+      });
     }
   }
   chips.addEventListener('click', function (e) {
@@ -161,7 +181,7 @@
   // boční lišta (PC): skok na první píseň roku, filtr se nemění
   if (rail) rail.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
-    goTo(shown.filter(function (el) { return el.dataset.year === b.dataset.year; })[0], true);
+    goTo(shown.filter(function (el) { return key(el) === b.dataset.year; })[0], true);
   });
 
   // ---- filtr: režim, rok, hledání ----
@@ -169,13 +189,15 @@
     shown = [];
     items.forEach(function (c) {
       var hit = hits && hits[c.dataset.song];
-      var ok = (!hits || !!hit) && (!year || c.dataset.year === year) && (mode === 't' || !!c.dataset.k);
+      var ok = (!hits || !!hit) && (!year || key(c) === year) && (mode === 't' || !!c.dataset.k);
       c.hidden = !ok;
       var line = c.querySelector('.song-line');
       line.hidden = !(hit && hit.line);
       if (hit && hit.line) line.textContent = '„' + hit.line + '“';
       if (ok) shown.push(c);
     });
+    // oddělovač Spolupráce jen když pod ním nějaká spolupráce je a nad ním moje skladba
+    if (divider) divider.hidden = !(shown.some(function (el) { return el.dataset.collab; }) && shown.some(function (el) { return !el.dataset.collab; }));
     none.textContent = hits ? none.dataset.t : (mode === 'k' ? none.dataset.k : none.dataset.t);
     none.hidden = shown.length > 0;
     wrap.hidden = !shown.length;

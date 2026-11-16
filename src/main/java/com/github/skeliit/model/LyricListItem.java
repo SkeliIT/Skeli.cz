@@ -17,6 +17,8 @@ public class LyricListItem {
     public final String translatedTitle;
     /** CSS variables of a picture placed by hand in admin, or "" (Song.artStyle) */
     public final String artStyle;
+    /** true = spolupráce (cizí track, kde Skeli hostuje); seznam ji ukáže v části Spolupráce */
+    public boolean collab;
 
     public LyricListItem(int songId, String uuid, String name, Integer year, int lyricId, String youtubeId,
                          String previewImageUrl, String translatedTitle, String artStyle) {

@@ -11,8 +11,11 @@ import java.util.List;
 /** Data for the home page: the newest clips, the songs on the running tapes and a line from a lyric. */
 public class HomeDao {
 
-    /** A clip; {@code title} falls back to the linked song name and may be null. */
-    public record HomeVideo(String youtubeId, String title, Timestamp published) {}
+    /**
+     * A clip; {@code title} falls back to the linked song name and may be null.
+     * {@code collab} = video spolupráce (cizí track, kde Skeli hostuje): úvod ho nedává nahoru jako „Nový song“.
+     */
+    public record HomeVideo(String youtubeId, String title, Timestamp published, boolean collab) {}
 
     /** A song with lyrics; {@code thumb} is its newest clip's thumbnail or its preview photo. */
     public record TapeSong(String name, String href, String thumb, Integer year) {}
@@ -41,12 +44,13 @@ public class HomeDao {
     /**
      * Klip, který je na úvodu nahoře jako „Nový song“: ručně vybraný (app_settings home_featured_youtube), dokud
      * nevyjde novější klip – pak vždy ten nejnovější. Bez nastavení = nejnovější klip.
+     * Spolupráce (cizí tracky, kde Skeli hostuje) se jako „Nový song“ neberou – jen když žádné vlastní video není.
      */
     public HomeVideo featured(List<HomeVideo> newest) throws SQLException {
-        HomeVideo top = newest.isEmpty() ? null : newest.get(0);
+        HomeVideo top = newest.stream().filter(v -> !v.collab()).findFirst().orElse(newest.isEmpty() ? null : newest.get(0));
         try (Connection conn = Db.get();
              PreparedStatement ps = conn.prepareStatement(
-                     "SELECT v.youtube_id, v.title, v.published_at, s.name, a.updated_at FROM app_settings a "
+                     "SELECT v.youtube_id, v.title, v.published_at, s.name, a.updated_at, COALESCE(s.collab, 0) FROM app_settings a "
                      + "JOIN videos v ON BINARY v.youtube_id = BINARY a.v LEFT JOIN songs s ON s.id = v.song_id WHERE a.k = 'home_featured_youtube'")) {
             try (ResultSet rs = ps.executeQuery()) {
                 if (!rs.next()) return top;
@@ -54,7 +58,7 @@ public class HomeDao {
                 // vyšel klip až po ručním výběru → nový song je ten nový
                 if (top != null && top.published() != null && chosenAt != null && top.published().after(chosenAt)) return top;
                 String title = VideoTitles.display(rs.getString(2));
-                return new HomeVideo(rs.getString(1), title != null ? title : rs.getString(4), rs.getTimestamp(3));
+                return new HomeVideo(rs.getString(1), title != null ? title : rs.getString(4), rs.getTimestamp(3), rs.getBoolean(6));
             }
         }
     }
@@ -63,28 +67,28 @@ public class HomeDao {
         List<HomeVideo> list = new ArrayList<>();
         try (Connection conn = Db.get();
              PreparedStatement ps = conn.prepareStatement(
-                     "SELECT v.youtube_id, v.title, v.published_at, s.name FROM videos v LEFT JOIN songs s ON s.id = v.song_id "
+                     "SELECT v.youtube_id, v.title, v.published_at, s.name, COALESCE(s.collab, 0) FROM videos v LEFT JOIN songs s ON s.id = v.song_id "
                      + "ORDER BY v.published_at DESC, v.id DESC LIMIT ?")) {
             ps.setInt(1, limit);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String title = VideoTitles.display(rs.getString(2));
                     if (title == null) title = rs.getString(4);
-                    list.add(new HomeVideo(rs.getString(1), title, rs.getTimestamp(3)));
+                    list.add(new HomeVideo(rs.getString(1), title, rs.getTimestamp(3), rs.getBoolean(5)));
                 }
             }
         }
         return list;
     }
 
-    /** Songs with lyrics for the tapes on the home page, linked to their page in {@code lang}. */
+    /** Písně s textem pro běžící pás na úvodu (odkaz na stránku v {@code lang}); jen vlastní skladby, bez spoluprací. */
     public List<TapeSong> songsWithLyrics(String lang) throws SQLException {
         List<TapeSong> list = new ArrayList<>();
         try (Connection conn = Db.get();
              PreparedStatement ps = conn.prepareStatement(
                      "SELECT s.name, s.uuid, s.year, s.preview_image_url, MIN(l.id) AS lyric_id, "
                      + "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtube_id "
-                     + "FROM lyrics l JOIN songs s ON s.id = l.song_id "
+                     + "FROM lyrics l JOIN songs s ON s.id = l.song_id WHERE s.collab = 0 "
                      + "GROUP BY s.id, s.name, s.uuid, s.year, s.preview_image_url ORDER BY s.year DESC, s.name");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {

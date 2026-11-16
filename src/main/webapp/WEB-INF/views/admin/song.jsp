@@ -109,6 +109,10 @@
         <label>Rok
           <input name="year" type="number" min="1900" max="2100" value="${song.year != null ? song.year : ''}">
         </label>
+        <%-- spolupráce = cizí track, kde hostuju: web ji řadí až za moje skladby (Hudba a Texty ji mají v části Spolupráce) --%>
+        <input type="hidden" name="collab_form" value="1">
+        <label class="admin-check"><input type="checkbox" name="collab" value="1" ${song.collab ? 'checked' : ''}> Spolupráce – cizí track, kde hostuju</label>
+        <p class="text-dim">Spolupráce se na webu ukazují až za mými skladbami a nikdy nejsou na úvodu jako „Nový song“.</p>
         <button type="submit">Uložit</button>
       </form>
     </section>

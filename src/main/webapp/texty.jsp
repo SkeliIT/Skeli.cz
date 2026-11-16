@@ -22,7 +22,7 @@
                placeholder="${t['lyrics.search.placeholder']}" aria-label="${t['lyrics.search.placeholder']}">
       </form>
       <div class="filter-chips" id="yearChips" role="group" aria-label="${t['lyrics.filter.year']}" data-older="${t['lyrics.filter.older']}"
-           data-all="${t['lyrics.filter.all']}"></div>
+           data-all="${t['lyrics.filter.all']}" data-collab="${t['music.collabs']}"></div>
     </sk:pageHero>
     <p class="empty-note" id="searchNone" hidden data-t="<%= WebUtils.escapeHtml(t.getProperty("lyrics.search.none")) %>"
        data-k="<%= WebUtils.escapeHtml(t.getProperty("karaoke.list.none")) %>"></p>
@@ -50,7 +50,18 @@
       <div class="lyric-wheel song-list" id="songGrid" tabindex="0" aria-label="${t['menu.lyrics']}">
         <div class="wheel-pad" aria-hidden="true"></div>
         <%
+            boolean collabHead = false;   // oddělovač „Spolupráce“ už je vypsaný
             if (songs != null) for (LyricListItem song : songs) {
+                if (song.collab && !collabHead) {
+                    collabHead = true;
+                    // moje skladby nahoře, pod oddělovačem spolupráce (cizí tracky, kde hostuju)
+        %>
+        <div class="wheel-divider" id="collabDivider">
+          <h2><%= WebUtils.escapeHtml(t.getProperty("music.collabs")) %></h2>
+          <p><%= WebUtils.escapeHtml(t.getProperty("music.collabs.lead")) %></p>
+        </div>
+        <%
+                }
                 SongTitle st = SongTitle.of(song.name);
                 String art = song.artUrl();
                 String meta = st.credits;
@@ -63,7 +74,7 @@
                 String verse = verses.get(song.songId);
                 String path = WebUtils.escapeHtml(song.path(cur));
         %>
-        <article class="song-row wheel-item" data-song="<%= song.songId %>" data-year="<%= yearKey %>"<%= k ? " data-k=\"1\"" : "" %>>
+        <article class="song-row wheel-item" data-song="<%= song.songId %>" data-year="<%= yearKey %>"<%= k ? " data-k=\"1\"" : "" %><%= song.collab ? " data-collab=\"1\"" : "" %>>
           <span class="song-row-art" aria-hidden="true">
           <% if (art != null) { %>
             <img src="<%= WebUtils.escapeHtml(art) %>" alt="" loading="lazy" data-trim-bars<% if (!song.artStyle.isEmpty()) { %> style="<%= song.artStyle %>" data-manual="1"<% } %>>

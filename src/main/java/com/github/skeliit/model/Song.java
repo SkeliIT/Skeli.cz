@@ -22,6 +22,9 @@ public class Song {
     public String getAppleMusicId() { return appleMusicId; }
     public String getSpotifyId() { return spotifyId; }
     public String getPreviewImageUrl() { return previewImageUrl; }
+    /** true = cizí track, kde Skeli hostuje (spolupráce): web ho řadí až za vlastní skladby (V141). */
+    public boolean collab;
+    public boolean isCollab() { return collab; }
     /** The newest clip of the song (only filled by SongDao.listWithFirstLyric). */
     public String youtubeId;
     /** A small picture of the song: its newest clip's thumbnail, else its preview photo, else null. */

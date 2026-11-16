@@ -104,7 +104,7 @@ public class KaraokeDao {
                 "SELECT s.uuid, s.name, s.year, l.words, s.poster_x, s.poster_y, s.poster_zoom, (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id "
                         + "ORDER BY v.published_at IS NULL, v.published_at DESC LIMIT 1) yt "
                         + "FROM songs s JOIN lyrics l ON l.song_id = s.id AND l.lang = 'cs' "
-                        + "WHERE l.words IS NOT NULL AND l.words <> '' AND s.uuid IS NOT NULL ORDER BY s.year IS NULL, s.year DESC, s.name");
+                        + "WHERE l.words IS NOT NULL AND l.words <> '' AND s.uuid IS NOT NULL ORDER BY s.collab, s.year IS NULL, s.year DESC, s.name");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 if (rs.getString(8) == null) continue;

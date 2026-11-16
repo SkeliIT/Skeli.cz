@@ -32,7 +32,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 // Titles missing in the DB are filled from YouTube in the background (VideoTitles)
                 String sql = "SELECT v.youtube_id, v.title, s.name, s.year, s.preview_image_url " +
                                 "FROM videos v LEFT JOIN songs s ON s.id=v.song_id " +
-                                "ORDER BY s.year DESC, v.id DESC";
+                                "ORDER BY COALESCE(s.collab, 0), s.year DESC, v.id DESC";   // spolupráce až za mými videi
                 try (Connection c = Db.get();
                                 PreparedStatement ps = c.prepareStatement(sql);
                                 ResultSet rs = ps.executeQuery()) {

@@ -353,10 +353,14 @@ public class AdminSongDetailServlet extends HttpServlet {
                     }
                     SongLocale cs = lyrics.findLocale(id, "cs");
                     String seoKeep = cs != null ? cs.seoSlug : song.seoSlug;
+                    // formulář „Píseň“ posílá jen název a rok: chybějící pole = ponechat (dřív se tím smazala ID Spotify a Apple Music)
+                    String appleRaw = req.getParameter("apple_music_id"), spotifyRaw = req.getParameter("spotify_id");
                     songs.updateBasics(id, name.trim(), year,
-                            appleMusicId(req.getParameter("apple_music_id")),
-                            spotifyId(req.getParameter("spotify_id")),
+                            appleRaw == null ? song.appleMusicId : appleMusicId(appleRaw),
+                            spotifyRaw == null ? song.spotifyId : spotifyId(spotifyRaw),
                             seoKeep);
+                    // přepínač Spolupráce je jen ve formuláři „Píseň“ (nezaškrtnuté pole prohlížeč nepošle)
+                    if (req.getParameter("collab_form") != null) songs.updateCollab(id, req.getParameter("collab") != null);
                     resp.sendRedirect(hub + "&msg=saved");
                 }
             }

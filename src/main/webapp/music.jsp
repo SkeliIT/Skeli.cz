@@ -43,7 +43,20 @@
       // obrázek a jeho posun vybraný v adminu (karta „Obrázek v Diskografii“)
       java.util.Map<Integer, String[]> discoPicked = java.util.Map.of();
       try { discoPicked = new com.github.skeliit.dao.SongDao().discoPictures(); } catch (Exception e) { application.log("Diskografie obrázky", e); }
+      boolean collabHead = false;   // nadpis „Spolupráce“ už je vypsaný
       if (disco != null) for (DiscoItem d : disco) {
+        if (d.collab && !collabHead) {
+          collabHead = true;
+          // moje skladby jsou nahoře, spolupráce (cizí tracky, kde hostuju) mají vlastní část pod nimi
+    %>
+    </div>
+    <div class="section-head collab-head" id="spoluprace">
+      <h3><%= WebUtils.escapeHtml(t.getProperty("music.collabs")) %></h3>
+      <p><%= WebUtils.escapeHtml(t.getProperty("music.collabs.lead")) %></p>
+    </div>
+    <div class="song-grid collab-grid">
+    <%
+        }
         String nameHtml = WebUtils.escapeHtml(d.name);
         String yt = d.youtubeId;
         String ytHtml = yt == null ? null : WebUtils.escapeHtml(yt);

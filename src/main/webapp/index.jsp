@@ -26,7 +26,9 @@
   final String featuredId = latest == null ? "" : latest.youtubeId();
   java.util.List<com.github.skeliit.dao.HomeDao.HomeVideo> newsVideos = new java.util.ArrayList<>();
   if (latest != null) newsVideos.add(latest);   // první velká novinka = nový song
-  for (com.github.skeliit.dao.HomeDao.HomeVideo hv : homeVideos) if (!hv.youtubeId().equals(featuredId) && newsVideos.size() < 4) newsVideos.add(hv);
+  // nejdřív moje videa, spolupráce (cizí tracky, kde hostuju) až za nimi – na úvodu se tak skoro nedostanou
+  for (com.github.skeliit.dao.HomeDao.HomeVideo hv : homeVideos) if (!hv.collab() && !hv.youtubeId().equals(featuredId) && newsVideos.size() < 4) newsVideos.add(hv);
+  for (com.github.skeliit.dao.HomeDao.HomeVideo hv : homeVideos) if (hv.collab() && !hv.youtubeId().equals(featuredId) && newsVideos.size() < 4) newsVideos.add(hv);
 %>
 <main class="home-page ulice">
   <%-- vzhled „Ulice“ (2026-11): vlevo jméno sprejem, citát vypalovaný laserem a tlačítka; fotka v pozadí je

@@ -95,7 +95,7 @@ public class KevinApiServlet extends HttpServlet {
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT v.youtube_id, v.title, s.uuid, s.name, "
                 + "(SELECT COUNT(*) FROM lyrics l WHERE l.song_id = s.id) AS texts "
-                + "FROM videos v LEFT JOIN songs s ON s.id = v.song_id ORDER BY RAND() LIMIT 1");
+                + "FROM videos v LEFT JOIN songs s ON s.id = v.song_id WHERE COALESCE(s.collab, 0) = 0 ORDER BY RAND() LIMIT 1");   // Kevin pouští jen moje skladby, ne spolupráce
              ResultSet rs = ps.executeQuery()) {
             return rs.next() ? clip(rs) : null;
         }
