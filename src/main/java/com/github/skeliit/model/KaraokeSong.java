@@ -13,6 +13,8 @@ public class KaraokeSong {
     public String posterStyle = "";
     /** délka klipu v sekundách (0 = neznámá) */
     public int duration;
+    /** true = spolupráce (cizí track, kde Skeli hostuje) */
+    public boolean collab;
 
     public String getUuid() { return uuid; }
     public String getTitle() { return title; }

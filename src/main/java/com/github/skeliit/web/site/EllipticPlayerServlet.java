@@ -23,6 +23,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 String title;
                 String year;
                 String preview; // song preview image, optional
+                boolean collab; // spolupráce (cizí track, kde Skeli hostuje) – vlastní číslování a štítek
         }
 
         @Override
@@ -30,7 +31,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 resp.setContentType("text/html; charset=UTF-8");
                 List<Vid> vids = new ArrayList<>();
                 // Titles missing in the DB are filled from YouTube in the background (VideoTitles)
-                String sql = "SELECT v.youtube_id, v.title, s.name, s.year, s.preview_image_url " +
+                String sql = "SELECT v.youtube_id, v.title, s.name, s.year, s.preview_image_url, COALESCE(s.collab, 0) " +
                                 "FROM videos v LEFT JOIN songs s ON s.id=v.song_id " +
                                 "ORDER BY COALESCE(s.collab, 0), s.year DESC, v.id DESC";   // spolupráce až za mými videi
                 try (Connection c = Db.get();
@@ -43,6 +44,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                                 v.title = title != null ? title : (rs.getString(3) != null ? rs.getString(3) : "YouTube");
                                 v.year = rs.getString(4);
                                 v.preview = rs.getString(5);
+                                v.collab = rs.getBoolean(6);
                                 vids.add(v);
                         }
                 } catch (SQLException e) {
@@ -83,13 +85,16 @@ public class EllipticPlayerServlet extends HttpServlet {
                                         : v.title.replace("\\", "\\\\").replace("\"", "\\\"").replace("'", "\\'");
                         String prev = v.preview == null ? ""
                                         : v.preview.replace("\\", "\\\\").replace("\"", "\\\"").replace("'", "\\'");
-                        out.printf("videos.push({id:'%s', title:'%s', preview:'%s'});%n", v.id, escTitle, prev);
+                        out.printf("videos.push({id:'%s', title:'%s', preview:'%s', collab:%s});%n", v.id, escTitle, prev, v.collab);
                 }
                 out.println("function esc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;'); }");
                 out.println("const frame = document.getElementById('ep-main');");
                 out.println("const poster = document.getElementById('ep-poster');");
                 out.println("const viewport = document.getElementById('ep-viewport');");
                 out.println("let currentIndex = 0, glitchOn = false;");
+                // spolupráce jsou na konci seznamu a mají vlastní číslování (SPOLUPRÁCE 01 / 05)
+                String collabLabel = WebUtils.escapeJs(tr.getProperty("music.collabs", "").toUpperCase(java.util.Locale.ROOT));
+                out.println("const COLLAB = '" + collabLabel + "', SOLO_N = videos.filter(v => !v.collab).length;");
 
                 out.println("function build(){");
                 out.println("  videos.forEach((video, index) => {");
@@ -99,7 +104,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("    const thumb = video.preview || `/yt-thumb/${video.id}/hqdefault.jpg`;");
                 out.println("    item.innerHTML = `");
                 out.println("      <img src='${thumb}' alt='${esc(video.title)}'>");
-                out.println("      <div class='ep-title'>${esc(video.title)}</div>");
+                out.println("      ${video.collab ? `<span class='ep-ft'>ft.</span>` : ''}<div class='ep-title'>${esc(video.title)}</div>");
                 out.println("    `;");
                 out.println("    item.addEventListener('click', () => goTo(index, true));");
                 out.println("    viewport.appendChild(item);");
@@ -157,7 +162,8 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("  currentIndex = (index + videos.length) % videos.length;");
                 out.println("  updateUI(); place();");
                 out.println("  const pad = n => String(n).padStart(2, '0');");
-                out.println("  document.getElementById('ep-track').textContent = 'TRACK ' + pad(currentIndex + 1) + ' / ' + pad(videos.length);");
+                out.println("  const cur = videos[currentIndex];");
+                out.println("  document.getElementById('ep-track').textContent = cur.collab ? COLLAB + ' ' + pad(currentIndex - SOLO_N + 1) + ' / ' + pad(videos.length - SOLO_N) : 'TRACK ' + pad(currentIndex + 1) + ' / ' + pad(SOLO_N);");
                 out.println("  document.getElementById('ep-name').textContent = videos[currentIndex].title;");
                 // krátký glitch při přepnutí (ne při načtení stránky); barvu stránky podle videa nastaví js/effects.js
                 out.println("  const fw = frame.closest('.ep-frame-wrap'); if (glitchOn) { fw.classList.remove('glitch'); void fw.offsetWidth; fw.classList.add('glitch'); }");

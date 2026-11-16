@@ -2910,3 +2910,13 @@ body.light .kp-orb i:first-child { background: radial-gradient(ellipse at 50% 62
 .wheel-divider h2::after { --dir: left; }
 .wheel-divider p { margin: 0; font-family: var(--font-text); font-size: var(--fs-text); color: var(--text-dim); }
 .wheel-years button.rail-collab { margin-top: 8px; }
+/* Karaoke Setlist a lišta písní u textu: spolupráce pod vlastním nadpisem */
+.kp-collab-head { margin: 34px 0 12px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+.kp-collab-head h3 { margin: 0 0 4px; font-size: var(--fs-h3); font-weight: 400; color: var(--accent); }
+.kp-collab-head p { margin: 0; font-family: var(--font-text); font-size: var(--fs-text); color: var(--text-dim); }
+.lyric-page .lyric-nav li.nav-collab-sep { display: flex; align-items: center; gap: 8px; padding: 0 4px 0 8px;
+  font-size: var(--fs-small); color: var(--accent); white-space: nowrap; }
+.lyric-page .lyric-nav li.nav-collab-sep::before { content: ""; width: 1px; height: 22px; background: color-mix(in srgb, var(--accent) 50%, transparent); }
+/* přehrávač na Hudbě: štítek ft. na miniatuře spolupráce */
+.ep-item .ep-ft { position: absolute; top: 6px; left: 6px; z-index: 1; padding: 1px 8px; border-radius: 999px; font-size: var(--fs-small);
+  color: var(--accent-ink); background: var(--accent); }

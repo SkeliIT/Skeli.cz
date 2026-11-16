@@ -921,3 +921,5 @@ body.light .user-blocked { color: #b3261e; }
 .urgent-guide[open] summary, .urgent-guide summary i { color: #f04f5e; }
 .urgent-guide ol { display: grid; gap: 8px; margin: 12px 0; padding-left: 1.3em; font-family: var(--font-text); }
 .urgent-guide p { margin: 0; font-family: var(--font-text); }
+/* štítek ft. = spolupráce (cizí track, kde hostuju) */
+.songs-ft { margin-left: 6px; padding: 0 7px; border-radius: 999px; font-size: var(--fs-small); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }

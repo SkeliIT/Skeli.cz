@@ -30,8 +30,11 @@ public class SongOverview {
     public String getLangLabel() { int n = getLangCount(); return n == 0 ? "bez textu" : "text " + n + "/" + SITE_LANGS.length; }
     /** Jazyky, ve kterých text je, pro bublinu v seznamu Písní. */
     public String getLangNames() { StringBuilder b = new StringBuilder(); for (String l : SITE_LANGS) if (hasLang(l)) b.append(b.length() > 0 ? ", " : "").append(l.toUpperCase()); return b.length() == 0 ? "žádné" : b.toString(); }
-    /** Má všechno: video, Spotify, Apple Music a text ve všech jazycích (filtr v seznamu Písní). */
-    public boolean isComplete() { return hasVideo && isHasSpotify() && isHasApple() && getLangCount() == SITE_LANGS.length; }
+    /** spolupráce (cizí track, kde Skeli hostuje) – v seznamu štítek ft. */
+    public boolean collab;
+    public boolean isCollab() { return collab; }
+    /** Má všechno: video, Spotify, Apple Music a text ve všech jazycích (filtr v seznamu Písní); u spolupráce stačí video a texty (cizí track nemám na Spotify ani Apple Music). */
+    public boolean isComplete() { return hasVideo && (collab || (isHasSpotify() && isHasApple())) && getLangCount() == SITE_LANGS.length; }
     public String getPreviewImageUrl() { return previewImageUrl; }
     public Integer getFirstLyricId() { return firstLyricId; }
     public String getAppleMusicId() { return appleMusicId; }

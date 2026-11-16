@@ -58,12 +58,12 @@ public class UserDao {
         }
     }
 
-    /** Písně pro výběr oblíbené: {uuid, název}, podle abecedy. */
+    /** Písně pro výběr oblíbené: {uuid, název, "1" = spolupráce}; nejdřív moje skladby, pak spolupráce, obě podle abecedy. */
     public List<String[]> songChoices() throws SQLException {
         List<String[]> out = new ArrayList<>();
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT uuid, name FROM songs WHERE uuid IS NOT NULL ORDER BY name");
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT uuid, name, collab FROM songs WHERE uuid IS NOT NULL ORDER BY collab, name");
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) out.add(new String[] { rs.getString(1), rs.getString(2) });
+            while (rs.next()) out.add(new String[] { rs.getString(1), rs.getString(2), rs.getBoolean(3) ? "1" : "0" });
         }
         return out;
     }

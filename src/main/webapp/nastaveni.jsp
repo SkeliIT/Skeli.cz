@@ -191,7 +191,13 @@
         <label><%= t.getProperty("profile.favSong") %>
           <select name="fav_song">
             <option value=""><%= t.getProperty("profile.favSong.none") %></option>
-            <% for (String[] sc : songChoices) { %><option value="<%= WebUtils.escapeHtml(sc[0]) %>"<%= sc[0].equals(showcase[0]) ? " selected" : "" %>><%= WebUtils.escapeHtml(sc[1]) %></option><% } %>
+            <%-- dvě skupiny: Skeliho skladby, pod nimi spolupráce (cizí tracky, kde hostuje) --%>
+            <% String favGroup = null;
+               for (String[] sc : songChoices) {
+                 String g = "1".equals(sc[2]) ? t.getProperty("music.collabs") : "Skeli";
+                 if (!g.equals(favGroup)) { if (favGroup != null) { %></optgroup><% } favGroup = g; %><optgroup label="<%= WebUtils.escapeHtml(g) %>"><% } %>
+            <option value="<%= WebUtils.escapeHtml(sc[0]) %>"<%= sc[0].equals(showcase[0]) ? " selected" : "" %>><%= WebUtils.escapeHtml(sc[1]) %></option><% }
+               if (favGroup != null) { %></optgroup><% } %>
           </select>
         </label>
         <label class="wide"><%= t.getProperty("profile.motto") %>

@@ -44,7 +44,7 @@ public class SearchServlet extends HttpServlet {
                     + "FROM songs s JOIN lyrics l ON l.song_id = s.id "
                     + "GROUP BY s.id, s.uuid, s.name "
                     + "HAVING s.name LIKE ? OR words IS NOT NULL "
-                    + "ORDER BY s.name LIKE ? DESC, s.year DESC LIMIT " + MAX_RESULTS;
+                    + "ORDER BY s.name LIKE ? DESC, s.collab, s.year DESC LIMIT " + MAX_RESULTS;   // spolupráce až za mými skladbami
             try (Connection conn = Db.get(); PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, like);
                 ps.setString(2, like);

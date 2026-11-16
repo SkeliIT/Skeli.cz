@@ -11,9 +11,15 @@
   <nav class="lyric-switcher">
     <a class="lyric-back" href="/texty.jsp"><i class="fa-solid fa-arrow-left"></i> <%= t.getProperty("lyrics.back") %></a>
     <ul class="lyric-nav">
+      <c:set var="collabSep" value="${false}"/>
       <c:forEach items="${songs}" var="s">
         <%-- only songs that have lyrics; the others would link to nothing --%>
         <c:if test="${not empty s.firstLyricId}">
+        <%-- spolupráce (cizí tracky, kde hostuju) jsou na konci za oddělovačem --%>
+        <c:if test="${s.collab and not collabSep}">
+          <c:set var="collabSep" value="${true}"/>
+          <li class="nav-collab-sep"><span><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("music.collabs")) %></span></li>
+        </c:if>
         <li>
           <a href="/<%= cur %>/song/${s.uuid}"
              class="${(lyric != null && lyric.songId == s.id) ? 'active' : ''}" title="<c:out value='${s.name}'/>">

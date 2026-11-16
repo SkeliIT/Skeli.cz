@@ -45,9 +45,16 @@
     <h2 class="kp-setlist-head"><%= WebUtils.escapeHtml(t.getProperty("karaoke.page.setlist")) %></h2>
     <% if (kSongs == null || kSongs.isEmpty()) { %>
     <p class="empty-note"><%= WebUtils.escapeHtml(t.getProperty("karaoke.list.none")) %></p>
-    <% } else { int n = 0; for (KaraokeSong s : kSongs) { n++; %>
+    <% } else { int n = 0, shownN = 0; boolean collabHead = false;
+         for (KaraokeSong s : kSongs) { n++; shownN++;
+           if (s.collab && !collabHead) { collabHead = true; shownN = 1;   // spolupráce pod vlastním nadpisem, číslují se znovu od 01 %>
+    <div class="kp-collab-head">
+      <h3><%= WebUtils.escapeHtml(t.getProperty("music.collabs")) %></h3>
+      <p><%= WebUtils.escapeHtml(t.getProperty("music.collabs.lead")) %></p>
+    </div>
+    <% } %>
     <button type="button" class="kp-row<%= n == 1 ? " sel" : "" %>" data-i="<%= n - 1 %>" data-uuid="<%= s.uuid %>" data-thumb="<%= s.getThumb() %>">
-      <span class="n" aria-hidden="true"><%= n < 10 ? "0" + n : String.valueOf(n) %></span>
+      <span class="n" aria-hidden="true"><%= shownN < 10 ? "0" + shownN : String.valueOf(shownN) %></span>
       <span class="t"><b><%= WebUtils.escapeHtml(s.title) %></b><span><%= s.year == null ? "" : s.year %><%= s.credits == null || s.credits.isBlank() ? "" : " · " + WebUtils.escapeHtml(s.credits) %></span></span>
       <span class="d"><span class="eqr" aria-hidden="true"><i></i><i></i><i></i></span><%= s.duration > 0 ? (s.duration / 60) + ":" + (s.duration % 60 < 10 ? "0" : "") + (s.duration % 60) : "" %><% if (!kCanSing) { %> <i class="fa-solid fa-lock" aria-hidden="true"></i><% } %></span>
       <span class="th"><img src="<%= s.getThumb() %>" alt="" loading="lazy"></span>
