@@ -109,6 +109,9 @@ html {
 
 body {
   font-family: var(--font-body);
+  /* odvozená jemná barva se musí počítat až na body: tady mění --accent skript (js/effects.js); na :root by zůstala
+     navždy vypočtená z výchozí rudé a v tmavém režimu by barvu fotky nesledovala */
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
   font-size: var(--fs-body);
   letter-spacing: 0.01em;
   /* Bruno Ace SC has a single weight: never let the browser fake a bold */

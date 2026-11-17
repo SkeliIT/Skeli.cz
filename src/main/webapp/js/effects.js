@@ -192,6 +192,26 @@
       if (k >= STEPS) clearInterval(stepT);
     }, 4000 / STEPS);
   }
+  // Kontrast (WCAG AA 4,5 : 1): hlavní barva slouží jako text na pozadí stránky (odkazy, nadpisy) i jako podklad
+  // pod textem --accent-ink (tlačítka, aktivní položka menu). Když některý z obou kontrastů nestačí, barva se ve
+  // světlém režimu ztmaví a v tmavém zesvětlí – po kouscích, se stejným odstínem i sytostí. Ve světlém režimu to
+  // potřebovala zlatá (point) a oranžová (pole) fotka a barvy písní u žlutých a zelených klipů.
+  var CONTRAST = { dark: { bg: '#09090b', ink: '#141414', dir: 1 }, light: { bg: '#f4f2ee', ink: '#ffffff', dir: -1 } }, readableCache = {};
+  function lum(hex) {
+    return [1, 3, 5].map(function (i) { var v = parseInt(hex.substr(i, 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); })
+      .reduce(function (a, v, i) { return a + v * [0.2126, 0.7152, 0.0722][i]; }, 0);
+  }
+  function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function readable(hex, mode) {
+    var key = mode + hex;
+    if (readableCache[key]) return readableCache[key];
+    var k = CONTRAST[mode], v = toHsl(hex), l = v[2] / 100, out = hex;
+    for (var i = 0; i < 60 && (ratio(out, k.bg) < 4.5 || ratio(out, k.ink) < 4.5); i++) {
+      l = Math.max(0, Math.min(1, l + k.dir * 0.01));
+      out = hsl(v[0], v[1] / 100, l);
+    }
+    return (readableCache[key] = out);
+  }
   // instant = bez přelévání (načtení stránky, nová stránka navazuje na fotku té předchozí)
   function paint(name, instant) {
     if (name) painted = name;
@@ -202,6 +222,7 @@
     }
     var mode = b.classList.contains('light') ? 'light' : 'dark';
     var c = own ? OWN[mode] : (songColor ? songColor[mode === 'light' ? 1 : 0] : PALETTE[mode][painted]);
+    if (c) c = [readable(c[0], mode), c[1]];   // hlavní barva vždy čitelná (kontrast aspoň 4,5 : 1), odstín zůstává
     if (c) setAccents(b, c, instant);
     else { clearInterval(stepT); curVal = {}; b.style.removeProperty('--accent'); b.style.removeProperty('--accent-2'); }
     // stránka písně: podlaha pod kouřem (a kouř sám) v odstínu písně, aby nálada písně pokračovala i pod videem
@@ -274,6 +295,7 @@
     // fotka se stáhne a rozbalí dopředu (prep), aby se při výměně nemusela stahovat zároveň s prolínáním
     function prep(layer, done) {
       if (!layer) { if (done) done(); return; }
+      if (layer.dataset.failed) { if (done) done(); return; }   // už jednou selhala: nezkoušet znovu
       if (layer.style.getPropertyValue('--slide')) { if (done) done(); return; }
       if (layer._prep) { if (done) layer._prep.push(done); return; }
       layer._prep = done ? [done] : [];
@@ -284,6 +306,9 @@
         var q = layer._prep; layer._prep = null; q.forEach(function (f) { f(); });
       }
       img.onload = function () { if (img.decode) img.decode().then(ready, ready); else ready(); };
+      // fotka se nenačetla (chyba sítě, smazaný soubor): vrstva dostane příznak a při výměně se vyřadí,
+      // střídání pokračuje dalšími fotkami; znovu se nezkouší (až při dalším načtení stránky)
+      img.onerror = function () { layer.dataset.failed = '1'; var q = layer._prep; layer._prep = null; q.forEach(function (f) { f(); }); };
       img.src = layer.dataset.src;
     }
     // další fotka v pořadí (krok step + 1; po poslední přijde obvyklé pozadí = nic)
@@ -309,7 +334,10 @@
           });
         });
       }
-      prep(cur, function () { swap(); prepNext(); });
+      prep(cur, function () {
+        if (cur && cur.dataset.failed) { cur.remove(); step = Math.max(0, step - 1); save(); prepNext(); return; }   // vadná fotka ven, barva zůstane
+        swap(); prepNext();
+      });
     }
     function save() {
       try { sessionStorage.setItem(SLIDE_KEY, JSON.stringify({ step: step, at: Date.now(), theme: theme() })); } catch (e) { }
