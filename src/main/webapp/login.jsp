@@ -10,7 +10,7 @@
       <div class="form-alert"><%= loginError %></div>
       <% } %>
       <% if ("1".equals(request.getParameter("registered"))) { %>
-      <div class="form-success"><%= t.getProperty("auth.register.success","Registrace proběhla úspěšně. Nyní se můžete přihlásit.") %></div>
+      <div class="form-success"><%= t.getProperty("auth.register.success") %></div>
       <% } %>
       <% if ("1".equals(request.getParameter("blocked"))) { %><div class="form-alert"><%= t.getProperty("auth.error.blocked") %></div><% } %>
       <% if ("1".equals(request.getParameter("reset"))) { %>

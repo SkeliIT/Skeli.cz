@@ -9,7 +9,7 @@
   <%-- signed out (e.g. the sign-in expired): no forms, just a way back in --%>
   <div class="settings-wrap">
     <section class="acct-card acct-signed-out text-center">
-      <h2 class="font-display"><%= t.getProperty("menu.account") %></h2>
+      <h2 class="font-display"><%= t.getProperty("settings.heading") %></h2>
       <p><%= t.getProperty("profile.loginRequired") %></p>
       <a class="btn btn-primary" href="/login.jsp?next=%2Fnastaveni.jsp"><i class="fa-solid fa-right-to-bracket"></i> <%= t.getProperty("auth.submit.login") %></a>
     </section>

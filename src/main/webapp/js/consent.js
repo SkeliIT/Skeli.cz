@@ -2,7 +2,7 @@
 //   necessary  – sign-in cookie, settings in the browser: always on, never asked
 //   (měření návštěvnosti přes Matomo bylo odstraněno – stačí logy serveru a vlastní počítadlo bez cookies)
 //   media      – YouTube / Spotify players (they see the IP address)
-// Stored in localStorage 'consent' = {"v":1,"analytics":bool,"media":bool,"at":"…"}.
+// Stored in localStorage 'consent' = {"v":1,"media":bool,"at":"…"} (dřívější pole „analytics“ už nic nedělalo, 17. 11. 2026 odstraněno).
 // 'cookieConsent' ('true'/'false' = media) stays for the older code (players, Kevin).
 // The choice can be changed any time: footer link "Cookie settings" (a[data-cookie-settings]).
 (function () {
@@ -16,17 +16,17 @@
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) return JSON.parse(raw);
-      // a visitor who answered the old bar: its "Accept" covered the players and analytics
+      // návštěvník, který odpověděl ještě staré liště: její „Přijmout“ platilo pro přehrávače
       const old = localStorage.getItem(LEGACY);
-      if (old === 'true') return { v: 1, analytics: true, media: true };
-      if (old === 'false') return { v: 1, analytics: false, media: false };
+      if (old === 'true') return { v: 1, media: true };
+      if (old === 'false') return { v: 1, media: false };
     } catch (e) { /* storage blocked: ask again */ }
     return null;
   }
 
-  function save(analytics, media) {
+  function save(media) {
     const before = read();
-    const c = { v: 1, analytics: !!analytics, media: !!media, at: new Date().toISOString() };
+    const c = { v: 1, media: !!media, at: new Date().toISOString() };
     try {
       localStorage.setItem(KEY, JSON.stringify(c));
       localStorage.setItem(LEGACY, c.media ? 'true' : 'false');
@@ -54,9 +54,9 @@
     const b = e.target.closest('[data-consent]');
     if (!b) return;
     const what = b.dataset.consent;
-    if (what === 'all') save(true, true);
-    else if (what === 'none') save(false, false);
-    else if (what === 'save') save(false, boxMedia.checked);
+    if (what === 'all') save(true);
+    else if (what === 'none') save(false);
+    else if (what === 'save') save(boxMedia.checked);
     else if (what === 'settings') {
       prefs.hidden = !prefs.hidden;
       b.setAttribute('aria-expanded', String(!prefs.hidden));
