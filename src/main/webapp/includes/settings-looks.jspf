@@ -107,6 +107,45 @@
     <a class="vz-more" href="/karaoke"><%= t.getProperty("look.kstyle.try") %> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
   </div>
 
+  <%-- Karaoke: písmo textu a animace naskakování (stejná volba jako tlačítko Aa v kině) --%>
+  <link rel="stylesheet" href="/css/karaoke-fonts.css?v=<%= assetVersion %>">
+  <% String vzFont = null, vzAnim = null;
+     try { com.github.skeliit.dao.RewardDao vzD = new com.github.skeliit.dao.RewardDao(); vzFont = vzD.look(uid, "kfont", vzHave); vzAnim = vzD.look(uid, "kanim", vzHave); } catch (Exception ignore) {} %>
+  <div class="vz-group">
+    <h4><i class="fa-solid fa-microphone-lines" aria-hidden="true"></i> <%= t.getProperty("look.kfont.title") %></h4>
+    <p class="acct-dim"><%= t.getProperty("look.kfont.lead") %></p>
+    <form class="vz-grid vz-grid-sm" method="post" action="/profile/look">
+      <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="slot" value="kfont">
+      <button type="submit" class="vz-tile vz-font" name="value" value="" aria-pressed="<%= vzFont == null %>">
+        <span class="vz-font-sample" style="font-family: 'Bruno Ace SC'">Aa Skeli</span><span class="vz-name">Bruno Ace SC</span>
+      </button>
+      <% for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of("kfont")) {
+           boolean open = vzHave.open(it), on = it.value.equals(vzFont); String fam = com.github.skeliit.model.Rewards.fontFamily(it.value); %>
+      <% if (open) { %>
+      <button type="submit" class="vz-tile vz-font" name="value" value="<%= it.value %>" aria-pressed="<%= on %>">
+      <% } else { %>
+      <div class="vz-tile vz-font is-locked">
+      <% } %>
+        <span class="vz-font-sample" style="font-family: '<%= fam %>'">Aa Skeli</span><span class="vz-name"><%= fam %></span>
+        <% if (!open) { %><small class="vz-how"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= vzHow(t, cur, it) %></small><% } %>
+      <%= open ? "</button>" : "</div>" %>
+      <% } %>
+    </form>
+    <h4 class="vz-sub"><%= t.getProperty("look.kanim.title") %></h4>
+    <form class="vz-chips" method="post" action="/profile/look">
+      <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="slot" value="kanim">
+      <button type="submit" class="vz-chip" name="value" value="" aria-pressed="<%= vzAnim == null %>"><%= t.getProperty("look.kanim.none") %></button>
+      <% for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of("kanim")) {
+           boolean open = vzHave.open(it), on = it.value.equals(vzAnim); %>
+      <% if (open) { %>
+      <button type="submit" class="vz-chip" name="value" value="<%= it.value %>" aria-pressed="<%= on %>"><%= t.getProperty("look.kanim." + it.value) %></button>
+      <% } else { %>
+      <span class="vz-chip is-locked" title="<%= WebUtils.escapeHtml(vzHow(t, cur, it).replace("&nbsp;", " ")) %>"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= t.getProperty("look.kanim." + it.value) %> <small><%= vzHow(t, cur, it) %></small></span>
+      <% } %>
+      <% } %>
+    </form>
+  </div>
+
   <%-- Rámeček kolem fotky (odznaky CatSmash, medaile šampiona) – vidí ho i ostatní --%>
   <div class="vz-group">
     <h4><i class="fa-regular fa-circle" aria-hidden="true"></i> <%= t.getProperty("pong.frame.title") %></h4>

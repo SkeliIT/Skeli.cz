@@ -3,7 +3,7 @@
 <%-- Karaoke cinema (preview of the coming big karaoke): /karaoke/{song uuid}, KaraokeCinemaServlet fills kinoJson.
      Two rooms: Prostor (/kino/prostor.js, a looping video; the default) and Ořechový salon (/kino/domov.js); switching loads the page again.
      A loading screen stays up until the room is built (no jerk on the way in). Czech only for now. --%>
-<% String v = "6.0.11";
+<% String v = "6.1.0";
    // ostatní styly a pokoje (zatím se dolaďují) vidí jen admin; role se čte z DB při přihlášení a AdminFilter ji obnovuje
    boolean allStyles = "ADMIN".equals(session.getAttribute("role"));
    // styly kina jsou odměny (model/Rewards, Nastavení → Vzhled): v kině se nabízí jen to, co má člověk odemčené,
@@ -21,6 +21,23 @@
    } catch (Exception ignore) {}
    if (!kOpen.contains("l")) kOpen.add(0, "l");
    boolean showPick = kOpen.size() > 1;
+   // písmo a animace textu (Lyric video): odemčené podle model/Rewards, uložená volba je výchozí
+   java.util.List<String> kFonts = new java.util.ArrayList<>(), kAnims = new java.util.ArrayList<>();
+   String kFont = null, kAnim = null;
+   try {
+     if (kUid != null) {
+       com.github.skeliit.dao.RewardDao kDao2 = new com.github.skeliit.dao.RewardDao();
+       com.github.skeliit.model.Rewards.Have kHave2 = kDao2.have(kUid, allStyles);
+       for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of("kfont")) if (kHave2.open(it)) kFonts.add(it.value);
+       for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of("kanim")) if (kHave2.open(it)) kAnims.add(it.value);
+       kFont = kDao2.look(kUid, "kfont", kHave2);
+       kAnim = kDao2.look(kUid, "kanim", kHave2);
+     }
+   } catch (Exception ignore) {}
+   java.util.Set<String> kCaps = java.util.Set.of("anton", "bebas", "russo", "saira", "bungee", "blackops", "monoton");
+   java.util.Map<String, String> kAnimNames = new java.util.LinkedHashMap<>();
+   kAnimNames.put("", "Prolnutí"); kAnimNames.put("blur", "Rozostření"); kAnimNames.put("mask", "Odkrývání"); kAnimNames.put("type", "Psací stroj");
+   kAnimNames.put("wave", "Vlna"); kAnimNames.put("flip", "Překlopení"); kAnimNames.put("glitch", "Glitch"); kAnimNames.put("smoke", "Kouř");
    java.util.Map<String, String[]> kNames = new java.util.LinkedHashMap<>();
    kNames.put("l", new String[] { "Lyric video", "Text dole vlevo, slova se rozsvěcují" });
    kNames.put("c", new String[] { "Čisté plátno", "Tma, plátno a text" });
@@ -34,6 +51,7 @@
 <title>Karaoke – <c:out value="${kinoTitle}"/> | Skeli</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/karaoke-fonts.css?v=<%= v %>">
 <link rel="preconnect" href="https://www.youtube-nocookie.com">
 <style>
 @font-face { font-family: 'Comforter Brush'; font-display: swap; src: url(/fonts/comforter-brush-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F; }
@@ -234,6 +252,10 @@ button { font: inherit; color: inherit; }
   background: rgba(12, 12, 14, .88); border: 1px solid rgba(255, 255, 255, .1); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .rooms[hidden], .room-pick[hidden], .cb.room-btn[hidden] { display: none; }
 .rooms .room { height: 66px; }
+.looks { grid-template-columns: min(420px, 86vw); }
+.look-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.look-chip { min-height: 40px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(244, 239, 230, .25); background: rgba(255, 255, 255, .04); color: #f4efe6; font-size: 15px; cursor: pointer; }
+.look-chip[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); background: rgba(230, 183, 48, .12); }
 @media (max-width: 760px) { .room-pick { grid-template-columns: minmax(0, 1fr); width: 92vw; } .rooms { grid-template-columns: 1fr; width: 86vw; right: 50%; transform: translateX(50%); } }
 .cb.room-btn { width: auto; padding: 0 14px 0 12px; gap: 7px; display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid rgba(230, 183, 48, .45); color: var(--gold); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
 @media (max-width: 700px) { .cb.room-btn span { display: none; } .cb.room-btn { padding: 0; width: 40px; } }
@@ -309,6 +331,21 @@ body.fading::after { opacity: 1; pointer-events: auto; }
       <% for (String k : kOpen) { String[] n = kNames.get(k); %><button type="button" class="room" data-room="<%= k %>" aria-pressed="false"><span class="rt"><b><%= n[0] %></b><small><%= n[1] %></small></span><span class="st-sw"<%= "l".equals(k) ? " data-word=\"BOOM\"" : "" %>></span></button><% } %>
   </div>
   <% } %>
+  <% if (kUid != null) { %>
+  <button class="cb room-btn" id="lookBtn" title="Písmo a animace textu" aria-label="Písmo a animace textu"><span style="font: 400 15px 'Bruno Ace SC'">Aa</span></button>
+  <div class="rooms looks" id="looks" hidden>
+    <div class="room-k">Písmo textu <small>(další v Nastavení → Vzhled)</small></div>
+    <div class="look-chips">
+      <button type="button" class="look-chip" data-kfont="" style="font-family: 'Bruno Ace SC'">Bruno</button>
+      <% for (String f : kFonts) { String fam = com.github.skeliit.model.Rewards.fontFamily(f); %><button type="button" class="look-chip" data-kfont="<%= f %>" data-family="<%= fam %>" data-caps="<%= kCaps.contains(f) %>" style="font-family: '<%= fam %>'"><%= fam %></button><% } %>
+    </div>
+    <div class="room-k">Jak řádek naskočí</div>
+    <div class="look-chips">
+      <button type="button" class="look-chip" data-kanim="">Prolnutí</button>
+      <% for (String a : kAnims) { %><button type="button" class="look-chip" data-kanim="<%= a %>"><%= kAnimNames.get(a) %></button><% } %>
+    </div>
+  </div>
+  <% } %>
   <button class="cb" id="fs" title="Celá obrazovka (F)" aria-label="Celá obrazovka"><svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm-2-4h2V7h3V5H5zm12 7h-3v2h5v-5h-2zM14 5v2h3v3h2V5z"/></svg></button>
 </div>
 <div class="lobby" id="lobby">
@@ -357,6 +394,29 @@ body.fading::after { opacity: 1; pointer-events: auto; }
   if (ROOM === "a" && weak) ROOM = "p";
   if (ROOM === "p") document.body.classList.add("cinema");
   window.KINO_STYLE = STYLES[ROOM] ? ROOM : null;
+  // písmo a animace textu: uložená volba (server ověřil, že je odemčená); změna se hned projeví a uloží
+  window.KLOOK = { font: <%= kFont == null ? "null" : "\"" + kFont + "\"" %>, family: <%= kFont == null ? "null" : "\"" + com.github.skeliit.model.Rewards.fontFamily(kFont) + "\"" %>,
+    caps: <%= kFont == null || kCaps.contains(kFont) %>, anim: <%= kAnim == null ? "null" : "\"" + kAnim + "\"" %>, v: 0 };
+  function markLook() {
+    document.querySelectorAll("[data-kfont]").forEach(function (b) { b.setAttribute("aria-pressed", String((b.dataset.kfont || null) === KLOOK.font)); });
+    document.querySelectorAll("[data-kanim]").forEach(function (b) { b.setAttribute("aria-pressed", String((b.dataset.kanim || null) === KLOOK.anim)); });
+  }
+  function saveLook(slot, value) {
+    fetch("/profile/look", { method: "POST", credentials: "same-origin",
+      headers: { "Content-Type": "application/x-www-form-urlencoded", "X-CSRF-Token": CSRF },
+      body: "json=1&slot=" + slot + "&value=" + encodeURIComponent(value) }).catch(function () {});
+  }
+  document.addEventListener("click", function (e) {
+    var f = e.target.closest && e.target.closest("[data-kfont]"), a = e.target.closest && e.target.closest("[data-kanim]");
+    if (f) { KLOOK.font = f.dataset.kfont || null; KLOOK.family = f.dataset.family || null; KLOOK.caps = !f.dataset.kfont || f.dataset.caps === "true"; saveLook("kfont", f.dataset.kfont); }
+    else if (a) { KLOOK.anim = a.dataset.kanim || null; saveLook("kanim", a.dataset.kanim); }
+    else return;
+    KLOOK.v++; if (window.kinoApplyLook) window.kinoApplyLook(); markLook();
+  });
+  markLook();
+  var lookBtn = document.getElementById("lookBtn");
+  if (lookBtn) lookBtn.onclick = function (e) { e.stopPropagation(); var r = document.getElementById("looks"); r.hidden = !r.hidden; };
+  addEventListener("click", function (e) { var r = document.getElementById("looks"); if (r && !r.hidden && !r.contains(e.target)) r.hidden = true; });
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("[data-room]"); if (!b) return;
     var k = b.dataset.room;

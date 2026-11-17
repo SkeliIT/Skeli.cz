@@ -90,6 +90,32 @@ const STYLES = {};
 // dá se recitovat). Celý řádek je vidět předem šedě, slova se rozsvěcují při zpěvu, pod ním menší další řádek.
 // Vybráno z náhledu Skeli.cz-podklady/navrhy/karaoke-titulky (varianta B), 2026-11-15.
 const LEAD = 1.2;   // o kolik sekund dřív se řádek ukáže
+// Písmo a animace naskakování (Nastavení → Vzhled, tlačítko Aa v kině): window.KLOOK = { font, anim, caps }.
+// Animace: délka a krok mezi písmeny; --k je zkrátí, aby řádek doběhl dřív, než zazní první slovo (rychlý rap).
+const ANIM = { blur: [.7, .022, "i"], mask: [.6, .07, "wi"], type: [0, .038, "i"], glitch: [.55, .25, "r"], flip: [.7, .03, "i"], smoke: [1.2, .018, "i"], wave: [.8, .028, "i"] };
+function look() { return window.KLOOK || {}; }
+window.kinoApplyLook = function () {
+  const L = look(), r = document.documentElement.style;
+  if (L.family) r.setProperty("--kfont", "'" + L.family + "'"); else r.removeProperty("--kfont");
+  r.setProperty("--kcase", L.caps === false ? "none" : "uppercase");
+};
+window.kinoApplyLook();
+// Kdy se ukáže řádek k: nejdřív LEAD před svým začátkem, ale ne dřív, než dozní předchozí řádek
+// (dřív nový řádek přepsal ten, který se ještě zpíval); vždy aspoň chvilku před prvním slovem.
+function showAt(k) {
+  if (!k) return D.times[0][0] - FIRST_LEAD;
+  const start = D.times[k][0], prevEnd = D.times[k - 1][1];
+  return Math.min(start - .15, Math.max(start - LEAD, prevEnd + .05));
+}
+function lineHtml(i, t) {
+  const anim = ANIM[look().anim];
+  const ws = words(i);
+  if (!anim) return ws.map((w) => '<span class="w" data-a="' + w.a + '" data-b="' + w.b + '">' + esc(w.t) + '</span>').join(" ");
+  let n = 0;
+  return ws.map((w, wi) => '<span class="w" data-a="' + w.a + '" data-b="' + w.b + '" style="--wi:' + wi + '">'
+    + Array.from(w.t).map((c) => '<span class="ch" style="--i:' + (n++) + ';--r:' + Math.random().toFixed(2) + ';--dx:' + (Math.random() * 2 - 1).toFixed(2) + '">' + esc(c) + '</span>').join("")
+    + '</span>').join(" ");
+}
 STYLES.l = {
   build() {
     stage.innerHTML = '<div class="l-video"></div><div class="l-shade"></div><div class="l-sub"><span class="cur"></span><span class="nxt"></span></div>';
@@ -97,19 +123,38 @@ STYLES.l = {
     this.key = -2; this.cur = stage.querySelector('.l-sub .cur'); this.nxt = stage.querySelector('.l-sub .nxt');
   },
   frame(t) {
-    let i = -1; for (let k = 0; k < D.times.length; k++) if (D.times[k][0] - (k ? LEAD : FIRST_LEAD) <= t) i = k;
+    if (this.lv !== look().v) { this.lv = look().v; this.key = -2; }   // změna písma / animace = překreslit řádek
+    let i = -1; for (let k = 0; k < D.times.length; k++) if (showAt(k) <= t) i = k;
     // dlouhá pauza po řádku (a další ještě není na řadě) = prázdno
     const show = i >= 0 && t > D.times[i][1] + 2.5 && (i + 1 >= D.lines.length || D.times[i + 1][0] - t > LEAD) ? -1 : i;
     if (show !== this.key) {
       this.key = show;
-      this.cur.innerHTML = show < 0 ? '' : words(show).map((w) => '<span class="w" data-a="' + w.a + '" data-b="' + w.b + '">' + esc(w.t) + '</span>').join(' ');
+      const anim = ANIM[look().anim];
+      this.cur.innerHTML = show < 0 ? '' : lineHtml(show, t);
       this.nxt.textContent = show >= 0 && D.lines[show + 1] ? D.lines[show + 1] : '';
-      this.cur.classList.remove('swap'); void this.cur.offsetWidth; this.cur.classList.add('swap');
+      this.cur.className = 'cur';
+      if (show >= 0 && anim) {
+        // celá animace musí doběhnout před prvním slovem: jinak se zkrátí (u rychlého rapu)
+        const steps = anim[2] === "r" ? 1 : anim[2] === "wi" ? words(show).length : this.cur.querySelectorAll(".ch").length;
+        const total = anim[0] + anim[1] * steps, room = Math.max(.25, D.times[show][0] - t - .05);
+        this.cur.style.setProperty("--k", Math.min(1, room / total).toFixed(3));
+        void this.cur.offsetWidth; this.cur.classList.add('a-' + look().anim);
+      } else { void this.cur.offsetWidth; this.cur.classList.add('swap'); }
     }
     this.cur.querySelectorAll('.w').forEach((w) => {
       const a = +w.dataset.a, b = +w.dataset.b;
       w.classList.toggle('on', t >= a - .03); w.classList.toggle('now', t >= a - .03 && t <= b + .05);
     });
+    // Rubik Wet Paint: občas (asi jednou za 3 s) kápne z rozsvíceného písmene kapka barvou textu
+    if (look().font === "rubikwet" && !document.documentElement.classList.contains("low-fx") && t - (this.dripAt || 0) > 2.2 + Math.random() * 2.5) {
+      this.dripAt = t;
+      const lit = this.cur.querySelectorAll(".w.on"); const w = lit[Math.floor(Math.random() * lit.length)];
+      if (w) {
+        const box = this.cur.parentNode.getBoundingClientRect(), r = w.getBoundingClientRect(), d = document.createElement("i");
+        d.className = "drip"; d.style.left = (r.left - box.left + Math.random() * r.width) + "px"; d.style.top = (r.bottom - box.top - r.height * .18) + "px";
+        this.cur.parentNode.appendChild(d); setTimeout(() => d.remove(), 1700);
+      }
+    }
   }
 };
 

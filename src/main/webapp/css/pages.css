@@ -2998,3 +2998,8 @@ button.vz-tile:hover { border-color: color-mix(in srgb, var(--accent) 60%, trans
 .vz-p-aurora span { color: #fff; }
 .vz-p-gal { background: radial-gradient(40% 80% at 50% 0%, rgba(255, 250, 235, .3), transparent 70%), #1a1918; place-items: center; }
 .vz-p-gal span { color: #ece8e1; font-weight: 200; letter-spacing: .3em; }
+/* karaoke: písmo (ukázka přímo tím písmem) a animace */
+.vz-font-sample { display: block; width: 100%; padding: 10px 4px; font-size: 1.35rem; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: clip; }
+.vz-sub { margin: 16px 0 0; font-size: var(--fs-card); color: var(--text-dim); }
+.vz-chip.is-locked { cursor: default; opacity: .7; display: inline-flex; gap: 6px; align-items: center; }
+.vz-chip.is-locked small { font-family: var(--font-text); color: var(--text-dim); }

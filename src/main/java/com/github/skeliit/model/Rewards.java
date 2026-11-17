@@ -94,6 +94,45 @@ public final class Rewards {
         site("profile", "holo", "s_talk");   // Hologram – 25 komentářů
         days("profile", "cock", 30);         // Kokpit
         days("profile", "vinyl", 60);        // Vinyl
+
+        // Karaoke – písmo textu (css/karaoke-fonts.css). Výchozí = Bruno Ace SC (prázdná hodnota).
+        free("kfont", "oswald");
+        free("kfont", "anton");
+        days("kfont", "bebas", 3);
+        days("kfont", "russo", 3);
+        days("kfont", "saira", 7);
+        days("kfont", "bungee", 7);
+        site("kfont", "marck", "s_fan");
+        days("kfont", "blackops", 14);
+        days("kfont", "majormono", 14);
+        days("kfont", "fraunces", 14);
+        site("kfont", "sedgwick", "s_talk");
+        days("kfont", "rubikwet", 30);
+        days("kfont", "monoton", 30);
+        site("kfont", "comforter", "s_heart");
+
+        // Karaoke – jak řádek naskočí (kino/styly.css a-*). Výchozí = jemné prolnutí (prázdná hodnota).
+        free("kanim", "blur");
+        free("kanim", "mask");
+        days("kanim", "type", 3);
+        days("kanim", "wave", 7);
+        days("kanim", "flip", 14);
+        site("kanim", "glitch", "s_karaoke");
+        days("kanim", "smoke", 30);
+    }
+
+    /** Písmo karaoke: hodnota → jméno písma v CSS (bez hodnoty = Bruno Ace SC). */
+    public static final Map<String, String> KFONTS = Map.ofEntries(
+            Map.entry("oswald", "Oswald"), Map.entry("anton", "Anton"), Map.entry("bebas", "Bebas Neue"), Map.entry("russo", "Russo One"),
+            Map.entry("saira", "Saira Stencil One"), Map.entry("bungee", "Bungee"), Map.entry("marck", "Marck Script"),
+            Map.entry("blackops", "Black Ops One"), Map.entry("majormono", "Major Mono Display"), Map.entry("fraunces", "Fraunces"),
+            Map.entry("sedgwick", "Sedgwick Ave Display"), Map.entry("rubikwet", "Rubik Wet Paint"), Map.entry("monoton", "Monoton"),
+            Map.entry("comforter", "Comforter Brush"));
+
+    /** Jméno písma pro CSS (null/neznámé = výchozí Bruno Ace SC). */
+    public static String fontFamily(String value) {
+        String f = value == null ? null : KFONTS.get(value);
+        return f == null ? "Bruno Ace SC" : f;
     }
 
     /** Všechny věci jednoho slotu v pořadí katalogu. */

@@ -40,4 +40,10 @@ class RewardsTest {
         assertNull(Rewards.find("kstyle", null));
         assertNull(Rewards.find(null, "l"));
     }
+
+    @Test
+    void everyKaraokeFontHasAFamily() {
+        for (Rewards.Item it : Rewards.of("kfont")) assertTrue(Rewards.KFONTS.containsKey(it.value), "chybí písmo pro " + it.value);
+        assertEquals("Bruno Ace SC", Rewards.fontFamily(null));
+    }
 }
