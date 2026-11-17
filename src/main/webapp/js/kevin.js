@@ -310,7 +310,6 @@
   function signedIn() { return !!document.querySelector('form.logout-form'); }
   function hasEl(sel) { return function () { return !!document.querySelector(sel); }; }
   var HINTS = [
-    { id: 'squad', go: function () { return wideMq.matches ? 'btn:[aria-controls="navSubSquad"]' : 'btn:#menuToggle'; } },
     { id: 'wheel', when: hasEl('.view-btn'), go: 'btn:.view-btn' },
     { id: 'verify', when: function () { return document.body.hasAttribute('data-unverified'); } },
     { id: 'photo', when: function () { return pageKey() === 'profile'; }, go: 'btn:.acct-photo-edit' },

@@ -119,7 +119,6 @@ body.light .main-nav a:hover { background: rgba(0, 0, 0, 0.05); }
 .main-nav a.active:hover { background: var(--accent); }
 /* položka s rozbalovací nabídkou */
 .nav-group { position: relative; display: flex; }
-.nav-group-title { display: none; }
 .nav-group-btn {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 8px 12px 8px 15px; border: 0; border-radius: 999px; background: transparent; color: var(--text);
@@ -142,12 +141,11 @@ body.light .nav-group-btn:hover, body.light .nav-group.open > .nav-group-btn { b
   .nav-group:hover:not(.just-used) > .nav-sub { display: grid; }
   .nav-group:hover:not(.just-used) .nav-chev { transform: rotate(180deg); }
 }
-.main-nav .nav-sub a, .nav-soon { display: block; padding: 9px 12px; border-radius: 10px; white-space: normal; opacity: 1; }
+.main-nav .nav-sub a { display: block; padding: 9px 12px; border-radius: 10px; white-space: normal; opacity: 1; }
 .main-nav .nav-sub a.active { color: var(--accent); background: var(--accent-soft); }
 .nav-sub-t { display: block; font-size: 0.82rem; }
 .nav-sub small { display: block; margin-top: 2px; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); letter-spacing: 0; }
-.nav-soon { opacity: .55; cursor: default; }
-.nav-soon em, .nav-sub .nav-badge {
+.nav-sub .nav-badge {
   display: inline-block; margin-left: 6px; padding: 0 7px; border: 1px solid var(--accent); border-radius: 999px;
   color: var(--accent); font: 500 var(--fs-small)/1.5 var(--font-text); letter-spacing: 0; vertical-align: 1px;
 }
@@ -384,204 +382,129 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .menu-toggle[aria-expanded="true"] { background: var(--panel-strong); color: var(--text); border: 1px solid var(--accent); }
   .site-header .brand .squad-mark { height: 38px; }
 
-  /* opened from Menu: a sheet under the bar */
+}
+
+/* ---------- Menu na telefonu a tabletu (listopad 2026, náhled Skeli.cz-podklady/navrhy/menu-2026-11) ----------
+   Do 767 px přes celou obrazovku, 768–1024 px panel zprava (zbytek stránky ztmavený), telefon na šířku ve dvou
+   sloupcích. Řádky s ikonou, skupiny se rozbalují pod sebou, dole účet, ovládání a odhlášení. Plná barva stránky
+   s jemným přechodem barvy webu nahoře, bez rozmazání (na slabém telefonu by sekalo). Od 1025 px nic z toho
+   neplatí – tam jsou kapsle pod logem (výš). Skript: includes/header.jsp (setMenu, setGroup). */
+.mnav-top, .nav-shade, .nav-account, .nav-settings, .nav-logout { display: none; }
+.nav-pages, .nav-tools { display: contents; }   /* na PC jsou stránky přímo v kapsli */
+.main-nav .nav-ico { display: none; }   /* ikonky jen v menu na telefonu a tabletu */
+@media (max-width: 1024px) {
+  html.menu-open, html.menu-open body { overflow: hidden; }   /* stránka pod menu se neposouvá a zůstane na místě */
+  /* rozmazaná lišta by z ní udělala rámec pro menu (fixed by se počítalo od lišty, ne od obrazovky) */
+  html.menu-open .site-header { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  /* Kevin a bublina chatu se pod otevřeným menu schovají (Kevin nikdy nepřekrývá obsah) */
+  html.menu-open .kevin-paw, html.menu-open .kevin, html.menu-open .chat-dock { visibility: hidden; }
   .main-nav {
-    display: none;
-    position: fixed;
-    top: calc(var(--header-h) + 6px);
-    left: 12px;
-    right: 12px;
-    max-height: calc(100dvh - var(--header-h) - 24px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    flex-direction: column;
-    /* from the top: centred, a sheet taller than the screen would hide its first items out of reach */
-    justify-content: flex-start;
-    gap: 2px;
-    padding: 10px;
-    background: var(--panel-strong);
-    border: 1px solid var(--panel-border);
-    border-radius: 22px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    --nav-row: 48px; --nav-sub: 44px;
+    display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 30;   /* nad tlačítkem Menu a Kevinovou tlapkou v liště */
+    height: 100vh; height: 100dvh;
+    flex-direction: column; justify-content: flex-start; gap: 2px;
+    padding: 0 14px calc(18px + env(safe-area-inset-bottom));
+    overflow-y: auto; overscroll-behavior: contain;
+    border: 0; border-radius: 0; box-shadow: none;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 20%, var(--bg)) 0, var(--bg) 160px), var(--bg);
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+    animation: mnav-in .2s ease;
   }
   .main-nav.open { display: flex; }
-  .main-nav a { padding: 12px 14px; font-size: 0.95rem; border-radius: 10px; }
-  .main-nav a.active { background: var(--accent-soft); color: var(--accent); }
-}
+  .main-nav .nav-pages { display: flex; flex-direction: column; gap: 2px; }
+  .main-nav .nav-tools { display: block; }
+  @keyframes mnav-in { from { opacity: .2; transform: translateY(-8px); } }   /* ne od nuly: úplně průhledné menu by testy i čtečky braly jako skryté */
+  .mnav-top { display: flex; align-items: center; justify-content: space-between; flex: none; min-height: var(--header-h);
+    padding-top: env(safe-area-inset-top); color: var(--accent); }
+  .mnav-top .squad-mark { height: 36px; }
+  .mnav-close { flex: none; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%;
+    border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); font-size: 1.1rem; }
+  .mnav-close:hover { border-color: var(--accent); color: var(--accent); }
 
-.nav-settings { display: none; }
-/* Phones and tablets: bold, theme, language and the account at the bottom of the menu */
-@media (max-width: 1024px) {
-  .main-nav .nav-settings {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 6px;
-    padding: 12px 6px 4px;
-    border-top: 1px solid var(--panel-border);
+  /* řádky: hlavní položky, tlačítka skupin, podpoložky, účet, odhlášení */
+  .main-nav .nav-top, .main-nav .nav-group-btn, .main-nav .nav-row, .main-nav .nav-sub a, .main-nav .nav-logout button {
+    position: relative; display: flex; align-items: center; gap: 14px; width: 100%; min-height: var(--nav-row); padding: 6px 12px;
+    border: 0; border-radius: 12px; background: transparent; color: var(--text); opacity: 1;
+    font: inherit; font-size: 1rem; letter-spacing: .02em; line-height: 1.25; text-align: left; white-space: normal; text-decoration: none; cursor: pointer;
   }
-  .main-nav .nav-settings { flex-wrap: wrap; }
-  /* the languages get a row of their own under bold and theme */
-  .nav-langs { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 100%; }
-  .main-nav .nav-langs a {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 7px 8px;
-    border-radius: 999px;
-    font-size: var(--fs-small);
-    opacity: 0.7;
-  }
-  .main-nav .nav-langs a.active { opacity: 1; color: var(--accent); background: var(--accent-soft); }
-  .main-nav .nav-account { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--panel-border); }
-  .main-nav .nav-account i { width: 20px; color: var(--accent); }
-  .main-nav .nav-account .nav-register { color: var(--accent); }
-  .main-nav .nav-user { color: var(--text-dim); }
-  .main-nav .logout-form button {
-    width: 100%;
-    justify-content: flex-start;
-    gap: 6px;
-    padding: 12px 14px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--text);
-    font: inherit;
-    font-size: 0.95rem;
-  }
-  .main-nav .nav-langs a { min-height: 40px; }
-}
-.nav-account { display: none; }
-.main-nav .nav-ico { display: none; }   /* ikonky jen v mobilním menu */
-
-/* Mobilní menu jako dlaždice: stránky ve dvou sloupcích s ikonkou, Podpoř přes celou šířku, nastavení
-   na jednom řádku (B, režim | jazyky jako přepínač), účet jako dvě tlačítka vedle sebe */
-@media (max-width: 1024px) {
-  .main-nav.open { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 8px; padding: 12px; align-content: start; }
-  /* Domů a Aktuality nahoře vedle sebe, pak skupiny, pak nastavení a účet */
-  .main-nav > .nav-top {
-    display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 8px;
-    border-radius: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--panel-border);
-    font-size: var(--fs-card); line-height: 1.2; opacity: 1;
-  }
-  body.light .main-nav > .nav-top { background: rgba(0, 0, 0, 0.03); }
-  .main-nav > .nav-top.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-  .main-nav .nav-ico { display: block; font-size: 1.05rem; color: var(--accent); opacity: .9; }
-  .main-nav > .nav-group { order: 1; grid-column: 1 / -1; display: block; }
-  .main-nav > .nav-settings { order: 2; }
-  .main-nav > .nav-account { order: 3; }
-  .nav-group-btn { display: none; }
-  .nav-group-title { display: block; margin: 0 0 6px 2px; color: var(--text-dim); font-size: var(--fs-small); letter-spacing: .06em; text-transform: uppercase; }
-  .nav-sub, .nav-group.open > .nav-sub {
-    position: static; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px;
-    min-width: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none;
-  }
+  .main-nav .nav-top:hover, .main-nav .nav-group-btn:hover, .main-nav .nav-row:hover, .main-nav .nav-sub a:hover, .main-nav .nav-logout button:hover {
+    background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); text-decoration: none; }
+  .main-nav .nav-ico { display: block; flex: none; width: 22px; text-align: center; font-size: 1.05rem; color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
+  .main-nav .nav-t, .main-nav .nav-sub-t { flex: 1; min-width: 0; overflow-wrap: break-word; hyphens: auto; -webkit-hyphens: auto; }
+  /* aktuální stránka a rozbalená skupina: barva webu a svislá čárka vlevo */
+  .main-nav a.active, .main-nav a.active:hover { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .main-nav a.active::before, .main-nav .nav-group.open::before {
+    content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: var(--accent); }
+  .main-nav .nav-group { position: relative; display: block; }
+  .main-nav .nav-group.has-active > .nav-group-btn { color: var(--accent); background: transparent; opacity: 1; }
+  .main-nav .nav-chev { margin-left: auto; flex: none; font-size: .75em; color: var(--text-dim); transition: transform .2s; }
+  .main-nav .nav-group.open .nav-chev { transform: rotate(180deg); }
+  .nav-sub, .nav-group.open > .nav-sub { position: static; display: none; gap: 2px; min-width: 0; padding: 0 0 4px 30px;
+    border: 0; border-radius: 0; background: none; box-shadow: none; }
+  .main-nav .nav-group.open > .nav-sub { display: grid; }
   .nav-sub::before { display: none; }
-  .main-nav .nav-sub a, .nav-soon {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height: 68px; padding: 8px 4px;
-    border-radius: 14px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--panel-border);
-    font-size: var(--fs-small); line-height: 1.15; text-align: center;
-  }
-  body.light .main-nav .nav-sub a, body.light .nav-soon { background: rgba(0, 0, 0, 0.03); }
-  .main-nav .nav-sub a.active { border-color: var(--accent); }
+  .main-nav .nav-sub a { min-height: var(--nav-sub); font-size: .88rem; }
+  .main-nav .nav-sub a .nav-ico { font-size: .95rem; opacity: .85; }
   .nav-sub small { display: none; }
-  .nav-sub-t { font-size: var(--fs-small); }
-  .nav-soon em { display: block; width: fit-content; margin: 3px auto 0; padding: 0 5px; }
-  /* karaoke: zlatavá dlaždice, okrajem pomalu přejede odlesk, u nepřihlášeného hvězdička „pro členy“ */
-  .main-nav .nav-sub a.nav-karaoke {
-    position: relative; overflow: hidden;
-    border-color: rgba(230, 183, 48, .55);
-    background: linear-gradient(135deg, rgba(230, 183, 48, .16), rgba(230, 183, 48, .03) 60%);
-  }
-  .main-nav .nav-sub a.nav-karaoke::after {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(115deg, transparent 35%, rgba(255, 236, 170, .22) 50%, transparent 65%) -100% 0 / 220% 100% no-repeat;
-    animation: nav-shine 5s ease-in-out infinite;
-  }
-  .nav-sub .nav-badge { display: block; width: fit-content; margin: 3px auto 0; padding: 0 5px; border-color: transparent; background: var(--accent); color: var(--accent-ink); }
-  .main-nav .nav-settings {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 8px;
-    margin-top: 4px;
-    padding: 12px 2px 4px;
-  }
-  .main-nav .nav-settings .icon-btn { flex: 0 0 auto; }
-  /* jazyky: jeden úhledný přepínač, každý jazyk stejně široký */
-  .main-nav .nav-langs {
-    flex: 1 1 auto;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 2px;
-    padding: 3px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--panel-border);
-  }
-  body.light .main-nav .nav-langs { background: rgba(0, 0, 0, 0.04); }
-  .main-nav .nav-langs a {
-    justify-content: center;
-    gap: 4px;
-    min-height: 36px;
-    padding: 0 2px;
-    font-size: var(--fs-small);
-  }
-  .main-nav .nav-langs a .flag { width: 14px; height: 9px; }
-  .main-nav .nav-langs a.active { background: var(--accent); color: var(--accent-ink); opacity: 1; }
-  .main-nav .nav-account {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 4px;
-    padding-top: 12px;
-  }
-  .main-nav .nav-account > a,
-  .main-nav .nav-account > .nav-notif,
-  .main-nav .nav-account .logout-form button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 12px;
-    border-radius: 999px;
-    border: 1px solid var(--panel-border);
-    background: transparent;
-    color: var(--text);
-    font: inherit;
-    font-size: var(--fs-card);
-  }
-  .main-nav .nav-account .logout-form { margin: 0; }
-  /* lichý počet tlačítek: poslední (Odhlásit) přes celý řádek, ať nevisí samo na půlce */
-  .main-nav .nav-account > :last-child:nth-child(odd) { grid-column: 1 / -1; }
-  .main-nav .nav-account > .nav-register { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  .main-nav .nav-account > .nav-register i { color: var(--accent-ink); }
-  .main-nav .nav-account .nav-user { display: none; }   /* jméno je v kartě účtu, tady by tlačítko natáhlo */
-}
-/* malý telefon: jazyky jen s vlajkou a zkratkou bez mezer navíc */
-@media (max-width: 360px) {
-  .main-nav .nav-langs a .flag { display: none; }
-}
+  /* Karaoke u nepřihlášeného: „pro členy“ (stránka jde otevřít, zpívat smí jen přihlášení) */
+  .main-nav .nav-sub .nav-badge { display: inline-block; margin-left: 8px; padding: 0 8px; border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+    border-radius: 999px; background: none; color: var(--accent); font: 500 var(--fs-small)/1.6 var(--font-text); letter-spacing: 0; vertical-align: 1px; }
 
-/* A phone on its side: a thin bar, and the open menu in two columns (pages | settings and account)
-   so all of it fits the low screen without scrolling inside the sheet */
-@media (max-width: 1024px) and (orientation: landscape) and (max-height: 500px) {
-  :root { --header-h: 52px; }
-  .site-header .brand .squad-mark { height: 30px; }
-  .menu-toggle { padding: 8px 14px; }
-  .main-nav.open { column-gap: 14px; left: 12px; right: 12px; }
-  .main-nav > .nav-top { min-height: 40px; }
-  .main-nav > .nav-group { grid-column: auto; }
-  .main-nav .nav-sub a, .nav-soon { min-height: 52px; padding: 4px; }
-  .main-nav .nav-account > a, .main-nav .nav-account > .nav-notif, .main-nav .nav-account .logout-form button { min-height: 40px; }
-  .main-nav .nav-account { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* účet: přihlášený = karta (fotka, jméno → Můj profil, Nastavení, Upozornění, Admin); nepřihlášený = dvě tlačítka */
+  .main-nav .nav-account { display: grid; gap: 2px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--panel-border); }
+  .main-nav .nav-account:has(.nav-me) { padding: 6px; border: 1px solid var(--panel-border); border-radius: 16px; background: color-mix(in srgb, var(--text) 4%, transparent); }
+  .main-nav .nav-me { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 10px; border-radius: 12px; color: var(--text); opacity: 1; text-decoration: none; }
+  .main-nav .nav-me:hover { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+  .main-nav .nav-me.active::before { content: none; }
+  .nav-me-av { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+    background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+  .nav-me-t { flex: 1; display: grid; min-width: 0; }
+  .nav-me-t b { font-weight: inherit; overflow-wrap: anywhere; }
+  .nav-me-t small { color: var(--text-dim); font: 300 var(--fs-card) var(--font-text); letter-spacing: 0; }
+  .main-nav .nav-notif .notif-badge { position: static; margin-left: auto; box-shadow: none; }
+  .main-nav .nav-row.admin { color: var(--accent); }
+  .main-nav .nav-account:has(.nav-login) { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .main-nav .nav-login, .main-nav .nav-register { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 6px 10px;
+    border-radius: 999px; border: 1px solid var(--panel-border); color: var(--text); opacity: 1; font-size: var(--fs-card); text-align: center; white-space: normal; }
+  .main-nav .nav-register, .main-nav .nav-register:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  /* ovládání: režim, tučnější text, zvuky; pod nimi 5 jazyků na vlastním řádku (když se nevejdou s vlajkami, vlajky zmizí) */
+  .main-nav .nav-settings { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--panel-border); }
+  .main-nav .nav-settings .icon-btn { width: 44px; height: 44px; font-size: .95rem; }
+  .main-nav .nav-langs { flex: 1 1 100%; container-type: inline-size; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 3px;
+    border-radius: 999px; border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--text) 5%, transparent); }
+  .main-nav .nav-langs a { display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 40px; padding: 0 2px; border-radius: 999px;
+    color: var(--text-dim); opacity: 1; font-size: var(--fs-small); white-space: nowrap; }
+  .main-nav .nav-langs a .flag { width: 16px; height: 11px; }
+  .main-nav .nav-langs a.active { background: var(--accent); color: var(--accent-ink); }
+  .main-nav .nav-langs a.active::before { content: none; }
+  .main-nav .nav-langs a:lang(vi) { font-family: 'Exo 2', system-ui, sans-serif; }
+  @container (max-width: 19em) { .main-nav .nav-langs a .flag { display: none; } }
+
+  /* odhlášení: poslední, tlumeně */
+  .main-nav .nav-logout { display: block; margin: 8px 0 0; }
+  .main-nav .nav-logout button { color: var(--text-dim); }
+
+  /* tablet: panel zprava, zbytek stránky ztmavený (klik na něj menu zavře) */
+  @media (min-width: 768px) {
+    .main-nav { left: auto; width: min(420px, 100%); border-left: 1px solid var(--panel-border); box-shadow: -20px 0 50px -20px rgba(0, 0, 0, .6); animation-name: mnav-side; }
+    html.menu-open .nav-shade { display: block; position: fixed; inset: 0; z-index: 29; background: rgba(0, 0, 0, .5); }
+  }
+  @keyframes mnav-side { from { opacity: .2; transform: translateX(24px); } }
+  /* telefon na šířku (nízká obrazovka): přes celou obrazovku ve dvou sloupcích – stránky | účet a ovládání */
+  @media (orientation: landscape) and (max-height: 500px) {
+    :root { --header-h: 52px; }
+    .site-header .brand .squad-mark { height: 30px; }
+    .menu-toggle { padding: 8px 14px; }
+    .main-nav { left: 0; width: auto; border-left: 0; animation-name: mnav-in; }
+    html.menu-open .nav-shade { display: none; }
+    .main-nav.open { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; align-content: start; align-items: start; }
+    .mnav-top { grid-column: 1 / -1; }
+    .main-nav .nav-tools > :first-child { margin-top: 0; }
+    .main-nav .nav-top, .main-nav .nav-group-btn, .main-nav .nav-row, .main-nav .nav-sub a { min-height: 42px; }
+  }
 }
+html.low-fx .main-nav { animation: none; }
 
 /* ---------- Buttons ---------- */
 /* :where() keeps specificity at zero, so any component class overrides these */
@@ -911,20 +834,11 @@ body.light .flash-warn { background: rgba(255, 170, 40, 0.16); color: #8a4b00; }
   box-shadow: 0 0 0 2px var(--bg);
 }
 .notif-badge[hidden] { display: none; }
-.nav-notif { display: none; }
-.nav-notif .notif-badge { position: static; margin-left: 4px; box-shadow: none; }
 /* phones: a red dot on "Menu" while something is unread */
 .menu-toggle.has-unread { position: relative; }
 .menu-toggle.has-unread::after {
   content: ""; position: absolute; top: 2px; right: 2px; width: 10px; height: 10px; border-radius: 50%;
   background: #ff4d6d; box-shadow: 0 0 0 2px var(--bg);
-}
-@media (max-width: 1024px) {
-  .main-nav .nav-notif,
-  body.light .main-nav .nav-notif {
-    display: flex; align-items: center; justify-content: flex-start; gap: 6px; width: 100%; padding: 12px 14px; border: 0; border-radius: 10px;
-    background: transparent; color: var(--text); font: inherit; font-size: 0.95rem; text-align: left; cursor: pointer;
-  }
 }
 .notif-panel {
   position: fixed; z-index: 1200; top: calc(var(--header-h) + 8px); right: 16px; width: min(400px, calc(100vw - 32px));
@@ -1092,7 +1006,6 @@ body.light .card-gold {
 .av-frame.f-champ1::before, .av-frame.f-champ2::before, .av-frame.f-champ3::before { background-image: var(--champ-img); }
 .av-frame.f-champ1 { box-shadow: 0 0 .3em rgba(255, 210, 63, .45); }
 .cmt-reply .av-frame { font-size: 30px; }
-@keyframes nav-shine { 0%, 55% { background-position: -100% 0; } 85%, 100% { background-position: 200% 0; } }
 /* legendární znak u jména (CatSmash, odznaky za nejtěžší obtížnost) – jen když si ho autor zapnul */
 .cmt-mark { margin-left: 4px; font-size: .85em; color: var(--accent); filter: drop-shadow(0 0 4px rgba(230, 183, 48, .55)); vertical-align: baseline; }
 body.light .cmt-mark { color: #8f6600; filter: none; }

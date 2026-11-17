@@ -572,8 +572,7 @@
 
 // ---------- Rady k funkcím, reakce a svátky (2026-11-08, překlad české sady; klíče stejné jako v kevin-cs.js) ----------
 (function (L) {
-  L.hints = {
-    "squad": ["CatSmash giờ ở trong Squad. Ai muốn thắng tôi thì biết tìm tôi ở đâu rồi."],
+  L.hints = {
     "wheel": ["Chế độ sáng, chữ đậm và âm thanh nằm trong bánh xe phía trên. Bạn làm gì với chúng thì tôi mặc kệ.", "Bánh xe phía trên có giao diện và âm thanh. Tôi sẽ thêm một nút để ngủ lâu hơn."],
     "verify": ["Chưa xác minh e-mail thì chưa bình luận, gửi lời mời kết bạn hay nhắn tin được.", "Đường link xác minh đã gửi vào hộp thư. Đôi khi nó lạc vào thư rác."],
     "photo": ["Hồ sơ chịu được một tấm ảnh và một ảnh bìa rộng. Không bắt buộc. Nhưng chịu được.", "Ảnh và ảnh bìa được thêm ngay tại đây, trên hồ sơ."],

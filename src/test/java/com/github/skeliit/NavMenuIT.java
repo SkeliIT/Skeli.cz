@@ -21,25 +21,28 @@ class NavMenuIT extends UiTestSupport {
     }
 
     @Test
-    @DisplayName("Počítač: CatSmash je ve Squadu, nabídka se otevře kliknutím a zavře Esc; aktuální stránka svítí i na skupině")
+    @DisplayName("Počítač: CatSmash je přímý odkaz, nabídka se otevře kliknutím a zavře Esc; aktuální stránka svítí i na skupině")
     void desktopGroups() {
         driver.manage().window().setSize(new Dimension(1400, 900));
         driver.get(BASE_URL + "/texty.jsp?lang=cs");
         waitReady();
         new Actions(driver).moveToLocation(5, 700).perform();
-        assertTrue(driver.findElements(By.cssSelector("#mainNav > a[data-play-game]")).isEmpty(), "hra není přímo v menu");
-        WebElement game = driver.findElement(By.cssSelector("#navSubSquad a[data-play-game]"));
-        assertFalse(game.isDisplayed(), "nabídka je zavřená");
-        group("Squad").click();
-        assertTrue(game.isDisplayed());
-        assertEquals("true", group("Squad").getAttribute("aria-expanded"));
+        assertTrue(driver.findElement(By.cssSelector("#mainNav a.nav-top[data-play-game]")).isDisplayed(), "hra je přímo v menu (Squad má zatím jen ji)");
+        assertTrue(driver.findElements(By.cssSelector("#navSubSquad")).isEmpty(), "prázdná skupina Squad není");
+        WebElement about = driver.findElement(By.cssSelector("#navSubAbout a[href$='/about.jsp']"));
+        assertFalse(about.isDisplayed(), "nabídka je zavřená");
+        group("About").click();
+        assertTrue(about.isDisplayed());
+        assertEquals("true", group("About").getAttribute("aria-expanded"));
         new Actions(driver).sendKeys(Keys.ESCAPE).moveToLocation(5, 700).perform();
-        assertFalse(game.isDisplayed(), "Esc nabídku zavře");
+        assertFalse(about.isDisplayed(), "Esc nabídku zavře");
         assertTrue(driver.findElement(By.cssSelector("#navSubMusic")).findElement(By.xpath("..")).getAttribute("class").contains("has-active"), "Texty jsou v Hudbě");
-        group("Squad").click();
-        assertTrue(driver.findElement(By.cssSelector("#navSubSquad")).isDisplayed());
+        assertEquals("page", driver.findElement(By.cssSelector("#navSubMusic a[href$='/texty.jsp']")).getAttribute("aria-current"));
+        group("About").click();
+        assertTrue(driver.findElement(By.cssSelector("#navSubAbout")).isDisplayed());
         group("Music").click();
-        assertFalse(driver.findElement(By.cssSelector("#navSubSquad")).isDisplayed(), "otevřená je vždy jen jedna");
+        assertFalse(driver.findElement(By.cssSelector("#navSubAbout")).isDisplayed(), "otevřená je vždy jen jedna");
+        assertTrue(driver.findElements(By.cssSelector("#mainNav .nav-soon")).isEmpty(), "žádné položky „brzy“ (Shop)");
     }
 
     @Test
@@ -60,18 +63,28 @@ class NavMenuIT extends UiTestSupport {
     }
 
     @Test
-    @DisplayName("Telefon: všechny skupiny jsou vidět jako dlaždice bez přetékání, i na šířku")
-    void phoneTiles() {
-        for (Dimension size : new Dimension[] { new Dimension(500, 844), new Dimension(844, 390) }) {
+    @DisplayName("Telefon a tablet: menu přes obrazovku, skupiny se rozbalují, Esc zavře a vrátí focus, nic nepřetéká")
+    void phoneMenu() {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        for (Dimension size : new Dimension[] { new Dimension(500, 844), new Dimension(844, 390), new Dimension(900, 1000) }) {
             driver.manage().window().setSize(size);
-            driver.get(BASE_URL + "/index.jsp?lang=de");
+            driver.get(BASE_URL + "/texty.jsp?lang=de");
             waitReady();
             jsClick(driver.findElement(By.id("menuToggle")));
-            WebElement game = driver.findElement(By.cssSelector("#navSubSquad a[data-play-game]"));
-            assertTrue(game.isDisplayed(), "hra je vidět i bez rozbalování");
-            assertFalse(group("Squad").isDisplayed(), "na telefonu jsou nadpisy, ne tlačítka");
-            assertEquals(Boolean.TRUE, ((JavascriptExecutor) driver).executeScript(
+            assertEquals(Boolean.TRUE, js.executeScript("return document.documentElement.classList.contains('menu-open') && getComputedStyle(document.body).overflow === 'hidden';"), "stránka pod menu stojí");
+            assertEquals(Boolean.TRUE, js.executeScript("return document.querySelector('main').inert === true;"), "stránka pod menu nejde ovládat");
+            assertEquals("true", group("Music").getAttribute("aria-expanded"), "skupina s aktuální stránkou je rozbalená: " + size);
+            WebElement donate = driver.findElement(By.cssSelector("#navSubAbout a[href$='/donate.jsp']"));
+            assertFalse(donate.isDisplayed());
+            jsClick(group("About"));
+            assertTrue(donate.isDisplayed(), "skupina se rozbalí");
+            assertEquals("true", group("Music").getAttribute("aria-expanded"), "ostatní skupiny zůstanou otevřené");
+            assertEquals(Boolean.TRUE, js.executeScript(
                     "const n = document.getElementById('mainNav'); return n.scrollWidth <= n.clientWidth + 1 && document.documentElement.scrollWidth <= innerWidth;"), "nepřetéká: " + size);
+            new Actions(driver).sendKeys(Keys.ESCAPE).perform();
+            assertFalse(driver.findElement(By.id("mainNav")).isDisplayed(), "Esc menu zavře");
+            assertEquals("menuToggle", js.executeScript("return document.activeElement && document.activeElement.id;"), "focus se vrátí na Menu");
+            assertEquals(Boolean.FALSE, js.executeScript("return document.querySelector('main').inert === true;"));
         }
     }
 }

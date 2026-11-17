@@ -169,7 +169,8 @@
       document.documentElement.style.setProperty('--breathe-at', (-((Date.now() - bgAt) / 1000 % 60)).toFixed(2) + 's'); } catch (e) {}</script>
       <% request.setAttribute("csrf", com.github.skeliit.filter.CsrfFilter.token(session)); %>
       <% String currentUser = (String) session.getAttribute("username");
-         String currentRole = (String) session.getAttribute("role"); %>
+         String currentRole = (String) session.getAttribute("role");
+         String headerAvatar = currentUser == null ? null : com.github.skeliit.WebUtils.safeUrl((String) session.getAttribute("avatar_url"), null); %>
         <%-- desktop: the big sign sits centred above the menu and scrolls away; the bar
              below it sticks and shows the small sign on its left once docked --%>
         <div class="masthead" id="masthead">
@@ -179,64 +180,72 @@
           <div class="header-inner">
             <a href="<%= ctx %>/index.jsp" class="brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
 
-            <nav id="mainNav" class="main-nav">
-              <%-- Menu podle účelu. Počítač: položky se šipkou rozbalí nabídku. Telefon: všechno najednou jako dlaždice pod nadpisy. --%>
-              <a href="<%= ctx %>/index.jsp" class="nav-top"><i class="fa-solid fa-house nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.home") %></a>
+            <%-- Menu (listopad 2026, podle schváleného náhledu Skeli.cz-podklady/navrhy/menu-2026-11):
+                 počítač (od 1025 px) = kapsle pod logem, skupiny se rozbalí nabídkou;
+                 telefon (do 767 px) = menu přes celou obrazovku, tablet (768–1024 px) = panel zprava.
+                 Na telefonu a tabletu: řádky s ikonou, skupiny se rozbalují pod sebou, dole účet, ovládání a odhlášení.
+                 Zprávy tu nejsou (bublina chatu je na každé stránce), Kevin má tlapku v liště.
+                 Shop a další připravované věci se v menu neukazují, dokud nejsou hotové. --%>
+            <div class="nav-shade" data-menu-close aria-hidden="true"></div>
+            <nav id="mainNav" class="main-nav" aria-label="<%= t.getProperty("footer.menu") %>">
+              <div class="mnav-top">
+                <span class="squad-mark" aria-hidden="true"></span>
+                <button type="button" class="mnav-close" data-menu-close aria-label="<%= t.getProperty("common.close") %>"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+              </div>
+              <div class="nav-pages">
+              <a href="<%= ctx %>/index.jsp" class="nav-top"><i class="fa-solid fa-house nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.home") %></span></a>
               <div class="nav-group">
-                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubMusic"><span><%= t.getProperty("menu.music") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
-                <span class="nav-group-title"><%= t.getProperty("menu.music") %></span>
+                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubMusic"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.music") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
                 <div class="nav-sub" id="navSubMusic">
                   <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.discography") %></span><small><%= t.getProperty("menu.d.discography") %></small></a>
                   <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.lyrics") %></span><small><%= t.getProperty("menu.d.lyrics") %></small></a>
-                  <a href="<%= ctx %>/karaoke" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><i class="fa-solid fa-star" aria-hidden="true"></i><span><%= t.getProperty("menu.membersOnly") %></span></span><% } %></span><small><%= t.getProperty("menu.d.karaoke") %></small></a>
+                  <%-- nepřihlášený vidí „pro členy“: stránka jde otevřít, zpívat smí jen přihlášení (KaraokeCinemaServlet) --%>
+                  <a href="<%= ctx %>/karaoke" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><%= t.getProperty("menu.membersOnly") %></span><% } %></span><small><%= t.getProperty("menu.d.karaoke") %></small></a>
                 </div>
               </div>
-              <a href="<%= ctx %>/aktuality.jsp" class="nav-top"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.news") %></a>
+              <a href="<%= ctx %>/aktuality.jsp" class="nav-top"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.news") %></span></a>
+              <%-- Squad má zatím jedinou položku (CatSmash), proto rovnou odkaz; skupina se vrátí s druhou hotovou funkcí
+                   (Zeď, Rookie Chart – překlady menu.wall, menu.chart, menu.squad zůstávají) --%>
+              <a href="<%= ctx %>/?kevin=pong" class="nav-top" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.catsmash") %></span></a>
               <div class="nav-group">
-                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubSquad"><span><%= t.getProperty("menu.squad") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
-                <span class="nav-group-title"><%= t.getProperty("menu.squad") %></span>
-                <div class="nav-sub" id="navSubSquad">
-                  <%-- Zeď je zatím schovaná: potřebuje lepší název a promyslet, co přesně bude. Překlady menu.wall a menu.d.wall zůstávají.
-                  <span class="nav-soon"><i class="fa-solid fa-table-cells nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.wall") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.wall") %></small></span>
-                  --%>
-                  <%-- Rookie Chart (hitparáda) je zatím schovaná: vrátí se, až bude na webu víc lidí. Překlady menu.chart a menu.d.chart zůstávají.
-                  <span class="nav-soon"><i class="fa-solid fa-trophy nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.chart") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.chart") %></small></span>
-                  --%>
-                  <a href="<%= ctx %>/?kevin=pong" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.catsmash") %></span><small><%= t.getProperty("menu.d.game") %></small></a>
-                </div>
-              </div>
-              <div class="nav-group">
-                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubAbout"><span><%= t.getProperty("menu.about") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
-                <span class="nav-group-title"><%= t.getProperty("menu.about") %></span>
+                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubAbout"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.about") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
                 <div class="nav-sub" id="navSubAbout">
                   <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.about") %></span><small><%= t.getProperty("menu.d.about") %></small></a>
                   <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("btn.donate") %></span><small><%= t.getProperty("menu.d.donate") %></small></a>
-                  <span class="nav-soon"><i class="fa-solid fa-shirt nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.shop") %> <em><%= t.getProperty("menu.soon") %></em></span><small><%= t.getProperty("menu.d.shop") %></small></span>
                 </div>
               </div>
-              <%-- phones and tablets: the display controls, language and account live in the menu --%>
-              <div class="nav-settings">
-                <button type="button" class="icon-btn" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold"></i></button>
-                <button type="button" class="icon-btn" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke"></i></button>
-                <span class="nav-langs" aria-label="<%= t.getProperty("header.language") %>">
-                  <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="<%= langHref.apply(l) %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= com.github.skeliit.I18n.label(l) %></a><% } %>
-                </span>
               </div>
+              <div class="nav-tools">
+              <%-- telefon a tablet: účet --%>
               <div class="nav-account">
               <% if (currentUser == null) { %>
-                <a href="<%= ctx %>/login.jsp"><i class="fa-solid fa-right-to-bracket"></i> <%= t.getProperty("btn.login") %></a>
-                <a href="<%= ctx %>/register.jsp" class="nav-register"><i class="fa-solid fa-user-plus"></i> <%= t.getProperty("btn.register") %></a>
+                <a href="<%= ctx %>/login.jsp" class="nav-login"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> <%= t.getProperty("btn.login") %></a>
+                <a href="<%= ctx %>/register.jsp" class="nav-register"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> <%= t.getProperty("btn.register") %></a>
               <% } else { %>
-                <%-- Zprávy tu nejsou: bublina chatu je vidět na každé stránce (includes/chat-dock.jspf) --%>
-                <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %> <span class="nav-user">· <%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></span></a>
-                <a href="<%= ctx %>/nastaveni.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
-                <button type="button" class="nav-notif" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> <span><%= t.getProperty("sound.off") %></span></button>
-                <button type="button" class="nav-notif" data-notif-open aria-controls="notifPanel"><i class="fa-regular fa-bell"></i> <%= t.getProperty("notif.title") %> <span class="notif-badge" hidden></span></button>
-                <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
-                <form method="post" action="<%= ctx %>/logout" class="logout-form">
-                  <input type="hidden" name="csrf" value="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
-                  <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> <%= t.getProperty("btn.logout") %></button>
-                </form>
+                <a href="<%= ctx %>/uzivatel.jsp" class="nav-me">
+                  <% if (headerAvatar != null) { %><img class="nav-me-av" src="<%= com.github.skeliit.WebUtils.escapeHtml(headerAvatar) %>" alt=""><% } else { %><span class="nav-me-av" aria-hidden="true"><%= com.github.skeliit.WebUtils.escapeHtml(currentUser.substring(0, 1).toUpperCase()) %></span><% } %>
+                  <span class="nav-me-t"><b><%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></b><small><%= t.getProperty("menu.account") %></small></span>
+                  <i class="fa-solid fa-chevron-right nav-chev" aria-hidden="true"></i>
+                </a>
+                <a href="<%= ctx %>/nastaveni.jsp" class="nav-row"><i class="fa-solid fa-gear nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.settings") %></span></a>
+                <button type="button" class="nav-row nav-notif" data-notif-open aria-controls="notifPanel"><i class="fa-regular fa-bell nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("notif.title") %></span><span class="notif-badge" hidden></span></button>
+                <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="nav-row admin"><i class="fa-solid fa-star nav-ico" aria-hidden="true"></i><span class="nav-t">Admin</span></a><% } %>
+              <% } %>
+              </div>
+              <%-- telefon a tablet: režim, tučnější text, zvuky (přihlášený) a 5 jazyků; tlačítka mačkají ta v liště (#themeToggle, #fontToggle) --%>
+              <div class="nav-settings">
+                <button type="button" class="icon-btn" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i></button>
+                <button type="button" class="icon-btn" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold" aria-hidden="true"></i></button>
+                <% if (currentUser != null) { %><button type="button" class="icon-btn" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>" title="<%= t.getProperty("sound.off") %>" aria-label="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button><% } %>
+                <span class="nav-langs" role="group" aria-label="<%= t.getProperty("header.language") %>">
+                  <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="<%= langHref.apply(l) %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %><% if ("vi".equals(l)) { %> lang="vi"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= com.github.skeliit.I18n.label(l) %></a><% } %>
+                </span>
+              </div>
+              <% if (currentUser != null) { %>
+              <form method="post" action="<%= ctx %>/logout" class="logout-form nav-logout">
+                <input type="hidden" name="csrf" value="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
+                <button type="submit"><i class="fa-solid fa-right-from-bracket nav-ico" aria-hidden="true"></i> <%= t.getProperty("btn.logout") %></button>
+              </form>
               <% } %>
               </div>
             </nav>
@@ -252,7 +261,7 @@
                 </div>
               </div>
               <div class="lang-switch">
-                <button type="button" class="lang-btn icon-btn" data-lang="<%= cur %>" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>">
+                <button type="button" class="lang-btn icon-btn" aria-expanded="false" data-lang="<%= cur %>" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>">
                   <span class="lang-code"><%= com.github.skeliit.I18n.label(cur) %></span>
                 </button>
                 <ul class="menu">
@@ -290,8 +299,7 @@
                   <i class="fa-regular fa-bell"></i><span class="notif-badge" hidden></span>
                 </button>
                 <div class="user-menu">
-                  <button type="button" class="user-btn">
-                    <% String headerAvatar = com.github.skeliit.WebUtils.safeUrl((String) session.getAttribute("avatar_url"), null); %>
+                  <button type="button" class="user-btn" aria-expanded="false">
                     <% if (headerAvatar != null) { %>
                     <img class="user-avatar" src="<%= com.github.skeliit.WebUtils.escapeHtml(headerAvatar) %>" alt="">
                     <% } else { %>
@@ -407,56 +415,94 @@
             window.addEventListener('scroll', onHeaderScroll, { passive: true });
             onHeaderScroll();
 
-            // Language menu toggle by click
+            // Jazyk a menu účtu v liště (PC): klik otevře / zavře, aria-expanded říká čtečce, jestli je otevřené
             const langSwitch = document.querySelector('.lang-switch');
             const langBtn = document.querySelector('.lang-switch .lang-btn');
+            const userMenu = document.querySelector('.user-menu');
+            const userBtn = userMenu && userMenu.querySelector('.user-btn');
+            function setPop(box, btn, open) { if (!box) return; box.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open)); }
             if (langBtn && langSwitch) {
-              langBtn.addEventListener('click', (e) => { e.stopPropagation(); langSwitch.classList.toggle('open'); });
-              document.addEventListener('click', () => { langSwitch.classList.remove('open'); });
-              langSwitch.querySelectorAll('.menu a').forEach(a => a.addEventListener('click', () => { langSwitch.classList.remove('open'); }));
+              langBtn.addEventListener('click', (e) => { e.stopPropagation(); setPop(langSwitch, langBtn, !langSwitch.classList.contains('open')); });
+              langSwitch.querySelectorAll('.menu a').forEach(a => a.addEventListener('click', () => setPop(langSwitch, langBtn, false)));
             }
+            if (userBtn) userBtn.addEventListener('click', (e) => { e.stopPropagation(); setPop(userMenu, userBtn, !userMenu.classList.contains('open')); });
+            document.addEventListener('click', () => { setPop(langSwitch, langBtn, false); setPop(userMenu, userBtn, false); });
 
-            // Hamburger menu toggle
+            // Menu na telefonu a tabletu (do 1024 px): telefon = přes celou obrazovku, tablet = panel zprava.
+            // Otevřené menu: stránka pod ním se neposouvá a nejde na ni ťuknout ani se k ní dostat Tabem (inert),
+            // focus skočí na zavírací křížek a po zavření se vrátí na „Menu“. Esc zavře. Rozbalená je skupina s aktuální stránkou.
             const menuToggle = document.getElementById('menuToggle');
             const mainNav = document.getElementById('mainNav');
-            if (menuToggle && mainNav) {
-              menuToggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                setMenu(!mainNav.classList.contains('open'));
+            const navMq = window.matchMedia('(max-width: 1024px)');
+            function menuOpen() { return !!mainNav && mainNav.classList.contains('open'); }
+            function setInert(on) {
+              const keep = siteHeaderEl();
+              Array.from(document.body.children).forEach(el => {
+                if (el === keep || el.tagName === 'SCRIPT') return;
+                if (on) el.setAttribute('inert', ''); else el.removeAttribute('inert');
               });
-              // a real click elsewhere closes it (not the synthetic one from the settings row below)
-              document.addEventListener('click', (e) => { if (e.isTrusted) setMenu(false); });
-              // settings row inside the phone menu presses the real bar buttons; the menu stays open
+              if (keep) keep.querySelectorAll('.header-inner > :not(#mainNav):not(.nav-shade)').forEach(el => { if (on) el.setAttribute('inert', ''); else el.removeAttribute('inert'); });
+            }
+            function siteHeaderEl() { return document.getElementById('siteHeader'); }
+            function setMenu(open, keepFocus) {
+              if (!mainNav || open === menuOpen()) return;
+              mainNav.classList.toggle('open', open);
+              document.documentElement.classList.toggle('menu-open', open);
+              menuToggle.setAttribute('aria-expanded', String(open));
+              menuToggle.querySelector('i').classList.toggle('fa-bars', !open);
+              menuToggle.querySelector('i').classList.toggle('fa-xmark', open);
+              setInert(open);
+              if (open) {
+                mainNav.querySelectorAll('.nav-group').forEach(g => setGroup(g, g.classList.contains('has-active')));
+                mainNav.scrollTop = 0;
+                const close = mainNav.querySelector('.mnav-close');
+                if (close) close.focus({ preventScroll: true });
+              } else if (!keepFocus && menuToggle.offsetParent) {
+                menuToggle.focus({ preventScroll: true });
+              }
+            }
+            if (menuToggle && mainNav) {
+              menuToggle.addEventListener('click', (e) => { e.stopPropagation(); setMenu(!menuOpen()); });
+              document.querySelectorAll('[data-menu-close]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); setMenu(false); }));
+              // odkaz v menu (i hra a upozornění) menu zavře; na zbytek menu klik nic nezavírá
+              mainNav.addEventListener('click', (e) => {
+                if (!menuOpen()) return;
+                if (e.target.closest('a, [data-notif-open], .logout-form button')) setMenu(false, true);
+              });
+              // klik mimo menu (na liště) ho zavře; syntetický klik z tlačítek níž ne
+              document.addEventListener('click', (e) => { if (e.isTrusted && menuOpen() && !mainNav.contains(e.target)) setMenu(false); });
+              // řádek ovládání v menu mačká skutečná tlačítka v liště (režim, tučnější text); menu zůstane otevřené
               mainNav.querySelectorAll('[data-proxy]').forEach(b => b.addEventListener('click', (e) => {
                 e.stopPropagation();
                 document.getElementById(b.dataset.proxy).click();
               }));
-            }
-            function setMenu(open) {
-              mainNav.classList.toggle('open', open);
-              menuToggle.setAttribute('aria-expanded', open);
-              menuToggle.querySelector('i').classList.toggle('fa-bars', !open);
-              menuToggle.querySelector('i').classList.toggle('fa-xmark', open);
+              navMq.addEventListener('change', () => { if (!navMq.matches) setMenu(false, true); });
+              document.addEventListener('pjax:done', () => setMenu(false, true));
             }
 
-            // Rozbalovací nabídky menu a kolečko Vzhled a zvuk: klik, Esc, klik mimo. Vždy jen jedna otevřená.
+            // Rozbalovací skupiny menu a kolečko Vzhled a zvuk. PC: klik, Esc, klik mimo, vždy jen jedna otevřená.
+            // Telefon a tablet: skupiny se rozbalují pod sebou nezávisle (zavírání ostatních by posouvalo menu pod prstem).
             const dropdowns = document.querySelectorAll('.nav-group, .view-menu');
+            function setGroup(d, open) { d.classList.toggle('open', open); d.querySelector('button').setAttribute('aria-expanded', String(open)); }
             function closeDropdowns(except) {
               dropdowns.forEach(d => {
                 if (d === except) return;
-                d.classList.remove('open');
-                d.querySelector('button').setAttribute('aria-expanded', 'false');
+                if (navMq.matches && d.classList.contains('nav-group') && menuOpen()) return;   // v menu na telefonu zůstávají, jak je kdo nechal
+                setGroup(d, false);
               });
             }
             dropdowns.forEach(d => d.querySelector('button').addEventListener('click', () => {
               closeDropdowns(d);
-              d.querySelector('button').setAttribute('aria-expanded', String(d.classList.toggle('open')));
+              setGroup(d, !d.classList.contains('open'));
             }));
             document.addEventListener('click', (e) => { if (!e.target.closest('.nav-group, .view-menu')) closeDropdowns(); });
             document.addEventListener('keydown', (e) => {
               if (e.key !== 'Escape') return;
+              if (menuOpen()) { setMenu(false); return; }
               const open = document.querySelector('.nav-group.open, .view-menu.open');
-              if (open) { closeDropdowns(); open.querySelector('button').focus(); }
+              if (open) { closeDropdowns(); setGroup(open, false); open.querySelector('button').focus(); return; }
+              if (langSwitch && langSwitch.classList.contains('open')) { setPop(langSwitch, langBtn, false); langBtn.focus(); return; }
+              if (userMenu && userMenu.classList.contains('open')) { setPop(userMenu, userBtn, false); userBtn.focus(); }
             });
             // po kliknutí na odkaz se nabídka zavře, i když nad ní pořád stojí myš
             document.querySelectorAll('.nav-sub a').forEach(a => a.addEventListener('click', () => {
@@ -466,13 +512,6 @@
               g.addEventListener('mouseleave', () => g.classList.remove('just-used'), { once: true });
             }));
             document.addEventListener('pjax:done', () => closeDropdowns());
-
-            // User menu: opens on hover (CSS) and on click/tap
-            const userMenu = document.querySelector('.user-menu');
-            if (userMenu) {
-              userMenu.querySelector('.user-btn').addEventListener('click', (e) => { e.stopPropagation(); userMenu.classList.toggle('open'); });
-              document.addEventListener('click', () => userMenu.classList.remove('open'));
-            }
 
             // has the visitor allowed third-party content (YouTube, Spotify) in the cookie bar?
             window.skeliConsent = function () { try { return localStorage.getItem('cookieConsent') === 'true'; } catch (e) { return false; } };
@@ -538,19 +577,27 @@
             })();
 
             // Active navigation highlight
+            // Aktivní položka menu: přesné mapování adres na stránku v menu (žádné hledání kousků adresy).
+            // Písně (/lyrics/…, /cs/song/…) patří k Textům, kino (/karaoke/…) ke Karaoke, /hrac/ a /zprávy nesvítí nic.
+            // Svítící odkaz dostane i aria-current="page" (čtečka řekne „aktuální stránka“); CatSmash je hra nad stránkou, nesvítí.
+            function currentNavPage() {
+              const path = location.pathname;
+              if (path === '/' || path === '/index.jsp') return 'index.jsp';
+              if (path.startsWith('/lyrics/') || /^\/(cs|en|de|uk|vi)\/song\//.test(path)) return 'texty.jsp';
+              if (path === '/karaoke' || path.startsWith('/karaoke/')) return 'karaoke';
+              return path.split('/').pop();
+            }
             function updateActiveNav() {
-              let cur = location.pathname.split('/').pop() || 'index.jsp';
-              if (location.pathname.startsWith('/lyrics/')) cur = 'texty.jsp';
+              const cur = currentNavPage();
               document.querySelectorAll('header nav a').forEach(a => {
-                try {
-                  const href = a.getAttribute('href') || '';
-                  const normalized = (href.split('?')[0] || '').split('/').pop() || '';
-                  if (!normalized) return;
-                  let isActive = ((cur === '' || cur === '/') && (normalized === '/' || normalized === 'index.jsp')) || (cur === normalized || (location.pathname.endsWith('/') && normalized === 'index.jsp'));
-                  a.classList.toggle('active', isActive);
-                } catch { }
+                const href = (a.getAttribute('href') || '').split('?')[0];
+                const target = href === '/' ? '' : href.split('/').pop();
+                if (!target) return;   // odkazy jazyků (?lang=) a podobné: označení od serveru zůstává
+                const isActive = !!target && target === cur && !a.hasAttribute('data-play-game');
+                a.classList.toggle('active', isActive);
+                if (isActive) a.setAttribute('aria-current', 'page'); else if (a.getAttribute('aria-current') === 'page') a.removeAttribute('aria-current');
               });
-              // stránka uvnitř nabídky: zlatě svítí i položka, která ji obsahuje
+              // stránka uvnitř nabídky: svítí i položka, která ji obsahuje
               document.querySelectorAll('.nav-group').forEach(g => g.classList.toggle('has-active', !!g.querySelector('a.active')));
             }
             updateActiveNav();

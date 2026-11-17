@@ -603,7 +603,6 @@
 // místo běžného pozdravu, jednou za den. Soukromí a bezpečí věcně, bez vtipu.
 (function (L) {
   L.hints = {
-    "squad": ["CatSmash je teď ve Squadu. Kdo mě chce porazit, ví, kde mě najde."],
     "wheel": ["Světlý režim, tučné písmo a zvuky jsou v kolečku nahoře. Co s nimi uděláš, je mi jedno.", "V kolečku nahoře je vzhled a zvuky. Já bych tam přidal tlačítko na prodloužení spánku."],
     "verify": ["Bez ověřeného e-mailu zatím nejdou komentáře, žádosti o přátelství ani zprávy.", "Odkaz na ověření přišel do pošty. Občas zapadne do spamu."],
     "photo": ["Profil snese fotku a široký obrázek do záhlaví. Nemusí. Ale snese.", "Fotka i záhlaví se přidávají přímo tady na profilu."],
