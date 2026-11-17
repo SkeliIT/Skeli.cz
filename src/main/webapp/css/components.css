@@ -406,11 +406,15 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     padding: 0 14px calc(18px + env(safe-area-inset-bottom));
     overflow-y: auto; overscroll-behavior: contain;
     border: 0; border-radius: 0; box-shadow: none;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 20%, var(--bg)) 0, var(--bg) 160px), var(--bg);
+    --nav-bg: linear-gradient(180deg, color-mix(in srgb, var(--accent) 20%, var(--bg)) 0, var(--bg) 160px), var(--bg);
+    background: var(--nav-bg);
     backdrop-filter: none; -webkit-backdrop-filter: none;
     animation: mnav-in .2s ease;
   }
   .main-nav.open { display: flex; }
+  /* po odscrollování platí pro lištu na PC skleněné pozadí kapsle (.site-header.scrolled .main-nav) – menu na telefonu
+     a tabletu musí zůstat plné, jinak by prosvítala stránka */
+  .site-header.scrolled .main-nav, .site-header .main-nav { background: var(--nav-bg); }
   .main-nav .nav-pages { display: flex; flex-direction: column; gap: 2px; }
   .main-nav .nav-tools { display: block; }
   @keyframes mnav-in { from { opacity: .2; transform: translateY(-8px); } }   /* ne od nuly: úplně průhledné menu by testy i čtečky braly jako skryté */
