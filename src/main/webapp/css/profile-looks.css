@@ -4,20 +4,78 @@
    .pl-bgfx, .pl-fx.a/b/c (prázdné prvky, jen některé vzhledy je ukážou). Pohyb jen transform/opacity, na slabém telefonu a při
    omezení pohybu stojí (konec souboru). */
 
-/* ---------- základ: barvy a písma vzhledu na prvcích profilu ---------- */
-main.pl-look { --pl-txt: #f1eeee; --pl-dim: #a39e9e; --pl-acct: var(--accent); --pl-card: rgba(22, 20, 20, .94); --pl-line: color-mix(in srgb, var(--accent) 28%, #333);
-  --pl-fname: var(--font-display); --pl-flab: var(--font-display); }
-body.light main.pl-look { --pl-txt: #1d1a1a; --pl-dim: #625b5b; --pl-card: rgba(255, 255, 255, .95); }
-main.pl-look { --text: var(--pl-txt); --text-dim: var(--pl-dim); --panel: var(--pl-card); color: var(--pl-txt); }
+/* ---------- jednotná vrstva: vzhled platí pro KAŽDOU část profilu ----------
+   Každý vzhled nastaví své tokeny (barvy, písma, karty, zaoblení, tón fotek) a tahle vrstva je rozvede na všechno:
+   dlaždice, časovou osu, odznaky, skladby, přátele, CatSmash, komentáře i tlačítka. Přepisuje proměnné webu (--panel,
+   --text, --font-*) jen uvnitř profilu, takže se nové prvky profilu přizpůsobí samy. Barvy vzácnosti odznaků jsou
+   odstíny vzhledu (od tlumené po nejzářivější), aby nic nevybočovalo. Ruční úpravy jednotlivých vzhledů jsou níž a mají přednost.
+   Barvu webu kolem profilu (lišta, logo, jiskry) přebarví blok „web kolem profilu“ na konci souboru. */
+main.pl-look {
+  --pl-txt: #f1eeee; --pl-dim: #a39e9e; --pl-acct: var(--accent); --pl-card: rgba(22, 20, 20, .94); --pl-line: color-mix(in srgb, var(--accent) 28%, #333);
+  --pl-fname: var(--font-display); --pl-flab: var(--font-display); --pl-fhead: var(--pl-fname); --pl-fbody: var(--pl-flab);
+  --pl-tile: var(--pl-card); --pl-ctxt: var(--pl-txt); --pl-cdim: var(--pl-dim); --pl-chip: color-mix(in srgb, var(--pl-ctxt) 7%, transparent);
+  --pl-rad: 14px; --pl-brad: var(--pl-rad); --pl-bw: 1px; --pl-shadow: 0 18px 34px -24px rgba(0, 0, 0, .8); --pl-imgf: none;
+  --pl-r1: var(--pl-dim); --pl-r2: color-mix(in srgb, var(--accent) 55%, var(--pl-dim)); --pl-r3: var(--accent);
+  --pl-r4: var(--accent-2); --pl-r5: color-mix(in srgb, var(--accent-2) 55%, #fff);
+  --accent-ink: #0b0b0b;
+}
+body.light main.pl-look { --pl-txt: #1d1a1a; --pl-dim: #625b5b; --pl-card: rgba(255, 255, 255, .95); --pl-shadow: 0 14px 28px -20px rgba(0, 0, 0, .35); --accent-ink: #fff;
+  --pl-r5: color-mix(in srgb, var(--accent-2) 70%, #000); }
+main.pl-look { --text: var(--pl-txt); --text-dim: var(--pl-dim); --panel: var(--pl-card); --panel-strong: var(--pl-card); --panel-border: var(--pl-line); --radius: var(--pl-rad);
+  --font-body: var(--pl-fhead); --font-display: var(--pl-fhead); --font-text: var(--pl-fbody); --glow: var(--accent);
+  color: var(--pl-txt); font-family: var(--pl-fhead); }
 main.pl-look .pl-page { position: fixed; inset: 0; z-index: -1; background: var(--pl-bg); pointer-events: none; overflow: hidden; }
 main.pl-look .pl-bgfx, main.pl-look .pl-fx { display: none; pointer-events: none; }
-main.pl-look .pt, main.pl-look .pt-act-card { background: var(--pl-card); border-color: var(--pl-line); }
-main.pl-look .pt-act-card { border: 1px solid var(--pl-line); }
+
+/* dlaždice: jedna karta vzhledu místo barevných „Vrstev“ (každá dlaždice měla vlastní barvu: modrou, růžovou, fialovou…) */
+main.pl-look .pt { --glow: var(--accent); --text: var(--pl-ctxt); --text-dim: var(--pl-cdim); color: var(--pl-ctxt); border-radius: var(--pl-rad); background: none; }
+main.pl-look .pt::before { background: var(--pl-tile); border: var(--pl-bw) solid var(--pl-line); box-shadow: var(--pl-shadow); backdrop-filter: none; -webkit-backdrop-filter: none; }
+main.pl-look .pt-sheen { background: radial-gradient(240px circle at var(--mx) var(--my), color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%); }
+main.pl-look .pt-ghost { color: var(--accent); opacity: .14; }
+main.pl-look .pt-hero { --text: var(--pl-txt); --text-dim: var(--pl-dim); color: var(--pl-txt); background: var(--pl-card); }
+main.pl-look .pt-hero::before { background: transparent; box-shadow: none; }
+main.pl-look .pt-cover { border-radius: var(--pl-rad) var(--pl-rad) 0 0; }
 main.pl-look .pt-hero .acct-name { font-family: var(--pl-fname); max-width: 100%; }
 main.pl-look .pt-hero .pt-who-text { min-width: 0; max-width: 100%; }
-main.pl-look :is(.pt-label, .pt-chip, .profile-tabs a, .acct-badge, .pt-gear, .pt-act-k, .pt-act > time) { font-family: var(--pl-flab); }
-main.pl-look .pt-chip b, main.pl-look .acct-motto { color: var(--pl-acct); }
 main.pl-look .pt-hero .acct-photo .acct-avatar { width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
+main.pl-look .pt-chip b, main.pl-look .acct-motto { color: var(--pl-acct); }
+
+/* písma: nadpisy, jména a čísla = písmo vzhledu, popisky = jeho štítkové písmo, běžný text = jeho textové písmo */
+main.pl-look :is(.pt-label, .pt-chip, .profile-tabs a, .acct-badge, .pt-gear, .pt-act-k, .pt-feed time, .pt-act > time, .pt-lv span, .pt-lv small,
+  .pt-show-item, .pt-bdg, .friend-state, .pt-online, .pt-last-row, .pt-start-hide, .pt-track-hidden, .btn, .btn-primary, .btn-outline, .pt-play, .friend-btn, .pt-likes-go) { font-family: var(--pl-flab); }
+main.pl-look :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .pt-start-top h2, .friend-head, .friend-who, .pt-act-medal b, .pt-act-thumb b, .pt-big, .pt-lv b, .pt-ring) { font-family: var(--pl-fhead); }
+main.pl-look :is(.pt-quote, .pt-note, .pt-act-quote, .pt-act-medal small, .pt-howto li, .acct-bio, .acct-comment-text, .song-year, .pt-steps a) { font-family: var(--pl-fbody); }
+main.pl-look :is(.pt-big, .pt-lv.on b, .pt-note b, .pt-label i, .pt-feed i, .pt-last-row i, .game-head) { color: var(--accent); }
+
+/* vnitřní plošky (časy CatSmash, karty skladeb, kroky, komentáře, karty na ose) v barvách vzhledu */
+main.pl-look :is(.pt-lv, .song-card, .acct-comment, .pt-steps a, .pt-like-none) { background: var(--pl-chip); border-color: var(--pl-line); border-radius: calc(var(--pl-rad) * .7); }
+main.pl-look .pt-activity .pt-feed .pt-act-card { background: color-mix(in srgb, var(--accent) 6%, var(--pl-tile)); border: var(--pl-bw) solid var(--pl-line); border-radius: var(--pl-rad); color: var(--pl-ctxt); }
+main.pl-look .pt-activity .pt-feed a.pt-act-card:hover { border-color: var(--accent); }
+main.pl-look .pt-activity .pt-feed::before { background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 20%, transparent)); }
+main.pl-look .pt-activity .pt-feed li > i { background: var(--pl-bg); border-color: var(--accent); color: var(--accent); }
+main.pl-look .pt-activity .pt-feed .pt-act-thumb { border-radius: calc(var(--pl-rad) * .7); }
+main.pl-look .pt-activity .pt-feed .pt-act-thumb b { border-radius: var(--pl-brad); background: color-mix(in srgb, var(--pl-bg) 80%, transparent); color: var(--pl-txt); }
+main.pl-look .disco-dock { border-color: var(--pl-line); }
+main.pl-look :is(.pt-like img, .pt-like-none, .song-card img) { border-radius: calc(var(--pl-rad) * .6); }
+main.pl-look .pt-start-bar span, main.pl-look .pt-online::before { background: var(--accent); }
+main.pl-look .pt-ring { background: radial-gradient(closest-side, var(--pl-ringbg, var(--pl-card)) 78%, transparent 80%), conic-gradient(var(--accent) calc(var(--ring) * 1%), color-mix(in srgb, var(--pl-ctxt) 22%, transparent) 0); }
+
+/* fotky na profilu (oblíbený song, skladby, osa, přátelé) dostanou tón vzhledu */
+main.pl-look :is(.pt-song-img, .pt-like img, .song-card img, .pt-act-thumb img, .pt-act-face, .friend-who img) { filter: var(--pl-imgf); }
+
+/* barvy vzácnosti odznaků = odstíny vzhledu (běžný → legendární) */
+main.pl-look [data-rar="c"] { --rar: var(--pl-r1) !important; }
+main.pl-look [data-rar="u"] { --rar: var(--pl-r2) !important; }
+main.pl-look [data-rar="r"] { --rar: var(--pl-r3) !important; }
+main.pl-look [data-rar="e"] { --rar: var(--pl-r4) !important; }
+main.pl-look [data-rar="l"] { --rar: var(--pl-r5) !important; }
+main.pl-look .pt-activity .pt-feed .pt-act-coin { color: var(--accent-ink); }
+
+/* tlačítka a záložky */
+main.pl-look :is(.btn, .btn-primary, .btn-outline, .pt-play, .friend-btn, .pt-gear, .pt-likes-go) { border-radius: var(--pl-brad); }
+main.pl-look :is(.btn-outline, .friend-btn:not(.btn-primary)) { border-color: var(--pl-line); color: var(--pl-ctxt); }
+main.pl-look :is(.btn-primary, .pt-song-play) { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+main.pl-look .profile-tabs a.active { color: var(--accent); }
 
 @font-face { font-family: 'Anton'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/anton-400-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: 'Anton'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/anton-400-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
@@ -317,6 +375,202 @@ main.pl-gal .pt-act-k { font: 300 11px 'Jost'; letter-spacing: .2em; }
 main.pl-gal .pt-act-quote { font: 300 italic 17px/1.5 'Jost'; }
 main.pl-gal .pt-act-thumb img { border-radius: 0; }
 main.pl-gal .pt-act-coin { border-radius: 0; background: #f4f1ea; box-shadow: 0 0 0 4px #b9b3a8; }
+/* ---------- tokeny jednotné vrstvy pro každý vzhled (karty, písma, tón fotek, barvy vzácnosti) ---------- */
+/* Hologram: tyrkysový HUD, všechno strojovým písmem, karty se svítícími rohy, fotky tyrkysově */
+main.pl-holo { --pl-txt: #dffbff; --pl-dim: #7fb7c6; --pl-fhead: 'JetBrains Mono', 'Exo 2', monospace; --pl-fbody: 'JetBrains Mono', 'Exo 2', monospace;
+  --pl-tile: linear-gradient(180deg, rgba(63, 224, 255, .1), rgba(1, 12, 20, .9) 62%); --pl-chip: rgba(63, 224, 255, .07); --pl-rad: 4px; --pl-brad: 2px;
+  --pl-shadow: 0 0 22px rgba(63, 224, 255, .12), inset 0 0 30px rgba(63, 224, 255, .05);
+  --pl-imgf: grayscale(1) sepia(1) hue-rotate(150deg) saturate(2.2) brightness(.82) contrast(1.1);
+  --pl-r1: #6c8a96; --pl-r2: #2fb6d6; --pl-r3: #3fe0ff; --pl-r4: #b8f6ff; --pl-r5: #ffffff; }
+body.light main.pl-holo { --pl-dim: #3f6f7d; --pl-tile: linear-gradient(180deg, rgba(0, 144, 184, .09), #f7fcfe 62%); --pl-chip: rgba(0, 144, 184, .07);
+  --pl-shadow: 0 10px 24px -16px rgba(0, 90, 120, .45); --pl-imgf: grayscale(1) sepia(1) hue-rotate(150deg) saturate(1.4) brightness(1.02);
+  --pl-r1: #7a96a0; --pl-r2: #3a8fa8; --pl-r3: #0090b8; --pl-r4: #005f7a; --pl-r5: #00394a; }
+main.pl-holo .pt:not(.pt-hero)::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; --c: var(--accent);
+  background: linear-gradient(var(--c), var(--c)) 0 0 / 14px 2px, linear-gradient(var(--c), var(--c)) 0 0 / 2px 14px, linear-gradient(var(--c), var(--c)) 100% 0 / 14px 2px, linear-gradient(var(--c), var(--c)) 100% 0 / 2px 14px,
+    linear-gradient(var(--c), var(--c)) 0 100% / 14px 2px, linear-gradient(var(--c), var(--c)) 0 100% / 2px 14px, linear-gradient(var(--c), var(--c)) 100% 100% / 14px 2px, linear-gradient(var(--c), var(--c)) 100% 100% / 2px 14px;
+  background-repeat: no-repeat; }
+main.pl-holo :is(.pt-label, .pt-act-k, .pt-feed time, .game-head h2) { text-transform: uppercase; letter-spacing: .18em; }
+main.pl-holo :is(.pt-song-name, .pt-like-name, .song-name, .pt-big) { text-shadow: 2px 0 rgba(255, 40, 140, .35), -2px 0 rgba(63, 224, 255, .55); }
+body.light main.pl-holo :is(.pt-song-name, .pt-like-name, .song-name, .pt-big) { text-shadow: none; }
+
+/* Monolit: plakát černá–bílá–červená, tlusté rámy, ostré rohy, plný stín v barvě, fotky černobílé */
+main.pl-mono { --pl-fhead: 'Anton', 'Exo 2', sans-serif; --pl-fbody: 'JetBrains Mono', 'Exo 2', monospace; --pl-tile: #0c0c0c; --pl-chip: transparent; --pl-bw: 3px;
+  --pl-rad: 0; --pl-brad: 0; --pl-shadow: 8px 8px 0 var(--accent); --pl-imgf: grayscale(1) contrast(1.35); --pl-ringbg: #0c0c0c;
+  --pl-r1: #8a8a8a; --pl-r2: #d9d9d9; --pl-r3: #f2f2f2; --pl-r4: #ff7a5c; --pl-r5: #ff2a00; }
+body.light main.pl-mono { --pl-tile: #efede6; --pl-ringbg: #efede6; --pl-shadow: 8px 8px 0 var(--accent); --pl-r1: #8a8a8a; --pl-r2: #444; --pl-r3: #0c0c0c; --pl-r4: #b32000; --pl-r5: #d42200; }
+main.pl-mono :is(.pt-lv, .song-card, .acct-comment, .pt-steps a, .pt-like-none) { border: 2px solid var(--pl-line); }
+main.pl-mono .pt-label { align-self: flex-start; padding: 3px 7px; background: var(--pl-txt); color: var(--pl-bg); text-transform: uppercase; letter-spacing: .08em; }
+main.pl-mono :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .pt-big, .friend-head) { text-transform: uppercase; letter-spacing: .02em; }
+main.pl-mono .pt-big { font-size: clamp(2.4rem, 9vw, 3.4rem); }
+main.pl-mono .pt-activity .pt-feed li > i { border-radius: 0; }
+
+/* Radar: zelená obrazovka se skenovacími linkami, strojové písmo, fotky zeleně */
+main.pl-radar { --pl-fhead: 'JetBrains Mono', 'Exo 2', monospace; --pl-fbody: 'JetBrains Mono', 'Exo 2', monospace;
+  --pl-tile: repeating-linear-gradient(transparent 0 2px, rgba(57, 255, 122, .035) 2px 3px), radial-gradient(120% 90% at 50% 0, rgba(57, 255, 122, .08), transparent 60%), rgba(4, 24, 12, .94);
+  --pl-chip: rgba(57, 255, 122, .06); --pl-rad: 4px; --pl-brad: 2px; --pl-shadow: 0 0 18px rgba(57, 255, 122, .1), inset 0 0 0 1px rgba(57, 255, 122, .06); --pl-ringbg: #04180c;
+  --pl-imgf: grayscale(1) sepia(1) hue-rotate(80deg) saturate(2) brightness(.8) contrast(1.05);
+  --pl-r1: #4f7a5c; --pl-r2: #2fbf62; --pl-r3: #39ff7a; --pl-r4: #b9ffd0; --pl-r5: #f2fff5; }
+body.light main.pl-radar { --pl-tile: repeating-linear-gradient(transparent 0 2px, rgba(13, 122, 52, .04) 2px 3px), #fbfffc; --pl-ringbg: #fbfffc; --pl-chip: rgba(13, 122, 52, .06);
+  --pl-imgf: grayscale(1) sepia(.6) hue-rotate(80deg) saturate(1.3); --pl-r1: #7b9583; --pl-r2: #3d9a5c; --pl-r3: #0d7a34; --pl-r4: #075020; --pl-r5: #03300f; }
+main.pl-radar :is(.pt-label, .pt-act-k, .pt-feed time, .game-head h2) { text-transform: uppercase; letter-spacing: .14em; }
+main.pl-radar .pt-label::before { content: "▸ "; color: var(--accent); }
+main.pl-radar :is(.pt-big, .pt-song-name) { text-shadow: 0 0 10px rgba(57, 255, 122, .55); }
+body.light main.pl-radar :is(.pt-big, .pt-song-name) { text-shadow: none; }
+
+/* Kokpit: ocel a jantar, karty se seříznutým rohem a jantarovým pruhem nahoře, fotky do jantaru */
+main.pl-cock { --pl-txt: #e8edf2; --pl-dim: #8e9aa8; --pl-fhead: 'Black Ops One', 'Exo 2', sans-serif; --pl-fbody: 'JetBrains Mono', 'Exo 2', monospace;
+  --pl-tile: linear-gradient(180deg, #1b2129, #12161b); --pl-chip: #0d1115; --pl-rad: 0; --pl-brad: 0; --pl-ringbg: #161b21;
+  --pl-shadow: inset 0 3px 0 var(--accent), 0 16px 28px -18px #000; --pl-imgf: grayscale(1) sepia(.9) saturate(1.6) hue-rotate(-12deg) brightness(.82) contrast(1.1);
+  --pl-r1: #5d6773; --pl-r2: #9aa6b4; --pl-r3: #ffb000; --pl-r4: #ff7a1a; --pl-r5: #ff3d00; }
+body.light main.pl-cock { --pl-dim: #4d5a68; --pl-tile: linear-gradient(180deg, #ffffff, #eef1f4); --pl-chip: #e3e8ee; --pl-ringbg: #f6f8fa;
+  --pl-shadow: inset 0 3px 0 var(--accent), 0 12px 22px -16px rgba(0, 0, 0, .35); --pl-imgf: grayscale(1) sepia(.6) saturate(1.2);
+  --pl-r1: #8592a0; --pl-r2: #4d5a68; --pl-r3: #c27f00; --pl-r4: #b35400; --pl-r5: #8f2a00; }
+main.pl-cock .pt:not(.pt-hero)::before { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%); }
+main.pl-cock :is(.pt-label, .pt-act-k, .pt-feed time, .pt-lv span) { text-transform: uppercase; letter-spacing: .12em; }
+main.pl-cock :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .friend-head) { text-transform: uppercase; }
+main.pl-cock :is(.btn, .btn-primary, .btn-outline, .pt-play, .friend-btn, .pt-likes-go) { clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+
+/* Zeď: plakáty z papíru nalepené páskou na betonu, nadpisy sprejem, fotky sytější */
+main.pl-wall { --pl-card: #26231f; --pl-fhead: 'Rubik Spray Paint', 'Exo 2', sans-serif; --pl-fbody: 'Oswald', 'Exo 2', sans-serif;
+  --pl-tile: radial-gradient(circle at 30% 20%, rgba(0, 0, 0, .04) 0 1px, transparent 1.5px) 0 0 / 9px 9px, linear-gradient(170deg, #f6f1e8, #e9e2d5);
+  --pl-ctxt: #1b1a19; --pl-cdim: #5a554e; --pl-chip: rgba(0, 0, 0, .06); --pl-bw: 0; --pl-rad: 3px; --pl-brad: 4px; --pl-ringbg: #efe9de;
+  --pl-shadow: 0 10px 22px rgba(0, 0, 0, .5); --pl-imgf: contrast(1.15) saturate(1.25);
+  --pl-r1: #8a8378; --pl-r2: #1b1a19; --pl-r3: #ff2d55; --pl-r4: #e8b400; --pl-r5: #c2003a; }
+body.light main.pl-wall { --pl-card: #e8e3da; --pl-shadow: 0 10px 20px rgba(0, 0, 0, .28); }
+main.pl-wall .pt:not(.pt-hero):nth-child(odd) { rotate: -.5deg; }
+main.pl-wall .pt:not(.pt-hero):nth-child(even) { rotate: .6deg; }
+main.pl-wall .pt:not(.pt-hero)::after { content: ""; position: absolute; top: -10px; left: 50%; z-index: 3; width: 92px; height: 22px; margin-left: -46px; rotate: -3deg; pointer-events: none; background: rgba(255, 230, 0, .55); }
+main.pl-wall :is(.pt-label, .pt-act-k) { color: #ff2d55; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+main.pl-wall :is(.pt-big, .pt-song-name, .game-head h2) { color: #ff2d55; }
+main.pl-wall .pt-song-name { text-shadow: 2px 2px 0 #ffe600; }
+main.pl-wall .profile-tabs a.active { color: #ffe600; }
+body.light main.pl-wall .profile-tabs a.active { color: #c4002e; }
+
+/* Obálka: časopis – bez krabic, silná linka nahoře, nadpisy patkovou kurzívou, štítky prostrkaným Jostem */
+main.pl-cover { --pl-txt: #f4ece8; --pl-dim: #b5a59f; --pl-fhead: 'Playfair Display', 'Exo 2', serif; --pl-fbody: 'Jost', 'Exo 2', sans-serif;
+  --pl-tile: #141010; --pl-chip: rgba(242, 196, 184, .06); --pl-bw: 0; --pl-rad: 0; --pl-brad: 0; --pl-shadow: inset 0 2px 0 var(--pl-txt); --pl-ringbg: #141010;
+  --pl-imgf: grayscale(.2) contrast(1.08) sepia(.12); --pl-r1: #7a6a66; --pl-r2: #c89a8c; --pl-r3: #f2c4b8; --pl-r4: #ffffff; --pl-r5: #e8b04a; }
+body.light main.pl-cover { --pl-dim: #6d5a55; --pl-tile: #fffaf8; --pl-ringbg: #fffaf8; --pl-chip: rgba(138, 59, 44, .06); --pl-shadow: inset 0 2px 0 var(--pl-txt);
+  --pl-r1: #9b8a85; --pl-r2: #b0705f; --pl-r3: #8a3b2c; --pl-r4: #5a1f14; --pl-r5: #b07a1a; }
+main.pl-cover :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .pt-big, .friend-head, .pt-start-top h2, .pt-act-medal b) { font-style: italic; font-weight: 900; letter-spacing: -.01em; }
+main.pl-cover :is(.pt-label, .pt-act-k, .pt-feed time, .pt-lv span) { text-transform: uppercase; letter-spacing: .25em; font-weight: 400; }
+main.pl-cover .pt-quote { font: italic 600 1.15rem/1.3 'Playfair Display', serif; }
+
+/* Vinyl: teplá tma, jemné drážky jako na desce, oblé tvary, nadpisy Syne */
+main.pl-vinyl { --pl-txt: #f6ecee; --pl-dim: #b39ca4; --pl-fhead: 'Syne', 'Exo 2', sans-serif; --pl-fbody: 'Jost', 'Exo 2', sans-serif;
+  --pl-tile: repeating-radial-gradient(circle at 100% 0, rgba(255, 255, 255, .03) 0 1px, transparent 1px 4px), linear-gradient(160deg, #1f171a, #120f10);
+  --pl-chip: rgba(255, 61, 127, .06); --pl-rad: 18px; --pl-brad: 999px; --pl-ringbg: #181214; --pl-shadow: 0 18px 34px -20px rgba(0, 0, 0, .9);
+  --pl-imgf: sepia(.25) saturate(1.15) contrast(1.05); --pl-r1: #7a6a70; --pl-r2: #ffb347; --pl-r3: #ff6b9b; --pl-r4: #ff3d7f; --pl-r5: #ffd27a; }
+body.light main.pl-vinyl { --pl-dim: #6e5a60; --pl-tile: repeating-radial-gradient(circle at 100% 0, rgba(0, 0, 0, .025) 0 1px, transparent 1px 4px), linear-gradient(160deg, #fffdf9, #f6efe8);
+  --pl-chip: rgba(176, 22, 74, .06); --pl-ringbg: #fffaf6; --pl-r1: #9a8a90; --pl-r2: #c07a1a; --pl-r3: #b0164a; --pl-r4: #8a0f3a; --pl-r5: #a86a00; }
+main.pl-vinyl :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .pt-big, .friend-head, .pt-start-top h2) { font-weight: 800; letter-spacing: -.02em; }
+main.pl-vinyl .pt-label { text-transform: uppercase; letter-spacing: .16em; }
+
+/* Polární záře: mléčné sklo nad pohyblivou září, oblé karty, fotky do chladných tónů */
+main.pl-aurora { --pl-txt: #eef3ff; --pl-dim: #a8b3cc; --pl-fhead: 'Syne', 'Exo 2', sans-serif; --pl-fbody: 'Jost', 'Exo 2', sans-serif; --pl-card: rgba(18, 22, 40, .7);
+  --pl-tile: linear-gradient(160deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .03)); --pl-chip: rgba(255, 255, 255, .07); --pl-rad: 28px; --pl-brad: 999px; --pl-ringbg: #121a2c;
+  --pl-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 20px 40px -26px rgba(0, 0, 0, .7); --pl-imgf: saturate(.7) hue-rotate(-8deg) brightness(.95);
+  --pl-r1: #8a93a8; --pl-r2: #7fb0ff; --pl-r3: #7cf5d5; --pl-r4: #c49bff; --pl-r5: #f0b3ff; }
+body.light main.pl-aurora { --pl-dim: #4c5875; --pl-card: rgba(255, 255, 255, .7); --pl-tile: linear-gradient(160deg, rgba(255, 255, 255, .8), rgba(255, 255, 255, .5)); --pl-ringbg: #f4f7fd;
+  --pl-shadow: inset 0 1px 0 #fff, 0 16px 32px -22px rgba(40, 60, 120, .45); --pl-r1: #7d879c; --pl-r2: #2f6fd0; --pl-r3: #0f8f72; --pl-r4: #7a3fd0; --pl-r5: #b0208a; }
+main.pl-aurora .pt::before { backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2); }
+main.pl-aurora :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .pt-big, .friend-head, .pt-start-top h2) { font-weight: 800; letter-spacing: -.02em; }
+main.pl-aurora .pt-big { background: linear-gradient(100deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Galerie: výstavní síň – rovné rámy, světlo shora, tenké prostrkané písmo, fotky jemně do šeda */
+main.pl-gal { --pl-fhead: 'Jost', 'Exo 2', sans-serif; --pl-fbody: 'Jost', 'Exo 2', sans-serif;
+  --pl-tile: radial-gradient(60% 45% at 50% 0, rgba(255, 250, 235, .09), transparent 70%), #222120; --pl-chip: rgba(255, 255, 255, .04); --pl-bw: 0; --pl-rad: 0; --pl-brad: 0;
+  --pl-shadow: 0 0 0 1px var(--pl-line), 0 24px 40px -24px rgba(0, 0, 0, .7); --pl-ringbg: #222120; --pl-imgf: grayscale(.35) contrast(1.05);
+  --pl-r1: #6f6a62; --pl-r2: #a29d94; --pl-r3: #d8d2c6; --pl-r4: #f4efe4; --pl-r5: #e0c37a; }
+body.light main.pl-gal { --pl-tile: radial-gradient(60% 45% at 50% 0, rgba(255, 240, 200, .25), transparent 70%), #ffffff; --pl-ringbg: #fff; --pl-chip: rgba(0, 0, 0, .03);
+  --pl-shadow: 0 0 0 1px var(--pl-line), 0 18px 30px -22px rgba(0, 0, 0, .3); --pl-r1: #a8a29a; --pl-r2: #77726a; --pl-r3: #3b3832; --pl-r4: #1d1c1a; --pl-r5: #9a7420; }
+main.pl-gal :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .friend-head, .pt-start-top h2) { font-weight: 300; letter-spacing: .14em; text-transform: uppercase; }
+main.pl-gal .pt-big { font-weight: 200; }
+main.pl-gal :is(.pt-label, .pt-act-k, .pt-feed time, .pt-lv span) { font-weight: 300; letter-spacing: .22em; text-transform: uppercase; }
+main.pl-gal :is(.pt-quote, .pt-note, .pt-act-quote) { font-weight: 300; }
+
+/* ---------- ikony a odznaky: každý vzhled má vlastní podobu ----------
+   Platí pro odznaky v Přehledu (lišta, vitrína), medaile na časové ose, uzly osy a odznaky CatSmash v záložce Hry.
+   Barva ikony je --ic (vzácnost, stupeň odznaku nebo barva vzhledu), tvar a výplň určuje vzhled. */
+main.pl-look :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin) { --ic: var(--rar); }
+main.pl-look .pt-activity .pt-feed li > i { --ic: var(--accent); }
+main.pl-look .pong-badges .pong-badge-icon { --ic: var(--pl-r1); }
+main.pl-look .pong-badges li.on .pong-badge-icon { --ic: var(--pl-r5); }
+main.pl-look .pong-badges li.on.tier-silver .pong-badge-icon { --ic: var(--pl-r4); }
+main.pl-look .pong-badges li.on.tier-bronze .pong-badge-icon { --ic: var(--pl-r2); }
+main.pl-look :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) {
+  color: var(--ic); background: color-mix(in srgb, var(--ic) 14%, transparent); border: 1.5px solid var(--ic); box-shadow: 0 0 14px -4px var(--ic); text-shadow: none; }
+main.pl-look .pt-show-item { border-radius: var(--pl-brad); }
+/* odznaky CatSmash (záložka Hry) ve stejných kartách jako zbytek profilu */
+main.pl-look .pong-badge-box { background: var(--pl-tile); border: var(--pl-bw) solid var(--pl-line); border-radius: var(--pl-rad); box-shadow: var(--pl-shadow); color: var(--pl-ctxt); --text: var(--pl-ctxt); --text-dim: var(--pl-cdim); }
+main.pl-look .pong-badges li { background: var(--pl-chip); border-color: var(--pl-line); border-radius: calc(var(--pl-rad) * .7); }
+main.pl-look .pong-badges li.on { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+main.pl-look :is(.pong-badges b, .pong-badge-head b) { font-family: var(--pl-fhead); }
+main.pl-look :is(.pong-badge-text span, .pong-badge-rule, .pong-badge-head span) { font-family: var(--pl-fbody); }
+
+/* Hologram: kruh s dvojitou svítící obručí */
+main.pl-holo :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 50%; border: 1px solid var(--ic);
+  background: radial-gradient(circle, color-mix(in srgb, var(--ic) 24%, transparent), transparent 70%);
+  box-shadow: 0 0 0 3px var(--pl-bg), 0 0 0 4px color-mix(in srgb, var(--ic) 45%, transparent), 0 0 16px color-mix(in srgb, var(--ic) 70%, transparent); text-shadow: 0 0 8px var(--ic); }
+/* Monolit: plný čtverec v barvě, tlustý rám a ostrý stín */
+main.pl-mono :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 0; background: var(--ic); color: var(--pl-bg);
+  border: 2px solid var(--pl-line); box-shadow: 3px 3px 0 var(--pl-line); }
+/* Radar: terč s křížem a zelenou září */
+main.pl-radar :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 50%; border: 1px solid var(--ic);
+  background: linear-gradient(color-mix(in srgb, var(--ic) 30%, transparent), color-mix(in srgb, var(--ic) 30%, transparent)) center / 1px 100% no-repeat,
+    linear-gradient(color-mix(in srgb, var(--ic) 30%, transparent), color-mix(in srgb, var(--ic) 30%, transparent)) center / 100% 1px no-repeat,
+    radial-gradient(circle, color-mix(in srgb, var(--ic) 16%, transparent), transparent 72%);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ic) 8%, transparent), 0 0 12px color-mix(in srgb, var(--ic) 55%, transparent); text-shadow: 0 0 6px var(--ic); }
+/* Kokpit: ocelový šestiúhelník s barevným prstencem */
+main.pl-cock :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border: 0; border-radius: 0; box-shadow: none;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  background: radial-gradient(circle, transparent 0 56%, var(--ic) 57% 63%, transparent 64%), linear-gradient(180deg, #2c3540, #151a20); }
+body.light main.pl-cock :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) {
+  background: radial-gradient(circle, transparent 0 56%, var(--ic) 57% 63%, transparent 64%), linear-gradient(180deg, #ffffff, #dfe5ec); }
+/* Zeď: nálepka v barvě s bílým okrajem, trochu nakřivo */
+main.pl-wall :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border: 0; border-radius: 30%; rotate: -6deg;
+  background: var(--ic); color: #fff; box-shadow: 0 0 0 3px #fff, 2px 4px 8px rgba(0, 0, 0, .35); text-shadow: 0 1px 0 rgba(0, 0, 0, .35); }
+/* Obálka: tenká dvojitá linka jako razítko */
+main.pl-cover :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 50%; border: 1px solid var(--ic);
+  background: var(--pl-ringbg); box-shadow: inset 0 0 0 3px var(--pl-ringbg), inset 0 0 0 4px var(--ic); }
+/* Vinyl: malá deska, barva je štítek uprostřed */
+main.pl-vinyl :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border: 0; border-radius: 50%; color: #fff;
+  background: radial-gradient(circle, var(--ic) 0 40%, #111 41% 43%, transparent 44%), repeating-radial-gradient(circle, #141114 0 2px, #241e21 2px 3px);
+  box-shadow: 0 6px 14px -6px rgba(0, 0, 0, .8); text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
+/* Polární záře: měkká kapka s přechodem */
+main.pl-aurora :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border: 0; border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+  background: linear-gradient(135deg, var(--ic), color-mix(in srgb, var(--ic) 40%, var(--accent-2))); color: #0b1020;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 8px 20px -8px var(--ic); }
+/* Galerie: obrázek v paspartě, barva jen jako proužek dole */
+main.pl-gal :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 0; border: 1px solid #b9b3a8; border-bottom: 3px solid var(--ic);
+  background: #f4f1ea; color: color-mix(in srgb, var(--ic) 35%, #2a2826); box-shadow: 0 0 0 3px #f4f1ea, 0 0 0 4px #b9b3a8, 0 8px 16px -8px rgba(0, 0, 0, .6); }
+/* nezískané odznaky CatSmash: stejný tvar, jen vybledlé */
+main.pl-look .pong-badges li:not(.on) .pong-badge-icon { opacity: .45; filter: grayscale(1); }
+
+/* ---------- web kolem profilu (lišta, logo, jiskry, patička) v barvě zvoleného vzhledu ----------
+   Fotky pozadí webu se na profilu se vzhledem schovají (vzhled má vlastní pozadí .pl-page). Barvu webu jinak
+   nastavuje js/effects.js přímo na <body>, proto !important. */
+body:has(main.pl-look) .bg-slides { display: none; }
+body:has(main.pl-look)::before { opacity: 0; }
+body:has(main.pl-holo) { --accent: #3fe0ff !important; --accent-2: #b8f6ff !important; --bg: #01050a; }
+body.light:has(main.pl-holo) { --accent: #0090b8 !important; --accent-2: #005f7a !important; --bg: #e9f4f8; }
+body:has(main.pl-mono) { --accent: #ff2a00 !important; --accent-2: #ff2a00 !important; --bg: #0c0c0c; }
+body.light:has(main.pl-mono) { --accent: #d42200 !important; --accent-2: #d42200 !important; --bg: #efede6; }
+body:has(main.pl-radar) { --accent: #39ff7a !important; --accent-2: #b9ffd0 !important; --bg: #020a05; }
+body.light:has(main.pl-radar) { --accent: #0d7a34 !important; --accent-2: #075020 !important; --bg: #eef7f0; }
+body:has(main.pl-cock) { --accent: #ffb000 !important; --accent-2: #ff5a00 !important; --bg: #0b0d10; }
+body.light:has(main.pl-cock) { --accent: #c27f00 !important; --accent-2: #8a3a00 !important; --bg: #e8ebef; }
+body:has(main.pl-wall) { --accent: #ff2d55 !important; --accent-2: #ffe600 !important; --bg: #1b1a19; }
+body.light:has(main.pl-wall) { --accent: #d6003a !important; --accent-2: #b38f00 !important; --bg: #cfcac2; }
+body:has(main.pl-cover) { --accent: #f2c4b8 !important; --accent-2: #ffffff !important; --bg: #0b0909; }
+body.light:has(main.pl-cover) { --accent: #8a3b2c !important; --accent-2: #5a1f14 !important; --bg: #f6f1ee; }
+body:has(main.pl-vinyl) { --accent: #ff3d7f !important; --accent-2: #ffb347 !important; --bg: #0c0a0b; }
+body.light:has(main.pl-vinyl) { --accent: #b0164a !important; --accent-2: #c07a1a !important; --bg: #f2eee9; }
+body:has(main.pl-aurora) { --accent: #7cf5d5 !important; --accent-2: #c49bff !important; --bg: #050812; }
+body.light:has(main.pl-aurora) { --accent: #0f8f72 !important; --accent-2: #7a3fd0 !important; --bg: #eaf0fb; }
+body:has(main.pl-gal) { --accent: #d8d2c6 !important; --accent-2: #ffffff !important; --bg: #1a1918; }
+body.light:has(main.pl-gal) { --accent: #3b3832 !important; --accent-2: #1d1c1a !important; --bg: #f4f2ee; }
+
 @keyframes pl-holoScan { from { transform: translateY(-60%); } to { transform: translateY(60%); } }
 @keyframes pl-sweep { to { transform: rotate(1turn); } }
 @keyframes pl-spin { to { transform: rotate(1turn); } }
@@ -338,6 +592,7 @@ body.light main.pl-gal { --accent: #3b3832; }
 html.low-fx main.pl-look *, html.low-fx main.pl-look *::before, html.low-fx main.pl-look *::after { animation: none !important; }
 html.low-fx main.pl-look .pl-bgfx { display: none !important; }
 html.low-fx main.pl-look :is(.pt, .pt-act-card, .pt-chip, .pt-hero) { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+html.low-fx main.pl-look .pt::before { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 @media (prefers-reduced-motion: reduce) { main.pl-look *, main.pl-look *::before, main.pl-look *::after { animation: none !important; } }
 
 /* lišta u náhledu vzhledu (?look=): nic se neuložilo, zpět na výběr */
@@ -345,3 +600,4 @@ html.low-fx main.pl-look :is(.pt, .pt-act-card, .pt-chip, .pt-hero) { backdrop-f
   margin: 0 0 12px; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--accent); font-family: var(--font-text); font-size: var(--fs-text, 1rem);
   background: color-mix(in srgb, var(--pl-card) 94%, transparent); color: var(--pl-txt); }
 .pl-try .btn-outline { min-height: 40px; }
+main.pl-look .pl-try .btn-outline { color: var(--pl-txt); border-color: var(--accent); }
