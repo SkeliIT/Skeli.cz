@@ -2091,6 +2091,13 @@ body.light .game-champs .p3 .champ-place { color: #9a5a22; }
 .set-seg button { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--text-dim); font: inherit; font-size: var(--fs-card); cursor: pointer; }
 .set-seg button:hover { color: var(--text); }
 .set-seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+/* nápověda „?“: krátký text je vidět hned, podrobnosti po ťuknutí (ťukací plocha 40 px) */
+.set-help { margin: -6px 0 8px; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); color: var(--text-dim); }
+.set-help > summary { list-style: none; display: inline-grid; place-items: center; width: 40px; height: 40px; margin-left: -8px; cursor: pointer; }
+.set-help > summary::-webkit-details-marker { display: none; }
+.set-help > summary > span[aria-hidden] { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--panel-border); color: var(--accent); font: 400 .8rem var(--font-body); }
+.set-help[open] > summary > span[aria-hidden] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.set-help p { margin: 0; padding: 10px 12px; border-radius: 12px; line-height: 1.45; background: color-mix(in srgb, var(--text) 6%, transparent); }
 /* profil: „Zobrazit všechny“ – rozbalení zbytku komentářů a nezískaných odznaků */
 .acct-more { display: grid; gap: 10px; }
 .acct-more > summary {

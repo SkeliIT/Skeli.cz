@@ -29,7 +29,7 @@
   <% if ("1".equals(vzLook)) { %><div class="form-success" role="status"><%= t.getProperty("look.saved") %></div><% } %>
   <% if ("0".equals(vzLook)) { %><div class="form-alert" role="alert"><%= t.getProperty("look.notSaved") %></div><% } %>
   <% if (vzHave == null) { %>
-  <p class="form-alert"><%= t.getProperty("settings.error.generic") %></p>
+  <p class="form-alert"><%= t.getProperty("tracks.msg.fail") %></p>
   <% } else { %>
 
   <%-- Vzhled profilu (css/profile-looks.css): vidí ho i ostatní; každý jde vyzkoušet (?look=), odemčený použít --%>

@@ -4,6 +4,15 @@
 <%-- Nastavení účtu po sekcích: Profil, Soukromí, Vzhled, Tvorba, Web a jazyk, Zabezpečení, Účet a data.
      Telefon: seznam sekcí, ťuknutí otevře jednu (jako v aplikaci). Počítač: seznam vlevo, sekce vpravo.
      Řídí to #kotva v adrese (formuláře se po uložení vracejí na svou sekci); bez JavaScriptu je vidět všechno. --%>
+<%!
+  /** Nápověda „?“ v Nastavení: krátký text je vidět hned, podrobnosti až po ťuknutí (funguje i klávesnicí a čtečkou). */
+  private static String setHelp(java.util.Properties t, String key) {
+    String v = t.getProperty(key);
+    if (v == null) return "";
+    return "<details class=\"set-help\"><summary><span aria-hidden=\"true\">?</span><span class=\"sr-only\">"
+        + com.github.skeliit.WebUtils.escapeHtml(t.getProperty("settings.help.more")) + "</span></summary><p>" + com.github.skeliit.WebUtils.escapeHtml(v) + "</p></details>";
+  }
+%>
 <main class="account-page settings-page">
   <% if (session.getAttribute("user_id") == null) { %>
   <%-- signed out (e.g. the sign-in expired): no forms, just a way back in --%>
@@ -115,7 +124,7 @@
   <section class="acct-card" id="tvorba">
     <header class="acct-card-head">
       <h3><i class="fa-solid fa-music" aria-hidden="true"></i> <%= t.getProperty("tracks.title") %></h3>
-      <p><%= t.getProperty("tracks.lead") %></p>
+      <p><%= t.getProperty("tracks.lead") %></p><%= setHelp(t, "tracks.lead.more") %>
     </header>
     <%
       String tracksMsg = request.getParameter("tracks");
@@ -186,7 +195,7 @@
           <input name="username" required minlength="3" maxlength="50" autocomplete="username"
                  value="<%= WebUtils.escapeHtml(me != null ? me.username : (String) session.getAttribute("username")) %>">
         </label>
-        <p class="acct-dim"><%= t.getProperty("account.username.hint") %></p>
+        <p class="acct-dim"><%= t.getProperty("account.username.hint") %></p><%= setHelp(t, "account.username.hint.more") %>
         <button type="submit" class="btn-primary"><%= t.getProperty("account.username.save") %></button>
       </form>
     </div>
@@ -286,7 +295,7 @@
       <h4><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i> <%= t.getProperty("tfa.title") %></h4>
       <% if (tfaGood) { %><div class="form-success"><%= t.getProperty("tfa.msg." + tfaMsg) %></div><% } %>
       <% if (tfaBad) { %><div class="form-alert"><%= t.getProperty("tfa.msg." + tfaMsg) %></div><% } %>
-      <p class="acct-dim"><%= t.getProperty("tfa.lead") %></p>
+      <p class="acct-dim"><%= t.getProperty("tfa.lead") %></p><%= setHelp(t, "tfa.lead.more") %>
       <% if (tfaCodes != null) { %>
         <div class="tfa-codes">
           <b><%= t.getProperty("tfa.newCodesTitle") %></b>
@@ -558,7 +567,7 @@
       </div>
       <div class="settings-form acct-block acct-danger">
         <h4><%= t.getProperty("settings.deleteAccount") %></h4>
-        <p class="acct-dim"><%= t.getProperty("account.deleteText") %></p>
+        <p class="acct-dim"><%= t.getProperty("account.deleteText") %></p><%= setHelp(t, "account.deleteText.more") %>
         <form method="post" action="/profile/delete" onsubmit="return confirm('<%= WebUtils.escapeJs(t.getProperty("settings.deleteConfirm")) %>');">
           <input type="hidden" name="csrf" value="${csrf}">
           <label><%= WebUtils.escapeHtml(t.getProperty("settings.deleteLabel")) %><input type="text" name="confirm" required autocomplete="off"></label>
