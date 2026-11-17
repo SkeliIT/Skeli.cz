@@ -612,7 +612,7 @@
     "findFriends": ["Přátele jde hledat v Přátelích na profilu. Stačí začít psát jméno.", "Tlačítko Hledat přátele je v Přátelích na profilu. Mně stačí miska, ale je to tvoje věc."],
     "findWho": ["V části Hledat přátele jsou jen ti, kdo si to sami zapnuli.", "Ukázat se v hledání přátel jde v Nastavení, záložka Soukromí. Výchozí je vypnuto."],
     "privacy": ["Veřejný, nebo soukromý profil? Přepínač je v Nastavení, záložka Soukromí.", "Veřejný profil uvidí jen přihlášení. Jestli ho chceš ukázat i lidem bez účtu, zapneš to v Nastavení, záložka Soukromí.", "O tom, co o tobě ostatní vidí, rozhoduješ jen ty. Nastavení, záložka Soukromí."],
-    "visibility": ["V části „Co o mně vidí ostatní“ má každá věc vlastní vypínač. Nemusíš skrývat celý profil.", "Bio, město i oblíbené písně se dají ukázat nebo skrýt zvlášť. Nastavení, záložka Soukromí."],
+    "visibility": ["V části „Co o mně vidí ostatní“ má každá věc vlastní vypínač. Nemusíš skrývat celý profil.", "O mně, město i oblíbené songy se dají ukázat nebo skrýt zvlášť. Nastavení, záložka Soukromí."],
     "settings": ["Nastavení má záložky Profil, Zabezpečení, Soukromí a Tvorba. Heslo je v Zabezpečení.", "V Nastavení jsou čtyři záložky. Stačí vědět, co hledáš. To je obvykle ta těžší část."],
     "twofa": ["Dvoufázové přihlášení chrání účet, i kdyby někdo zjistil heslo. Nastavení, záložka Zabezpečení.", "Dvoufázové přihlášení je dobrovolné. Přidává další vrstvu ochrany účtu."],
     "export": ["Data si můžeš stáhnout a účet kdykoli smazat. Obojí je v Nastavení."],

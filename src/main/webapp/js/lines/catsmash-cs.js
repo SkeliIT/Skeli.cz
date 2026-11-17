@@ -41,7 +41,7 @@ window.KEVIN_LINES.cs.pong = {
     "Střední",
     "Nízké"
   ],
-  "detailHint": "Sám = hra ubere ozdoby, když se začne sekat. Nízké = nejplynulejší: méně efektů, Kevin méně ostrý.",
+  "detailHint": "Automaticky = hra ubere efekty, když se začne sekat. Nízké = nejplynulejší, méně efektů a Kevin méně ostrý.",
   "talkTitle": "Kevin mluví",
   "talk": [
     "Hodně",
@@ -99,31 +99,31 @@ window.KEVIN_LINES.cs.pong = {
   ],
   "skinNew": "Nově odemčeno: {name}. Najdeš to v Menu → Vzhled.",
   "badgeNames": {
-    "first": "První packa",
-    "easy": "Rozjetá packa",
-    "normal": "Ozubená konkurence",
+    "first": "První vítězství",
+    "easy": "Vítězný hattrick",
+    "normal": "Rovný souboj",
     "angry": "Krotitel Kevina",
     "clean": "Zlatá nula",
     "close": "Na vous",
     "fast": "Hopík expres",
-    "streak": "Deset pack",
+    "streak": "Desítka",
     "wins50": "Zlatý drtič",
     "wins100": "Legenda SKELO",
-    "sniper": "Hopík sniper",
-    "super": "Super packa",
+    "sniper": "Sniper",
+    "super": "Dokonalá série",
     "tinker": "Šroubkomág",
-    "yarn": "Klubko chaosu",
+    "yarn": "Chladná hlava",
     "overheat": "Přehřívač",
-    "comeback": "Návrat z klubka",
-    "marathon": "Odrazový mistr",
-    "night": "Noční packa",
-    "loyal": "Věrná tlapka",
+    "comeback": "Comeback",
+    "marathon": "Nekonečná výměna",
+    "night": "Noční směna",
+    "loyal": "Štamgast",
     "hwins5": "Pán stroje",
-    "hfast": "Blesk z klubka",
+    "hfast": "Bleskovka",
     "hclean": "Kevinova noční můra",
     "hsniper": "Ostré oko",
     "hcomeback": "Fénix ze stroje",
-    "wardrobe": "Šatní král",
+    "wardrobe": "Kompletní arzenál",
     "skelosquad": "SkeloSquad"
   },
   "badgeLines": {
@@ -154,7 +154,7 @@ window.KEVIN_LINES.cs.pong = {
     "wardrobe": "Celá výbava odemčená! Ještě mi odemkni cestu k plné misce.",
     "skelosquad": "SkeloSquad! Tak tohle je nejvzácnější věc v celým automatu. Klaním se. Jednou."
   },
-  "noBadges": "Na Lehkou se odznaky nesbírají – zkus Normální.",
+  "noBadges": "Odznaky a odměny se sbírají jen na Normální a Kevin naštvaný.",
   "badgeHow": {
     "first": "Vyhraj svůj první zápas proti Kevinovi.",
     "easy": "Vyhraj celkem 3 zápasy (Lehká se nepočítá).",
@@ -166,15 +166,15 @@ window.KEVIN_LINES.cs.pong = {
     "streak": "Vyhraj celkem 10 zápasů.",
     "wins50": "Vyhraj celkem 50 zápasů.",
     "wins100": "Vyhraj celkem 100 zápasů.",
-    "sniper": "Proveď 3 perfektní odstřely v jednom zápase.",
-    "super": "Proveď tři perfektní odstřely po sobě a aktivuj SUPER ODSTŘEL.",
+    "sniper": "Dej 3 perfektní odstřely v jednom zápase.",
+    "super": "Dej 3 perfektní odstřely po sobě – vznikne SUPER ODSTŘEL.",
     "tinker": "Chyť pálkou celkem 10 šroubků nebo matiček padajících ze stroje.",
     "yarn": "Na nejtěžší obtížnost vyhraj zápas, do kterého ti Kevin hodil klubíčko (hází ho, když vedeš aspoň o 2 góly).",
-    "overheat": "Způsob, aby se Kevinovi v jednom zápase 3× přehřála ozubená kola.",
+    "overheat": "Přehřej Kevinovi v jednom zápase třikrát kola.",
     "comeback": "Vyhraj zápas, ve kterém jsi prohrával o 5 gólů.",
-    "marathon": "Odehraj výměnu s 30 odrazy bez jediného gólu.",
+    "marathon": "Udrž výměnu 30 odrazů bez gólu.",
     "night": "Vyhraj zápas mezi půlnocí a 4. hodinou ranní.",
-    "loyal": "Zahraj si s Kevinem během 7 různých dní.",
+    "loyal": "Hraj s Kevinem v 7 různých dnech.",
     "hwins5": "Vyhraj 5 zápasů na nejtěžší obtížnost.",
     "hfast": "Vyhraj na nejtěžší obtížnost za méně než 2 minuty.",
     "hclean": "Vyhraj na nejtěžší obtížnost a pusť Kevina nejvýš na 3 góly.",
@@ -185,7 +185,7 @@ window.KEVIN_LINES.cs.pong = {
   },
   "badgesTitle": "Odznaky",
   "loading": "Startuju stroj…",
-  "easyNoBadges": "Na Lehké se odznaky a odměny neodemykají. Sbírají se až od Normální.",
+  "easyNoBadges": "Odznaky a odměny se sbírají jen na Normální a Kevin naštvaný.",
   "badgesRule": "Jen na Normální a Naštvaný.",
   "badgesGot": "Získané",
   "badgesMissing": "Ještě chybí",
@@ -323,7 +323,7 @@ window.KEVIN_LINES.cs.pong = {
     "miss": "pokažený odstřel"
   },
   "board": "Tabulka",
-  "empty": "Zatím ho tu nikdo neporazil. Buď první.",
+  "empty": "Zatím tu nikdo není. Buď první.",
   "boardFail": "Tabulku se nepodařilo načíst.",
   "yourBest": "Tvoje nejlepší: {place}. místo, {time}",
   "loginToRank": "Do tabulky se zapíšeš po přihlášení.",
@@ -346,7 +346,7 @@ window.KEVIN_LINES.cs.pong = {
   "points": "bodů",
   "yourScore": "Tvoje nejlepší: {place}. místo, {score} bodů",
   "localScore": "tvůj rekord tady: {score} bodů",
-  "emptyScore": "Zatím tu nikdo nehrál. Buď první.",
+  "emptyScore": "Zatím tu nikdo není. Buď první.",
   "scoreRows": {"goals":"Góly","perfect":"Perfektní odstřely","supers":"SUPER rány","stick":"Góly superútokem","streaks":"Série perfektních","rally":"Nejdelší výměna","screws":"Součástky","kevin":"Kevinovy góly","win":"Výhra","speed":"Čas","mult":"Obtížnost"},
   "replaySkip": "ťukni pro přeskočení",
   "pickPlay": "Přehrát ukázku",
@@ -415,12 +415,12 @@ window.KEVIN_LINES.cs.pong = {
   ],
   "start": [
     "Jdeme na to!",
-    "Tlapky připravené."
+    "Připravený."
   ],
   "scored": [
-    "Gól! Tlapka nezklamala.",
+    "Gól. Dle očekávání.",
     "To bylo moc snadné.",
-    "Kočka 1, člověk 0. Tedy víc."
+    "Kočka vede. Jak jinak."
   ],
   "conceded": [
     "To se nepočítá.",
@@ -429,7 +429,7 @@ window.KEVIN_LINES.cs.pong = {
   ],
   "won": [
     "No dobře. Vyhrál jsi. Tentokrát.",
-    "Tohle Radkovi neříkej."
+    "Tohle Skelimu neříkej."
   ],
   "lost": [
     "Kočičí reflexy, co nadělám.",
