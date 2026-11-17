@@ -742,7 +742,8 @@
     var swallow = false;
     addEventListener('pointerdown', function (e) {
       var x = e.clientX, y = e.clientY + scrollY, best = null, bd = 1e9;
-      B.forEach(function (b) { var d = Math.hypot(b.x - x, b.y - y); if (!b.gone && d < b.r + (e.pointerType === 'touch' ? 18 : 10) && d < bd) { bd = d; best = b; } });
+      // větší okruh pro trefu (bublinky jsou malé): myš 18 px, prst 26 px kolem bublinky
+      B.forEach(function (b) { var d = Math.hypot(b.x - x, b.y - y); if (!b.gone && d < b.r + (e.pointerType === 'touch' ? 26 : 18) && d < bd) { bd = d; best = b; } });
       if (best) { pop(best, true); swallow = true; setTimeout(function () { swallow = false; }, 600); start(); }
     }, true);
     addEventListener('click', function (e) { if (swallow) { swallow = false; e.preventDefault(); e.stopPropagation(); } }, true);
@@ -761,10 +762,15 @@
         if ((b.die && b.age > b.die) || b.age > b.life) { pop(b); return false; }
         var sy = b.y - scrollY;
         if (wind) {
-          var dx = b.x - px, dy = sy - py, d = Math.hypot(dx, dy), reach = 110;
-          if (d < reach) { var f = Math.pow(1 - d / reach, 2) * dt * 3.2; b.vx += pvx * f + dx / (d + 1) * 40 * f; b.vy += pvy * f + dy / (d + 1) * 40 * f; }
+          // Pohyb ruky bublinky jen jemně odfoukne: rychlost ruky se počítá nejvýš 500 px/s a síla je slabší než dřív
+          // (utíkaly tak rychle, že se nedaly trefit). Těsně u kurzoru (do 28 px) se naopak skoro zastaví, ať jde prasknout.
+          var dx = b.x - px, dy = sy - py, d = Math.hypot(dx, dy), reach = 90;
+          var hv = Math.hypot(pvx, pvy), hk = hv > 500 ? 500 / hv : 1;
+          if (d < reach && d > 28) { var f = Math.pow(1 - d / reach, 2) * dt * 1.6; b.vx += (pvx * hk * 0.5 + dx / (d + 1) * 14) * f; b.vy += (pvy * hk * 0.5 + dy / (d + 1) * 14) * f; }
         }
+        if (Math.hypot(b.x - px, sy - py) < 28) { b.vx *= Math.exp(-9 * dt); b.vy *= Math.exp(-9 * dt); }
         b.vx *= Math.exp(-1.6 * dt); b.vy *= Math.exp(-1.6 * dt);
+        var bv = Math.hypot(b.vx, b.vy); if (bv > 70) { b.vx *= 70 / bv; b.vy *= 70 / bv; }   // strop rychlosti
         b.x += (b.vx + Math.sin(b.age * 2.2 + b.ph) * 8) * dt;
         b.y += (b.vy - b.rise) * dt;
         var a = Math.min(1, b.age * 2) * Math.min(1, (b.life - b.age) / 1.2);
