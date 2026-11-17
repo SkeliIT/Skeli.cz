@@ -1,0 +1,13 @@
+<%-- Vzhled profilu (odměna, css/profile-looks.css): styly, pozadí přes celé okno a lišta „vyzkoušíš si“ u náhledu.
+     Před vložením musí stránka nastavit plLook (null = základní) a plTry (náhled přes ?look=, nic se neukládá).
+     Vkládané šablony se nečtou jako UTF-8: texty jen z překladů. --%>
+<% if (plLook != null) { %>
+<link rel="stylesheet" href="/css/profile-looks.css?v=<%= assetVersion %>">
+<div class="pl-page" aria-hidden="true"><div class="pl-bgfx"></div></div>
+<% if (plTry) { %>
+<div class="pl-try" role="status">
+  <span><i class="fa-solid fa-eye" aria-hidden="true"></i> <%= t.getProperty("look.try.text") %></span>
+  <a class="btn-outline" href="/nastaveni.jsp#vzhled"><i class="fa-solid fa-palette" aria-hidden="true"></i> <%= t.getProperty("look.try.back") %></a>
+</div>
+<% } %>
+<% } %>

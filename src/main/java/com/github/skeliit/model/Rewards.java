@@ -83,6 +83,17 @@ public final class Rewards {
         days("kstyle", "c", 3);           // Čisté plátno
         site("kstyle", "o", "s_karaoke");  // Kouř a oheň – kdo zašel do kina
         days("kstyle", "t", 14);          // Tunel
+
+        // Vzhledy profilu (css/profile-looks.css). Základní (barva webu) je prázdná hodnota a má ji každý.
+        days("profile", "cover", 3);         // Obálka
+        site("profile", "mono", "s_voice");  // Monolit – první komentář
+        days("profile", "gal", 7);           // Galerie
+        site("profile", "radar", "s_friend");// Radar – první přítel
+        site("profile", "wall", "s_fan");    // Zeď – srdce pěti písním
+        days("profile", "aurora", 14);       // Polární záře
+        site("profile", "holo", "s_talk");   // Hologram – 25 komentářů
+        days("profile", "cock", 30);         // Kokpit
+        days("profile", "vinyl", 60);        // Vinyl
     }
 
     /** Všechny věci jednoho slotu v pořadí katalogu. */

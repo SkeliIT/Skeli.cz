@@ -3,7 +3,16 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%-- Můj profil: vitrína – fotka, moto, oblíbený song, čísla, komentáře a CatSmash (časy, odznaky).
      Úpravy profilu, heslo, dvoufázové ověření, export a smazání účtu jsou v Nastavení (nastaveni.jsp). --%>
-<main class="account-page profile-page">
+<% // vzhled profilu (odměna, Nastavení → Vzhled); ?look= si vzhled jen vyzkouší na vlastním profilu, nic se neuloží
+   String plLook = null; boolean plTry = false;
+   Integer plUid = (Integer) session.getAttribute("user_id");
+   if (plUid != null) {
+     try { plLook = new com.github.skeliit.dao.RewardDao().profileLook(plUid, "ADMIN".equals(session.getAttribute("role"))); } catch (Exception ignore) {}
+     String tryLook = request.getParameter("look");
+     if (tryLook != null && com.github.skeliit.model.Rewards.find("profile", tryLook) != null) { plLook = tryLook; plTry = true; }
+   } %>
+<main class="account-page profile-page<%= plLook != null ? " pl-look pl-" + plLook : "" %>">
+<%@ include file="includes/profile-look.jspf" %>
   <% if (session.getAttribute("user_id") == null) { %>
   <%-- signed out (e.g. the sign-in expired): no forms, just a way back in --%>
   <div class="settings-wrap">
@@ -87,7 +96,8 @@
 
   <div class="pt-grid">
   <%-- kdo jsi: fotka (klik = změnit), jméno, od kdy, moto --%>
-  <section class="pt pt-hero"<%= profilePublic ? "" : " data-profile-private" %>>
+  <section class="pt pt-hero"<%= profilePublic ? "" : " data-profile-private" %><%= plLook != null ? " style=\"--pl-photo: url(&quot;" + WebUtils.escapeHtml(avatarUrl) + "&quot;)\"" : "" %>>
+    <% if (plLook != null) { %><div class="pl-fx a"></div><div class="pl-fx b"></div><div class="pl-fx c"></div><% } %>
     <%-- záhlaví: vlastní obrázek uživatele, bez něj neutrální pozadí --%>
     <div class="pt-cover" aria-hidden="true"><% if (coverUrl != null) { %><img src="<%= WebUtils.escapeHtml(coverUrl) %>" alt=""><% } %></div>
     <%-- úpravy profilu a celé nastavení jsou na samostatné stránce (nastaveni.jsp) --%>

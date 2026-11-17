@@ -14,7 +14,9 @@
   String plCover = (String) request.getAttribute("playerCover");   // null = bez záhlaví nebo ho hráč ostatním neukazuje
   boolean plAnon = Boolean.TRUE.equals(request.getAttribute("playerAnon"));   // nepřihlášený na veřejném profilu: jen jméno, fotka, představení a skladby
 %>
-<main class="account-page player-page profile-page">
+<% String plLook = (String) request.getAttribute("playerLook"); boolean plTry = false;   // vzhled profilu majitele (odměna) %>
+<main class="account-page player-page profile-page<%= plLook != null ? " pl-look pl-" + plLook : "" %>">
+<%@ include file="/includes/profile-look.jspf" %>
   <% if (pl == null || pp == null) { %>
   <div class="settings-wrap">
     <section class="acct-card acct-signed-out text-center">
@@ -27,7 +29,8 @@
        if (sc == null) sc = new String[] { null, null, null, null, "brush" };
        Integer bestAll = null; for (Integer b : pp.bestMs) if (b != null && (bestAll == null || b < bestAll)) bestAll = b; %>
   <div class="pt-grid">
-  <section class="pt pt-hero">
+  <section class="pt pt-hero"<%= plLook != null ? " style=\"--pl-photo: url(&quot;" + WebUtils.escapeHtml(plAvatar) + "&quot;)\"" : "" %>>
+    <% if (plLook != null) { %><div class="pl-fx a"></div><div class="pl-fx b"></div><div class="pl-fx c"></div><% } %>
     <div class="pt-cover" aria-hidden="true"><% if (plCover != null) { %><img src="<%= WebUtils.escapeHtml(plCover) %>" alt=""><% } %></div>
     <div class="pt-in">
       <div class="pt-who">

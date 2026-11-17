@@ -85,6 +85,11 @@ public class RewardDao {
         return it != null && h.open(it) ? v : null;
     }
 
+    /** Vzhled profilu člověka (odměna, css/profile-looks.css), nebo null = základní. */
+    public String profileLook(int userId, boolean admin) throws SQLException {
+        return look(userId, "profile", have(userId, admin));
+    }
+
     /** Zvolené vzhledy: slot → hodnota (chybějící slot = základní vzhled). */
     public Map<String, String> looks(int userId) throws SQLException {
         Map<String, String> out = new LinkedHashMap<>();

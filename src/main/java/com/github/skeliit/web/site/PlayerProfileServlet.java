@@ -92,6 +92,7 @@ public class PlayerProfileServlet extends HttpServlet {
             req.setAttribute("player", player);
             req.setAttribute("playerAvatar", users.avatar(id));
             req.setAttribute("playerCover", users.coverForOthers(id));
+            req.setAttribute("playerLook", new com.github.skeliit.dao.RewardDao().profileLook(id, player != null && player.admin));   // vzhled profilu (odměna)
             req.setAttribute("playerShowcase", users.showcase(id));
             var playerPong = new PongDao().profile(id);
             // jméno v tabulkách CatSmash vypnuté: bez časů a míst, jinak by šel anonymní řádek v tabulce spárovat s profilem

@@ -36,6 +36,47 @@
   <p class="form-alert"><%= t.getProperty("settings.error.generic") %></p>
   <% } else { %>
 
+  <%-- Vzhled profilu (css/profile-looks.css): vidí ho i ostatní; každý jde vyzkoušet (?look=), odemčený použít --%>
+  <% String vzProfile = null;
+     try { vzProfile = new com.github.skeliit.dao.RewardDao().look(uid, "profile", vzHave); } catch (Exception ignore) {} %>
+  <div class="vz-group" id="vzhled-profilu">
+    <h4><i class="fa-solid fa-id-card" aria-hidden="true"></i> <%= t.getProperty("look.profile.title") %></h4>
+    <p class="acct-dim"><%= t.getProperty("look.profile.lead") %></p>
+    <div class="vz-grid">
+      <div class="vz-tile vz-card" aria-current="<%= vzProfile == null %>">
+        <span class="vz-art vz-p-base" aria-hidden="true"><span>Aa</span></span>
+        <span class="vz-name"><%= t.getProperty("look.profile.base") %></span>
+        <small><%= vzProfile == null ? t.getProperty("look.chosen") : t.getProperty("look.profile.base.desc") %></small>
+        <% if (vzProfile != null) { %>
+        <form method="post" action="/profile/look"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="slot" value="profile">
+          <button type="submit" class="vz-act" name="value" value=""><%= t.getProperty("look.use") %></button></form>
+        <% } %>
+      </div>
+      <% for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of("profile")) {
+           boolean open = vzHave.open(it), on = it.value.equals(vzProfile); %>
+      <div class="vz-tile vz-card<%= open ? "" : " is-locked" %>" aria-current="<%= on %>">
+        <span class="vz-art vz-p-<%= it.value %>" aria-hidden="true"><span>Aa</span></span>
+        <span class="vz-name"><%= t.getProperty("look.profile." + it.value) %></span>
+        <% if (on) { %>
+        <small><%= t.getProperty("look.chosen") %></small>
+        <% } else if (!open) { %>
+        <small class="vz-how"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= vzHow(t, cur, it) %></small>
+        <% if (it.rule == com.github.skeliit.model.Rewards.Rule.DAYS) { int have = Math.min(vzHave.days, it.days); %>
+        <span class="vz-progress" role="img" aria-label="<%= have %> / <%= it.days %>"><i style="--v:<%= have * 100 / Math.max(1, it.days) %>%"></i></span>
+        <% } %>
+        <% } %>
+        <span class="vz-acts">
+          <a class="vz-act" href="/uzivatel.jsp?look=<%= it.value %>"><%= t.getProperty("look.try") %></a>
+          <% if (open && !on) { %>
+          <form method="post" action="/profile/look"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="slot" value="profile">
+            <button type="submit" class="vz-act vz-act-main" name="value" value="<%= it.value %>"><%= t.getProperty("look.use") %></button></form>
+          <% } %>
+        </span>
+      </div>
+      <% } %>
+    </div>
+  </div>
+
   <%-- Karaoke: styl kina (kino/styly.js) --%>
   <div class="vz-group">
     <h4><i class="fa-solid fa-microphone-lines" aria-hidden="true"></i> <%= t.getProperty("look.kstyle.title") %></h4>
