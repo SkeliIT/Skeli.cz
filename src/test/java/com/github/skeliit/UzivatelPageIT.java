@@ -51,15 +51,13 @@ public class UzivatelPageIT {
     }
 
     @Test
-    @DisplayName("Profile update form persists display name, age, city, bio, theme and language")
+    @DisplayName("Profil uloží jméno, věk, město a O mně; Web a jazyk uloží režim a jazyk")
     void profileUpdate() throws Exception {
         driver.get(BASE_URL + "/nastaveni.jsp#profil");
         driver.findElement(By.name("display_name")).sendKeys("Selenium Tester");
         driver.findElement(By.name("age")).sendKeys("33");
         driver.findElement(By.name("city")).sendKeys("Praha");
         driver.findElement(By.name("bio")).sendKeys("Bio from IT test");
-        new org.openqa.selenium.support.ui.Select(driver.findElement(By.name("theme"))).selectByValue("light");
-        new org.openqa.selenium.support.ui.Select(driver.findElement(By.name("lang"))).selectByValue("en");
 
         String oldUrl = driver.getCurrentUrl();
         jsClick(driver.findElement(By.xpath(
@@ -68,6 +66,15 @@ public class UzivatelPageIT {
 
         assertTrue(driver.getCurrentUrl().contains("saved=true"),
                 "should redirect with saved=true, got: " + driver.getCurrentUrl());
+
+        // sekce Web a jazyk: režim (uloží se na pozadí) a jazyk (formulář)
+        driver.get(BASE_URL + "/nastaveni.jsp#web");
+        jsClick(driver.findElement(By.cssSelector("[data-set-theme='light']")));
+        Thread.sleep(800);
+        oldUrl = driver.getCurrentUrl();
+        jsClick(driver.findElement(By.cssSelector("#web button[name='value'][value='en']")));
+        waitUrlChange(oldUrl);
+        assertTrue(driver.getCurrentUrl().contains("#web"), "jazyk vrací na Web a jazyk, got: " + driver.getCurrentUrl());
 
         try (Connection c = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
              PreparedStatement ps = c.prepareStatement(
@@ -175,7 +182,7 @@ public class UzivatelPageIT {
     @DisplayName("Delete account requires typing DELETE and anonymizes the account")
     void deleteAccountRequiresConfirmText() throws Exception {
         // Wrong confirmation text should be rejected
-        driver.get(BASE_URL + "/nastaveni.jsp#soukromi");
+        driver.get(BASE_URL + "/nastaveni.jsp#ucet");
         driver.findElement(By.name("confirm")).sendKeys("nope");
         String oldUrl = driver.getCurrentUrl();
         jsClick(driver.findElement(By.xpath("//form[@action='/profile/delete']//button[@type='submit']")));
@@ -193,7 +200,7 @@ public class UzivatelPageIT {
         }
 
         // Correct confirmation text deletes (anonymizes) the account
-        driver.get(BASE_URL + "/nastaveni.jsp#soukromi");
+        driver.get(BASE_URL + "/nastaveni.jsp#ucet");
         driver.findElement(By.name("confirm")).sendKeys("DELETE");
         oldUrl = driver.getCurrentUrl();
         jsClick(driver.findElement(By.xpath("//form[@action='/profile/delete']//button[@type='submit']")));
