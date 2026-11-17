@@ -55,13 +55,15 @@ public class TrackDao {
                         try (ResultSet rs = ins.getGeneratedKeys()) { rs.next(); songId = rs.getInt(1); }
                     }
                 }
+                // video, které čeká na premiéru, se nepřidá – objeví se samo v čas premiéry (PremiereDao)
+                boolean premierePending = PremiereDao.isPendingVideo(c, youtubeId);
                 // added by hand: off the list of hidden clips (V83), if it was there
-                try (PreparedStatement ps = c.prepareStatement("DELETE FROM video_blocklist WHERE youtube_id = ?")) {
+                if (!premierePending) try (PreparedStatement ps = c.prepareStatement("DELETE FROM video_blocklist WHERE youtube_id = ?")) {
                     ps.setString(1, youtubeId);
                     ps.executeUpdate();
                 }
                 // the clip: added if it isn't here yet, linked to the song either way
-                try (PreparedStatement ps = c.prepareStatement(
+                if (!premierePending) try (PreparedStatement ps = c.prepareStatement(
                         "INSERT INTO videos (youtube_id, title, published_at, song_id) VALUES (?, ?, ?, ?) "
                                 + "ON DUPLICATE KEY UPDATE song_id = VALUES(song_id), title = COALESCE(NULLIF(VALUES(title), ''), title), "
                                 + "published_at = COALESCE(published_at, VALUES(published_at))")) {

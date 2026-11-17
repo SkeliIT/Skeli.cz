@@ -46,6 +46,122 @@ public class PremiereDao {
         }
     }
 
+    // ---------- premiérové video (V143): do premiéry jen v songs.premiere_video_id, nikde veřejně ----------
+
+    /** Admin: uloží odkaz na neveřejné video, které se v okamžiku premiéry objeví u písně (null = odebrat). */
+    public void setVideo(int songId, String youtubeId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "UPDATE songs SET premiere_video_id = ?, premiere_video_done = 0 WHERE id = ?")) {
+            ps.setString(1, youtubeId);
+            ps.setInt(2, songId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Admin: video čekající na premiéru (ještě nezveřejněné), nebo null. Nikdy nepoužívat pro veřejné stránky. */
+    public String pendingVideo(int songId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT premiere_video_id FROM songs WHERE id = ? AND premiere_video_done = 0")) {
+            ps.setInt(1, songId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getString(1) : null; }
+        }
+    }
+
+    /**
+     * Čeká tohle video na premiéru? Každé místo, které přidává videa do tabulky videos (synchronizace YouTube,
+     * Přidat track, ruční formulář, píseň z videa), ho pak přeskočí – jinak by se ukázalo dřív.
+     */
+    public static boolean isPendingVideo(Connection c, String youtubeId) throws SQLException {
+        if (youtubeId == null) return false;
+        try (PreparedStatement ps = c.prepareStatement(
+                "SELECT 1 FROM songs WHERE premiere_video_id = ? AND premiere_video_done = 0 LIMIT 1")) {
+            ps.setString(1, youtubeId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
+        }
+    }
+
+    /** Totéž s vlastním spojením (pro místa bez otevřeného spojení). */
+    public static boolean isPendingVideo(String youtubeId) throws SQLException {
+        try (Connection c = Db.get()) { return isPendingVideo(c, youtubeId); }
+    }
+
+    /**
+     * Zveřejní premiérová videa, jejichž čas už nastal: přesune je do tabulky videos k písni. Každé jen jednou –
+     * „UPDATE … WHERE premiere_video_done = 0“ v transakci vyhraje jen jeden z naráz běžících požadavků; když
+     * vložení selže, transakce se vrátí a zkusí se to při dalším běhu. Vrací počet zveřejněných.
+     */
+    public int publishDue() throws SQLException {
+        long now = System.currentTimeMillis();
+        int done = 0;
+        try (Connection c = Db.get()) {
+            java.util.List<Object[]> due = new java.util.ArrayList<>();
+            try (PreparedStatement ps = c.prepareStatement("SELECT id, premiere_video_id, release_at, name FROM songs "
+                    + "WHERE premiere_video_id IS NOT NULL AND premiere_video_done = 0 AND release_at IS NOT NULL AND release_at <= ?")) {
+                ps.setLong(1, now);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) due.add(new Object[] { rs.getInt(1), rs.getString(2), rs.getLong(3), rs.getString(4) });
+                }
+            }
+            for (Object[] d : due) {
+                boolean auto = c.getAutoCommit();
+                c.setAutoCommit(false);
+                try {
+                    int claimed;
+                    try (PreparedStatement ps = c.prepareStatement("UPDATE songs SET premiere_video_done = 1 WHERE id = ? AND premiere_video_done = 0")) {
+                        ps.setInt(1, (Integer) d[0]);
+                        claimed = ps.executeUpdate();
+                    }
+                    if (claimed == 1) {
+                        try (PreparedStatement ps = c.prepareStatement("DELETE FROM video_blocklist WHERE youtube_id = ?")) {
+                            ps.setString(1, (String) d[1]);
+                            ps.executeUpdate();
+                        }
+                        try (PreparedStatement ps = c.prepareStatement("INSERT INTO videos (youtube_id, title, published_at, song_id) VALUES (?, ?, ?, ?) "
+                                + "ON DUPLICATE KEY UPDATE song_id = VALUES(song_id), published_at = VALUES(published_at)")) {
+                            ps.setString(1, (String) d[1]);
+                            ps.setString(2, (String) d[3]);
+                            ps.setTimestamp(3, new java.sql.Timestamp((Long) d[2]));
+                            ps.setInt(4, (Integer) d[0]);
+                            ps.executeUpdate();
+                        }
+                        done++;
+                    }
+                    c.commit();
+                } catch (SQLException e) {
+                    c.rollback();
+                    throw e;
+                } finally {
+                    c.setAutoCommit(auto);
+                }
+            }
+        }
+        return done;
+    }
+
+    /** Stav premiéry jedné písně pro stránku (api/premiere): čas, jestli je venku, a video až po zveřejnění. */
+    public static final class State {
+        public final Long at;
+        public final boolean out;
+        public final String youtubeId;   // jen když je venku a video už je zveřejněné
+        State(Long at, boolean out, String youtubeId) { this.at = at; this.out = out; this.youtubeId = youtubeId; }
+    }
+
+    /** Stav podle uuid písně; null = píseň neexistuje. Video se vrací jen po zveřejnění (nikdy dřív). */
+    public State state(String uuid) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT release_at, premiere_video_id, premiere_video_done FROM songs WHERE BINARY uuid = BINARY ?")) {
+            ps.setString(1, uuid);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                long at = rs.getLong(1);
+                Long when = rs.wasNull() ? null : at;
+                boolean out = when == null || System.currentTimeMillis() >= when;
+                String yt = out && rs.getInt(3) == 1 ? rs.getString(2) : null;
+                return new State(when, out, yt);
+            }
+        }
+    }
+
     private static Premiere one(Connection c, String sql, long from) throws SQLException {
         try (PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setLong(1, from);

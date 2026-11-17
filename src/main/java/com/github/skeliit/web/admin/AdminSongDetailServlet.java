@@ -60,6 +60,7 @@ public class AdminSongDetailServlet extends HttpServlet {
             // the delete box at the end: a song can go only once its lyrics are gone
             req.setAttribute("lyricLangs", songs.lyricLanguages(song.id));
             req.setAttribute("premiere", new com.github.skeliit.dao.PremiereDao().forSong(song.id));   // premiéra s odpočtem
+            req.setAttribute("premiereVideo", new com.github.skeliit.dao.PremiereDao().pendingVideo(song.id));   // neveřejné video čekající na premiéru (jen admin)
             // „Hledáme pomoc s textem“: je zapnutá, v jakém jazyce, od kdy; a co návštěvníci poslali
             String[] helpWanted = help.wanted(song.id);
             req.setAttribute("helpOn", helpWanted != null);
@@ -180,6 +181,12 @@ public class AdminSongDetailServlet extends HttpServlet {
                     } catch (java.time.format.DateTimeParseException e) {
                         resp.sendRedirect(hub + "&msg=bad_release#premiere");
                     }
+                }
+                case "premiere_video" -> {
+                    // neveřejné video k premiéře: do videos se přesune samo v čas premiéry (job/PremiereJob)
+                    String yt = AdminVideoServlet.youtubeId(req.getParameter("youtube"));
+                    new com.github.skeliit.dao.PremiereDao().setVideo(id, yt);
+                    resp.sendRedirect(hub + "&msg=" + (yt == null ? "premiere_video_cleared" : "premiere_video_saved") + "#premiere");
                 }
                 case "clear_release" -> {
                     new com.github.skeliit.dao.PremiereDao().set(id, null, null);

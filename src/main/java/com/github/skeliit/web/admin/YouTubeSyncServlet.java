@@ -182,6 +182,8 @@ public class YouTubeSyncServlet extends HttpServlet {
     }
 
     private void upsertVideo(Connection conn, String videoId, String title, String publishedAt) throws SQLException {
+        // video čekající na premiéru se nepřidá dřív (objeví se samo v její čas, PremiereDao.publishDue)
+        if (com.github.skeliit.dao.PremiereDao.isPendingVideo(conn, videoId)) return;
         Timestamp ts = null;
         try {
             if (publishedAt != null && !publishedAt.isEmpty()) {

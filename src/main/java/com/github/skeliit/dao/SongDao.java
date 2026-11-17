@@ -321,6 +321,7 @@ public class SongDao {
 
     public void linkVideo(String youtubeId, int songId, String title) throws SQLException {
         try (Connection c = Db.get()) {
+            if (PremiereDao.isPendingVideo(c, youtubeId)) return;   // video čeká na premiéru: přidá se samo v její čas
             try (PreparedStatement up = c.prepareStatement(
                     "UPDATE videos SET song_id=?, title=COALESCE(NULLIF(?, ''), title) WHERE youtube_id=?")) {
                 up.setInt(1, songId);

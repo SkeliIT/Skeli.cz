@@ -923,3 +923,7 @@ body.light .user-blocked { color: #b3261e; }
 .urgent-guide p { margin: 0; font-family: var(--font-text); }
 /* štítek ft. = spolupráce (cizí track, kde hostuju) */
 .songs-ft { margin-left: 6px; padding: 0 7px; border-radius: 999px; font-size: var(--fs-small); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+
+/* náhled neveřejného videa k premiéře (admin → píseň → Premiéra) */
+.premiere-preview { max-width: 560px; aspect-ratio: 16 / 9; margin: 8px 0 4px; border-radius: 12px; overflow: hidden; border: 1px solid var(--panel-border); }
+.premiere-preview iframe { display: block; width: 100%; height: 100%; border: 0; }

@@ -19,6 +19,8 @@
         <c:when test="${param.msg == 'video_deleted'}">Video je smazané z celého webu a synchronizace z YouTube ho už nevrátí.</c:when>
         <c:when test="${param.msg == 'release_saved'}">Premiéra uložená – na webu běží odpočet.</c:when>
         <c:when test="${param.msg == 'release_cleared'}">Premiéra zrušená.</c:when>
+        <c:when test="${param.msg == 'premiere_video_saved'}">Video k premiéře uložené. Na webu ho do premiéry nikdo neuvidí.</c:when>
+        <c:when test="${param.msg == 'premiere_video_cleared'}">Video k premiéře odebrané.</c:when>
         <c:when test="${param.msg == 'bad_release'}">Datum a čas premiéry se nepodařilo přečíst.</c:when>
         <c:when test="${param.msg == 'text_deleted'}">Text smazaný. 30 dní ho najdeš v Koši (Systém → Záznam změn a koš).</c:when>
         <c:when test="${param.msg == 'help_saved'}">Výzva k pomoci s textem uložena.</c:when>
@@ -219,6 +221,23 @@
         </label>
         <button type="submit">Uložit premiéru</button>
       </form>
+      <%-- Neveřejné video z YouTube: do premiéry je uložené jen tady (songs.premiere_video_id), žádná veřejná stránka ani API ho nevidí.
+           V čas premiéry ho server sám přidá k písni (job/PremiereJob). Jinde (Přidat track, ruční formulář) ho před premiérou nepřidávej –
+           web by ho stejně odmítl. --%>
+      <form method="post" action="/admin/song" class="admin-form premiere-video">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="id" value="${song.id}">
+        <input type="hidden" name="action" value="premiere_video">
+        <label>Video k premiéře (neveřejné na YouTube)
+          <input type="text" name="youtube" value="<c:out value='${premiereVideo}'/>" placeholder="https://youtu.be/…" autocomplete="off">
+        </label>
+        <p class="text-dim">Na YouTube nahraj jako <b>Neveřejné</b> a zapni <b>Povolit vkládání</b>. Do premiéry ho uvidíš jen tady; v čas premiéry se samo objeví u písně, v Hudbě i v Novinkách. Prázdné pole = odebrat.</p>
+        <button type="submit">Uložit video</button>
+      </form>
+      <c:if test="${not empty premiereVideo}">
+        <p class="premiere-state"><i class="fa-solid fa-lock" aria-hidden="true"></i> Čeká na premiéru – vidíš ho jen ty:</p>
+        <div class="premiere-preview"><iframe src="https://www.youtube-nocookie.com/embed/<c:out value='${premiereVideo}'/>" title="Náhled videa k premiéře" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>
+      </c:if>
       <c:if test="${not empty premiere}">
         <form method="post" action="/admin/song" class="admin-inline-form">
           <input type="hidden" name="csrf" value="${csrf}">
