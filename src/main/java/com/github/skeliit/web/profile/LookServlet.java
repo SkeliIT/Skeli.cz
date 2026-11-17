@@ -57,6 +57,22 @@ public class LookServlet extends HttpServlet {
                     pong.setFrame(me, value.isBlank() ? null : value);
                     ok = true;
                 }
+            } else if ("lang".equals(slot) || "theme".equals(slot)) {
+                // Web a jazyk: jazyk webu (platí hned, session) a režim (přepíná prohlížeč, tady se jen zapamatuje)
+                boolean isLang = "lang".equals(slot);
+                if (isLang ? com.github.skeliit.I18n.isSupported(value) : "dark".equals(value) || "light".equals(value)) {
+                    try (java.sql.Connection c = com.github.skeliit.Db.get();
+                         java.sql.PreparedStatement ps = c.prepareStatement(isLang
+                                 ? "INSERT INTO user_profiles (user_id, lang) VALUES (?, ?) ON DUPLICATE KEY UPDATE lang = VALUES(lang)"
+                                 : "INSERT INTO user_profiles (user_id, theme) VALUES (?, ?) ON DUPLICATE KEY UPDATE theme = VALUES(theme)")) {
+                        ps.setInt(1, me);
+                        ps.setString(2, value);
+                        ps.executeUpdate();
+                    }
+                    if (isLang) s.setAttribute("lang", value);
+                    ok = true;
+                }
+                if (!json) { resp.sendRedirect("/nastaveni.jsp" + (ok ? "?saved=true" : "") + "#web"); return; }
             } else if ("mottoFont".equals(slot)) {
                 // písmo mota na profilu: jen jedno ze tří povolených
                 if (com.github.skeliit.dao.UserDao.MOTTO_FONTS.contains(value)) {

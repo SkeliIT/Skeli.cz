@@ -2054,14 +2054,43 @@ body.light .game-champs .p3 .champ-place { color: #9a5a22; }
 .settings-back { justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; font-size: var(--fs-card); color: var(--text-dim); text-decoration: none; }
 .settings-back:hover { color: var(--accent); text-decoration: none; }
 .settings-page section.acct-card[hidden] { display: none; }
-/* záložky Nastavení: vždy všechny vidět (na telefonu menší písmo, ikona nad textem) */
-.settings-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; overflow: visible; }
-.settings-tabs a { justify-content: center; text-align: center; }
-@media (max-width: 600px) {
-  .settings-tabs { grid-template-columns: repeat(2, 1fr); border-radius: 18px; }
-  .settings-tabs a { flex-direction: column; gap: 2px; padding: 8px 4px; font-size: var(--fs-small); border-radius: 14px; }
-  .settings-tabs a:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* lichá poslední záložka přes celý řádek */
+/* Nastavení po sekcích: telefon = seznam sekcí (domov) a pak jedna sekce s cestou zpět, počítač = seznam vlevo a sekce vpravo.
+   Třídy na <main>: set-js (běží skript; bez něj je vidět všechno), set-home (telefon, žádná sekce není otevřená). */
+.settings-page { max-width: 1180px; }
+.set-layout { display: grid; gap: 14px; }
+.set-nav { display: grid; gap: 8px; align-content: start; }
+.set-nav a { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 10px 14px; border-radius: 16px; border: 1px solid var(--panel-border); background: var(--panel-strong); color: var(--text); text-decoration: none; transition: border-color .2s; }
+.set-nav a:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 55%, transparent); text-decoration: none; }
+.set-nav a.active { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.set-nav a > i:first-child { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }
+.set-nav span { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.set-nav b { font-weight: 400; font-size: var(--fs-h4); }
+.set-nav small { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); color: var(--text-dim); }
+.set-nav-go { color: var(--text-dim); font-size: .8rem; }
+.set-nav a.set-nav-end { margin-top: 12px; }   /* účet a data (i smazání účtu) odděleně dole */
+.set-back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 6px; color: var(--text-dim); font-size: var(--fs-card); text-decoration: none; }
+.set-back:hover { color: var(--accent); text-decoration: none; }
+@media (max-width: 1023px) { .settings-page.set-home .set-body { display: none; } }
+@media (max-width: 1023px) { .settings-page.set-js:not(.set-home) .set-nav { display: none; } }
+@media (max-width: 1023px) { .settings-page.set-js:not(.set-home) .settings-head { display: none; } }
+.settings-page:not(.set-js) .set-back { display: none; }
+@media (min-width: 1024px) {
+  .set-layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; gap: 22px; }
+  .settings-page.set-js .set-nav { display: grid; position: sticky; top: calc(var(--header-h) + 14px); }
+  .set-nav a { min-height: 56px; }
+  .set-nav-go, .set-back { display: none; }
 }
+/* řádky nastavení (Web a jazyk): popisek vlevo, volby vpravo jako přepínač */
+.set-rows { display: grid; }
+.set-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 0; padding: 14px 0; border-top: 1px solid var(--panel-border); }
+.set-row:first-child { border-top: 0; }
+.set-k { display: grid; gap: 2px; }
+.set-k small { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); color: var(--text-dim); }
+.set-seg { display: inline-flex; gap: 3px; padding: 3px; border-radius: 999px; border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--text) 6%, transparent); }
+.set-seg-wrap { flex-wrap: wrap; border-radius: 22px; }
+.set-seg button { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--text-dim); font: inherit; font-size: var(--fs-card); cursor: pointer; }
+.set-seg button:hover { color: var(--text); }
+.set-seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 /* profil: „Zobrazit všechny“ – rozbalení zbytku komentářů a nezískaných odznaků */
 .acct-more { display: grid; gap: 10px; }
 .acct-more > summary {

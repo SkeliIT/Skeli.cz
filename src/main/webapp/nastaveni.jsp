@@ -1,9 +1,9 @@
 <%@ page import="com.github.skeliit.dao.UserDao, com.github.skeliit.model.UserProfile, com.github.skeliit.model.UserComment, com.github.skeliit.model.AccountSummary, com.github.skeliit.WebUtils, com.github.skeliit.dao.PongDao, com.github.skeliit.model.PongProfile" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- Nastavení účtu: záložky Profil (fotka, jména, výstavka, vzhled a jazyk), Vzhled (styl karaoke, rámeček fotky, chat), Zabezpečení
-     (heslo, zařízení, dvoufázové ověření) a Soukromí (export, smazání). Vidět je vždy jedna záložka – podle
-     #kotvy v adrese (formuláře se po uložení vracejí na svou záložku); bez JavaScriptu jsou vidět všechny. --%>
+<%-- Nastavení účtu po sekcích: Profil, Soukromí, Vzhled, Tvorba, Web a jazyk, Zabezpečení, Účet a data.
+     Telefon: seznam sekcí, ťuknutí otevře jednu (jako v aplikaci). Počítač: seznam vlevo, sekce vpravo.
+     Řídí to #kotva v adrese (formuláře se po uložení vracejí na svou sekci); bez JavaScriptu je vidět všechno. --%>
 <main class="account-page settings-page">
   <% if (session.getAttribute("user_id") == null) { %>
   <%-- signed out (e.g. the sign-in expired): no forms, just a way back in --%>
@@ -88,14 +88,28 @@
   <% if (okKey != null) { %><div class="form-success text-center"><%= t.getProperty(okKey) %></div><% } %>
   <% if (errKey != null) { %><div class="form-alert text-center"><%= t.getProperty(errKey) %></div><% } %>
 
-  <%-- záložky: vidět je vždy jen jedna část (skript dole) --%>
-  <nav class="acct-tabs settings-tabs" aria-label="<%= t.getProperty("menu.settings") %>">
-    <a href="#profil"><i class="fa-solid fa-user"></i> <%= t.getProperty("account.tab.profile") %></a>
-    <a href="#zabezpeceni"><i class="fa-solid fa-shield-halved"></i> <%= t.getProperty("account.tab.security") %></a>
-    <a href="#tvorba"><i class="fa-solid fa-music"></i> <%= t.getProperty("tracks.tab") %></a>
-    <a href="#vzhled"><i class="fa-solid fa-palette"></i> <%= t.getProperty("look.tab") %></a>
-    <a href="#soukromi"><i class="fa-solid fa-user-lock"></i> <%= t.getProperty("account.tab.privacy") %></a>
+  <%-- Nastavení po sekcích: telefon = seznam sekcí (jako v aplikaci), ťuknutí otevře jednu a nahoře je cesta zpět;
+       počítač = seznam vlevo, vybraná sekce vpravo. Řídí to #kotva v adrese (skript dole), bez JavaScriptu je vidět všechno. --%>
+  <% String[][] setNav = {
+       { "profil", "fa-user", "account.tab.profile", "settings.nav.profile" },
+       { "soukromi", "fa-user-lock", "account.tab.privacy", "settings.nav.privacy" },
+       { "vzhled", "fa-palette", "look.tab", "settings.nav.look" },
+       { "tvorba", "fa-music", "tracks.tab", "settings.nav.tracks" },
+       { "web", "fa-globe", "settings.tab.web", "settings.nav.web" },
+       { "zabezpeceni", "fa-shield-halved", "account.tab.security", "settings.nav.security" },
+       { "ucet", "fa-download", "settings.tab.data", "settings.nav.data" } }; %>
+  <div class="set-layout">
+  <nav class="set-nav" aria-label="<%= t.getProperty("menu.settings") %>">
+    <% for (String[] n : setNav) { %>
+    <a href="#<%= n[0] %>"<%= "ucet".equals(n[0]) ? " class=\"set-nav-end\"" : "" %>>
+      <i class="fa-solid <%= n[1] %>" aria-hidden="true"></i>
+      <span><b><%= t.getProperty(n[2]) %></b><small><%= t.getProperty(n[3]) %></small></span>
+      <i class="fa-solid fa-chevron-right set-nav-go" aria-hidden="true"></i>
+    </a>
+    <% } %>
   </nav>
+  <div class="set-body">
+  <a class="set-back" href="#"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> <%= t.getProperty("menu.settings") %></a>
 
   <%-- Moje tvorba: skladby odkazem z YouTube, Spotify, Apple Music a SoundCloudu (nic se nenahrává) --%>
   <section class="acct-card" id="tvorba">
@@ -182,12 +196,6 @@
         <label><%= t.getProperty("settings.displayName") %><input name="display_name" maxlength="60" value="<%= WebUtils.escapeHtml(displayName) %>"></label>
         <label><%= t.getProperty("settings.city") %><input name="city" maxlength="80" value="<%= WebUtils.escapeHtml(city) %>"></label>
         <label><%= t.getProperty("settings.age") %><input type="number" name="age" min="1" max="120" value="<%= (age != null ? age : "") %>"></label>
-        <label><%= t.getProperty("settings.theme") %>
-          <select name="theme">
-            <option value="dark" <%= "dark".equals(theme) ? "selected" : "" %>><%= t.getProperty("settings.theme.dark") %></option>
-            <option value="light" <%= "light".equals(theme) ? "selected" : "" %>><%= t.getProperty("settings.theme.light") %></option>
-          </select>
-        </label>
         <label class="wide"><%= t.getProperty("settings.bio") %><textarea name="bio" rows="3"><%= WebUtils.escapeHtml(bio) %></textarea></label>
         <label><%= t.getProperty("profile.favSong") %>
           <select name="fav_song">
@@ -203,15 +211,6 @@
         </label>
         <label class="wide"><%= t.getProperty("profile.motto") %>
           <input type="text" name="motto" maxlength="160" value="<%= WebUtils.escapeHtml(showcase[2] == null ? "" : showcase[2]) %>" placeholder="<%= t.getProperty("profile.motto.hint") %>">
-        </label>
-        <label><%= t.getProperty("header.language") %>
-          <select name="lang">
-            <option value="cs" <%= "cs".equals(prefLang) ? "selected" : "" %>>Čeština</option>
-            <option value="en" <%= "en".equals(prefLang) ? "selected" : "" %>>English</option>
-            <option value="de" <%= "de".equals(prefLang) ? "selected" : "" %>>Deutsch</option>
-            <option value="uk" <%= "uk".equals(prefLang) ? "selected" : "" %>>Українська</option>
-            <option value="vi" <%= "vi".equals(prefLang) ? "selected" : "" %>>Tiếng Việt</option>
-          </select>
         </label>
         <div class="form-actions wide"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> <%= t.getProperty("common.save") %></button></div>
       </form>
@@ -495,6 +494,60 @@
         });
       })();
     </script>
+  </section>
+
+  <%-- Web a jazyk: režim, jazyk, tučnější text, efekty, cookies. Režim, písmo a efekty si pamatuje prohlížeč
+       (stejné jako tlačítka v hlavičce), jazyk a režim se zapíšou i k účtu. --%>
+  <section class="acct-card" id="web">
+    <header class="acct-card-head">
+      <h3><i class="fa-solid fa-globe"></i> <%= t.getProperty("settings.tab.web") %></h3>
+    </header>
+    <div class="set-rows">
+      <div class="set-row">
+        <span class="set-k"><%= t.getProperty("settings.theme") %></span>
+        <div class="set-seg" role="group" aria-label="<%= t.getProperty("settings.theme") %>">
+          <button type="button" data-set-theme="dark"><i class="fa-solid fa-moon" aria-hidden="true"></i> <%= t.getProperty("settings.theme.dark") %></button>
+          <button type="button" data-set-theme="light"><i class="fa-solid fa-sun" aria-hidden="true"></i> <%= t.getProperty("settings.theme.light") %></button>
+        </div>
+      </div>
+      <form class="set-row" method="post" action="/profile/look">
+        <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="slot" value="lang">
+        <span class="set-k"><%= t.getProperty("header.language") %></span>
+        <div class="set-seg set-seg-wrap" role="group" aria-label="<%= t.getProperty("header.language") %>">
+          <% String[][] langs = { { "cs", "Čeština" }, { "en", "English" }, { "de", "Deutsch" }, { "uk", "Українська" }, { "vi", "Tiếng Việt" } };
+             String curLang = com.github.skeliit.I18n.current(request);
+             for (String[] l : langs) { %>
+          <button type="submit" name="value" value="<%= l[0] %>" aria-pressed="<%= l[0].equals(curLang) %>"><%= l[1] %></button>
+          <% } %>
+        </div>
+      </form>
+      <div class="set-row">
+        <span class="set-k"><%= t.getProperty("header.fontWeight") %></span>
+        <div class="set-seg" role="group" aria-label="<%= t.getProperty("header.fontWeight") %>">
+          <button type="button" data-set-bold="0"><%= t.getProperty("settings.off") %></button>
+          <button type="button" data-set-bold="1"><%= t.getProperty("settings.on") %></button>
+        </div>
+      </div>
+      <div class="set-row">
+        <span class="set-k"><%= t.getProperty("settings.fx.title") %><small><%= t.getProperty("settings.fx.hint") %></small></span>
+        <div class="set-seg" role="group" aria-label="<%= t.getProperty("settings.fx.title") %>">
+          <button type="button" data-set-fx="auto"><%= t.getProperty("settings.fx.auto") %></button>
+          <button type="button" data-set-fx="full"><%= t.getProperty("settings.fx.full") %></button>
+          <button type="button" data-set-fx="low"><%= t.getProperty("settings.fx.low") %></button>
+        </div>
+      </div>
+      <div class="set-row">
+        <span class="set-k"><%= t.getProperty("settings.cookies") %></span>
+        <button type="button" class="btn-outline" data-cookie-settings><%= t.getProperty("cookie.settingsLink") %></button>
+      </div>
+    </div>
+  </section>
+
+  <%-- Účet a data: stažení údajů a (odděleně, úplně dole) smazání účtu --%>
+  <section class="acct-card" id="ucet">
+    <header class="acct-card-head">
+      <h3><i class="fa-solid fa-download"></i> <%= t.getProperty("settings.tab.data") %></h3>
+    </header>
     <div class="acct-cols">
       <div class="settings-form acct-block">
         <h4><%= t.getProperty("settings.export") %></h4>
@@ -517,24 +570,71 @@
 
   <%@ include file="includes/settings-looks.jspf" %>
 
+  </div></div>
+
   <script>
-    // záložky: ukáže se jen část podle #kotvy (i kotva uvnitř části, třeba #dvoufazove), výchozí je Profil
+    // Sekce podle #kotvy (i kotva uvnitř sekce, třeba #dvoufazove). Telefon bez kotvy = seznam sekcí,
+    // počítač bez kotvy = Profil. Web a jazyk: přepínače režimu, tučnějšího textu a efektů (pamatuje si je prohlížeč).
     (function () {
-      const parts = Array.from(document.querySelectorAll('main.settings-page > section.acct-card[id]'));
-      const links = Array.from(document.querySelectorAll('.settings-tabs a'));
+      const page = document.querySelector('main.settings-page');
+      const parts = Array.from(page.querySelectorAll('section.acct-card[id]'));
+      const links = Array.from(page.querySelectorAll('.set-nav a'));
       if (!parts.length) return;
+      const wide = matchMedia('(min-width: 1024px)');
       function show() {
-        const want = location.hash ? document.getElementById(location.hash.slice(1)) : null;
-        const part = (want && parts.find(function (p) { return p === want || p.contains(want); })) || document.getElementById('profil');
+        const want = location.hash.length > 1 ? document.getElementById(location.hash.slice(1)) : null;
+        let part = want && parts.find(function (p) { return p === want || p.contains(want); });
+        if (!part && wide.matches) part = document.getElementById('profil');
+        page.classList.add('set-js'); page.classList.toggle('set-home', !part);
         parts.forEach(function (p) { p.hidden = p !== part; });
-        links.forEach(function (a) { const on = a.getAttribute('href') === '#' + part.id; a.classList.toggle('active', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+        links.forEach(function (a) { const on = !!part && a.getAttribute('href') === '#' + part.id; a.classList.toggle('active', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
         if (want && want !== part) want.scrollIntoView({ block: 'start' });
       }
       links.forEach(function (a) {
-        a.addEventListener('click', function (e) { e.preventDefault(); history.replaceState(null, '', a.getAttribute('href')); show(); window.scrollTo(0, 0); });
+        a.addEventListener('click', function (e) { e.preventDefault(); history.pushState(null, '', a.getAttribute('href')); show(); window.scrollTo(0, 0); });
       });
+      const back = page.querySelector('.set-back');
+      if (back) back.addEventListener('click', function (e) { e.preventDefault(); history.pushState(null, '', location.pathname + location.search); show(); window.scrollTo(0, 0); });
       window.addEventListener('hashchange', show);
+      window.addEventListener('popstate', show);
+      wide.addEventListener('change', show);
       show();
+
+      // --- Web a jazyk ---
+      function mark(sel, val) { page.querySelectorAll('[' + sel + ']').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute(sel) === val)); }); }
+      function theme() { return document.body.classList.contains('light') ? 'light' : 'dark'; }
+      mark('data-set-theme', theme());
+      page.querySelectorAll('[data-set-theme]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          const v = b.getAttribute('data-set-theme');
+          if (theme() !== v) { const tg = document.getElementById('themeToggle'); if (tg) tg.click(); }
+          mark('data-set-theme', v);
+          fetch('/profile/look', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': '${csrf}' },
+            body: 'json=1&slot=theme&value=' + v }).catch(function () {});
+        });
+      });
+      function bold() { return document.documentElement.classList.contains('bold-text') ? '1' : '0'; }
+      mark('data-set-bold', bold());
+      page.querySelectorAll('[data-set-bold]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (bold() !== b.getAttribute('data-set-bold')) { const f = document.getElementById('fontToggle'); if (f) f.click(); }
+          mark('data-set-bold', bold());
+        });
+      });
+      function fx() { let s = null; try { s = localStorage.getItem('fxLow'); } catch (e) {} return s === 'on' ? 'low' : s === '0' ? 'full' : 'auto'; }
+      mark('data-set-fx', fx());
+      page.querySelectorAll('[data-set-fx]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          const v = b.getAttribute('data-set-fx');
+          try {
+            if (v === 'auto') { localStorage.removeItem('fxLow'); localStorage.removeItem('fxAuto'); }
+            else localStorage.setItem('fxLow', v === 'low' ? 'on' : '0');
+            sessionStorage.removeItem('fxLowNow');
+          } catch (e) {}
+          document.documentElement.classList.toggle('low-fx', v === 'low');
+          mark('data-set-fx', v);
+        });
+      });
     })();
   </script>
   <% } %>

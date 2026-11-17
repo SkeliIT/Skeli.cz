@@ -29,7 +29,7 @@ public class UserProfileServlet extends HttpServlet {
         String city = req.getParameter("city");
         String bio = req.getParameter("bio");
         String theme = req.getParameter("theme");
-        String lang = I18n.safeLang(req.getParameter("lang"));
+        String lang = I18n.current(req);   // jen pro nový řádek; jazyk a režim se mění v Nastavení → Web a jazyk (LookServlet)
         boolean visible = "1".equals(req.getParameter("public_profile")) || "on".equalsIgnoreCase(req.getParameter("public_profile"));
         
         Integer age = null;
@@ -48,7 +48,7 @@ public class UserProfileServlet extends HttpServlet {
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?) " +
                         "ON DUPLICATE KEY UPDATE " +
                         "display_name=VALUES(display_name), age=VALUES(age), city=VALUES(city), " +
-                        "bio=VALUES(bio), theme=VALUES(theme), lang=VALUES(lang), visible=VALUES(visible)";
+                        "bio=VALUES(bio), visible=VALUES(visible)";
             
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setInt(1, userId);
@@ -79,7 +79,6 @@ public class UserProfileServlet extends HttpServlet {
                 ps.executeUpdate();
             }
 
-            session.setAttribute("lang", lang);
             
             resp.sendRedirect("/nastaveni.jsp?saved=true#profil");
         } catch (SQLException e) {
