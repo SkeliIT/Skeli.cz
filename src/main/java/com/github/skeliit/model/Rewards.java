@@ -95,7 +95,6 @@ public final class Rewards {
         days("profile", "aurora", 14);       // Polární záře
         site("profile", "holo", "s_talk");   // Hologram – 25 komentářů
         days("profile", "cock", 30);         // Kokpit
-        days("profile", "vinyl", 60);        // Vinyl
 
         // Karaoke – písmo textu (css/karaoke-fonts.css). Výchozí = Bruno Ace SC (prázdná hodnota).
         free("kfont", "oswald");

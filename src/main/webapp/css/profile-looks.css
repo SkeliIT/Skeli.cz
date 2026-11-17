@@ -287,37 +287,7 @@ main.pl-cover .pt-act-thumb img { border-radius: 0; }
 main.pl-cover .pt-act-coin { border-radius: 0; background: linear-gradient(135deg, #8a3b2c, #f2c4b8); }
 main.pl-cover .pt-side .pt { padding-left: 0; }
 main.pl-cover .pt-side .pt::before { content: none; }
-main.pl-vinyl { --accent: #ff3d7f; --accent-2: #ffb347; --pl-acct: #ff6b9b; --pl-bg: #0c0a0b; --pl-card: #161214; --pl-line: #3a2a30; --pl-fname: 'Syne'; --pl-flab: 'Jost'; }
-body.light main.pl-vinyl { --pl-bg: #f2eee9; --pl-card: #fffdf9; --pl-acct: #b0164a; --pl-line: #d9c8c0; --pl-txt: #1d1416; }
-main.pl-vinyl .pt-cover { height: clamp(110px, 24vw, 190px); filter: grayscale(1) contrast(1.2) brightness(.6); }
-main.pl-vinyl .pt-who { flex-direction: column; align-items: center; text-align: center; margin-top: -120px; }
-main.pl-vinyl .acct-photo { position: relative; width: 260px; height: 260px; box-shadow: 0 20px 50px rgba(0,0,0,.7);
-  background: radial-gradient(circle, #ff3d7f 0 1.5%, transparent 1.6%), repeating-radial-gradient(circle, #111 0 2px, #1d1d1d 2px 3px);
-  -webkit-mask: radial-gradient(circle, transparent 0 1.6%, #000 1.7%); mask: radial-gradient(circle, transparent 0 1.6%, #000 1.7%); }
 /* fotka = štítek uprostřed desky */
-main.pl-vinyl .pt-hero .acct-photo .acct-avatar { position: absolute; inset: 30%; width: 40%; height: 40%; border-radius: 50%; }
-main.pl-vinyl .pl-fx.a { display: block; position: absolute; z-index: 3; left: calc(50% + 70px); top: calc(clamp(110px, 24vw, 190px) - 140px); width: 14px; height: 190px; border-radius: 7px;
-  background: linear-gradient(90deg, #8a8f97, #e6e8eb, #8a8f97); transform: rotate(28deg); transform-origin: 50% 8%; box-shadow: 4px 6px 10px rgba(0,0,0,.5); }
-main.pl-vinyl .pl-fx.a::after { content: ""; position: absolute; left: -6px; bottom: -8px; width: 26px; height: 34px; border-radius: 4px; background: #222; box-shadow: inset 0 0 0 2px #8a8f97; }
-main.pl-vinyl .acct-name { margin-top: 18px; font: 800 clamp(2.4rem, 11vw, 4.6rem)/1 'Syne'; letter-spacing: -.03em; background-image: linear-gradient(90deg, #ff3d7f, #ffb347); }
-main.pl-vinyl .pt-tags,
-main.pl-vinyl .pt-tools { justify-content: center; }
-main.pl-vinyl .acct-meta,
-main.pl-vinyl .acct-motto { text-align: center; }
-main.pl-vinyl .acct-badge { border-radius: 4px; font: 400 12px 'Jost'; letter-spacing: .15em; text-transform: uppercase; }
-main.pl-vinyl .acct-motto { font: 800 20px 'Syne'; }
-main.pl-vinyl .pt-chips { flex-direction: column; gap: 0; max-width: 520px; margin: 14px auto 0; border-top: 1px solid var(--pl-line); counter-reset: trk; }
-main.pl-vinyl .pt-chip { border: 0; border-bottom: 1px solid var(--pl-line); border-radius: 0; background: none; display: flex; align-items: baseline; gap: 12px; counter-increment: trk; font-family: 'Jost'; }
-main.pl-vinyl .pt-chip::before { content: "A" counter(trk); font: 800 12px 'Syne'; color: var(--pl-acct); width: 26px; }
-main.pl-vinyl .pt-chip b { order: 2; font: 800 16px 'Syne'; color: var(--pl-txt); }
-main.pl-vinyl .profile-tabs a { font: 800 13px 'Syne'; }
-main.pl-vinyl .pt-feed { counter-reset: set; }
-main.pl-vinyl .pt-act-card { counter-increment: set; border-radius: 10px; padding-left: 56px; }
-main.pl-vinyl .pt-act-card::before { content: counter(set, decimal-leading-zero); position: absolute; left: 14px; top: 14px; font: 800 22px 'Syne'; color: var(--pl-acct); }
-main.pl-vinyl .pt-feed::before { background: repeating-linear-gradient(180deg, var(--accent) 0 3px, transparent 3px 8px); }
-main.pl-vinyl .pt-act-coin { background: radial-gradient(circle, #ff3d7f 0 22%, #111 23% 25%, transparent 26%), repeating-radial-gradient(circle, #111 0 2px, #222 2px 3px); }
-main.pl-vinyl .pt-side .pt { padding-left: 14px; }
-main.pl-vinyl .pt-side .pt::before { content: none; }
 main.pl-aurora { --accent: #7cf5d5; --accent-2: #c49bff; --pl-acct: #9ff8e0; --pl-bg: #050812; --pl-card: rgba(255,255,255,.06); --pl-line: rgba(255,255,255,.14); --pl-fname: 'Syne'; --pl-flab: 'Syne'; }
 body.light main.pl-aurora { --pl-bg: #eaf0fb; --pl-card: rgba(255,255,255,.62); --pl-acct: #0f6d58; --pl-line: rgba(40,60,120,.18); --pl-txt: #121a30; }
 main.pl-aurora .pl-bgfx { display: block; position: absolute; inset: -30%; z-index: 0; filter: blur(50px); opacity: .9;
@@ -456,15 +426,6 @@ main.pl-cover :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .pt-b
 main.pl-cover :is(.pt-label, .pt-act-k, .pt-feed time, .pt-lv span) { text-transform: uppercase; letter-spacing: .25em; font-weight: 400; }
 main.pl-cover .pt-quote { font: italic 600 1.15rem/1.3 'Playfair Display', serif; }
 
-/* Vinyl: teplá tma, jemné drážky jako na desce, oblé tvary, nadpisy Syne */
-main.pl-vinyl { --pl-txt: #f6ecee; --pl-dim: #b39ca4; --pl-fhead: 'Syne', 'Exo 2', sans-serif; --pl-fbody: 'Jost', 'Exo 2', sans-serif;
-  --pl-tile: repeating-radial-gradient(circle at 100% 0, rgba(255, 255, 255, .03) 0 1px, transparent 1px 4px), linear-gradient(160deg, #1f171a, #120f10);
-  --pl-chip: rgba(255, 61, 127, .06); --pl-rad: 18px; --pl-brad: 999px; --pl-ringbg: #181214; --pl-shadow: 0 18px 34px -20px rgba(0, 0, 0, .9);
-  --pl-imgf: sepia(.25) saturate(1.15) contrast(1.05); --pl-r1: #7a6a70; --pl-r2: #ffb347; --pl-r3: #ff6b9b; --pl-r4: #ff3d7f; --pl-r5: #ffd27a; }
-body.light main.pl-vinyl { --pl-dim: #6e5a60; --pl-tile: repeating-radial-gradient(circle at 100% 0, rgba(0, 0, 0, .025) 0 1px, transparent 1px 4px), linear-gradient(160deg, #fffdf9, #f6efe8);
-  --pl-chip: rgba(176, 22, 74, .06); --pl-ringbg: #fffaf6; --pl-r1: #9a8a90; --pl-r2: #c07a1a; --pl-r3: #b0164a; --pl-r4: #8a0f3a; --pl-r5: #a86a00; }
-main.pl-vinyl :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .pt-big, .friend-head, .pt-start-top h2) { font-weight: 800; letter-spacing: -.02em; }
-main.pl-vinyl .pt-label { text-transform: uppercase; letter-spacing: .16em; }
 
 /* Polární záře: mléčné sklo nad pohyblivou září, oblé karty, fotky do chladných tónů */
 main.pl-aurora { --pl-txt: #eef3ff; --pl-dim: #a8b3cc; --pl-fhead: 'Syne', 'Exo 2', sans-serif; --pl-fbody: 'Jost', 'Exo 2', sans-serif; --pl-card: rgba(18, 22, 40, .7);
@@ -533,10 +494,6 @@ main.pl-wall :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .po
 /* Obálka: tenká dvojitá linka jako razítko */
 main.pl-cover :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 50%; border: 1px solid var(--ic);
   background: var(--pl-ringbg); box-shadow: inset 0 0 0 3px var(--pl-ringbg), inset 0 0 0 4px var(--ic); }
-/* Vinyl: malá deska, barva je štítek uprostřed */
-main.pl-vinyl :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border: 0; border-radius: 50%; color: #fff;
-  background: radial-gradient(circle, var(--ic) 0 40%, #111 41% 43%, transparent 44%), repeating-radial-gradient(circle, #141114 0 2px, #241e21 2px 3px);
-  box-shadow: 0 6px 14px -6px rgba(0, 0, 0, .8); text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
 /* Polární záře: měkká kapka s přechodem */
 main.pl-aurora :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border: 0; border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
   background: linear-gradient(135deg, var(--ic), color-mix(in srgb, var(--ic) 40%, var(--accent-2))); color: #0b1020;
@@ -564,8 +521,6 @@ body:has(main.pl-wall) { --accent: #ff2d55 !important; --accent-2: #ffe600 !impo
 body.light:has(main.pl-wall) { --accent: #d6003a !important; --accent-2: #b38f00 !important; --bg: #cfcac2; }
 body:has(main.pl-cover) { --accent: #f2c4b8 !important; --accent-2: #ffffff !important; --bg: #0b0909; }
 body.light:has(main.pl-cover) { --accent: #8a3b2c !important; --accent-2: #5a1f14 !important; --bg: #f6f1ee; }
-body:has(main.pl-vinyl) { --accent: #ff3d7f !important; --accent-2: #ffb347 !important; --bg: #0c0a0b; }
-body.light:has(main.pl-vinyl) { --accent: #b0164a !important; --accent-2: #c07a1a !important; --bg: #f2eee9; }
 body:has(main.pl-aurora) { --accent: #7cf5d5 !important; --accent-2: #c49bff !important; --bg: #050812; }
 body.light:has(main.pl-aurora) { --accent: #0f8f72 !important; --accent-2: #7a3fd0 !important; --bg: #eaf0fb; }
 body:has(main.pl-gal) { --accent: #d8d2c6 !important; --accent-2: #ffffff !important; --bg: #1a1918; }

@@ -20,7 +20,7 @@ import java.sql.SQLException;
 /**
  * POST /profile/look – volba v záložce Nastavení → Vzhled (a zkratky v kině). Parametry slot + value:
  * kstyle / profile / kfont / kanim = katalog model/Rewards (prázdné value = zpět na základní),
- * frame = rámeček fotky (jen získaný odznak z PongBadges.FRAMES, nebo „champ“), chatDark / chatLight = vzhled chatu.
+ * frame = rámeček fotky (jen získaný odznak z PongBadges.FRAMES, nebo „champ“), chatDark / chatLight = vzhled chatu (vybírá se v chatu), mottoFont = písmo mota na profilu.
  * Kdo co smí, rozhoduje vždy server. S json=1 vrátí {"ok":true|false}, jinak přesměruje zpět na #vzhled.
  */
 @WebServlet(name = "LookServlet", urlPatterns = {"/profile/look"})
@@ -56,6 +56,17 @@ public class LookServlet extends HttpServlet {
                 if (value.isBlank() || PongChampions.CHOICE.equals(value) || PongBadges.isFrame(value) && pong.earned(me).contains(value)) {
                     pong.setFrame(me, value.isBlank() ? null : value);
                     ok = true;
+                }
+            } else if ("mottoFont".equals(slot)) {
+                // písmo mota na profilu: jen jedno ze tří povolených
+                if (com.github.skeliit.dao.UserDao.MOTTO_FONTS.contains(value)) {
+                    try (java.sql.Connection c = com.github.skeliit.Db.get();
+                         java.sql.PreparedStatement ps = c.prepareStatement("INSERT INTO user_profiles (user_id, motto_font) VALUES (?, ?) ON DUPLICATE KEY UPDATE motto_font = VALUES(motto_font)")) {
+                        ps.setInt(1, me);
+                        ps.setString(2, value);
+                        ps.executeUpdate();
+                        ok = true;
+                    }
                 }
             } else if ("chatDark".equals(slot) || "chatLight".equals(slot)) {
                 ChatDao chat = new ChatDao();

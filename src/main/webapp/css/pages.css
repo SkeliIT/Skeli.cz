@@ -2043,12 +2043,10 @@ body.light .game-champs .p3 .champ-place { color: #9a5a22; }
 .motto-brush { font-family: var(--font-brush); font-size: 1.9rem; }
 .motto-modern { font-family: var(--font-display, var(--font-body)); font-size: 1rem; letter-spacing: .02em; }
 .motto-clean { font-family: var(--font-text); font-style: italic; font-weight: 500; font-size: 1.15rem; }
-.motto-fonts { border: 0; padding: 0; margin: 0; display: flex; gap: 8px; flex-wrap: wrap; }
-.motto-fonts legend { padding: 0; margin-bottom: 6px; }
-.motto-font-opt { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--panel-border); cursor: pointer; }
-.motto-font-opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
-.motto-font-opt span { color: var(--accent); }
-.motto-font-opt .motto-brush { font-size: 1.5rem; line-height: 1; }
+/* písmo mota ve Vzhledu: každá dlaždice ukazuje moje moto tím písmem */
+.vz-motto { gap: 6px; min-height: 96px; justify-content: center; }
+.vz-motto-sample { display: block; max-width: 100%; color: var(--accent); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vz-motto .motto-brush { font-size: 1.6rem; }
 
 /* ---------- Můj profil = vitrína, Nastavení = samostatná stránka se záložkami ---------- */
 .settings-head { display: grid; gap: 6px; margin: 8px 0 16px; }
@@ -2996,8 +2994,6 @@ button.vz-tile:hover { border-color: color-mix(in srgb, var(--accent) 60%, trans
 .vz-p-wall span { color: #ff2d55; text-shadow: 2px 2px 0 #ffe600; transform: rotate(-7deg); }
 .vz-p-cover { background: linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .8)), linear-gradient(135deg, #8a3b2c, #f2c4b8); place-items: start center; }
 .vz-p-cover span { color: #fff; font-style: italic; font-family: Georgia, serif; font-weight: 900; }
-.vz-p-vinyl { background: radial-gradient(circle at 50% 50%, #ff3d7f 0 6%, #111 7% 26%, transparent 27%), repeating-radial-gradient(circle, #111 0 2px, #1d1d1d 2px 3px); place-items: end center; }
-.vz-p-vinyl span { color: #ffb347; }
 .vz-p-aurora { background: radial-gradient(40% 50% at 30% 30%, rgba(124, 245, 213, .6), transparent 70%), radial-gradient(40% 60% at 75% 50%, rgba(196, 155, 255, .55), transparent 70%), #050812; }
 .vz-p-aurora span { color: #fff; }
 .vz-p-gal { background: radial-gradient(40% 80% at 50% 0%, rgba(255, 250, 235, .3), transparent 70%), #1a1918; place-items: center; }

@@ -204,12 +204,6 @@
         <label class="wide"><%= t.getProperty("profile.motto") %>
           <input type="text" name="motto" maxlength="160" value="<%= WebUtils.escapeHtml(showcase[2] == null ? "" : showcase[2]) %>" placeholder="<%= t.getProperty("profile.motto.hint") %>">
         </label>
-        <fieldset class="wide motto-fonts"><legend><%= t.getProperty("profile.mottoFont") %></legend>
-          <% for (String mf : com.github.skeliit.dao.UserDao.MOTTO_FONTS) { %>
-          <label class="motto-font-opt"><input type="radio" name="motto_font" value="<%= mf %>"<%= mf.equals(showcase[4]) ? " checked" : "" %>>
-            <span class="motto-<%= mf %>"><%= t.getProperty("profile.mottoFont." + mf) %></span></label>
-          <% } %>
-        </fieldset>
         <label><%= t.getProperty("header.language") %>
           <select name="lang">
             <option value="cs" <%= "cs".equals(prefLang) ? "selected" : "" %>>Čeština</option>

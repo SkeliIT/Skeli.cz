@@ -24,12 +24,27 @@
    // písmo a animace textu (Lyric video): odemčené podle model/Rewards, uložená volba je výchozí
    java.util.List<String> kFonts = new java.util.ArrayList<>(), kAnims = new java.util.ArrayList<>();
    String kFont = null, kAnim = null;
+   java.util.Map<String, String> kLock = new java.util.HashMap<>();   // zamčené: slot:hodnota → čím se odemkne
    try {
      if (kUid != null) {
        com.github.skeliit.dao.RewardDao kDao2 = new com.github.skeliit.dao.RewardDao();
        com.github.skeliit.model.Rewards.Have kHave2 = kDao2.have(kUid, allStyles);
-       for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of("kfont")) if (kHave2.open(it)) kFonts.add(it.value);
-       for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of("kanim")) if (kHave2.open(it)) kAnims.add(it.value);
+       // zamčené se nabízejí taky: dají se vyzkoušet na běžícím klipu, jen ne uložit (server je stejně nepřijme)
+       java.util.Properties kt = com.github.skeliit.I18n.bundle(request);
+       String kl = com.github.skeliit.I18n.current(request);
+       for (String slot : new String[] { "kfont", "kanim" }) {
+         for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of(slot)) {
+           ("kfont".equals(slot) ? kFonts : kAnims).add(it.value);
+           if (kHave2.open(it)) continue;
+           String how;
+           switch (it.rule) {
+             case DAYS: how = kt.getProperty("look.how.days").replace("{days}", com.github.skeliit.I18n.number(kl, it.days) + " " + com.github.skeliit.I18n.countWord(kt, kl, "look.days", it.days)); break;
+             case SITE: how = kt.getProperty("look.how.site").replace("{badge}", kt.getProperty(com.github.skeliit.model.SiteBadges.nameKey(it.badge), it.badge)); break;
+             default: how = kt.getProperty("look.how.pong").replace("{badge}", kt.getProperty("pong.badge." + it.badge, it.badge));
+           }
+           kLock.put(slot + ":" + it.value, how);
+         }
+       }
        kFont = kDao2.look(kUid, "kfont", kHave2);
        kAnim = kDao2.look(kUid, "kanim", kHave2);
      }
@@ -259,7 +274,12 @@ button { font: inherit; color: inherit; }
 .look-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .look-chip { min-height: 40px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(244, 239, 230, .25); background: rgba(255, 255, 255, .04); color: #f4efe6; font-size: 15px; cursor: pointer; }
 .look-chip[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); background: rgba(230, 183, 48, .12); }
+.look-chip.locked { border-style: dashed; color: rgba(244, 239, 230, .55); }
+.look-chip.locked::after { content: " 🔒"; font-family: system-ui, sans-serif; font-size: 11px; }
+.look-note { grid-column: 1 / -1; margin: 2px 0 0; font: 400 13px/1.35 'Oswald', system-ui, sans-serif; color: rgba(244, 239, 230, .7); }
 @media (max-width: 760px) { .room-pick { grid-template-columns: minmax(0, 1fr); width: 92vw; } .rooms { grid-template-columns: 1fr; width: 86vw; right: 50%; transform: translateX(50%); } }
+/* telefon: písmo se vybírá nahoře, aby text písně dole zůstal vidět */
+@media (max-width: 760px) { .looks { position: fixed; top: 10px; bottom: auto; max-height: 46vh; overflow-y: auto; } }
 .cb.room-btn { width: auto; padding: 0 14px 0 12px; gap: 7px; display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid rgba(230, 183, 48, .45); color: var(--gold); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
 @media (max-width: 700px) { .cb.room-btn span { display: none; } .cb.room-btn { padding: 0; width: 40px; } }
 .back-song { color: var(--gold); margin-left: 10px; }
@@ -337,16 +357,18 @@ body.fading::after { opacity: 1; pointer-events: auto; }
   <% if (kUid != null) { %>
   <button class="cb room-btn" id="lookBtn" title="Písmo a animace textu" aria-label="Písmo a animace textu"><b class="look-aa">Aa</b></button>
   <div class="rooms looks" id="looks" hidden>
-    <div class="room-k">Písmo textu <small>(další v Nastavení → Vzhled)</small></div>
+    <%-- najetí myší = hned vidíš na běžícím klipu, klik = uložit; zamčené jdou jen vyzkoušet (po zavření se vrátí uložené) --%>
+    <div class="room-k">Písmo textu</div>
     <div class="look-chips">
       <button type="button" class="look-chip" data-kfont="" style="font-family: 'Bruno Ace SC'">Bruno</button>
-      <% for (String f : kFonts) { String fam = com.github.skeliit.model.Rewards.fontFamily(f); %><button type="button" class="look-chip" data-kfont="<%= f %>" data-family="<%= fam %>" data-caps="<%= kCaps.contains(f) %>" style="font-family: '<%= fam %>'"><%= fam %></button><% } %>
+      <% for (String f : kFonts) { String fam = com.github.skeliit.model.Rewards.fontFamily(f); String lk = kLock.get("kfont:" + f); %><button type="button" class="look-chip<%= lk != null ? " locked" : "" %>" data-kfont="<%= f %>" data-family="<%= fam %>" data-caps="<%= kCaps.contains(f) %>"<%= lk != null ? " data-how=\"" + com.github.skeliit.WebUtils.escapeHtml(lk) + "\"" : "" %> style="font-family: '<%= fam %>'"><%= fam %></button><% } %>
     </div>
     <div class="room-k">Jak řádek naskočí</div>
     <div class="look-chips">
       <button type="button" class="look-chip" data-kanim="">Prolnutí</button>
-      <% for (String a : kAnims) { %><button type="button" class="look-chip" data-kanim="<%= a %>"><%= kAnimNames.get(a) %></button><% } %>
+      <% for (String a : kAnims) { String lk = kLock.get("kanim:" + a); %><button type="button" class="look-chip<%= lk != null ? " locked" : "" %>" data-kanim="<%= a %>"<%= lk != null ? " data-how=\"" + com.github.skeliit.WebUtils.escapeHtml(lk) + "\"" : "" %>><%= kAnimNames.get(a) %></button><% } %>
     </div>
+    <p class="look-note" id="lookNote" aria-live="polite">Najeď nebo ťukni – hned to uvidíš na klipu.</p>
   </div>
   <% } %>
   <button class="cb" id="fs" title="Celá obrazovka (F)" aria-label="Celá obrazovka"><svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm-2-4h2V7h3V5H5zm12 7h-3v2h5v-5h-2zM14 5v2h3v3h2V5z"/></svg></button>
@@ -409,17 +431,46 @@ body.fading::after { opacity: 1; pointer-events: auto; }
       headers: { "Content-Type": "application/x-www-form-urlencoded", "X-CSRF-Token": CSRF },
       body: "json=1&slot=" + slot + "&value=" + encodeURIComponent(value) }).catch(function () {});
   }
+  // Výběr přímo nad běžícím klipem: najetí myší písmo/animaci jen ukáže (zpívaný řádek se hned překreslí),
+  // klik uloží. Zamčené jdou vyzkoušet, ale neuloží se – pod chipy je napsané, čím se odemknou.
+  // Po zavření panelu nebo odjetí myší se vrátí uložená volba.
+  var saved = { font: KLOOK.font, family: KLOOK.family, caps: KLOOK.caps, anim: KLOOK.anim };
+  var note = document.getElementById("lookNote"), noteText = note ? note.textContent : "";
+  function setLook(o) {
+    if (KLOOK.font === o.font && KLOOK.anim === o.anim) return;
+    KLOOK.font = o.font; KLOOK.family = o.family; KLOOK.caps = o.caps; KLOOK.anim = o.anim;
+    KLOOK.v++; if (window.kinoApplyLook) window.kinoApplyLook();
+  }
+  function fromChip(b) {
+    var o = { font: saved.font, family: saved.family, caps: saved.caps, anim: saved.anim };
+    if (b.hasAttribute("data-kfont")) { o.font = b.dataset.kfont || null; o.family = b.dataset.family || null; o.caps = !b.dataset.kfont || b.dataset.caps === "true"; }
+    else o.anim = b.dataset.kanim || null;
+    return o;
+  }
+  function tryChip(b) {
+    setLook(fromChip(b));
+    if (note) note.textContent = b.dataset.how ? "🔒 Jen na zkoušku – odemkneš: " + b.dataset.how : noteText;
+  }
+  function restore() { setLook(saved); markLook(); if (note) note.textContent = noteText; }
+  var chips = document.querySelectorAll("[data-kfont], [data-kanim]");
+  chips.forEach(function (b) {
+    b.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") tryChip(b); });
+    b.addEventListener("focus", function () { tryChip(b); });
+    b.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") restore(); });
+  });
   document.addEventListener("click", function (e) {
-    var f = e.target.closest && e.target.closest("[data-kfont]"), a = e.target.closest && e.target.closest("[data-kanim]");
-    if (f) { KLOOK.font = f.dataset.kfont || null; KLOOK.family = f.dataset.family || null; KLOOK.caps = !f.dataset.kfont || f.dataset.caps === "true"; saveLook("kfont", f.dataset.kfont); }
-    else if (a) { KLOOK.anim = a.dataset.kanim || null; saveLook("kanim", a.dataset.kanim); }
-    else return;
-    KLOOK.v++; if (window.kinoApplyLook) window.kinoApplyLook(); markLook();
+    var b = e.target.closest && e.target.closest("[data-kfont], [data-kanim]");
+    if (!b) return;
+    tryChip(b);
+    if (b.dataset.how) return;   // zamčené: jen ukázat
+    saved = fromChip(b);
+    if (b.hasAttribute("data-kfont")) saveLook("kfont", b.dataset.kfont); else saveLook("kanim", b.dataset.kanim);
+    markLook();
   });
   markLook();
   var lookBtn = document.getElementById("lookBtn");
-  if (lookBtn) lookBtn.onclick = function (e) { e.stopPropagation(); var r = document.getElementById("looks"); r.hidden = !r.hidden; };
-  addEventListener("click", function (e) { var r = document.getElementById("looks"); if (r && !r.hidden && !r.contains(e.target)) r.hidden = true; });
+  if (lookBtn) lookBtn.onclick = function (e) { e.stopPropagation(); var r = document.getElementById("looks"); r.hidden = !r.hidden; if (r.hidden) restore(); };
+  addEventListener("click", function (e) { var r = document.getElementById("looks"); if (r && !r.hidden && !r.contains(e.target)) { r.hidden = true; restore(); } });
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("[data-room]"); if (!b) return;
     var k = b.dataset.room;
