@@ -83,6 +83,8 @@ public final class Rewards {
         days("kstyle", "c", 3);           // Čisté plátno
         site("kstyle", "o", "s_karaoke");  // Kouř a oheň – kdo zašel do kina
         days("kstyle", "t", 14);          // Tunel
+        days("kstyle", "u", 7);           // Ulice
+        days("kstyle", "g", 21);          // Galerie
 
         // Vzhledy profilu (css/profile-looks.css). Základní (barva webu) je prázdná hodnota a má ji každý.
         days("profile", "cover", 3);         // Obálka

@@ -133,3 +133,68 @@
 .room[data-room="t"] .st-sw { background: repeating-radial-gradient(circle at 75% 50%, transparent 0 10px, rgba(255, 90, 60, .55) 11px 12px), #050505; }
 
 @media (prefers-reduced-motion: reduce) { .st-stage *, .st-stage *::before, .st-stage *::after { animation: none !important; } }
+
+/* ===== Společné pro Ulici a Galerii: kouř z webu (js/smoke.js čte --accent a --bg z body), plátno s částicemi ===== */
+body.st-u, body.st-g { --accent: var(--acc); --bg: #050505; }
+.st-stage .smoke-edge { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; pointer-events: none; }
+.st-stage .smoke-edge canvas { display: block; width: 100%; height: 100%; }
+.st-stage .smoke-edge:not(.live) { background: linear-gradient(transparent, #050505 75%); }
+.st-stage .smoke-edge:not(.live) canvas { display: none; }
+.st-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 6; pointer-events: none; }
+.st-stage .nxt { display: block; font-family: 'Oswald', sans-serif; font-weight: 300; letter-spacing: .03em; color: rgba(255, 255, 255, .5); text-shadow: 0 2px 10px rgba(0, 0, 0, .8); }
+
+/* ===== 5 · ULICE ===== video přes celou plochu, kouř zespodu, uhlíky, text sprejem (zpívané slovo v barvě klipu, občas kapka) */
+.st-u .u-vid { position: absolute; inset: 0; z-index: 1; }
+.st-u .u-vid .st-player { inset: -6%; transform: scale(calc(1.03 + var(--bass) * .02)); filter: brightness(.85) contrast(1.06) saturate(1.05); }
+.st-u .u-shade { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(90deg, rgba(0, 0, 0, .55), transparent 65%); }
+.st-u .u-lyr { position: absolute; z-index: 5; left: 6vw; right: 20vw; bottom: calc(17vh + 60px); pointer-events: none; }
+.st-u .u-box { position: relative; }
+.st-u .u-cur { font-family: var(--kfont, 'Rubik Wet Paint'), 'Rubik Wet Paint', sans-serif; font-size: clamp(22px, 4.4vw, 70px); line-height: 1.1; min-height: 2.2em;
+  display: flex; flex-wrap: wrap; align-content: flex-end; column-gap: .28em; }
+.st-u .w { color: rgba(255, 255, 255, .3); text-shadow: 0 3px 18px rgba(0, 0, 0, .8); transition: color .15s; }
+.st-u .w.on { color: #fff; }
+.st-u .w.now { color: var(--acc); text-shadow: 0 0 22px color-mix(in srgb, var(--acc) 70%, transparent), 0 3px 18px rgba(0, 0, 0, .8); }
+.st-u .u-cur.in .w { animation: uSpray .55s ease-out both; animation-delay: calc(var(--wi) * 45ms); }
+@keyframes uSpray { from { opacity: 0; filter: blur(9px); transform: scale(1.12); } }
+.st-u .u-cur.old { position: absolute; left: 0; right: 0; bottom: 0; animation: uOut .45s ease-in forwards; }
+@keyframes uOut { to { opacity: 0; filter: blur(8px); transform: translateY(-.25em); } }
+.st-u .nxt { margin-top: .7em; font-size: clamp(13px, 1.5vw, 21px); }
+@media (orientation: portrait) and (max-width: 600px) { .st-u .u-lyr { left: 6vw; right: 6vw; bottom: calc(15vh + 60px); } .st-u .u-cur { font-size: 8vw; } }
+
+/* ===== 6 · GALERIE ===== tmavý sál, klip v HUD rámečku, světlo z plátna do kouřové podlahy, světlušky, text na skle */
+.st-g .st-stage { background: #070605; --gw: min(60vw, calc((100vh - 340px) * 1.7778)); --gt: 7vh; }
+.st-g .g-rays { position: absolute; z-index: 1; left: 50%; top: var(--gt); width: 120vw; height: 100vh; translate: -50% 0; pointer-events: none; filter: blur(28px);
+  opacity: calc(.35 + var(--bass) * .35); mix-blend-mode: screen;
+  background: conic-gradient(from 180deg at 50% calc(var(--gw) * .6), transparent 0 140deg, color-mix(in srgb, var(--l) 60%, transparent) 158deg, transparent 170deg,
+    color-mix(in srgb, var(--acc) 45%, transparent) 180deg, transparent 190deg, color-mix(in srgb, var(--r) 60%, transparent) 202deg, transparent 220deg); }
+.st-g .g-glow { position: absolute; z-index: 1; left: 50%; top: var(--gt); width: var(--gw); aspect-ratio: 16 / 9; translate: -50% 0; scale: 1.3; filter: blur(70px);
+  opacity: calc(.45 + var(--bass) * .25); background: linear-gradient(90deg, var(--l), transparent 40%, transparent 60%, var(--r)); }
+.st-g .g-screen { position: absolute; z-index: 2; left: 50%; top: var(--gt); width: var(--gw); aspect-ratio: 16 / 9; translate: -50% 0; }
+.st-g .g-vid { position: absolute; inset: 0; overflow: hidden; border-radius: 4px; }
+.st-g .g-hud i { position: absolute; width: 26px; height: 26px; border: 2px solid var(--acc); filter: drop-shadow(0 0 6px var(--acc)); }
+.st-g .g-hud i:nth-child(1) { left: -10px; top: -10px; border-right: 0; border-bottom: 0; } .st-g .g-hud i:nth-child(2) { right: -10px; top: -10px; border-left: 0; border-bottom: 0; }
+.st-g .g-hud i:nth-child(3) { left: -10px; bottom: -10px; border-right: 0; border-top: 0; } .st-g .g-hud i:nth-child(4) { right: -10px; bottom: -10px; border-left: 0; border-top: 0; }
+.st-g .g-scan { position: absolute; inset: 0; pointer-events: none; border-radius: 4px; opacity: .35; background: repeating-linear-gradient(transparent 0 3px, rgba(0, 0, 0, .35) 3px 4px); }
+.st-g .g-tag { position: absolute; left: 0; top: -2.1em; font: 500 clamp(10px, 1vw, 14px) 'Oswald', sans-serif; letter-spacing: .22em; text-transform: uppercase; color: var(--acc); white-space: nowrap; }
+.st-g .g-tag b { color: #fff; font-weight: 500; }
+.st-g .g-lyr { position: absolute; z-index: 5; left: 50%; translate: -50% 0; top: calc(var(--gt) + var(--gw) * .5625 + 4vh); width: min(76vw, 1100px); text-align: center; pointer-events: none;
+  padding: 1em 1.6em 1.1em; border-radius: 20px; backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--acc) 14%, rgba(20, 20, 20, .38)), rgba(10, 10, 10, .32));
+  border: 1px solid color-mix(in srgb, var(--acc) 38%, transparent); box-shadow: 0 20px 60px -20px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .08); }
+.st-g .g-box { position: relative; min-height: 2.3em; font-family: var(--kfont, 'Fraunces'), 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: clamp(20px, 3vw, 48px); line-height: 1.15; }
+.st-g .g-cur.old { position: absolute; left: 0; right: 0; top: 0; animation: gUp .8s ease-in forwards; }
+@keyframes gUp { to { opacity: 0; transform: translateY(-.6em); filter: blur(10px); } }
+.st-g .g-cur.in .w { animation: gIn .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--wi) * 50ms); }
+@keyframes gIn { from { opacity: 0; filter: blur(10px); letter-spacing: .2em; } }
+/* slovo se při zpěvu zleva naplní světlem (--gk 0–1 ze skriptu) */
+.st-g .w { color: transparent; -webkit-background-clip: text; background-clip: text;
+  background-image: linear-gradient(90deg, #fff 0, #fff calc(var(--gk, 0) * 100%), rgba(255, 255, 255, .3) calc(var(--gk, 0) * 100% + .4em)); background-size: calc(100% + .4em) 100%;
+  filter: drop-shadow(0 0 calc(var(--gk, 0) * 12px) color-mix(in srgb, var(--acc) 60%, transparent)); }
+.st-g .nxt { margin-top: .9em; font-size: clamp(11px, 1.1vw, 15px); text-transform: uppercase; letter-spacing: .26em; }
+@media (orientation: portrait) and (max-width: 600px) {
+  .st-g .st-stage { --gw: 92vw; --gt: 14vh; }
+  .st-g .g-lyr { width: 92vw; padding: .8em 1em; } .st-g .g-box { font-size: 7vw; }
+}
+/* slabé zařízení / omezení pohybu: bez rozmazání skla a bez náběhových animací */
+html.low-fx .st-g .g-lyr { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(12, 12, 12, .82); }
+@media (prefers-reduced-motion: reduce) { .st-u .u-cur .w, .st-u .u-cur.old, .st-g .g-cur .w, .st-g .g-cur.old { animation: none !important; } }

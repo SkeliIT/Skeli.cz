@@ -3,7 +3,7 @@
 <%-- Karaoke cinema (preview of the coming big karaoke): /karaoke/{song uuid}, KaraokeCinemaServlet fills kinoJson.
      Two rooms: Prostor (/kino/prostor.js, a looping video; the default) and Ořechový salon (/kino/domov.js); switching loads the page again.
      A loading screen stays up until the room is built (no jerk on the way in). Czech only for now. --%>
-<% String v = "6.1.0";
+<% String v = "6.2.0";
    // ostatní styly a pokoje (zatím se dolaďují) vidí jen admin; role se čte z DB při přihlášení a AdminFilter ji obnovuje
    boolean allStyles = "ADMIN".equals(session.getAttribute("role"));
    // styly kina jsou odměny (model/Rewards, Nastavení → Vzhled): v kině se nabízí jen to, co má člověk odemčené,
@@ -42,7 +42,9 @@
    kNames.put("l", new String[] { "Lyric video", "Text dole vlevo, slova se rozsvěcují" });
    kNames.put("c", new String[] { "Čisté plátno", "Tma, plátno a text" });
    kNames.put("o", new String[] { "Kouř a oheň", "Text se vypaluje, jiskry do rytmu" });
-   kNames.put("t", new String[] { "Tunel", "Slova letí z hloubky" }); %>
+   kNames.put("t", new String[] { "Tunel", "Slova letí z hloubky" });
+   kNames.put("u", new String[] { "Ulice", "Kouř, uhlíky a text sprejem" });
+   kNames.put("g", new String[] { "Galerie", "Tmavý sál, plátno a text na skle" }); %>
 <!doctype html>
 <html lang="cs">
 <head>
@@ -253,6 +255,7 @@ button { font: inherit; color: inherit; }
 .rooms[hidden], .room-pick[hidden], .cb.room-btn[hidden] { display: none; }
 .rooms .room { height: 66px; }
 .looks { grid-template-columns: min(420px, 86vw); }
+.look-aa { font: 400 15px 'Bruno Ace SC', sans-serif; }   /* <b>, ne <span>: popisky tlačítek se na telefonu schovávají */
 .look-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .look-chip { min-height: 40px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(244, 239, 230, .25); background: rgba(255, 255, 255, .04); color: #f4efe6; font-size: 15px; cursor: pointer; }
 .look-chip[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); background: rgba(230, 183, 48, .12); }
@@ -332,7 +335,7 @@ body.fading::after { opacity: 1; pointer-events: auto; }
   </div>
   <% } %>
   <% if (kUid != null) { %>
-  <button class="cb room-btn" id="lookBtn" title="Písmo a animace textu" aria-label="Písmo a animace textu"><span style="font: 400 15px 'Bruno Ace SC'">Aa</span></button>
+  <button class="cb room-btn" id="lookBtn" title="Písmo a animace textu" aria-label="Písmo a animace textu"><b class="look-aa">Aa</b></button>
   <div class="rooms looks" id="looks" hidden>
     <div class="room-k">Písmo textu <small>(další v Nastavení → Vzhled)</small></div>
     <div class="look-chips">

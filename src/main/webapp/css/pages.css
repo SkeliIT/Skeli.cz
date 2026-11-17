@@ -2955,6 +2955,10 @@ button.vz-tile:hover { border-color: color-mix(in srgb, var(--accent) 60%, trans
 .vz-k-o span { color: #ffd08a; text-shadow: 0 0 8px #ff6a00; }
 .vz-k-t { background: repeating-radial-gradient(circle at 50% 50%, #12121a 0 10px, #23233a 11px 12px); place-items: center; }
 .vz-k-t span { color: #9fd8ff; text-shadow: 0 0 10px #3fb4ff; }
+.vz-k-u { background: linear-gradient(transparent 45%, rgba(255, 90, 40, .35)), linear-gradient(160deg, #2a2420, #0b0908); }
+.vz-k-u span { color: #ff8a3a; transform: rotate(-4deg); text-shadow: 0 0 10px rgba(255, 106, 26, .7); }
+.vz-k-g { background: radial-gradient(50% 60% at 50% 0%, rgba(255, 250, 235, .22), transparent 70%), #070605; place-items: center; box-shadow: inset 0 0 0 1px rgba(230, 183, 48, .5); }
+.vz-k-g span { color: #fff; font-style: italic; font-family: Georgia, serif; }
 .vz-av { font-size: 56px; }
 .vz-av img { width: 1em; height: 1em; border-radius: 50%; object-fit: cover; }
 .vz-more { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; min-height: 40px; color: var(--accent); }

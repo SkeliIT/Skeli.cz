@@ -3,6 +3,8 @@
 //   o  Kouř a oheň   – klip jako žhnoucí deska, text se vypaluje, z hrotu zpívaného slova sypou jiskry
 //   c  Čisté plátno  – tma, plátno uprostřed, text pod ním, jemné kontury v barvách klipu
 //   t  Tunel         – slova přilétají z hloubky světelného tunelu, kruhy jedou do basů
+//   u  Ulice         – klip přes celou obrazovku, kouř z webu, uhlíky, text sprejem s kapkami
+//   g  Galerie       – klip v HUD rámečku v tmavém sále, světlo do kouřové podlahy, text na skle
 // Klip hraje přes přehrávač YouTube (YtClock = čas klipu), barvy a basy jsou z eq/<id>.json, časy slov z karaoke.
 // Ovládání, lobby, odchod a titulky na konci jsou ve WEB-INF/views/kino.jsp (stejně jako u pokojů).
 const D = window.KDATA;
@@ -275,6 +277,119 @@ STYLES.t = {
       f.el.style.opacity = u.toFixed(2);
       f.el.classList.toggle('sung', t >= f.a);
     }
+  }
+};
+
+// ===== Společné pro Ulici a Galerii: kouř z webu (js/smoke.js), plátno s uhlíky / světluškami, řádek s přechodem =====
+// Kouř bere barvu klipu (--acc) přes --accent na body; pod kurzorem prosvítá. Bez WebGL / při omezení pohybu zůstane klidný přechod.
+function smokeEdge(h) {
+  const s = document.createElement('div'); s.className = 'smoke-edge b'; s.style.height = h; s.innerHTML = '<canvas></canvas>';
+  stage.appendChild(s);
+  if (!document.querySelector('script[src^="/js/smoke.js"]')) { const sc = document.createElement('script'); sc.src = '/js/smoke.js' + VER; document.body.appendChild(sc); }
+}
+// částice: 'ember' = uhlík stoupá zdola, 'fly' = světluška pluje; myš je rozfoukává jako vítr (stejně jako jiskry na webu)
+let mx = -1e4, my = -1e4, mvx = 0, mvy = 0;
+addEventListener('pointermove', (e) => { mvx = e.clientX - mx; mvy = e.clientY - my; mx = e.clientX; my = e.clientY; }, { passive: true });
+function mkFx() { const cv = document.createElement('canvas'); cv.className = 'st-fx'; stage.appendChild(cv); return { cv, g: cv.getContext('2d'), P: [] }; }
+function particles(fx, kind, n, t, dt) {
+  const dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight, g = fx.g, warm = kind === 'ember';
+  if (fx.cv.width !== Math.round(W * dpr) || fx.cv.height !== Math.round(H * dpr)) { fx.cv.width = Math.round(W * dpr); fx.cv.height = Math.round(H * dpr); }
+  g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  if (STILL) return;
+  if (PHONE) n = Math.round(n * .55);
+  while (fx.P.length < n) fx.P.push({ x: Math.random() * W, y: warm ? H * (.6 + Math.random() * .45) : Math.random() * H, r: .6 + Math.random() * 1.8, ph: Math.random() * 6.3, s: .3 + Math.random() * .7, dx: 0, dy: 0, a: .4 + Math.random() * .6 });
+  g.globalCompositeOperation = 'lighter';
+  const acc = rgb(pal.acc);
+  for (const p of fx.P) {
+    const ddx = p.x - mx, ddy = p.y - my, d2 = ddx * ddx + ddy * ddy;
+    if (d2 < 14000) { const f = (1 - d2 / 14000) * .35; p.dx += mvx * f * .3 + ddx * f * .02; p.dy += mvy * f * .3 + ddy * f * .02; }
+    p.dx *= .95; p.dy *= .95;
+    if (warm) { p.y -= (14 + p.s * 30) * (1 + bass * 1.4) * dt; p.x += Math.sin(t * .9 + p.ph) * 12 * dt; }
+    else { p.y -= p.s * 6 * dt; p.x += Math.sin(t * .4 + p.ph) * 10 * dt; }
+    p.x += p.dx * dt * 10; p.y += p.dy * dt * 10;
+    if (p.y < -10 || p.x < -20 || p.x > W + 20) { p.x = Math.random() * W; p.y = warm ? H + 5 : H * Math.random(); p.dx = p.dy = 0; }
+    const tw = .5 + .5 * Math.sin(t * (warm ? 6 : 1.6) + p.ph);
+    g.globalAlpha = p.a * tw * (warm ? Math.min(1, (p.y / H) * 1.6) : 1);
+    g.fillStyle = warm ? (p.r > 1.6 ? '#ffd29a' : '#ff8a3a') : acc;
+    g.shadowColor = warm ? '#ff6a1a' : acc; g.shadowBlur = warm ? 6 : 10;
+    g.beginPath(); g.arc(p.x, p.y, p.r, 0, 6.3); g.fill();
+  }
+  g.shadowBlur = 0; g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  mvx *= .8; mvy *= .8;
+}
+// který řádek ukázat: stejné časování jako Lyric video (showAt), po dlouhé pauze prázdno
+function lineShown(t) {
+  let i = -1; for (let k = 0; k < D.times.length; k++) if (showAt(k) <= t) i = k;
+  return i >= 0 && t > D.times[i][1] + 2.5 ? -1 : i;
+}
+// nový řádek .in, starý dostane .old a po chvíli zmizí; vrací slova s časy
+function lineEl(cls, i, box) {
+  const old = box.querySelector('.' + cls + ':not(.old)');
+  if (old) { old.classList.add('old'); old.classList.remove('in'); setTimeout(() => old.remove(), 900); }
+  const ws = []; if (i < 0) return ws;
+  const el = document.createElement('div'); el.className = cls + ' in';
+  words(i).forEach((w, k) => {
+    const we = document.createElement('span'); we.className = 'w'; we.textContent = w.t; we.style.setProperty('--wi', k);
+    el.appendChild(we); el.appendChild(document.createTextNode(' ')); ws.push({ el: we, a: w.a, b: w.b });
+  });
+  box.appendChild(el); return ws;
+}
+
+// ===== 5 · Ulice =====
+// Klip přes celou obrazovku, zespodu se valí kouř z webu v barvě klipu a stoupají uhlíky (myš je rozfoukává).
+// Text nastříkaný sprejem (Rubik Wet Paint, nebo písmo z volby Aa), zpívané slovo má barvu klipu a občas z něj steče kapka.
+// Vybráno z náhledu Skeli.cz-podklady/navrhy/karaoke-styly-2/index2.html (2026-11-15).
+STYLES.u = {
+  build() {
+    stage.innerHTML = '<div class="u-vid"></div><div class="u-shade"></div><div class="u-lyr"><div class="u-box"></div><span class="nxt"></span></div>';
+    stage.querySelector('.u-vid').appendChild(host);
+    smokeEdge(PHONE ? '46vh' : '58vh');
+    this.fx = mkFx(); this.box = stage.querySelector('.u-box'); this.nxt = stage.querySelector('.u-lyr .nxt'); this.key = -2; this.ws = []; this.drops = [];
+  },
+  frame(t, dt) {
+    if (this.lv !== look().v) { this.lv = look().v; this.key = -2; }
+    const i = lineShown(t);
+    if (i !== this.key) { this.key = i; this.ws = lineEl('u-cur', i, this.box); this.nxt.textContent = i >= 0 && D.lines[i + 1] ? D.lines[i + 1] : ''; }
+    particles(this.fx, 'ember', 46, t, dt);
+    const g = this.fx.g, acc = rgb(pal.acc);
+    for (const w of this.ws) {
+      const on = t >= w.a - .03, now = on && t <= w.b + .05;
+      w.el.classList.toggle('on', on); w.el.classList.toggle('now', now);
+      // jen detail: nejvýš jedna kapka a další až za 4–9 s
+      if (!STILL && now && t >= (this.nextDrop || 0) && w.b - w.a > .25 && Math.random() < dt * 1.5) {
+        this.nextDrop = t + 4 + Math.random() * 5;
+        const r = w.el.getBoundingClientRect();
+        this.drops.push({ x: r.left + r.width * (.15 + Math.random() * .7), y: r.top + r.height * .82, len: 0, v: 0, life: 1, w: 2 + Math.random() * 2.5, grow: 1 });
+      }
+    }
+    this.drops = this.drops.filter((d) => {
+      if (d.grow > 0) { d.grow -= dt * 1.4; d.len += dt * 10; } else { d.v += 120 * dt; d.y += d.v * dt; d.len = Math.min(26, d.len + d.v * dt * .4); d.life -= dt * .7; }
+      g.globalAlpha = Math.max(0, d.life); g.fillStyle = acc;
+      g.beginPath(); g.ellipse(d.x, d.y + d.len, d.w, d.w * 1.25, 0, 0, 6.3); g.fill();
+      g.fillRect(d.x - d.w * .45, d.y, d.w * .9, d.len);
+      return d.life > 0 && d.y < innerHeight;
+    });
+    g.globalAlpha = 1;
+  }
+};
+
+// ===== 6 · Galerie =====
+// Tmavý sál, klip v HUD rámečku jako na Hudbě (rohy, skenovací linky, štítek), z plátna padá světlo do kouřové podlahy,
+// plují světlušky. Text na skle v barvě klipu, slovo se při zpěvu zleva naplní světlem.
+STYLES.g = {
+  build() {
+    stage.innerHTML = '<div class="g-rays"></div><div class="g-glow"></div><div class="g-screen"><div class="g-tag">▶ <b>' + esc(D.title) + '</b> · ' + esc(D.artist) + ' · ' + esc(D.year) + '</div>'
+      + '<div class="g-vid"></div><div class="g-scan"></div><div class="g-hud"><i></i><i></i><i></i><i></i></div></div><div class="g-lyr"><div class="g-box"></div><span class="nxt"></span></div>';
+    stage.querySelector('.g-vid').appendChild(host);
+    smokeEdge(PHONE ? '24vh' : '30vh');
+    this.fx = mkFx(); this.box = stage.querySelector('.g-box'); this.nxt = stage.querySelector('.g-lyr .nxt'); this.key = -2; this.ws = [];
+  },
+  frame(t, dt) {
+    if (this.lv !== look().v) { this.lv = look().v; this.key = -2; }
+    const i = lineShown(t);
+    if (i !== this.key) { this.key = i; this.ws = lineEl('g-cur', i, this.box); this.nxt.textContent = i >= 0 && D.lines[i + 1] ? D.lines[i + 1] : ''; }
+    for (const w of this.ws) w.el.style.setProperty('--gk', Math.max(0, Math.min(1, (t - w.a) / Math.max(.12, w.b - w.a))).toFixed(3));
+    particles(this.fx, 'fly', 34, t, dt);
   }
 };
 
