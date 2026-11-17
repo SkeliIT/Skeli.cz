@@ -1492,14 +1492,6 @@ body.light .home-page.ulice .ticker { background: color-mix(in srgb, var(--accen
 .home-page.ulice .ticker a i { color: var(--accent); margin-right: 6px; }
 .home-page.ulice .ticker a:hover { color: var(--accent); }
 
-/* čtyři dlaždice */
-.home-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 34px 0 10px; }
-.home-tile { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--panel); border: 1px solid var(--panel-border); color: var(--text); text-decoration: none; }
-.home-tile:hover { text-decoration: none; border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 18px 40px -20px color-mix(in srgb, var(--accent) 60%, transparent); }
-.home-tile > i { width: 30px; text-align: center; font-size: 1.5rem; color: var(--accent); }
-.home-tile b { display: block; font-weight: 400; font-size: var(--fs-card); }
-.home-tile small { display: block; color: var(--text-dim); font-size: var(--fs-small); }
-@media (max-width: 760px) { .home-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* pás s fotkou: nahoře i dole se ztrácí kouřem */
 .home-page.ulice .photo-band { margin-top: 60px; }
@@ -1520,8 +1512,6 @@ body.light .home-page.ulice .ticker { background: color-mix(in srgb, var(--accen
 .video { background: color-mix(in srgb, var(--accent) 5%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 24%, var(--panel-border)); }
 .video:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--accent) 55%, transparent); }
 .card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--panel-border)); }
-/* dlaždice v barvě fotky */
-.home-tile { background: color-mix(in srgb, var(--accent) 6%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 28%, var(--panel-border)); }
 /* fotka v hlavičce úvodu jasnější (pod hlavičkou je stejně plná barva stránky) */
 body:has(main.home-page.ulice) { --bg-overlay: linear-gradient(180deg, rgba(9, 9, 11, 0.12) 0%, rgba(9, 9, 11, 0.35) 55%, rgba(9, 9, 11, 0.7) 100%); }
 body.light:has(main.home-page.ulice) { --bg-overlay: linear-gradient(180deg, rgba(244, 242, 238, 0.1) 0%, rgba(244, 242, 238, 0.35) 55%, rgba(244, 242, 238, 0.7) 100%); }
