@@ -2056,12 +2056,13 @@ body.light .game-champs .p3 .champ-place { color: #9a5a22; }
 .settings-back { justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; font-size: var(--fs-card); color: var(--text-dim); text-decoration: none; }
 .settings-back:hover { color: var(--accent); text-decoration: none; }
 .settings-page section.acct-card[hidden] { display: none; }
-/* záložky Nastavení: vždy všechny tři vidět (na telefonu menší písmo, ikona nad textem) */
-.settings-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; overflow: visible; }
+/* záložky Nastavení: vždy všechny vidět (na telefonu menší písmo, ikona nad textem) */
+.settings-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; overflow: visible; }
 .settings-tabs a { justify-content: center; text-align: center; }
 @media (max-width: 600px) {
   .settings-tabs { grid-template-columns: repeat(2, 1fr); border-radius: 18px; }
   .settings-tabs a { flex-direction: column; gap: 2px; padding: 8px 4px; font-size: var(--fs-small); border-radius: 14px; }
+  .settings-tabs a:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* lichá poslední záložka přes celý řádek */
 }
 /* profil: „Zobrazit všechny“ – rozbalení zbytku komentářů a nezískaných odznaků */
 .acct-more { display: grid; gap: 10px; }
@@ -2920,3 +2921,49 @@ body.light .kp-orb i:first-child { background: radial-gradient(ellipse at 50% 62
 /* přehrávač na Hudbě: štítek ft. na miniatuře spolupráce */
 .ep-item .ep-ft { position: absolute; top: 6px; left: 6px; z-index: 1; padding: 1px 8px; border-radius: 999px; font-size: var(--fs-small);
   color: var(--accent-ink); background: var(--accent); }
+
+/* ===== Nastavení → Vzhled (includes/settings-looks.jspf) =====
+   Dlaždice: na telefonu dvě vedle sebe, na PC víc. Zvolená = rámeček v barvě webu, zamčená = ztlumená se zámkem a postupem. */
+.vz-group { margin-top: 22px; }
+.vz-group h4 { margin: 0 0 4px; font-size: var(--fs-h4); }
+.vz-group > .acct-dim { margin: 0 0 10px; }
+.vz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.vz-grid-sm { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+.vz-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; min-height: 44px;
+  padding: 10px; border-radius: calc(var(--radius) * .7); border: 1px solid rgba(127, 127, 127, .28);
+  background: color-mix(in srgb, var(--panel) 80%, var(--accent) 6%); color: inherit; font: inherit; cursor: pointer;
+  transition: border-color .2s, transform .2s;
+}
+button.vz-tile:hover { border-color: color-mix(in srgb, var(--accent) 60%, transparent); transform: translateY(-2px); }
+.vz-tile[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 18px color-mix(in srgb, var(--accent) 30%, transparent); }
+.vz-tile.is-locked { cursor: default; opacity: .78; }
+.vz-tile.is-locked .vz-art, .vz-tile.is-locked .vz-av { filter: grayscale(1) brightness(.7); }
+.vz-name { font-size: var(--fs-card); line-height: 1.25; }
+.vz-tile small { font-family: var(--font-text); font-size: var(--fs-card); color: var(--text-dim); line-height: 1.3; }
+.vz-tile[aria-pressed="true"] small { color: var(--accent); }
+.vz-how i { margin-right: 3px; }
+.vz-progress { display: block; width: 100%; height: 4px; border-radius: 4px; background: rgba(127, 127, 127, .25); overflow: hidden; }
+.vz-progress i { display: block; height: 100%; width: var(--v); background: var(--accent); }
+/* malý náhled stylu karaoke: tmavé plátno a písmena podle stylu */
+.vz-art { width: 100%; aspect-ratio: 16 / 9; border-radius: 10px; display: grid; place-items: end start; padding: 8px 10px; background: #0b0b0d; overflow: hidden; }
+.vz-art span { font: 700 1.05rem/1 var(--font-display); color: #fff; }
+.vz-k-l { background: linear-gradient(160deg, #1b1b22, #050507); }
+.vz-k-l span { border-left: 2px solid #ffc24a; padding-left: 6px; }
+.vz-k-c { background: radial-gradient(ellipse at 50% 40%, #2a2a30, #050506 70%); place-items: center; }
+.vz-k-o { background: radial-gradient(ellipse at 50% 120%, #ff5a1f 0, #6a1500 35%, #0b0505 70%); }
+.vz-k-o span { color: #ffd08a; text-shadow: 0 0 8px #ff6a00; }
+.vz-k-t { background: repeating-radial-gradient(circle at 50% 50%, #12121a 0 10px, #23233a 11px 12px); place-items: center; }
+.vz-k-t span { color: #9fd8ff; text-shadow: 0 0 10px #3fb4ff; }
+.vz-av { font-size: 56px; }
+.vz-av img { width: 1em; height: 1em; border-radius: 50%; object-fit: cover; }
+.vz-more { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; min-height: 40px; color: var(--accent); }
+.vz-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.vz-chips-k { width: 100%; font-size: var(--fs-small); color: var(--text-dim); text-transform: uppercase; letter-spacing: .06em; }
+.vz-chip {
+  min-height: 40px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(127, 127, 127, .3);
+  background: transparent; color: inherit; font: inherit; font-size: var(--fs-card); cursor: pointer;
+}
+.vz-chip[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
+.vz-game .btn-outline { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) { .vz-tile { transition: none; } button.vz-tile:hover { transform: none; } }

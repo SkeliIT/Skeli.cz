@@ -1,7 +1,7 @@
 <%@ page import="com.github.skeliit.dao.UserDao, com.github.skeliit.model.UserProfile, com.github.skeliit.model.UserComment, com.github.skeliit.model.AccountSummary, com.github.skeliit.WebUtils, com.github.skeliit.dao.PongDao, com.github.skeliit.model.PongProfile" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- Nastavení účtu: záložky Profil (fotka, jména, výstavka, vzhled a jazyk, rámeček fotky), Zabezpečení
+<%-- Nastavení účtu: záložky Profil (fotka, jména, výstavka, vzhled a jazyk), Vzhled (styl karaoke, rámeček fotky, chat), Zabezpečení
      (heslo, zařízení, dvoufázové ověření) a Soukromí (export, smazání). Vidět je vždy jedna záložka – podle
      #kotvy v adrese (formuláře se po uložení vracejí na svou záložku); bez JavaScriptu jsou vidět všechny. --%>
 <main class="account-page settings-page">
@@ -93,6 +93,7 @@
     <a href="#profil"><i class="fa-solid fa-user"></i> <%= t.getProperty("account.tab.profile") %></a>
     <a href="#zabezpeceni"><i class="fa-solid fa-shield-halved"></i> <%= t.getProperty("account.tab.security") %></a>
     <a href="#tvorba"><i class="fa-solid fa-music"></i> <%= t.getProperty("tracks.tab") %></a>
+    <a href="#vzhled"><i class="fa-solid fa-palette"></i> <%= t.getProperty("look.tab") %></a>
     <a href="#soukromi"><i class="fa-solid fa-user-lock"></i> <%= t.getProperty("account.tab.privacy") %></a>
   </nav>
 
@@ -464,25 +465,7 @@
           <span class="vis-text"><b id="visCoverT"><%= t.getProperty("cover.title") %></b><small><%= t.getProperty("cover.visLead") %></small></span>
           <label class="vis-switch"><input type="checkbox" name="cover" value="1" aria-labelledby="visCoverT"<%= coverPublic ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
-        <li class="vis-row vis-pick">
-          <span class="vis-ico"><i class="fa-regular fa-circle" aria-hidden="true"></i></span>
-          <span class="vis-text"><b><label for="pongFrame"><%= t.getProperty("pong.frame.title") %></label></b><small><%= t.getProperty("pong.frame.lead") %></small></span>
-          <% // medaile šampiona je jedna z voleb: nabízí se tomu, kdo je v první trojce, nebo kdo ji má vybranou (pak čeká na návrat)
-             boolean champPick = pong.champPlace != null || "champ".equals(pong.frame); %>
-          <% if (!anyFrame && !champPick) { %>
-          <small class="vis-empty"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= t.getProperty("pong.frame.empty") %></small>
-          <% } else { %>
-          <select id="pongFrame" name="f">
-            <option value=""><%= t.getProperty("pong.frame.none") %></option>
-            <% if (champPick) { %>
-            <option value="champ"<%= "champ".equals(pong.frame) ? " selected" : "" %>><%= pong.champPlace != null ? t.getProperty("pong.frame.champNow").replace("{n}", String.valueOf(pong.champPlace)) : t.getProperty("pong.frame.champWait") %></option>
-            <% } %>
-            <% for (PongProfile.Badge b : pong.badges) { if (!b.earned || !com.github.skeliit.model.PongBadges.isFrame(b.key)) continue; %>
-            <option value="<%= b.key %>"<%= b.key.equals(pong.frame) ? " selected" : "" %>><%= WebUtils.escapeHtml(t.getProperty("pong.frame." + b.key)) %></option>
-            <% } %>
-          </select>
-          <% } %>
-        </li>
+        <%-- rámeček kolem fotky se vybírá v záložce Vzhled (includes/settings-looks.jspf) --%>
         <li class="vis-row vis-pick">
           <span class="vis-ico"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
           <span class="vis-text"><b><label for="pongMark"><%= t.getProperty("pong.mark.title") %></label></b><small><%= t.getProperty("pong.mark.lead") %></small></span>
@@ -537,6 +520,8 @@
       </div>
     </div>
   </section>
+
+  <%@ include file="includes/settings-looks.jspf" %>
 
   <script>
     // záložky: ukáže se jen část podle #kotvy (i kotva uvnitř části, třeba #dvoufazove), výchozí je Profil

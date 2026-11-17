@@ -3,9 +3,29 @@
 <%-- Karaoke cinema (preview of the coming big karaoke): /karaoke/{song uuid}, KaraokeCinemaServlet fills kinoJson.
      Two rooms: Prostor (/kino/prostor.js, a looping video; the default) and Ořechový salon (/kino/domov.js); switching loads the page again.
      A loading screen stays up until the room is built (no jerk on the way in). Czech only for now. --%>
-<% String v = "6.0.10";
+<% String v = "6.0.11";
    // ostatní styly a pokoje (zatím se dolaďují) vidí jen admin; role se čte z DB při přihlášení a AdminFilter ji obnovuje
-   boolean allStyles = "ADMIN".equals(session.getAttribute("role")); %>
+   boolean allStyles = "ADMIN".equals(session.getAttribute("role"));
+   // styly kina jsou odměny (model/Rewards, Nastavení → Vzhled): v kině se nabízí jen to, co má člověk odemčené,
+   // a jeho uložená volba je výchozí (platí na každém zařízení); admin má všechno
+   java.util.List<String> kOpen = new java.util.ArrayList<>();
+   String kSaved = null;
+   Integer kUid = (Integer) session.getAttribute("user_id");
+   try {
+     if (kUid != null) {
+       com.github.skeliit.dao.RewardDao kDao = new com.github.skeliit.dao.RewardDao();
+       com.github.skeliit.model.Rewards.Have kHave = kDao.have(kUid, allStyles);
+       for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of("kstyle")) if (kHave.open(it)) kOpen.add(it.value);
+       kSaved = kDao.look(kUid, "kstyle", kHave);
+     }
+   } catch (Exception ignore) {}
+   if (!kOpen.contains("l")) kOpen.add(0, "l");
+   boolean showPick = kOpen.size() > 1;
+   java.util.Map<String, String[]> kNames = new java.util.LinkedHashMap<>();
+   kNames.put("l", new String[] { "Lyric video", "Text dole vlevo, slova se rozsvěcují" });
+   kNames.put("c", new String[] { "Čisté plátno", "Tma, plátno a text" });
+   kNames.put("o", new String[] { "Kouř a oheň", "Text se vypaluje, jiskry do rytmu" });
+   kNames.put("t", new String[] { "Tunel", "Slova letí z hloubky" }); %>
 <!doctype html>
 <html lang="cs">
 <head>
@@ -283,13 +303,10 @@ body.fading::after { opacity: 1; pointer-events: auto; }
   <div class="bar" id="bar"><div class="track"></div><div class="fill" id="fill"></div></div>
   <input class="vol" id="vol" type="range" min="0" max="100" value="90" aria-label="Hlasitost">
   <%-- Do vydání ostatní styly vidí jen admin (dolaďují se přímo na webu); návštěvník má jen Lyric video a výběr nevidí. --%>
-  <% if (allStyles) { %>
+  <% if (showPick) { %>
   <button class="cb room-btn" id="roomBtn" title="Změnit styl" aria-label="Změnit styl"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-6H4zm15-8h3v3h-3zM2 10h3v3H2zm15 3H7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2z"/></svg><span>Styl</span></button>
   <div class="rooms" id="rooms" hidden>
-      <button type="button" class="room" data-room="l" aria-pressed="false"><span class="rt"><b>Lyric video</b><small>Slova vlétají přes celý klip</small></span><span class="st-sw" data-word="BOOM"></span></button>
-      <button type="button" class="room" data-room="o" aria-pressed="false"><span class="rt"><b>Kouř a oheň</b><small>Text se vypaluje, jiskry do rytmu</small></span><span class="st-sw"></span></button>
-      <button type="button" class="room" data-room="c" aria-pressed="false"><span class="rt"><b>Čisté plátno</b><small>Tma, plátno a text</small></span><span class="st-sw"></span></button>
-      <button type="button" class="room" data-room="t" aria-pressed="false"><span class="rt"><b>Tunel</b><small>Slova letí z hloubky</small></span><span class="st-sw"></span></button>
+      <% for (String k : kOpen) { String[] n = kNames.get(k); %><button type="button" class="room" data-room="<%= k %>" aria-pressed="false"><span class="rt"><b><%= n[0] %></b><small><%= n[1] %></small></span><span class="st-sw"<%= "l".equals(k) ? " data-word=\"BOOM\"" : "" %>></span></button><% } %>
   </div>
   <% } %>
   <button class="cb" id="fs" title="Celá obrazovka (F)" aria-label="Celá obrazovka"><svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm-2-4h2V7h3V5H5zm12 7h-3v2h5v-5h-2zM14 5v2h3v3h2V5z"/></svg></button>
@@ -299,13 +316,10 @@ body.fading::after { opacity: 1; pointer-events: auto; }
     <div class="k">KARAOKE</div>
     <h1 id="lobbyTitle"></h1>
     <p id="lobbyArtist"></p>
-    <% if (allStyles) { %>
+    <% if (showPick) { %>
     <div class="room-pick" aria-label="Vyber si styl">
-      <div class="room-k">Vyber si styl <small>(ostatní styly vidí zatím jen admin)</small></div>
-      <button type="button" class="room" data-room="l" aria-pressed="false"><span class="rt"><b>Lyric video</b><small>Slova vlétají přes celý klip</small></span><span class="st-sw" data-word="BOOM"></span></button>
-      <button type="button" class="room" data-room="o" aria-pressed="false"><span class="rt"><b>Kouř a oheň</b><small>Text se vypaluje, jiskry do rytmu</small></span><span class="st-sw"></span></button>
-      <button type="button" class="room" data-room="c" aria-pressed="false"><span class="rt"><b>Čisté plátno</b><small>Tma, plátno a text</small></span><span class="st-sw"></span></button>
-      <button type="button" class="room" data-room="t" aria-pressed="false"><span class="rt"><b>Tunel</b><small>Slova letí z hloubky</small></span><span class="st-sw"></span></button>
+      <div class="room-k">Vyber si styl <small>(další se odemykají v Nastavení → Vzhled)</small></div>
+      <% for (String k : kOpen) { String[] n = kNames.get(k); %><button type="button" class="room" data-room="<%= k %>" aria-pressed="false"><span class="rt"><b><%= n[0] %></b><small><%= n[1] %></small></span><span class="st-sw"<%= "l".equals(k) ? " data-word=\"BOOM\"" : "" %>></span></button><% } %>
     </div>
     <% } %>
     <button class="enter" id="enter"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Vstoupit do kina</button>
@@ -329,9 +343,12 @@ body.fading::after { opacity: 1; pointer-events: auto; }
   // Pokoje Prostor (p, prostor.js) a Ořechový salon (a, domov.js) jsou z výběru schované (zatím se nevylepšují),
   // přes ?v=p / ?v=a se dají otevřít. Přepnutí = stránka se načte znovu.
   // do vydání: návštěvník jen Lyric video, admin všechny (allStyles výš v šabloně); pokoje p/a jen pro admina
-  var STYLES = <%= allStyles ? "{ l: 1, o: 1, c: 1, t: 1 }" : "{ l: 1 }" %>;
+  var STYLES = {<% for (int i = 0; i < kOpen.size(); i++) { %><%= i > 0 ? ", " : " " %><%= kOpen.get(i) %>: 1<% } %> };
+  var SAVED = <%= kSaved == null ? "null" : "\"" + kSaved + "\"" %>;   // volba uložená na serveru (Nastavení → Vzhled)
+  var CSRF = "<%= request.getAttribute("csrf") == null ? "" : request.getAttribute("csrf") %>";
   var ADMIN_ROOMS = <%= allStyles %>;
   var ROOM = new URLSearchParams(location.search).get("v");
+  if (!ROOM) ROOM = SAVED;
   try { if (!ROOM) ROOM = localStorage.getItem("kinoStyle"); } catch (e) {}
   if (!STYLES[ROOM] && !(ADMIN_ROOMS && (ROOM === "p" || ROOM === "a"))) ROOM = "l";
   // Ořechový salon je těžký 3D pokoj: na telefonu nebo slabém počítači prohlížeči dojde paměť → místo něj Prostor
@@ -343,10 +360,17 @@ body.fading::after { opacity: 1; pointer-events: auto; }
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("[data-room]"); if (!b) return;
     var k = b.dataset.room;
-    if (k !== ROOM) { try { localStorage.setItem("kinoStyle", k); } catch (er) {} location.search = "?v=" + k; }
+    if (k === ROOM) return;
+    try { localStorage.setItem("kinoStyle", k); } catch (er) {}
+    // uloží volbu i na server (platí pak na všech zařízeních); pokoje p/a jsou jen pro admina a neukládají se
+    var go = function () { location.search = "?v=" + k; };
+    if (!STYLES[k]) return go();
+    fetch("/profile/look", { method: "POST", credentials: "same-origin",
+      headers: { "Content-Type": "application/x-www-form-urlencoded", "X-CSRF-Token": CSRF },
+      body: "slot=kstyle&json=1&value=" + encodeURIComponent(k) }).then(go, go);
   });
   document.querySelectorAll("[data-room]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.room === ROOM ? "true" : "false"); });
-  // výběr stylu má jen admin (u návštěvníka tlačítko na stránce není)
+  // výběr stylu je jen u toho, kdo má odemčený víc než jeden styl
   var roomBtn = document.getElementById("roomBtn");
   if (roomBtn) roomBtn.onclick = function (e) { e.stopPropagation(); var r = document.getElementById("rooms"); r.hidden = !r.hidden; };
 </script>

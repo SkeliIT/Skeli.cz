@@ -61,6 +61,30 @@ public class RewardDao {
         }
     }
 
+    /**
+     * Co člověk má (dny, odznaky webu i CatSmash, zapsané odměny). Co právě splnil a ještě nemá zapsané,
+     * se rovnou zapíše do user_rewards – získaná věc se tak neztratí, ani když se pravidlo v katalogu změní.
+     */
+    public com.github.skeliit.model.Rewards.Have have(int userId, boolean admin) throws SQLException {
+        Set<String> site = new SiteBadgeDao().sync(userId);
+        Set<String> pong = new PongDao().earned(userId);
+        Set<String> stored = new LinkedHashSet<>(unlocked(userId));
+        com.github.skeliit.model.Rewards.Have h = new com.github.skeliit.model.Rewards.Have(days(userId), site, pong, stored, admin);
+        for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.all()) {
+            if (it.rule != com.github.skeliit.model.Rewards.Rule.FREE && !stored.contains(it.key()) && h.meets(it) && unlock(userId, it.key())) {
+                stored.add(it.key());
+            }
+        }
+        return h;
+    }
+
+    /** Zvolený vzhled jednoho slotu, nebo null (základní). Hodnotu, kterou už nesmí mít, vrátí jako null. */
+    public String look(int userId, String slot, com.github.skeliit.model.Rewards.Have h) throws SQLException {
+        String v = looks(userId).get(slot);
+        com.github.skeliit.model.Rewards.Item it = com.github.skeliit.model.Rewards.find(slot, v);
+        return it != null && h.open(it) ? v : null;
+    }
+
     /** Zvolené vzhledy: slot → hodnota (chybějící slot = základní vzhled). */
     public Map<String, String> looks(int userId) throws SQLException {
         Map<String, String> out = new LinkedHashMap<>();

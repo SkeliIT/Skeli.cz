@@ -93,6 +93,7 @@
     <%-- úpravy profilu a celé nastavení jsou na samostatné stránce (nastaveni.jsp) --%>
     <div class="pt-tools">
       <a class="pt-gear<%= coverUrl == null ? " pt-cover-add" : "" %>" href="/nastaveni.jsp#zahlavi" aria-label="<%= t.getProperty(coverUrl == null ? "cover.add" : "cover.change") %>"><i class="fa-solid fa-image" aria-hidden="true"></i> <span><%= t.getProperty(coverUrl == null ? "cover.add" : "cover.change") %></span></a>
+      <a class="pt-gear" href="/nastaveni.jsp#vzhled" aria-label="<%= t.getProperty("look.profileBtn") %>"><i class="fa-solid fa-palette" aria-hidden="true"></i> <span><%= t.getProperty("look.profileBtn") %></span></a>
       <a class="pt-gear" href="/nastaveni.jsp" aria-label="<%= t.getProperty("account.edit") %>"><i class="fa-solid fa-gear" aria-hidden="true"></i> <span><%= t.getProperty("account.edit") %></span></a>
     </div>
     <div class="pt-in">
