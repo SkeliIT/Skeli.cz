@@ -3007,3 +3007,25 @@ button.vz-tile:hover { border-color: color-mix(in srgb, var(--accent) 60%, trans
 .vz-sub { margin: 16px 0 0; font-size: var(--fs-card); color: var(--text-dim); }
 .vz-chip.is-locked { cursor: default; opacity: .7; display: inline-flex; gap: 6px; align-items: center; }
 .vz-chip.is-locked small { font-family: var(--font-text); color: var(--text-dim); }
+
+/* Základní profil (bez vzhledu z odměn) – klidný: jen barva webu (podle fotky v pozadí) a neutrální sklo.
+   Dřív měla každá dlaždice vlastní barvu (modrá, růžová, fialová, oranžová) a odznaky pět dalších – profil „hrál barvama“.
+   Teď všechny dlaždice svítí jen barvou webu a vzácnost odznaků je v jejích odstínech: běžný šedý, pak čím vzácnější,
+   tím sytější, legendární zlatý. Vzhledy z odměn (css/profile-looks.css) mají vlastní pravidla a tohle nepoužívají. */
+main.profile-page:not(.pl-look) .pt { --glow: var(--accent); }
+main.profile-page:not(.pl-look) .pt::before {
+  background: radial-gradient(130% 110% at 15% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 62%),
+    linear-gradient(180deg, var(--panel-strong), var(--panel) 60%, color-mix(in srgb, var(--panel) 72%, transparent)); }
+main.profile-page:not(.pl-look) .pt-hero::before { background: var(--panel-strong); }
+main.profile-page:not(.pl-look) .pt-panel::before { background: radial-gradient(110% 60% at 12% -8%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%), var(--panel-strong); }
+main.profile-page:not(.pl-look) .pt-ghost { color: var(--text); opacity: .07; }
+main.profile-page:not(.pl-look) .acct-motto { color: var(--accent); }
+main.profile-page:not(.pl-look) [data-rar="c"] { --rar: var(--text-dim) !important; }
+main.profile-page:not(.pl-look) [data-rar="u"] { --rar: color-mix(in srgb, var(--accent) 45%, var(--text-dim)) !important; }
+main.profile-page:not(.pl-look) [data-rar="r"] { --rar: var(--accent) !important; }
+main.profile-page:not(.pl-look) [data-rar="e"] { --rar: color-mix(in srgb, var(--accent) 70%, #fff) !important; }
+main.profile-page:not(.pl-look) [data-rar="l"] { --rar: #e8b64a !important; }
+body.light main.profile-page:not(.pl-look) [data-rar="e"] { --rar: color-mix(in srgb, var(--accent) 70%, #000) !important; }
+body.light main.profile-page:not(.pl-look) [data-rar="l"] { --rar: #a37b00 !important; }
+main.profile-page:not(.pl-look) .pt-activity .pt-feed .pt-act-card { background: color-mix(in srgb, var(--accent) 4%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 22%, transparent); }
+main.profile-page:not(.pl-look) .pt-show-item { background: color-mix(in srgb, var(--rar) 10%, transparent); }
