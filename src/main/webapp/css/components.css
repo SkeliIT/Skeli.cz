@@ -389,7 +389,7 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
    sloupcích. Řádky s ikonou, skupiny se rozbalují pod sebou, dole účet, ovládání a odhlášení. Plná barva stránky
    s jemným přechodem barvy webu nahoře, bez rozmazání (na slabém telefonu by sekalo). Od 1025 px nic z toho
    neplatí – tam jsou kapsle pod logem (výš). Skript: includes/header.jsp (setMenu, setGroup). */
-.mnav-top, .nav-shade, .nav-account, .nav-settings, .nav-logout { display: none; }
+.mnav-top, .nav-shade, .nav-account, .nav-settings, .nav-logout, .nav-face { display: none; }
 .nav-pages, .nav-tools { display: contents; }   /* na PC jsou stránky přímo v kapsli */
 .main-nav .nav-ico { display: none; }   /* ikonky jen v menu na telefonu a tabletu */
 @media (max-width: 1024px) {
@@ -485,6 +485,15 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav .nav-langs a:lang(vi) { font-family: 'Exo 2', system-ui, sans-serif; }
   @container (max-width: 19em) { .main-nav .nav-langs a .flag { display: none; } }
 
+  /* smajlík loga dole v menu: barva webu (maska), s novou fotkou jiný obličej; jemně se vznáší (ne na slabém telefonu) */
+  .main-nav .nav-face { display: grid; place-items: center; margin: 26px 0 8px; }
+  .main-nav .nav-face span { width: 86px; height: 86px; background: var(--accent);
+    -webkit-mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat; mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat;
+    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--accent) 40%, transparent)); animation: face-float 6s ease-in-out infinite; }
+  .main-nav .nav-face.swap span { animation: face-pop .6s ease-out, face-float 6s ease-in-out .6s infinite; }
+  @keyframes face-float { 50% { transform: translateY(-5px) rotate(-3deg); } }
+  @keyframes face-pop { from { opacity: 0; transform: scale(.7) rotate(-12deg); } }
+
   /* odhlášení: poslední, tlumeně */
   .main-nav .nav-logout { display: block; margin: 8px 0 0; }
   .main-nav .nav-logout button { color: var(--text-dim); }
@@ -505,10 +514,11 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     .main-nav.open { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; align-content: start; align-items: start; }
     .mnav-top { grid-column: 1 / -1; }
     .main-nav .nav-tools > :first-child { margin-top: 0; }
+    .main-nav .nav-face { display: none; }
     .main-nav .nav-top, .main-nav .nav-group-btn, .main-nav .nav-row, .main-nav .nav-sub a { min-height: 42px; }
   }
 }
-html.low-fx .main-nav { animation: none; }
+html.low-fx .main-nav, html.low-fx .main-nav .nav-face span { animation: none; filter: none; }
 
 /* ---------- Buttons ---------- */
 /* :where() keeps specificity at zero, so any component class overrides these */

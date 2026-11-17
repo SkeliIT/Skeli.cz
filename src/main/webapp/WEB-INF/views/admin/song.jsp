@@ -437,7 +437,7 @@
     <!-- Obrázek v Diskografii (Hudba): zdroj (automaticky / snímek z YouTube / vlastní) a posun se zvětšením -->
     <section class="admin-card admin-card-wide" id="disco-art">
       <h3>Obrázek v Diskografii</h3>
-      <p class="text-dim">1) Vyber obrázek, 2) v náhledu karty ho <strong>posuň myší nebo prstem</strong> a <strong>kolečkem / posuvníkem</strong> zvětši, 3) Uložit.</p>
+      <p class="text-dim">1) Vyber obrázek, 2) v náhledu karty ho <strong>posuň myší nebo prstem</strong> a <strong>kolečkem / posuvníkem</strong> zvětši nebo zmenši (40–300 %), 3) Uložit. <a href="/admin/disco">Všechny obrázky v Diskografii →</a></p>
       <form method="post" action="/admin/song" class="disco-src">
         <input type="hidden" name="csrf" value="${csrf}">
         <input type="hidden" name="id" value="${song.id}">
@@ -471,14 +471,14 @@
 
       <c:if test="${not empty discoShown}">
       <div class="disco-edit-wrap">
-        <div class="disco-edit" id="discoEditor" data-x="${song.posterX != null ? song.posterX : ''}" data-y="${song.posterY != null ? song.posterY : ''}" data-zoom="${song.posterZoom != null ? song.posterZoom : ''}">
+        <div class="disco-edit" id="discoEditor" style="--thumb-bg: url(&quot;<c:out value='${discoShown}'/>&quot;)" data-x="${song.posterX != null ? song.posterX : ''}" data-y="${song.posterY != null ? song.posterY : ''}" data-zoom="${song.posterZoom != null ? song.posterZoom : ''}">
           <img class="placed" src="<c:out value='${discoShown}'/>" alt="" draggable="false">
           <span class="disco-edit-name"><c:out value="${songTitle.title}"/></span>
         </div>
         <div>
           <div class="art-controls">
             <label class="art-zoom">Velikost
-              <input type="range" id="posterZoom" min="100" max="300" step="1" value="100">
+              <input type="range" id="posterZoom" min="40" max="300" step="1" value="100">
               <output id="posterZoomOut">100 %</output>
             </label>
             <button type="button" id="posterCenter" class="control-btn">Na střed</button>
@@ -806,7 +806,7 @@
   var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var st = { x: num(ed.dataset.x, 50), y: num(ed.dataset.y, 50), z: num(ed.dataset.zoom, 1) };
   function apply() {
-    st.z = clamp(st.z, 1, 3); st.x = clamp(st.x, 0, 100); st.y = clamp(st.y, 0, 100);
+    st.z = clamp(st.z, 0.4, 3); st.x = clamp(st.x, 0, 100); st.y = clamp(st.y, 0, 100);
     img.style.setProperty('--px', st.x.toFixed(2)); img.style.setProperty('--py', st.y.toFixed(2)); img.style.setProperty('--pz', st.z.toFixed(3));
     range.value = Math.round(st.z * 100); out.textContent = Math.round(st.z * 100) + ' %';
     document.getElementById('posterX').value = st.x.toFixed(2);
@@ -814,12 +814,22 @@
     document.getElementById('posterZoomVal').value = st.z.toFixed(2);
   }
   var drag = null;
-  ed.addEventListener('pointerdown', function (e) { drag = { px: e.clientX, py: e.clientY, x: st.x, y: st.y }; ed.setPointerCapture(e.pointerId); e.preventDefault(); });
+  // O kolik pixelů se obrázek posune, když se --px (nebo --py) změní o 1: posun uvnitř karty (object-position, jen ve
+  // směru, kde obrázek přečuhuje) a posun celého zvětšeného / zmenšeného obrázku (scale kolem stejného bodu).
+  // Díky tomu obrázek jede pod prstem stejným směrem při zvětšení i zmenšení.
+  function step(size, natural, otherSize, otherNatural) {
+    var cover = Math.max(size / natural, otherSize / otherNatural), over = natural * cover - size;
+    return ((1 - st.z) * size - st.z * over) / 100;
+  }
+  ed.addEventListener('pointerdown', function (e) {
+    var r = ed.getBoundingClientRect(), nw = img.naturalWidth || r.width, nh = img.naturalHeight || r.height;
+    drag = { px: e.clientX, py: e.clientY, x: st.x, y: st.y, kx: step(r.width, nw, r.height, nh), ky: step(r.height, nh, r.width, nw) };
+    ed.setPointerCapture(e.pointerId); e.preventDefault();
+  });
   ed.addEventListener('pointermove', function (e) {
     if (!drag) return;
-    var r = ed.getBoundingClientRect();
-    st.x = drag.x - (e.clientX - drag.px) / r.width * 100 / st.z;
-    st.y = drag.y - (e.clientY - drag.py) / r.height * 100 / st.z;
+    if (Math.abs(drag.kx) > 0.02) st.x = drag.x + (e.clientX - drag.px) / drag.kx;
+    if (Math.abs(drag.ky) > 0.02) st.y = drag.y + (e.clientY - drag.py) / drag.ky;
     apply();
   });
   var end = function () { drag = null; };

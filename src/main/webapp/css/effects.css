@@ -1712,6 +1712,8 @@ html.low-fx .ep-hud::after, html.low-fx .ep-holo .ep-floor { animation: none; }
   border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--panel-border)); }
 .flip-front .song-thumb { position: absolute; inset: 0; display: block; aspect-ratio: auto; border-radius: 0; }
 .flip-front .song-thumb > img, .flip-front .thumb-split { width: 100%; height: 100%; object-fit: cover; transform: scale(1.35); }
+/* obrázek upravený v adminu: bez pevného zvětšení 1,35, aby karta vypadala přesně jako náhled v adminu */
+.flip-front .song-thumb > img.placed { transform: none; }
 .flip-front::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0, 0, 0, .9) 0%, rgba(0, 0, 0, .25) 45%, transparent 70%); pointer-events: none; }
 .flip-front .song-info { position: absolute; z-index: 2; left: 14px; right: 14px; bottom: 12px; padding: 0; color: #fff; }
 .flip-front .song-name { color: #fff; }

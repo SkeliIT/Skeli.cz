@@ -256,7 +256,7 @@ public class AdminSongDetailServlet extends HttpServlet {
                             resp.sendRedirect(hub + "&msg=bad_art#poster-art");
                             return;
                         }
-                        songs.updatePoster(id, Song.clamp(x, 0, 100), Song.clamp(y, 0, 100), Song.clamp(zoom, 1, 3));
+                        songs.updatePoster(id, Song.clamp(x, 0, 100), Song.clamp(y, 0, 100), Song.clamp(zoom, 0.4, 3));   // pod 1 = zmenšený obrázek, okraje vyplní rozmazaná kopie
                     }
                     resp.sendRedirect(hub + "&msg=poster_saved#disco-art");
                 }

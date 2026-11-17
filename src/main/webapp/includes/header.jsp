@@ -247,6 +247,8 @@
                 <button type="submit"><i class="fa-solid fa-right-from-bracket nav-ico" aria-hidden="true"></i> <%= t.getProperty("btn.logout") %></button>
               </form>
               <% } %>
+              <%-- jeden ze smajlíků loga SKELO SQUAD v barvě webu; s novou fotkou a barvou se vymění (js/effects.js setFace) --%>
+              <div class="nav-face" aria-hidden="true"><span></span></div>
               </div>
             </nav>
 

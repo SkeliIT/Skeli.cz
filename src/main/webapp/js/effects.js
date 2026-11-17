@@ -212,6 +212,19 @@
     }
     return (readableCache[key] = out);
   }
+  // Smajlík dole v menu na telefonu (includes/header.jsp .nav-face): jeden ze 7 obličejů loga SKELO SQUAD, ke každé
+  // fotce (a barvě) jiný; barvu bere z --accent, takže se přelévá s webem. Na stránce písně podle odstínu písně.
+  var FACES = ['base', 'skull', 'mic', 'square', 'walker', 'field', 'point', 'rocks'], faceNow = 0;
+  function setFace(key) {
+    var i = FACES.indexOf(key);
+    if (i < 0) { i = 0; for (var k = 0; k < key.length; k++) i = (i * 31 + key.charCodeAt(k)) >>> 0; }
+    var n = i % 7 + 1;
+    if (n === faceNow) return;
+    faceNow = n;
+    document.documentElement.style.setProperty('--nav-face', 'url("/img/faces/face-' + n + '.webp")');
+    var el = document.querySelector('.nav-face');
+    if (el) { el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); }
+  }
   // instant = bez přelévání (načtení stránky, nová stránka navazuje na fotku té předchozí)
   function paint(name, instant) {
     if (name) painted = name;
@@ -225,6 +238,7 @@
     if (c) c = [readable(c[0], mode), c[1]];   // hlavní barva vždy čitelná (kontrast aspoň 4,5 : 1), odstín zůstává
     if (c) setAccents(b, c, instant);
     else { clearInterval(stepT); curVal = {}; b.style.removeProperty('--accent'); b.style.removeProperty('--accent-2'); }
+    setFace(own ? 'base' : songColor ? songColor[0][0] : painted);
     // stránka písně: podlaha pod kouřem (a kouř sám) v odstínu písně, aby nálada písně pokračovala i pod videem
     if (songFloor && !own) b.style.setProperty('--bg', songFloor[mode === 'light' ? 1 : 0]); else b.style.removeProperty('--bg');
     // sníh ve světlém režimu: bílý jen u sněhové fotky, jinak v barvě fotky

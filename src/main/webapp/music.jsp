@@ -73,8 +73,10 @@
       <article class="song-card disco-card flip-card" tabindex="0">
        <div class="flip-in">
         <div class="flip-face flip-front">
-          <span class="song-thumb">
-          <% String[] picked = d.song ? discoPicked.get(d.id) : null; %>
+          <% String[] picked = d.song ? discoPicked.get(d.id) : null;
+             // rozmazané pozadí za zmenšeným obrázkem (pages.css .song-thumb:has(> img.placed)::before)
+             String thumbBg = picked == null || picked[1].isEmpty() ? null : picked[0] != null ? picked[0] : yt == null ? null : discoImgs.contains("/img/disco/" + yt + ".webp") ? "/img/disco/" + yt + ".webp" : "/yt-thumb/" + yt + "/mqdefault.jpg"; %>
+          <span class="song-thumb"<% if (thumbBg != null) { %> style="--thumb-bg: url(&quot;<%= WebUtils.escapeHtml(thumbBg) %>&quot;)"<% } %>>
           <% if (picked != null && picked[0] != null) { %>
             <img class="disco-picked<%= picked[1].isEmpty() ? "" : " placed" %>" src="<%= WebUtils.escapeHtml(picked[0]) %>" alt="" loading="lazy" style="<%= picked[1] %>">
           <% } else if (versions != null && versions.size() > 1) { %>
