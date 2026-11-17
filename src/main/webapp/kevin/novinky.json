@@ -1,5 +1,14 @@
 [
   {
+    "d": "2026-11-17",
+    "href": "/index.jsp",
+    "cs": "Nové menu na mobilu. Otevře se přes celou obrazovku a všechno najdeš na jednom místě.",
+    "en": "A new menu on phones. It opens over the whole screen and everything is in one place.",
+    "de": "Ein neues Menü auf dem Handy. Es öffnet sich über den ganzen Bildschirm, alles ist an einem Ort.",
+    "uk": "Нове меню на телефоні. Відкривається на весь екран, усе знайдеш в одному місці.",
+    "vi": "Menu mới trên điện thoại. Mở ra toàn màn hình và mọi thứ ở cùng một chỗ."
+  },
+  {
     "d": "2026-11-15",
     "href": "/karaoke",
     "cs": "Nová stránka Karaoke. Vybereš si písničku a zpíváš se Skelim, text svítí slovo po slově. Stačí se přihlásit.",
@@ -34,14 +43,5 @@
     "de": "Die Seite hat sich umgezogen. Die Farben wechseln mit den Fotos im Hintergrund, Rauch zieht vorbei und Funken weichen deiner Maus aus.",
     "uk": "Сайт перевдягнувся. Кольори змінюються з фото на тлі, клубочиться дим, а іскри ухиляються від твоєї миші.",
     "vi": "Trang web đã thay áo mới. Màu sắc đổi theo ảnh nền, khói cuộn và tia lửa né con chuột của bạn."
-  },
-  {
-    "d": "2026-11-15",
-    "href": "/uzivatel.jsp",
-    "cs": "Přátelé, zprávy a profil, kde si sám určíš, co o tobě ostatní uvidí.",
-    "en": "Friends, messages and a profile where you decide yourself what others see about you.",
-    "de": "Freunde, Nachrichten und ein Profil, bei dem du selbst bestimmst, was andere über dich sehen.",
-    "uk": "Друзі, повідомлення й профіль, де ти сам вирішуєш, що про тебе бачать інші.",
-    "vi": "Bạn bè, tin nhắn và hồ sơ nơi chính bạn quyết định người khác thấy gì về mình."
   }
 ]
