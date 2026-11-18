@@ -38,8 +38,13 @@ public class LyricListItem {
         return uuid != null && !uuid.isBlank() ? "/" + lang + "/song/" + uuid : "/lyrics/" + lyricId;
     }
 
-    /** The picture of the row: the newest clip's thumbnail, else the preview photo, else null. */
+    /** Hlavní obrázek písně vybraný v adminu (záložka Obrázky), null = automaticky. */
+    public String mainImage;
+
+    /** Obrázek řádku: hlavní obrázek z adminu, jinak náhled nejnovějšího klipu, jinak náhledová fotka, jinak null. */
     public String artUrl() {
+        String main = WebUtils.safeUrl(mainImage, null);
+        if (main != null) return main;
         if (youtubeId != null && !youtubeId.isEmpty()) return "/yt-thumb/" + youtubeId + "/hqdefault.jpg";
         return WebUtils.safeUrl(previewImageUrl, null);
     }

@@ -446,6 +446,9 @@ public class AdminPanelIT extends UiTestSupport {
             assertEquals(src, queryString("SELECT disco_image FROM songs WHERE id=?", songId));
             driver.get(BASE_URL + "/music.jsp");
             assertTrue(driver.findElements(By.cssSelector(".discography img.disco-picked[src='" + src + "']")).size() > 0, "Diskografie bere vybraný snímek");
+            // přehled Obrázky písní ukazuje u písně stejný hlavní obrázek se štítkem „vybraný“
+            driver.get(BASE_URL + "/admin/disco");
+            assertTrue(driver.findElements(By.cssSelector(".imgs-song .c-disco img[src='" + src + "']")).size() > 0, "přehled Obrázky písní ukazuje hlavní obrázek");
             // zpátky na automatický
             driver.get(BASE_URL + "/admin/song?id=" + songId + "#disco-art");
             jsClick(driver.findElement(By.cssSelector("#disco-art input[name=src][value='']")));

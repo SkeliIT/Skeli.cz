@@ -53,11 +53,11 @@
       <p><%= WebUtils.escapeHtml(t.getProperty("music.collabs.lead")) %></p>
     </div>
     <% } %>
-    <button type="button" class="kp-row<%= n == 1 ? " sel" : "" %>" data-i="<%= n - 1 %>" data-uuid="<%= s.uuid %>" data-thumb="<%= s.getThumb() %>">
+    <button type="button" class="kp-row<%= n == 1 ? " sel" : "" %>" data-i="<%= n - 1 %>" data-uuid="<%= s.uuid %>" data-thumb="<%= WebUtils.escapeHtml(s.getThumb()) %>">
       <span class="n" aria-hidden="true"><%= shownN < 10 ? "0" + shownN : String.valueOf(shownN) %></span>
       <span class="t"><b><%= WebUtils.escapeHtml(s.title) %></b><span><%= s.year == null ? "" : s.year %><%= s.credits == null || s.credits.isBlank() ? "" : " · " + WebUtils.escapeHtml(s.credits) %></span></span>
       <span class="d"><span class="eqr" aria-hidden="true"><i></i><i></i><i></i></span><%= s.duration > 0 ? (s.duration / 60) + ":" + (s.duration % 60 < 10 ? "0" : "") + (s.duration % 60) : "" %><% if (!kCanSing) { %> <i class="fa-solid fa-lock" aria-hidden="true"></i><% } %></span>
-      <span class="th"><img src="<%= s.getThumb() %>" alt="" loading="lazy"></span>
+      <span class="th"><img<%= s.isPlaced() ? " class=\"placed\" style=\"" + WebUtils.escapeHtml(s.posterStyle) + "\"" : "" %> src="<%= WebUtils.escapeHtml(s.getThumb()) %>" alt="" loading="lazy"></span>
     </button>
     <% } } %>
   </section>

@@ -68,16 +68,17 @@ public class AdminSongDetailServlet extends HttpServlet {
             req.setAttribute("helpFromText", helpWanted != null && !"-1".equals(helpWanted[1])
                     ? Integer.parseInt(helpWanted[1]) / 60 + ":" + String.format("%02d", Integer.parseInt(helpWanted[1]) % 60) : "");
             req.setAttribute("helpSent", help.sent(song.id));
-            // the picture in the song's Texty row: its newest clip, else its preview photo
-            String rowArt = !videos.isEmpty() && videos.get(0).youtubeId != null
-                    ? "/yt-thumb/" + videos.get(0).youtubeId + "/hqdefault.jpg"
-                    : WebUtils.safeUrl(song.previewImageUrl, null);
-            req.setAttribute("rowArt", rowArt);
-            // Obrázek v Diskografii: automatický (ostrý obrázek z klipu, jinak náhled z YouTube), snímky z YouTube, nahraný
+            // Hlavní obrázek písně (dřív „obrázek v Diskografii“): použije se na Hudbě, v Textech i v ikonce Karaoke.
+            // Automaticky = ostrý obrázek z klipu, jinak titulní z YouTube; nebo snímek z YouTube, nebo nahraný.
             String newestYt = !videos.isEmpty() ? videos.get(0).youtubeId : null;
             String discoAuto = newestYt == null ? WebUtils.safeUrl(song.previewImageUrl, null)
                     : getServletContext().getResource("/img/disco/" + newestYt + ".webp") != null ? "/img/disco/" + newestYt + ".webp" : "/yt-thumb/" + newestYt + "/maxresdefault.jpg";
             String discoImage = songs.getDiscoImage(song.id);
+            // obrázek v řádku Texty: hlavní obrázek, jinak nejnovější klip, jinak náhledová fotka (jako LyricListItem.artUrl)
+            String rowArt = WebUtils.safeUrl(discoImage, null) != null ? discoImage
+                    : newestYt != null ? "/yt-thumb/" + newestYt + "/hqdefault.jpg"
+                    : WebUtils.safeUrl(song.previewImageUrl, null);
+            req.setAttribute("rowArt", rowArt);
             req.setAttribute("discoAuto", discoAuto);
             req.setAttribute("discoImage", discoImage);
             req.setAttribute("discoShown", discoImage != null ? discoImage : discoAuto);
