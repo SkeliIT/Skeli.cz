@@ -46,7 +46,8 @@
     if (pan && ac.createStereoPanner) { var p = ac.createStereoPanner(); p.pan.value = pan; node.connect(p); n = p; }
     n.connect(out); if (wet) { var w = ac.createGain(); w.gain.value = wet; n.connect(w); w.connect(rev); }
   }
-  function noiseBuf(len) { var b = ac.createBuffer(1, Math.floor(ac.sampleRate * len), ac.sampleRate), d = b.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; return b; }
+  var NOISE = {};   // šum pro tunel se spočítá jednou (dopředu po 1. ťuknutí), ne až při odhalení
+  function noiseBuf(len) { if (NOISE[len]) return NOISE[len]; var b = ac.createBuffer(1, Math.floor(ac.sampleRate * len), ac.sampleRate), d = b.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; return (NOISE[len] = b); }
   // úder srdce: dva tlumené hluboké údery (lub-dub)
   function heart(v) {
     if (!ok()) return;
@@ -79,11 +80,31 @@
     for (var j = 0; j < n; j++) { var nx = (idx + 1) % p; d[j] = buf[idx]; buf[idx] = damp * 0.5 * (buf[idx] + buf[nx]); idx = nx; }
     return (KS[key] = b);
   }
+  function revBuf(b) {   // struna pozpátku (spočítá se jednou a pamatuje si ji)
+    if (b.rev) return b.rev;
+    var r = ac.createBuffer(1, b.length, b.sampleRate), x = b.getChannelData(0), y = r.getChannelData(0);
+    for (var i = 0; i < x.length; i++) y[i] = x[x.length - 1 - i];
+    return (b.rev = r);
+  }
+  // Všechny struny harfy se spočítají dopředu po malých kouscích hned po 1. ťuknutí,
+  // aby se výpočet nesešel s hraním (na telefonu to jinak „kousne“ a začátek zvuku se ztratí).
+  function prewarm() {
+    if (!ac) return;
+    var list = HARP.map(function (f) { return [f, 3.5, 0.997, 0.55]; })
+      .concat([[82.41, 5, 0.9995, 0.25]])
+      .concat([207.65, 246.94, 329.63].map(function (f) { return [f, 1.5, 0.996, 0.4, 1]; }))
+      .concat([110, 164.81, 220, 246.94, 261.63, 329.63, 440].map(function (f) { return [f, 4, 0.996, 0.4]; }));
+    (function next(i) {
+      if (i >= list.length) return;
+      var p = list[i], b = ksBuf(p[0], p[1], p[2], p[3]); if (p[4]) revBuf(b);
+      setTimeout(function () { next(i + 1); }, 40);
+    })(0);
+  }
   function pluck(f, delay, vol, o) {
     if (!ok()) return;
     o = o || {}; var t = at(delay), s = ac.createBufferSource(), lp = ac.createBiquadFilter(), g = ac.createGain();
     var b = ksBuf(f, o.len || 3, o.damp || 0.996, o.bright || 0.5);
-    if (o.rev) { var r = ac.createBuffer(1, b.length, b.sampleRate), x = b.getChannelData(0), y = r.getChannelData(0); for (var i = 0; i < x.length; i++) y[i] = x[x.length - 1 - i]; b = r; }
+    if (o.rev) b = revBuf(b);
     s.buffer = b; lp.type = 'lowpass'; lp.frequency.value = o.cut || 3000; g.gain.value = vol;
     s.connect(lp); lp.connect(g); send(g, o.wet == null ? 0.5 : o.wet, o.pan);
     if (o.echo) { var dl = ac.createDelay(1), fb = ac.createGain(), eg = ac.createGain(); dl.delayTime.value = o.echo; fb.gain.value = 0.38; eg.gain.value = 0.6; g.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(eg); send(eg, 0.4); }
@@ -115,11 +136,12 @@
     audio();                                      // zvuk se smí zapnout jen po ťuknutí (iPhone)
     // každé odhalení náhodně jedna verze; ?egg=harfa / ?egg=tunel v adrese ji vynutí (vyzkoušení)
     var forced = (location.search.match(/[?&]egg=(harfa|tunel)/) || [])[1];
-    if (taps === 0) mode = forced || (Math.random() < 0.5 ? 'tunel' : 'harfa');
+    if (taps === 0) { mode = forced || (Math.random() < 0.5 ? 'tunel' : 'harfa'); if (!muted() && ac) { if (mode === 'harfa') prewarm(); else setTimeout(function () { noiseBuf(5.45 + 3); }, 50); } }
     taps++; nextFace(); setRing(taps);
     if (mode === 'tunel') { heart(0.55 + taps * 0.06); ekg(); } else harpNote(taps - 1, L.harfa * 0.8);
     clearTimeout(resetT);
-    if (taps >= 7) { setTimeout(reveal, 600); return; }
+    // po 7. ťuknutí se smajlík hned zamkne: další rychlá ťuknutí už nespustí odhalení podruhé
+    if (taps >= 7) { running = true; setTimeout(reveal, 600); return; }
     resetT = setTimeout(function () { taps = 0; setRing(0); }, 20000);   // kdo přestane, začne příště znovu
   });
 
