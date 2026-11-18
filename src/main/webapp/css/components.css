@@ -505,7 +505,7 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav .dk-pop a:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
   .main-nav .dk-pop a.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
   .main-nav .dk-pop a.active::before { content: none; }
-  .main-nav .dk-pop a.active::after { content: "00c"; margin-left: auto; font: 900 .8rem 'Font Awesome 6 Free'; }
+  .main-nav .dk-pop a.active::after { content: "\f00c"; margin-left: auto; font: 900 .8rem 'Font Awesome 6 Free'; }
   .main-nav .dk-pop a:lang(vi) { font-family: 'Exo 2', system-ui, sans-serif; }
   .main-nav .dk-pop .flag { width: 22px; height: 15px; border-radius: 3px; }
   /* odhlášení v kartě účtu: poslední, tlumeně, pod čarou */
