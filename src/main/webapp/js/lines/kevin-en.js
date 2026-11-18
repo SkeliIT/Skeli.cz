@@ -214,7 +214,6 @@
     ]
   },
   "profileNews": ["We rebuilt the profile. Photo, header, friends, messages, your tracks. You set it all up your way. I'd go with a photo of a cat.","Now seriously: what others see about you is your call alone. Public or private profile, and every item has its own switch. Click and I’ll show you where."],
-  "pongName": "CatSmash news: in the leaderboards you're an anonymous player now, until you change it yourself. Want your name there? Tap here and switch it on. Or stay a secret agent, I don't mind.",
   "privacyTip": "Don't want people looking in here? Make your profile private in Settings. They can still send you a friend request, but nobody gets inside.",
   "profileHello": ["Your profile. Empty as my bowl so far. Start with that list.","So this is where you live? Furnish it a bit, the list will help."],
   "profile": [
