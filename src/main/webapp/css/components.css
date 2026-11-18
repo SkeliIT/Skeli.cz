@@ -517,7 +517,13 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     -webkit-mask: url('/img/logo-skelosquad.svg') center / contain no-repeat; mask: url('/img/logo-skelosquad.svg') center / contain no-repeat;
     transition: opacity 2.4s ease-out, filter 2.8s ease-out, transform 2.8s ease-out; }
   .sq-sign.on { opacity: 1; filter: blur(0) drop-shadow(0 0 6px var(--accent)); transform: none; }
-  .sq-lamps { display: flex; gap: 7px; }
+  .sq-lamps { position: relative; display: flex; gap: 7px; }
+  /* struna nad smajlíkem: při brnknutí harfy se objeví, rozechvěje a zmizí (js/squad-egg.js twang) – nepřekážejí si */
+  .sq-str { position: absolute; bottom: calc(100% + 2px); left: calc(var(--i) * 29px + 10.5px); width: 1px; height: 30px; opacity: 0; pointer-events: none;
+    background: linear-gradient(transparent, var(--accent) 30%, var(--accent) 70%, transparent); transform-origin: 50% 50%; }
+  .sq-str.go { animation: sq-twang 1.3s ease-out; }
+  @keyframes sq-twang { 0% { opacity: 0; } 6% { opacity: .95; transform: translateX(2px); filter: drop-shadow(0 0 3px var(--accent)); } 12% { transform: translateX(-2px); } 18% { transform: translateX(1.5px); }
+    24% { transform: translateX(-1.2px); } 32% { transform: translateX(.8px); } 42% { transform: translateX(-.4px); opacity: .7; } 100% { transform: none; opacity: 0; } }
   .sq-lamp { width: 22px; height: 22px; background: var(--accent); opacity: 0; filter: blur(6px); transform: scale(.8);
     -webkit-mask: var(--f) center / contain no-repeat; mask: var(--f) center / contain no-repeat; transition: opacity .5s ease-out, filter .6s ease-out, transform .6s ease-out; }
   .sq-lamp.on { opacity: 1; filter: blur(0) drop-shadow(0 0 5px var(--accent)); transform: none; }
