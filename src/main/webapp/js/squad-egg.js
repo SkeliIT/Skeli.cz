@@ -6,35 +6,7 @@
 // Hlasitosti harfy nastavil Skeli v náhledu (Skeli.cz-podklady/navrhy/menu-spodek, vyber.json menu.hlasitost).
 // Zvuk (Web Audio, šepot = sounds/skelosquad-sepot.mp3) jen když návštěvník nemá zvuky webu vypnuté (js/sounds.js).
 (function () {
-  var foot = document.querySelector('.main-nav .nav-foot');
-  if (!foot || foot.dataset.ready) return;
-  foot.dataset.ready = '1';
-  var seal = foot.querySelector('.sq-seal'), arena = foot.querySelector('.sq-arena'), sig = foot.querySelector('.sq-sig');
-  var lampBox = arena.querySelector('.sq-lamps'), lamps = [].slice.call(lampBox.querySelectorAll('.sq-lamp'));
-  var sign = arena.querySelector('.sq-sign'), unlock = arena.querySelector('.sq-unlock');
-  var taps = 0, face = 0, running = false, resetT = 0, mode = null;
-  // vítr z tunelu: kdy začal foukat a kterým směrem (-1 doleva, 1 doprava) – odnáší jiskry i bublinky dole v menu
-  var gust = { t0: -1e9, dir: 1 };
-  // tlakové vlny od tepu srdce (tunel, při ťukání): neviditelné, jen jemně odstrčí jiskry a bublinky od kroužku
-  var waves = [];
-  function pulse(v) { var n = performance.now(); waves.push({ t0: n, s: v, pr: 0 }, { t0: n + 170, s: v * 0.6, pr: 0 }); }   // lub-dub jako zvuk
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // struny nad smajlíky (rozechvějí se při brnknutí harfy a zase zmizí)
-  var strs = lamps.map(function (l, i) { var s = document.createElement('i'); s.className = 'sq-str'; s.style.setProperty('--i', i); lampBox.appendChild(s); return s; });
-  // struna se objeví ~150 ms před brnknutím (animace: nejdřív se rozsvítí, pak se s tónem rozechvěje)
-  // now = při ťukání (struna se rozechvěje hned s tónem); smajlík na struně se chvěje s ní
-  function twang(i, now) {
-    if (still) return; var s = strs[i], l = lamps[i];
-    s.classList.remove('go', 'now'); l.classList.remove('buzz'); void s.offsetWidth;
-    s.classList.add('go'); if (now) s.classList.add('now'); else l.classList.add('buzz');
-  }
-  // EKG: při ťukání u verze se srdcem se v prostoru, kde se pak objeví obličeje, vykreslí kousek křivky tepu a zmizí
-  var ekgBox = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  ekgBox.setAttribute('class', 'sq-ekg'); ekgBox.setAttribute('viewBox', '0 0 220 44'); ekgBox.setAttribute('aria-hidden', 'true');
-  ekgBox.innerHTML = '<path pathLength="100" d="M0 26 H66 q6 -7 12 0 H90 l4 6 l6 -28 l6 36 l5 -14 H128 q10 -11 20 0 H220"/>';
-  foot.appendChild(ekgBox);
-  function ekg() { if (still) return; ekgBox.classList.remove('go'); void ekgBox.getBoundingClientRect(); ekgBox.classList.add('go'); }
-
   // ---------- zvuk ----------
   var ac = null, out = null, rev = null, whisperBuf = null;
   function muted() { try { return localStorage.getItem('soundMuted') === '1'; } catch (e) { return false; } }
@@ -133,6 +105,36 @@
   function harpNote(i, vol) { pluck(HARP[i], 0, vol, { bright: 0.55, damp: 0.997, len: 3.5, wet: 0.55, pan: PAN[i] }); }
   function steel(f, delay, vol) { pluck(f, delay, vol, { bright: 0.4, damp: 0.996, len: 4, echo: 0.36, wet: 0.4, cut: 2600 }); }
 
+  // ---------- jedno místo s easter eggem (.sq-home): spodek menu na telefonu, nebo patička na PC ----------
+  function setup(foot) {
+  if (foot.dataset.ready) return;
+  foot.dataset.ready = '1';
+  var menu = !!foot.closest('.main-nav');   // v menu se kreslí při otevřeném menu, v patičce když je vidět
+  var seal = foot.querySelector('.sq-seal'), arena = foot.querySelector('.sq-arena'), sig = foot.querySelector('.sq-sig');
+  var lampBox = arena.querySelector('.sq-lamps'), lamps = [].slice.call(lampBox.querySelectorAll('.sq-lamp'));
+  var sign = arena.querySelector('.sq-sign'), unlock = arena.querySelector('.sq-unlock');
+  var taps = 0, face = 0, running = false, resetT = 0, mode = null;
+  // vítr z tunelu: kdy začal foukat a kterým směrem (-1 doleva, 1 doprava) – odnáší jiskry i bublinky dole v menu
+  var gust = { t0: -1e9, dir: 1 };
+  // tlakové vlny od tepu srdce (tunel, při ťukání): neviditelné, jen jemně odstrčí jiskry a bublinky od kroužku
+  var waves = [];
+  function pulse(v) { var n = performance.now(); waves.push({ t0: n, s: v, pr: 0 }, { t0: n + 170, s: v * 0.6, pr: 0 }); }   // lub-dub jako zvuk
+  // struny nad smajlíky (rozechvějí se při brnknutí harfy a zase zmizí)
+  var strs = lamps.map(function (l, i) { var s = document.createElement('i'); s.className = 'sq-str'; s.style.setProperty('--i', i); lampBox.appendChild(s); return s; });
+  // struna se objeví ~150 ms před brnknutím (animace: nejdřív se rozsvítí, pak se s tónem rozechvěje)
+  // now = při ťukání (struna se rozechvěje hned s tónem); smajlík na struně se chvěje s ní
+  function twang(i, now) {
+    if (still) return; var s = strs[i], l = lamps[i];
+    s.classList.remove('go', 'now'); l.classList.remove('buzz'); void s.offsetWidth;
+    s.classList.add('go'); if (now) s.classList.add('now'); else l.classList.add('buzz');
+  }
+  // EKG: při ťukání u verze se srdcem se v prostoru, kde se pak objeví obličeje, vykreslí kousek křivky tepu a zmizí
+  var ekgBox = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  ekgBox.setAttribute('class', 'sq-ekg'); ekgBox.setAttribute('viewBox', '0 0 220 44'); ekgBox.setAttribute('aria-hidden', 'true');
+  ekgBox.innerHTML = '<path pathLength="100" d="M0 26 H66 q6 -7 12 0 H90 l4 6 l6 -28 l6 36 l5 -14 H128 q10 -11 20 0 H220"/>';
+  foot.appendChild(ekgBox);
+  function ekg() { if (still) return; ekgBox.classList.remove('go'); void ekgBox.getBoundingClientRect(); ekgBox.classList.add('go'); }
+
   // ---------- smajlík a kroužek ----------
   function setRing(n) { seal.style.setProperty('--p7', n); seal.dataset.p = n; }
   function nextFace() {
@@ -204,7 +206,12 @@
     var ctx = cv.getContext('2d'), W = 0, H = 0, P = [], B = [], D = [], raf = 0, wind = { x: -999, y: 0, vx: 0, vy: 0, t: 0 }, last = null, bubbleT = 0;
     var POP = ['/sounds/bublina-1.wav', '/sounds/bublina-2.wav', '/sounds/bublina-3.wav', '/sounds/bublina-4.wav'];
     function size() { var r = foot.getBoundingClientRect(); W = cv.width = Math.round(r.width); H = cv.height = Math.round(r.height); }
-    function ember(any) { return { x: Math.random() * W, y: any ? H * (0.55 + Math.random() * 0.45) : H + 4, vx: 0, vy: -(0.22 + Math.random() * 0.38), r: 0.8 + Math.random() * 1.5, a: 0.55 + Math.random() * 0.45 }; }
+    // Patička na PC je široká: jiskry a bublinky vznikají jen v „ohništi“ ~700 px kolem smajlíka (uprostřed hustěji)
+    // a ke krajům ohniště vyhasínají. Co vítr odfoukne (free), letí přes celou patičku. V menu je ohniště celá šířka.
+    function zone() { return menu ? W : Math.min(W, 700); }
+    function zx() { return menu ? Math.random() * W : W / 2 + (Math.random() + Math.random() - 1) * zone() / 2; }
+    function zf(q) { return menu || q.free ? 1 : Math.max(0, 1 - Math.pow(Math.abs(q.x - W / 2) / (zone() / 2), 4)); }
+    function ember(any) { return { x: zx(), y: any ? H * (0.55 + Math.random() * 0.45) : H + 4, vx: 0, vy: -(0.22 + Math.random() * 0.38), r: 0.8 + Math.random() * 1.5, a: 0.55 + Math.random() * 0.45 }; }
     function accent() { return getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#ff3b30'; }
     function green(col) {   // zelená barva webu (odstín 80–150°) a tmavý režim
       if (document.body.classList.contains('light')) return false;
@@ -225,7 +232,9 @@
       if (s < 8.45) e *= 1 + 0.18 * Math.min(1, (8.45 - s) / 1.5) * (Math.sin(s * 2.3) * Math.sin(s * 0.9 + 1) - 1);   // poryvy, ke konci plynule zmizí
       return e;
     }
-    function on() { return document.documentElement.classList.contains('menu-open') && !document.documentElement.classList.contains('low-fx') && !still && !document.hidden; }
+    var seen = false;   // patička: je zrovna na obrazovce?
+    if (!menu && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { seen = es[0].isIntersecting; start(); }).observe(foot);
+    function on() { return (menu ? document.documentElement.classList.contains('menu-open') : seen) && !document.documentElement.classList.contains('low-fx') && !still && !document.hidden; }
     function pos(e) { var r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
     foot.addEventListener('pointermove', function (e) { var p = pos(e); if (last) { wind.vx = p.x - last.x; wind.vy = p.y - last.y; } wind.x = p.x; wind.y = p.y; wind.t = 1; last = p; });
     foot.addEventListener('pointerleave', function () { last = null; });
@@ -257,7 +266,8 @@
           wv.pr = rr; if (rr >= 120) waves.splice(w, 1);
         }
       }
-      while (P.length < 14) P.push(ember(true));
+      var nP = menu ? 14 : Math.round(14 * zone() / 390);   // stejně hustě jako v menu
+      while (P.length < nP) P.push(ember(true));
       for (var i = P.length - 1; i >= 0; i--) {
         var p = P[i], dx = p.x - wind.x, dy = p.y - wind.y, d = Math.hypot(dx, dy);
         if (wind.t > 0.05 && d < 60) { var f = (1 - d / 60) * wind.t; p.vx += (wind.vx * 0.025 + dx / (d + 1) * 0.3) * f; p.vy += (wind.vy * 0.025 + dy / (d + 1) * 0.3) * f; }
@@ -266,15 +276,15 @@
         if (ge > 0.01) { p.vx += (gw * 2 * (0.6 + p.r * 0.3) - p.vx) * 0.04; p.vy = p.vy * (0.97 - 0.03 * ge) - 0.012 * (1 - 0.85 * ge) + (Math.random() - 0.5) * 0.05 * ge; }
         else { p.vx *= 0.95; p.vy = p.vy * 0.97 - 0.012; }
         p.x += p.vx; p.y += p.vy;
-        var top = Math.max(0, Math.min(1, (p.y - H * 0.08) / (H * 0.45))), al = p.a * top * top;   // vyhasne dřív, než dojde k okraji
+        var top = Math.max(0, Math.min(1, (p.y - H * 0.08) / (H * 0.45))), al = p.a * top * top * zf(p); if (ge > 0.2) p.free = true;   // chycená větrem už letí kamkoli   // vyhasne dřív, než dojde k okraji
         if (al < 0.02 || p.x < -8 || p.x > W + 8) {   // ve větru přiletí nová jiskra z návětrné strany, jinak zespodu
-          P[i] = ember(false); if (ge > 0.2) { P[i].x = gust.dir > 0 ? -6 : W + 6; P[i].y = H * (0.45 + Math.random() * 0.5); P[i].vx = gw * 1.5; P[i].vy = 0; }
+          P[i] = ember(false); if (ge > 0.2) { P[i].x = gust.dir > 0 ? -6 : W + 6; P[i].y = H * (0.45 + Math.random() * 0.5); P[i].vx = gw * 1.5; P[i].vy = 0; P[i].free = true; }
           continue;
         }
         ctx.globalAlpha = al; ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 6; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill();
       }
       ctx.shadowBlur = 0;
-      if (gr && B.length < 4 && (bubbleT -= 1) <= 0) { B.push({ x: 30 + Math.random() * (W - 60), y: H + 12, r: 4 + Math.random() * 5, vy: -(0.18 + Math.random() * 0.2), ph: Math.random() * 6, vx: 0 }); bubbleT = 90 + Math.random() * 120; }
+      if (gr && B.length < (menu ? 4 : 5) && (bubbleT -= 1) <= 0) { B.push({ x: Math.max(30, Math.min(W - 30, zx())), y: H + 12, r: 4 + Math.random() * 5, vy: -(0.18 + Math.random() * 0.2), ph: Math.random() * 6, vx: 0 }); bubbleT = 90 + Math.random() * 120; }
       for (var j = B.length - 1; j >= 0; j--) {
         var b = B[j]; b.ph += 0.03;
         var dx2 = b.x - wind.x, dy2 = b.y - wind.y, d2 = Math.hypot(dx2, dy2);
@@ -283,7 +293,8 @@
         b.py = (b.py || 0) * 0.93;   // postrčení tlakovou vlnou nahoru/dolů postupně vyprchá
         b.x += b.vx + Math.sin(b.ph) * 0.25; b.y += b.vy * (1 - 0.8 * ge) + b.py;   // bublinka ve větru skoro nestoupá
         if (b.x < -b.r - 4 || b.x > W + b.r + 4) { B.splice(j, 1); continue; }   // vítr ji odnesl z menu
-        var bt = Math.max(0, Math.min(1, (b.y - H * 0.08) / (H * 0.4)));
+        if (ge > 0.2) b.free = true;
+        var bt = Math.max(0, Math.min(1, (b.y - H * 0.08) / (H * 0.4))) * zf(b);
         if ((!gr && Math.random() < 0.01) || bt <= 0.02) { pop(b, false); B.splice(j, 1); continue; }
         ctx.globalAlpha = 0.12 * bt; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 7); ctx.fill();
         ctx.globalAlpha = 0.85 * bt; ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.stroke();
@@ -300,4 +311,6 @@
     document.addEventListener('visibilitychange', start);
     start();
   })();
+  }
+  [].forEach.call(document.querySelectorAll('.sq-home'), setup);
 })();

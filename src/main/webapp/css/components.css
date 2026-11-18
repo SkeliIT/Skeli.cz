@@ -490,73 +490,9 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav .nav-foot { position: relative; display: grid; justify-items: center; gap: 8px; flex: none; margin: auto -14px calc(-18px - env(safe-area-inset-bottom)) ;
     /* dole velká rezerva: u spodního okraje iPhonu je pruh pro gesto domů – ťukání těsně u něj aplikaci minimalizovalo.
        Menu se o tu rezervu prodlouží (dá se dojet), smajlík se tím nepřiblíží k nastavení. */
-    padding: 112px 14px calc(84px + env(safe-area-inset-bottom)); overflow: hidden; }
-  .main-nav .sq-seal { touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }   /* rychlé ťukání = žádné přiblížení ani nabídka */
+    padding: 112px 14px calc(84px + env(safe-area-inset-bottom)); overflow: hidden; overflow: clip; }   /* clip: nejde ani odscrollovat (focus, scrollIntoView) */
   .main-nav .nav-foot::before { content: ""; position: absolute; left: -20%; right: -20%; bottom: -50px; height: 130px; pointer-events: none; filter: blur(8px);
     background: radial-gradient(60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%); }
-  /* jiskry ze žáru a bublinky u zelené (js/squad-egg.js), jen při otevřeném menu */
-  .sq-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-  .sq-line { position: relative; z-index: 2; display: flex; align-items: center; gap: 12px; width: 100%; }
-  .sq-line::before, .sq-line::after { content: ""; flex: 1; height: 1px; }
-  .sq-line::before { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 55%, transparent)); }
-  .sq-line::after { background: linear-gradient(270deg, transparent, color-mix(in srgb, var(--accent) 55%, transparent)); }
-  .main-nav .sq-seal { position: relative; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%; cursor: pointer;
-    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--bg) 70%, transparent); box-shadow: 0 0 14px -4px var(--accent); }
-  .main-nav .sq-seal span { width: 22px; height: 22px; background: var(--accent);
-    -webkit-mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat; mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat; }
-  .main-nav .sq-seal.swap span { animation: face-pop .6s ease-out; }
-  .main-nav .sq-seal.hop span { animation: sq-hop .45s cubic-bezier(.3, 1.6, .5, 1); }
-  @keyframes sq-hop { 30% { transform: translateY(-6px) scale(1.12, .9); } 60% { transform: translateY(0) scale(.92, 1.08); } }
-  /* kroužek nápovědy: 7 dílků, každé ťuknutí rozsvítí jeden (dokud se neťukne, není vidět) */
-  .main-nav .sq-seal::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .6s;
-    background: conic-gradient(var(--accent) calc(var(--p7, 0) / 7 * 1turn), color-mix(in srgb, var(--text) 20%, transparent) 0);
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)), repeating-conic-gradient(#000 0 47deg, transparent 47deg 51.43deg);
-    -webkit-mask-composite: source-in; mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)) intersect, repeating-conic-gradient(#000 0 47deg, transparent 47deg 51.43deg); }
-  .main-nav .sq-seal[data-p]:not([data-p="0"])::before { opacity: 1; }
-  .sq-sig { position: relative; z-index: 2; font-size: .62rem; letter-spacing: .32em; color: var(--text-dim); text-align: center; }
-  .sq-sig.kevin { letter-spacing: .02em; font: 300 var(--fs-small) var(--font-text); color: var(--text); max-width: 30ch; }
-  /* easter egg: ve tmě se rozsvítí obličeje, pak nápis SKELO SQUAD a SQUAD UNLOCKED (zhasnuté nejsou vidět vůbec) */
-  .sq-arena { position: absolute; z-index: 3; left: 0; right: 0; top: 10px; display: grid; justify-items: center; gap: 7px; pointer-events: none; opacity: 0; transition: opacity .5s; }
-  .sq-arena.show { opacity: 1; }
-  .sq-sign { width: 196px; aspect-ratio: 6556 / 1144; background: var(--accent); opacity: 0; filter: blur(8px); transform: scale(1.04);
-    -webkit-mask: url('/img/logo-skelosquad.svg') center / contain no-repeat; mask: url('/img/logo-skelosquad.svg') center / contain no-repeat;
-    transition: opacity 2.4s ease-out, filter 2.8s ease-out, transform 2.8s ease-out; }
-  .sq-sign.on { opacity: 1; filter: blur(0) drop-shadow(0 0 6px var(--accent)); transform: none; }
-  .sq-lamps { position: relative; display: flex; gap: 7px; }
-  /* struna nad smajlíkem: při brnknutí harfy se objeví, rozechvěje a zmizí (js/squad-egg.js twang) – nepřekážejí si */
-  /* struna u smajlíka: větší část pod ním, nad něj vyčuhuje jen kousek; oba konce do ztracena, spodní dlouhý,
-     ale průhledný dávno před čárou se smajlíkem. Objeví se ~150 ms před brnknutím, s tónem se rozechvěje a zmizí. */
-  /* Při odhalení struna přes smajlíka nevede: maska ji přeruší přesně na jeho horní špičce a spodku (obrázek má nahoře
-     a dole ~2,5 px průhledný okraj → mezera 18,5–35,5 px), takže se ho struna dotýká a smajlík na ní „visí“. */
-  .sq-str { position: absolute; top: -16px; left: calc(var(--i) * 29px + 10.5px); width: 1px; height: 88px; opacity: 0; pointer-events: none;
-    background: linear-gradient(transparent 0, var(--accent) 9px, var(--accent) 48px, transparent 74px);
-    -webkit-mask: linear-gradient(#000 18.5px, transparent 18.5px 35.5px, #000 35.5px); mask: linear-gradient(#000 18.5px, transparent 18.5px 35.5px, #000 35.5px); }
-  .sq-str.go { animation: sq-twang 1.45s ease-out; }
-  /* při ťukání (harfa) se struna objeví hned s tónem – bez 150ms náběhu – a je celá */
-  .sq-str.now { animation-delay: -.15s; -webkit-mask: none; mask: none; }   /* při ťukání smajlíci ještě nejsou → struna celá */
-  /* smajlík se chvěje spolu se strunou (stejné časy jako sq-twang) */
-  .sq-lamp.buzz { animation: sq-buzz 1.45s ease-out; }
-  @keyframes sq-buzz { 0%, 10% { translate: 0; } 14% { translate: 2px; } 19% { translate: -2px; } 24% { translate: 1.5px; } 30% { translate: -1.1px; }
-    38% { translate: .7px; } 48% { translate: -.3px; } 100% { translate: 0; } }
-  /* při ťukání u harfy je aréna vidět kvůli strunám (obličeje i nápis jsou zatím zhasnuté) */
-  .sq-arena.tease { opacity: 1; transition: none; }
-  @keyframes sq-twang { 0% { opacity: 0; } 10% { opacity: .9; transform: none; } 14% { transform: translateX(2px); filter: drop-shadow(0 0 3px var(--accent)); }
-    19% { transform: translateX(-2px); } 24% { transform: translateX(1.5px); } 30% { transform: translateX(-1.1px); } 38% { transform: translateX(.7px); }
-    48% { transform: translateX(-.3px); opacity: .7; } 100% { transform: none; opacity: 0; } }
-  /* EKG křivka při ťukání (verze se srdcem): v prostoru, kde se pak objeví obličeje, vykreslí se tep a zmizí */
-  .sq-ekg { position: absolute; z-index: 2; left: 50%; top: 40px; width: 220px; height: 44px; translate: -50% 0; pointer-events: none; overflow: visible; }
-  .sq-ekg path { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0;
-    filter: drop-shadow(0 0 3px var(--accent)); }
-  .sq-ekg.go path { animation: sq-ekg 1.2s ease-out; }
-  @keyframes sq-ekg { 0% { stroke-dashoffset: 100; opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
-  .sq-lamp { width: 22px; height: 22px; background: var(--accent); opacity: 0; filter: blur(6px); transform: scale(.8);
-    -webkit-mask: var(--f) center / contain no-repeat; mask: var(--f) center / contain no-repeat; transition: opacity .5s ease-out, filter .6s ease-out, transform .6s ease-out; }
-  .sq-lamp.on { opacity: 1; filter: blur(0) drop-shadow(0 0 5px var(--accent)); transform: none; }
-  .sq-lamp.beat, .sq-sign.beat { animation: sq-beat .5s ease-out; }
-  @keyframes sq-beat { 0% { transform: scale(1.18); } 30% { transform: scale(1.02); } 45% { transform: scale(1.1); } 100% { transform: none; } }
-  .sq-unlock { font-size: .74rem; letter-spacing: .8em; color: var(--accent); opacity: 0; filter: blur(6px); transition: opacity 1.6s ease-out, letter-spacing 2s ease-out, filter 1.6s ease-out; }
-  .sq-unlock.on { opacity: 1; letter-spacing: .26em; filter: none; }
-  @keyframes face-pop { from { opacity: 0; transform: scale(.7) rotate(-12deg); } }
 
   /* odhlášení: poslední, tlumeně */
   .main-nav .nav-logout { display: block; margin: 8px 0 0; }
@@ -582,8 +518,87 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     .main-nav .nav-top, .main-nav .nav-group-btn, .main-nav .nav-row, .main-nav .nav-sub a { min-height: 42px; }
   }
 }
-html.low-fx .main-nav, html.low-fx .main-nav .sq-seal span { animation: none; }
-@media (prefers-reduced-motion: reduce) { .sq-lamp.beat, .sq-lamp.buzz, .sq-sign.beat, .main-nav .sq-seal.hop span { animation: none; } }
+/* ---------- Easter egg SKELO SQUAD (js/squad-egg.js, includes/squad-egg.jspf) ----------
+   Stejný v menu na telefonu (.nav-foot) i v patičce na PC (.foot-squad); obal má třídu .sq-home. */
+.sq-home .sq-seal { touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }   /* rychlé ťukání = žádné přiblížení ani nabídka */
+/* jiskry ze žáru a bublinky u zelené (js/squad-egg.js), jen když je místo vidět */
+.sq-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.sq-line { position: relative; z-index: 2; display: flex; align-items: center; gap: 12px; width: 100%; }
+.sq-line::before, .sq-line::after { content: ""; flex: 1; height: 1px; }
+.sq-line::before { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 55%, transparent)); }
+.sq-line::after { background: linear-gradient(270deg, transparent, color-mix(in srgb, var(--accent) 55%, transparent)); }
+.sq-home .sq-seal { position: relative; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--bg) 70%, transparent); box-shadow: 0 0 14px -4px var(--accent); }
+.sq-home .sq-seal span { width: 22px; height: 22px; background: var(--accent);
+  -webkit-mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat; mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat; }
+.sq-home .sq-seal.swap span { animation: face-pop .6s ease-out; }
+.sq-home .sq-seal.hop span { animation: sq-hop .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes sq-hop { 30% { transform: translateY(-6px) scale(1.12, .9); } 60% { transform: translateY(0) scale(.92, 1.08); } }
+/* kroužek nápovědy: 7 dílků, každé ťuknutí rozsvítí jeden (dokud se neťukne, není vidět) */
+.sq-home .sq-seal::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .6s;
+  background: conic-gradient(var(--accent) calc(var(--p7, 0) / 7 * 1turn), color-mix(in srgb, var(--text) 20%, transparent) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)), repeating-conic-gradient(#000 0 47deg, transparent 47deg 51.43deg);
+  -webkit-mask-composite: source-in; mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)) intersect, repeating-conic-gradient(#000 0 47deg, transparent 47deg 51.43deg); }
+.sq-home .sq-seal[data-p]:not([data-p="0"])::before { opacity: 1; }
+.sq-sig { position: relative; z-index: 2; font-size: .62rem; letter-spacing: .32em; color: var(--text-dim); text-align: center; }
+.sq-sig.kevin { letter-spacing: .02em; font: 300 var(--fs-small) var(--font-text); color: var(--text); max-width: 30ch; }
+/* easter egg: ve tmě se rozsvítí obličeje, pak nápis SKELO SQUAD a SQUAD UNLOCKED (zhasnuté nejsou vidět vůbec) */
+.sq-arena { position: absolute; z-index: 3; left: 0; right: 0; top: 10px; display: grid; justify-items: center; gap: 7px; pointer-events: none; opacity: 0; transition: opacity .5s; }
+.sq-arena.show { opacity: 1; }
+.sq-sign { width: 196px; aspect-ratio: 6556 / 1144; background: var(--accent); opacity: 0; filter: blur(8px); transform: scale(1.04);
+  -webkit-mask: url('/img/logo-skelosquad.svg') center / contain no-repeat; mask: url('/img/logo-skelosquad.svg') center / contain no-repeat;
+  transition: opacity 2.4s ease-out, filter 2.8s ease-out, transform 2.8s ease-out; }
+.sq-sign.on { opacity: 1; filter: blur(0) drop-shadow(0 0 6px var(--accent)); transform: none; }
+.sq-lamps { position: relative; display: flex; gap: 7px; }
+/* struna nad smajlíkem: při brnknutí harfy se objeví, rozechvěje a zmizí (js/squad-egg.js twang) – nepřekážejí si */
+/* struna u smajlíka: větší část pod ním, nad něj vyčuhuje jen kousek; oba konce do ztracena, spodní dlouhý,
+   ale průhledný dávno před čárou se smajlíkem. Objeví se ~150 ms před brnknutím, s tónem se rozechvěje a zmizí. */
+/* Při odhalení struna přes smajlíka nevede: maska ji přeruší přesně na jeho horní špičce a spodku (obrázek má nahoře
+   a dole ~2,5 px průhledný okraj → mezera 18,5–35,5 px), takže se ho struna dotýká a smajlík na ní „visí“. */
+.sq-str { position: absolute; top: -16px; left: calc(var(--i) * 29px + 10.5px); width: 1px; height: 88px; opacity: 0; pointer-events: none;
+  background: linear-gradient(transparent 0, var(--accent) 9px, var(--accent) 48px, transparent 74px);
+  -webkit-mask: linear-gradient(#000 18.5px, transparent 18.5px 35.5px, #000 35.5px); mask: linear-gradient(#000 18.5px, transparent 18.5px 35.5px, #000 35.5px); }
+.sq-str.go { animation: sq-twang 1.45s ease-out; }
+/* při ťukání (harfa) se struna objeví hned s tónem – bez 150ms náběhu – a je celá */
+.sq-str.now { animation-delay: -.15s; -webkit-mask: none; mask: none; }   /* při ťukání smajlíci ještě nejsou → struna celá */
+/* smajlík se chvěje spolu se strunou (stejné časy jako sq-twang) */
+.sq-lamp.buzz { animation: sq-buzz 1.45s ease-out; }
+@keyframes sq-buzz { 0%, 10% { translate: 0; } 14% { translate: 2px; } 19% { translate: -2px; } 24% { translate: 1.5px; } 30% { translate: -1.1px; }
+  38% { translate: .7px; } 48% { translate: -.3px; } 100% { translate: 0; } }
+/* při ťukání u harfy je aréna vidět kvůli strunám (obličeje i nápis jsou zatím zhasnuté) */
+.sq-arena.tease { opacity: 1; transition: none; }
+@keyframes sq-twang { 0% { opacity: 0; } 10% { opacity: .9; transform: none; } 14% { transform: translateX(2px); filter: drop-shadow(0 0 3px var(--accent)); }
+  19% { transform: translateX(-2px); } 24% { transform: translateX(1.5px); } 30% { transform: translateX(-1.1px); } 38% { transform: translateX(.7px); }
+  48% { transform: translateX(-.3px); opacity: .7; } 100% { transform: none; opacity: 0; } }
+/* EKG křivka při ťukání (verze se srdcem): v prostoru, kde se pak objeví obličeje, vykreslí se tep a zmizí */
+.sq-ekg { position: absolute; z-index: 2; left: 50%; top: 40px; width: 220px; height: 44px; translate: -50% 0; pointer-events: none; overflow: visible; }
+.sq-ekg path { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0;
+  filter: drop-shadow(0 0 3px var(--accent)); }
+.sq-ekg.go path { animation: sq-ekg 1.2s ease-out; }
+@keyframes sq-ekg { 0% { stroke-dashoffset: 100; opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+.sq-lamp { width: 22px; height: 22px; background: var(--accent); opacity: 0; filter: blur(6px); transform: scale(.8);
+  -webkit-mask: var(--f) center / contain no-repeat; mask: var(--f) center / contain no-repeat; transition: opacity .5s ease-out, filter .6s ease-out, transform .6s ease-out; }
+.sq-lamp.on { opacity: 1; filter: blur(0) drop-shadow(0 0 5px var(--accent)); transform: none; }
+.sq-lamp.beat, .sq-sign.beat { animation: sq-beat .5s ease-out; }
+@keyframes sq-beat { 0% { transform: scale(1.18); } 30% { transform: scale(1.02); } 45% { transform: scale(1.1); } 100% { transform: none; } }
+.sq-unlock { font-size: .74rem; letter-spacing: .8em; color: var(--accent); opacity: 0; filter: blur(6px); transition: opacity 1.6s ease-out, letter-spacing 2s ease-out, filter 1.6s ease-out; }
+.sq-unlock.on { opacity: 1; letter-spacing: .26em; filter: none; }
+@keyframes face-pop { from { opacity: 0; transform: scale(.7) rotate(-12deg); } }
+/* patička: jen tam, kde není vidět spodek menu (PC, telefon na šířku). Nad čárou volný pruh pro odhalení,
+   jiskry z „ohniště“ kolem smajlíka (vítr je rozfouká přes celou patičku). */
+.foot-squad { display: none; }
+@media (min-width: 1025px), (orientation: landscape) and (max-height: 500px) {
+  .foot-squad { position: relative; display: grid; justify-items: center; gap: 8px; margin-top: 16px; padding: 140px 16px 26px; overflow: hidden; overflow: clip; }
+  .foot-squad .sq-line { max-width: 760px; }
+  /* na velké obrazovce je odhalení o třetinu větší (EKG se posune a zvětší s ním) */
+  .foot-squad .sq-arena { transform: scale(1.3); transform-origin: 50% 0; }
+  .foot-squad .sq-ekg { top: 55px; scale: 1.3; }
+  /* žár pod smajlíkem: elipsa celá uvnitř pruhu, takže nikde nemá ostrou hranu */
+  .foot-squad::before { content: ""; position: absolute; left: 50%; bottom: 0; width: min(760px, 100%); height: 170px; translate: -50% 0; pointer-events: none;
+    background: radial-gradient(50% 40% at 50% 60%, color-mix(in srgb, var(--accent) 24%, transparent), transparent); }
+}
+html.low-fx .main-nav, html.low-fx .sq-home .sq-seal span { animation: none; }
+@media (prefers-reduced-motion: reduce) { .sq-lamp.beat, .sq-lamp.buzz, .sq-sign.beat, .sq-home .sq-seal.hop span { animation: none; } }
 
 /* ---------- Buttons ---------- */
 /* :where() keeps specificity at zero, so any component class overrides these */

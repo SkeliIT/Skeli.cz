@@ -212,7 +212,7 @@
     }
     return (readableCache[key] = out);
   }
-  // Smajlík dole v menu na telefonu (includes/header.jsp .nav-face): jeden ze 7 obličejů loga SKELO SQUAD, ke každé
+  // Smajlík dole v menu na telefonu a v patičce na PC (.nav-face): jeden ze 7 obličejů loga SKELO SQUAD, ke každé
   // fotce (a barvě) jiný; barvu bere z --accent, takže se přelévá s webem. Na stránce písně podle odstínu písně.
   var FACES = ['base', 'skull', 'mic', 'square', 'walker', 'field', 'point', 'rocks'], faceNow = 0;
   function setFace(key) {
@@ -222,8 +222,8 @@
     if (n === faceNow) return;
     faceNow = n;
     document.documentElement.style.setProperty('--nav-face', 'url("/img/faces/face-' + n + '.webp")');
-    var el = document.querySelector('.nav-face');
-    if (el) { el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); }
+    // smajlík je v menu i v patičce (includes/squad-egg.jspf) – oba se vymění stejně
+    [].forEach.call(document.querySelectorAll('.nav-face'), function (el) { el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); });
   }
   // instant = bez přelévání (načtení stránky, nová stránka navazuje na fotku té předchozí)
   function paint(name, instant) {

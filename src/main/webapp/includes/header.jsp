@@ -250,10 +250,8 @@
               </div>
               <%-- spodek menu na telefonu: podpis se smajlíkem loga (barva webu, s fotkou se vymění – js/effects.js setFace).
                    Kdo na smajlíka 7× ťukne, spustí easter egg SQUAD UNLOCKED (js/squad-egg.js): obličeje se rozsvítí na údery srdce. --%>
-              <div class="nav-foot" data-kevin="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("squad.kevin")) %>">
-                <div class="sq-arena" aria-hidden="true"><span class="sq-sign"></span><span class="sq-lamps"><% for (int sq = 1; sq <= 7; sq++) { %><span class="sq-lamp" style="--f:url('<%= ctx %>/img/faces/face-<%= sq %>.webp')"></span><% } %></span><span class="sq-unlock">SQUAD UNLOCKED</span></div>
-                <div class="sq-line"><button type="button" class="nav-face sq-seal" aria-label="SKELO SQUAD"><span></span></button></div>
-                <small class="sq-sig">SKELO SQUAD</small>
+              <div class="nav-foot sq-home" data-kevin="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("squad.kevin")) %>">
+                <%@ include file="squad-egg.jspf" %>
               </div>
             </nav>
 

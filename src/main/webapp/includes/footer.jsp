@@ -32,6 +32,10 @@
       </div>
     </div>
   </div>
+  <%-- easter egg SKELO SQUAD pro PC (a telefon na šířku), kde není vidět spodek menu: stejný jako v menu (includes/squad-egg.jspf) --%>
+  <div class="foot-squad sq-home" data-kevin="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("squad.kevin")) %>">
+    <%@ include file="squad-egg.jspf" %>
+  </div>
   <div class="footer-bottom">
     <span>&copy; <%= java.time.Year.now() %> Skeli</span>
     <%-- filled in by js/presence.js; stays hidden without JavaScript --%>
