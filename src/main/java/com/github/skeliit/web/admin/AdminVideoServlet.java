@@ -35,7 +35,8 @@ public class AdminVideoServlet extends HttpServlet {
         try (Connection conn = Db.get()) {
             // a video that isn't in the DB yet (e.g. from someone else's channel) is added;
             // the title comes from the form or else from YouTube
-            if (youtubeId != null) {
+            // video čekající na premiéru se ručně nepřidá (objeví se samo v čas premiéry)
+            if (youtubeId != null && !com.github.skeliit.dao.PremiereDao.isPendingVideo(conn, youtubeId)) {
                 // added by hand: off the list of hidden clips (V83), if it was there
                 try (PreparedStatement ps = conn.prepareStatement("DELETE FROM video_blocklist WHERE youtube_id = ?")) {
                     ps.setString(1, youtubeId);

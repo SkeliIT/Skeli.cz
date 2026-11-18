@@ -10,4 +10,4 @@ RUN mvn -B -q dependency:go-offline
 COPY src ./src
 
 EXPOSE 8080
-CMD ["mvn", "-B", "-q", "-DskipTests", "-Djetty.http.port=8080", "jetty:run"]
+CMD ["mvn", "-B", "-q", "-DskipTests", "-Djetty.host=0.0.0.0", "-Djetty.http.port=8080", "jetty:run"]

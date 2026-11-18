@@ -395,6 +395,134 @@ body.light .song-year-head::after { display: none; }
   .song-year-head { margin-top: 18px; }
 }
 
+/* ===== Texty a Karaoke: Kolotoč (texty.jsp + js/texty-wheel.js) =====
+   Svislé kolo písní. Píseň na „čáře výběru“ (horní třetina kola) se rozsvítí, ukáže verš a tlačítka,
+   ostatní se naklánějí do 3D a mizí. Náhledy v původních barvách, barvou webu jen rámeček. */
+.mode-switch {
+  position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 4px; margin: 0 auto 14px; border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+body.light .mode-switch { background: rgba(255, 255, 255, 0.6); }
+.mode-switch button {
+  position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 128px; min-height: 42px;
+  padding: 8px 18px; border: 0; border-radius: 999px; background: none; color: var(--text); font-family: var(--font-display); font-size: var(--fs-card);
+  letter-spacing: 0.05em; cursor: pointer; transition: color .3s;
+}
+.mode-switch .mode-pill {
+  position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 999px; background: var(--accent);
+  box-shadow: 0 0 24px -4px var(--accent); transition: transform .45s cubic-bezier(.5, 1.5, .4, 1);
+}
+main.k-mode .mode-switch .mode-pill { transform: translateX(100%); }
+main:not(.k-mode) .mode-switch [data-mode="t"], main.k-mode .mode-switch [data-mode="k"] { color: var(--accent-ink); }
+
+.wheel-wrap { position: relative; max-width: 1080px; margin: 0 auto; }
+.wheel-wrap[hidden] { display: none; }
+/* roky: na telefonu tenká lišta, která se při posouvání přilepí pod hlavičku (skok na první píseň roku) */
+.wheel-years { position: sticky; top: var(--header-h); z-index: 5; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  margin: 0 -16px 10px; padding: 8px 16px; background: color-mix(in srgb, var(--bg) 88%, transparent); }
+.wheel-years::-webkit-scrollbar { display: none; }
+.wheel-years:empty { display: none; }
+.wheel-years button { flex: none; min-height: 36px; padding: 6px 14px; border-radius: 999px; cursor: pointer; font-family: var(--font-display); font-size: var(--fs-small);
+  color: var(--text-dim); background: transparent; border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); }
+.wheel-years button.on { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+/* kolo bez vlastního posuvníku: jede celá stránka a přichytí píseň na čáru výběru (js/texty-wheel.js nastaví --wheel-snap) */
+html:has(main.texty-page .lyric-wheel) { scroll-snap-type: y proximity; }
+/* začátek a konec stránky jsou taky zastávky – jinak by přichycení u horního okraje stáhlo stránku zpátky na první
+   píseň (kolečkem nahoru se pak nedalo dojet k menu) a u patičky zpátky na poslední */
+main.texty-page { scroll-snap-align: start; scroll-margin-top: 100000px; }
+body:has(main.texty-page) .site-footer { scroll-snap-align: end; }
+.lyric-wheel.song-list {
+  --ih: 220px;
+  position: relative; display: block; max-width: none; outline: none;
+}
+.lyric-wheel::-webkit-scrollbar { display: none; }
+.lyric-wheel:focus-visible .wheel-item.mid { outline: 2px solid var(--accent); outline-offset: 3px; }
+.lyric-wheel .wheel-item {
+  height: var(--ih); min-height: 0; margin: 0 0 14px; padding: 46px 18px 16px; scroll-snap-align: start; scroll-margin-top: var(--wheel-snap, 120px);
+  flex-direction: column; justify-content: flex-end; align-items: stretch; gap: 0;
+  transform-origin: center; will-change: transform, opacity; cursor: pointer;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent); border-radius: 22px;
+  background: linear-gradient(to right, rgba(10, 10, 12, 0.9), rgba(10, 10, 12, 0.6) 55%, rgba(10, 10, 12, 0.35));
+  backdrop-filter: none; -webkit-backdrop-filter: none;   /* rozmazání pod 20 otáčejícími se kartami by sekalo */
+  transition: border-color .4s ease, box-shadow .4s ease;
+}
+.lyric-wheel .wheel-item[hidden] { display: none; }
+.lyric-wheel .wheel-item:hover { transform: none; }
+.lyric-wheel .wheel-item::before {   /* spodek karty tmavší, ať se dá číst verš i název přes náhled */
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, transparent 25%, rgba(6, 6, 8, 0.82));
+}
+.lyric-wheel .wheel-item.mid { border-color: var(--accent); box-shadow: 0 0 44px -12px var(--accent); }
+.lyric-wheel .song-row-art img { filter: brightness(0.62); }
+.lyric-wheel .wheel-item.mid .song-row-art img { filter: brightness(0.9); }
+.wheel-year { position: absolute; top: 14px; left: 18px; font-family: var(--font-display); font-size: var(--fs-small); letter-spacing: 0.1em; color: var(--accent); }
+.wheel-kbadge {
+  position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px;
+  font-family: var(--font-display); font-size: var(--fs-small); color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: rgba(0, 0, 0, 0.45);
+}
+.lyric-wheel .song-note-row { top: 46px; translate: none; }
+.wheel-verse {
+  margin: 0 0 8px; max-width: 34ch; font-family: var(--font-text); font-weight: 300; font-size: 1.1rem; line-height: 1.25;
+  opacity: 0.5; transition: opacity .4s; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.wheel-item.mid .wheel-verse { opacity: 1; }
+/* karaoke: verš vybrané písně se barví zleva jako při zpěvu (js/texty-wheel.js nastavuje --k) */
+.wheel-verse .kline.sung {
+  background: linear-gradient(90deg, var(--accent) var(--k, 0%), var(--text) var(--k, 0%));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.lyric-wheel .song-row-text { max-width: 100%; gap: 3px; color: var(--text); text-decoration: none; }
+.lyric-wheel .song-row-title { font-size: var(--fs-h4); }
+.wheel-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s; }
+.wheel-item.mid .wheel-btns { opacity: 1; visibility: visible; }
+.wbtn {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 8px 16px; border-radius: 999px;
+  font-family: var(--font-display); font-size: var(--fs-card); letter-spacing: 0.04em; text-decoration: none; color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); background: rgba(0, 0, 0, 0.35);
+}
+.wbtn:hover { text-decoration: none; border-color: var(--accent); }
+.wbtn small { font-size: var(--fs-small); opacity: 0.8; }
+/* hlavní tlačítko: v Textech Číst text, v Karaoke Zpívej (a to je první) */
+main.texty-page:not(.k-mode) .wbtn-read, main.texty-page.k-mode .wbtn-sing { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); box-shadow: 0 0 22px -6px var(--accent); }
+main.k-mode .wbtn-sing { order: -1; }
+body.light .lyric-wheel .wheel-item { background: linear-gradient(to right, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.7) 55%, rgba(255, 255, 255, 0.4)); }
+body.light .lyric-wheel .wheel-item::before { background: linear-gradient(180deg, transparent 20%, rgba(250, 248, 244, 0.9)); }
+body.light .lyric-wheel .song-row-art img, body.light .lyric-wheel .wheel-item.mid .song-row-art img { filter: none; }
+body.light .wheel-verse { text-shadow: 0 1px 8px rgba(255, 255, 255, 0.9); }
+body.light .wheel-kbadge, body.light .wbtn { background: rgba(255, 255, 255, 0.7); }
+/* PC: vlevo roky (skok na první píseň roku), karty vyšší, verš větší */
+@media (min-width: 1025px) {
+  .wheel-wrap { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 18px; }
+  .wheel-years { flex-direction: column; gap: 4px; padding: 24px 0 0; margin: 0; background: none; overflow: visible;
+    align-self: start; top: calc(var(--header-h) + 24px); }
+  .wheel-years button {
+    min-height: 0; padding: 8px 10px; border: 0; border-radius: 10px; background: none; text-align: left; cursor: pointer;
+    font-family: var(--font-display); font-size: var(--fs-card); color: var(--text-dim);
+  }
+  .wheel-years button.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .lyric-wheel.song-list { --ih: 226px; }
+  .lyric-wheel .wheel-item { padding: 48px 26px 18px; }
+  .wheel-verse { font-size: 1.35rem; max-width: 60%; }
+  .lyric-wheel .song-row-title { font-size: var(--fs-h3); }
+}
+/* telefon: tlačítka vedle sebe v jednom řádku, „pro členy“ jen jako zámek */
+@media (max-width: 600px) {
+  .wheel-btns { flex-wrap: nowrap; gap: 6px; }
+  .wbtn { padding: 8px 12px; gap: 6px; }
+  .wbtn small { display: none; }
+  .wheel-verse { font-size: 1rem; }
+}
+/* telefon na šířku: nízká obrazovka, menší karty */
+@media (orientation: landscape) and (max-height: 500px) {
+  .lyric-wheel.song-list { --ih: 176px; }
+  .lyric-wheel .wheel-item { padding-top: 40px; }
+  .wheel-verse { -webkit-line-clamp: 1; }
+}
+/* slabý telefon: bez naklánění (js) a bez záře */
+html.low-fx .lyric-wheel .wheel-item.mid { box-shadow: none; }
+
 @media (max-width: 600px) {
   .song-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
   .song-info { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px; }
@@ -610,6 +738,9 @@ body.light .listen-icon { background: rgba(0, 0, 0, 0.02); }
   transition: border-color .2s, color .2s;
 }
 .tool-btn::-webkit-details-marker { display: none; }
+/* při posouvání jede text pod tlačítky: skoro plná výplň, ať písmena neprosvítají (dřív to vypadalo rozházeně) */
+.lyric-tools .tool-btn { background: color-mix(in srgb, var(--bg) 88%, var(--accent) 12%); box-shadow: 0 6px 18px -6px rgba(0, 0, 0, .6); }
+body.light .lyric-tools .tool-btn { box-shadow: 0 6px 16px -8px rgba(0, 0, 0, .35); }
 .tool-btn:hover, .lyric-view[open] > .tool-btn { border-color: var(--accent); color: var(--accent); }
 .lyric-view { position: relative; }
 .lyric-view-menu {
@@ -1259,9 +1390,14 @@ body.light .lyric-page .video-wrapper.is-mini .mini-close {
   cursor: pointer;
 }
 @media (max-width: 600px) {
-  .lyric-page .video-wrapper.is-mini { left: 12px; bottom: 12px; width: 62vw; }
+  /* telefon: mini přehrávač dole uprostřed, ne přilepený ke kraji (bublina chatu je vpravo a nepřekrývá se) */
+  .lyric-page .video-wrapper.is-mini { left: 0; right: 0; margin-inline: auto; bottom: 12px; width: 62vw; }
   .lyric-main { padding: 8px 8px 70px; }
   .lyric-page .lyric-body { padding: 20px 10px 0; }
+}
+/* telefon na šířku: taky uprostřed, ale menší – 62 % šířky by zakrylo skoro celou výšku obrazovky */
+@media (orientation: landscape) and (max-height: 500px) {
+  .lyric-page .video-wrapper.is-mini { left: 0; right: 0; margin-inline: auto; bottom: 10px; width: min(300px, 38vw); }
 }
 
 /* A− / A+ for the lyrics */
@@ -1385,7 +1521,7 @@ html.bold-text body :where(.side-card p,
 .acct-title { margin: 2px 0 0; font-family: var(--font-text); font-weight: 500; color: var(--accent); letter-spacing: .02em; }
 .acct-title i { margin-right: 4px; }
 .acct-photo { position: relative; display: block; width: 116px; height: 116px; border-radius: 50%; cursor: pointer; flex-shrink: 0; }
-.acct-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.7); }
+.acct-avatar { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.7); }
 /* foťák: malý na okraji fotky, aby fotku nezakrýval; myší se ukáže až po najetí, na dotyk je vidět pořád */
 .acct-photo-edit {
   position: absolute; right: 0; bottom: 0; z-index: 2; width: 26px; height: 26px; border-radius: 50%; font-size: .72rem;
@@ -1907,12 +2043,10 @@ body.light .game-champs .p3 .champ-place { color: #9a5a22; }
 .motto-brush { font-family: var(--font-brush); font-size: 1.9rem; }
 .motto-modern { font-family: var(--font-display, var(--font-body)); font-size: 1rem; letter-spacing: .02em; }
 .motto-clean { font-family: var(--font-text); font-style: italic; font-weight: 500; font-size: 1.15rem; }
-.motto-fonts { border: 0; padding: 0; margin: 0; display: flex; gap: 8px; flex-wrap: wrap; }
-.motto-fonts legend { padding: 0; margin-bottom: 6px; }
-.motto-font-opt { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--panel-border); cursor: pointer; }
-.motto-font-opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
-.motto-font-opt span { color: var(--accent); }
-.motto-font-opt .motto-brush { font-size: 1.5rem; line-height: 1; }
+/* písmo mota ve Vzhledu: každá dlaždice ukazuje moje moto tím písmem */
+.vz-motto { gap: 6px; min-height: 96px; justify-content: center; }
+.vz-motto-sample { display: block; max-width: 100%; color: var(--accent); line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vz-motto .motto-brush { font-size: 1.6rem; }
 
 /* ---------- Můj profil = vitrína, Nastavení = samostatná stránka se záložkami ---------- */
 .settings-head { display: grid; gap: 6px; margin: 8px 0 16px; }
@@ -1920,13 +2054,50 @@ body.light .game-champs .p3 .champ-place { color: #9a5a22; }
 .settings-back { justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; font-size: var(--fs-card); color: var(--text-dim); text-decoration: none; }
 .settings-back:hover { color: var(--accent); text-decoration: none; }
 .settings-page section.acct-card[hidden] { display: none; }
-/* záložky Nastavení: vždy všechny tři vidět (na telefonu menší písmo, ikona nad textem) */
-.settings-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; overflow: visible; }
-.settings-tabs a { justify-content: center; text-align: center; }
-@media (max-width: 600px) {
-  .settings-tabs { border-radius: 18px; }
-  .settings-tabs a { flex-direction: column; gap: 2px; padding: 8px 4px; font-size: var(--fs-small); border-radius: 14px; }
+/* Nastavení po sekcích: telefon = seznam sekcí (domov) a pak jedna sekce s cestou zpět, počítač = seznam vlevo a sekce vpravo.
+   Třídy na <main>: set-js (běží skript; bez něj je vidět všechno), set-home (telefon, žádná sekce není otevřená). */
+.settings-page { max-width: 1180px; }
+.set-layout { display: grid; gap: 14px; }
+.set-nav { display: grid; gap: 8px; align-content: start; }
+.set-nav a { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 10px 14px; border-radius: 16px; border: 1px solid var(--panel-border); background: var(--panel-strong); color: var(--text); text-decoration: none; transition: border-color .2s; }
+.set-nav a:hover { color: var(--text); border-color: color-mix(in srgb, var(--accent) 55%, transparent); text-decoration: none; }
+.set-nav a.active { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.set-nav a > i:first-child { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); }
+.set-nav span { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.set-nav b { font-weight: 400; font-size: var(--fs-h4); }
+.set-nav small { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); color: var(--text-dim); }
+.set-nav-go { color: var(--text-dim); font-size: .8rem; }
+.set-nav a.set-nav-end { margin-top: 12px; }   /* účet a data (i smazání účtu) odděleně dole */
+.set-back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 6px; color: var(--text-dim); font-size: var(--fs-card); text-decoration: none; }
+.set-back:hover { color: var(--accent); text-decoration: none; }
+@media (max-width: 1023px) { .settings-page.set-home .set-body { display: none; } }
+@media (max-width: 1023px) { .settings-page.set-js:not(.set-home) .set-nav { display: none; } }
+@media (max-width: 1023px) { .settings-page.set-js:not(.set-home) .settings-head { display: none; } }
+.settings-page:not(.set-js) .set-back { display: none; }
+@media (min-width: 1024px) {
+  .set-layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; gap: 22px; }
+  .settings-page.set-js .set-nav { display: grid; position: sticky; top: calc(var(--header-h) + 14px); }
+  .set-nav a { min-height: 56px; }
+  .set-nav-go, .set-back { display: none; }
 }
+/* řádky nastavení (Web a jazyk): popisek vlevo, volby vpravo jako přepínač */
+.set-rows { display: grid; }
+.set-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 0; padding: 14px 0; border-top: 1px solid var(--panel-border); }
+.set-row:first-child { border-top: 0; }
+.set-k { display: grid; gap: 2px; }
+.set-k small { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); color: var(--text-dim); }
+.set-seg { display: inline-flex; gap: 3px; padding: 3px; border-radius: 999px; border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--text) 6%, transparent); }
+.set-seg-wrap { flex-wrap: wrap; border-radius: 22px; }
+.set-seg button { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: var(--text-dim); font: inherit; font-size: var(--fs-card); cursor: pointer; }
+.set-seg button:hover { color: var(--text); }
+.set-seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+/* nápověda „?“: krátký text je vidět hned, podrobnosti po ťuknutí (ťukací plocha 40 px) */
+.set-help { margin: -6px 0 8px; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); color: var(--text-dim); }
+.set-help > summary { list-style: none; display: inline-grid; place-items: center; width: 40px; height: 40px; margin-left: -8px; cursor: pointer; }
+.set-help > summary::-webkit-details-marker { display: none; }
+.set-help > summary > span[aria-hidden] { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--panel-border); color: var(--accent); font: 400 .8rem var(--font-body); }
+.set-help[open] > summary > span[aria-hidden] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.set-help p { margin: 0; padding: 10px 12px; border-radius: 12px; line-height: 1.45; background: color-mix(in srgb, var(--text) 6%, transparent); }
 /* profil: „Zobrazit všechny“ – rozbalení zbytku komentářů a nezískaných odznaků */
 .acct-more { display: grid; gap: 10px; }
 .acct-more > summary {
@@ -2020,7 +2191,6 @@ html.pb-open { overflow: hidden; }
   .pb-heads img { width: 34px; height: 34px; }
 }
 @media (prefers-reduced-motion: reduce) { .pb, .pb-win { animation: none; } }
-html.pb-open #sp-min, html.pb-open #sp-bar { visibility: hidden; }
 
 /* jména v tabulkách CatSmash a mezi šampiony = odkaz na veřejný profil hráče (/hrac/jméno) – nenápadný, zlatý při najetí */
 .game-champs .champ-name a, .pb-nm a.pb-prof { color: inherit; text-decoration: none; }
@@ -2136,7 +2306,7 @@ body.light .pt::before { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .07), inset 0
 .pt-who { display: flex; align-items: flex-start; gap: 22px; }
 .pt-who-text { min-width: 0; padding-top: 12px; }
 .pt-hero .acct-photo, .pt-hero .acct-photo.av-frame { width: 92px; height: 92px; font-size: 92px; margin: -46px 8px 14px; }
-.pt-hero .acct-name { font-size: 1.45rem; text-shadow: 0 1px 8px rgba(0, 0, 0, .7); }
+.pt-hero .acct-name { font-size: clamp(1rem, 4.6vw, 1.45rem); text-shadow: 0 1px 8px rgba(0, 0, 0, .7); }
 body.light .pt-hero .acct-name { text-shadow: 0 1px 8px rgba(255, 255, 255, .85); }
 .pt-hero .acct-meta { color: var(--text); opacity: .78; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); }
 .acct-motto { margin: 6px 0 0; color: #ffd23f; line-height: 1.05; overflow-wrap: anywhere; text-shadow: 0 0 6px rgba(0, 0, 0, .9), 0 0 14px rgba(0, 0, 0, .7); }
@@ -2259,3 +2429,650 @@ html:lang(uk) .song-note-mini, html:lang(vi) .song-note-mini { font-size: .72rem
 .listen-btn-spotify:hover { border-color: var(--spotify); background: color-mix(in srgb, var(--spotify) 14%, var(--panel-strong)); }
 .listen-btn-apple i { color: var(--apple-music); }
 .listen-btn-apple:hover { border-color: var(--apple-music); background: color-mix(in srgb, var(--apple-music) 14%, var(--panel-strong)); }
+
+/* Profil po částech: Přehled, Hry (každá hra svůj blok), Přátelé, Komentáře. Hlavička nahoře je pořád vidět. */
+.pt-grid > .profile-tabs { grid-column: span 12; margin: 0; }
+.pt-tab { grid-column: span 12; margin: 0; }
+.pt-tab[hidden] { display: none; }
+.pt.pt-half { grid-column: span 6; }
+.game-head { grid-column: span 12; display: flex; align-items: center; gap: 10px; margin: 2px 2px -2px; color: var(--accent); }
+.game-head h2 { margin: 0; font-size: var(--fs-h3); font-weight: 400; color: var(--text); }
+.pt.pt-big-tile { grid-column: span 12; }
+.pt[hidden] { display: none; }
+
+/* První kroky nováčka: místo nul krátký seznam, po splnění zmizí */
+.pt-start { --glow: var(--accent); }
+.pt-start .pt-in { gap: 10px; }
+.pt-start-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.pt-start-top h2 { margin: 0; font-size: var(--fs-h3); font-weight: 400; color: var(--accent); }
+.pt-start-hide { flex: none; min-height: 40px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: var(--text-dim); font: inherit; font-size: var(--fs-small); cursor: pointer; }
+.pt-start-hide:hover { color: var(--text); }
+.pt-start-bar { height: 6px; border-radius: 999px; background: color-mix(in srgb, var(--text) 14%, transparent); overflow: hidden; }
+.pt-start-bar span { display: block; width: var(--start); height: 100%; border-radius: inherit; background: var(--accent); }
+.pt-steps { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.pt-steps a { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 12px; border-radius: 12px; background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--text); text-decoration: none; font-size: var(--fs-card); }
+.pt-steps a:hover { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--text); }
+.pt-steps i { color: var(--text-dim); }
+.pt-steps .done a { color: var(--text-dim); text-decoration: line-through; }
+.pt-steps .done i { color: var(--accent); }
+
+/* Chat (/zpravy): telefon buď seznam, nebo chat; od 900 px vedle sebe */
+.friend-write { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.chat-page { display: grid; gap: 12px; width: min(100%, 1100px); margin-inline: auto; padding: 12px 16px; box-sizing: border-box; }
+.chat-page.in-room .chat-list, .chat-pick { display: none; }
+.chat-title { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; font-size: var(--fs-h3); font-weight: 400; color: var(--accent); }
+.chat-people { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.chat-person { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 12px; border: 1px solid var(--panel-border); border-radius: 16px; background: var(--panel); color: var(--text); text-decoration: none; }
+.chat-person:hover, .chat-person.active { border-color: var(--accent); color: var(--text); text-decoration: none; }
+.chat-person img { display: block; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+.chat-person-text { flex: 1; display: grid; gap: 2px; min-width: 0; }
+.chat-person-text b { font-weight: 400; font-size: var(--fs-card); overflow-wrap: anywhere; }
+.chat-person-text small { overflow: hidden; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); text-overflow: ellipsis; white-space: nowrap; }
+.chat-privacy { display: flex; gap: 8px; margin: 12px 2px 0; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.chat-room { display: flex; flex-direction: column; height: calc(100dvh - var(--header-h) - 24px); min-height: 320px; border: 1px solid var(--panel-border); border-radius: 18px; background: var(--panel-strong); overflow: hidden; }
+.chat-room [hidden] { display: none !important; }
+.chat-head { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--panel-border); }
+.chat-back, .chat-hide { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--text-dim); cursor: pointer; }
+.chat-back:hover, .chat-hide:hover { color: var(--accent); }
+.chat-who { flex: 1; min-width: 0; overflow: hidden; color: var(--text); font-size: var(--fs-card); text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.chat-older { flex: none; align-self: center; min-height: 40px; margin-top: 6px; padding: 0 14px; border: 0; background: transparent; color: var(--accent); font: inherit; font-size: var(--fs-small); cursor: pointer; }
+.chat-msgs { flex: 1; display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 12px; overflow-y: auto; list-style: none; overscroll-behavior: contain; }
+.chat-msg { align-self: flex-start; display: grid; gap: 2px; max-width: min(82%, 520px); padding: 8px 12px; border-radius: 16px 16px 16px 4px; background: color-mix(in srgb, var(--text) 10%, transparent); }
+.chat-msg.mine { align-self: flex-end; border: 1px solid color-mix(in srgb, var(--chat-hue) 60%, transparent); border-radius: 16px 16px 4px 16px; background: var(--chat-mine-bg); color: var(--chat-mine-fg); }
+/* jen 1 až 3 smajlíky: velké a bez bubliny */
+.chat-msg.emoji-only, .chat-msg.emoji-only.mine { padding: 2px 4px; border-color: transparent; background: transparent; color: var(--text); }
+.chat-msg.emoji-only .chat-text { font-size: 2.2rem; line-height: 1.15; }
+/* barvy: odstín se míchá s pozadím panelu, takže text je čitelný v tmavém i světlém režimu a smajlíci nesplývají */
+.chat-page, .chat-swatch { --chat-hue: #e6b730; --chat-mine-bg: color-mix(in srgb, var(--chat-hue) 22%, var(--panel-strong)); --chat-mine-fg: var(--text); }
+[data-chat-theme="blue"] { --chat-hue: #4ea3ff; }
+[data-chat-theme="purple"] { --chat-hue: #b06bff; }
+[data-chat-theme="green"] { --chat-hue: #4fd17a; }
+[data-chat-theme="pink"] { --chat-hue: #ff4d6d; }
+[data-chat-theme="gray"] { --chat-hue: #8a8f98; }
+[data-chat-theme="solid"] { --chat-hue: var(--accent); --chat-mine-bg: var(--accent); --chat-mine-fg: var(--accent-ink); }
+/* písmo a velikost zpráv */
+.chat-page { --chat-font: var(--font-text); --chat-scale: 1; }
+[data-chat-font="clean"] { --chat-font: "Exo 2", system-ui, sans-serif; }
+[data-chat-font="system"] { --chat-font: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+.chat-page[data-chat-size="s"] { --chat-scale: .9; }
+.chat-page[data-chat-size="l"] { --chat-scale: 1.18; }
+.chat-font-sample { font-family: var(--chat-font, var(--font-text)); font-size: var(--fs-card); }
+.chat-opt[data-chat-font="text"] .chat-font-sample { font-family: var(--font-text); }
+/* stav */
+.chat-state-dot { display: inline-block; flex: none; width: 10px; height: 10px; border-radius: 50%; background: #8a8f98; }
+.chat-state-dot.s-online { background: #3ddc84; }
+.chat-state-dot.s-idle { background: #e5c94a; }
+.chat-state-dot.s-busy { background: #f5a524; }
+.chat-state-dot.s-dnd { background: #f04f5e; }
+.chat-state-dot.s-invisible { background: transparent; border: 2px solid #8a8f98; }
+.chat-avatar { position: relative; flex: none; display: block; width: 44px; height: 44px; }
+.chat-avatar .chat-state-dot { position: absolute; right: 0; bottom: 0; width: 12px; height: 12px; border: 2px solid var(--panel-strong); box-sizing: border-box; }
+.chat-who-box { flex: 1; display: grid; min-width: 0; }
+.chat-who-state { color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.chat-who-state.s-online { color: #3ddc84; }
+.chat-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.chat-gear { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--text-dim); cursor: pointer; }
+.chat-gear:hover { color: var(--accent); }
+/* okno s nastavením */
+.chat-settings { width: min(100% - 24px, 460px); max-height: min(100dvh - 24px, 720px); padding: 16px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 18px; background: var(--bg); color: var(--text); }
+.chat-settings::backdrop { background: rgba(0, 0, 0, .6); }
+.chat-settings-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px; }
+.chat-settings-head h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--fs-h3); font-weight: 400; color: var(--accent); }
+.chat-settings-close { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--text-dim); cursor: pointer; }
+/* záložky: okno má pořád stejnou výšku, ať při přepínání neskáče */
+.chat-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 0 0 14px; padding: 4px; border-radius: 14px; background: color-mix(in srgb, var(--text) 7%, transparent); }
+.chat-tabs button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 4px; border: 0; border-radius: 10px; background: transparent; color: var(--text-dim); font: inherit; font-size: var(--fs-card); cursor: pointer; }
+.chat-tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+.chat-tabs button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.chat-tab-panel { min-height: 300px; }
+.chat-sound-test { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin-top: 10px; padding: 0 14px; }
+.chat-settings fieldset { margin: 0 0 14px; padding: 0; border: 0; }
+.chat-settings legend { margin-bottom: 6px; padding: 0; font-size: var(--fs-card); }
+.chat-settings-note { margin: 6px 0 0; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.chat-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.chat-opt { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 12px; border: 1px solid var(--panel-border); border-radius: 12px; font-family: var(--font-text); font-size: var(--fs-card); cursor: pointer; }
+.chat-opt:has(input:checked), .chat-swatch:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.chat-opt:has(input:focus-visible), .chat-swatch:has(input:focus-visible) { outline: 2px solid var(--text); outline-offset: 2px; }
+.chat-opt input, .chat-swatch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.chat-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.chat-swatch { position: relative; display: grid; gap: 4px; justify-items: center; padding: 8px 4px; border: 1px solid var(--panel-border); border-radius: 12px; cursor: pointer; }
+.chat-swatch-bubble { padding: 4px 10px; border: 1px solid color-mix(in srgb, var(--chat-hue) 60%, transparent); border-radius: 12px 12px 4px 12px; background: var(--chat-mine-bg); color: var(--chat-mine-fg); }
+.chat-swatch-name { font-family: var(--font-text); font-size: var(--fs-small); text-align: center; }
+.chat-msg.deleted { background: transparent; border: 1px dashed var(--panel-border); color: var(--text-dim); }
+.chat-text { font-family: var(--chat-font); font-size: calc(var(--fs-text) * var(--chat-scale)); line-height: 1.35; overflow-wrap: anywhere; white-space: pre-wrap; }
+.chat-msg.deleted .chat-text { font-style: italic; }
+.chat-meta { display: flex; align-items: center; justify-content: flex-end; gap: 2px; min-height: 18px; font-family: var(--font-text); font-size: var(--fs-small); opacity: .75; }
+.chat-meta .chat-more { margin: -6px -8px -6px 0; }
+.chat-edited { font-style: italic; margin-right: 4px; }
+.chat-quote { display: block; max-width: 100%; margin-bottom: 4px; padding: 4px 8px; overflow: hidden; border: 0; border-left: 3px solid var(--chat-hue); border-radius: 6px; background: color-mix(in srgb, var(--text) 8%, transparent); color: inherit; font-family: var(--chat-font); font-size: var(--fs-small); text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.chat-reactions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.chat-reaction { min-width: 40px; min-height: 32px; padding: 0 8px; border: 1px solid var(--panel-border); border-radius: 999px; background: color-mix(in srgb, var(--text) 8%, transparent); color: inherit; font-family: var(--font-text); font-size: var(--fs-card); cursor: pointer; }
+.chat-reaction.mine { border-color: var(--chat-hue); }
+.chat-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin-top: 6px; padding-top: 4px; border-top: 1px solid var(--panel-border); }
+.chat-react-pick { width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; font-size: 1.15rem; cursor: pointer; }
+.chat-react-pick:hover { background: color-mix(in srgb, var(--text) 10%, transparent); }
+.chat-actions .chat-act { height: 40px; }
+.chat-day { align-self: center; padding: 2px 12px; border-radius: 999px; background: color-mix(in srgb, var(--text) 8%, transparent); color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.chat-seen { align-self: flex-end; margin-top: -4px; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.chat-compose-bar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 8px 2px 12px; border-top: 1px solid var(--panel-border); color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); }
+.chat-compose-bar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-compose-bar button { flex: none; width: 40px; height: 40px; border: 0; background: transparent; color: inherit; cursor: pointer; }
+.chat-mute { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--text-dim); cursor: pointer; }
+.chat-mute.on, .chat-mute:hover { color: var(--accent); }
+.chat-receipts { display: flex; margin-top: 8px; }
+[data-chat-count] { margin-left: 6px; }
+.chat-act { display: grid; place-items: center; width: 40px; height: 32px; border: 0; background: transparent; color: inherit; cursor: pointer; opacity: .75; }
+.chat-act:hover { opacity: 1; }
+.chat-report-form { display: grid; gap: 6px; margin-top: 6px; }
+.chat-report-form label { display: grid; gap: 4px; font-size: var(--fs-small); }
+.chat-report-form input, .chat-report-form select { min-width: 0; min-height: 40px; }
+.chat-reported { margin: 6px 0 0; font-family: var(--font-text); font-size: var(--fs-small); }
+.chat-closed { flex: none; margin: 0; padding: 12px; border-top: 1px solid var(--panel-border); color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); text-align: center; }
+.chat-error { flex: none; margin: 0 8px 8px; }
+.chat-warn { flex: none; display: grid; gap: 8px; margin: 0 8px 8px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-family: var(--font-text); font-size: var(--fs-card); }
+.chat-warn p { margin: 0; }
+.chat-warn p i { color: var(--accent); }
+.chat-warn div { display: flex; flex-wrap: wrap; gap: 8px; }
+.chat-warn button { min-height: 40px; padding: 0 14px; }
+/* Karta u známého odkazu: náhled a přehrání až po kliknutí */
+.chat-embed { display: grid; gap: 6px; width: min(100%, 320px); margin-top: 6px; }
+.chat-embed-play { position: relative; display: grid; place-items: center; width: 100%; min-height: 72px; padding: 0; overflow: hidden; border: 0; border-radius: 12px; background: var(--bg); color: #fff; cursor: pointer; }
+.chat-embed-play img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.chat-embed-play .chat-embed-icon { position: absolute; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(0, 0, 0, .65); font-size: 1.4rem; }
+.chat-embed iframe { display: block; width: 100%; border: 0; border-radius: 12px; background: var(--bg); }
+.chat-embed-open { font-family: var(--font-text); font-size: var(--fs-small); color: inherit; }
+.chat-emoji-btn { flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; }
+.chat-emoji-btn:hover, .chat-emoji-btn[aria-expanded="true"] { color: var(--accent); }
+.chat-form button.chat-emoji-btn { background: transparent; }
+.chat-emoji { position: absolute; left: 8px; right: 8px; bottom: calc(100% + 6px); z-index: 5; display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 2px; max-height: 180px; padding: 6px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 14px; background: var(--bg); box-shadow: var(--shadow); }
+.chat-form .chat-emoji button { width: auto; height: 40px; border-radius: 10px; background: transparent; color: inherit; font-size: 1.25rem; cursor: pointer; }
+.chat-form .chat-emoji button:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.chat-form { position: relative; flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 8px; border-top: 1px solid var(--panel-border); }
+.chat-form[hidden] { display: none; }
+.chat-form textarea { flex: 1; min-width: 0; min-height: 44px; max-height: 130px; padding: 10px 12px; border-radius: 14px; resize: none; font-family: var(--font-text); font-size: 16px; line-height: 1.3; }
+.chat-form button { flex: none; width: 44px; height: 44px; padding: 0; border-radius: 50%; }
+/* na telefonu patří celá obrazovka chatu: patička by překážela psaní */
+@media (max-width: 899px) { body:has(.chat-room) .site-footer { display: none !important; } }
+@media (min-width: 900px) {
+  .chat-page { grid-template-columns: 320px minmax(0, 1fr); align-items: start; }
+  .chat-page.in-room .chat-list { display: block; }
+  .chat-back { display: none; }
+  .chat-pick { display: grid; place-items: center; min-height: 320px; border: 1px dashed var(--panel-border); border-radius: 18px; color: var(--text-dim); font-family: var(--font-text); }
+  .chat-list { max-height: calc(100dvh - var(--header-h) - 24px); overflow-y: auto; }
+}
+/* od 1025 px je nad menu velké logo: chat se i s políčkem na psaní musí vejít pod něj */
+@media (min-width: 1025px) {
+  .chat-room { height: calc(100dvh - var(--masthead-h) - var(--header-h) - 40px); }
+  .chat-list { max-height: calc(100dvh - var(--masthead-h) - var(--header-h) - 40px); }
+}
+
+/* Malé okno chatu (/zpravy?embed=1) */
+.chat-embed-body { margin: 0; background: var(--bg); color: var(--text); }
+/* v malém okně bez fotky pozadí webu */
+.chat-embed-body::before, .chat-embed-body::after { display: none; }
+.chat-embed-body .chat-page { padding: 8px; width: 100%; }
+.chat-embed-body .chat-room { height: calc(100dvh - 16px); min-height: 0; }
+.chat-embed-body .chat-page:not(.in-room) .chat-list { padding-top: 34px; }
+.chat-embed-body .chat-head { padding-right: 44px; }
+/* Lišta chatu: na počítači dole vpravo, na telefonu kolečko. Nikdy přes hru, admin ani samotnou stránku Zprávy. */
+.chat-dock { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px)); z-index: 900; }
+body:has(main.chat-page) .chat-dock, body.is-admin .chat-dock, html.kpong-open .chat-dock, html.pb-open .chat-dock { display: none; }
+.chat-dock.ducked { visibility: hidden; }
+/* otevřené okno musí být nad hlavičkou */
+html.chat-dock-open .chat-dock { z-index: 10020; }
+.chat-dock-btn { position: relative; display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 1px solid var(--accent); border-radius: 50%; background: var(--panel-strong); color: var(--accent); font: inherit; font-size: 1.2rem; box-shadow: var(--shadow); cursor: pointer; }
+.chat-dock-label { display: none; }
+.chat-dock-btn .acct-count { position: absolute; top: -4px; right: -4px; margin: 0; background: var(--accent); color: var(--accent-ink); }
+.chat-dock-panel { position: fixed; inset: 0; z-index: 1; background: var(--bg); }
+.chat-dock-panel[hidden] { display: none; }
+.chat-dock-panel iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--bg); }
+.chat-dock-close { position: absolute; top: 6px; right: 6px; z-index: 2; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--text-dim); cursor: pointer; }
+.chat-dock-close:hover { color: var(--accent); }
+@media (min-width: 900px) {
+  .chat-dock { right: 24px; bottom: 0; }
+  .chat-dock-btn { display: flex; align-items: center; gap: 10px; width: auto; height: 44px; padding: 0 18px; border-bottom: 0; border-radius: 14px 14px 0 0; font-size: var(--fs-card); }
+  .chat-dock-label { display: inline; }
+  .chat-dock-btn .acct-count { position: static; }
+  .chat-dock-panel { position: absolute; inset: auto 0 44px auto; width: 380px; height: min(600px, calc(100dvh - 190px)); overflow: hidden; border: 1px solid var(--panel-border); border-radius: 16px; box-shadow: var(--shadow); }
+}
+.sound-prefs { margin: 0 0 14px; padding: 0; border: 0; }
+
+/* Odznaky za život na webu a aktivita */
+.pt-sitebadges .pt-in, .pt-activity .pt-in { gap: 10px; }
+.pt-sitebadges .pt-show { margin: 0; }
+.pt-activity { --glow: #4ea3ff; }
+.pt-howto, .pt-feed { display: grid; gap: 8px; margin: 8px 0 0; padding: 0; list-style: none; }
+.pt-howto li { display: flex; gap: 8px; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); }
+.pt-howto b { font-weight: 500; color: var(--text); }
+.pt-howto i { flex: none; margin-top: 3px; }
+.pt-feed { margin: 0; }
+.pt-feed li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: baseline; gap: 8px; font-family: var(--font-text); font-size: var(--fs-card); }
+.pt-feed i { color: var(--accent); text-align: center; }
+.pt-feed span { overflow-wrap: anywhere; }
+.pt-feed time { color: var(--text-dim); font-size: var(--fs-small); white-space: nowrap; }
+
+/* Vitrína: až 3 odznaky nahoře na profilu; barva podle vzácnosti (stejná jako ve hře) */
+.pt-show { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.pt-show-item { --rar: #9aa0a8; display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 12px; border: 1px solid var(--rar); border-radius: 999px; background: color-mix(in srgb, var(--rar) 16%, transparent); font-size: var(--fs-small); }
+.pt-show-item[data-rar="u"] { --rar: #4fd17a; }
+.pt-show-item[data-rar="r"] { --rar: #4ea3ff; }
+.pt-show-item[data-rar="e"] { --rar: #b06bff; }
+.pt-show-item[data-rar="l"] { --rar: #ff9a2e; }
+.pt-show-item i { color: var(--rar); }
+.pt-show-add { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; margin-top: 6px; color: var(--accent); font-size: var(--fs-small); text-decoration: none; }
+.vis-pick .vis-show-picks { grid-column: 2 / -1; display: grid; gap: 6px; min-width: 0; }
+.vis-pick .vis-show-picks select { grid-column: 1; min-width: 0; }
+/* Moje tvorba: karty jako v Diskografii (.song-card, .disco-dock), dvě vedle sebe na telefonu */
+.pt-tracks { --glow: var(--accent); }
+.pt-tracks .pt-in { gap: 10px; }
+.pt-track-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.pt-track-list .song-card { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.pt-track-list .song-card.is-hidden { opacity: .6; }
+.pt-track-hidden { margin: 0; padding: 0 12px 8px; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.disco-dock .disco-soundcloud:hover, .disco-dock .disco-soundcloud:focus-visible { color: var(--soundcloud); }
+.pt-track-admin { display: grid; gap: 6px; padding: 10px; border-top: 1px solid var(--panel-border); }
+.pt-track-admin input[name=reason] { min-width: 0; min-height: 40px; }
+.pt-tracks-invite { grid-column: span 12; }
+.track-form-new { margin-bottom: 14px; }
+.track-rights { display: flex; align-items: flex-start; gap: 8px; font-size: var(--fs-card); }
+@media (min-width: 768px) { .pt-track-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Stav online */
+.pt-online { display: flex; align-items: center; gap: 6px; margin: 4px 0 0; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.pt-online::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #3ddc84; }
+.pt-friends .pt-in { gap: 10px; }
+
+/* Písně se srdcem */
+.pt-likes { --glow: #ff4d6d; }
+.pt-likes .pt-in { gap: 10px; }
+.pt-likes-go { align-self: flex-start; }
+.pt-like-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.pt-like { display: flex; flex-direction: column; gap: 6px; color: var(--text); text-decoration: none; }
+.pt-like:hover { color: var(--accent); }
+.pt-like img, .pt-like-none { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; object-fit: cover; }
+.pt-like-none { display: grid; place-items: center; background: color-mix(in srgb, var(--text) 8%, transparent); color: var(--text-dim); }
+.pt-like-name { font-size: var(--fs-card); line-height: 1.25; overflow-wrap: anywhere; }
+@media (min-width: 600px) { .pt-like-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } .pt-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .pt-like-list { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.pt-games { --glow: #4ea3ff; }
+@media (min-width: 768px) {
+  .pt-tab .pt-song, .pt-tab .pt-last { grid-column: span 6; }
+  .player-page #prehled .pt-song, .pt-tab .pt-song.pt-solo { grid-column: span 12; }
+}
+/* Přátelé */
+.friend-search { position: relative; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.friend-suggest { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 20; display: grid; gap: 2px; max-height: min(60vh, 340px); margin: 0; padding: 6px; overflow-y: auto; list-style: none; border: 1px solid var(--panel-border); border-radius: 14px; background: var(--bg); box-shadow: var(--shadow); }
+.friend-suggest[hidden] { display: none; }
+.friend-suggest-row { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 4px 8px; border-radius: 10px; }
+.friend-suggest-row[aria-selected="true"], .friend-suggest-row:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.friend-suggest-who { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 40px; color: var(--text); font-size: var(--fs-card); text-decoration: none; overflow-wrap: anywhere; }
+.friend-suggest-who img { flex: none; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.friend-suggest-act { flex: none; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); }
+.friend-suggest-none { padding: 10px; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); }
+.friend-suggest-status { flex-basis: 100%; margin: 0; }
+.friend-suggest-status[hidden] { display: none; }
+.friend-search input { flex: 1; min-width: 0; min-height: 44px; }
+.friend-search button { min-width: 48px; min-height: 44px; }
+.friend-head { display: flex; align-items: center; gap: 8px; margin: 18px 0 8px; font-size: var(--fs-h4); font-weight: 400; }
+.friend-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.friend-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 8px 0; border-top: 1px solid var(--panel-border); }
+.friend-row:first-child { border-top: 0; }
+.friend-who { flex: 1 1 150px; min-width: 0; display: flex; align-items: center; gap: 12px; color: var(--text); font-size: var(--fs-card); text-decoration: none; overflow-wrap: anywhere; }
+a.friend-who:hover { color: var(--accent); text-decoration: none; }
+.friend-who img { flex: none; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+/* moji přátelé: stav jako v chatu – tečka u fotky a slovo pod jménem (barva tečky = barva stavu) */
+.friend-av { position: relative; flex: none; display: inline-flex; }
+.friend-av .chat-state-dot { position: absolute; right: -1px; bottom: -1px; width: 14px; height: 14px; border: 2px solid var(--panel-strong); box-sizing: border-box; }
+.friend-name { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+.friend-state { font-size: var(--fs-small); color: var(--text-dim); }
+.friend-state.s-online { color: #3ddc84; }
+body.light .friend-state.s-online { color: #1f8f4e; }
+.friend-row form { margin: 0; }
+.friend-btn { min-height: 42px; padding: 0 16px; font-size: var(--fs-small); }
+.player-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.player-actions form { margin: 0; }
+.player-actions > .form-alert, .player-actions > .form-success { flex-basis: 100%; margin: 0; }
+.player-state { font-family: var(--font-text); font-weight: 300; font-size: var(--fs-card); color: var(--text-dim); }
+.player-state.on { color: var(--accent); }
+.player-more { position: relative; margin-left: auto; }
+.player-more > summary { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--panel-border); border-radius: 50%; color: var(--text-dim); cursor: pointer; list-style: none; }
+.player-more > summary::-webkit-details-marker { display: none; }
+.player-more[open] > summary, .player-more > summary:hover { color: var(--accent); border-color: var(--accent); }
+.player-more-box { position: absolute; right: 0; z-index: 10; display: flex; flex-direction: column; gap: 12px; width: min(290px, 78vw); margin-top: 8px; padding: 14px; background: var(--panel-strong); border: 1px solid var(--panel-border); border-radius: 14px; box-shadow: var(--shadow); }
+.player-report { display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-small); color: var(--text-dim); }
+.player-report select, .player-report input { display: block; width: 100%; min-height: 42px; margin-top: 4px; }
+@media (max-width: 600px) {
+  .profile-tabs { overflow: visible; }
+  .profile-tabs a { flex: 1 1 0; min-width: 44px; min-height: 44px; padding-inline: 8px; justify-content: center; }
+  .profile-tabs a.active { flex: 0 1 auto; }
+  /* název schovaný jen pro oči, čtečka ho přečte pořád */
+  .profile-tabs a:not(.active) .tab-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+
+/* ---------- Hledat přátele (Přátelé na profilu): nejdřív telefon ---------- */
+.friend-find { margin: 0 0 14px; }
+.friend-find > summary { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; box-sizing: border-box; border-radius: 999px; cursor: pointer; list-style: none; }
+.friend-find > summary::-webkit-details-marker { display: none; }
+.friend-find-chev { transition: transform .2s; }
+.friend-find[open] .friend-find-chev { transform: rotate(180deg); }
+.friend-find-body { display: grid; gap: 12px; padding-top: 14px; }
+.friend-find-body > * { min-width: 0; }
+.friend-find-body .friend-search, .friend-find-body .friend-head, .friend-find-body .people-lead { margin: 0; }
+.people-lead { color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card); }
+@media (min-width: 768px) { .friend-find > summary { display: inline-flex; width: auto; padding-inline: 22px; } }
+.people-me { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--panel); font-family: var(--font-text); font-size: var(--fs-card); }
+.people-me.on { border-color: var(--panel-border); }
+.people-me p { flex: 1 1 200px; margin: 0; }
+.people-me i { color: var(--accent); }
+.people-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.people-card { display: grid; justify-items: center; align-content: start; gap: 8px; padding: 14px 10px; border: 1px solid var(--panel-border); border-radius: var(--radius); background: var(--panel); text-align: center; min-width: 0; }
+.people-av { position: relative; display: block; width: 64px; height: 64px; }
+.people-av img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.people-av .chat-state-dot { position: absolute; right: 2px; bottom: 2px; width: 14px; height: 14px; border: 2px solid var(--panel-strong); box-sizing: border-box; }
+.people-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-size: var(--fs-card); }
+a.people-name:hover { color: var(--accent); }
+.people-card .friend-btn { min-height: 40px; }
+.people-pager { display: flex; justify-content: center; gap: 10px; }
+
+
+/* ===== Karaoke (WEB-INF/views/karaoke.jsp + js/karaoke-page.js): vzhled Ulice, návrh C „Vypálené“ =====
+   Nahoře korunka a KARAOKE sprejem v barvě fotky, pódium bez rámu: řádek písně se rozžhaví slovo po slovu
+   do bíla a vychladne do barvy fotky. Pod kouřem Setlist s čísly sprejem. */
+.kp-head { position: relative; text-align: center; padding: 18px 16px 6px; }
+.kp-crown { display: inline-block; color: var(--accent); font-size: 1.9rem; transform: rotate(-10deg); filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 70%, transparent)); }
+.kp-name { margin: 0; line-height: .9; font-weight: 400; }
+.kp-sign { display: inline-block; font-family: "Permanent Marker", cursive; font-size: clamp(3.4rem, 15vw, 8.5rem); letter-spacing: .01em; transform: rotate(-3deg);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 35%, #fff) 0%, var(--accent) 45%, var(--accent-2) 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, .45)) drop-shadow(0 0 26px color-mix(in srgb, var(--accent) 45%, transparent)); }
+body.light .kp-sign { background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 70%, #000), var(--accent) 50%, var(--accent-2)); filter: drop-shadow(0 3px 0 rgba(255, 255, 255, .6)); }
+.kp-roles { margin: 10px auto 0; font-size: var(--fs-small); letter-spacing: .26em; text-transform: uppercase; color: var(--text); opacity: .85; }
+.kp-roles b { color: var(--accent); font-weight: 400; }
+.kp-pass { display: inline-flex; gap: 8px; align-items: center; margin-top: 14px; padding: 7px 14px; border-radius: 999px; font-size: var(--fs-small); letter-spacing: .14em;
+  color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 10%, rgba(0, 0, 0, .35)); }
+body.light .kp-pass { background: color-mix(in srgb, var(--accent) 10%, rgba(255, 255, 255, .6)); }
+.kp-pass .dot { width: 7px; height: 7px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 10px #ff3b30; animation: kpBlink 1.6s infinite; }
+@keyframes kpBlink { 50% { opacity: .25; } }
+
+/* pódium: bez rámu, za textem jen rozmazaná záře z náhledu klipu */
+.kp-stage { position: relative; max-width: 980px; margin: 26px auto 0; padding: 0 16px 120px; text-align: center; }
+/* promítaná ukázka z klipu: přiznaný rámeček v barvě webu, natočená šikmo k divákovi jako karty v kolotoči
+   na Hudbě (pravá strana dál), pod myší i prstem se jemně naklání (js/karaoke-page.js nastaví --rx/--ry) */
+.kp-film { position: relative; width: min(76vw, 420px); margin: 0 auto 26px; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; touch-action: pan-y;
+  border: 2px solid var(--accent); background: #000; --base: -16deg;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45), 0 0 34px -6px var(--accent), 0 34px 60px -30px #000;
+  transform: perspective(900px) rotateY(calc(var(--base) + var(--ry, 0deg))) rotateX(var(--rx, 0deg)); transition: transform .5s cubic-bezier(.2, .8, .2, 1), border-color .6s, box-shadow .6s; }
+.kp-film.tilting { transition: transform .12s linear, border-color .6s, box-shadow .6s; }
+/* odlesk skla, posouvá se s nakloněním */
+.kp-film::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, .14) 50%, transparent 62%);
+  transform: translateX(calc(var(--ry, 0deg) / 1deg * 3%)); }
+@media (min-width: 900px) {
+  .kp-stage { max-width: 1180px; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); grid-template-areas: "now film" "lyr film" "cta film"; column-gap: 40px; align-items: center; }
+  .kp-stage .kp-now { grid-area: now; } .kp-stage .kp-lyr { grid-area: lyr; } .kp-stage .kp-cta { grid-area: cta; }
+  .kp-film { grid-area: film; width: 100%; margin: 0; --base: -24deg; }
+}
+.kp-film video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.kp-film.none { display: none; }
+.kp-now { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 10px; align-items: center; margin: 0; font-size: var(--fs-small); letter-spacing: .18em; color: var(--text-dim); text-transform: uppercase; }
+.kp-now b { color: var(--text); font-weight: 400; letter-spacing: .06em; text-transform: none; }
+/* dva řádky nad sebou se střídají (jako opravdové karaoke): zpívaný svítí, v druhém už čeká další */
+.kp-lyr { position: relative; margin: 26px auto 0; display: grid; gap: 6px; }
+/* pevná výška pro 2 řádky (dřív min-height: delší verš zalomený do 3 řádků okno roztáhl a tlačítko pod ním skákalo);
+   verš, který se nevejde, zmenší js/karaoke-page.js (fitLine) */
+.kp-slot { position: relative; height: 2.5em; display: grid; align-items: center; font-size: clamp(1.3rem, 4.6vw, 2.8rem); line-height: 1.2; }
+.kp-line { grid-area: 1 / 1; color: color-mix(in srgb, var(--text) 22%, transparent); transition: color .6s; }
+.kp-slot.active .kp-line { color: color-mix(in srgb, var(--text) 38%, transparent); }
+/* starý řádek rychle zmizí a nový přijde až po něm – nikdy se nepřekrývají */
+.kp-line.in { animation: kpLineIn .5s .35s cubic-bezier(.2, .8, .2, 1) both; }
+.kp-line.out { animation: kpLineOut .35s ease-in forwards; pointer-events: none; }
+@keyframes kpLineIn { from { opacity: 0; transform: translateY(8px); } }
+@keyframes kpLineOut { to { opacity: 0; transform: translateY(-8px); } }
+/* slovo: rozžhavené do bíla, po odzpívání vychladne do barvy fotky a pak se rozplyne (nepřekáží bludičce) */
+.kp-w { position: relative; display: inline-block; white-space: pre; transition: opacity 1.2s ease, filter 1.2s ease, transform 1.2s ease; }
+.kp-w::after { content: attr(data-t); position: absolute; left: 0; top: 0; color: #fff6e8; text-shadow: 0 0 6px #fff, 0 0 18px var(--accent), 0 0 42px var(--accent);
+  clip-path: inset(-30% calc((1 - var(--kp, 0)) * 108% - 4%) -30% -4%); }   /* kp 0 = celé schované i se září, 1 = celé vidět */
+.kp-w.done::after { color: var(--accent); text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent); transition: color 1.2s, text-shadow 1.2s; }
+.kp-w.gone { opacity: .12; filter: blur(3px); transform: translateY(-3px); }
+body.light .kp-w::after, body.light .kp-w.done::after { color: var(--accent); text-shadow: 0 0 1px var(--accent); }
+/* čára letu bludičky (plátno sahá 120 px nad text kvůli obloukům) */
+.kp-trail { position: absolute; z-index: 1; left: 0; top: -120px; width: 100%; height: calc(100% + 120px); pointer-events: none; }
+.kp-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.kp-sing { position: relative; overflow: hidden; display: inline-flex; gap: 10px; align-items: center; justify-content: center; min-height: 52px; padding: 0 30px; border-radius: 999px;
+  font-size: var(--fs-body); letter-spacing: .08em; color: var(--accent-ink, #111); text-decoration: none;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 55%, #fff), var(--accent) 55%, var(--accent-2)); box-shadow: 0 10px 34px -10px var(--accent); }
+.kp-sing::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .6) 50%, transparent 65%); transform: translateX(-120%); animation: kpSwipe 5s ease-in-out infinite; }
+@keyframes kpSwipe { 0%, 65% { transform: translateX(-120%); } 90%, 100% { transform: translateX(120%); } }
+.kp-ghost { display: inline-flex; align-items: center; min-height: 52px; padding: 0 22px; border-radius: 999px; color: var(--text); text-decoration: none; font-size: var(--fs-card);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: rgba(0, 0, 0, .25); }
+body.light .kp-ghost { background: rgba(255, 255, 255, .5); }
+
+/* Setlist: číslo sprejem, název, délka, kulatý náhled; hrající píseň svítí a má ekvalizér */
+.kp-setlist { max-width: 1180px; margin: 0 auto; padding: 10px 16px 60px; }
+.kp-setlist-head { margin: 0 0 14px; font-size: var(--fs-h2); font-weight: 400; color: var(--accent); }
+.kp-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto 52px; gap: 12px; align-items: center; width: 100%; min-height: 72px; padding: 10px 8px; cursor: pointer;
+  border: 0; border-bottom: 1px solid color-mix(in srgb, var(--text) 10%, transparent); border-radius: 12px; background: none; color: var(--text); text-align: left; font: inherit; transition: background .3s; }
+.kp-row:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.kp-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.kp-row .n { font-family: "Permanent Marker", cursive; font-size: 1.9rem; color: color-mix(in srgb, var(--accent) 55%, transparent); transform: rotate(-4deg); }
+.kp-row .t { min-width: 0; }
+.kp-row .t b { display: block; font-weight: 400; font-size: var(--fs-h4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kp-row .t span { display: block; font-family: var(--font-text); font-weight: 300; font-size: var(--fs-small); color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kp-row .d { display: flex; gap: 10px; align-items: center; font-size: var(--fs-small); color: var(--text-dim); }
+.kp-row .eqr { display: none; gap: 2px; align-items: flex-end; height: 16px; }
+.kp-row .eqr i { width: 3px; height: 40%; border-radius: 2px; background: var(--accent); animation: kpBar .9s ease-in-out infinite alternate; }
+.kp-row .eqr i:nth-child(2) { animation-delay: -.3s; }
+.kp-row .eqr i:nth-child(3) { animation-delay: -.6s; }
+@keyframes kpBar { to { height: 100%; } }
+.kp-row .th { position: relative; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
+.kp-row .th img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.34); }   /* hqdefault má černé pruhy */
+.kp-row.sel { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 18%, transparent), transparent 75%); }
+.kp-row.sel .n { color: var(--accent); text-shadow: 0 0 16px var(--accent); }
+.kp-row.sel .eqr { display: inline-flex; }
+@media (min-width: 900px) {
+  .kp-row { grid-template-columns: 80px minmax(0, 1fr) auto 60px; }
+  .kp-row .n { font-size: 2.4rem; }
+  .kp-row .th { width: 60px; height: 60px; }
+}
+html.low-fx .kp-sing::after, html.low-fx .kp-row .eqr i, html.low-fx .kp-pass .dot, html.low-fx .kp-orb i { animation: none; }
+/* bludička (js/karaoke-page.js): mihotavý plamínek letí nad textem tam, kde se zpívá, za sebou čára letu */
+.kp-orb { position: absolute; left: 0; top: 0; z-index: 2; width: 0; height: 0; pointer-events: none; opacity: 0; transition: opacity .4s; will-change: transform; }
+.kp-orb.on { opacity: 1; }
+/* plamínek: velká měkká záře a v ní malé bílé jádro ve tvaru kapky; oboje se mihotá */
+.kp-orb i { position: absolute; left: 0; top: 0; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; }
+.kp-orb i:first-child { width: 26px; height: 32px; margin: -20px 0 0 -13px; filter: blur(5px);
+  background: radial-gradient(ellipse at 50% 62%, color-mix(in srgb, var(--accent) 85%, #fff) 0, var(--accent) 38%, transparent 70%);
+  animation: kpFlicker 1.3s ease-in-out infinite alternate; }
+.kp-orb i:last-child { width: 8px; height: 11px; margin: -8px 0 0 -4px; filter: blur(.6px);
+  background: radial-gradient(ellipse at 50% 65%, #fff 0 35%, color-mix(in srgb, var(--accent) 40%, #fff) 70%, transparent 100%);
+  animation: kpFlicker .7s ease-in-out infinite alternate-reverse; }
+@keyframes kpFlicker { 0% { transform: scale(1, 1); opacity: .9; } 40% { transform: scale(.88, 1.12) translateY(-1px); opacity: 1; } 100% { transform: scale(1.08, .92); opacity: .75; } }
+body.light .kp-orb i:first-child { background: radial-gradient(ellipse at 50% 62%, var(--accent) 0, color-mix(in srgb, var(--accent) 60%, transparent) 40%, transparent 70%); }
+
+/* ===== Profil – styl „Časová osa“: štítky s čísly, přehled ve dvou sloupcích (osa vlevo, boční panel vpravo), záložky jako podtržení ===== */
+.pt-chips { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 4px; }
+.pt-chip { display: inline-flex; gap: 8px; align-items: baseline; min-height: 40px; padding: 8px 14px; border-radius: 999px; text-decoration: none; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-card);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); background: color-mix(in srgb, var(--accent) 6%, var(--panel)); transition: border-color .3s, transform .3s; }
+.pt-chip b { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-h4); color: var(--accent); }
+.pt-chip:hover { border-color: var(--accent); transform: translateY(-1px); text-decoration: none; }
+.pt-cols { grid-column: 1 / -1; display: grid; gap: 12px; }
+.pt-main, .pt-side { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.pt-cols .pt, .pt-cols .pt-show-add { grid-column: auto; }
+.pt-side .pt-stat { min-height: 0; }
+@media (min-width: 1025px) {
+  .pt-cols { grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; }
+  .pt-side { position: sticky; top: calc(var(--header-h) + 14px); }
+  /* osa aktivity v užším sloupci: čára vlevo (jako na telefonu) */
+  .pt-main .pt-activity .pt-feed::before { left: 15px; }
+  .pt-main .pt-activity .pt-feed li, .pt-main .pt-activity .pt-feed li:nth-child(even) { width: auto; margin-left: 0; align-items: flex-start; text-align: left; padding: 0 0 18px 44px; }
+  .pt-main .pt-activity .pt-feed li > i, .pt-main .pt-activity .pt-feed li:nth-child(even) > i { left: 0; right: auto; }
+  /* tvorba v bočním panelu: karty pod sebou po dvou */
+  .pt-side .pt-track-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* záložky profilu jako podtržení (ne kapsle) */
+.profile-tabs.acct-tabs { background: none; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--text) 12%, transparent); border-radius: 0; padding: 0; gap: 4px; }
+.profile-tabs.acct-tabs a { border-radius: 0; background: none; }
+.profile-tabs.acct-tabs a.active { background: none; color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); }
+/* levý sloupec bez obsahu (cizí profil bez aktivity a tvorby): boční panel přes celou šířku */
+@media (min-width: 1025px) { .pt-cols:not(:has(.pt-main > .pt)) { grid-template-columns: minmax(0, 1fr); } .pt-cols:not(:has(.pt-main > .pt)) .pt-main { display: none; } }
+
+/* Diskografie: obrázek posunutý a zvětšený v adminu (--px/--py = bod obrázku uprostřed karty, --pz = zvětšení) */
+.song-thumb img.placed, .disco-edit img.placed { object-fit: cover; object-position: calc(var(--px, 50) * 1%) calc(var(--py, 50) * 1%);
+  scale: var(--pz, 1); transform-origin: calc(var(--px, 50) * 1%) calc(var(--py, 50) * 1%); position: relative; z-index: 1; }
+/* zmenšený obrázek (pod 100 %): okraje kolem něj vyplní rozmazaná a ztmavená kopie téže fotky (--thumb-bg) */
+.song-thumb:has(> img.placed)::before, .disco-edit::before { content: ""; position: absolute; inset: -12%; background: var(--thumb-bg, none) center / cover;
+  filter: blur(14px) brightness(.5); }
+html.low-fx .song-thumb:has(> img.placed)::before { filter: brightness(.4); }
+/* Admin → Obrázky v Diskografii: karty 3:4 jako na Hudbě */
+.admin-disco-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin-top: 14px; }
+.admin-disco-card { display: grid; gap: 4px; color: var(--text); text-decoration: none; }
+.admin-disco-card:hover { text-decoration: none; }
+.admin-disco-card .song-thumb { aspect-ratio: 3 / 4; border-radius: 12px; border: 1px solid var(--panel-border); }
+.admin-disco-card .song-thumb > img:not(.placed) { transform: scale(1.35); }
+.admin-disco-card:hover .song-thumb { border-color: var(--accent); }
+.admin-disco-name { font-size: var(--fs-card); overflow-wrap: anywhere; }
+.admin-disco-meta { font-size: var(--fs-small); color: var(--text-dim); }
+.admin-disco-edit { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; font-size: var(--fs-small); color: var(--accent); }
+/* admin: výběr zdroje a náhled karty 3:4 */
+.disco-src-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin: 10px 0; }
+.disco-src-tile { display: grid; gap: 6px; cursor: pointer; font-size: var(--fs-small); text-align: center; }
+.disco-src-tile input { position: absolute; opacity: 0; }
+.disco-src-img { display: block; aspect-ratio: 3 / 4; border-radius: 10px; overflow: hidden; background: #000; border: 2px solid transparent; }
+.disco-src-img img { width: 100%; height: 100%; object-fit: cover; }
+.disco-src-tile input:checked + .disco-src-img { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--accent); }
+.disco-src-tile input:focus-visible + .disco-src-img { outline: 2px solid var(--accent); outline-offset: 2px; }
+.disco-upload { margin: 10px 0 16px; }
+.disco-edit-wrap { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+.disco-edit { position: relative; width: 200px; aspect-ratio: 3 / 4; border-radius: 14px; overflow: hidden; background: #000; cursor: grab; touch-action: none; user-select: none; }
+.disco-edit img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.disco-edit img.placed { position: absolute; }
+.disco-edit-name { position: absolute; left: 10px; right: 10px; bottom: 10px; font-size: var(--fs-small); color: #fff; text-shadow: 0 1px 6px #000; pointer-events: none; }
+
+/* ---------- Spolupráce (V141): cizí tracky, kde Skeli hostuje – na Hudbě i Textech až pod mými skladbami ---------- */
+.collab-head { flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 44px; padding-top: 22px;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+.collab-head h3 { margin: 0; font-size: var(--fs-h3); color: var(--accent); }
+.collab-head p { margin: 0; font-family: var(--font-text); font-size: var(--fs-text); color: var(--text-dim); }
+/* oddělovač v kolotoči Textů: nadpis mezi dvěma čarami, pod ním drobný popis */
+.wheel-divider { margin: 34px 0 26px; text-align: center; }
+.wheel-divider[hidden] { display: none; }
+.wheel-divider h2 { display: flex; align-items: center; gap: 14px; margin: 0 0 6px; font-size: var(--fs-h3); color: var(--accent); }
+.wheel-divider h2::before, .wheel-divider h2::after { content: ""; flex: 1; height: 1px;
+  background: linear-gradient(to var(--dir, right), transparent, color-mix(in srgb, var(--accent) 55%, transparent)); }
+.wheel-divider h2::after { --dir: left; }
+.wheel-divider p { margin: 0; font-family: var(--font-text); font-size: var(--fs-text); color: var(--text-dim); }
+.wheel-years button.rail-collab { margin-top: 8px; }
+/* Karaoke Setlist a lišta písní u textu: spolupráce pod vlastním nadpisem */
+.kp-collab-head { margin: 34px 0 12px; padding-top: 18px; border-top: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+.kp-collab-head h3 { margin: 0 0 4px; font-size: var(--fs-h3); font-weight: 400; color: var(--accent); }
+.kp-collab-head p { margin: 0; font-family: var(--font-text); font-size: var(--fs-text); color: var(--text-dim); }
+.lyric-page .lyric-nav li.nav-collab-sep { display: flex; align-items: center; gap: 8px; padding: 0 4px 0 8px;
+  font-size: var(--fs-small); color: var(--accent); white-space: nowrap; }
+.lyric-page .lyric-nav li.nav-collab-sep::before { content: ""; width: 1px; height: 22px; background: color-mix(in srgb, var(--accent) 50%, transparent); }
+/* přehrávač na Hudbě: štítek ft. na miniatuře spolupráce */
+.ep-item .ep-ft { position: absolute; top: 6px; left: 6px; z-index: 1; padding: 1px 8px; border-radius: 999px; font-size: var(--fs-small);
+  color: var(--accent-ink); background: var(--accent); }
+
+/* ===== Nastavení → Vzhled (includes/settings-looks.jspf) =====
+   Dlaždice: na telefonu dvě vedle sebe, na PC víc. Zvolená = rámeček v barvě webu, zamčená = ztlumená se zámkem a postupem. */
+.vz-group { margin-top: 22px; }
+.vz-group h4 { margin: 0 0 4px; font-size: var(--fs-h4); }
+.vz-group > .acct-dim { margin: 0 0 10px; }
+.vz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.vz-grid-sm { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+.vz-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; min-height: 44px;
+  padding: 10px; border-radius: calc(var(--radius) * .7); border: 1px solid rgba(127, 127, 127, .28);
+  background: color-mix(in srgb, var(--panel) 80%, var(--accent) 6%); color: inherit; font: inherit; cursor: pointer;
+  transition: border-color .2s, transform .2s;
+}
+button.vz-tile:hover { border-color: color-mix(in srgb, var(--accent) 60%, transparent); transform: translateY(-2px); }
+.vz-tile[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 18px color-mix(in srgb, var(--accent) 30%, transparent); }
+.vz-tile.is-locked { cursor: default; opacity: .78; }
+.vz-tile.is-locked .vz-art, .vz-tile.is-locked .vz-av { filter: grayscale(1) brightness(.7); }
+.vz-name { font-size: var(--fs-card); line-height: 1.25; }
+.vz-tile small { font-family: var(--font-text); font-size: var(--fs-card); color: var(--text-dim); line-height: 1.3; }
+.vz-tile[aria-pressed="true"] small { color: var(--accent); }
+.vz-how i { margin-right: 3px; }
+.vz-progress { display: block; width: 100%; height: 4px; border-radius: 4px; background: rgba(127, 127, 127, .25); overflow: hidden; }
+.vz-progress i { display: block; height: 100%; width: var(--v); background: var(--accent); }
+/* malý náhled stylu karaoke: tmavé plátno a písmena podle stylu */
+.vz-art { width: 100%; aspect-ratio: 16 / 9; border-radius: 10px; display: grid; place-items: end start; padding: 8px 10px; background: #0b0b0d; overflow: hidden; }
+.vz-art span { font: 700 1.05rem/1 var(--font-display); color: #fff; }
+.vz-k-l { background: linear-gradient(160deg, #1b1b22, #050507); }
+.vz-k-l span { border-left: 2px solid #ffc24a; padding-left: 6px; }
+.vz-k-c { background: radial-gradient(ellipse at 50% 40%, #2a2a30, #050506 70%); place-items: center; }
+.vz-k-o { background: radial-gradient(ellipse at 50% 120%, #ff5a1f 0, #6a1500 35%, #0b0505 70%); }
+.vz-k-o span { color: #ffd08a; text-shadow: 0 0 8px #ff6a00; }
+.vz-k-t { background: repeating-radial-gradient(circle at 50% 50%, #12121a 0 10px, #23233a 11px 12px); place-items: center; }
+.vz-k-t span { color: #9fd8ff; text-shadow: 0 0 10px #3fb4ff; }
+.vz-k-u { background: linear-gradient(transparent 45%, rgba(255, 90, 40, .35)), linear-gradient(160deg, #2a2420, #0b0908); }
+.vz-k-u span { color: #ff8a3a; transform: rotate(-4deg); text-shadow: 0 0 10px rgba(255, 106, 26, .7); }
+.vz-k-g { background: radial-gradient(50% 60% at 50% 0%, rgba(255, 250, 235, .22), transparent 70%), #070605; place-items: center; box-shadow: inset 0 0 0 1px rgba(230, 183, 48, .5); }
+.vz-k-g span { color: #fff; font-style: italic; font-family: Georgia, serif; }
+.vz-av { font-size: 56px; }
+.vz-av img { width: 1em; height: 1em; border-radius: 50%; object-fit: cover; }
+.vz-more { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; min-height: 40px; color: var(--accent); }
+.vz-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.vz-chips-k { width: 100%; font-size: var(--fs-small); color: var(--text-dim); text-transform: uppercase; letter-spacing: .06em; }
+.vz-chip {
+  min-height: 40px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(127, 127, 127, .3);
+  background: transparent; color: inherit; font: inherit; font-size: var(--fs-card); cursor: pointer;
+}
+.vz-chip[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
+.vz-game .btn-outline { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) { .vz-tile { transition: none; } button.vz-tile:hover { transform: none; } }
+/* vzhled profilu: karta s náhledem, Vyzkoušet + Použít */
+.vz-card { cursor: default; }
+.vz-card[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 18px color-mix(in srgb, var(--accent) 30%, transparent); }
+.vz-card[aria-current="true"] small { color: var(--accent); }
+.vz-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: auto; width: 100%; }
+.vz-acts form { display: contents; }
+.vz-act { flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 6px 10px; border-radius: 999px;
+  border: 1px solid rgba(127, 127, 127, .35); background: transparent; color: inherit; font: inherit; font-size: var(--fs-small); cursor: pointer; text-decoration: none; }
+.vz-act-main { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.vz-card > form { width: 100%; } .vz-card > form .vz-act { width: 100%; }
+/* barvy náhledů vzhledů profilu (písma vzhledů se tady nenačítají – jen barvy a tvar) */
+.vz-p-base { background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 40%, #111), #0a0909); }
+.vz-p-base span { color: var(--accent); }
+.vz-p-holo { background: radial-gradient(ellipse at 50% 110%, rgba(63, 224, 255, .45), #01050a 65%); place-items: center; }
+.vz-p-holo span { color: #dffbff; letter-spacing: .2em; text-shadow: 2px 0 rgba(255, 40, 140, .5), -2px 0 rgba(63, 224, 255, .8); }
+.vz-p-mono { background: #0c0c0c; box-shadow: inset 0 0 0 3px #f2f2f2, inset 10px 0 0 3px #ff2a00; }
+.vz-p-mono span { color: #f2f2f2; font-weight: 900; }
+.vz-p-radar { background: conic-gradient(from 0deg, rgba(57, 255, 122, .5), transparent 70deg), radial-gradient(circle, #04180c, #020a05); place-items: center; }
+.vz-p-radar span { color: #5dff92; text-shadow: 0 0 10px rgba(57, 255, 122, .8); }
+.vz-p-cock { background: repeating-linear-gradient(-45deg, #ffb000 0 8px, #111 8px 16px) top / 100% 10px no-repeat, #151a20; }
+.vz-p-cock span { color: #ffb000; font-style: italic; }
+.vz-p-wall { background: #1b1a19; }
+.vz-p-wall span { color: #ff2d55; text-shadow: 2px 2px 0 #ffe600; transform: rotate(-7deg); }
+.vz-p-cover { background: linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .8)), linear-gradient(135deg, #8a3b2c, #f2c4b8); place-items: start center; }
+.vz-p-cover span { color: #fff; font-style: italic; font-family: Georgia, serif; font-weight: 900; }
+.vz-p-aurora { background: radial-gradient(40% 50% at 30% 30%, rgba(124, 245, 213, .6), transparent 70%), radial-gradient(40% 60% at 75% 50%, rgba(196, 155, 255, .55), transparent 70%), #050812; }
+.vz-p-aurora span { color: #fff; }
+.vz-p-gal { background: radial-gradient(40% 80% at 50% 0%, rgba(255, 250, 235, .3), transparent 70%), #1a1918; place-items: center; }
+.vz-p-gal span { color: #ece8e1; font-weight: 200; letter-spacing: .3em; }
+/* karaoke: písmo (ukázka přímo tím písmem) a animace */
+.vz-font-sample { display: block; width: 100%; padding: 10px 4px; font-size: 1.35rem; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: clip; }
+.vz-sub { margin: 16px 0 0; font-size: var(--fs-card); color: var(--text-dim); }
+.vz-chip.is-locked { cursor: default; opacity: .7; display: inline-flex; gap: 6px; align-items: center; }
+.vz-chip.is-locked small { font-family: var(--font-text); color: var(--text-dim); }
+
+/* Základní profil (bez vzhledu z odměn) – klidný: jen barva webu (podle fotky v pozadí) a neutrální sklo.
+   Dřív měla každá dlaždice vlastní barvu (modrá, růžová, fialová, oranžová) a odznaky pět dalších – profil „hrál barvama“.
+   Teď všechny dlaždice svítí jen barvou webu a vzácnost odznaků je v jejích odstínech: běžný šedý, pak čím vzácnější,
+   tím sytější, legendární zlatý. Vzhledy z odměn (css/profile-looks.css) mají vlastní pravidla a tohle nepoužívají. */
+main.profile-page:not(.pl-look) .pt { --glow: var(--accent); }
+main.profile-page:not(.pl-look) .pt::before {
+  background: radial-gradient(130% 110% at 15% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 62%),
+    linear-gradient(180deg, var(--panel-strong), var(--panel) 60%, color-mix(in srgb, var(--panel) 72%, transparent)); }
+main.profile-page:not(.pl-look) .pt-hero::before { background: var(--panel-strong); }
+main.profile-page:not(.pl-look) .pt-panel::before { background: radial-gradient(110% 60% at 12% -8%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%), var(--panel-strong); }
+main.profile-page:not(.pl-look) .pt-ghost { color: var(--text); opacity: .07; }
+main.profile-page:not(.pl-look) .acct-motto { color: var(--accent); }
+main.profile-page:not(.pl-look) [data-rar="c"] { --rar: var(--text-dim) !important; }
+main.profile-page:not(.pl-look) [data-rar="u"] { --rar: color-mix(in srgb, var(--accent) 45%, var(--text-dim)) !important; }
+main.profile-page:not(.pl-look) [data-rar="r"] { --rar: var(--accent) !important; }
+main.profile-page:not(.pl-look) [data-rar="e"] { --rar: color-mix(in srgb, var(--accent) 70%, #fff) !important; }
+main.profile-page:not(.pl-look) [data-rar="l"] { --rar: #e8b64a !important; }
+body.light main.profile-page:not(.pl-look) [data-rar="e"] { --rar: color-mix(in srgb, var(--accent) 70%, #000) !important; }
+body.light main.profile-page:not(.pl-look) [data-rar="l"] { --rar: #a37b00 !important; }
+main.profile-page:not(.pl-look) .pt-activity .pt-feed .pt-act-card { background: color-mix(in srgb, var(--accent) 4%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 22%, transparent); }
+main.profile-page:not(.pl-look) .pt-show-item { background: color-mix(in srgb, var(--rar) 10%, transparent); }

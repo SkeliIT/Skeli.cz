@@ -1,0 +1,200 @@
+/* Karaoke kino – styly zpívání (kino/styly.js). Barvy a basy klipu nastavuje skript na :root:
+   --acc (sytá barva klipu), --l / --r / --b (barvy levého, pravého a spodního okraje obrazu), --bass (0–1). */
+:root { --acc: #ff5a3c; --l: #333; --r: #333; --b: #333; --bass: 0; }
+@property --acc { syntax: '<color>'; inherits: true; initial-value: #ff5a3c; }
+.st-stage { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #000; }
+[data-look="st"] #back, [data-look="st"] #css3d, [data-look="st"] #front, [data-look="st"] #fx { display: none; }
+[data-look="st"] .lyrics { top: 42%; height: auto; }
+[data-look="st"] .lyrics::before, [data-look="st"] .dots { display: none; }
+.st-player { position: absolute; inset: 0; background: #000; overflow: hidden; }
+.st-player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.st-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .8s; pointer-events: none; z-index: 1; }
+.st-catch { position: absolute; inset: 0; z-index: 2; cursor: pointer; }
+/* video se samo nespustilo (telefon): ťuknutí propustit přímo do přehrávače YouTube, velké ▶ ukazuje kam (styly.js) */
+.st-player.st-tap .st-catch { pointer-events: none; }
+.st-player.st-tap .st-poster { opacity: .35; }
+.st-player.st-tap::after { content: "▶"; position: absolute; left: 50%; top: 50%; z-index: 3; width: 76px; height: 76px; margin: -38px 0 0 -38px;
+  display: grid; place-items: center; padding-left: 6px; box-sizing: border-box; border-radius: 50%; pointer-events: none;
+  font: 34px/1 sans-serif; color: #fff; background: color-mix(in srgb, var(--acc, #ffb02e) 80%, #000); box-shadow: 0 0 0 0 var(--acc, #ffb02e);
+  animation: stTap 1.6s ease-out infinite; }
+@keyframes stTap { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--acc, #ffb02e) 60%, transparent); } 100% { box-shadow: 0 0 0 26px transparent; } }
+.st-stage .w { position: relative; display: inline-block; white-space: pre; }
+@keyframes stIn { from { opacity: 0; transform: translateY(8px); } }
+@keyframes stOut { to { opacity: 0; transform: translateY(-8px); } }
+
+/* ===== 1 · LYRIC VIDEO ===== */
+.st-l .l-video { position: absolute; inset: 0; }
+.st-l .l-video .st-player { inset: -6%; transform: scale(calc(1.02 + var(--bass) * .03)); }   /* přesah = ořízne pruhy a nechá místo na pulz */
+.st-l .l-video iframe { width: 100%; height: 100%; }
+/* ztmavení jen vlevo a dole, kde je text; zbytek videa zůstane jasný */
+.st-l .l-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(0, 0, 0, .65), transparent 70%), linear-gradient(transparent 50%, rgba(0, 0, 0, .55)); }
+/* text pořád na jednom místě: dole vlevo nad ovládáním, každý řádek začíná na stejném bodě (zlatá čárka) */
+/* přichycené shora (ne odspodu): začátek řádku je vždy na stejném bodě, i když se řádek zalomí; místo na 2 řádky + další */
+.st-l .l-sub { position: absolute; z-index: 2; left: 7vw; right: 28vw; top: calc(100% - 150px - 3.3em); pointer-events: none; font-size: clamp(20px, min(3.3vw, 6vh), 52px); }
+.st-l .l-sub::before { content: ''; position: absolute; left: -2.2vw; top: .25em; bottom: .25em; width: 4px; border-radius: 2px; background: var(--acc); box-shadow: 0 0 14px var(--acc); }
+.st-l .l-sub:has(.cur:empty)::before { opacity: 0; }
+.st-l .l-sub .cur, .st-l .l-sub .nxt { display: block; }
+.st-l .l-sub .cur { font-family: var(--kfont, 'Bruno Ace SC'), 'Bruno Ace SC', sans-serif; text-transform: var(--kcase, uppercase); line-height: 1.15; }
+.st-l .l-sub .cur.swap { animation: lSwap .28s ease-out; }
+@keyframes lSwap { from { opacity: 0; transform: translateY(.35em); } }
+.st-l .l-sub .nxt { font-family: 'Oswald', sans-serif; font-weight: 300; letter-spacing: .03em; font-size: .5em; margin-top: .5em; color: rgba(255, 255, 255, .55); text-shadow: 0 2px 10px rgba(0, 0, 0, .8); }
+.st-l .w { color: rgba(255, 255, 255, .32); text-shadow: 0 2px 14px rgba(0, 0, 0, .8); transition: color .12s; }
+.st-l .w.on { color: #fff; }
+.st-l .w.now { color: var(--acc); text-shadow: 0 0 18px color-mix(in srgb, var(--acc) 70%, transparent), 0 2px 14px rgba(0, 0, 0, .8); animation: lPop .3s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes lPop { from { transform: scale(1.25); } }
+/* Písmo a animace naskakování podle volby (Nastavení → Vzhled, tlačítko Aa v kině). Řádek je rozdělený na písmena .ch
+   (--i pořadí, --wi slovo, --r náhoda, --dx směr); --k zkrátí animaci, aby doběhla dřív, než zazní první slovo. */
+.st-l .l-sub .cur[class*="a-"] .w { display: inline-block; white-space: nowrap; }
+.st-l .l-sub .cur[class*="a-"] .ch { display: inline-block; }
+.st-l .a-blur .ch { animation: aBlur calc(.7s * var(--k, 1)) cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i) * 22ms * var(--k, 1)); }
+@keyframes aBlur { from { opacity: 0; filter: blur(14px); transform: scale(1.4); } }
+.st-l .a-mask .w { overflow: hidden; vertical-align: bottom; padding-bottom: .08em; }
+.st-l .a-mask .ch { animation: aMask calc(.6s * var(--k, 1)) cubic-bezier(.2, .9, .2, 1) both; animation-delay: calc(var(--wi) * 70ms * var(--k, 1)); }
+@keyframes aMask { from { transform: translateY(110%); } }
+.st-l .a-type .ch { animation: aType 1ms both; animation-delay: calc(var(--i) * 38ms * var(--k, 1)); }
+@keyframes aType { from { opacity: 0; } }
+.st-l .a-glitch .ch { animation: aGlitch calc(.55s * var(--k, 1)) steps(2) both; animation-delay: calc(var(--r) * .25s * var(--k, 1)); }
+@keyframes aGlitch { 0% { opacity: 0; transform: translate(-.15em, 0) skewX(-20deg); text-shadow: -.08em 0 #ff2a6d, .08em 0 #05d9e8; }
+  40% { opacity: 1; transform: translate(.1em, -.05em); text-shadow: .1em 0 #ff2a6d, -.1em 0 #05d9e8; }
+  70% { transform: translate(-.04em, .03em); text-shadow: -.04em 0 #ff2a6d, .04em 0 #05d9e8; } }
+.st-l .a-flip { perspective: 600px; }
+.st-l .a-flip .ch { animation: aFlip calc(.7s * var(--k, 1)) cubic-bezier(.3, 1.4, .5, 1) both; animation-delay: calc(var(--i) * 30ms * var(--k, 1)); transform-origin: 50% 80%; backface-visibility: hidden; }
+@keyframes aFlip { from { opacity: 0; transform: rotateX(-95deg); } }
+.st-l .a-smoke .ch { animation: aSmoke calc(1.2s * var(--k, 1)) cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i) * 18ms * var(--k, 1)); }
+@keyframes aSmoke { from { opacity: 0; filter: blur(10px); transform: translate(calc(var(--dx) * .6em), -.6em) scale(1.6); } }
+.st-l .a-wave .ch { animation: aWave calc(.8s * var(--k, 1)) cubic-bezier(.3, 1.6, .5, 1) both; animation-delay: calc(var(--i) * 28ms * var(--k, 1)); }
+@keyframes aWave { from { opacity: 0; transform: translateY(.9em); } 60% { transform: translateY(-.15em); } }
+/* Rubik Wet Paint: občas z rozsvíceného písmene kápne kapka barvou textu (js: drip) */
+.st-l .drip { position: absolute; width: .14em; height: .2em; margin-left: -.07em; border-radius: 50% 50% 50% 50% / 35% 35% 65% 65%; background: var(--acc); pointer-events: none; animation: lDrip 1.6s cubic-bezier(.5, 0, .9, .6) forwards; }
+@keyframes lDrip { 0% { transform: translateY(0) scaleY(.4); opacity: 0; } 15% { opacity: 1; transform: translateY(.05em) scaleY(1.2); } 100% { transform: translateY(2.4em) scaleY(1); opacity: 0; } }
+/* telefon na výšku: video je pruh uprostřed, text pod ním přes celou šířku */
+@media (orientation: portrait) and (max-width: 600px) { .st-l .l-sub { left: 9vw; right: 7vw; top: calc(100% - 140px - 4.5em); font-size: clamp(18px, 6vw, 30px); } .st-l .l-sub::before { left: -4vw; } }
+@media (prefers-reduced-motion: reduce) { .st-l .w.now, .st-l .l-sub .cur.swap, .st-l .l-sub .cur .ch, .st-l .drip { animation: none !important; } }
+
+/* ===== 2 · KOUŘ A OHEŇ ===== */
+.st-o .o-bg { position: absolute; inset: 0; background: radial-gradient(90% 70% at 50% 30%, color-mix(in srgb, var(--acc) 18%, #0b0807), #050404 70%); }
+.st-o .o-smoke { position: absolute; inset: auto -10% -25% -10%; height: 75%; opacity: .55; filter: blur(34px); pointer-events: none;
+  background: radial-gradient(40% 50% at 20% 70%, color-mix(in srgb, var(--acc) 40%, #333), transparent 70%), radial-gradient(45% 55% at 75% 75%, color-mix(in srgb, var(--acc) 25%, #222), transparent 70%), radial-gradient(60% 50% at 50% 100%, #2a2522, transparent 70%);
+  animation: oSmoke 18s ease-in-out infinite alternate; }
+@keyframes oSmoke { to { transform: translateX(-6%) scale(1.15); } }
+.st-o .o-plate { position: absolute; left: 50%; top: 9vh; width: min(66vw, 1100px, 88vh); aspect-ratio: 16 / 9; transform: translateX(-50%); border-radius: 16px; overflow: hidden;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--acc) 60%, transparent), 0 0 calc(40px + var(--bass) * 60px) -6px var(--acc), -40px 0 120px -40px var(--l), 40px 0 120px -40px var(--r); }
+@media (max-aspect-ratio: 16/10) { .st-o .o-plate { width: 92vw; top: 12vh; } }
+.st-o .o-sparks { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+.st-o .o-lyr { position: absolute; left: 5vw; right: 5vw; bottom: 100px; text-align: center; display: grid; gap: 6px; font-family: 'Bruno Ace SC', sans-serif; font-size: clamp(18px, 2.8vw, 42px); line-height: 1.25; z-index: 2; pointer-events: none; }
+.st-o .slot { min-height: 2.5em; display: grid; align-items: center; }
+.st-o .ln { grid-area: 1 / 1; color: rgba(255, 255, 255, .28); }
+.st-o .slot.act .ln { color: rgba(255, 255, 255, .42); }
+.st-o .ln.in { animation: stIn .5s .35s both; } .st-o .ln.out { animation: stOut .35s forwards; }
+.st-o .w::after { content: attr(data-t); position: absolute; left: 0; top: 0; color: #fff6e8; text-shadow: 0 0 6px #fff, 0 0 18px var(--acc), 0 0 40px var(--acc);
+  clip-path: inset(-30% calc((1 - var(--k, 0)) * 108% - 4%) -30% -4%); }
+.st-o .w.done::after { color: var(--acc); text-shadow: 0 0 12px color-mix(in srgb, var(--acc) 60%, transparent); transition: color 1s; }
+.st-o .w { transition: opacity 1.2s, filter 1.2s; }
+.st-o .w.gone { opacity: .14; filter: blur(3px); }
+
+/* ===== 3 · ČISTÉ PLÁTNO ===== */
+.st-c .st-stage { background: #030303; }
+.st-c .c-cont { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.st-c .c-cont path { fill: none; stroke-width: 1; stroke-linecap: round; vector-effect: non-scaling-stroke; transition: stroke 2s; }
+.st-c .c-screen { position: absolute; left: 50%; top: 11vh; width: min(72vw, 1200px, 96vh); aspect-ratio: 16 / 9; transform: translateX(-50%); }
+@media (max-aspect-ratio: 16/10) { .st-c .c-screen { width: 94vw; top: 16vh; } }
+.st-c .c-screen::before { content: ""; position: absolute; inset: -8%; z-index: 0; filter: blur(60px); opacity: .5; pointer-events: none;
+  background: linear-gradient(90deg, var(--l), transparent 35%, transparent 65%, var(--r)), linear-gradient(0deg, var(--b), transparent 45%); }
+.st-c .c-screen .st-player { border-radius: 3px; }
+.st-c .c-lyr { position: absolute; left: 6vw; right: 6vw; bottom: 96px; text-align: center; pointer-events: none; }
+.st-c .cur { font-family: 'Bruno Ace SC', sans-serif; font-size: clamp(19px, 2.6vw, 38px); line-height: 1.3; color: rgba(255, 255, 255, .3); min-height: 2.6em; }
+.st-c .cur.in { animation: stIn .5s .1s both; }
+.st-c .nxt { margin-top: 12px; font-family: 'Oswald', sans-serif; font-weight: 300; font-size: clamp(14px, 1.5vw, 20px); color: rgba(255, 255, 255, .3); letter-spacing: .03em; }
+.st-c .w { transition: color .25s; }
+.st-c .w.on { color: #fff; }
+.st-c .w.done { color: color-mix(in srgb, var(--acc) 70%, #fff); }
+
+/* ===== 4 · TUNEL ===== */
+.st-t .t-scene { position: absolute; inset: 0; perspective: 700px; transform-style: preserve-3d; }
+.st-t .t-video { position: absolute; left: 50%; top: 50%; width: 62vw; aspect-ratio: 16 / 9; transform: translate(-50%, -50%) translateZ(-420px); border-radius: 8px; overflow: hidden;
+  box-shadow: 0 0 140px 30px color-mix(in srgb, var(--acc) 40%, transparent); }
+@media (max-aspect-ratio: 1/1) { .st-t .t-video { width: 150vw; } }
+.st-t .t-ring { position: absolute; left: 50%; top: 50%; width: 120vw; height: 120vh; margin: -60vh 0 0 -60vw; border-radius: 42%; opacity: 0; will-change: transform, opacity; pointer-events: none;
+  border: 1px solid transparent; background: linear-gradient(#0000, #0000) padding-box, conic-gradient(from 0deg, var(--acc), var(--l), var(--r), var(--acc)) border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; filter: drop-shadow(0 0 10px var(--acc)); }
+.st-t .t-words { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+.st-t .fw { position: absolute; left: 0; top: 50%; font-family: 'Bruno Ace SC', sans-serif; text-transform: uppercase; white-space: nowrap; font-size: clamp(20px, min(3.6vw, 6.5vh), 56px);
+  color: #fff; will-change: transform, opacity; text-shadow: 0 0 18px var(--acc), 0 4px 18px rgba(0, 0, 0, .7); }
+.st-t .fw.sung { color: var(--acc); text-shadow: 0 0 26px var(--acc), 0 0 2px #fff; }
+.st-t .fw.past { transition: transform .7s ease-in, opacity .7s ease-in; }
+.st-t .t-hint { position: absolute; left: 0; right: 0; bottom: 92px; text-align: center; font-family: 'Oswald', sans-serif; font-weight: 300; color: rgba(255, 255, 255, .5); font-size: clamp(14px, 1.5vw, 19px); padding: 0 20px; pointer-events: none; }
+
+/* výběr stylu v lobby a v ovládání (kino.jsp) */
+.room .st-sw { position: absolute; right: 0; top: 0; width: 70%; height: 100%; }
+.room[data-room="l"] .st-sw { background: linear-gradient(90deg, transparent, #0c0c10 10%), url(/img/disco/YQt6qBZ2f4g.webp) right 40% / cover; }
+.room .st-sw::after { content: attr(data-word); position: absolute; right: 12px; top: 50%; transform: translateY(-50%) rotate(-4deg); font: 400 20px 'Bruno Ace SC', sans-serif; color: #fff; text-shadow: 0 0 16px var(--gold); }
+.room[data-room="o"] .st-sw { background: radial-gradient(60% 80% at 70% 70%, #ff6a1f, #3a1205 60%, transparent), #120806; }
+.room[data-room="c"] .st-sw { background: radial-gradient(40% 50% at 70% 50%, #2a2a2e, #050505 70%); box-shadow: inset -60px 0 60px -40px #3fb4ff; }
+.room[data-room="t"] .st-sw { background: repeating-radial-gradient(circle at 75% 50%, transparent 0 10px, rgba(255, 90, 60, .55) 11px 12px), #050505; }
+
+@media (prefers-reduced-motion: reduce) { .st-stage *, .st-stage *::before, .st-stage *::after { animation: none !important; } }
+
+/* ===== Společné pro Ulici a Galerii: kouř z webu (js/smoke.js čte --accent a --bg z body), plátno s částicemi ===== */
+body.st-u, body.st-g { --accent: var(--acc); --bg: #050505; }
+.st-stage .smoke-edge { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; pointer-events: none; }
+.st-stage .smoke-edge canvas { display: block; width: 100%; height: 100%; }
+.st-stage .smoke-edge:not(.live) { background: linear-gradient(transparent, #050505 75%); }
+.st-stage .smoke-edge:not(.live) canvas { display: none; }
+.st-fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 6; pointer-events: none; }
+.st-stage .nxt { display: block; font-family: 'Oswald', sans-serif; font-weight: 300; letter-spacing: .03em; color: rgba(255, 255, 255, .5); text-shadow: 0 2px 10px rgba(0, 0, 0, .8); }
+
+/* ===== 5 · ULICE ===== video přes celou plochu, kouř zespodu, uhlíky, text sprejem (zpívané slovo v barvě klipu, občas kapka) */
+.st-u .u-vid { position: absolute; inset: 0; z-index: 1; }
+.st-u .u-vid .st-player { inset: -6%; transform: scale(calc(1.03 + var(--bass) * .02)); filter: brightness(.85) contrast(1.06) saturate(1.05); }
+.st-u .u-shade { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(90deg, rgba(0, 0, 0, .55), transparent 65%); }
+.st-u .u-lyr { position: absolute; z-index: 5; left: 6vw; right: 20vw; bottom: calc(17vh + 60px); pointer-events: none; }
+.st-u .u-box { position: relative; }
+.st-u .u-cur { font-family: var(--kfont, 'Rubik Wet Paint'), 'Rubik Wet Paint', sans-serif; font-size: clamp(22px, 4.4vw, 70px); line-height: 1.1; min-height: 2.2em;
+  display: flex; flex-wrap: wrap; align-content: flex-end; column-gap: .28em; }
+.st-u .w { color: rgba(255, 255, 255, .3); text-shadow: 0 3px 18px rgba(0, 0, 0, .8); transition: color .15s; }
+.st-u .w.on { color: #fff; }
+.st-u .w.now { color: var(--acc); text-shadow: 0 0 22px color-mix(in srgb, var(--acc) 70%, transparent), 0 3px 18px rgba(0, 0, 0, .8); }
+.st-u .u-cur.in .w { animation: uSpray .55s ease-out both; animation-delay: calc(var(--wi) * 45ms); }
+@keyframes uSpray { from { opacity: 0; filter: blur(9px); transform: scale(1.12); } }
+.st-u .u-cur.old { position: absolute; left: 0; right: 0; bottom: 0; animation: uOut .45s ease-in forwards; }
+@keyframes uOut { to { opacity: 0; filter: blur(8px); transform: translateY(-.25em); } }
+.st-u .nxt { margin-top: .7em; font-size: clamp(13px, 1.5vw, 21px); }
+@media (orientation: portrait) and (max-width: 600px) { .st-u .u-lyr { left: 6vw; right: 6vw; bottom: calc(15vh + 60px); } .st-u .u-cur { font-size: 8vw; } }
+
+/* ===== 6 · GALERIE ===== tmavý sál, klip v HUD rámečku, světlo z plátna do kouřové podlahy, světlušky, text na skle */
+.st-g .st-stage { background: #070605; --gw: min(60vw, calc((100vh - 340px) * 1.7778)); --gt: 7vh; }
+.st-g .g-rays { position: absolute; z-index: 1; left: 50%; top: var(--gt); width: 120vw; height: 100vh; translate: -50% 0; pointer-events: none; filter: blur(28px);
+  opacity: calc(.35 + var(--bass) * .35); mix-blend-mode: screen;
+  background: conic-gradient(from 180deg at 50% calc(var(--gw) * .6), transparent 0 140deg, color-mix(in srgb, var(--l) 60%, transparent) 158deg, transparent 170deg,
+    color-mix(in srgb, var(--acc) 45%, transparent) 180deg, transparent 190deg, color-mix(in srgb, var(--r) 60%, transparent) 202deg, transparent 220deg); }
+.st-g .g-glow { position: absolute; z-index: 1; left: 50%; top: var(--gt); width: var(--gw); aspect-ratio: 16 / 9; translate: -50% 0; scale: 1.3; filter: blur(70px);
+  opacity: calc(.45 + var(--bass) * .25); background: linear-gradient(90deg, var(--l), transparent 40%, transparent 60%, var(--r)); }
+.st-g .g-screen { position: absolute; z-index: 2; left: 50%; top: var(--gt); width: var(--gw); aspect-ratio: 16 / 9; translate: -50% 0; }
+.st-g .g-vid { position: absolute; inset: 0; overflow: hidden; border-radius: 4px; }
+.st-g .g-hud i { position: absolute; width: 26px; height: 26px; border: 2px solid var(--acc); filter: drop-shadow(0 0 6px var(--acc)); }
+.st-g .g-hud i:nth-child(1) { left: -10px; top: -10px; border-right: 0; border-bottom: 0; } .st-g .g-hud i:nth-child(2) { right: -10px; top: -10px; border-left: 0; border-bottom: 0; }
+.st-g .g-hud i:nth-child(3) { left: -10px; bottom: -10px; border-right: 0; border-top: 0; } .st-g .g-hud i:nth-child(4) { right: -10px; bottom: -10px; border-left: 0; border-top: 0; }
+.st-g .g-scan { position: absolute; inset: 0; pointer-events: none; border-radius: 4px; opacity: .35; background: repeating-linear-gradient(transparent 0 3px, rgba(0, 0, 0, .35) 3px 4px); }
+.st-g .g-tag { position: absolute; left: 0; top: -2.1em; font: 500 clamp(10px, 1vw, 14px) 'Oswald', sans-serif; letter-spacing: .22em; text-transform: uppercase; color: var(--acc); white-space: nowrap; }
+.st-g .g-tag b { color: #fff; font-weight: 500; }
+.st-g .g-lyr { position: absolute; z-index: 5; left: 50%; translate: -50% 0; top: calc(var(--gt) + var(--gw) * .5625 + 4vh); width: min(76vw, 1100px); text-align: center; pointer-events: none;
+  padding: 1em 1.6em 1.1em; border-radius: 20px; backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--acc) 14%, rgba(20, 20, 20, .38)), rgba(10, 10, 10, .32));
+  border: 1px solid color-mix(in srgb, var(--acc) 38%, transparent); box-shadow: 0 20px 60px -20px rgba(0, 0, 0, .8), inset 0 1px 0 rgba(255, 255, 255, .08); }
+.st-g .g-box { position: relative; min-height: 2.3em; font-family: var(--kfont, 'Fraunces'), 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: clamp(20px, 3vw, 48px); line-height: 1.15; }
+.st-g .g-cur.old { position: absolute; left: 0; right: 0; top: 0; animation: gUp .8s ease-in forwards; }
+@keyframes gUp { to { opacity: 0; transform: translateY(-.6em); filter: blur(10px); } }
+.st-g .g-cur.in .w { animation: gIn .8s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--wi) * 50ms); }
+@keyframes gIn { from { opacity: 0; filter: blur(10px); letter-spacing: .2em; } }
+/* slovo se při zpěvu zleva naplní světlem (--gk 0–1 ze skriptu) */
+.st-g .w { color: transparent; -webkit-background-clip: text; background-clip: text;
+  background-image: linear-gradient(90deg, #fff 0, #fff calc(var(--gk, 0) * 100%), rgba(255, 255, 255, .3) calc(var(--gk, 0) * 100% + .4em)); background-size: calc(100% + .4em) 100%;
+  filter: drop-shadow(0 0 calc(var(--gk, 0) * 12px) color-mix(in srgb, var(--acc) 60%, transparent)); }
+.st-g .nxt { margin-top: .9em; font-size: clamp(11px, 1.1vw, 15px); text-transform: uppercase; letter-spacing: .26em; }
+@media (orientation: portrait) and (max-width: 600px) {
+  .st-g .st-stage { --gw: 92vw; --gt: 14vh; }
+  .st-g .g-lyr { width: 92vw; padding: .8em 1em; } .st-g .g-box { font-size: 7vw; }
+}
+/* slabé zařízení / omezení pohybu: bez rozmazání skla a bez náběhových animací */
+html.low-fx .st-g .g-lyr { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(12, 12, 12, .82); }
+@media (prefers-reduced-motion: reduce) { .st-u .u-cur .w, .st-u .u-cur.old, .st-g .g-cur .w, .st-g .g-cur.old { animation: none !important; } }

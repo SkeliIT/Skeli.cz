@@ -3,6 +3,19 @@
    Design tokens, typography, page layout
    ============================================ */
 
+/* Hlavní barva webu se mění podle fotky v pozadí (js/effects.js, paint). Skript nastaví na body
+   --accent: hsl(var(--a1h) var(--a1s) var(--a1l)) a plynule se přelévají jen tahle čísla (přechod na body níž):
+   odstín se otočí po barevném kruhu. Přímé přelití barvy by šlo „rovně“ přes RGB a mezi skoro protilehlými
+   barvami (oranžová ↔ modrá) by prošlo světle šedou – ikonky a nápisy by na chvíli zbělaly. */
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #ffd23f; }
+@property --accent-2 { syntax: '<color>'; inherits: true; initial-value: #ff8a3d; }
+@property --a1h { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --a1s { syntax: '<percentage>'; inherits: false; initial-value: 100%; }
+@property --a1l { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+@property --a2h { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --a2s { syntax: '<percentage>'; inherits: false; initial-value: 100%; }
+@property --a2l { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+
 /* Design tokens (dark theme is the default) */
 :root {
   /* One typeface for the whole site; hierarchy comes from size and color.
@@ -36,15 +49,17 @@
   --panel-border: rgba(255, 255, 255, 0.09);
   --field: rgba(255, 255, 255, 0.05);
 
-  --accent: #ffd23f;
+  /* výchozí barva = barva obvyklého pozadí (rudá fotka IMG_0090); fotky ji pak mění (js/effects.js) */
+  --accent: #ff3b30;
   --accent-ink: #141414;                    /* text on an accent background */
-  --accent-soft: rgba(255, 210, 63, 0.12);
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
   --accent-2: #ff8a3d;  /* ember orange from the smoke photo */
   --gold: linear-gradient(100deg, #ffe58a, #ffd23f 35%, #ff9d3d 75%, #ffd23f);
   --red: #e5383b;
   --spotify: #1DB954;
   --apple-music: #fc3c44;
   --youtube: #FF0000;
+  --soundcloud: #ff5500;
   --rss: #f26522;
 
   --radius: 18px;
@@ -72,13 +87,17 @@ body.light {
   --panel-border: rgba(0, 0, 0, 0.09);
   --field: rgba(0, 0, 0, 0.04);
 
-  --accent: #a37b00;
+  --accent: #1f6fc4;   /* sníh a modrá obloha (lightnaweb) */
   --accent-ink: #ffffff;
-  --accent-soft: rgba(163, 123, 0, 0.12);
-  --accent-2: #2f7fd6;  /* blue sky from the snow photo */
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-2: #4aa3ea;  /* blue sky from the snow photo */
   --gold: linear-gradient(100deg, #c99a12, #a37b00 40%, #d08a1c 80%, #a37b00);
   --shadow: 0 20px 45px -24px rgba(0, 0, 0, 0.30);
 }
+
+/* Admin si nechává klidnou zlatou (Texty se přebarvují s webem, video přebarví js/texty-bg.js) */
+body.is-admin { --accent: #ffd23f; --accent-2: #ff8a3d; }
+body.light.is-admin { --accent: #a37b00; --accent-2: #2f7fd6; }
 
 /* Reset-ish */
 *, *::before, *::after { box-sizing: border-box; }
@@ -90,6 +109,9 @@ html {
 
 body {
   font-family: var(--font-body);
+  /* odvozená jemná barva se musí počítat až na body: tady mění --accent skript (js/effects.js); na :root by zůstala
+     navždy vypočtená z výchozí rudé a v tmavém režimu by barvu fotky nesledovala */
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
   font-size: var(--fs-body);
   letter-spacing: 0.01em;
   /* Bruno Ace SC has a single weight: never let the browser fake a bold */
@@ -98,6 +120,9 @@ body {
   line-height: 1.6;
   color: var(--text);
   background-color: var(--bg);
+  /* barva podle fotky se přelije pomalu, spolu s prolnutím fotky */
+  transition: --a1h 4s ease-in-out, --a1s 4s ease-in-out, --a1l 4s ease-in-out,
+              --a2h 4s ease-in-out, --a2s 4s ease-in-out, --a2l 4s ease-in-out;
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -226,13 +251,17 @@ main > h2:first-child::after {
 .admin-card,
 .auth-card,
 .donate-card {
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
+  /* sklo s jemným nádechem barvy fotky v pozadí (vzhled „Ulice“) */
+  background: color-mix(in srgb, var(--accent) 5%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--panel-border));
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  transition: border-color .35s ease, box-shadow .35s ease;
 }
+/* administrace zůstává klidná: bez barevného nádechu */
+body.is-admin .card, .admin-card { background: var(--panel); border-color: var(--panel-border); }
 
 /* Reveal animation */
 /* sections fade in from a soft blur; --d staggers neighbours (0, 1, 2…) */

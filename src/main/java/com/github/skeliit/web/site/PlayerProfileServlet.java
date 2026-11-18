@@ -24,6 +24,34 @@ import java.sql.SQLException;
 @WebServlet(name = "PlayerProfileServlet", urlPatterns = {"/hrac/*"})
 public class PlayerProfileServlet extends HttpServlet {
 
+    /**
+     * Veřejný profil pro nepřihlášené: jen když si ho člověk zapnul, profil není skrytý a má aspoň jednu viditelnou skladbu.
+     * Ukáže jen jméno, fotku, představení (když ho ukazuje) a skladby. Hry, odznaky, přátelé ani nic dalšího.
+     */
+    private static boolean showToEveryone(String name, HttpServletRequest req) throws ServletException {
+        try {
+            UserDao users = new UserDao();
+            Integer id = users.publicPlayerId(name);
+            if (id == null) return false;
+            boolean[] sharing = users.sharing(id);
+            if (!sharing[5] || !sharing[6]) return false;
+            var tracks = new com.github.skeliit.dao.UserTrackDao().list(id, false);
+            if (tracks.isEmpty()) return false;
+            var player = users.summary(id);
+            var details = users.profile(id);
+            req.setAttribute("playerAnon", Boolean.TRUE);
+            req.setAttribute("player", player);
+            req.setAttribute("playerAvatar", users.avatar(id));
+            req.setAttribute("playerPong", new com.github.skeliit.model.PongProfile());
+            req.setAttribute("playerTracks", tracks);
+            if (sharing[0] && details != null) req.setAttribute("playerBio", details.bio);
+            req.setAttribute("pageTitle", player.username);
+            return true;
+        } catch (SQLException e) {
+            throw new ServletException(e);
+        }
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String path = req.getPathInfo();
@@ -32,6 +60,12 @@ public class PlayerProfileServlet extends HttpServlet {
         HttpSession s = req.getSession(false);
         Integer me = s == null ? null : (Integer) s.getAttribute("user_id");
         if (me == null) {
+            if (showToEveryone(name, req)) {
+                resp.setHeader("X-Robots-Tag", "noindex");
+                req.setAttribute("pageNoIndex", Boolean.TRUE);
+                req.getRequestDispatcher("/WEB-INF/views/player.jsp").forward(req, resp);
+                return;
+            }
             resp.sendRedirect("/login.jsp?next=" + URLEncoder.encode("/hrac/" + URLEncoder.encode(name, StandardCharsets.UTF_8), StandardCharsets.UTF_8));
             return;
         }
@@ -46,12 +80,42 @@ public class PlayerProfileServlet extends HttpServlet {
                 req.getRequestDispatcher("/WEB-INF/views/player.jsp").forward(req, resp);
                 return;
             }
+            // kdo mě zablokoval, ten můj profil nevidí: stejná stránka jako u skrytého
+            com.github.skeliit.dao.FriendDao.Rel rel = id.equals(me) ? null : new com.github.skeliit.dao.FriendDao().relation(me, id);
+            if (rel == com.github.skeliit.dao.FriendDao.Rel.BLOCKS_ME) {
+                resp.setStatus(404);
+                req.getRequestDispatcher("/WEB-INF/views/player.jsp").forward(req, resp);
+                return;
+            }
+            req.setAttribute("playerRel", rel);
             var player = users.summary(id);
             req.setAttribute("player", player);
             req.setAttribute("playerAvatar", users.avatar(id));
             req.setAttribute("playerCover", users.coverForOthers(id));
+            req.setAttribute("playerLook", new com.github.skeliit.dao.RewardDao().profileLook(id, player != null && player.admin));   // vzhled profilu (odměna)
             req.setAttribute("playerShowcase", users.showcase(id));
-            req.setAttribute("playerPong", new PongDao().profile(id));
+            var playerPong = new PongDao().profile(id);
+            // jméno v tabulkách CatSmash vypnuté: bez časů a míst, jinak by šel anonymní řádek v tabulce spárovat s profilem
+            if (!users.pongPublic(id)) {
+                java.util.Arrays.fill(playerPong.bestMs, null);
+                java.util.Arrays.fill(playerPong.place, null);
+            }
+            req.setAttribute("playerPong", playerPong);
+            // jen to, co si člověk v Nastavení sám zapnul
+            boolean[] sharing = users.sharing(id);
+            var details = users.profile(id);
+            if (sharing[0] && details != null) req.setAttribute("playerBio", details.bio);
+            if (sharing[1] && details != null) req.setAttribute("playerCity", details.city);
+            if (sharing[2]) req.setAttribute("playerLikes", users.likedSongs(id));
+            if (sharing[3]) req.setAttribute("playerFriends", new com.github.skeliit.dao.FriendDao().friendsShownTo(id, me));
+            // neviditelný v chatu je neviditelný i na profilu
+            req.setAttribute("playerOnline", sharing[4] && !"offline".equals(new com.github.skeliit.dao.ChatDao().shownState(id)));
+            req.setAttribute("playerShownBadges", users.showcaseBadges(id));
+            req.setAttribute("playerSiteEarned", new com.github.skeliit.dao.SiteBadgeDao().sync(id));
+            if (sharing[7]) req.setAttribute("playerActivity", new com.github.skeliit.dao.ActivityDao().recent(id, true, 8));
+            // skladby: ostatní jen když je majitel ukazuje; admin vždy a i skryté, kvůli nahlášením
+            boolean admin = "ADMIN".equals(s.getAttribute("role"));
+            if (sharing[5] || admin) req.setAttribute("playerTracks", new com.github.skeliit.dao.UserTrackDao().list(id, admin));
             req.setAttribute("pageTitle", player.username);
         } catch (SQLException e) {
             throw new ServletException(e);

@@ -1,6 +1,7 @@
 package com.github.skeliit.web.admin;
 
 import com.github.skeliit.Db;
+import com.github.skeliit.dao.ModerationDao;
 import com.github.skeliit.security.AccountDeletion;
 import com.github.skeliit.security.SessionRegistry;
 import com.github.skeliit.service.ProfileImages;
@@ -33,6 +34,17 @@ public class AdminUserServlet extends HttpServlet {
             return;
         }
         String action = req.getParameter("action");
+        // nahlášení profilu se vyřizuje podle čísla nahlášení, ne uživatele
+        if ("resolve_report".equals(action)) {
+            String r = req.getParameter("report_id");
+            try {
+                if (r != null && r.matches("\\d{1,9}")) new ModerationDao().resolveReport(Integer.parseInt(r));
+            } catch (SQLException e) {
+                throw new ServletException(e);
+            }
+            resp.sendRedirect("/admin_users.jsp?msg=report_done");
+            return;
+        }
         int id;
         try {
             id = Integer.parseInt(String.valueOf(req.getParameter("user_id")));
@@ -64,6 +76,20 @@ public class AdminUserServlet extends HttpServlet {
                     AccountDeletion.purge(conn, id, getServletContext());
                     SessionRegistry.signOut(id, null);
                 }
+            } else if ("block".equals(action)) {
+                if (self) {
+                    msg = "?msg=self_block";
+                } else if (isLastAdmin(conn, id)) {
+                    msg = "?msg=last_admin";
+                } else {
+                    String reason = req.getParameter("reason");
+                    new ModerationDao().block(id, reason != null && reason.length() > 200 ? reason.substring(0, 200) : reason);
+                    SessionRegistry.signOut(id, null);        // odhlásí se všude hned
+                    msg = "?msg=blocked";
+                }
+            } else if ("unblock".equals(action)) {
+                new ModerationDao().unblock(id);
+                msg = "?msg=unblocked";
             } else if ("remove_avatar".equals(action)) {
                 msg = removeImage(conn, id, Kind.AVATAR, self);
             } else if ("remove_cover".equals(action)) {

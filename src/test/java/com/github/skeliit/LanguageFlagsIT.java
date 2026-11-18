@@ -31,10 +31,10 @@ class LanguageFlagsIT extends UiTestSupport {
             WebElement menu = driver.findElement(By.cssSelector(".lang-switch .menu"));
             assertEquals(5, menu.findElements(By.className("flag")).size(), "every language in the list has its flag");
             shotOf(menu, "flag-menu");
-            driver.findElement(By.id("themeToggle")).click();
+            jsClick(driver.findElement(By.id("themeToggle")));
             Thread.sleep(800);
             shotOf(driver.findElement(By.cssSelector(".top-controls")), "flag-btn-light");
-            driver.findElement(By.id("themeToggle")).click();
+            jsClick(driver.findElement(By.id("themeToggle")));
         } finally {
             driver.get(BASE_URL + "/index.jsp?lang=cs"); // the language sticks in the session
         }

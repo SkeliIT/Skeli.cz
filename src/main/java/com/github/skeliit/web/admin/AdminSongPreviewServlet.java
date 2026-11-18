@@ -105,24 +105,28 @@ public class AdminSongPreviewServlet extends HttpServlet {
                 return;
             }
 
-            BufferedImage dst = fitCover(src, OUT_W, OUT_H);
+            // obrázek do Diskografie: celý (posun a zvětšení se nastaví v adminu), nejvýš 1600 px na delší straně
+            boolean disco = "disco".equals(req.getParameter("target"));
+            double sc = Math.min(1.0, 1600.0 / Math.max(src.getWidth(), src.getHeight()));
+            BufferedImage dst = disco ? fitCover(src, Math.max(1, (int) Math.round(src.getWidth() * sc)), Math.max(1, (int) Math.round(src.getHeight() * sc)))
+                    : fitCover(src, OUT_W, OUT_H);
 
             File dir = SongPreviewFileServlet.previewDir(getServletContext());
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            String filename = songId + ".jpg";
+            String filename = (disco ? "disco-" : "") + songId + ".jpg";
             File outFile = new File(dir, filename);
             writeJpeg(dst, outFile);
 
             String relUrl = req.getContextPath() + "/uploads/song-previews/" + filename;
             relUrl = relUrl + "?v=" + outFile.lastModified();
-            songs.updatePreviewImageUrl(songId, relUrl);
+            if (disco) songs.updateDiscoImage(songId, relUrl); else songs.updatePreviewImageUrl(songId, relUrl);
 
             if (json) {
                 writeJson(resp, 200, "{\"ok\":true,\"url\":\"" + jsonEscape(relUrl) + "\"}");
             } else {
-                resp.sendRedirect(withMsg(redirect, "preview_saved"));
+                resp.sendRedirect(withMsg(redirect, disco ? "disco_saved" : "preview_saved"));
             }
         } catch (SQLException e) {
             throw new ServletException(e);

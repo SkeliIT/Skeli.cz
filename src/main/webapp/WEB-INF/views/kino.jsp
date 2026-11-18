@@ -3,7 +3,63 @@
 <%-- Karaoke cinema (preview of the coming big karaoke): /karaoke/{song uuid}, KaraokeCinemaServlet fills kinoJson.
      Two rooms: Prostor (/kino/prostor.js, a looping video; the default) and Ořechový salon (/kino/domov.js); switching loads the page again.
      A loading screen stays up until the room is built (no jerk on the way in). Czech only for now. --%>
-<% String v = "5.9.5"; %>
+<% String v = "6.2.0";
+   // ostatní styly a pokoje (zatím se dolaďují) vidí jen admin; role se čte z DB při přihlášení a AdminFilter ji obnovuje
+   boolean allStyles = "ADMIN".equals(session.getAttribute("role"));
+   // styly kina jsou odměny (model/Rewards, Nastavení → Vzhled): v kině se nabízí jen to, co má člověk odemčené,
+   // a jeho uložená volba je výchozí (platí na každém zařízení); admin má všechno
+   java.util.List<String> kOpen = new java.util.ArrayList<>();
+   String kSaved = null;
+   Integer kUid = (Integer) session.getAttribute("user_id");
+   try {
+     if (kUid != null) {
+       com.github.skeliit.dao.RewardDao kDao = new com.github.skeliit.dao.RewardDao();
+       com.github.skeliit.model.Rewards.Have kHave = kDao.have(kUid, allStyles);
+       for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of("kstyle")) if (kHave.open(it)) kOpen.add(it.value);
+       kSaved = kDao.look(kUid, "kstyle", kHave);
+     }
+   } catch (Exception ignore) {}
+   if (!kOpen.contains("l")) kOpen.add(0, "l");
+   boolean showPick = kOpen.size() > 1;
+   // písmo a animace textu (Lyric video): odemčené podle model/Rewards, uložená volba je výchozí
+   java.util.List<String> kFonts = new java.util.ArrayList<>(), kAnims = new java.util.ArrayList<>();
+   String kFont = null, kAnim = null;
+   java.util.Map<String, String> kLock = new java.util.HashMap<>();   // zamčené: slot:hodnota → čím se odemkne
+   try {
+     if (kUid != null) {
+       com.github.skeliit.dao.RewardDao kDao2 = new com.github.skeliit.dao.RewardDao();
+       com.github.skeliit.model.Rewards.Have kHave2 = kDao2.have(kUid, allStyles);
+       // zamčené se nabízejí taky: dají se vyzkoušet na běžícím klipu, jen ne uložit (server je stejně nepřijme)
+       java.util.Properties kt = com.github.skeliit.I18n.bundle(request);
+       String kl = com.github.skeliit.I18n.current(request);
+       for (String slot : new String[] { "kfont", "kanim" }) {
+         for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of(slot)) {
+           ("kfont".equals(slot) ? kFonts : kAnims).add(it.value);
+           if (kHave2.open(it)) continue;
+           String how;
+           switch (it.rule) {
+             case DAYS: how = kt.getProperty("look.how.days").replace("{days}", com.github.skeliit.I18n.number(kl, it.days) + " " + com.github.skeliit.I18n.countWord(kt, kl, "look.days", it.days)); break;
+             case SITE: how = kt.getProperty("look.how.site").replace("{badge}", kt.getProperty(com.github.skeliit.model.SiteBadges.nameKey(it.badge), it.badge)); break;
+             default: how = kt.getProperty("look.how.pong").replace("{badge}", kt.getProperty("pong.badge." + it.badge, it.badge));
+           }
+           kLock.put(slot + ":" + it.value, how);
+         }
+       }
+       kFont = kDao2.look(kUid, "kfont", kHave2);
+       kAnim = kDao2.look(kUid, "kanim", kHave2);
+     }
+   } catch (Exception ignore) {}
+   java.util.Set<String> kCaps = java.util.Set.of("anton", "bebas", "russo", "saira", "bungee", "blackops", "monoton");
+   java.util.Map<String, String> kAnimNames = new java.util.LinkedHashMap<>();
+   kAnimNames.put("", "Prolnutí"); kAnimNames.put("blur", "Rozostření"); kAnimNames.put("mask", "Odkrývání"); kAnimNames.put("type", "Psací stroj");
+   kAnimNames.put("wave", "Vlna"); kAnimNames.put("flip", "Překlopení"); kAnimNames.put("glitch", "Glitch"); kAnimNames.put("smoke", "Kouř");
+   java.util.Map<String, String[]> kNames = new java.util.LinkedHashMap<>();
+   kNames.put("l", new String[] { "Lyric video", "Text dole vlevo, slova se rozsvěcují" });
+   kNames.put("c", new String[] { "Čisté plátno", "Tma, plátno a text" });
+   kNames.put("o", new String[] { "Kouř a oheň", "Text se vypaluje, jiskry do rytmu" });
+   kNames.put("t", new String[] { "Tunel", "Slova letí z hloubky" });
+   kNames.put("u", new String[] { "Ulice", "Kouř, uhlíky a text sprejem" });
+   kNames.put("g", new String[] { "Galerie", "Tmavý sál, plátno a text na skle" }); %>
 <!doctype html>
 <html lang="cs">
 <head>
@@ -12,6 +68,7 @@
 <title>Karaoke – <c:out value="${kinoTitle}"/> | Skeli</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/karaoke-fonts.css?v=<%= v %>">
 <link rel="preconnect" href="https://www.youtube-nocookie.com">
 <style>
 @font-face { font-family: 'Comforter Brush'; font-display: swap; src: url(/fonts/comforter-brush-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F; }
@@ -212,7 +269,17 @@ button { font: inherit; color: inherit; }
   background: rgba(12, 12, 14, .88); border: 1px solid rgba(255, 255, 255, .1); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .rooms[hidden], .room-pick[hidden], .cb.room-btn[hidden] { display: none; }
 .rooms .room { height: 66px; }
+.looks { grid-template-columns: min(420px, 86vw); }
+.look-aa { font: 400 15px 'Bruno Ace SC', sans-serif; }   /* <b>, ne <span>: popisky tlačítek se na telefonu schovávají */
+.look-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.look-chip { min-height: 40px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(244, 239, 230, .25); background: rgba(255, 255, 255, .04); color: #f4efe6; font-size: 15px; cursor: pointer; }
+.look-chip[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); background: rgba(230, 183, 48, .12); }
+.look-chip.locked { border-style: dashed; color: rgba(244, 239, 230, .55); }
+.look-chip.locked::after { content: " 🔒"; font-family: system-ui, sans-serif; font-size: 11px; }
+.look-note { grid-column: 1 / -1; margin: 2px 0 0; font: 400 13px/1.35 'Oswald', system-ui, sans-serif; color: rgba(244, 239, 230, .7); }
 @media (max-width: 760px) { .room-pick { grid-template-columns: minmax(0, 1fr); width: 92vw; } .rooms { grid-template-columns: 1fr; width: 86vw; right: 50%; transform: translateX(50%); } }
+/* telefon: písmo se vybírá nahoře, aby text písně dole zůstal vidět */
+@media (max-width: 760px) { .looks { position: fixed; top: 10px; bottom: auto; max-height: 46vh; overflow-y: auto; } }
 .cb.room-btn { width: auto; padding: 0 14px 0 12px; gap: 7px; display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid rgba(230, 183, 48, .45); color: var(--gold); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
 @media (max-width: 700px) { .cb.room-btn span { display: none; } .cb.room-btn { padding: 0; width: 40px; } }
 .back-song { color: var(--gold); margin-left: 10px; }
@@ -264,11 +331,12 @@ body.fading::after { opacity: 1; pointer-events: auto; }
 
 <canvas class="layer" id="fx" aria-hidden="true"></canvas>
 <div class="credits" id="credits" hidden><div class="roll" id="roll"></div></div>
-<a class="kino-exit" id="kinoExit" href="/karaoke-kino"><span class="ke-ico" aria-hidden="true">←</span> <span class="ke-txt">Zpět na web</span></a>
+<a class="kino-exit" id="kinoExit" href="/karaoke"><span class="ke-ico" aria-hidden="true">←</span> <span class="ke-txt">Zpět na web</span></a>
 <div class="brand"><div class="squad" role="img" aria-label="SKELO SQUAD"></div><span class="brand-k">Karaoke</span></div>
 <div class="song-tag"><b id="tagTitle"></b><span id="tagArtist"></span></div>
 <div class="lyrics" id="lyrics" aria-live="off">
-  <div class="title-card" id="titleCard"><b></b><span></span></div>
+  <!-- úvodní název je schovaný: video má vlastní úvod a název píše kino vpravo nahoře (přání Skeliho 15. 11.) -->
+  <div class="title-card" id="titleCard" hidden><b></b><span></span></div>
   <div class="dots" id="dots"><i></i><i></i><i></i></div>
 </div>
 <div class="controls" id="controls">
@@ -279,11 +347,30 @@ body.fading::after { opacity: 1; pointer-events: auto; }
   <span class="time" id="time">0:00 / 0:00</span>
   <div class="bar" id="bar"><div class="track"></div><div class="fill" id="fill"></div></div>
   <input class="vol" id="vol" type="range" min="0" max="100" value="90" aria-label="Hlasitost">
-  <button class="cb room-btn" id="roomBtn" title="Změnit pokoj" aria-label="Změnit pokoj"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-6H4zm15-8h3v3h-3zM2 10h3v3H2zm15 3H7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2z"/></svg><span>Pokoj</span></button>
+  <%-- Do vydání ostatní styly vidí jen admin (dolaďují se přímo na webu); návštěvník má jen Lyric video a výběr nevidí. --%>
+  <% if (showPick) { %>
+  <button class="cb room-btn" id="roomBtn" title="Změnit styl" aria-label="Změnit styl"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-6H4zm15-8h3v3h-3zM2 10h3v3H2zm15 3H7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2z"/></svg><span>Styl</span></button>
   <div class="rooms" id="rooms" hidden>
-      <button type="button" class="room" data-room="p" aria-pressed="false"><span class="rt"><b>Prostor</b><small>Kameny ve vzduchu, zlaté světlo</small></span><img src="/kino/rooms/p.webp" loading="lazy" alt=""></button>
-      <button type="button" class="room" data-room="a" aria-pressed="false"><span class="rt"><b>Ořechový salon</b><small>Ořech, kůže, noční město</small></span><img src="/kino/rooms/a.webp" loading="lazy" alt=""></button>
+      <% for (String k : kOpen) { String[] n = kNames.get(k); %><button type="button" class="room" data-room="<%= k %>" aria-pressed="false"><span class="rt"><b><%= n[0] %></b><small><%= n[1] %></small></span><span class="st-sw"<%= "l".equals(k) ? " data-word=\"BOOM\"" : "" %>></span></button><% } %>
   </div>
+  <% } %>
+  <% if (kUid != null) { %>
+  <button class="cb room-btn" id="lookBtn" title="Písmo a animace textu" aria-label="Písmo a animace textu"><b class="look-aa">Aa</b></button>
+  <div class="rooms looks" id="looks" hidden>
+    <%-- najetí myší = hned vidíš na běžícím klipu, klik = uložit; zamčené jdou jen vyzkoušet (po zavření se vrátí uložené) --%>
+    <div class="room-k">Písmo textu</div>
+    <div class="look-chips">
+      <button type="button" class="look-chip" data-kfont="" style="font-family: 'Bruno Ace SC'">Bruno</button>
+      <% for (String f : kFonts) { String fam = com.github.skeliit.model.Rewards.fontFamily(f); String lk = kLock.get("kfont:" + f); %><button type="button" class="look-chip<%= lk != null ? " locked" : "" %>" data-kfont="<%= f %>" data-family="<%= fam %>" data-caps="<%= kCaps.contains(f) %>"<%= lk != null ? " data-how=\"" + com.github.skeliit.WebUtils.escapeHtml(lk) + "\"" : "" %> style="font-family: '<%= fam %>'"><%= fam %></button><% } %>
+    </div>
+    <div class="room-k">Jak řádek naskočí</div>
+    <div class="look-chips">
+      <button type="button" class="look-chip" data-kanim="">Prolnutí</button>
+      <% for (String a : kAnims) { String lk = kLock.get("kanim:" + a); %><button type="button" class="look-chip<%= lk != null ? " locked" : "" %>" data-kanim="<%= a %>"<%= lk != null ? " data-how=\"" + com.github.skeliit.WebUtils.escapeHtml(lk) + "\"" : "" %>><%= kAnimNames.get(a) %></button><% } %>
+    </div>
+    <p class="look-note" id="lookNote" aria-live="polite">Najeď nebo ťukni – hned to uvidíš na klipu.</p>
+  </div>
+  <% } %>
   <button class="cb" id="fs" title="Celá obrazovka (F)" aria-label="Celá obrazovka"><svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7zm-2-4h2V7h3V5H5zm12 7h-3v2h5v-5h-2zM14 5v2h3v3h2V5z"/></svg></button>
 </div>
 <div class="lobby" id="lobby">
@@ -291,13 +378,14 @@ body.fading::after { opacity: 1; pointer-events: auto; }
     <div class="k">KARAOKE</div>
     <h1 id="lobbyTitle"></h1>
     <p id="lobbyArtist"></p>
-    <div class="room-pick" aria-label="Vyber si pokoj">
-      <div class="room-k">Vyber si pokoj</div>
-      <button type="button" class="room" data-room="p" aria-pressed="false"><span class="rt"><b>Prostor</b><small>Kameny ve vzduchu, zlaté světlo</small></span><img src="/kino/rooms/p.webp" loading="lazy" alt=""></button>
-      <button type="button" class="room" data-room="a" aria-pressed="false"><span class="rt"><b>Ořechový salon</b><small>Ořech, kůže, noční město</small></span><img src="/kino/rooms/a.webp" loading="lazy" alt=""></button>
+    <% if (showPick) { %>
+    <div class="room-pick" aria-label="Vyber si styl">
+      <div class="room-k">Vyber si styl <small>(další se odemykají v Nastavení → Vzhled)</small></div>
+      <% for (String k : kOpen) { String[] n = kNames.get(k); %><button type="button" class="room" data-room="<%= k %>" aria-pressed="false"><span class="rt"><b><%= n[0] %></b><small><%= n[1] %></small></span><span class="st-sw"<%= "l".equals(k) ? " data-word=\"BOOM\"" : "" %>></span></button><% } %>
     </div>
+    <% } %>
     <button class="enter" id="enter"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Vstoupit do kina</button>
-    <small>Pusť si zvuk a dej celou obrazovku (F). <a class="back-song" href="/karaoke-kino">← všechny písně</a></small>
+    <small>Pusť si zvuk a dej celou obrazovku (F). <a class="back-song" href="/karaoke">← všechny písně</a></small>
     <div class="pc-hint"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2zM4 6h16v10H4z"/></svg> Kino si nejlíp užiješ na počítači s velkou obrazovkou.</div>
   </div>
 </div>
@@ -313,38 +401,92 @@ body.fading::after { opacity: 1; pointer-events: auto; }
 <script>window.KDATA = <%= request.getAttribute("kinoJson") %>;</script>
 <script src="/js/yt-clock.js?v=<%= v %>"></script>
 <script>
-  // the room: p = Prostor (prostor.js, the default), a = Ořechový salon (domov.js); switching loads the page again
+  // Styl zpívání (kino/styly.js): l = Lyric video (výchozí), o = Kouř a oheň, c = Čisté plátno, t = Tunel.
+  // Pokoje Prostor (p, prostor.js) a Ořechový salon (a, domov.js) jsou z výběru schované (zatím se nevylepšují),
+  // přes ?v=p / ?v=a se dají otevřít. Přepnutí = stránka se načte znovu.
+  // do vydání: návštěvník jen Lyric video, admin všechny (allStyles výš v šabloně); pokoje p/a jen pro admina
+  var STYLES = {<% for (int i = 0; i < kOpen.size(); i++) { %><%= i > 0 ? ", " : " " %><%= kOpen.get(i) %>: 1<% } %> };
+  var SAVED = <%= kSaved == null ? "null" : "\"" + kSaved + "\"" %>;   // volba uložená na serveru (Nastavení → Vzhled)
+  var CSRF = "<%= request.getAttribute("csrf") == null ? "" : request.getAttribute("csrf") %>";
+  var ADMIN_ROOMS = <%= allStyles %>;
   var ROOM = new URLSearchParams(location.search).get("v");
-  try { if (!ROOM) ROOM = localStorage.getItem("kinoRoom"); } catch (e) {}
-  if (ROOM !== "a") ROOM = "p";
-  // the Ořechový salon is a heavy 3D room: on a phone or tablet (an iPhone above all) or a weak computer the
-  // browser runs out of memory, drops the page and loads it again and again (the picker "blinks", the cinema
-  // throws you out). There only Prostor is offered. And on any device: when the salon went down on its last load
-  // (the page came back without leaving it properly), Prostor this time.
+  if (!ROOM) ROOM = SAVED;
+  try { if (!ROOM) ROOM = localStorage.getItem("kinoStyle"); } catch (e) {}
+  if (!STYLES[ROOM] && !(ADMIN_ROOMS && (ROOM === "p" || ROOM === "a"))) ROOM = "l";
+  // Ořechový salon je těžký 3D pokoj: na telefonu nebo slabém počítači prohlížeči dojde paměť → místo něj Prostor
   var weak = /iP(hone|od|ad)|Android/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
     || Math.min(screen.width, screen.height) < 600 || (navigator.deviceMemory && navigator.deviceMemory < 4);
-  var crashed = false;
-  try { crashed = sessionStorage.getItem("kinoTry") === "a"; sessionStorage.removeItem("kinoTry"); } catch (e) {}
-  if (weak || crashed) {
-    ROOM = "p";
-    document.querySelectorAll('[data-room="a"]').forEach(function (b) { b.remove(); });
-    document.querySelector(".room-pick").hidden = true;   // one room: nothing to pick
-    document.getElementById("roomBtn").hidden = true;
-  }
-  if (ROOM === "a") {
-    try { sessionStorage.setItem("kinoTry", "a"); } catch (e) {}
-    addEventListener("pagehide", function () { try { sessionStorage.removeItem("kinoTry"); } catch (e) {} });   // left properly
-  }
+  if (ROOM === "a" && weak) ROOM = "p";
   if (ROOM === "p") document.body.classList.add("cinema");
+  window.KINO_STYLE = STYLES[ROOM] ? ROOM : null;
+  // písmo a animace textu: uložená volba (server ověřil, že je odemčená); změna se hned projeví a uloží
+  window.KLOOK = { font: <%= kFont == null ? "null" : "\"" + kFont + "\"" %>, family: <%= kFont == null ? "null" : "\"" + com.github.skeliit.model.Rewards.fontFamily(kFont) + "\"" %>,
+    caps: <%= kFont == null || kCaps.contains(kFont) %>, anim: <%= kAnim == null ? "null" : "\"" + kAnim + "\"" %>, v: 0 };
+  function markLook() {
+    document.querySelectorAll("[data-kfont]").forEach(function (b) { b.setAttribute("aria-pressed", String((b.dataset.kfont || null) === KLOOK.font)); });
+    document.querySelectorAll("[data-kanim]").forEach(function (b) { b.setAttribute("aria-pressed", String((b.dataset.kanim || null) === KLOOK.anim)); });
+  }
+  function saveLook(slot, value) {
+    fetch("/profile/look", { method: "POST", credentials: "same-origin",
+      headers: { "Content-Type": "application/x-www-form-urlencoded", "X-CSRF-Token": CSRF },
+      body: "json=1&slot=" + slot + "&value=" + encodeURIComponent(value) }).catch(function () {});
+  }
+  // Výběr přímo nad běžícím klipem: najetí myší písmo/animaci jen ukáže (zpívaný řádek se hned překreslí),
+  // klik uloží. Zamčené jdou vyzkoušet, ale neuloží se – pod chipy je napsané, čím se odemknou.
+  // Po zavření panelu nebo odjetí myší se vrátí uložená volba.
+  var saved = { font: KLOOK.font, family: KLOOK.family, caps: KLOOK.caps, anim: KLOOK.anim };
+  var note = document.getElementById("lookNote"), noteText = note ? note.textContent : "";
+  function setLook(o) {
+    if (KLOOK.font === o.font && KLOOK.anim === o.anim) return;
+    KLOOK.font = o.font; KLOOK.family = o.family; KLOOK.caps = o.caps; KLOOK.anim = o.anim;
+    KLOOK.v++; if (window.kinoApplyLook) window.kinoApplyLook();
+  }
+  function fromChip(b) {
+    var o = { font: saved.font, family: saved.family, caps: saved.caps, anim: saved.anim };
+    if (b.hasAttribute("data-kfont")) { o.font = b.dataset.kfont || null; o.family = b.dataset.family || null; o.caps = !b.dataset.kfont || b.dataset.caps === "true"; }
+    else o.anim = b.dataset.kanim || null;
+    return o;
+  }
+  function tryChip(b) {
+    setLook(fromChip(b));
+    if (note) note.textContent = b.dataset.how ? "🔒 Jen na zkoušku – odemkneš: " + b.dataset.how : noteText;
+  }
+  function restore() { setLook(saved); markLook(); if (note) note.textContent = noteText; }
+  var chips = document.querySelectorAll("[data-kfont], [data-kanim]");
+  chips.forEach(function (b) {
+    b.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse") tryChip(b); });
+    b.addEventListener("focus", function () { tryChip(b); });
+    b.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") restore(); });
+  });
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-kfont], [data-kanim]");
+    if (!b) return;
+    tryChip(b);
+    if (b.dataset.how) return;   // zamčené: jen ukázat
+    saved = fromChip(b);
+    if (b.hasAttribute("data-kfont")) saveLook("kfont", b.dataset.kfont); else saveLook("kanim", b.dataset.kanim);
+    markLook();
+  });
+  markLook();
+  var lookBtn = document.getElementById("lookBtn");
+  if (lookBtn) lookBtn.onclick = function (e) { e.stopPropagation(); var r = document.getElementById("looks"); r.hidden = !r.hidden; if (r.hidden) restore(); };
+  addEventListener("click", function (e) { var r = document.getElementById("looks"); if (r && !r.hidden && !r.contains(e.target)) { r.hidden = true; restore(); } });
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("[data-room]"); if (!b) return;
-    var k = b.dataset.room, cinema = document.body.classList.contains("cinema");
-    if (k === "p" ? !cinema : cinema) { try { localStorage.setItem("kinoRoom", k); } catch (er) {} location.search = "?v=" + k; }
+    var k = b.dataset.room;
+    if (k === ROOM) return;
+    try { localStorage.setItem("kinoStyle", k); } catch (er) {}
+    // uloží volbu i na server (platí pak na všech zařízeních); pokoje p/a jsou jen pro admina a neukládají se
+    var go = function () { location.search = "?v=" + k; };
+    if (!STYLES[k]) return go();
+    fetch("/profile/look", { method: "POST", credentials: "same-origin",
+      headers: { "Content-Type": "application/x-www-form-urlencoded", "X-CSRF-Token": CSRF },
+      body: "slot=kstyle&json=1&value=" + encodeURIComponent(k) }).then(go, go);
   });
-  if (ROOM === "p") {
-    document.querySelectorAll("[data-room]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.room === "p" ? "true" : "false"); });
-    document.getElementById("roomBtn").onclick = function (e) { e.stopPropagation(); var r = document.getElementById("rooms"); r.hidden = !r.hidden; };
-  }
+  document.querySelectorAll("[data-room]").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.room === ROOM ? "true" : "false"); });
+  // výběr stylu je jen u toho, kdo má odemčený víc než jeden styl
+  var roomBtn = document.getElementById("roomBtn");
+  if (roomBtn) roomBtn.onclick = function (e) { e.stopPropagation(); var r = document.getElementById("rooms"); r.hidden = !r.hidden; };
 </script>
 <script>
   // a broken script shows its error on the page (preview only)
@@ -362,7 +504,7 @@ body.fading::after { opacity: 1; pointer-events: auto; }
     setTimeout(window.kinoLoaded, 25000);
   })();
 </script>
-<script type="module">import(document.body.classList.contains("cinema") ? "/kino/prostor.js?v=<%= v %>" : "/kino/domov.js?v=<%= v %>").catch(function (e) { showErr(String(e && e.stack || e)); window.kinoLoaded(); });</script>
+<script type="module">import(window.KINO_STYLE ? "/kino/styly.js?v=<%= v %>" : document.body.classList.contains("cinema") ? "/kino/prostor.js?v=<%= v %>" : "/kino/domov.js?v=<%= v %>").catch(function (e) { showErr(String(e && e.stack || e)); window.kinoLoaded(); });</script>
 <script>
   // the exit: on the lobby a plain link back to the karaoke list; inside the cinema it leaves the room
   // (the same as the leave button in the controls and Esc)

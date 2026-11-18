@@ -1,0 +1,6 @@
+<%-- Vnitřek easter eggu SKELO SQUAD (js/squad-egg.js, styly .sq-* v css/components.css). Vkládá ho spodek menu
+     na telefonu (includes/header.jsp .nav-foot) i patička na PC (includes/footer.jsp .foot-squad); obal má třídu .sq-home
+     a data-kevin s Kevinovou hláškou. Nahoře aréna pro odhalení (obličeje, nápis), pod ní čára se smajlíkem, pod tím podpis. --%>
+<div class="sq-arena" aria-hidden="true"><span class="sq-sign"></span><span class="sq-lamps"><% for (int sq = 1; sq <= 7; sq++) { %><span class="sq-lamp" style="--f:url('<%= ctx %>/img/faces/face-<%= sq %>.webp')"></span><% } %></span><span class="sq-unlock">SQUAD UNLOCKED</span></div>
+<div class="sq-line"><button type="button" class="nav-face sq-seal" aria-label="SKELO SQUAD"><span></span></button></div>
+<small class="sq-sig">SKELO SQUAD</small>

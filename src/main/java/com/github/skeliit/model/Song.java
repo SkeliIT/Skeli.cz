@@ -22,6 +22,9 @@ public class Song {
     public String getAppleMusicId() { return appleMusicId; }
     public String getSpotifyId() { return spotifyId; }
     public String getPreviewImageUrl() { return previewImageUrl; }
+    /** true = cizí track, kde Skeli hostuje (spolupráce): web ho řadí až za vlastní skladby (V141). */
+    public boolean collab;
+    public boolean isCollab() { return collab; }
     /** The newest clip of the song (only filled by SongDao.listWithFirstLyric). */
     public String youtubeId;
     /** A small picture of the song: its newest clip's thumbnail, else its preview photo, else null. */
@@ -55,7 +58,7 @@ public class Song {
     /** CSS variables for the Karaoke poster picture (.k-poster-img img), or "" when automatic. */
     public static String posterStyle(Double x, Double y, Double zoom) {
         if (x == null || y == null || zoom == null) return "";
-        return String.format(java.util.Locale.ROOT, "--px:%.2f;--py:%.2f;--pz:%.3f", clamp(x, 0, 100), clamp(y, 0, 100), clamp(zoom, 1, 3));
+        return String.format(java.util.Locale.ROOT, "--px:%.2f;--py:%.2f;--pz:%.3f", clamp(x, 0, 100), clamp(y, 0, 100), clamp(zoom, 0.4, 3));
     }
 
     public static double clamp(double v, double min, double max) {

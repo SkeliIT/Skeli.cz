@@ -1,0 +1,121 @@
+<%-- Nastavení → Vzhled: jak vypadá můj profil pro ostatní – vzhled profilu, rámeček fotky a písmo mota.
+     Karaoke (písmo, animace, styl kina) se vybírá přímo v kině nad běžícím klipem, vzhled chatu v chatu (kolečko).
+     Zamčené věci ukazují, čím se odemknou, a postup. Kdo co smí, rozhoduje server (model/Rewards, RewardDao.have);
+     ukládá POST /profile/look. Pozor: vkládané šablony se nečtou jako UTF-8 – žádné české znaky ve výstupu, texty jen z překladů. --%>
+<%!
+  /** Text „čím se odemkne“ u zamčené věci z katalogu – už jako bezpečné HTML (mezi číslem a slovem &nbsp;). */
+  private static String vzHow(java.util.Properties t, String lang, com.github.skeliit.model.Rewards.Item it) {
+    switch (it.rule) {
+      case DAYS: return com.github.skeliit.WebUtils.escapeHtml(t.getProperty("look.how.days")).replace("{days}", com.github.skeliit.I18n.number(lang, it.days) + "&nbsp;" + com.github.skeliit.WebUtils.escapeHtml(com.github.skeliit.I18n.countWord(t, lang, "look.days", it.days)));
+      case SITE: return com.github.skeliit.WebUtils.escapeHtml(t.getProperty("look.how.site")).replace("{badge}", com.github.skeliit.WebUtils.escapeHtml(t.getProperty(com.github.skeliit.model.SiteBadges.nameKey(it.badge), it.badge)));
+      case PONG: return com.github.skeliit.WebUtils.escapeHtml(t.getProperty("look.how.pong")).replace("{badge}", com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pong.badge." + it.badge, it.badge)));
+      default: return "";
+    }
+  }
+%>
+<%
+  com.github.skeliit.model.Rewards.Have vzHave = null;
+  try {
+    com.github.skeliit.dao.RewardDao vzDao = new com.github.skeliit.dao.RewardDao();
+    vzHave = vzDao.have(uid, "ADMIN".equals(session.getAttribute("role")));
+  } catch (Exception ignore) {}
+  String vzLook = request.getParameter("look");
+%>
+<section class="acct-card" id="vzhled">
+  <div class="acct-card-head">
+    <h3><i class="fa-solid fa-palette" aria-hidden="true"></i> <%= t.getProperty("look.tab") %></h3>
+  </div>
+  <p class="acct-dim"><%= t.getProperty("look.lead") %></p>
+  <% if ("1".equals(vzLook)) { %><div class="form-success" role="status"><%= t.getProperty("look.saved") %></div><% } %>
+  <% if ("0".equals(vzLook)) { %><div class="form-alert" role="alert"><%= t.getProperty("look.notSaved") %></div><% } %>
+  <% if (vzHave == null) { %>
+  <p class="form-alert"><%= t.getProperty("tracks.msg.fail") %></p>
+  <% } else { %>
+
+  <%-- Vzhled profilu (css/profile-looks.css): vidí ho i ostatní; každý jde vyzkoušet (?look=), odemčený použít --%>
+  <% String vzProfile = null;
+     try { vzProfile = new com.github.skeliit.dao.RewardDao().look(uid, "profile", vzHave); } catch (Exception ignore) {} %>
+  <div class="vz-group" id="vzhled-profilu">
+    <h4><i class="fa-solid fa-id-card" aria-hidden="true"></i> <%= t.getProperty("look.profile.title") %></h4>
+    <p class="acct-dim"><%= t.getProperty("look.profile.lead") %></p>
+    <div class="vz-grid">
+      <div class="vz-tile vz-card" aria-current="<%= vzProfile == null %>">
+        <span class="vz-art vz-p-base" aria-hidden="true"><span>Aa</span></span>
+        <span class="vz-name"><%= t.getProperty("look.profile.base") %></span>
+        <small><%= vzProfile == null ? t.getProperty("look.chosen") : t.getProperty("look.profile.base.desc") %></small>
+        <% if (vzProfile != null) { %>
+        <form method="post" action="/profile/look"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="slot" value="profile">
+          <button type="submit" class="vz-act" name="value" value=""><%= t.getProperty("look.use") %></button></form>
+        <% } %>
+      </div>
+      <% for (com.github.skeliit.model.Rewards.Item it : com.github.skeliit.model.Rewards.of("profile")) {
+           boolean open = vzHave.open(it), on = it.value.equals(vzProfile); %>
+      <div class="vz-tile vz-card<%= open ? "" : " is-locked" %>" aria-current="<%= on %>">
+        <span class="vz-art vz-p-<%= it.value %>" aria-hidden="true"><span>Aa</span></span>
+        <span class="vz-name"><%= t.getProperty("look.profile." + it.value) %></span>
+        <% if (on) { %>
+        <small><%= t.getProperty("look.chosen") %></small>
+        <% } else if (!open) { %>
+        <small class="vz-how"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= vzHow(t, cur, it) %></small>
+        <% if (it.rule == com.github.skeliit.model.Rewards.Rule.DAYS) { int have = Math.min(vzHave.days, it.days); %>
+        <span class="vz-progress" role="img" aria-label="<%= have %> / <%= it.days %>"><i style="--v:<%= have * 100 / Math.max(1, it.days) %>%"></i></span>
+        <% } %>
+        <% } %>
+        <span class="vz-acts">
+          <a class="vz-act" href="/uzivatel.jsp?look=<%= it.value %>"><%= t.getProperty("look.try") %></a>
+          <% if (open && !on) { %>
+          <form method="post" action="/profile/look"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="slot" value="profile">
+            <button type="submit" class="vz-act vz-act-main" name="value" value="<%= it.value %>"><%= t.getProperty("look.use") %></button></form>
+          <% } %>
+        </span>
+      </div>
+      <% } %>
+    </div>
+  </div>
+
+  <%-- Rámeček kolem fotky (odznaky CatSmash, medaile šampiona) – vidí ho i ostatní --%>
+  <div class="vz-group">
+    <h4><i class="fa-regular fa-circle" aria-hidden="true"></i> <%= t.getProperty("pong.frame.title") %></h4>
+    <p class="acct-dim"><%= t.getProperty("pong.frame.lead") %></p>
+    <form class="vz-grid vz-grid-sm" method="post" action="/profile/look">
+      <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="slot" value="frame">
+      <button type="submit" class="vz-tile" name="value" value="" aria-pressed="<%= pong.frame == null %>">
+        <span class="vz-av av-frame"><img src="<%= WebUtils.escapeHtml(avatarUrl) %>" alt="" width="56" height="56"></span>
+        <span class="vz-name"><%= t.getProperty("pong.frame.none") %></span>
+      </button>
+      <% if (pong.champPlace != null || "champ".equals(pong.frame)) { %>
+      <button type="submit" class="vz-tile" name="value" value="champ" aria-pressed="<%= "champ".equals(pong.frame) %>">
+        <span class="vz-av av-frame<%= pong.champPlace != null ? " f-champ" + pong.champPlace : "" %>"><img src="<%= WebUtils.escapeHtml(avatarUrl) %>" alt="" width="56" height="56"></span>
+        <span class="vz-name"><%= pong.champPlace != null ? t.getProperty("pong.frame.champNow").replace("{n}", String.valueOf(pong.champPlace)) : t.getProperty("pong.frame.champWait") %></span>
+      </button>
+      <% } %>
+      <% for (PongProfile.Badge b : pong.badges) { if (!com.github.skeliit.model.PongBadges.isFrame(b.key)) continue; %>
+      <% if (b.earned) { %>
+      <button type="submit" class="vz-tile" name="value" value="<%= b.key %>" aria-pressed="<%= b.key.equals(pong.frame) %>">
+      <% } else { %>
+      <div class="vz-tile is-locked">
+      <% } %>
+        <span class="vz-av av-frame f-<%= b.key %>"><img src="<%= WebUtils.escapeHtml(avatarUrl) %>" alt="" width="56" height="56"></span>
+        <span class="vz-name"><%= WebUtils.escapeHtml(t.getProperty("pong.frame." + b.key)) %></span>
+        <% if (!b.earned) { %><small class="vz-how"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pong.badge." + b.key, b.key)) %></small><% } %>
+      <%= b.earned ? "</button>" : "</div>" %>
+      <% } %>
+    </form>
+  </div>
+
+  <%-- Písmo mota: ukázka každého písma přímo s mým motem (bez mota s ukázkovým textem) --%>
+  <div class="vz-group" id="vzhled-mota">
+    <h4><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> <%= t.getProperty("profile.mottoFont") %></h4>
+    <form class="vz-grid vz-grid-sm" method="post" action="/profile/look">
+      <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="slot" value="mottoFont">
+      <% String vzMotto = showcase[2] == null || showcase[2].isBlank() ? t.getProperty("profile.motto.hint") : showcase[2];
+         for (String mf : com.github.skeliit.dao.UserDao.MOTTO_FONTS) { %>
+      <button type="submit" class="vz-tile vz-motto" name="value" value="<%= mf %>" aria-pressed="<%= mf.equals(showcase[4]) %>">
+        <span class="vz-motto-sample motto-<%= mf %>"><%= WebUtils.escapeHtml(vzMotto) %></span>
+        <span class="vz-name"><%= t.getProperty("profile.mottoFont." + mf) %></span>
+      </button>
+      <% } %>
+    </form>
+  </div>
+  <% } %>
+</section>

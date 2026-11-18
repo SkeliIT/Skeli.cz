@@ -4,10 +4,12 @@
 (function () {
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  // lehký režim pro slabé telefony (hlavička stránky, css/effects.css)
+  function low() { return document.documentElement.classList.contains('low-fx'); }
 
   // embers rising in the smoke (snow in the light theme: same elements, other animation)
   function particles(root) {
-    if (reduced) return;
+    if (reduced || low()) return;
     root.querySelectorAll('.hero-particles:not([data-done])').forEach(function (box) {
       box.dataset.done = '1';
       var count = window.innerWidth < 700 ? 22 : 42;
@@ -105,7 +107,7 @@
   }
 
   // cards lean slightly towards the mouse
-  var TILT = '.feature-card, .video, .song-card, .disco-card, [data-tilt]';
+  var TILT = '.feature-card, .video, .song-card, .disco-card, [data-tilt], .home-page .side-card:not(:has(form))';   // karty bez formuláře (při psaní by se kývaly)
   function tilt(root) {
     if (reduced || !finePointer) return;
     root.querySelectorAll(TILT).forEach(function (el) {
@@ -133,11 +135,162 @@
   // and the next one comes when it would have anyway.
   // data-dark / data-light = "name:position[:wide],…" of img/photos/<name>-lg|md.webp; a portrait
   // photo marked wide has <name>-wide.webp (whole photo on a 16:9 canvas) for landscape screens
-  var SLIDE_MS = 7000, SLIDE_KEY = 'bgSlide';
+  var SLIDE_MS = 12000, SLIDE_KEY = 'bgSlide';   // každá fotka 12 s, prolnutí i přebarvení 4 s
+
+  // Barva webu podle fotky v pozadí: [hlavní, druhá]. „base“ = obvyklé pozadí (tmavý: rudá fotka IMG_0090,
+  // světlý: sníh lightnaweb). Světlé barvy jsou tmavší, aby byly na světlém podkladu čitelné.
+  // Admin má klidný vzhled – tam zůstává zlatá (OWN níž).
+  var PALETTE = {
+    dark: { base: ['#ff3b30', '#ff8a3d'], skull: ['#ff3d8b', '#ff7ab8'], mic: ['#7dff3a', '#d4ff1f'],
+            square: ['#ffad42', '#ff6a1f'], walker: ['#3fb4ff', '#7cf3ff'] },
+    light: { base: ['#1f6fc4', '#4aa3ea'], field: ['#c4521a', '#e8892a'], point: ['#a87400', '#d6a019'], rocks: ['#4e7a1c', '#86a83a'] }
+  };
+  // Admin má vlastní klidnou zlatou (stejná jako v base.css) – nastaví se stejnou cestou, ať se přelije i ona.
+  // Texty se přebarvují s fotkami jako zbytek webu (video pozadí přebarví js/texty-bg.js).
+  var OWN = { dark: ['#ffd23f', '#ff8a3d'], light: ['#a37b00', '#2f7fd6'] };
+  var painted = 'base', songColor = null, songFloor = null;   // songColor = barva písně z náhledu jejího klipu (stránka písně), songFloor = barva podlahy pod kouřem [tmavý, světlý]
+  var lastHue = {};                          // poslední nastavený odstín: nový se volí kratší cestou po kruhu
+  // #rrggbb → [odstín 0–360, sytost %, světlost %]
+  function toHsl(hex) {
+    var r = parseInt(hex.substr(1, 2), 16) / 255, g = parseInt(hex.substr(3, 2), 16) / 255, bl = parseInt(hex.substr(5, 2), 16) / 255;
+    var mx = Math.max(r, g, bl), mn = Math.min(r, g, bl), l = (mx + mn) / 2, d = mx - mn, h = 0, s = 0;
+    if (d) {
+      s = d / (1 - Math.abs(2 * l - 1));
+      h = mx === r ? 60 * (((g - bl) / d) % 6) : mx === g ? 60 * ((bl - r) / d + 2) : 60 * ((r - g) / d + 4);
+      if (h < 0) h += 360;
+    }
+    return [h, s * 100, l * 100];
+  }
+  // n = 1 (--accent) nebo 2 (--accent-2); přelévá se odstín po kruhu, ne barva přes šedou (viz base.css)
+  // Telefon (dotyk): přelití barvy přes CSS by 4 s v každém snímku překreslovalo celý web (vše, co má barvu fotky)
+  // a sekalo to – tam se barva přelije v STEPS krocích z JS (body.paint-steps vypne CSS přechod).
+  var STEPPED = matchMedia('(pointer: coarse)').matches, STEPS = 8, curVal = {}, stepT = 0;
+  if (STEPPED) document.body.classList.add('paint-steps');
+  function applyAccent(b, n, v) {
+    var p = '--a' + n;
+    curVal[n] = v;
+    b.style.setProperty(p + 'h', v[0].toFixed(2));
+    b.style.setProperty(p + 's', v[1].toFixed(2) + '%');
+    b.style.setProperty(p + 'l', v[2].toFixed(2) + '%');
+    b.style.setProperty(n === 1 ? '--accent' : '--accent-2', 'hsl(var(' + p + 'h) var(' + p + 's) var(' + p + 'l))');
+  }
+  function accentTarget(n, hex) {
+    var v = toHsl(hex), h = v[0];
+    if (lastHue[n] != null) h += 360 * Math.round((lastHue[n] - h) / 360);
+    lastHue[n] = h;
+    return [h, v[1], v[2]];
+  }
+  function setAccents(b, c, instant) {
+    var to = [null, accentTarget(1, c[0]), accentTarget(2, c[1])];
+    clearInterval(stepT);
+    if (!STEPPED || instant || !curVal[1]) { applyAccent(b, 1, to[1]); applyAccent(b, 2, to[2]); return; }
+    var from = [null, curVal[1], curVal[2]], k = 0;
+    stepT = setInterval(function () {
+      k++;
+      var u = k / STEPS, e = u * u * (3 - 2 * u);   // plynulý náběh i dojezd
+      [1, 2].forEach(function (n) { applyAccent(b, n, from[n].map(function (x, i) { return x + (to[n][i] - x) * e; })); });
+      if (k >= STEPS) clearInterval(stepT);
+    }, 4000 / STEPS);
+  }
+  // Kontrast (WCAG AA 4,5 : 1): hlavní barva slouží jako text na pozadí stránky (odkazy, nadpisy) i jako podklad
+  // pod textem --accent-ink (tlačítka, aktivní položka menu). Když některý z obou kontrastů nestačí, barva se ve
+  // světlém režimu ztmaví a v tmavém zesvětlí – po kouscích, se stejným odstínem i sytostí. Ve světlém režimu to
+  // potřebovala zlatá (point) a oranžová (pole) fotka a barvy písní u žlutých a zelených klipů.
+  var CONTRAST = { dark: { bg: '#09090b', ink: '#141414', dir: 1 }, light: { bg: '#f4f2ee', ink: '#ffffff', dir: -1 } }, readableCache = {};
+  function lum(hex) {
+    return [1, 3, 5].map(function (i) { var v = parseInt(hex.substr(i, 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); })
+      .reduce(function (a, v, i) { return a + v * [0.2126, 0.7152, 0.0722][i]; }, 0);
+  }
+  function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function readable(hex, mode) {
+    var key = mode + hex;
+    if (readableCache[key]) return readableCache[key];
+    var k = CONTRAST[mode], v = toHsl(hex), l = v[2] / 100, out = hex;
+    for (var i = 0; i < 60 && (ratio(out, k.bg) < 4.5 || ratio(out, k.ink) < 4.5); i++) {
+      l = Math.max(0, Math.min(1, l + k.dir * 0.01));
+      out = hsl(v[0], v[1] / 100, l);
+    }
+    return (readableCache[key] = out);
+  }
+  // Smajlík dole v menu na telefonu a v patičce na PC (.nav-face): jeden ze 7 obličejů loga SKELO SQUAD, ke každé
+  // fotce (a barvě) jiný; barvu bere z --accent, takže se přelévá s webem. Na stránce písně podle odstínu písně.
+  var FACES = ['base', 'skull', 'mic', 'square', 'walker', 'field', 'point', 'rocks'], faceNow = 0;
+  function setFace(key) {
+    var i = FACES.indexOf(key);
+    if (i < 0) { i = 0; for (var k = 0; k < key.length; k++) i = (i * 31 + key.charCodeAt(k)) >>> 0; }
+    var n = i % 7 + 1;
+    if (n === faceNow) return;
+    faceNow = n;
+    document.documentElement.style.setProperty('--nav-face', 'url("/img/faces/face-' + n + '.webp")');
+    // smajlík je v menu i v patičce (includes/squad-egg.jspf) – oba se vymění stejně
+    [].forEach.call(document.querySelectorAll('.nav-face'), function (el) { el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); });
+  }
+  // instant = bez přelévání (načtení stránky, nová stránka navazuje na fotku té předchozí)
+  function paint(name, instant) {
+    if (name) painted = name;
+    var b = document.body, own = b.classList.contains('is-admin');
+    if (instant) {
+      b.style.transition = 'none';
+      requestAnimationFrame(function () { requestAnimationFrame(function () { b.style.removeProperty('transition'); }); });
+    }
+    var mode = b.classList.contains('light') ? 'light' : 'dark';
+    var c = own ? OWN[mode] : (songColor ? songColor[mode === 'light' ? 1 : 0] : PALETTE[mode][painted]);
+    if (c) c = [readable(c[0], mode), c[1]];   // hlavní barva vždy čitelná (kontrast aspoň 4,5 : 1), odstín zůstává
+    if (c) setAccents(b, c, instant);
+    else { clearInterval(stepT); curVal = {}; b.style.removeProperty('--accent'); b.style.removeProperty('--accent-2'); }
+    setFace(own ? 'base' : songColor ? songColor[0][0] : painted);
+    // stránka písně: podlaha pod kouřem (a kouř sám) v odstínu písně, aby nálada písně pokračovala i pod videem
+    if (songFloor && !own) b.style.setProperty('--bg', songFloor[mode === 'light' ? 1 : 0]); else b.style.removeProperty('--bg');
+    // sníh ve světlém režimu: bílý jen u sněhové fotky, jinak v barvě fotky
+    if (b.classList.contains('light') && painted !== 'base' && c && !own) b.style.setProperty('--flake', c[1]); else b.style.removeProperty('--flake');
+  }
+  paint('base', true);
+  // přepnutí světlého a tmavého režimu = barvy druhé sady (i když se fotky nestřídají)
+  new MutationObserver(function () { paint(); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+  // Fotky mají omezené rozlišení: na velkém monitoru by je „cover“ nafoukl (pole 1920×819 na 2560 px skoro 2×)
+  // a byly by rozmazané. Od šířky 1025 px se vrstva s fotkou zmenší tak, aby fotka nebyla zvětšená víc než FIT_MAX ×,
+  // a strany, které nedosáhnou na kraj obrazovky, se ztratí do barvy stránky (css/effects.css, třída .fit).
+  // Telefon beze změny. BASE_SIZE = rozměry obvyklého pozadí (IMG_0090, lightnaweb) pro body::before.
+  var FIT_MAX = 1.1, BASE_SIZE = { dark: [2560, 1707], light: [1538, 1022] };
+  function fitBox(nw, nh) {
+    var W = window.innerWidth, H = window.innerHeight;
+    if (!nw || !nh || W < 1025) return null;
+    var w = Math.min(W, Math.round(nw * FIT_MAX)), h = Math.min(H, Math.round(nh * FIT_MAX));
+    if (w >= W && h >= H) return null;
+    return { w: w, h: h, fx: w < W ? Math.round(w * 0.16) : 0, fy: h < H ? Math.round(h * 0.16) : 0 };
+  }
+  function fitSet(el, cls, f, p) {
+    el.classList.toggle(cls, !!f);
+    if (!f) { ['w', 'h', 'fx', 'fy'].forEach(function (k) { el.style.removeProperty('--' + p + k); }); return; }
+    el.style.setProperty('--' + p + 'w', f.w + 'px'); el.style.setProperty('--' + p + 'h', f.h + 'px');
+    el.style.setProperty('--' + p + 'fx', f.fx + 'px'); el.style.setProperty('--' + p + 'fy', f.fy + 'px');
+  }
+  function fitLayer(el) { fitSet(el, 'fit', fitBox(+el.dataset.nw, +el.dataset.nh), 'b'); }
+  function fitBase() {
+    var s = BASE_SIZE[document.body.classList.contains('light') ? 'light' : 'dark'];
+    fitSet(document.body, 'bg-fit', fitBox(s[0], s[1]), 'bb');
+  }
+  fitBase();
+  var fitLight = document.body.classList.contains('light'), fitRaf = 0;
+  new MutationObserver(function () {
+    var l = document.body.classList.contains('light');
+    if (l !== fitLight) { fitLight = l; fitBase(); }
+  }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  window.addEventListener('resize', function () {
+    if (fitRaf) return;
+    fitRaf = requestAnimationFrame(function () {
+      fitRaf = 0;
+      fitBase();
+      document.querySelectorAll('.bg-slides > div[data-nw]').forEach(fitLayer);
+    });
+  });
+
   function slides() {
     var box = document.querySelector('.bg-slides');
-    if (!box || reduced) return;
+    if (!box || reduced) return;   // i v lehkém režimu: prolnutí fotek je levné a nese barvu webu
     var step = 0, wait = 0, every = 0;   // step 0 = the usual background, 1..n = the photos
+    var topZ = 1;                        // poslední ukázaná fotka leží vždy nahoře
     function theme() { return document.body.classList.contains('light') ? 'light' : 'dark'; }
     function build() {
       var size = window.innerWidth * (window.devicePixelRatio || 1) > 1400 ? 'lg' : 'md';
@@ -147,12 +300,33 @@
         var parts = item.split(':');
         if (!parts[0]) return;
         var layer = document.createElement('div');
+        layer.dataset.name = parts[0].trim();   // podle jména se vybere barva webu (PALETTE)
         layer.dataset.src = '/img/photos/' + parts[0].trim() + '-' + (parts[2] === 'wide' && landscape ? 'wide' : size) + '.webp';
         layer.style.setProperty('--pos', parts[1] || 'center');
         box.appendChild(layer);
       });
     }
-    // a photo is fetched just before its turn
+    // fotka se stáhne a rozbalí dopředu (prep), aby se při výměně nemusela stahovat zároveň s prolínáním
+    function prep(layer, done) {
+      if (!layer) { if (done) done(); return; }
+      if (layer.dataset.failed) { if (done) done(); return; }   // už jednou selhala: nezkoušet znovu
+      if (layer.style.getPropertyValue('--slide')) { if (done) done(); return; }
+      if (layer._prep) { if (done) layer._prep.push(done); return; }
+      layer._prep = done ? [done] : [];
+      var img = new Image();
+      function ready() {
+        layer.dataset.nw = img.naturalWidth; layer.dataset.nh = img.naturalHeight; fitLayer(layer);
+        layer.style.setProperty('--slide', 'url("' + layer.dataset.src + '")');
+        var q = layer._prep; layer._prep = null; q.forEach(function (f) { f(); });
+      }
+      img.onload = function () { if (img.decode) img.decode().then(ready, ready); else ready(); };
+      // fotka se nenačetla (chyba sítě, smazaný soubor): vrstva dostane příznak a při výměně se vyřadí,
+      // střídání pokračuje dalšími fotkami; znovu se nezkouší (až při dalším načtení stránky)
+      img.onerror = function () { layer.dataset.failed = '1'; var q = layer._prep; layer._prep = null; q.forEach(function (f) { f(); }); };
+      img.src = layer.dataset.src;
+    }
+    // další fotka v pořadí (krok step + 1; po poslední přijde obvyklé pozadí = nic)
+    function prepNext() { var nx = box.children[step]; if (nx) setTimeout(function () { prep(nx); }, 4500); }
     function show(instant) {
       var layers = box.children, cur = layers[step - 1];
       function swap() {
@@ -160,15 +334,24 @@
           layers[i].classList.toggle('instant', !!instant);
           layers[i].classList.toggle('on', layers[i] === cur);
         }
+        // nová fotka se prolíná nahoře; obvyklé pozadí (body::before) pod ní zmizí, jinak by u zmenšené fotky
+        // na velkém monitoru prosvítalo jejími průhlednými okraji (vypadalo to jako dvě zaseknuté fotky)
+        if (cur) cur.style.zIndex = ++topZ;
+        document.body.classList.toggle('slide-instant', !!instant);
+        document.body.classList.toggle('slide-on', !!cur);
+        paint(cur ? cur.dataset.name : 'base', instant);   // web se přebarví spolu s fotkou
+
         if (instant) requestAnimationFrame(function () {
-          requestAnimationFrame(function () { for (var i = 0; i < layers.length; i++) layers[i].classList.remove('instant'); });
+          requestAnimationFrame(function () {
+            for (var i = 0; i < layers.length; i++) layers[i].classList.remove('instant');
+            document.body.classList.remove('slide-instant');
+          });
         });
       }
-      if (cur && !cur.style.getPropertyValue('--slide')) {
-        var img = new Image();
-        img.onload = function () { cur.style.setProperty('--slide', 'url("' + cur.dataset.src + '")'); swap(); };
-        img.src = cur.dataset.src;
-      } else swap();
+      prep(cur, function () {
+        if (cur && cur.dataset.failed) { cur.remove(); step = Math.max(0, step - 1); save(); prepNext(); return; }   // vadná fotka ven, barva zůstane
+        swap(); prepNext();
+      });
     }
     function save() {
       try { sessionStorage.setItem(SLIDE_KEY, JSON.stringify({ step: step, at: Date.now(), theme: theme() })); } catch (e) { }
@@ -183,6 +366,13 @@
       clearTimeout(wait);
       clearInterval(every);
       build();
+      document.body.classList.remove('slide-on');   // nová sada fotek začíná na obvyklém pozadí
+      // kontrola fotek: ?bgshow=<jméno fotky> (např. skull) ukáže jen tu jednu a nestřídá se
+      var only = new URLSearchParams(location.search).get('bgshow');
+      if (only) {
+        for (var oi = 0; oi < box.children.length; oi++) if (box.children[oi].dataset.name === only) { step = oi + 1; show(true); }
+        return;
+      }
       var saved = null, delay = SLIDE_MS;
       try { saved = JSON.parse(sessionStorage.getItem(SLIDE_KEY)); } catch (e) { }
       var age = saved ? Date.now() - saved.at : -1;
@@ -193,6 +383,7 @@
       } else {
         step = 0;
         save();
+        prepNext();
       }
       wait = setTimeout(function () { next(); every = setInterval(next, SLIDE_MS); }, delay);
     }
@@ -292,8 +483,345 @@
     lightboxOpen(group, group.indexOf(a));
   });
 
-  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); }
+  // Podstránky ve vzhledu „Ulice“: pod úvodním pásem s kouřem (pageHero.tag) leží plná barva stránky.
+  // Hranici (kde pás končí) dostane CSS jako --floor-top na <main> (css/effects.css, main.has-floor).
+  var floorObs = null;
+  function floor() {
+    var main = document.querySelector('main'), hero = main && main.querySelector('.page-hero.with-smoke, .lyric-stage.with-smoke');
+    if (floorObs) { floorObs.disconnect(); floorObs = null; }
+    if (!hero) { if (main) main.classList.remove('has-floor'); return; }
+    function set() {
+      var hr = hero.getBoundingClientRect();
+      main.style.setProperty('--floor-top', Math.round(hr.bottom - main.getBoundingClientRect().top) + 'px');
+      // stránka písně: sekce s videem není vždy uprostřed okna – kouř se natáhne přesně od levého okraje okna
+      if (hero.classList.contains('lyric-stage')) hero.style.setProperty('--edge-x', Math.round(-hr.left) + 'px');
+    }
+    main.classList.add('has-floor'); set();
+    if (window.ResizeObserver) { floorObs = new ResizeObserver(set); floorObs.observe(hero); floorObs.observe(main); }
+  }
+
+  // BARVA PÍSNĚ: stránka písně se přebarví podle náhledu svého klipu (.lyric-ambient, --amb). Z malé kopie obrázku se
+  // vezme nejsytější barva (vážený průměr sytých pixelů), pak se upraví jas: tmavý režim světlejší, světlý tmavší.
+  function hsl(h, s, l) {
+    function f(n) { var k = (n + h / 30) % 12, a = s * Math.min(l, 1 - l); return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))); }
+    return '#' + [f(0), f(8), f(4)].map(function (v) { return ('0' + v.toString(16)).slice(-2); }).join('');
+  }
+  // barva písně z jedné průměrné barvy (0–1): nadpis, odkazy, kouř…, na stránce písně i podlaha
+  function setSongColor(R, G, B) {
+    var M = Math.max(R, G, B), N = Math.min(R, G, B), h = 0;
+    if (M !== N) h = M === R ? 60 * (((G - B) / (M - N)) % 6) : M === G ? 60 * ((B - R) / (M - N) + 2) : 60 * ((R - G) / (M - N) + 4);
+    if (h < 0) h += 360;
+    songColor = [[hsl(h, 0.9, 0.6), hsl((h + 28) % 360, 0.95, 0.66)], [hsl(h, 0.75, 0.36), hsl((h + 28) % 360, 0.8, 0.45)]];
+    songFloor = document.querySelector('main.lyric-page') ? [hsl(h, 0.32, 0.065), hsl(h, 0.3, 0.935)] : null;   // jen stránka písně (ne Hudba)
+  }
+  // Barva z celého videa (js/clip-fx.js spočítá z eq dat, událost skeli:songcolor) má přednost před náhledem:
+  // náhled bývá úvodní karta s jinou barvou (Machine gun: fialový nápis, ale zelené video). Počítá se jednou na video,
+  // stránka se jednou přelije – za běhu se nepřebarvuje (šetří slabší telefony).
+  var videoColor = null, paintToken = 0;
+  window.addEventListener('skeli:songcolor', function (e) {
+    var c = e.detail; if (!c) return;
+    videoColor = c; paintToken++;
+    setSongColor(c.r, c.g, c.b); paint();
+  });
+  function songPaint(url) {
+    var amb = document.querySelector('main.lyric-page .lyric-ambient'), token = ++paintToken;
+    songFloor = null;
+    var m = amb && /url\(['"]?([^'")]+)/.exec(amb.getAttribute('style') || '');
+    // Hudba: přehrávač už má vybrané video dřív, než se tenhle skript načte – vezme se z něj
+    var cp = !url && document.querySelector('[data-clip-player][data-yt]');
+    if (cp) url = '/yt-thumb/' + cp.dataset.yt + '/mqdefault.jpg';
+    document.body.classList.toggle('clip-on', !!url);
+    if (url) m = [0, url];
+    if (!m) { if (songColor) { songColor = null; paint(); } return; }
+    var id = (/\/yt-thumb\/([^/]+)\//.exec(m[1]) || [])[1];
+    if (videoColor && id && videoColor.id === id) { setSongColor(videoColor.r, videoColor.g, videoColor.b); paint(); return; }
+    var img = new Image();
+    img.onload = function () {
+      if (token !== paintToken) return;   // mezitím přišla barva z videa (nebo jiné video)
+      try {
+        var c = document.createElement('canvas'); c.width = 32; c.height = 18;
+        var x = c.getContext('2d'); x.drawImage(img, 0, 0, 32, 18);
+        var d = x.getImageData(0, 0, 32, 18).data, sr = 0, sg = 0, sb = 0, sw = 0;
+        for (var i = 0; i < d.length; i += 4) {
+          var r = d[i] / 255, g = d[i + 1] / 255, bl = d[i + 2] / 255, mx = Math.max(r, g, bl), mn = Math.min(r, g, bl);
+          var w = Math.pow(mx - mn, 2) * mx;   // syté a jasné pixely váží víc, šedé a černé skoro nic
+          sr += r * w; sg += g * w; sb += bl * w; sw += w;
+        }
+        if (sw < 0.5) { songColor = null; songFloor = null; paint(); return; }   // černobílý náhled: zůstává barva fotky v pozadí
+        setSongColor(sr / sw, sg / sw, sb / sw);
+        paint(null, !url);   // video na Hudbě: barva se přelije, stránka písně: hned
+      } catch (e) { /* obrázek z jiného webu nejde přečíst – zůstává barva fotky */ }
+    };
+    img.src = m[1];
+  }
+  // Hudba: vybrané video (EllipticPlayerServlet) určí barvu stránky a fotky v pozadí se ztlumí
+  window.addEventListener('skeli:clip', function (e) {
+    if (!e.detail || !e.detail.thumb) return;
+    document.body.classList.add('clip-on');
+    songPaint(e.detail.thumb);
+  });
+
+  // Galerie O mně: na PC je fotka černobílá a zbarví se pod myší. Na dotyku myš není, takže se zbarví fotka,
+  // která je zrovna uprostřed obrazovky (dřív tam byly barevné všechny a vypadalo to jinak než na PC).
+  function galleryColor(root) {
+    if (!('IntersectionObserver' in window) || !matchMedia('(hover: none)').matches) return;
+    var items = root.querySelectorAll('.gallery-item');
+    if (!items.length) return;
+    var io = new IntersectionObserver(function (en) {
+      en.forEach(function (e) { e.target.classList.toggle('in-view', e.isIntersecting); });
+    }, { rootMargin: '-35% 0px -35% 0px' });   // jen pruh uprostřed obrazovky
+    items.forEach(function (it) { io.observe(it); });
+  }
+  function init(root) { particles(root); marquee(root); tilt(root); parallax(root); paint(); floor(); songPaint(); galleryColor(root); }   // paint: admin má vlastní barvu
   init(document);
+  // Hlídač plynulosti: po načtení 3 s počítá snímky. Když telefon nestíhá, přepne se na lehký režim hned a po druhém
+  // takovém měření natrvalo. Testy (webdriver) mají softwarové kreslení, u nich neměří.
+  function watchSmooth() {
+    if (low() || reduced || navigator.webdriver) return;
+    setTimeout(function () {
+      if (document.hidden) return;
+      var frames = 0, t0 = performance.now();
+      requestAnimationFrame(function tick(now) {
+        frames++;
+        if (now - t0 < 3000) { requestAnimationFrame(tick); return; }
+        if (document.hidden) return;
+        if (frames / 3 >= 20) { try { localStorage.setItem('fxSlow', 0); } catch (e) { } return; }   // stíhá = počítadlo od nuly
+        document.documentElement.classList.add('low-fx');
+        try {
+          sessionStorage.setItem('fxLowNow', '1');
+          // třetí pomalé měření = lehký režim na 7 dní (fxAuto, hlavička stránky), pak se měří znovu
+          var strikes = (+localStorage.getItem('fxSlow') || 0) + 1;
+          localStorage.setItem('fxSlow', strikes >= 3 ? 0 : strikes);
+          if (strikes >= 3 && localStorage.getItem('fxLow') !== '0') localStorage.setItem('fxAuto', Date.now());
+        } catch (e) { /* bez úložiště to platí jen pro tuhle stránku */ }
+      });
+    }, 1500);
+  }
+  if (document.readyState === 'complete') watchSmooth(); else window.addEventListener('load', watchSmooth);
+
+  // SVĚTLUŠKY přes celou stránku (vzhled „Ulice“): měkké svítící body v barvě fotky stoupají, pomalu pomrkávají,
+  // myš nebo prst do nich fouká. Většina létá za obsahem, asi každá desátá i přes něj (slabší).
+  // Ve světlém režimu padá sníh – bílý u sněhové fotky, jinak v barvě fotky. Dvě plátna přes celou obrazovku
+  // (ne přes celou stránku), kreslí se jen na viditelné stránce. Ne na slabém telefonu, v adminu a pod hrou.
+  function fireflies() {
+    if (reduced || document.body.classList.contains('is-admin')) return;   // v lehkém režimu méně a pomaleji (níž)
+    var back = document.createElement('canvas'), front = document.createElement('canvas');
+    back.className = 'ff-layer'; front.className = 'ff-layer ff-front';
+    back.setAttribute('aria-hidden', 'true'); front.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(back); document.body.appendChild(front);
+    var gb = back.getContext('2d'), gf = front.getContext('2d'), W = 0, H = 0, P = [], t = 0;
+    var skip = false, mx = -1e4, my = -1e4, vx = 0, vy = 0, col = '#ff3b30', col2 = '#ff8a3d', flake = '#ffffff';
+    function mk(y) {
+      return { front: Math.random() < 0.1, x: Math.random() * W, y: y, r: 0.6 + Math.random() * 1.6, s: 0.2 + Math.random() * 0.55,
+               ph: Math.random() * 6.3, dx: 0, dy: 0, a: 0.35 + Math.random() * 0.55 };
+    }
+    function size() {
+      W = back.width = front.width = innerWidth; H = back.height = front.height = innerHeight;
+      var n = Math.min(innerWidth < 700 ? 34 : 70, Math.round(W * H / 16000));
+      if (low()) n = Math.round(n * 0.55);
+      P = []; for (var i = 0; i < n; i++) P.push(mk(Math.random() * H));
+    }
+    function colors() {
+      var cs = getComputedStyle(document.body);
+      col = cs.getPropertyValue('--accent').trim() || col; col2 = cs.getPropertyValue('--accent-2').trim() || col2;
+      flake = cs.getPropertyValue('--flake').trim() || '#ffffff';
+    }
+    // úvod: pod hlavičkou leží plná barva stránky (.home-below), ta by zadní vrstvu zakryla – dostane vlastní plátno
+    // (lepí se k obrazovce, za kartami); kreslí se do něj totéž co do zadní vrstvy
+    var local = null, gl2 = null;
+    // podstránky: totéž pod úvodním pásem s kouřem (main.has-floor) – plátno hned za pásem
+    function findLocal() {
+      var box = document.querySelector('.home-below'), hero = !box && document.querySelector('main .page-hero.with-smoke');
+      local = box ? box.querySelector(':scope > .ff-local') : hero && hero.nextElementSibling && hero.nextElementSibling.classList.contains('ff-local') ? hero.nextElementSibling : null;
+      if ((box || hero) && !local) {
+        local = document.createElement('canvas'); local.className = 'ff-local'; local.setAttribute('aria-hidden', 'true');
+        if (box) box.insertBefore(local, box.firstChild); else hero.after(local);
+      }
+      if (local) { local.width = W; local.height = H; gl2 = local.getContext('2d'); } else gl2 = null;
+    }
+    size(); colors(); findLocal();
+    addEventListener('resize', function () { size(); findLocal(); });
+    document.addEventListener('pjax:done', findLocal);
+    addEventListener('pointermove', function (e) { if (mx > -1e4) { vx = e.clientX - mx; vy = e.clientY - my; } mx = e.clientX; my = e.clientY; }, { passive: true });
+    addEventListener('touchmove', function (e) { var p = e.touches[0]; if (!p) return; if (mx > -1e4) { vx = p.clientX - mx; vy = p.clientY - my; } mx = p.clientX; my = p.clientY; }, { passive: true });
+    (function loop() {
+      requestAnimationFrame(loop);
+      if (document.hidden || document.documentElement.classList.contains('kpong-open')) { gb.clearRect(0, 0, W, H); gf.clearRect(0, 0, W, H); return; }
+      if (low() && (skip = !skip)) return;   // lehký režim: každý druhý snímek
+      t++;
+      if (t % 20 === 0) colors();   // barva se mění s fotkou (přelévá se 4 s), stačí ji číst občas
+      var snow = document.body.classList.contains('light');
+      gb.clearRect(0, 0, W, H); gf.clearRect(0, 0, W, H);
+      var lr = null;
+      if (gl2 && local.isConnected) {
+        lr = local.getBoundingClientRect();
+        gl2.setTransform(1, 0, 0, 1, 0, 0); gl2.clearRect(0, 0, W, H);
+        if (lr.bottom > 0 && lr.top < H) gl2.setTransform(1, 0, 0, 1, -lr.left, -lr.top); else lr = null;   // kreslí se v souřadnicích obrazovky
+      }
+      for (var i = 0; i < P.length; i++) {
+        var p = P[i], ddx = p.x - mx, ddy = p.y - my, d2 = ddx * ddx + ddy * ddy;
+        if (d2 < 140 * 140) { var f = (1 - Math.sqrt(d2) / 140) * 0.06; p.dx += vx * f + ddx * 0.002; p.dy += vy * f + ddy * 0.002; }
+        p.dx *= 0.95; p.dy *= 0.95;
+        p.x += Math.sin(t * (snow ? 0.02 : 0.01) + p.ph) * (snow ? 0.6 : 0.3) + p.dx;
+        p.y += snow ? p.s * 0.9 + p.dy : -(p.s - p.dy);
+        if (!snow && p.y < -10) { P[i] = mk(H + 10); continue; }
+        if (snow && p.y > H + 10) { P[i] = mk(-10); continue; }
+        if (p.x < -10) p.x = W + 10; if (p.x > W + 10) p.x = -10;
+        var g = p.front ? gf : gb;
+        if (snow) {
+          g.globalAlpha = (0.6 + p.a * 0.4) * (p.front ? 0.65 : 1); g.fillStyle = flake;
+          g.beginPath(); g.arc(p.x, p.y, p.r * 0.85, 0, 6.283); g.fill();
+          if (lr && !p.front) { gl2.globalAlpha = g.globalAlpha; gl2.fillStyle = flake; gl2.beginPath(); gl2.arc(p.x, p.y, p.r * 0.85, 0, 6.283); gl2.fill(); }
+          continue;
+        }
+        var tw = 0.7 + 0.3 * Math.sin(t * 0.022 + p.ph * 3), R = p.r * 1.6;
+        var gr = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, R);
+        gr.addColorStop(0, 'rgba(255,245,225,.95)'); gr.addColorStop(0.25, col2); gr.addColorStop(0.55, col); gr.addColorStop(1, 'rgba(0,0,0,0)');
+        g.globalAlpha = p.a * tw * (p.front ? 0.65 : 1); g.fillStyle = gr;
+        g.beginPath(); g.arc(p.x, p.y, R, 0, 6.283); g.fill();
+        if (lr && !p.front) { gl2.globalAlpha = g.globalAlpha; gl2.fillStyle = gr; gl2.beginPath(); gl2.arc(p.x, p.y, R, 0, 6.283); gl2.fill(); }
+      }
+      vx *= 0.8; vy *= 0.8;
+    })();
+  }
+  fireflies();
+
+  // Kyselinové bublinky (nápad uživatele): když je web v kyselinově zelené (fotka s mikrofonem, tmavý režim), vznikají
+  // malinkaté bublinky v žhavém lemu kouře (předěl mezi fotkou a stránkou, .smoke-edge) a stoupají. Pohyb myši nebo
+  // prstu je rozfouká jako létající jiskry, klik nebo ťuknutí na ně praskne (kapičky). Po přepnutí barvy jinam každá
+  // sama praskne. ?bubliny=1 v adrese je pustí pořád. Kreslí se na jedno plátno (.acid-layer), jen když nějaké jsou.
+  function bubbles() {
+    if (reduced || document.body.classList.contains('is-admin')) return;
+    var always = /[?&]bubliny=1/.test(location.search);
+    var cv = document.createElement('canvas'), g = cv.getContext('2d'), B = [], drops = [], raf = 0, last = 0, spawnAcc = 0;
+    cv.className = 'acid-layer'; cv.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(cv);
+    var px = -1e4, py = -1e4, pvx = 0, pvy = 0, pt = 0;
+    // jen když stránka opravdu má zelenou barvu fotky s mikrofonem – ne na stránce písně ani u videa na Hudbě (barvu tam určuje video)
+    function green() { return always || (painted === 'mic' && !songColor && !document.body.classList.contains('light')); }
+    function size() { var d = Math.min(2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; g.setTransform(d, 0, 0, d, 0, 0); }
+    size(); addEventListener('resize', size);
+    // lem záře v kouři: v .smoke-edge.b leží ve 26 % výšky odspodu, v převráceném .t ve 26 % shora (js/smoke.js: 0,42 × výška ÷ 1,6)
+    function rims() {
+      var out = [];
+      document.querySelectorAll('.smoke-edge').forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (!r.height || r.bottom < 0 || r.top > innerHeight || getComputedStyle(el).display === 'none') return;
+        var y = el.classList.contains('t') ? r.top + r.height * 0.2625 : r.bottom - r.height * 0.2625;
+        if (y > -10 && y < innerHeight + 10) out.push({ y: y, l: Math.max(0, r.left), w: Math.min(innerWidth, r.right) - Math.max(0, r.left) });
+      });
+      return out;
+    }
+    // zvuk prasknutí: 4 nahrané praskance (sounds/bublina-1..4.wav, z Skeliho nahrávky); stáhnou se, až se objeví první bublinka
+    var POP = ['/sounds/bublina-1.wav', '/sounds/bublina-2.wav', '/sounds/bublina-3.wav', '/sounds/bublina-4.wav'], popReady = false;
+    function spawn() {
+      var rs = rims(); if (!rs.length) return;
+      if (!popReady && window.SkeliSound && SkeliSound.preload) { popReady = true; SkeliSound.preload(POP); }
+      var rm = rs[Math.floor(Math.random() * rs.length)];
+      B.push({ x: rm.l + Math.random() * rm.w, y: rm.y + (Math.random() * 12 - 8) + scrollY, r: 1.4 + Math.random() * 3.2,
+               vx: 0, vy: 0, rise: 14 + Math.random() * 22, ph: Math.random() * 6.3, age: 0, life: 5 + Math.random() * 6, die: 0 });
+    }
+    function pop(b, byHand) {
+      if (b.gone) return; b.gone = true;
+      // zvuk jen když ji praskne návštěvník (samy od sebe praskají potichu); menší bublinka = vyšší a tišší „pop“
+      if (byHand && window.SkeliSound && SkeliSound.sample) {
+        var k = (b.r - 1.4) / 3.2;   // 0 = nejmenší, 1 = největší
+        SkeliSound.sample('pop', POP, 0.35 + k * 0.3, 1.3 - k * 0.4 + (Math.random() - 0.5) * 0.08);
+      }
+      for (var k = 0; k < 6; k++) { var a = k / 6 * 6.283 + Math.random(); drops.push({ x: b.x, y: b.y, vx: Math.cos(a) * (30 + b.r * 18), vy: Math.sin(a) * (30 + b.r * 18) - 20, t: 0 }); }
+    }
+    // pohyb myši / prstu = vítr (jako u jisker), rychlost se počítá z posunu mezi událostmi
+    function move(x, y) {
+      var now = performance.now(), dt = Math.max(8, now - pt) / 1000;
+      if (pt) { pvx = (x - px) / dt; pvy = (y - py) / dt; }
+      px = x; py = y; pt = now; start();
+    }
+    addEventListener('pointermove', function (e) { move(e.clientX, e.clientY); }, { passive: true });
+    addEventListener('touchmove', function (e) { var t = e.touches[0]; if (t) move(t.clientX, t.clientY); }, { passive: true });
+    // ťuknutí / klik: praskne nejbližší bublinka u prstu; když se trefí, klik nepropadne na odkaz pod ní
+    var swallow = false;
+    addEventListener('pointerdown', function (e) {
+      var x = e.clientX, y = e.clientY + scrollY, best = null, bd = 1e9;
+      // větší okruh pro trefu (bublinky jsou malé): myš 18 px, prst 26 px kolem bublinky
+      B.forEach(function (b) { var d = Math.hypot(b.x - x, b.y - y); if (!b.gone && d < b.r + (e.pointerType === 'touch' ? 26 : 18) && d < bd) { bd = d; best = b; } });
+      if (best) { pop(best, true); swallow = true; setTimeout(function () { swallow = false; }, 600); start(); }
+    }, true);
+    addEventListener('click', function (e) { if (swallow) { swallow = false; e.preventDefault(); e.stopPropagation(); } }, true);
+    function start() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+    function frame(now) {
+      raf = 0;
+      var dt = Math.min(0.05, (now - last) / 1000); last = now;
+      var on = green() && !low() && !document.hidden && !document.documentElement.classList.contains('kpong-open');
+      if (on) { spawnAcc += dt * (innerWidth < 700 ? 3 : 5); while (spawnAcc > 1) { spawnAcc--; if (B.length < 70) spawn(); } }
+      var wind = Math.min(1, (now - pt) < 120 ? 1 : 0);
+      g.clearRect(0, 0, innerWidth, innerHeight);
+      B = B.filter(function (b) {
+        if (b.gone) return false;
+        b.age += dt;
+        if (!on && !b.die) b.die = b.age + 0.4 + Math.random() * 2.5;   // barva se přepnula: každá sama praskne
+        if ((b.die && b.age > b.die) || b.age > b.life) { pop(b); return false; }
+        var sy = b.y - scrollY;
+        if (wind) {
+          // Pohyb ruky bublinky jen jemně odfoukne: rychlost ruky se počítá nejvýš 500 px/s a síla je slabší než dřív
+          // (utíkaly tak rychle, že se nedaly trefit). Těsně u kurzoru (do 28 px) se naopak skoro zastaví, ať jde prasknout.
+          var dx = b.x - px, dy = sy - py, d = Math.hypot(dx, dy), reach = 90;
+          var hv = Math.hypot(pvx, pvy), hk = hv > 500 ? 500 / hv : 1;
+          if (d < reach && d > 28) { var f = Math.pow(1 - d / reach, 2) * dt * 1.6; b.vx += (pvx * hk * 0.5 + dx / (d + 1) * 14) * f; b.vy += (pvy * hk * 0.5 + dy / (d + 1) * 14) * f; }
+        }
+        if (Math.hypot(b.x - px, sy - py) < 28) { b.vx *= Math.exp(-9 * dt); b.vy *= Math.exp(-9 * dt); }
+        b.vx *= Math.exp(-1.6 * dt); b.vy *= Math.exp(-1.6 * dt);
+        var bv = Math.hypot(b.vx, b.vy); if (bv > 70) { b.vx *= 70 / bv; b.vy *= 70 / bv; }   // strop rychlosti
+        b.x += (b.vx + Math.sin(b.age * 2.2 + b.ph) * 8) * dt;
+        b.y += (b.vy - b.rise) * dt;
+        var a = Math.min(1, b.age * 2) * Math.min(1, (b.life - b.age) / 1.2);
+        sy = b.y - scrollY;
+        if (sy < -10 || sy > innerHeight + 10) return true;
+        g.globalAlpha = a;
+        g.beginPath(); g.arc(b.x, sy, b.r, 0, 6.283);
+        g.fillStyle = 'rgba(125, 255, 58, .16)'; g.fill();
+        g.lineWidth = 0.9; g.strokeStyle = 'rgba(200, 255, 70, .9)'; g.stroke();
+        g.fillStyle = 'rgba(255, 255, 255, .85)'; g.fillRect(b.x - b.r * 0.45, sy - b.r * 0.5, Math.max(0.8, b.r * 0.35), Math.max(0.8, b.r * 0.35));   // odlesk
+        return true;
+      });
+      drops = drops.filter(function (d) {
+        d.t += dt; if (d.t > 0.45) return false;
+        d.vy += 260 * dt; d.x += d.vx * dt; d.y += d.vy * dt;
+        g.globalAlpha = 1 - d.t / 0.45; g.fillStyle = '#b8ff2e';
+        g.beginPath(); g.arc(d.x, d.y - scrollY, 1.1, 0, 6.283); g.fill();
+        return true;
+      });
+      g.globalAlpha = 1;
+      if (on || B.length || drops.length) raf = requestAnimationFrame(frame);
+    }
+    // jednou za chvíli zkontroluje, jestli je zelená (pak se kreslí, dokud jsou bublinky)
+    setInterval(function () { if (green() && !low() && !document.hidden) start(); }, 1000);
+    start();
+  }
+  bubbles();
+
+  // Diskografie: ▶ Přehrát (a na PC klik kamkoli na kartu) pustí video přímo tady v přehrávači nahoře – nikam se neodchází.
+  // Píseň bez videa: na PC klik otevře text, nebo Spotify. Přehrávač poslouchá událost skeli:playClip (EllipticPlayerServlet).
+  function playHere(yt) {
+    window.dispatchEvent(new CustomEvent('skeli:playClip', { detail: { yt: yt } }));
+    var stage = document.querySelector('.ep-stage');
+    if (stage) stage.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+  }
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-play-yt]');
+    if (btn && document.querySelector('.ep-stage')) { e.preventDefault(); playHere(btn.getAttribute('data-play-yt')); return; }
+    var card = e.target.closest('.flip-card');
+    if (!card || e.target.closest('a, summary, details, button')) return;
+    if (window.matchMedia('(hover: hover)').matches) {
+      var main = card.querySelector('.flip-play');
+      if (main) { playHere(main.getAttribute('data-play-yt')); return; }
+      var link = card.querySelector('.flip-open, .disco-spotify');
+      if (link) link.click();
+      return;
+    }
+    document.querySelectorAll('.flip-card.open').forEach(function (c) { if (c !== card) c.classList.remove('open'); });
+    card.classList.toggle('open');
+  });
+
   slides();   // once: the layer is not part of the page that PJAX swaps
   document.addEventListener('pjax:done', function () { init(document.querySelector('main') || document); });
 })();

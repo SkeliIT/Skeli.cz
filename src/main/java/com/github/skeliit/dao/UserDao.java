@@ -58,12 +58,12 @@ public class UserDao {
         }
     }
 
-    /** Písně pro výběr oblíbené: {uuid, název}, podle abecedy. */
+    /** Písně pro výběr oblíbené: {uuid, název, "1" = spolupráce}; nejdřív moje skladby, pak spolupráce, obě podle abecedy. */
     public List<String[]> songChoices() throws SQLException {
         List<String[]> out = new ArrayList<>();
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT uuid, name FROM songs WHERE uuid IS NOT NULL ORDER BY name");
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT uuid, name, collab FROM songs WHERE uuid IS NOT NULL ORDER BY collab, name");
              ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) out.add(new String[] { rs.getString(1), rs.getString(2) });
+            while (rs.next()) out.add(new String[] { rs.getString(1), rs.getString(2), rs.getBoolean(3) ? "1" : "0" });
         }
         return out;
     }
@@ -151,7 +151,7 @@ public class UserDao {
     /** Id hráče s veřejným profilem podle jména (/hrac/jméno); null = neexistuje, je smazaný nebo profil skryl. */
     public Integer publicPlayerId(String username) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
-                "SELECT id FROM users WHERE username = ? AND profile_public = 1 AND role <> 'DELETED'")) {
+                "SELECT id FROM users WHERE username = ? AND profile_public = 1 AND role <> 'DELETED' AND blocked_at IS NULL")) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getInt(1) : null; }
         }
@@ -208,6 +208,140 @@ public class UserDao {
             ps.setInt(2, userId);
             ps.executeUpdate();
         }
+    }
+
+    /** Smí mi lidé posílat žádosti o přátelství (users.friend_requests)? */
+    public boolean friendRequests(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT friend_requests FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return !rs.next() || rs.getBoolean(1); }
+        }
+    }
+
+    public void setFriendRequests(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET friend_requests = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Jméno a fotka v tabulkách CatSmash (Skóre, Čas, šampioni, „předběhl tě“)? Výchozí ne = anonymně. */
+    public boolean pongPublic(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT pong_public FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() && rs.getBoolean(1); }
+        }
+    }
+
+    public void setPongPublic(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET pong_public = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Ukázat mě v Komunitě (seznam Lidé)? Výchozí ne. */
+    public boolean communityPublic(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT community_public FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() && rs.getBoolean(1); }
+        }
+    }
+
+    public void setCommunityPublic(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET community_public = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Co člověk ukazuje ostatním navíc: {pár slov o sobě, město, písně se srdcem, přátelé, stav online, moje tvorba, profil i pro nepřihlášené, aktivita}. Výchozí je vypnuto, kromě tvorby (tu přidává právě proto, aby ji ukazoval). */
+    public boolean[] sharing(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT about_public, city_public, likes_public, friends_public, online_public, tracks_public, web_public, activity_public FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                boolean[] out = new boolean[8];
+                if (rs.next()) for (int i = 0; i < out.length; i++) out[i] = rs.getBoolean(i + 1);
+                return out;
+            }
+        }
+    }
+
+    public void setSharing(int userId, boolean about, boolean city, boolean likes, boolean friends, boolean online, boolean tracks, boolean web, boolean activity) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "UPDATE users SET about_public = ?, city_public = ?, likes_public = ?, friends_public = ?, online_public = ?, tracks_public = ?, web_public = ?, activity_public = ? WHERE id = ?")) {
+            ps.setBoolean(1, about);
+            ps.setBoolean(2, city);
+            ps.setBoolean(3, likes);
+            ps.setBoolean(4, friends);
+            ps.setBoolean(5, online);
+            ps.setBoolean(6, tracks);
+            ps.setBoolean(7, web);
+            ps.setBoolean(8, activity);
+            ps.setInt(9, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Můžou mi přátelé psát zprávy? */
+    public boolean chatOpen(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT chat_open FROM users WHERE id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) { return !rs.next() || rs.getBoolean(1); }
+        }
+    }
+
+    public void setChatOpen(int userId, boolean on) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE users SET chat_open = ? WHERE id = ?")) {
+            ps.setBoolean(1, on);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    /** Vitrína: klíče odznaků v pořadí, jak si je člověk vybral. */
+    public List<String> showcaseBadges(int userId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT showcase_badges FROM user_profiles WHERE user_id = ?")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                String raw = rs.next() ? rs.getString(1) : null;
+                return raw == null || raw.isBlank() ? List.of() : List.of(raw.split(","));
+            }
+        }
+    }
+
+    public void setShowcaseBadges(int userId, List<String> keys) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "INSERT INTO user_profiles (user_id, showcase_badges) VALUES (?, ?) ON DUPLICATE KEY UPDATE showcase_badges = VALUES(showcase_badges)")) {
+            ps.setInt(1, userId);
+            ps.setString(2, keys.isEmpty() ? null : String.join(",", keys));
+            ps.executeUpdate();
+        }
+    }
+
+    /** Písně, kterým člověk dal srdce (srdce platí pro celou píseň, ve všech jazycích), nejnovější nahoře. */
+    public List<com.github.skeliit.model.LikedSong> likedSongs(int userId) throws SQLException {
+        List<com.github.skeliit.model.LikedSong> out = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT s.uuid, s.name, s.preview_image_url, "
+                + "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) "
+                + "FROM songs s WHERE s.uuid IS NOT NULL AND s.id IN "
+                + "(SELECT l.song_id FROM lyrics_votes lv JOIN lyrics l ON l.id = lv.lyric_id WHERE lv.user_id = ? AND lv.vote = 1) "
+                + "ORDER BY s.year DESC, s.id DESC LIMIT 60")) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String yt = rs.getString(4);
+                    out.add(new com.github.skeliit.model.LikedSong(rs.getString(1), rs.getString(2),
+                            yt != null ? "/yt-thumb/" + yt + "/mqdefault.jpg" : rs.getString(3)));
+                }
+            }
+        }
+        return out;
     }
 
     /** Ukazovat můj profil přihlášeným (users.profile_public)? */

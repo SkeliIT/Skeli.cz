@@ -19,6 +19,8 @@
         <c:when test="${param.msg == 'video_deleted'}">Video je smazané z celého webu a synchronizace z YouTube ho už nevrátí.</c:when>
         <c:when test="${param.msg == 'release_saved'}">Premiéra uložená – na webu běží odpočet.</c:when>
         <c:when test="${param.msg == 'release_cleared'}">Premiéra zrušená.</c:when>
+        <c:when test="${param.msg == 'premiere_video_saved'}">Video k premiéře uložené. Na webu ho do premiéry nikdo neuvidí.</c:when>
+        <c:when test="${param.msg == 'premiere_video_cleared'}">Video k premiéře odebrané.</c:when>
         <c:when test="${param.msg == 'bad_release'}">Datum a čas premiéry se nepodařilo přečíst.</c:when>
         <c:when test="${param.msg == 'text_deleted'}">Text smazaný. 30 dní ho najdeš v Koši (Systém → Záznam změn a koš).</c:when>
         <c:when test="${param.msg == 'help_saved'}">Výzva k pomoci s textem uložena.</c:when>
@@ -28,7 +30,8 @@
         <c:when test="${param.msg == 'preview_saved'}">Náhledový obrázek uložen.</c:when>
         <c:when test="${param.msg == 'preview_deleted'}">Náhledový obrázek smazán.</c:when>
         <c:when test="${param.msg == 'art_saved'}">Obrázek v seznamu Texty uložen.</c:when>
-        <c:when test="${param.msg == 'poster_saved'}">Plakát v Karaoke uložen.</c:when>
+        <c:when test="${param.msg == 'poster_saved'}">Posun obrázku v Diskografii uložen.</c:when>
+        <c:when test="${param.msg == 'disco_saved'}">Obrázek v Diskografii uložen.</c:when>
         <c:when test="${param.msg == 'bad_art'}">Pozici obrázku se nepodařilo přečíst – zkus to znovu.</c:when>
         <c:when test="${param.msg == 'bad_youtube'}">Neplatné YouTube ID / URL.</c:when>
         <c:when test="${param.msg == 'bad_name'}">Název písně je povinný.</c:when>
@@ -108,6 +111,10 @@
         <label>Rok
           <input name="year" type="number" min="1900" max="2100" value="${song.year != null ? song.year : ''}">
         </label>
+        <%-- spolupráce = cizí track, kde hostuju: web ji řadí až za moje skladby (Hudba a Texty ji mají v části Spolupráce) --%>
+        <input type="hidden" name="collab_form" value="1">
+        <label class="admin-check"><input type="checkbox" name="collab" value="1" ${song.collab ? 'checked' : ''}> Spolupráce – cizí track, kde hostuju</label>
+        <p class="text-dim">Spolupráce se na webu ukazují až za mými skladbami a nikdy nejsou na úvodu jako „Nový song“.</p>
         <button type="submit">Uložit</button>
       </form>
     </section>
@@ -214,6 +221,23 @@
         </label>
         <button type="submit">Uložit premiéru</button>
       </form>
+      <%-- Neveřejné video z YouTube: do premiéry je uložené jen tady (songs.premiere_video_id), žádná veřejná stránka ani API ho nevidí.
+           V čas premiéry ho server sám přidá k písni (job/PremiereJob). Jinde (Přidat track, ruční formulář) ho před premiérou nepřidávej –
+           web by ho stejně odmítl. --%>
+      <form method="post" action="/admin/song" class="admin-form premiere-video">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="id" value="${song.id}">
+        <input type="hidden" name="action" value="premiere_video">
+        <label>Video k premiéře (neveřejné na YouTube)
+          <input type="text" name="youtube" value="<c:out value='${premiereVideo}'/>" placeholder="https://youtu.be/…" autocomplete="off">
+        </label>
+        <p class="text-dim">Na YouTube nahraj jako <b>Neveřejné</b> a zapni <b>Povolit vkládání</b>. Do premiéry ho uvidíš jen tady; v čas premiéry se samo objeví u písně, v Hudbě i v Novinkách. Prázdné pole = odebrat.</p>
+        <button type="submit">Uložit video</button>
+      </form>
+      <c:if test="${not empty premiereVideo}">
+        <p class="premiere-state"><i class="fa-solid fa-lock" aria-hidden="true"></i> Čeká na premiéru – vidíš ho jen ty:</p>
+        <div class="premiere-preview"><iframe src="https://www.youtube-nocookie.com/embed/<c:out value='${premiereVideo}'/>" title="Náhled videa k premiéře" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>
+      </c:if>
       <c:if test="${not empty premiere}">
         <form method="post" action="/admin/song" class="admin-inline-form">
           <input type="hidden" name="csrf" value="${csrf}">
@@ -410,27 +434,51 @@
       </c:choose>
     </section>
 
-    <!-- Plakát v Karaoke (/karaoke-kino): výřez a velikost ručně -->
-    <section class="admin-card admin-card-wide" id="poster-art">
-      <h3>Plakát v Karaoke</h3>
-      <c:choose>
-        <c:when test="${empty posterArt}">
-          <p class="text-dim">Song nemá video, v Karaoke se neukazuje.</p>
-        </c:when>
-        <c:otherwise>
-          <p class="text-dim">Obrázek <strong>posuň myší</strong> (prstem), <strong>kolečkem</strong> zvětšíš. Vlevo velký plakát (nejnovější píseň), vpravo běžný.</p>
-          <div class="poster-editor" id="posterEditor"
-               data-x="${song.posterX != null ? song.posterX : ''}" data-y="${song.posterY != null ? song.posterY : ''}" data-zoom="${song.posterZoom != null ? song.posterZoom : ''}">
-            <span class="k-feature-poster poster-drag"><img src="<c:out value='${posterArt}'/>" alt="" draggable="false"></span>
-            <span class="k-poster poster-drag">
-              <span class="k-poster-img"><img src="<c:out value='${posterArt}'/>" alt="" draggable="false"></span>
-              <span class="k-poster-text"><span class="k-poster-title"><c:out value="${songTitle.title}"/></span></span>
-              <span class="k-ticket"><i class="fa-solid fa-ticket"></i></span>
-            </span>
-          </div>
+    <!-- Obrázek v Diskografii (Hudba): zdroj (automaticky / snímek z YouTube / vlastní) a posun se zvětšením -->
+    <section class="admin-card admin-card-wide" id="disco-art">
+      <h3>Obrázek v Diskografii</h3>
+      <p class="text-dim">1) Vyber obrázek, 2) v náhledu karty ho <strong>posuň myší nebo prstem</strong> a <strong>kolečkem / posuvníkem</strong> zvětši nebo zmenši (40–300 %), 3) Uložit. <a href="/admin/disco">Všechny obrázky v Diskografii →</a></p>
+      <form method="post" action="/admin/song" class="disco-src">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="id" value="${song.id}">
+        <input type="hidden" name="action" value="save_disco_src">
+        <div class="disco-src-grid">
+          <label class="disco-src-tile"><input type="radio" name="src" value="" ${empty discoImage ? 'checked' : ''}>
+            <span class="disco-src-img"><c:if test="${not empty discoAuto}"><img src="<c:out value='${discoAuto}'/>" alt="" loading="lazy"></c:if></span><span>Automaticky</span></label>
+          <c:if test="${not empty discoYt}">
+            <c:forEach var="n" items="maxresdefault,maxres1,maxres2,maxres3">
+              <c:set var="ytSrc" value="/yt-thumb/${discoYt}/${n}.jpg"/>
+              <label class="disco-src-tile"><input type="radio" name="src" value="${ytSrc}" ${discoImage == ytSrc ? 'checked' : ''}>
+                <span class="disco-src-img"><img src="${ytSrc}" alt="" loading="lazy" onerror="this.closest('label').hidden=true"></span>
+                <span>${n == 'maxresdefault' ? 'Titulní z YouTube' : 'Snímek z klipu '.concat(n.substring(6))}</span></label>
+            </c:forEach>
+          </c:if>
+          <c:if test="${not empty discoImage and discoImage.startsWith('/uploads/')}">
+            <label class="disco-src-tile"><input type="radio" name="src" value="<c:out value='${discoImage}'/>" checked>
+              <span class="disco-src-img"><img src="<c:out value='${discoImage}'/>" alt="" loading="lazy"></span><span>Vlastní obrázek</span></label>
+          </c:if>
+        </div>
+        <button type="submit">Použít vybraný</button>
+      </form>
+      <form method="post" action="/admin/songs/preview" enctype="multipart/form-data" class="admin-inline-form disco-upload">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="song_id" value="${song.id}">
+        <input type="hidden" name="target" value="disco">
+        <input type="hidden" name="redirect" value="/admin/song?id=${song.id}">
+        <label>Nahrát vlastní obrázek (fotka, snímek obrazovky z klipu): <input type="file" name="file" accept="image/*" required></label>
+        <button type="submit" class="control-btn">Nahrát</button>
+      </form>
+
+      <c:if test="${not empty discoShown}">
+      <div class="disco-edit-wrap">
+        <div class="disco-edit" id="discoEditor" style="--thumb-bg: url(&quot;<c:out value='${discoShown}'/>&quot;)" data-x="${song.posterX != null ? song.posterX : ''}" data-y="${song.posterY != null ? song.posterY : ''}" data-zoom="${song.posterZoom != null ? song.posterZoom : ''}">
+          <img class="placed" src="<c:out value='${discoShown}'/>" alt="" draggable="false">
+          <span class="disco-edit-name"><c:out value="${songTitle.title}"/></span>
+        </div>
+        <div>
           <div class="art-controls">
             <label class="art-zoom">Velikost
-              <input type="range" id="posterZoom" min="100" max="300" step="1" value="100">
+              <input type="range" id="posterZoom" min="40" max="300" step="1" value="100">
               <output id="posterZoomOut">100 %</output>
             </label>
             <button type="button" id="posterCenter" class="control-btn">Na střed</button>
@@ -442,12 +490,13 @@
             <input type="hidden" name="poster_x" id="posterX">
             <input type="hidden" name="poster_y" id="posterY">
             <input type="hidden" name="poster_zoom" id="posterZoomVal">
-            <button type="submit">Uložit</button>
-            <button type="submit" name="auto" value="1" class="control-btn">Vrátit automaticky</button>
-            <span class="text-dim">${song.posterZoom != null ? 'Teď: nastaveno ručně' : 'Teď: automaticky'}</span>
+            <button type="submit">Uložit posun</button>
+            <button type="submit" name="auto" value="1" class="control-btn">Bez posunu</button>
+            <span class="text-dim">${song.posterZoom != null ? 'Teď: posunuto ručně' : 'Teď: střed obrázku'}</span>
           </form>
-        </c:otherwise>
-      </c:choose>
+        </div>
+      </div>
+      </c:if>
     </section>
 
   </div>
@@ -747,41 +796,45 @@
 })();
 </script>
 <script>
-// the Karaoke poster: drag the picture, wheel / slider to zoom; the same CSS variables as the karaoke list
-// (--px / --py = the point of the thumbnail in the middle of the poster, --pz = zoom)
+// Obrázek v Diskografii: obrázek táhneš myší / prstem, kolečkem nebo posuvníkem zvětšíš. Stejné CSS proměnné jako
+// karta na Hudbě (--px / --py = bod obrázku v procentech, který je vidět uprostřed; --pz = zvětšení).
 (function () {
-  var ed = document.getElementById('posterEditor');
+  var ed = document.getElementById('discoEditor');
   if (!ed) return;
-  var boxes = [].slice.call(ed.querySelectorAll('.poster-drag')), imgs = [].slice.call(ed.querySelectorAll('img'));
-  var range = document.getElementById('posterZoom'), out = document.getElementById('posterZoomOut');
+  var img = ed.querySelector('img'), range = document.getElementById('posterZoom'), out = document.getElementById('posterZoomOut');
   var num = function (v, d) { v = parseFloat(v); return isFinite(v) ? v : d; };
   var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var st = { x: num(ed.dataset.x, 50), y: num(ed.dataset.y, 50), z: num(ed.dataset.zoom, 1) };
   function apply() {
-    st.z = clamp(st.z, 1, 3); st.x = clamp(st.x, 0, 100); st.y = clamp(st.y, 0, 100);
-    imgs.forEach(function (i) { i.style.setProperty('--px', st.x.toFixed(2)); i.style.setProperty('--py', st.y.toFixed(2)); i.style.setProperty('--pz', st.z.toFixed(3)); });
+    st.z = clamp(st.z, 0.4, 3); st.x = clamp(st.x, 0, 100); st.y = clamp(st.y, 0, 100);
+    img.style.setProperty('--px', st.x.toFixed(2)); img.style.setProperty('--py', st.y.toFixed(2)); img.style.setProperty('--pz', st.z.toFixed(3));
     range.value = Math.round(st.z * 100); out.textContent = Math.round(st.z * 100) + ' %';
     document.getElementById('posterX').value = st.x.toFixed(2);
     document.getElementById('posterY').value = st.y.toFixed(2);
     document.getElementById('posterZoomVal').value = st.z.toFixed(2);
   }
-  boxes.forEach(function (box) {
-    var drag = null, frame = box.querySelector('img').parentNode;
-    box.addEventListener('pointerdown', function (e) {
-      var r = frame.getBoundingClientRect();
-      drag = { px: e.clientX, py: e.clientY, x: st.x, y: st.y, w: r.width * 2.6667 * st.z, h: r.height * 1.3334 * st.z };
-      box.setPointerCapture(e.pointerId); e.preventDefault();
-    });
-    box.addEventListener('pointermove', function (e) {
-      if (!drag) return;
-      st.x = drag.x - (e.clientX - drag.px) / drag.w * 100;
-      st.y = drag.y - (e.clientY - drag.py) / drag.h * 100;
-      apply();
-    });
-    var end = function () { drag = null; };
-    box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
-    box.addEventListener('wheel', function (e) { e.preventDefault(); st.z *= e.deltaY < 0 ? 1.06 : 1 / 1.06; apply(); }, { passive: false });
+  var drag = null;
+  // O kolik pixelů se obrázek posune, když se --px (nebo --py) změní o 1: posun uvnitř karty (object-position, jen ve
+  // směru, kde obrázek přečuhuje) a posun celého zvětšeného / zmenšeného obrázku (scale kolem stejného bodu).
+  // Díky tomu obrázek jede pod prstem stejným směrem při zvětšení i zmenšení.
+  function step(size, natural, otherSize, otherNatural) {
+    var cover = Math.max(size / natural, otherSize / otherNatural), over = natural * cover - size;
+    return ((1 - st.z) * size - st.z * over) / 100;
+  }
+  ed.addEventListener('pointerdown', function (e) {
+    var r = ed.getBoundingClientRect(), nw = img.naturalWidth || r.width, nh = img.naturalHeight || r.height;
+    drag = { px: e.clientX, py: e.clientY, x: st.x, y: st.y, kx: step(r.width, nw, r.height, nh), ky: step(r.height, nh, r.width, nw) };
+    ed.setPointerCapture(e.pointerId); e.preventDefault();
   });
+  ed.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    if (Math.abs(drag.kx) > 0.02) st.x = drag.x + (e.clientX - drag.px) / drag.kx;
+    if (Math.abs(drag.ky) > 0.02) st.y = drag.y + (e.clientY - drag.py) / drag.ky;
+    apply();
+  });
+  var end = function () { drag = null; };
+  ed.addEventListener('pointerup', end); ed.addEventListener('pointercancel', end);
+  ed.addEventListener('wheel', function (e) { e.preventDefault(); st.z *= e.deltaY < 0 ? 1.06 : 1 / 1.06; apply(); }, { passive: false });
   range.addEventListener('input', function () { st.z = range.value / 100; apply(); });
   document.getElementById('posterCenter').addEventListener('click', function () { st.x = 50; st.y = 50; apply(); });
   apply();

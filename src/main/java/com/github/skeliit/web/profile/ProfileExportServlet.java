@@ -73,7 +73,15 @@ public class ProfileExportServlet extends HttpServlet {
             }
             // everything else the site keeps about the user (GDPR: the right to a copy of one's data)
             String email = root.path("user").path("email").asText(null);
-            section(c, m, root, "account", "SELECT avatar_url, cover_url, cover_public, email_verified_at FROM users WHERE id=?", uid);
+            section(c, m, root, "account", "SELECT avatar_url, cover_url, cover_public, community_public, pong_public, email_verified_at FROM users WHERE id=?", uid);
+            section(c, m, root, "chat_sent", "SELECT body, created_at FROM chat_messages WHERE sender_id=? AND deleted_at IS NULL", uid);
+            root.withArray("chat_sent").forEach(row -> ((ObjectNode) row).put("body", com.github.skeliit.service.SecretBox.open(row.path("body").asText(""))));
+            section(c, m, root, "site_badges", "SELECT badge, earned_at FROM site_badges WHERE user_id=?", uid);
+            section(c, m, root, "user_days", "SELECT day FROM user_days WHERE user_id=? ORDER BY day", uid);
+            section(c, m, root, "user_rewards", "SELECT reward, got_at FROM user_rewards WHERE user_id=?", uid);
+            section(c, m, root, "user_looks", "SELECT slot, value FROM user_looks WHERE user_id=?", uid);
+            section(c, m, root, "chat_settings", "SELECT status, theme, font, size, receipts, look_dark, look_light FROM user_chat_prefs WHERE user_id=?", uid);
+            section(c, m, root, "my_tracks", "SELECT title, year, youtube_id, spotify, apple, soundcloud, created_at, hidden_at, hidden_reason FROM user_tracks WHERE user_id=?", uid);
             section(c, m, root, "video_comments",
                     "SELECT id, youtube_id, parent_id, content, created_at, updated_at FROM video_comments WHERE user_id=? ORDER BY created_at DESC", uid);
             section(c, m, root, "lyric_votes", "SELECT * FROM lyrics_votes WHERE user_id=?", uid);
@@ -81,6 +89,20 @@ public class ProfileExportServlet extends HttpServlet {
             section(c, m, root, "lyric_comment_votes", "SELECT * FROM lyric_comment_votes WHERE user_id=?", uid);
             section(c, m, root, "notifications", "SELECT type, comment_kind, comment_id, created_at, read_at FROM notifications WHERE user_id=?", uid);
             section(c, m, root, "reported_comments", "SELECT kind, comment_id, created_at FROM comment_reports WHERE reporter_id=?", uid);
+            section(c, m, root, "friends", "SELECT u.username, f.status, f.created_at FROM friendships f JOIN users u ON u.id = IF(f.user_a = " + uid + ", f.user_b, f.user_a) WHERE f.user_a = ? OR f.user_b = " + uid, uid);
+            section(c, m, root, "blocked_users", "SELECT u.username, b.created_at FROM user_blocks b JOIN users u ON u.id = b.blocked_id WHERE b.blocker_id = ?", uid);
+            section(c, m, root, "reported_profiles", "SELECT reported_id, reason, note, created_at FROM user_reports WHERE reporter_id=?", uid);
+            // doplněno po auditu C4: tohle v kopii dat chybělo
+            section(c, m, root, "reported_messages", "SELECT reason, note, created_at, resolved_at FROM chat_reports WHERE reporter_id=?", uid);
+            section(c, m, root, "chat_reactions", "SELECT message_id, emoji FROM chat_reactions WHERE user_id=?", uid);
+            section(c, m, root, "chat_muted", "SELECT u.username FROM chat_muted x JOIN users u ON u.id = x.other_id WHERE x.user_id=?", uid);
+            section(c, m, root, "chat_hidden", "SELECT u.username, x.up_to FROM chat_hidden x JOIN users u ON u.id = x.other_id WHERE x.user_id=?", uid);
+            section(c, m, root, "catsmash_wins", "SELECT * FROM pong_results WHERE user_id=?", uid);
+            section(c, m, root, "catsmash_scores", "SELECT * FROM pong_scores WHERE user_id=?", uid);
+            section(c, m, root, "catsmash_badges", "SELECT * FROM pong_badges WHERE user_id=?", uid);
+            section(c, m, root, "site_feedback", "SELECT * FROM site_feedback WHERE user_id=?", uid);
+            section(c, m, root, "lyric_help", "SELECT * FROM lyric_help WHERE user_id=?", uid);
+            section(c, m, root, "site_reports", "SELECT * FROM site_reports WHERE user_id=?", uid);
             if (email != null && !email.isBlank()) {
                 section(c, m, root, "newsletter",
                         "SELECT email, subscribed_at, confirmed_at, unsubscribed_at FROM newsletter_emails WHERE email=?", email);

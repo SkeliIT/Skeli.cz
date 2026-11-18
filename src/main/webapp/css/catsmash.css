@@ -101,7 +101,7 @@ body.light .kpong-panel { background: linear-gradient(180deg, transparent 0, rgb
   .kpong-panel { padding-top: 18px; }
 }
 /* během hry nic přes hřiště: Spotify, Kevin v rohu i chodící Kevin pryč */
-html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.kpong-open .kevin-walker { display: none !important; }
+html.kpong-open .kevin, html.kpong-open .kevin-walker { display: none !important; }
 /* odstřel: záblesk rámu hřiště (perfektní zlatý, super oranžový) */
 .kpong-field.shot { animation: kpong-shot .35s ease-out; }
 .kpong-field.shot-super { animation: kpong-shot-super .6s ease-out; }
@@ -131,6 +131,11 @@ html.kpong-open #sp-min, html.kpong-open .sp-bar, html.kpong-open .kevin, html.k
     display: flex; align-items: center; justify-content: center; gap: 8px; color: color-mix(in srgb, var(--accent) 40%, transparent); font-size: var(--fs-small);
   }
   .kpong-zone[hidden] { display: none; }
+  /* tlačítka ⚡ a magnet leží vždy nad plochou pro pálku (plocha je v DOM až za nimi): dřív je plocha zakryla,
+     takže v Upravit rozložení nešla chytit a při hře nešla zmáčknout, když na ploše ležela */
+  .kpong-zone { z-index: 1; }
+  .kpong-shot, .kpong-stickbtn { z-index: 2; }
+  .kp-layout-bar { z-index: 3; }
   .kpong-zone .kp-zone-name, .kpong-zone .kp-zone-grip { display: none; }
   .kpong.kp-layout .kpong-pad { visibility: visible !important; background: rgba(0, 0, 0, .45); pointer-events: auto; }
   .kpong.kp-layout .kpong-zone { border: 2px dashed var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
@@ -285,6 +290,10 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 .kp-seg :is(.kpong-level, .kpong-len):focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
 .kp-desc { margin: 0 0 6px; font-family: var(--font-text); font-size: var(--fs-text); color: #c9bda6; }
 .kp-desc::first-letter { text-transform: uppercase; }
+/* Upozornění: na Lehké se odznaky neodemykají */
+.kp-easy-note { display: flex; align-items: center; gap: 8px; margin: 0; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: #fff; font-family: var(--font-text); font-size: var(--fs-card); line-height: 1.3; text-align: left; }
+.kp-easy-note[hidden] { display: none; }
+.kp-easy-note i { flex: none; color: var(--accent); }
 .kpong-panel .kpong-play { width: 100%; min-height: 48px; border-radius: 99px; font-size: var(--fs-h4); box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent); }
 .kp-rec { margin: 4px 0 0; font-family: var(--font-text); font-size: var(--fs-text); color: #e8dcc5; }
 .kp-rec i { color: var(--accent); }
@@ -1301,3 +1310,32 @@ body.light .kpong-field > .kpong-panel { background: radial-gradient(120% 75% at
 @media (max-width: 600px) { .kp-pane[data-pane="look"] > .kp-bgname { display: none; } }
 /* počítač: čtyři sloupce; pod mřížkou je navíc vysvětlivka k atmosféře */
 @media (min-width: 601px) { .kp-grid, .kp-grid.bg { grid-template-columns: repeat(4, minmax(0, 1fr)); max-height: clamp(150px, calc(92dvh - 544px), 340px); } }
+/* Vzhled → Automat (zvlášť od pálky): miniatura celého automatu a velký náhled na pódiu */
+.kp-tmach { width: 100%; height: 100%; background: center / contain no-repeat; }
+.kp-stage-mach { position: relative; z-index: 1; width: min(70%, 260px); aspect-ratio: 3 / 4; margin-bottom: 12px; }
+.kp-stage-mach .kp-tmach { filter: drop-shadow(0 6px 18px rgba(0, 0, 0, .6)); }
+.kp-stage.mach { height: 170px; }
+.kp-stage.mach .kp-stage-mach { width: auto; height: 150px; aspect-ratio: 3 / 4; margin: 0 0 8px; }
+.kp-stage.mach .kp-stage-info { left: 50%; right: 12px; }   /* jméno vedle automatu, ne přes něj */
+/* Živé body hráče ve skle (js/catsmash/hra.js liveTick): u středové čáry vlevo, poloprůhledné, ať nezakrývají míček.
+   Číslo dojíždí plynule, zisk vyletí nahoru jako +20 (ztráta po Kevinově gólu červeně dolů). */
+.kp-live { position: absolute; left: 3.5%; top: 50%; translate: 0 -50%; z-index: 2; pointer-events: none;
+  display: grid; justify-items: start; line-height: 1; opacity: .78; }
+.kp-live small { font-family: var(--font-text); font-size: 10px; letter-spacing: .2em; color: rgba(255, 255, 255, .55); }
+.kp-live b { font-family: var(--font-display); font-weight: 400; font-size: clamp(18px, 2.4vw, 26px); color: var(--accent);
+  font-variant-numeric: tabular-nums; text-shadow: 0 1px 3px rgba(0, 0, 0, .85), 0 0 12px color-mix(in srgb, var(--accent) 45%, transparent); }
+.kp-live i { font-style: normal; font-family: var(--font-text); font-size: 11px; color: rgba(255, 255, 255, .6); margin-top: 3px; }
+.kp-live-chip { position: absolute; left: 100%; top: 40%; margin-left: 8px; white-space: nowrap; font-family: var(--font-display);
+  font-size: 15px; color: var(--accent); text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: kp-live-up 1.1s ease-out forwards; }
+.kp-live-chip.minus { color: #ff6b6b; text-shadow: 0 0 10px rgba(255, 80, 80, .5); animation-name: kp-live-down; }
+@keyframes kp-live-up { 0% { opacity: 0; translate: 0 6px; } 15% { opacity: 1; } 100% { opacity: 0; translate: 0 -34px; } }
+@keyframes kp-live-down { 0% { opacity: 0; translate: 0 -6px; } 15% { opacity: 1; } 100% { opacity: 0; translate: 0 26px; } }
+.kpong.kp-replay .kp-live, .kpong.kp-look .kp-live { visibility: hidden; }
+.kpong.kp-phone .kp-live b { font-size: 20px; }
+/* Jak se hraje → Jak se počítá skóre: název vlevo, body vpravo, jemné tečkované vedení */
+.kp-points { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; text-align: left; }
+.kp-points li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); gap: 12px; align-items: baseline; padding: 6px 0;
+  border-bottom: 1px dotted color-mix(in srgb, var(--accent) 30%, transparent); font-family: var(--font-text); font-size: var(--fs-text); }
+.kp-points li span { text-align: left; }
+.kp-points li b { font-weight: 500; color: var(--accent); text-align: right; max-width: 16ch; font-variant-numeric: tabular-nums; }

@@ -11,9 +11,15 @@
   <nav class="lyric-switcher">
     <a class="lyric-back" href="/texty.jsp"><i class="fa-solid fa-arrow-left"></i> <%= t.getProperty("lyrics.back") %></a>
     <ul class="lyric-nav">
+      <c:set var="collabSep" value="${false}"/>
       <c:forEach items="${songs}" var="s">
         <%-- only songs that have lyrics; the others would link to nothing --%>
         <c:if test="${not empty s.firstLyricId}">
+        <%-- spolupráce (cizí tracky, kde hostuju) jsou na konci za oddělovačem --%>
+        <c:if test="${s.collab and not collabSep}">
+          <c:set var="collabSep" value="${true}"/>
+          <li class="nav-collab-sep"><span><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("music.collabs")) %></span></li>
+        </c:if>
         <li>
           <a href="/<%= cur %>/song/${s.uuid}"
              class="${(lyric != null && lyric.songId == s.id) ? 'active' : ''}" title="<c:out value='${s.name}'/>">
@@ -97,7 +103,7 @@
 
       <%-- the clip on its own wide stage above the lyrics; water and fire flow out of it with the music (js/clip-fx.js) --%>
       <c:if test="${not empty lyric.youtubeId or not empty lyric.previewImageUrl}">
-      <section class="clip-stage lyric-stage${not empty lyric.youtubeId ? ' has-fx' : ''}"${not empty lyric.youtubeId ? ' data-clip-fx' : ''}>
+      <section class="clip-stage lyric-stage with-smoke${not empty lyric.youtubeId ? ' has-fx' : ''}"${not empty lyric.youtubeId ? ' data-clip-fx' : ''}>
       <c:if test="${not empty lyric.youtubeId}"><canvas class="clip-fx-gl" aria-hidden="true"></canvas><canvas class="clip-fx-2d" aria-hidden="true"></canvas></c:if>
       <div class="lyric-media">
       <c:choose>
@@ -198,6 +204,8 @@
       </c:if>
       </div>
       <c:if test="${not empty lyric.youtubeId}"><div class="stage-under"><%@ include file="/includes/clip-fx-switch.jspf" %></div></c:if>
+      <%-- vzhled „Ulice“: pod videem kouř (js/smoke.js), pod ním podlaha v odstínu písně (main.has-floor, js/effects.js) --%>
+      <div class="smoke-edge b" aria-hidden="true"><canvas></canvas></div>
       </section>
       </c:if>
 

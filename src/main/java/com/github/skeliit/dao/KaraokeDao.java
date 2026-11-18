@@ -102,9 +102,9 @@ public class KaraokeDao {
         List<KaraokeSong> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
                 "SELECT s.uuid, s.name, s.year, l.words, s.poster_x, s.poster_y, s.poster_zoom, (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id "
-                        + "ORDER BY v.published_at IS NULL, v.published_at DESC LIMIT 1) yt "
+                        + "ORDER BY v.published_at IS NULL, v.published_at DESC LIMIT 1) yt, s.collab "
                         + "FROM songs s JOIN lyrics l ON l.song_id = s.id AND l.lang = 'cs' "
-                        + "WHERE l.words IS NOT NULL AND l.words <> '' AND s.uuid IS NOT NULL ORDER BY s.year IS NULL, s.year DESC, s.name");
+                        + "WHERE l.words IS NOT NULL AND l.words <> '' AND s.uuid IS NOT NULL ORDER BY s.collab, s.year IS NULL, s.year DESC, s.name");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 if (rs.getString(8) == null) continue;
@@ -113,6 +113,7 @@ public class KaraokeDao {
                 k.uuid = rs.getString(1);
                 k.title = st.title;
                 k.credits = st.credits;
+                k.collab = rs.getBoolean(9);   // spolupráce: na stránce Karaoke ve vlastní části
                 int y = rs.getInt(3);
                 k.year = rs.wasNull() ? null : y;
                 k.lines = lines(rs.getString(4));

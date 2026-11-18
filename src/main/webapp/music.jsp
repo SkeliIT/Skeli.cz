@@ -28,14 +28,35 @@
       java.util.List<DiscoItem> disco = null;
       java.util.Map<Integer, java.util.List<SongClip>> clipsBySong = java.util.Map.of();
       java.util.Map<Integer, String> musicNotes = java.util.Map.of();   // nastříkané poznámky z adminu
+      java.util.Map<Integer, String> quoteLines = java.util.Map.of();   // řádek z textu na zadní straně karty
       try {
         disco = new SongDao().discography(cur);
         clipsBySong = SongClip.bySong();
+        quoteLines = new SongDao().quoteLines();
         musicNotes = new com.github.skeliit.dao.SongNoteDao().active(com.github.skeliit.dao.SongNoteDao.Place.MUSIC, cur);
       } catch (Exception e) {
         application.log("Diskografie", e);
       }
+      // ostré náhledy na výšku z klipů (tools/disco-nahledy.py, img/disco/<id>.webp); bez nich malý náhled z YouTube
+      java.util.Set<String> discoImgs = application.getResourcePaths("/img/disco/");
+      if (discoImgs == null) discoImgs = java.util.Set.of();
+      // obrázek a jeho posun vybraný v adminu (karta „Obrázek v Diskografii“)
+      java.util.Map<Integer, String[]> discoPicked = java.util.Map.of();
+      try { discoPicked = new com.github.skeliit.dao.SongDao().discoPictures(); } catch (Exception e) { application.log("Diskografie obrázky", e); }
+      boolean collabHead = false;   // nadpis „Spolupráce“ už je vypsaný
       if (disco != null) for (DiscoItem d : disco) {
+        if (d.collab && !collabHead) {
+          collabHead = true;
+          // moje skladby jsou nahoře, spolupráce (cizí tracky, kde hostuju) mají vlastní část pod nimi
+    %>
+    </div>
+    <div class="section-head collab-head" id="spoluprace">
+      <h3><%= WebUtils.escapeHtml(t.getProperty("music.collabs")) %></h3>
+      <p><%= WebUtils.escapeHtml(t.getProperty("music.collabs.lead")) %></p>
+    </div>
+    <div class="song-grid collab-grid">
+    <%
+        }
         String nameHtml = WebUtils.escapeHtml(d.name);
         String yt = d.youtubeId;
         String ytHtml = yt == null ? null : WebUtils.escapeHtml(yt);
@@ -47,57 +68,67 @@
         String spotifyHref = d.spotifyUrl();
         java.util.List<SongClip> versions = d.song ? clipsBySong.get(d.id) : null;
     %>
-      <article class="song-card disco-card">
-        <a class="song-thumb" <% if (mainHref != null) { %>href="<%= mainHref %>"<% if (!hasLyrics) { %> target="_blank" rel="noopener"<% } } %> aria-label="<%= nameHtml %>">
-          <%
-            if (versions != null && versions.size() > 1) {
-              // two versions: the newest on top fading into the oldest below
-          %>
+      <%-- otočná karta: vpředu náhled, název a rok; po najetí (na telefonu ťuknutím) se otočí a vzadu je řádek z textu,
+           verze videa a odkazy k poslechu (js/effects.js: ťuknutí, klávesnice přes :focus-within) --%>
+      <article class="song-card disco-card flip-card" tabindex="0">
+       <div class="flip-in">
+        <div class="flip-face flip-front">
+          <% String[] picked = d.song ? discoPicked.get(d.id) : null;
+             // rozmazané pozadí za zmenšeným obrázkem (pages.css .song-thumb:has(> img.placed)::before)
+             String thumbBg = picked == null || picked[1].isEmpty() ? null : picked[0] != null ? picked[0] : yt == null ? null : discoImgs.contains("/img/disco/" + yt + ".webp") ? "/img/disco/" + yt + ".webp" : "/yt-thumb/" + yt + "/mqdefault.jpg"; %>
+          <span class="song-thumb"<% if (thumbBg != null) { %> style="--thumb-bg: url(&quot;<%= WebUtils.escapeHtml(thumbBg) %>&quot;)"<% } %>>
+          <% if (picked != null && picked[0] != null) { %>
+            <img class="disco-picked<%= picked[1].isEmpty() ? "" : " placed" %>" src="<%= WebUtils.escapeHtml(picked[0]) %>" alt="" loading="lazy" style="<%= picked[1] %>">
+          <% } else if (versions != null && versions.size() > 1) { %>
             <span class="thumb-split">
-              <img class="split-bottom" src="/yt-thumb/<%= WebUtils.escapeHtml(versions.get(versions.size() - 1).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
-              <img class="split-top" src="/yt-thumb/<%= WebUtils.escapeHtml(versions.get(0).youtubeId) %>/mqdefault.jpg" alt="" loading="lazy">
+              <% String vb = versions.get(versions.size() - 1).youtubeId, vt = versions.get(0).youtubeId; %>
+              <img class="split-bottom" src="<%= discoImgs.contains("/img/disco/" + vb + ".webp") ? "/img/disco/" + WebUtils.escapeHtml(vb) + ".webp" : "/yt-thumb/" + WebUtils.escapeHtml(vb) + "/mqdefault.jpg" %>" alt="" loading="lazy">
+              <img class="split-top" src="<%= discoImgs.contains("/img/disco/" + vt + ".webp") ? "/img/disco/" + WebUtils.escapeHtml(vt) + ".webp" : "/yt-thumb/" + WebUtils.escapeHtml(vt) + "/mqdefault.jpg" %>" alt="" loading="lazy">
               <span class="split-tag split-tag-top"><%= WebUtils.escapeHtml(versions.get(0).label(t)) %></span>
               <span class="split-tag split-tag-bottom"><%= WebUtils.escapeHtml(versions.get(versions.size() - 1).label(t)) %></span>
             </span>
           <% } else if (yt != null) { %>
-            <img src="/yt-thumb/<%= ytHtml %>/mqdefault.jpg" alt="" loading="lazy">
-            <%-- on hover the cover shrinks into a sleeve and a record with it on the label slides out --%>
-            <span class="vinyl" aria-hidden="true" style="--cover: url('/yt-thumb/<%= ytHtml %>/mqdefault.jpg')"></span>
+            <img class="<%= picked != null && !picked[1].isEmpty() ? "placed" : "" %>" src="<%= discoImgs.contains("/img/disco/" + yt + ".webp") ? "/img/disco/" + ytHtml + ".webp" : "/yt-thumb/" + ytHtml + "/mqdefault.jpg" %>" alt="" loading="lazy" style="<%= picked != null ? picked[1] : "" %>">
           <% } else if (preview != null) { %>
             <img src="<%= WebUtils.escapeHtml(preview) %>" alt="" loading="lazy">
-            <span class="vinyl" aria-hidden="true" style="--cover: url('<%= WebUtils.escapeHtml(preview) %>')"></span>
           <% } else { %>
             <span class="song-thumb-placeholder"><i class="fa-solid fa-music"></i></span>
           <% } %>
           <% String cardNote = d.song ? musicNotes.get(d.id) : null; if (cardNote != null) { %><span class="song-note song-note-mini"><span><%= WebUtils.escapeHtml(cardNote) %></span></span><% } %>
-        </a>
-        <div class="song-info">
-          <span class="song-name"><%= nameHtml %><% String tr = d.translatedTitle; if (!"cs".equals(cur) && tr != null && !tr.isBlank()) { %><span class="song-row-sub" lang="<%= cur %>"><%= WebUtils.escapeHtml(tr) %></span><% } %></span>
-          <% if (d.year != null) { %><span class="song-year"><%= d.year %></span><% } %>
+          </span>
+          <div class="song-info">
+            <span class="song-name"><%= nameHtml %><% String tr = d.translatedTitle; if (!"cs".equals(cur) && tr != null && !tr.isBlank()) { %><span class="song-row-sub" lang="<%= cur %>"><%= WebUtils.escapeHtml(tr) %></span><% } %></span>
+            <% if (d.year != null) { %><span class="song-year"><%= d.year %></span><% } %>
+          </div>
+          <span class="flip-hint" aria-hidden="true">↻</span>
         </div>
-        <% if (versions != null && versions.size() > 1) { %>
-        <div class="disco-actions">
+        <div class="flip-face flip-back">
+          <b class="flip-name"><%= nameHtml %></b>
+          <% if (d.year != null) { %><span class="song-year"><%= d.year %></span><% } %>
+          <% String qLine = d.song ? quoteLines.get(d.id) : null; if (qLine != null) { %><p class="flip-quote" lang="cs">„<%= WebUtils.escapeHtml(qLine) %>“</p><% } %>
+          <% if (versions != null && versions.size() > 1) { %>
           <details class="disco-versions">
             <summary><%= versions.size() %> <%= t.getProperty("music.versions") %> <i class="fa-solid fa-chevron-down"></i></summary>
             <ul>
             <% for (SongClip clip : versions) { String cid = WebUtils.escapeHtml(clip.youtubeId); %>
-              <li><a href="https://www.youtube.com/watch?v=<%= cid %>" target="_blank" rel="noopener">
-                <img src="/yt-thumb/<%= cid %>/mqdefault.jpg" alt="" loading="lazy">
-                <span><%= WebUtils.escapeHtml(clip.label(t)) %></span>
-                <i class="fab fa-youtube"></i>
-              </a></li>
+              <li><a href="https://www.youtube.com/watch?v=<%= cid %>" target="_blank" rel="noopener" data-play-yt="<%= cid %>"><img src="/yt-thumb/<%= cid %>/mqdefault.jpg" alt="" loading="lazy"><span><%= WebUtils.escapeHtml(clip.label(t)) %></span><i class="fab fa-youtube"></i></a></li>
             <% } %>
             </ul>
           </details>
+          <% } %>
+          <%-- ▶ Přehrát: video hraje přímo tady v přehrávači nahoře (EllipticPlayerServlet, událost skeli:playClip); na PC i klik na kartu.
+               Bez videa velké tlačítko na text (s videem je text jen první ikona v liště, místo na telefonu nestačí). --%>
+          <% if (yt != null) { %><button type="button" class="flip-play" data-play-yt="<%= ytHtml %>"><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("music.play") %></button>
+          <% } else if (hasLyrics) { %><a class="flip-open" href="<%= lyricsHref %>"><%= t.getProperty("music.link.lyrics") %> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a><% } %>
+          <%-- vždy čtyři místa (Text, YouTube, Spotify, Apple), co píseň nemá, zůstane prázdné --%>
+          <nav class="disco-dock" aria-label="<%= nameHtml %>">
+            <% if (lyricsHref != null) { %><a class="disco-lyrics" href="<%= lyricsHref %>" title="<%= t.getProperty("music.link.lyrics") %>" aria-label="<%= t.getProperty("music.link.lyrics") %>"><i class="fa-solid fa-align-left" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
+            <% if (yt != null) { %><a class="disco-youtube" href="https://www.youtube.com/watch?v=<%= ytHtml %>" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
+            <a class="disco-spotify" href="<%= spotifyHref %>" target="_blank" rel="noopener" title="Spotify" aria-label="Spotify"><i class="fab fa-spotify" aria-hidden="true"></i></a>
+            <% if (appleHref != null) { %><a class="disco-apple" href="<%= appleHref %>" target="_blank" rel="noopener" title="Apple Music" aria-label="Apple Music"><i class="fab fa-apple" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
+          </nav>
         </div>
-        <% } %>
-        <%-- lišta dole na kartě: vždy čtyři místa, takže ikony leží pod sebou v celé mřížce; co píseň nemá, zůstane prázdné --%>
-        <nav class="disco-dock" aria-label="<%= nameHtml %>">
-          <% if (lyricsHref != null) { %><a class="disco-lyrics" href="<%= lyricsHref %>" title="<%= t.getProperty("music.link.lyrics") %>" aria-label="<%= t.getProperty("music.link.lyrics") %>"><i class="fa-solid fa-align-left" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
-          <% if (yt != null) { %><a class="disco-youtube" href="https://www.youtube.com/watch?v=<%= ytHtml %>" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
-          <a class="disco-spotify" href="<%= spotifyHref %>" target="_blank" rel="noopener" title="Spotify" aria-label="Spotify"><i class="fab fa-spotify" aria-hidden="true"></i></a>
-          <% if (appleHref != null) { %><a class="disco-apple" href="<%= appleHref %>" target="_blank" rel="noopener" title="Apple Music" aria-label="Apple Music"><i class="fab fa-apple" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
-        </nav>
+       </div>
       </article>
     <%
       }

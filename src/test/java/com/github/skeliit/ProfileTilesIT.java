@@ -26,15 +26,21 @@ class ProfileTilesIT extends UiTestSupport {
         try {
             driver.get(BASE_URL + "/uzivatel.jsp");
             waitReady();
-            assertEquals(4, driver.findElements(By.cssSelector(".pt-stat")).size());
-            assertEquals("1", driver.findElement(By.cssSelector(".pt-comments .pt-big")).getText());
+            assertEquals(3, driver.findElements(By.cssSelector(".pt-stat")).size(), "CatSmash v bočním panelu Přehledu, dvě v Hrách");
+            // štítky s čísly: jen nenulové, slovo podle čísla (1 komentář, ne „1 Komentáře“)
+            org.openqa.selenium.WebElement chip = driver.findElement(By.cssSelector(".pt-chips .pt-chip[href='#komentare']"));
+            assertEquals("1", chip.findElement(By.tagName("b")).getText().trim());
+            assertEquals("komentář", chip.findElement(By.tagName("span")).getText().trim().toLowerCase());
+            assertEquals("1", driver.findElement(By.cssSelector(".pt-chips a[href='#komentare'] b")).getText());
             assertEquals("<b>muj komentar</b>", driver.findElement(By.cssSelector(".pt-quote")).getText());
+            assertTrue(driver.findElement(By.cssSelector(".pt-song.pt-empty")).getAttribute("href").endsWith("/nastaveni.jsp#profil"));
+            driver.get(BASE_URL + "/uzivatel.jsp#hry");
             assertTrue(driver.findElement(By.id("pong")).isDisplayed());
             assertEquals("–", driver.findElement(By.cssSelector(".pt-lv b")).getText(), "pomlčka se nerozsype");
             assertTrue(driver.findElement(By.id("odznaky")).isDisplayed());
             assertTrue(driver.findElement(By.cssSelector(".pt-play")).getAttribute("data-play-game") != null, "tlačítko otevře hru na místě");
+            driver.get(BASE_URL + "/uzivatel.jsp#komentare");
             assertTrue(driver.findElement(By.id("komentare")).isDisplayed());
-            assertTrue(driver.findElement(By.cssSelector(".pt-song.pt-empty")).getAttribute("href").endsWith("/nastaveni.jsp#profil"));
         } finally {
             update("DELETE FROM video_comments WHERE user_id=?", id);
         }
@@ -67,7 +73,8 @@ class ProfileTilesIT extends UiTestSupport {
         driver.get(BASE_URL + "/hrac/" + name);
         waitReady();
         assertTrue(driver.findElement(By.cssSelector(".pt-hero .acct-name")).getText().contains(name));
-        assertEquals(3, driver.findElements(By.cssSelector(".pt-stat")).size());
+        assertEquals(4, driver.findElements(By.cssSelector(".pt-stat")).size(), "jedna v Přehledu, tři v Hrách");
+        driver.get(BASE_URL + "/hrac/" + name + "#hry");
         assertTrue(driver.findElement(By.id("pong")).isDisplayed());
         assertTrue(driver.findElements(By.cssSelector(".pt-gear")).isEmpty(), "cizí profil nejde upravit");
         assertFalse(email != null && driver.getPageSource().contains(email), "e-mail se neukazuje");

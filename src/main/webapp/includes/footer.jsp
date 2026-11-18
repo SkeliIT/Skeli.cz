@@ -1,6 +1,8 @@
 <!-- includes/footer.jsp -->
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <footer class="site-footer">
+  <%-- žhavý okraj nad patičkou na podstránkách s kouřem nahoře (css/effects.css: ukáže se jen u main.has-floor, js/smoke.js) --%>
+  <div class="smoke-edge b footer-smoke" aria-hidden="true"><canvas></canvas></div>
   <div class="footer-inner">
     <div class="footer-brand">
       <a href="<%= request.getContextPath() %>/index.jsp" class="brand"><span class="logo-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
@@ -12,7 +14,7 @@
         <a href="<%= request.getContextPath() %>/aktuality.jsp"><%= t.getProperty("menu.news") %></a>
         <a href="<%= request.getContextPath() %>/music.jsp"><%= t.getProperty("menu.music") %></a>
         <a href="<%= request.getContextPath() %>/texty.jsp"><%= t.getProperty("menu.lyrics") %></a>
-        <a href="<%= request.getContextPath() %>/karaoke-kino"><%= t.getProperty("menu.karaoke") %></a>
+        <a href="<%= request.getContextPath() %>/karaoke"><%= t.getProperty("menu.karaoke") %></a>
         <a href="<%= request.getContextPath() %>/?kevin=pong" data-play-game><%= t.getProperty("footer.game") %></a>
         <a href="<%= request.getContextPath() %>/about.jsp"><%= t.getProperty("menu.about") %></a>
         <a href="<%= request.getContextPath() %>/donate.jsp"><%= t.getProperty("btn.donate") %></a>
@@ -29,6 +31,10 @@
         <a class="social-btn rss" href="<%= request.getContextPath() %>/<%= cur %>/feed/all.rss" type="application/rss+xml" aria-label="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("feed.subscribe")) %>" title="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("feed.subscribe")) %>"><i class="fas fa-rss"></i></a>
       </div>
     </div>
+  </div>
+  <%-- easter egg SKELO SQUAD pro PC (a telefon na šířku), kde není vidět spodek menu: stejný jako v menu (includes/squad-egg.jspf) --%>
+  <div class="foot-squad sq-home" data-kevin="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("squad.kevin")) %>">
+    <%@ include file="squad-egg.jspf" %>
   </div>
   <div class="footer-bottom">
     <span>&copy; <%= java.time.Year.now() %> Skeli</span>
@@ -126,7 +132,11 @@
 </script>
 <script src="<%= request.getContextPath() %>/js/password-helper.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/effects.js?v=<%= assetVersion %>" defer></script>
+<script src="<%= request.getContextPath() %>/js/smoke.js?v=<%= assetVersion %>" defer></script>
+<script src="<%= request.getContextPath() %>/js/sounds.js?v=<%= assetVersion %>"></script>
+<script src="<%= request.getContextPath() %>/js/squad-egg.js?v=<%= assetVersion %>" defer></script>
 <script src="<%= request.getContextPath() %>/js/presence.js?v=<%= assetVersion %>" defer></script>
+<%@ include file="/includes/chat-dock.jspf" %>
 <script src="<%= request.getContextPath() %>/js/consent.js?v=<%= assetVersion %>" defer></script>
 <%-- Kevinovy hlášky jen v jazyce stránky (texty hry CatSmash se načtou až se hrou, js/kevin.js) --%>
 <script src="<%= request.getContextPath() %>/js/lines/kevin-<%= cur %>.js?v=<%= assetVersion %>" defer></script>

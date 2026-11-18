@@ -1,5 +1,5 @@
 // Pozadí stránky Texty: video z Blenderu místo fotek. Tmavý režim = kamera pomalu klouže nad kamenem
-// s vypáleným textem, ze kterého stoupá zlatá plazma (zlatý duotón je zapečený do videa). Světlý režim =
+// s vypáleným textem, ze kterého stoupá zlatá plazma (zlatý duotón je zapečený do videa, na barvu webu ho přebarví vrstva .tint). Světlý režim =
 // zamlžené okno s textem „Já už vím“: 4 záběry (jeden těsně u skla), stékající kapky, zlatý prach ve slunci
 // a hejno ptáků. Obě videa jsou smyčky 48 s. Na šířku video 16:9, na výšku výřez 9:16.
 // Kdo má omezený pohyb nebo šetří data, dostane jen snímek. Přepnutí tématu vymění video za druhé.
@@ -8,7 +8,8 @@
   window.__textyBg = true;
   const ver = (document.currentScript && new URL(document.currentScript.src).searchParams.get("v")) || "1";
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches
-    || (navigator.connection && navigator.connection.saveData);
+    || (navigator.connection && navigator.connection.saveData)
+    || document.documentElement.classList.contains("low-fx");
   const tall = matchMedia("(orientation: portrait)");
   const light = () => document.body.classList.contains("light");
   const side = () => (tall.matches ? "tall" : "wide");
@@ -25,6 +26,11 @@
     .texty-bg video, .texty-bg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .texty-bg video { opacity: 0; transition: opacity 1.4s ease; }
     .texty-bg video.on { opacity: 1; }
+    /* tmavé video je zlaté: vrstva v barvě webu v režimu „barva“ mu nechá světlost (černá zůstane černá,
+       písmena a plazma září dál) a vezme odstín z --accent – Texty se přebarvují spolu se zbytkem webu */
+    .texty-bg .tint { position: absolute; inset: 0; background: var(--accent); mix-blend-mode: color; transition: opacity .6s; }
+    /* světlé zamlžené okno je šedomodré: jemné zabarvení (jako barevné sluneční světlo), ať k němu barva webu ladí */
+    body.light .texty-bg .tint { opacity: .4; }
     /* závoj nahoře a dole, ať se dá číst hlavička i seznam */
     .texty-bg .shade { position: absolute; inset: 0;
       background: linear-gradient(180deg, rgba(5,4,3,.6) 0%, rgba(5,4,3,.2) 30%, rgba(5,4,3,.3) 65%, rgba(5,4,3,.8) 100%); }
@@ -51,8 +57,9 @@
     media.addEventListener("playing", () => media.classList.add("on"));
     layer.appendChild(media);
   }
-  layer.insertAdjacentHTML("beforeend", '<div class="shade"></div>');
-  document.body.appendChild(layer);
+  layer.insertAdjacentHTML("beforeend", '<div class="tint"></div><div class="shade"></div>');
+  // na začátek <body>: plná barva pod úvodním pásem (main.has-floor::before) se pak kreslí přes video, ne pod ním
+  document.body.prepend(layer);
   // při návratu na Texty video pokračuje tam, kde skončilo (ne zase od začátku)
   if (!still) {
     let at = 0;

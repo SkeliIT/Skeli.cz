@@ -23,6 +23,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 String title;
                 String year;
                 String preview; // song preview image, optional
+                boolean collab; // spolupráce (cizí track, kde Skeli hostuje) – vlastní číslování a štítek
         }
 
         @Override
@@ -30,9 +31,9 @@ public class EllipticPlayerServlet extends HttpServlet {
                 resp.setContentType("text/html; charset=UTF-8");
                 List<Vid> vids = new ArrayList<>();
                 // Titles missing in the DB are filled from YouTube in the background (VideoTitles)
-                String sql = "SELECT v.youtube_id, v.title, s.name, s.year, s.preview_image_url " +
+                String sql = "SELECT v.youtube_id, v.title, s.name, s.year, s.preview_image_url, COALESCE(s.collab, 0) " +
                                 "FROM videos v LEFT JOIN songs s ON s.id=v.song_id " +
-                                "ORDER BY s.year DESC, v.id DESC";
+                                "ORDER BY COALESCE(s.collab, 0), s.year DESC, v.id DESC";   // spolupráce až za mými videi
                 try (Connection c = Db.get();
                                 PreparedStatement ps = c.prepareStatement(sql);
                                 ResultSet rs = ps.executeQuery()) {
@@ -43,6 +44,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                                 v.title = title != null ? title : (rs.getString(3) != null ? rs.getString(3) : "YouTube");
                                 v.year = rs.getString(4);
                                 v.preview = rs.getString(5);
+                                v.collab = rs.getBoolean(6);
                                 vids.add(v);
                         }
                 } catch (SQLException e) {
@@ -57,12 +59,17 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("<div class='ep-wrap'>");
                 out.println("  <section class='clip-stage ep-stage has-fx' data-clip-fx>");
                 out.println("    <canvas class='clip-fx-gl' aria-hidden='true'></canvas><canvas class='clip-fx-2d' aria-hidden='true'></canvas>");
+                // HUD nápisy nad videem (ve videu by se pletly s titulkem, který tam dává YouTube)
+                out.println("    <div class='ep-hud-bar' aria-hidden='true'><span class='ep-tc' id='ep-track'></span><span class='ep-tc ep-tc-r' id='ep-name'></span></div>");
                 out.println("    <div class='ep-frame-wrap' data-clip-player>");
                 out.println("      <div id='ep-poster' class='ep-poster' hidden></div>");
                 out.println("      <iframe id='ep-main' allow='autoplay; encrypted-media; picture-in-picture' allowfullscreen></iframe>");
+                // vzhled „Hologram“: HUD rám (rohy, číslo skladby, název) a skenovací linky přes obraz – jen ozdoba, kliká se skrz
+                out.println("      <div class='ep-hud' aria-hidden='true'><i></i><i></i><i></i><i></i></div>");
                 out.println("    </div>");
                 out.println("  </section>");
-                out.println("  <div class='ep-carousel'>");
+                out.println("  <div class='ep-carousel ep-holo' id='ep-carousel'>");
+                out.println("    <div class='ep-floor' aria-hidden='true'></div>");
                 out.println("    <button class='ep-arrow' id='ep-prev' aria-label='" + WebUtils.escapeHtml(tr.getProperty("player.prev")) + "'>‹</button>");
                 out.println("    <div class='ep-viewport' id='ep-viewport'></div>");
                 out.println("    <button class='ep-arrow' id='ep-next' aria-label='" + WebUtils.escapeHtml(tr.getProperty("player.next")) + "'>›</button>");
@@ -78,13 +85,16 @@ public class EllipticPlayerServlet extends HttpServlet {
                                         : v.title.replace("\\", "\\\\").replace("\"", "\\\"").replace("'", "\\'");
                         String prev = v.preview == null ? ""
                                         : v.preview.replace("\\", "\\\\").replace("\"", "\\\"").replace("'", "\\'");
-                        out.printf("videos.push({id:'%s', title:'%s', preview:'%s'});%n", v.id, escTitle, prev);
+                        out.printf("videos.push({id:'%s', title:'%s', preview:'%s', collab:%s});%n", v.id, escTitle, prev, v.collab);
                 }
                 out.println("function esc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;'); }");
                 out.println("const frame = document.getElementById('ep-main');");
                 out.println("const poster = document.getElementById('ep-poster');");
                 out.println("const viewport = document.getElementById('ep-viewport');");
-                out.println("let currentIndex = 0;");
+                out.println("let currentIndex = 0, glitchOn = false;");
+                // spolupráce jsou na konci seznamu a mají vlastní číslování (SPOLUPRÁCE 01 / 05)
+                String collabLabel = WebUtils.escapeJs(tr.getProperty("music.collabs", "").toUpperCase(java.util.Locale.ROOT));
+                out.println("const COLLAB = '" + collabLabel + "', SOLO_N = videos.filter(v => !v.collab).length;");
 
                 out.println("function build(){");
                 out.println("  videos.forEach((video, index) => {");
@@ -94,7 +104,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("    const thumb = video.preview || `/yt-thumb/${video.id}/hqdefault.jpg`;");
                 out.println("    item.innerHTML = `");
                 out.println("      <img src='${thumb}' alt='${esc(video.title)}'>");
-                out.println("      <div class='ep-title'>${esc(video.title)}</div>");
+                out.println("      ${video.collab ? `<span class='ep-ft'>ft.</span>` : ''}<div class='ep-title'>${esc(video.title)}</div>");
                 out.println("    `;");
                 out.println("    item.addEventListener('click', () => goTo(index, true));");
                 out.println("    viewport.appendChild(item);");
@@ -113,6 +123,17 @@ public class EllipticPlayerServlet extends HttpServlet {
                                 "    else if (i === (currentIndex - 2 + videos.length) % videos.length) el.classList.add('is-prev2');");
                 out.println("    else if (i === (currentIndex + 2) % videos.length) el.classList.add('is-next2');");
                 out.println("    else el.classList.add('is-hidden');");
+                out.println("  });");
+                out.println("}");
+                // Hologram: miniatury ve 3D (prostřední rovně, boční natočené a ztmavlé), víc než 3 vedle = schované
+                out.println("function place(){");
+                out.println("  const n = videos.length, narrow = viewport.clientWidth < 560, sp = narrow ? 118 : 190;");
+                out.println("  viewport.querySelectorAll('.ep-item').forEach((el, i) => {");
+                out.println("    let d = i - currentIndex; if (d > n / 2) d -= n; if (d < -n / 2) d += n;");
+                out.println("    const a = Math.abs(d), sg = Math.sign(d);");
+                out.println("    el.style.transform = 'translateX(' + (d * sp * (a ? .85 : 0) + sg * (a ? 60 : 0)) + 'px) translateZ(' + (-a * 140) + 'px) rotateY(' + (-sg * Math.min(a, 1) * 55) + 'deg)';");
+                out.println("    el.style.opacity = a > 3 ? 0 : 1; el.style.zIndex = 10 - a; el.style.pointerEvents = a > 3 ? 'none' : '';");
+                out.println("    el.style.filter = a ? 'brightness(' + (1 - a * .22) + ')' + (a > 1 ? ' blur(1px)' : '') : 'none';");
                 out.println("  });");
                 out.println("}");
 
@@ -139,7 +160,15 @@ public class EllipticPlayerServlet extends HttpServlet {
 
                 out.println("function goTo(index, autoplay){");
                 out.println("  currentIndex = (index + videos.length) % videos.length;");
-                out.println("  updateUI();");
+                out.println("  updateUI(); place();");
+                out.println("  const pad = n => String(n).padStart(2, '0');");
+                out.println("  const cur = videos[currentIndex];");
+                out.println("  document.getElementById('ep-track').textContent = cur.collab ? COLLAB + ' ' + pad(currentIndex - SOLO_N + 1) + ' / ' + pad(videos.length - SOLO_N) : 'TRACK ' + pad(currentIndex + 1) + ' / ' + pad(SOLO_N);");
+                out.println("  document.getElementById('ep-name').textContent = videos[currentIndex].title;");
+                // krátký glitch při přepnutí (ne při načtení stránky); barvu stránky podle videa nastaví js/effects.js
+                out.println("  const fw = frame.closest('.ep-frame-wrap'); if (glitchOn) { fw.classList.remove('glitch'); void fw.offsetWidth; fw.classList.add('glitch'); }");
+                out.println("  glitchOn = true;");
+                out.println("  window.dispatchEvent(new CustomEvent('skeli:clip', { detail: { yt: videos[currentIndex].id, thumb: videos[currentIndex].preview || '/yt-thumb/' + videos[currentIndex].id + '/mqdefault.jpg' } }));");
                 out.println("  play(videos[currentIndex].id, autoplay);");
                 // the comments under the player (includes/comments.jspf in music.jsp) follow the clip
                 out.println("  const cm = document.querySelector('[data-comments][data-kind=video]'); if (cm) cm.dataset.target = videos[currentIndex].id;");
@@ -158,6 +187,20 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("  else if (e.key === 'ArrowRight') goTo(currentIndex + 1, true);");
                 out.println("});");
 
+                // kolotoč se natáčí za myší; tah prstem / kolečko myši přepíná
+                out.println("const car = document.getElementById('ep-carousel');");
+                out.println("if (matchMedia('(pointer: fine)').matches) car.addEventListener('pointermove', e => { const r = car.getBoundingClientRect();");
+                out.println("  car.style.setProperty('--cy', (((e.clientX - r.left) / r.width - .5) * 14).toFixed(1) + 'deg'); car.style.setProperty('--cx', (8 - ((e.clientY - r.top) / r.height - .5) * 8).toFixed(1) + 'deg'); });");
+                out.println("let tx = null, ty = 0; viewport.addEventListener('pointerdown', e => { tx = e.clientX; ty = e.clientY; });");
+                out.println("viewport.addEventListener('pointerup', e => { if (tx !== null && Math.abs(e.clientX - tx) > 40 && Math.abs(e.clientX - tx) > Math.abs(e.clientY - ty) * 1.5) goTo(currentIndex + (e.clientX < tx ? 1 : -1), true); tx = null; });");
+                out.println("let wheelAt = 0; viewport.addEventListener('wheel', e => { const dx = e.shiftKey ? (e.deltaX || e.deltaY) : e.deltaX; if (Math.abs(dx) < 8 || (!e.shiftKey && Math.abs(dx) < Math.abs(e.deltaY))) return; e.preventDefault(); const t = Date.now(); if (t - wheelAt < 350) return; wheelAt = t; goTo(currentIndex + (dx > 0 ? 1 : -1), true); }, { passive: false });");
+                out.println("window.addEventListener('resize', place);");
+                // ▶ Přehrát z Diskografie (js/effects.js): video najde v kolotoči, jinak (třeba starší verze) ho pustí rovnou.
+                // Posluchač jen jeden: po návratu na stránku (PJAX) se starý odebere, ať se nehromadí.
+                out.println("if (window.__epPlayClip) window.removeEventListener('skeli:playClip', window.__epPlayClip);");
+                out.println("window.__epPlayClip = e => { if (!frame.isConnected) return; const id = e.detail && e.detail.yt; if (!id) return;");
+                out.println("  const i = videos.findIndex(v => v.id === id); if (i >= 0) goTo(i, true); else play(id, true); };");
+                out.println("window.addEventListener('skeli:playClip', window.__epPlayClip);");
                 out.println("if (videos.length > 0) {");
                 out.println("  build();");
                 // ?clip=<YouTube id> (a link from the admin to a comment) starts on that clip

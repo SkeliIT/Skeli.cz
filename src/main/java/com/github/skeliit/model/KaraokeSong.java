@@ -11,11 +11,16 @@ public class KaraokeSong {
     public String[] lines;
     /** CSS variables of a poster picture placed by hand in admin, or "" (Song.posterStyle) */
     public String posterStyle = "";
+    /** délka klipu v sekundách (0 = neznámá) */
+    public int duration;
+    /** true = spolupráce (cizí track, kde Skeli hostuje) */
+    public boolean collab;
 
     public String getUuid() { return uuid; }
     public String getTitle() { return title; }
     public String getCredits() { return credits; }
     public Integer getYear() { return year; }
     public String getYoutubeId() { return youtubeId; }
+    public int getDuration() { return duration; }
     public String getThumb() { return "/yt-thumb/" + youtubeId + "/hqdefault.jpg"; }
 }

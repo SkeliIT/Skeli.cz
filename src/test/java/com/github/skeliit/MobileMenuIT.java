@@ -66,6 +66,15 @@ class MobileMenuIT extends UiTestSupport {
         List<WebElement> langs = driver.findElements(By.cssSelector("#mainNav .nav-langs a"));
         assertEquals(5, langs.size());
         assertTrue(langs.get(0).getAttribute("class").contains("active"), "current language is marked");
+        // dok: jazyky jsou schované, kolečko jazyka je otevře nahoru, klik mimo je zavře
+        assertFalse(langs.get(1).isDisplayed(), "seznam jazyků je zavřený");
+        driver.findElement(By.cssSelector("#mainNav .dk-lang .dk-cb")).click();
+        Thread.sleep(400); // seznam se 0,18 s plynule objevuje (z průhledné)
+        assertTrue(langs.get(1).isDisplayed(), "kolečko jazyka otevře seznam");
+        shot("mobile-menu-langs");
+        driver.findElement(By.cssSelector("#mainNav .dk-font .dk-cb")).click();
+        assertFalse(langs.get(1).isDisplayed(), "klik jinam seznam zavře");
+        driver.findElement(By.cssSelector("#mainNav .dk-font .dk-cb")).click(); // písmo zpět
     }
 
     @Test

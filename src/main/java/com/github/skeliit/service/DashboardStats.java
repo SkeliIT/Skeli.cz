@@ -117,7 +117,7 @@ public final class DashboardStats {
     /** Kolik dní už se počítá (od prvního dne s návštěvou, včetně dneška) – „Celkem“ na stránce Statistiky. */
     public static int daysSinceStart() throws SQLException {
         LocalDate today = LocalDate.now(PRAGUE), first = today;
-        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT MIN(day) FROM visit_days");
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT MIN(day) FROM " + VisitStats.PEOPLE_BY_DAY + " p");
              ResultSet rs = ps.executeQuery()) {
             if (rs.next() && rs.getObject(1, LocalDate.class) != null) first = rs.getObject(1, LocalDate.class);
         }

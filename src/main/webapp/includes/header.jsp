@@ -5,13 +5,20 @@
   if (ctx == null) {
     ctx = "";
   }
-  String assetVersion = "6.99.5";
 %>
+<%@ include file="/includes/version.jspf" %>
 <%@ include file="/WEB-INF/i18n/i18n.jspf" %>
   <html lang="<%= cur %>">
 
   <head>
     <meta charset="utf-8" />
+    <%-- lehký režim pro slabé telefony (css/effects.css, js/effects.js): rozhodne se dřív, než se stránka vykreslí.
+         Slabý = telefon s nejvýš 2 GB paměti, zapnuté šetření dat, nebo mu web při měření nestíhal (fxAuto = kdy, platí 7 dní,
+         pak se měří znovu). fxLow = 0 ho vypne, fxLow = on zapne natrvalo. Dřívější fxLow = 1 zapisoval web sám natrvalo
+         i telefonům, které jen jednou chvíli nestíhaly – už se nebere. Lehký režim šetří jen to drahé, vzhled zůstává. --%>
+    <script>try { (function () { var n = navigator, c = n.connection, m = n.deviceMemory, s = localStorage.getItem('fxLow'), a = +localStorage.getItem('fxAuto') || 0;
+      if (s !== '0' && (s === 'on' || Date.now() - a < 7 * 864e5 || sessionStorage.getItem('fxLowNow') === '1' || (c && c.saveData) || (m && m <= 2 && matchMedia('(pointer: coarse)').matches))) document.documentElement.classList.add('low-fx');
+    })(); } catch (e) { /* bez úložiště běží web normálně */ }</script>
     <meta name="viewport" content="width=device-width, viewport-fit=cover">
 <%
   // Per-page <title>/description. A servlet may set "pageTitle"/"pageDescription"
@@ -20,7 +27,6 @@
   if (headTitle == null) {
     java.util.Map<String, String> titleKeys = java.util.Map.ofEntries(
         java.util.Map.entry("/texty.jsp", "menu.lyrics"),
-        java.util.Map.entry("/karaoke-kino", "menu.karaoke"),   // (the list sets pageTitle too: a forward has the view as servlet path)
         java.util.Map.entry("/music.jsp", "menu.music"),
         java.util.Map.entry("/about.jsp", "about.title"),
         java.util.Map.entry("/aktuality.jsp", "menu.news"),
@@ -141,8 +147,9 @@
            "music.song".equals(headType) ? headTitle : null, headImage, cur, t.getProperty("menu.home"), t.getProperty("menu.lyrics"));
        if (headLd != null) { %><script type="application/ld+json"><%= headLd %></script><% } %>
   </head>
-  <%-- v adminu (is-admin): klidné pozadí bez fotek, bez Spotify a bez veřejné patičky (css/admin.css) --%>
-  <body<%= String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin") ? " class=\"is-admin\"" : "" %>>
+  <%-- v adminu (is-admin): klidné pozadí bez fotek, bez veřejné patičky (css/admin.css) --%>
+  <%-- data-unverified: přihlášený s neověřeným e-mailem (Kevin mu jednou řekne proč nejdou komentáře) --%>
+  <body<%= String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin") ? " class=\"is-admin\"" : "" %><%= session.getAttribute("username") != null && !com.github.skeliit.web.auth.EmailVerification.isVerified(session) ? " data-unverified" : "" %>>
     <%-- na stránce písně vede přepínač rovnou na adresu písně v daném jazyce (/en/song/…), jinak by
          adresa /cs/song/… nechala text česky; jinde jen ?lang= --%>
     <% @SuppressWarnings("unchecked") java.util.Map<String, String> songLangs = (java.util.Map<String, String>) request.getAttribute("hreflang");
@@ -162,7 +169,8 @@
       document.documentElement.style.setProperty('--breathe-at', (-((Date.now() - bgAt) / 1000 % 60)).toFixed(2) + 's'); } catch (e) {}</script>
       <% request.setAttribute("csrf", com.github.skeliit.filter.CsrfFilter.token(session)); %>
       <% String currentUser = (String) session.getAttribute("username");
-         String currentRole = (String) session.getAttribute("role"); %>
+         String currentRole = (String) session.getAttribute("role");
+         String headerAvatar = currentUser == null ? null : com.github.skeliit.WebUtils.safeUrl((String) session.getAttribute("avatar_url"), null); %>
         <%-- desktop: the big sign sits centred above the menu and scrolls away; the bar
              below it sticks and shows the small sign on its left once docked --%>
         <div class="masthead" id="masthead">
@@ -172,54 +180,100 @@
           <div class="header-inner">
             <a href="<%= ctx %>/index.jsp" class="brand"><span class="squad-mark" aria-hidden="true"></span><span class="sr-only">SKELOSQUAD</span></a>
 
-            <nav id="mainNav" class="main-nav">
-              <a href="<%= ctx %>/index.jsp"><i class="fa-solid fa-house nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.home","Home") %></a>
-              <a href="<%= ctx %>/aktuality.jsp"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.news") %></a>
-              <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.music","Music") %></a>
-              <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.lyrics","Lyrics") %></a>
-              <%-- karaoke je jen pro přihlášené: v menu jemně odlišené, nepřihlášený vidí štítek „pro členy“ (láká k registraci) --%>
-              <a href="<%= ctx %>/karaoke-kino" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><i class="fa-solid fa-star" aria-hidden="true"></i><span><%= t.getProperty("menu.membersOnly") %></span></span><% } %></a>
-              <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.about","About") %></a>
-              <a href="<%= ctx %>/?kevin=pong" class="nav-game" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><%= t.getProperty("menu.game") %></a>
-              <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart"></i> <%= t.getProperty("btn.donate") %></a>
-              <%-- phones and tablets: the display controls, language and account live in the menu --%>
-              <div class="nav-settings">
-                <button type="button" class="icon-btn" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold"></i></button>
-                <button type="button" class="icon-btn" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke"></i></button>
-                <span class="nav-langs" aria-label="<%= t.getProperty("header.language") %>">
-                  <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="<%= langHref.apply(l) %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= com.github.skeliit.I18n.label(l) %></a><% } %>
-                </span>
+            <%-- Menu (listopad 2026, podle schváleného náhledu Skeli.cz-podklady/navrhy/menu-2026-11):
+                 počítač (od 1025 px) = kapsle pod logem, skupiny se rozbalí nabídkou;
+                 telefon (do 767 px) = menu přes celou obrazovku, tablet (768–1024 px) = panel zprava.
+                 Na telefonu a tabletu: řádky s ikonou, skupiny se rozbalují pod sebou, dole účet, ovládání a odhlášení.
+                 Zprávy tu nejsou (bublina chatu je na každé stránce), Kevin má tlapku v liště.
+                 Shop a další připravované věci se v menu neukazují, dokud nejsou hotové. --%>
+            <div class="nav-shade" data-menu-close aria-hidden="true"></div>
+            <nav id="mainNav" class="main-nav" aria-label="<%= t.getProperty("footer.menu") %>">
+              <div class="mnav-top">
+                <span class="squad-mark" aria-hidden="true"></span>
+                <button type="button" class="mnav-close" data-menu-close aria-label="<%= t.getProperty("common.close") %>"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
               </div>
+              <div class="nav-pages">
+              <a href="<%= ctx %>/index.jsp" class="nav-top"><i class="fa-solid fa-house nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.home") %></span></a>
+              <div class="nav-group">
+                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubMusic"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.music") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
+                <div class="nav-sub" id="navSubMusic">
+                  <a href="<%= ctx %>/music.jsp"><i class="fa-solid fa-music nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.discography") %></span><small><%= t.getProperty("menu.d.discography") %></small></a>
+                  <a href="<%= ctx %>/texty.jsp"><i class="fa-solid fa-align-left nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.lyrics") %></span><small><%= t.getProperty("menu.d.lyrics") %></small></a>
+                  <%-- nepřihlášený vidí „pro členy“: stránka jde otevřít, zpívat smí jen přihlášení (KaraokeCinemaServlet) --%>
+                  <a href="<%= ctx %>/karaoke" class="nav-karaoke"><i class="fa-solid fa-microphone nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.karaoke") %><% if (currentUser == null) { %><span class="nav-badge"><%= t.getProperty("menu.membersOnly") %></span><% } %></span><small><%= t.getProperty("menu.d.karaoke") %></small></a>
+                </div>
+              </div>
+              <a href="<%= ctx %>/aktuality.jsp" class="nav-top"><i class="fa-solid fa-newspaper nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.news") %></span></a>
+              <%-- Squad má zatím jedinou položku (CatSmash), proto rovnou odkaz; skupina se vrátí s druhou hotovou funkcí
+                   (Zeď, Rookie Chart – překlady menu.wall, menu.chart, menu.squad zůstávají) --%>
+              <a href="<%= ctx %>/?kevin=pong" class="nav-top" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.catsmash") %></span></a>
+              <div class="nav-group">
+                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubAbout"><i class="fa-solid fa-circle-user nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.about") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
+                <div class="nav-sub" id="navSubAbout">
+                  <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-circle-user nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.about") %></span><small><%= t.getProperty("menu.d.about") %></small></a>
+                  <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("btn.donate") %></span><small><%= t.getProperty("menu.d.donate") %></small></a>
+                </div>
+              </div>
+              </div>
+              <div class="nav-tools">
+              <%-- telefon a tablet: účet --%>
               <div class="nav-account">
               <% if (currentUser == null) { %>
-                <a href="<%= ctx %>/login.jsp"><i class="fa-solid fa-right-to-bracket"></i> <%= t.getProperty("btn.login") %></a>
-                <a href="<%= ctx %>/register.jsp" class="nav-register"><i class="fa-solid fa-user-plus"></i> <%= t.getProperty("btn.register") %></a>
+                <a href="<%= ctx %>/login.jsp" class="nav-login"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> <%= t.getProperty("btn.login") %></a>
+                <a href="<%= ctx %>/register.jsp" class="nav-register"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> <%= t.getProperty("btn.register") %></a>
               <% } else { %>
-                <a href="<%= ctx %>/uzivatel.jsp"><i class="fa-solid fa-user"></i> <%= t.getProperty("menu.account") %> <span class="nav-user">· <%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></span></a>
-                <a href="<%= ctx %>/nastaveni.jsp"><i class="fa-solid fa-gear"></i> <%= t.getProperty("menu.settings") %></a>
-                <button type="button" class="nav-notif" data-notif-open aria-controls="notifPanel"><i class="fa-regular fa-bell"></i> <%= t.getProperty("notif.title") %> <span class="notif-badge" hidden></span></button>
-                <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="admin"><i class="fa-solid fa-star"></i> Admin</a><% } %>
-                <form method="post" action="<%= ctx %>/logout" class="logout-form">
+                <a href="<%= ctx %>/uzivatel.jsp" class="nav-me">
+                  <% if (headerAvatar != null) { %><img class="nav-me-av" src="<%= com.github.skeliit.WebUtils.escapeHtml(headerAvatar) %>" alt=""><% } else { %><span class="nav-me-av" aria-hidden="true"><%= com.github.skeliit.WebUtils.escapeHtml(currentUser.substring(0, 1).toUpperCase()) %></span><% } %>
+                  <span class="nav-me-t"><b><%= com.github.skeliit.WebUtils.escapeHtml(currentUser) %></b><small><%= t.getProperty("menu.account") %></small></span>
+                  <i class="fa-solid fa-chevron-right nav-chev" aria-hidden="true"></i>
+                </a>
+                <a href="<%= ctx %>/nastaveni.jsp" class="nav-row"><i class="fa-solid fa-gear nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.settings") %></span></a>
+                <button type="button" class="nav-row nav-notif" data-notif-open aria-controls="notifPanel"><i class="fa-regular fa-bell nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("notif.title") %></span><span class="notif-badge" hidden></span></button>
+                <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="nav-row admin"><i class="fa-solid fa-star nav-ico" aria-hidden="true"></i><span class="nav-t">Admin</span></a><% } %>
+                <%-- odhlášení je poslední v kartě účtu, tlumeně a oddělené čarou --%>
+                <hr>
+                <form method="post" action="<%= ctx %>/logout" class="logout-form nav-logout">
                   <input type="hidden" name="csrf" value="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
-                  <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> <%= t.getProperty("btn.logout") %></button>
+                  <button type="submit"><i class="fa-solid fa-right-from-bracket nav-ico" aria-hidden="true"></i> <%= t.getProperty("btn.logout") %></button>
                 </form>
               <% } %>
+              </div>
+              <%-- telefon a tablet: dok u palce – kolečka s popisky: Tma/Světlo, Písmo, Zvuk (přihlášený), jazyk (seznam vyskočí
+                   nahoru nad kolečkem) a srdce Podpoř moji tvorbu. Režim a písmo mačkají tlačítka v liště (#themeToggle, #fontToggle),
+                   stav ukazuje CSS podle body.light, html.bold-text a aria-pressed u zvuku (js/sounds.js). --%>
+              <div class="nav-settings nav-dock">
+                <span class="dk-it dk-theme"><button type="button" class="dk-cb" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-moon dk-dark" aria-hidden="true"></i><i class="fa-solid fa-sun dk-light" aria-hidden="true"></i></button><small aria-hidden="true"><span class="dk-dark"><%= t.getProperty("menu.dock.dark") %></span><span class="dk-light"><%= t.getProperty("menu.dock.light") %></span></small></span>
+                <span class="dk-it dk-font"><button type="button" class="dk-cb" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><b aria-hidden="true">B</b></button><small aria-hidden="true"><%= t.getProperty("menu.dock.font") %></small></span>
+                <% if (currentUser != null) { %><span class="dk-it dk-sound"><button type="button" class="dk-cb" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>" title="<%= t.getProperty("sound.off") %>" aria-label="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button><small aria-hidden="true"><span class="dk-on"><%= t.getProperty("menu.dock.sound") %></span><span class="dk-off"><%= t.getProperty("menu.dock.mute") %></span></small></span><% } %>
+                <span class="dk-it dk-lang">
+                  <button type="button" class="dk-cb" aria-expanded="false" aria-controls="navLangPop" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>"><img class="flag" src="<%= ctx %>/img/flags/<%= cur %>.svg" alt="" width="22" height="15"></button><small aria-hidden="true"><%= com.github.skeliit.I18n.label(cur) %></small>
+                  <span class="nav-langs dk-pop" id="navLangPop" role="group" aria-label="<%= t.getProperty("header.language") %>">
+                    <% String[][] dkLangs = { { "cs", "Čeština" }, { "en", "English" }, { "de", "Deutsch" }, { "uk", "Українська" }, { "vi", "Tiếng Việt" } };
+                       for (String[] l : dkLangs) { %><a href="<%= langHref.apply(l[0]) %>" lang="<%= l[0] %>"<% if (l[0].equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l[0] %>.svg" alt="" width="22" height="15"><%= l[1] %></a><% } %>
+                  </span>
+                </span>
+                <a href="<%= ctx %>/donate.jsp" class="dk-it dk-don"><span class="dk-cb" aria-hidden="true"><i class="fa-solid fa-heart"></i></span><small><%= t.getProperty("menu.dock.donate") %></small></a>
+              </div>
+              </div>
+              <%-- spodek menu na telefonu: podpis se smajlíkem loga (barva webu, s fotkou se vymění – js/effects.js setFace).
+                   Kdo na smajlíka 7× ťukne, spustí easter egg SQUAD UNLOCKED (js/squad-egg.js): obličeje se rozsvítí na údery srdce. --%>
+              <div class="nav-foot sq-home" data-kevin="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("squad.kevin")) %>">
+                <%@ include file="squad-egg.jspf" %>
               </div>
             </nav>
 
             <div class="top-controls">
-              <a href="<%= ctx %>/donate.jsp" class="donate-link" title="<%= t.getProperty("btn.donate") %>">
-                <i class="fa-solid fa-heart"></i>
-                <span><%= t.getProperty("btn.donate") %></span>
-              </a>
-              <button id="fontToggle" type="button" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>" class="icon-btn bold-btn">
-                <i class="fa-solid fa-bold"></i>
-              </button>
-              <button id="themeToggle" type="button" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>" class="icon-btn">
-                <i class="fa-solid fa-circle-half-stroke"></i>
-              </button>
+              <%-- vzhled a zvuk: tři přepínače pod jedním kolečkem, ať je hlavička lehčí; jazyk zůstává vidět, lidi ho hledají --%>
+              <div class="view-menu">
+                <button type="button" class="icon-btn view-btn" aria-expanded="false" aria-controls="viewDropdown" title="<%= t.getProperty("header.view") %>" aria-label="<%= t.getProperty("header.view") %>"><i class="fa-solid fa-sliders" aria-hidden="true"></i></button>
+                <div class="view-dropdown" id="viewDropdown">
+                  <button id="fontToggle" type="button" class="view-row bold-btn" title="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold" aria-hidden="true"></i><span><%= t.getProperty("header.fontWeight") %></span></button>
+                  <button id="themeToggle" type="button" class="view-row" title="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span><%= t.getProperty("header.theme") %></span></button>
+                  <% if (currentUser != null) { %><button type="button" class="view-row" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i><span><%= t.getProperty("sound.off") %></span></button><% } %>
+                </div>
+              </div>
               <div class="lang-switch">
-                <button type="button" class="lang-btn icon-btn" data-lang="<%= cur %>" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>">
+                <button type="button" class="lang-btn icon-btn" aria-expanded="false" data-lang="<%= cur %>" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>">
                   <span class="lang-code"><%= com.github.skeliit.I18n.label(cur) %></span>
                 </button>
                 <ul class="menu">
@@ -257,8 +311,7 @@
                   <i class="fa-regular fa-bell"></i><span class="notif-badge" hidden></span>
                 </button>
                 <div class="user-menu">
-                  <button type="button" class="user-btn">
-                    <% String headerAvatar = com.github.skeliit.WebUtils.safeUrl((String) session.getAttribute("avatar_url"), null); %>
+                  <button type="button" class="user-btn" aria-expanded="false">
                     <% if (headerAvatar != null) { %>
                     <img class="user-avatar" src="<%= com.github.skeliit.WebUtils.escapeHtml(headerAvatar) %>" alt="">
                     <% } else { %>
@@ -289,6 +342,9 @@
         <div class="notif-panel" id="notifPanel" role="dialog" aria-label="<%= t.getProperty("notif.title") %>" hidden
              data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>"
              data-t-reply="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.reply")) %>"
+             data-t-friend-request="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.friendRequest")) %>"
+             data-t-friend-accept="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.friendAccept")) %>"
+             data-t-message="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.message")) %>"
              data-t-heart="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.heart")) %>"
              data-t-song="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.onSong")) %>"
              data-t-clip="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.onClip")) %>"
@@ -296,6 +352,7 @@
              data-t-passed-place="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.passedPlace")) %>"
              data-t-pong-score="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.pongScore")) %>"
              data-t-pong-time="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.pongTime")) %>"
+             data-t-someone="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("notif.someone")) %>"
              data-t-deleted="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("account.deleted")) %>">
           <div class="notif-head">
             <strong><%= t.getProperty("notif.title") %></strong>
@@ -370,93 +427,116 @@
             window.addEventListener('scroll', onHeaderScroll, { passive: true });
             onHeaderScroll();
 
-            // Language menu toggle by click
+            // Jazyk a menu účtu v liště (PC): klik otevře / zavře, aria-expanded říká čtečce, jestli je otevřené
             const langSwitch = document.querySelector('.lang-switch');
             const langBtn = document.querySelector('.lang-switch .lang-btn');
+            const userMenu = document.querySelector('.user-menu');
+            const userBtn = userMenu && userMenu.querySelector('.user-btn');
+            function setPop(box, btn, open) { if (!box) return; box.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open)); }
             if (langBtn && langSwitch) {
-              langBtn.addEventListener('click', (e) => { e.stopPropagation(); langSwitch.classList.toggle('open'); });
-              document.addEventListener('click', () => { langSwitch.classList.remove('open'); });
-              langSwitch.querySelectorAll('.menu a').forEach(a => a.addEventListener('click', () => { langSwitch.classList.remove('open'); }));
+              langBtn.addEventListener('click', (e) => { e.stopPropagation(); setPop(langSwitch, langBtn, !langSwitch.classList.contains('open')); });
+              langSwitch.querySelectorAll('.menu a').forEach(a => a.addEventListener('click', () => setPop(langSwitch, langBtn, false)));
             }
+            if (userBtn) userBtn.addEventListener('click', (e) => { e.stopPropagation(); setPop(userMenu, userBtn, !userMenu.classList.contains('open')); });
+            document.addEventListener('click', () => { setPop(langSwitch, langBtn, false); setPop(userMenu, userBtn, false); });
 
-            // Hamburger menu toggle
+            // Menu na telefonu a tabletu (do 1024 px): telefon = přes celou obrazovku, tablet = panel zprava.
+            // Otevřené menu: stránka pod ním se neposouvá a nejde na ni ťuknout ani se k ní dostat Tabem (inert),
+            // focus skočí na zavírací křížek a po zavření se vrátí na „Menu“. Esc zavře. Rozbalená je skupina s aktuální stránkou.
             const menuToggle = document.getElementById('menuToggle');
             const mainNav = document.getElementById('mainNav');
-            if (menuToggle && mainNav) {
-              menuToggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                setMenu(!mainNav.classList.contains('open'));
+            const navMq = window.matchMedia('(max-width: 1024px)');
+            function menuOpen() { return !!mainNav && mainNav.classList.contains('open'); }
+            function setInert(on) {
+              const keep = siteHeaderEl();
+              Array.from(document.body.children).forEach(el => {
+                if (el === keep || el.tagName === 'SCRIPT') return;
+                if (on) el.setAttribute('inert', ''); else el.removeAttribute('inert');
               });
-              // a real click elsewhere closes it (not the synthetic one from the settings row below)
-              document.addEventListener('click', (e) => { if (e.isTrusted) setMenu(false); });
-              // settings row inside the phone menu presses the real bar buttons; the menu stays open
+              if (keep) keep.querySelectorAll('.header-inner > :not(#mainNav):not(.nav-shade)').forEach(el => { if (on) el.setAttribute('inert', ''); else el.removeAttribute('inert'); });
+            }
+            function siteHeaderEl() { return document.getElementById('siteHeader'); }
+            function setMenu(open, keepFocus) {
+              if (!mainNav || open === menuOpen()) return;
+              mainNav.classList.toggle('open', open);
+              document.documentElement.classList.toggle('menu-open', open);
+              menuToggle.setAttribute('aria-expanded', String(open));
+              menuToggle.querySelector('i').classList.toggle('fa-bars', !open);
+              menuToggle.querySelector('i').classList.toggle('fa-xmark', open);
+              setInert(open);
+              if (open) {
+                mainNav.querySelectorAll('.nav-group').forEach(g => setGroup(g, g.classList.contains('has-active')));
+                mainNav.scrollTop = 0;
+                const close = mainNav.querySelector('.mnav-close');
+                if (close) close.focus({ preventScroll: true });
+              } else if (!keepFocus && menuToggle.offsetParent) {
+                menuToggle.focus({ preventScroll: true });
+              }
+            }
+            if (menuToggle && mainNav) {
+              menuToggle.addEventListener('click', (e) => { e.stopPropagation(); setMenu(!menuOpen()); });
+              document.querySelectorAll('[data-menu-close]').forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); setMenu(false); }));
+              // odkaz v menu (i hra a upozornění) menu zavře; na zbytek menu klik nic nezavírá
+              mainNav.addEventListener('click', (e) => {
+                if (!menuOpen()) return;
+                if (e.target.closest('a, [data-notif-open], .logout-form button')) setMenu(false, true);
+              });
+              // klik mimo menu (na liště) ho zavře; syntetický klik z tlačítek níž ne
+              document.addEventListener('click', (e) => { if (e.isTrusted && menuOpen() && !mainNav.contains(e.target)) setMenu(false); });
+              // řádek ovládání v menu mačká skutečná tlačítka v liště (režim, tučnější text); menu zůstane otevřené
               mainNav.querySelectorAll('[data-proxy]').forEach(b => b.addEventListener('click', (e) => {
                 e.stopPropagation();
                 document.getElementById(b.dataset.proxy).click();
               }));
-            }
-            function setMenu(open) {
-              mainNav.classList.toggle('open', open);
-              menuToggle.setAttribute('aria-expanded', open);
-              menuToggle.querySelector('i').classList.toggle('fa-bars', !open);
-              menuToggle.querySelector('i').classList.toggle('fa-xmark', open);
-            }
-
-            // User menu: opens on hover (CSS) and on click/tap
-            const userMenu = document.querySelector('.user-menu');
-            if (userMenu) {
-              userMenu.querySelector('.user-btn').addEventListener('click', (e) => { e.stopPropagation(); userMenu.classList.toggle('open'); });
-              document.addEventListener('click', () => userMenu.classList.remove('open'));
+              // jazyk v doku: kolečko otevře seznam nahoru; zavře ho klik mimo, Esc nebo zavření menu
+              const dockLangBtn = mainNav.querySelector('.dk-lang .dk-cb'), dockLangPop = document.getElementById('navLangPop');
+              const setDockLang = (open) => { if (!dockLangBtn) return; dockLangPop.classList.toggle('open', open); dockLangBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); };
+              if (dockLangBtn) {
+                dockLangBtn.addEventListener('click', (e) => { e.stopPropagation(); setDockLang(!dockLangPop.classList.contains('open')); });
+                mainNav.addEventListener('click', (e) => { if (!e.target.closest('.dk-lang')) setDockLang(false); }, true);   // true: dřív, než ho tlačítka (data-proxy) zastaví
+                document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && dockLangPop.classList.contains('open')) { setDockLang(false); dockLangBtn.focus(); } });
+                document.addEventListener('pjax:done', () => setDockLang(false));
+              }
+              navMq.addEventListener('change', () => { if (!navMq.matches) setMenu(false, true); });
+              document.addEventListener('pjax:done', () => setMenu(false, true));
             }
 
-            // Persistent Spotify bottom bar
-            function ensureSpBar() {
-              if (document.getElementById('sp-bar')) return document.getElementById('sp-bar');
-              const bar = document.createElement('div'); bar.id = 'sp-bar'; bar.className = 'sp-bar';
-              bar.innerHTML = "<div class='sp-inner'><button id='sp-hide' class='sp-hide' title='<%= com.github.skeliit.WebUtils.escapeJs(com.github.skeliit.WebUtils.escapeHtml(t.getProperty("player.hide"))) %>' aria-label='<%= com.github.skeliit.WebUtils.escapeJs(com.github.skeliit.WebUtils.escapeHtml(t.getProperty("player.hide"))) %>'><i class='fa-solid fa-chevron-down'></i></button><iframe id='sp-iframe' class='sp-iframe' allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' loading='lazy'></iframe></div>";
-              document.body.appendChild(bar);
-              const min = document.createElement('div'); min.id = 'sp-min'; min.className = 'sp-minbar'; min.innerHTML = '<i class="fab fa-spotify"></i> Spotify';
-              document.body.appendChild(min);
-              document.getElementById('sp-hide').addEventListener('click', () => closeBar());
-              min.addEventListener('click', () => openBar());
-              return bar;
+            // Rozbalovací skupiny menu a kolečko Vzhled a zvuk. PC: klik, Esc, klik mimo, vždy jen jedna otevřená.
+            // Telefon a tablet: skupiny se rozbalují pod sebou nezávisle (zavírání ostatních by posouvalo menu pod prstem).
+            const dropdowns = document.querySelectorAll('.nav-group, .view-menu');
+            function setGroup(d, open) { d.classList.toggle('open', open); d.querySelector('button').setAttribute('aria-expanded', String(open)); }
+            function closeDropdowns(except) {
+              dropdowns.forEach(d => {
+                if (d === except) return;
+                if (navMq.matches && d.classList.contains('nav-group') && menuOpen()) return;   // v menu na telefonu zůstávají, jak je kdo nechal
+                setGroup(d, false);
+              });
             }
-            // theme=0 = Spotify's dark embed, instead of a color taken from the artwork
-            function darkEmbed(u) { return (!u || /[?&]theme=/.test(u)) ? u : u + (u.includes('?') ? '&' : '?') + 'theme=0'; }
-            function normalizeSrc(input) {
-              if (!input) return null;
-              if (/^https?:\/\//.test(input)) return darkEmbed(input);
-              // short forms: track:ID, playlist:ID, album:ID, artist:ID
-              const [type, id] = input.split(':');
-              if (id) { return `https://open.spotify.com/embed/\${type}/\${id}?utm_source=generator&theme=0`; }
-              return `https://open.spotify.com/embed/track/\${input}?utm_source=generator&theme=0`;
-            }
+            dropdowns.forEach(d => d.querySelector('button').addEventListener('click', () => {
+              closeDropdowns(d);
+              setGroup(d, !d.classList.contains('open'));
+            }));
+            document.addEventListener('click', (e) => { if (!e.target.closest('.nav-group, .view-menu')) closeDropdowns(); });
+            document.addEventListener('keydown', (e) => {
+              if (e.key !== 'Escape') return;
+              if (menuOpen()) { setMenu(false); return; }
+              const open = document.querySelector('.nav-group.open, .view-menu.open');
+              if (open) { closeDropdowns(); setGroup(open, false); open.querySelector('button').focus(); return; }
+              if (langSwitch && langSwitch.classList.contains('open')) { setPop(langSwitch, langBtn, false); langBtn.focus(); return; }
+              if (userMenu && userMenu.classList.contains('open')) { setPop(userMenu, userBtn, false); userBtn.focus(); }
+            });
+            // po kliknutí na odkaz se nabídka zavře, i když nad ní pořád stojí myš
+            document.querySelectorAll('.nav-sub a').forEach(a => a.addEventListener('click', () => {
+              const g = a.closest('.nav-group');
+              closeDropdowns();
+              g.classList.add('just-used');
+              g.addEventListener('mouseleave', () => g.classList.remove('just-used'), { once: true });
+            }));
+            document.addEventListener('pjax:done', () => closeDropdowns());
+
             // has the visitor allowed third-party content (YouTube, Spotify) in the cookie bar?
             window.skeliConsent = function () { try { return localStorage.getItem('cookieConsent') === 'true'; } catch (e) { return false; } };
-            // a phone on its side: the open player would cover the page, so it waits for a click there
-            const shortScreen = () => window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
-            const SP_DEFAULT = 'https://open.spotify.com/embed/artist/5IouXw8U9uKCTwmncG5bUl?utm_source=generator&theme=0';
-            function openBar() { const bar = ensureSpBar(); const f = document.getElementById('sp-iframe'); if (!f.src) { const saved = darkEmbed(localStorage.getItem('sp_src')); f.src = saved || SP_DEFAULT; } bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; localStorage.setItem('sp_min', '0'); try { sessionStorage.setItem('sp_open', '1'); } catch (e) {} }
-            function closeBar() { const bar = ensureSpBar(); bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'flex'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; localStorage.setItem('sp_min', '1'); try { sessionStorage.removeItem('sp_open'); } catch (e) {} }
-            window.toggleSpotifyBar = function () { if (ensureSpBar().style.display === 'none') { openBar(); } else { closeBar(); } }
-            window.playSpotify = function (src) { const bar = ensureSpBar(); const url = normalizeSrc(src); const f = document.getElementById('sp-iframe'); if (f.src !== url) f.src = url; openBar(); localStorage.setItem('sp_src', url); localStorage.setItem('sp_play', 'true'); };
-
-            // Restore state on every page. A new visit starts with the small button (the player never
-            // opens by itself and takes no room); it stays open only after it was opened in this visit.
-            // Without consent to third-party content (cookie bar) the iframe loads only after a click.
-            (function () {
-              const bar = ensureSpBar(); let wasMin = true; try { wasMin = sessionStorage.getItem('sp_open') !== '1'; } catch (e) {} const saved = darkEmbed(localStorage.getItem('sp_src')); const f = document.getElementById('sp-iframe');
-              const ok = window.skeliConsent();
-              if (saved && ok) { f.src = saved; }
-              if ((saved || SP_DEFAULT) && !wasMin && ok && !shortScreen()) { f.src = f.src || SP_DEFAULT; bar.style.display = 'block'; document.getElementById('sp-min').style.display = 'none'; }
-              else { bar.style.display = 'none'; const m = document.getElementById('sp-min'); m.style.display = 'flex'; m.innerHTML = '<i class="fab fa-spotify"></i> Spotify'; }
-            })();
-
-
-            // Autowire any element with data-spotify-src
-            document.addEventListener('click', function (e) { const t = e.target.closest('[data-spotify-src]'); if (t) { e.preventDefault(); window.playSpotify(t.getAttribute('data-spotify-src')); } });
-
-            // Lightweight PJAX navigation to preserve global UI (Spotify bar)
+            // Lightweight PJAX navigation: only <main> changes, so Kevin and the header stay
             (function () {
               const ORIGIN = location.origin;
               function isInternal(a) { try { const u = new URL(a.href, ORIGIN); return u.origin === ORIGIN && !a.hasAttribute('download') && (!a.target || a.target === '_self'); } catch { return false; } }
@@ -504,7 +584,7 @@
                 // allow full reload for language switch to refresh header/nav strings
                 if (href.includes('lang=')) return;
                 // disable PJAX for pages that need full refresh or include page-scoped styles/scripts
-                const noPjax = ['/auth/', '/karaoke-kino/', '/lyrics/', '/texty', '/admin', '/logout', '/login.jsp', '/register.jsp', '/uzivatel.jsp', '/nastaveni.jsp', '/profile.jsp'];
+                const noPjax = ['/auth/', '/karaoke', '/lyrics/', '/texty', '/admin', '/logout', '/login.jsp', '/register.jsp', '/uzivatel.jsp', '/nastaveni.jsp', '/profile.jsp'];
                 if (noPjax.some(p => href.includes(p))) return;
                 if (document.body.classList.contains('is-admin')) return;   // z adminu ven vždy celou stránkou (jiné pozadí a patička)
                 e.preventDefault();
@@ -518,20 +598,31 @@
             })();
 
             // Active navigation highlight
+            // Aktivní položka menu: přesné mapování adres na stránku v menu (žádné hledání kousků adresy).
+            // Písně (/lyrics/…, /cs/song/…) patří k Textům, kino (/karaoke/…) ke Karaoke, /hrac/ a /zprávy nesvítí nic.
+            // Svítící odkaz dostane i aria-current="page" (čtečka řekne „aktuální stránka“); CatSmash je hra nad stránkou, nesvítí.
+            function currentNavPage() {
+              const path = location.pathname;
+              if (path === '/' || path === '/index.jsp') return 'index.jsp';
+              if (path.startsWith('/lyrics/') || /^\/(cs|en|de|uk|vi)\/song\//.test(path)) return 'texty.jsp';
+              if (path === '/karaoke' || path.startsWith('/karaoke/')) return 'karaoke';
+              return path.split('/').pop();
+            }
             function updateActiveNav() {
-              let cur = location.pathname.split('/').pop() || 'index.jsp';
-              if (location.pathname.startsWith('/lyrics/')) cur = 'texty.jsp';
+              const cur = currentNavPage();
               document.querySelectorAll('header nav a').forEach(a => {
-                try {
-                  const href = a.getAttribute('href') || '';
-                  const normalized = (href.split('?')[0] || '').split('/').pop() || '';
-                  if (!normalized) return;
-                  const isActive = ((cur === '' || cur === '/') && (normalized === '/' || normalized === 'index.jsp')) || (cur === normalized || (location.pathname.endsWith('/') && normalized === 'index.jsp'));
-                  a.classList.toggle('active', isActive);
-                } catch { }
+                const href = (a.getAttribute('href') || '').split('?')[0];
+                const target = href === '/' ? '' : href.split('/').pop();
+                if (!target) return;   // odkazy jazyků (?lang=) a podobné: označení od serveru zůstává
+                const isActive = !!target && target === cur && !a.hasAttribute('data-play-game');
+                a.classList.toggle('active', isActive);
+                if (isActive) a.setAttribute('aria-current', 'page'); else if (a.getAttribute('aria-current') === 'page') a.removeAttribute('aria-current');
               });
+              // stránka uvnitř nabídky: svítí i položka, která ji obsahuje
+              document.querySelectorAll('.nav-group').forEach(g => g.classList.toggle('has-active', !!g.querySelector('a.active')));
             }
             updateActiveNav();
+            window.updateActiveNav = updateActiveNav;   // přepínač Texty | Karaoke mění adresu bez načtení (js/texty-wheel.js)
             document.addEventListener('pjax:done', updateActiveNav);
 
             // Reveal animations

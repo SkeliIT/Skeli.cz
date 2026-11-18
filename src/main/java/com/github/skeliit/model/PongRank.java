@@ -12,6 +12,7 @@ public class PongRank {
     public String title;
     /** Rámeček kolem fotky (klíč odznaku z PongBadges.FRAMES) nebo null. */
     public String frame;
+    public boolean anon;              // hráč nechce jméno v tabulkách (users.pong_public = 0): username i avatarUrl jsou null
     public boolean pub;               // má veřejný profil (jméno v tabulce = odkaz na /hrac/jméno)
     public String mark;               // legendární znak u jména (klíč odznaku) nebo null
 

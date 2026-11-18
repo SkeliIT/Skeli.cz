@@ -24,6 +24,7 @@
       {"/admin/karaoke", "fa-microphone-lines", "Karaoke", "/admin/karaoke", "", ""},
       {"/admin/quotes", "fa-quote-left", "Citáty na úvodu", "/admin/quotes", "", ""},
 
+      {"/admin/disco", "fa-image", "Obrázky v Diskografii", "/admin/disco", "", ""},
       {"/admin/notes", "fa-spray-can", "Poznámky u písní", "/admin/notes", "", ""},
       {"Lidé"},
       {"/admin/comments", "fa-comments", "Komentáře", "/admin/comments", anCount.getOrDefault("reports", 0) > 0 ? String.valueOf(anCount.get("reports")) : "", "urgent"},

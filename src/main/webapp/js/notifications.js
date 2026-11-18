@@ -36,11 +36,33 @@
     });
   }
 
+  // nepřečtené zprávy: číslo na bublině chatu a v názvu záložky
+  function paintChat(n) {
+    document.querySelectorAll('[data-chat-count]').forEach(function (b) { b.textContent = n; b.hidden = !n; });
+    var base = document.title.replace(/^\(\d+\) /, '');
+    document.title = n ? '(' + n + ') ' + base : base;
+  }
+
+  var lastBell = null, lastChat = 0;
   function count() {
-    if (document.hidden) return;
+    // ptá se i na skryté záložce (počet nepřečtených v názvu záložky a zvuk zprávy jsou právě pro ni), ale jen
+    // jednou za minutu – šetří server i baterku (audit D2); okamžité doručení přinese až WebSocket
     fetch('/api/notifications?count=1', { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) { if (d) paint(d.unread); })
+      .then(function (d) {
+        if (!d) return;
+        paint(d.unread);
+        paintChat(d.chat || 0);
+        // zvuk jen když číslo vyrostlo; při prvním dotazu na stránce ne, to jsou staré zprávy. Nerušit = potichu.
+        if (lastBell !== null && !d.dnd && window.SkeliSound) {
+          if ((d.chatSound || 0) > lastChat) window.SkeliSound.play('message');
+          else if (d.unread > lastBell) window.SkeliSound.play('bell');
+        }
+        // nová zpráva během návštěvy: Kevin řekne, kde ji najít (o čem je, neví a nezjišťuje)
+        if (lastBell !== null && (d.chatSound || 0) > lastChat) window.dispatchEvent(new CustomEvent('kevin', { detail: { chat: 'new' } }));
+        lastBell = d.unread;
+        lastChat = d.chatSound || 0;
+      })
       .catch(function () {});
   }
 
@@ -53,11 +75,21 @@
       + '<span class="notif-body"><span class="notif-text">' + esc((panel.dataset.tPassed || '').replace('{name}', who)) + '</span>'
       + '<span class="notif-meta">' + esc(where) + ' · ' + esc(ago(n.created)) + '</span></span></a>';
   }
+  // přátelé: žádost nebo přijetí, odkaz vede na část Přátelé
+  function friendItem(n, who) {
+    var text = (n.type === 'message' ? panel.dataset.tMessage : n.type === 'friend_accept' ? panel.dataset.tFriendAccept : panel.dataset.tFriendRequest) || '';
+    var pic = n.actorAvatar ? '<img class="notif-icon" src="' + esc(n.actorAvatar) + '" alt="">' : '<span class="notif-icon"><i class="fa-solid fa-user-group"></i></span>';
+    return '<a class="notif-item' + (n.read ? '' : ' unread') + '" href="' + esc(n.link) + '">' + pic
+      + '<span class="notif-body"><span class="notif-text">' + esc(text.replace('{name}', who)) + '</span>'
+      + '<span class="notif-meta">' + esc(ago(n.created)) + '</span></span></a>';
+  }
   function render(items) {
     if (!items.length) { list.innerHTML = empty; return; }
     list.innerHTML = items.map(function (n) {
-      var who = n.actor == null ? panel.dataset.tDeleted : n.actor;
+      // anonymní hráč CatSmash: server jméno neposlal, ukáže se „Někdo“ (ne „Smazaný účet“)
+      var who = n.anon ? panel.dataset.tSomeone : n.actor == null ? panel.dataset.tDeleted : n.actor;
       if (n.type === 'passed') return passedItem(n, who);
+      if (n.type === 'friend_request' || n.type === 'friend_accept' || n.type === 'message') return friendItem(n, who);
       var text = n.type === 'heart' ? panel.dataset.tHeart : (panel.dataset.tReply || '').replace('{name}', who);
       var where = (n.place === 'clip' ? panel.dataset.tClip : panel.dataset.tSong).replace('{0}', n.placeName || '');
       var pic = n.type === 'heart' ? '<span class="notif-icon heart"><i class="fa-solid fa-heart"></i></span>'
@@ -104,7 +136,17 @@
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
 
-  count();
-  setInterval(count, 90000);
-  document.addEventListener('visibilitychange', count);
+  var timer = 0, lastAsk = 0;
+  function ask() { lastAsk = Date.now(); count(); }
+  function plan() {
+    clearTimeout(timer);
+    timer = setTimeout(function () { ask(); plan(); }, document.hidden ? 60000 : 12000);
+  }
+  ask();
+  plan();
+  document.addEventListener('visibilitychange', function () {
+    // návrat do záložky: hned čerstvý stav (když poslední dotaz není úplně čerstvý), pak zase po 12 s
+    if (!document.hidden && Date.now() - lastAsk > 3000) ask();
+    plan();
+  });
 })();

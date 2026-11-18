@@ -39,6 +39,52 @@ public class MusicPageIT {
     }
 
     @Test
+    @DisplayName("Diskografie na PC: klik na kartu pustí její video přímo v přehrávači nahoře (nikam se neodchází)")
+    void clickingACardPlaysItHere() {
+        driver.get("http://localhost:8080/music.jsp");
+        List<WebElement> plays = driver.findElements(By.cssSelector(".disco-card .flip-play"));
+        assertFalse(plays.isEmpty(), "karty s videem mají ▶ Přehrát");
+        WebElement last = plays.get(plays.size() - 1);
+        String yt = last.getAttribute("data-play-yt");
+        WebElement card = last.findElement(By.xpath("./ancestor::article[contains(@class,'flip-card')]"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block:'center'})", card);
+        card.click();
+        assertPlaying(yt);
+        assertTrue(driver.getCurrentUrl().contains("/music.jsp"), "zůstali jsme na webu");
+    }
+
+    @Test
+    @DisplayName("Diskografie na telefonu: ťuknutí kartu otočí, ▶ Přehrát pustí video nahoře")
+    void phoneTapFlipsThenPlays() {
+        driver.quit();
+        ChromeOptions o = new ChromeOptions();
+        o.addArguments("--headless=new", "--no-sandbox", "--disable-dev-shm-usage");
+        o.setExperimentalOption("mobileEmulation", java.util.Map.of("deviceMetrics", java.util.Map.of("width", 390, "height", 844, "pixelRatio", 2.0, "touch", true)));
+        driver = new ChromeDriver(o);
+        driver.get("http://localhost:8080/music.jsp");
+        // nový návštěvník: nejdřív odpoví cookie liště (Odmítnout vše), jinak by překážela
+        List<WebElement> none = driver.findElements(By.cssSelector("#cookieBar [data-consent=none]"));
+        if (!none.isEmpty() && none.get(0).isDisplayed()) none.get(0).click();
+        WebElement play = driver.findElements(By.cssSelector(".disco-card .flip-play")).get(1);
+        WebElement card = play.findElement(By.xpath("./ancestor::article[contains(@class,'flip-card')]"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block:'center'})", card);
+        card.findElement(By.cssSelector(".flip-front")).click();
+        new WebDriverWait(driver, Duration.ofSeconds(3)).until(d -> card.getAttribute("class").contains("open"));
+        // po otočení (animace) musí být tlačítko opravdu nahoře – to, co by prst trefil, je ono samo
+        new WebDriverWait(driver, Duration.ofSeconds(4)).until(d -> (Boolean) ((JavascriptExecutor) d).executeScript(
+                "var r = arguments[0].getBoundingClientRect(), el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);"
+                + "return !!el && arguments[0].contains(el);", play));
+        play.click();
+        assertPlaying(play.getAttribute("data-play-yt"));
+    }
+
+    /** V přehrávači nahoře (EllipticPlayerServlet) hraje video s tímhle id. */
+    private void assertPlaying(String yt) {
+        new WebDriverWait(driver, Duration.ofSeconds(5)).until(d -> String.valueOf(((JavascriptExecutor) d).executeScript(
+                "var f = document.querySelector('.ep-stage iframe'); return f ? f.getAttribute('src') : '';")).contains(yt));
+    }
+
+    @Test
     @DisplayName("Diskografie: odkazy jsou v liště se 4 místy, bez rozbalování, a mají popisek pro čtečky")
     void discographyDockShowsTheLinks() {
         driver.get("http://localhost:8080/music.jsp");

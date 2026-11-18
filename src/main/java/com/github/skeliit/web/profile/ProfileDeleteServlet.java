@@ -24,7 +24,7 @@ public class ProfileDeleteServlet extends HttpServlet {
         }
         String confirm = req.getParameter("confirm");
         if (confirm == null || !"DELETE".equalsIgnoreCase(confirm.trim())) {
-            resp.sendRedirect("/nastaveni.jsp?confirm=required#soukromi");
+            resp.sendRedirect("/nastaveni.jsp?confirm=required#ucet");
             return;
         }
         int uid = (int) s.getAttribute("userId");

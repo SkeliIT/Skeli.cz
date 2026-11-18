@@ -119,9 +119,12 @@
     }
 
     function commentHtml(c, isReply) {
+      // jméno vede na profil, když ho autor má zapnutý a čtenář je přihlášený (rozhoduje server)
+      var nameTag = c.profile ? 'a' : 'span';
       var name = c.user == null ? '<span class="cmt-name is-gone">' + esc(T['account.deleted']) + '</span>'
-        : '<span class="cmt-name' + (c.artist ? ' is-artist" title="' + esc(T['cmt.artist']) : '') + '">' + esc(c.user)
-          + (c.artist ? ' <i class="fa-solid fa-circle-check" aria-hidden="true"></i>' : '') + '</span>';
+        : '<' + nameTag + ' class="cmt-name' + (c.artist ? ' is-artist" title="' + esc(T['cmt.artist']) : '') + '"'
+          + (c.profile ? ' href="/hrac/' + encodeURIComponent(c.user) + '"' : '') + '>' + esc(c.user)
+          + (c.artist ? ' <i class="fa-solid fa-circle-check" aria-hidden="true"></i>' : '') + '</' + nameTag + '>';
       // titul z CatSmash (odznak, který si autor vybral na stránce Můj účet)
       if (c.user != null && c.titleKey) name += ' <span class="cmt-title' + (c.titleTier ? ' tier-' + c.titleTier : '') + '" title="' + esc(c.titleName) + '">'
         + '<i class="fa-solid ' + esc(c.titleIcon) + '" aria-hidden="true"></i> ' + esc(c.titleName) + '</span>';

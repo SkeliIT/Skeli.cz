@@ -3,7 +3,7 @@ Stříhá stejně jako tools/catsmash-sprites.py (stejné výřezy, stejné odst
 Hra je načte jen při otevření náhledu, takže se samotná hra nezpomalí.
 
 Spuštění: python tools/catsmash-micky-velke.py <obrázek1.jpg> <obrázek2.jpg>   (stejné první dva jako u catsmash-sprites.py:
-  kevin-reference/Kevin/Gemini_Generated_Image_xjnvs5….jpg, pak …uequgb….jpg)
+  Skeli.cz-podklady/kevin/reference/Kevin/Gemini_Generated_Image_xjnvs5….jpg, pak …uequgb….jpg)
 Výstup: kevin/pong/micky-velke.webp + micky-velke.json
 """
 import importlib.util

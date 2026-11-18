@@ -1,8 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ include file="includes/header.jsp" %>
 <%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
-<%-- tělo úvodního pásu je jen pro EL (scriptless), proto se odkaz na feed připraví tady --%>
-<% pageContext.setAttribute("newsFeedHref", request.getContextPath() + "/" + cur + "/feed/news.rss"); %>
 <main class="news-page">
   <sk:pageHero kicker='<%= t.getProperty("hero.kicker.news") %>'
                title='<%= t.getProperty("menu.news") %>' lead='<%= t.getProperty("news.lead") %>'>
@@ -11,13 +9,10 @@
       <button type="button" class="chip" data-source="instagram"><i class="fab fa-instagram"></i> Instagram</button>
       <button type="button" class="chip" data-source="youtube"><i class="fab fa-youtube"></i> YouTube</button>
     </div>
-    <%-- mimo #sourceChips: jeho obsluha kliknutí bere každý .chip uvnitř jako filtr zdroje --%>
-    <div class="filter-chips feed-subscribe">
-      <a class="chip" href="${newsFeedHref}" type="application/rss+xml"><i class="fas fa-rss" aria-hidden="true"></i> ${t['feed.subscribe']}</a>
-    </div>
   </sk:pageHero>
   <section class="news-feed">
-    <div id="social-feed" class="news-grid"></div>
+    <%-- časová osa: svítící čára uprostřed (na telefonu vlevo), příspěvky střídavě vlevo a vpravo --%>
+    <div id="social-feed" class="news-grid news-timeline"></div>
     <div id="feed-empty" class="empty-note" hidden><%= t.getProperty("news.empty") %></div>
     <div class="news-more">
       <button id="load-more" type="button" class="btn" hidden><%= t.getProperty("news.loadMore") %></button>
@@ -67,13 +62,13 @@
     var cap = esc((p.caption || '').slice(0, 200));
     var badge = sourceBadge(p.source);
     var date = p.createdAt ? esc(new Date(p.createdAt).toLocaleDateString('<%= com.github.skeliit.WebUtils.escapeJs(t.getProperty("meta.locale")) %>')) : '';
-    return '<a href="' + safeUrl(p.permalink) + '" target="_blank" rel="noopener" class="news-card">'
+    return '<div class="tl-item"><p class="tl-when">' + date + '</p>'
+      + '<a href="' + safeUrl(p.permalink) + '" target="_blank" rel="noopener" class="news-card" data-tilt>'
       + img
       + '<span class="news-badge">' + badge + '</span>'
       + '<div class="news-info">'
       + '<div class="news-title">' + cap + '</div>'
-      + '<div class="news-date">' + date + '</div>'
-      + '</div></a>';
+      + '</div></a></div>';
   }
 
   async function load() {

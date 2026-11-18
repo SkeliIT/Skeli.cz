@@ -29,7 +29,7 @@ public class UserProfileServlet extends HttpServlet {
         String city = req.getParameter("city");
         String bio = req.getParameter("bio");
         String theme = req.getParameter("theme");
-        String lang = I18n.safeLang(req.getParameter("lang"));
+        String lang = I18n.current(req);   // jen pro nový řádek; jazyk a režim se mění v Nastavení → Web a jazyk (LookServlet)
         boolean visible = "1".equals(req.getParameter("public_profile")) || "on".equalsIgnoreCase(req.getParameter("public_profile"));
         
         Integer age = null;
@@ -48,7 +48,7 @@ public class UserProfileServlet extends HttpServlet {
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?) " +
                         "ON DUPLICATE KEY UPDATE " +
                         "display_name=VALUES(display_name), age=VALUES(age), city=VALUES(city), " +
-                        "bio=VALUES(bio), theme=VALUES(theme), lang=VALUES(lang), visible=VALUES(visible)";
+                        "bio=VALUES(bio), visible=VALUES(visible)";
             
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setInt(1, userId);
@@ -71,16 +71,14 @@ public class UserProfileServlet extends HttpServlet {
             motto = motto == null ? null : motto.replaceAll("\\s+", " ").trim();
             if (motto != null && motto.length() > 160) motto = motto.substring(0, 160);
             try (PreparedStatement ps = conn.prepareStatement(
-                    "UPDATE user_profiles SET fav_song_uuid = (SELECT uuid FROM songs WHERE BINARY uuid = BINARY ? LIMIT 1), motto = ?, motto_font = ? WHERE user_id = ?")) {
-                String font = req.getParameter("motto_font");
+                    "UPDATE user_profiles SET fav_song_uuid = (SELECT uuid FROM songs WHERE BINARY uuid = BINARY ? LIMIT 1), motto = ? WHERE user_id = ?")) {
+                // písmo mota se vybírá v záložce Vzhled (LookServlet, slot mottoFont)
                 ps.setString(1, fav == null || fav.isBlank() ? null : fav);
                 ps.setString(2, motto == null || motto.isEmpty() ? null : motto);
-                ps.setString(3, com.github.skeliit.dao.UserDao.MOTTO_FONTS.contains(font) ? font : "brush");
-                ps.setInt(4, userId);
+                ps.setInt(3, userId);
                 ps.executeUpdate();
             }
 
-            session.setAttribute("lang", lang);
             
             resp.sendRedirect("/nastaveni.jsp?saved=true#profil");
         } catch (SQLException e) {

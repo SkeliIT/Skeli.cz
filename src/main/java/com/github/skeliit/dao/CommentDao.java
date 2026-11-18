@@ -59,19 +59,25 @@ public class CommentDao {
         public static final Viewer ANONYMOUS = new Viewer(null, false, false);
     }
 
-    /** All comments on a lyric or clip: top-level ones sorted, each with its replies oldest first. */
+    /**
+     * Všechny komentáře u textu nebo videa: hlavní seřazené, pod každým odpovědi od nejstarší.
+     * Kdo někoho zablokoval, jeho komentáře a odpovědi nevidí (vlákno zablokovaného zmizí celé). Ostatní a sám
+     * zablokovaný je vidí dál – blokování je tiché.
+     */
     public List<CommentItem> threads(Kind k, String target, Viewer viewer, Sort sort) throws SQLException {
         String sql = "SELECT c.id, c.parent_id, c.user_id, c.content, c.created_at, c.updated_at, c.pinned_at, c.hearted_at, "
                 + "u.username, u.avatar_url, u.role, u.is_artist, u.pong_title, u.pong_frame, u.pong_mark, u.pong_champ, "
+                + "u.profile_public, u.blocked_at, "
                 + "COALESCE(SUM(v.vote = 1), 0) AS up, COALESCE(SUM(v.vote = -1), 0) AS down, "
                 + "COALESCE(MAX(CASE WHEN v.user_id = ? THEN v.vote END), 0) AS my "
                 + "FROM " + k.table + " c LEFT JOIN users u ON u.id = c.user_id "
                 + "LEFT JOIN " + k.votesTable + " v ON v.comment_id = c.id "
-                + "WHERE c." + k.targetCol + " = ? GROUP BY c.id ORDER BY c.created_at, c.id";
+                + "WHERE c." + k.targetCol + " = ? AND NOT " + BlockDao.blockedBy("c.user_id") + " GROUP BY c.id ORDER BY c.created_at, c.id";
         List<CommentItem> all = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
             if (viewer.userId() == null) ps.setNull(1, Types.INTEGER); else ps.setInt(1, viewer.userId());
             ps.setString(2, target);
+            if (viewer.userId() == null) ps.setNull(3, Types.INTEGER); else ps.setInt(3, viewer.userId());
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) all.add(read(rs, viewer));
             }
@@ -90,6 +96,7 @@ public class CommentDao {
         it.user = gone ? null : rs.getString("username");
         it.avatar = gone ? "" : WebUtils.safeUrl(rs.getString("avatar_url"), "");
         it.artist = !gone && rs.getBoolean("is_artist");
+        it.profile = !gone && viewer.userId() != null && rs.getBoolean("profile_public") && rs.getTimestamp("blocked_at") == null;
         String title = gone ? null : rs.getString("pong_title");
         if (PongBadges.TITLES_ON && PongBadges.exists(title)) {
             it.titleKey = title;
@@ -97,7 +104,7 @@ public class CommentDao {
             it.titleTier = PongBadges.tier(title);
         }
         String frame = gone ? null : rs.getString("pong_frame");
-        if (!gone) it.frame = PongChampions.frame(it.userId, frame, rs.getBoolean("pong_champ"));   // šampion má přednost
+        if (!gone) it.frame = PongChampions.frame(it.userId, frame);
         String mark = gone ? null : rs.getString("pong_mark");           // legendární znak – jen když ho autor zapnul
         if (PongBadges.isMark(mark)) { it.mark = mark; it.markIcon = PongBadges.icon(mark); }
         it.content = rs.getString("content");

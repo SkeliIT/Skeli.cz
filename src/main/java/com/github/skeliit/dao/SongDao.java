@@ -13,14 +13,17 @@ import java.util.List;
 
 public class SongDao {
     private static final String SONG_COLS =
-            "id, name, year, uuid, seo_slug, apple_music_id, spotify_id, preview_image_url, art_x, art_y, art_zoom, poster_x, poster_y, poster_zoom";
+            "id, name, year, uuid, seo_slug, apple_music_id, spotify_id, preview_image_url, art_x, art_y, art_zoom, poster_x, poster_y, poster_zoom, collab";
 
-    /** Newest first (year, then the newest clip), the same order as the Texty page and its previous / next links. */
+    /**
+     * Nejdřív vlastní skladby, pak spolupráce; v obou nejnovější první (rok, pak nejnovější video).
+     * Stejné pořadí jako stránka Texty a odkazy Předchozí / Další u písně.
+     */
     public List<Song> listWithFirstLyric() throws SQLException {
-        String sql = "SELECT s.id, s.name, s.year, s.uuid, s.seo_slug, s.apple_music_id, s.spotify_id, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, " +
+        String sql = "SELECT s.id, s.name, s.year, s.uuid, s.seo_slug, s.apple_music_id, s.spotify_id, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, s.collab, " +
                 "(SELECT MIN(l.id) FROM lyrics l WHERE l.song_id=s.id) AS firstLyricId, " +
                 "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtubeId " +
-                "FROM songs s ORDER BY s.year DESC, (SELECT MAX(v.published_at) FROM videos v WHERE v.song_id = s.id) DESC, s.name ASC";
+                "FROM songs s ORDER BY s.collab, s.year DESC, (SELECT MAX(v.published_at) FROM videos v WHERE v.song_id = s.id) DESC, s.name ASC";
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             List<Song> out = new ArrayList<>();
             while (rs.next()) out.add(mapSong(rs, true));
@@ -28,15 +31,15 @@ public class SongDao {
         }
     }
 
-    /** Songs that have lyrics, as the Texty list shows them: newest year first, then the newest clip. */
+    /** Písně s textem pro stránku Texty: nejdřív vlastní skladby, pak spolupráce; v obou nejnovější rok, pak nejnovější video. */
     public List<LyricListItem> withLyrics(String lang) throws SQLException {
-        String sql = "SELECT s.id, s.uuid, s.name, s.year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, MIN(l.id) AS lyric_id, "
+        String sql = "SELECT s.id, s.uuid, s.name, s.year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, s.collab, MIN(l.id) AS lyric_id, "
                 + "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtube_id, "
                 + "(SELECT MAX(v.published_at) FROM videos v WHERE v.song_id = s.id) AS newest_clip, "
                 + "(SELECT lt.title FROM lyrics lt WHERE lt.song_id = s.id AND lt.lang = ? ORDER BY lt.id LIMIT 1) AS tr_title "
                 + "FROM lyrics l JOIN songs s ON s.id = l.song_id "
-                + "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom "
-                + "ORDER BY s.year DESC, newest_clip DESC, s.name ASC";
+                + "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, s.collab "
+                + "ORDER BY s.collab, s.year DESC, newest_clip DESC, s.name ASC";
         List<LyricListItem> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, lang);
@@ -45,9 +48,11 @@ public class SongDao {
                     int lyricId = rs.getInt("lyric_id");
                     if (rs.wasNull() || lyricId <= 0) continue;
                     Double x = nullableDouble(rs, "art_x"), y = nullableDouble(rs, "art_y"), z = nullableDouble(rs, "art_zoom");
-                    out.add(new LyricListItem(rs.getInt("id"), rs.getString("uuid"), rs.getString("name"), year(rs.getObject("year")),
+                    LyricListItem item = new LyricListItem(rs.getInt("id"), rs.getString("uuid"), rs.getString("name"), year(rs.getObject("year")),
                             lyricId, rs.getString("youtube_id"), rs.getString("preview_image_url"), rs.getString("tr_title"),
-                            Song.artStyle(x, y, z)));
+                            Song.artStyle(x, y, z));
+                    item.collab = rs.getBoolean("collab");
+                    out.add(item);
                 }
             }
         }
@@ -58,12 +63,39 @@ public class SongDao {
      * The Diskografie: every song (newest first; a song with several clips is dated and sorted by
      * its newest clip), then the clips that aren't linked to a song.
      */
+    /** Jeden řádek z textu ke každé písni (z vybraných citátů home_quotes) – zadní strana karty v Diskografii. */
+    public java.util.Map<Integer, String> quoteLines() throws SQLException {
+        java.util.Map<Integer, String> out = new java.util.HashMap<>();
+        try (Connection c = Db.get();
+             PreparedStatement ps = c.prepareStatement("SELECT song_id, line1 FROM home_quotes ORDER BY id");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) out.putIfAbsent(rs.getInt(1), rs.getString(2));
+        }
+        // písně bez vybraného citátu: první řádek českého textu (bez prázdných a orientačních řádků v závorkách)
+        try (Connection c = Db.get();
+             PreparedStatement ps = c.prepareStatement("SELECT song_id, words FROM lyrics WHERE lang = 'cs' ORDER BY id");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                if (out.containsKey(id) || rs.getString(2) == null) continue;
+                for (String line : rs.getString(2).split("\\R")) {
+                    String l = line.strip();
+                    if (l.isEmpty() || l.startsWith("[") || l.startsWith("(") || l.endsWith(":")) continue;
+                    out.put(id, l.replaceAll("[,;:]+$", ""));
+                    break;
+                }
+            }
+        }
+        return out;
+    }
+
     public List<DiscoItem> discography(String lang) throws SQLException {
         String sql = "SELECT s.name, CASE WHEN (SELECT COUNT(*) FROM videos v WHERE v.song_id = s.id) > 1 "
                 + "         THEN (SELECT YEAR(MAX(v.published_at)) FROM videos v WHERE v.song_id = s.id) ELSE s.year END AS year, "
                 + "       s.uuid, (SELECT MIN(l.id) FROM lyrics l WHERE l.song_id = s.id) AS lyric_id, "
                 + "       (SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS yt, "
-                + "       0 AS grp, s.id AS ord, s.preview_image_url AS preview, s.apple_music_id AS apple, s.spotify_id AS spotify, "
+                // skupiny: 0 = vlastní skladby, 1 = videa bez písně, 2 = spolupráce (cizí tracky, kde Skeli hostuje)
+                + "       CASE WHEN s.collab = 1 THEN 2 ELSE 0 END AS grp, s.id AS ord, s.preview_image_url AS preview, s.apple_music_id AS apple, s.spotify_id AS spotify, "
                 + "       (SELECT lt.title FROM lyrics lt WHERE lt.song_id = s.id AND lt.lang = ? ORDER BY lt.id LIMIT 1) AS tr "
                 + "FROM songs s "
                 + "UNION ALL "
@@ -74,15 +106,18 @@ public class SongDao {
             ps.setString(1, lang);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    boolean song = rs.getInt("grp") == 0;
+                    int grp = rs.getInt("grp");
+                    boolean song = grp != 1;
                     String name = song ? rs.getString("name") : VideoTitles.display(rs.getString("name"));
                     if (name == null || name.isBlank()) name = "YouTube";
                     if (song) name = name.replaceFirst("(?i)^\\s*skeli\\s*-\\s*", "");
                     int lyricId = rs.getInt("lyric_id");
                     if (rs.wasNull() || lyricId < 0) lyricId = 0;
-                    out.add(new DiscoItem(song, rs.getInt("ord"), name, year(rs.getObject("year")),
+                    DiscoItem item = new DiscoItem(song, rs.getInt("ord"), name, year(rs.getObject("year")),
                             song ? rs.getString("uuid") : null, lyricId, rs.getString("yt"), rs.getString("preview"),
-                            rs.getString("apple"), rs.getString("spotify"), song ? rs.getString("tr") : null));
+                            rs.getString("apple"), rs.getString("spotify"), song ? rs.getString("tr") : null);
+                    item.collab = grp == 2;
+                    out.add(item);
                 }
             }
         }
@@ -135,7 +170,7 @@ public class SongDao {
     public Song findBySeoSlug(String slug) throws SQLException {
         if (slug == null || slug.isBlank()) return null;
         // Prefer lyric-level SEO (any language), then legacy songs.seo_slug
-        String sql = "SELECT s.id, s.name, s.year, s.uuid, s.seo_slug, s.apple_music_id, s.spotify_id, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, " +
+        String sql = "SELECT s.id, s.name, s.year, s.uuid, s.seo_slug, s.apple_music_id, s.spotify_id, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, s.collab, " +
                 "(SELECT MIN(l2.id) FROM lyrics l2 WHERE l2.song_id=s.id AND l2.lang='cs') AS firstLyricId " +
                 "FROM songs s JOIN lyrics l ON l.song_id=s.id WHERE l.seo_slug=? LIMIT 1";
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
@@ -184,6 +219,15 @@ public class SongDao {
         }
     }
 
+    /** Spolupráce (cizí track, kde Skeli hostuje) ano / ne – přepínač v adminu u písně. */
+    public void updateCollab(int songId, boolean collab) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE songs SET collab=? WHERE id=?")) {
+            ps.setBoolean(1, collab);
+            ps.setInt(2, songId);
+            ps.executeUpdate();
+        }
+    }
+
     public void updateAppleMusicId(int songId, String appleMusicId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE songs SET apple_music_id=? WHERE id=?")) {
             ps.setString(1, blankToNull(appleMusicId));
@@ -224,6 +268,36 @@ public class SongDao {
         }
     }
 
+    /** Obrázek písně v Diskografii (null = automaticky), viz V137. */
+    public void updateDiscoImage(int songId, String url) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("UPDATE songs SET disco_image=? WHERE id=?")) {
+            ps.setString(1, url);
+            ps.setInt(2, songId);
+            ps.executeUpdate();
+        }
+    }
+
+    public String getDiscoImage(int songId) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT disco_image FROM songs WHERE id=?")) {
+            ps.setInt(1, songId);
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? rs.getString(1) : null; }
+        }
+    }
+
+    /** Diskografie: id písně → [vybraný obrázek nebo null, CSS proměnné posunu a zvětšení nebo ""]. */
+    public java.util.Map<Integer, String[]> discoPictures() throws SQLException {
+        java.util.Map<Integer, String[]> out = new java.util.HashMap<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT id, disco_image, poster_x, poster_y, poster_zoom FROM songs WHERE disco_image IS NOT NULL OR poster_zoom IS NOT NULL");
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                out.put(rs.getInt("id"), new String[] { rs.getString("disco_image"),
+                        Song.posterStyle(nullableDouble(rs, "poster_x"), nullableDouble(rs, "poster_y"), nullableDouble(rs, "poster_zoom")) });
+            }
+        }
+        return out;
+    }
+
     public String getPreviewImageUrl(int songId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT preview_image_url FROM songs WHERE id=?")) {
             ps.setInt(1, songId);
@@ -247,6 +321,7 @@ public class SongDao {
 
     public void linkVideo(String youtubeId, int songId, String title) throws SQLException {
         try (Connection c = Db.get()) {
+            if (PremiereDao.isPendingVideo(c, youtubeId)) return;   // video čeká na premiéru: přidá se samo v její čas
             try (PreparedStatement up = c.prepareStatement(
                     "UPDATE videos SET song_id=?, title=COALESCE(NULLIF(?, ''), title) WHERE youtube_id=?")) {
                 up.setInt(1, songId);
@@ -355,6 +430,7 @@ public class SongDao {
             s.posterY = nullableDouble(rs, "poster_y");
             s.posterZoom = nullableDouble(rs, "poster_zoom");
         } catch (SQLException ignore) { }
+        try { s.collab = rs.getBoolean("collab"); } catch (SQLException ignore) { }   // spolupráce (V141)
         if (withFirstLyric) {
             int fl = rs.getInt("firstLyricId"); s.firstLyricId = rs.wasNull() ? null : fl;
             try { s.youtubeId = rs.getString("youtubeId"); } catch (SQLException ignore) {}

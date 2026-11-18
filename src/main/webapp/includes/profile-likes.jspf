@@ -1,0 +1,22 @@
+<%-- Písně se srdcem na profilu. Předem nastavit likesList (List<LikedSong>), likesTitle (klíč nadpisu) a likesOwn (můj profil = ukázat i prázdný stav).
+     Vkládaná šablona se nečte jako UTF-8: žádné české znaky přímo ve výstupu. --%>
+<% if (likesOwn || !likesList.isEmpty()) { %>
+<section class="pt pt-likes" id="oblibene">
+  <div class="pt-in">
+    <span class="pt-label"><i class="fa-solid fa-heart" aria-hidden="true"></i> <%= t.getProperty(likesTitle) %></span>
+    <% if (likesList.isEmpty()) { %>
+    <p class="pt-note"><%= t.getProperty("profile.likes.empty") %></p>
+    <a class="btn btn-primary pt-likes-go" href="/texty.jsp"><%= t.getProperty("profile.likes.browse") %></a>
+    <% } else { %>
+    <ul class="pt-like-list">
+      <% for (com.github.skeliit.model.LikedSong song : likesList) { %>
+      <li><a class="pt-like" href="<%= com.github.skeliit.I18n.songPath(request, song.uuid, 0) %>">
+        <% if (song.thumb != null) { %><img src="<%= WebUtils.escapeHtml(song.thumb) %>" alt="" loading="lazy"><% } else { %><span class="pt-like-none" aria-hidden="true"><i class="fa-solid fa-music"></i></span><% } %>
+        <span class="pt-like-name"><%= WebUtils.escapeHtml(song.title) %></span>
+      </a></li>
+      <% } %>
+    </ul>
+    <% } %>
+  </div>
+</section>
+<% } %>

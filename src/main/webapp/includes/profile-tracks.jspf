@@ -1,0 +1,42 @@
+<%-- „Moje tvorba“ na profilu ve stylu karet Diskografie. Předem nastavit tracksList (List<UserTrack>), tracksTitle (klíč nadpisu),
+     tracksAdmin (admin vidí tlačítka skrytí) a tracksBack (kam se admin vrátí). Odkazy jen ven, přehrávače se nenačítají, takže žádné cookies cizích služeb.
+     Vkládaná šablona se nečte jako UTF-8: žádné české znaky přímo ve výstupu. --%>
+<% if (!tracksList.isEmpty()) { %>
+<section class="pt pt-tracks" id="tvorba-profil">
+  <div class="pt-in">
+    <span class="pt-label"><i class="fa-solid fa-music" aria-hidden="true"></i> <%= t.getProperty(tracksTitle) %></span>
+    <div class="pt-track-list">
+      <% for (com.github.skeliit.model.UserTrack track : tracksList) { %>
+      <article class="song-card disco-card<%= track.hidden ? " is-hidden" : "" %>">
+        <a class="song-thumb" href="<%= WebUtils.escapeHtml(track.firstUrl()) %>" target="_blank" rel="noopener nofollow ugc" aria-label="<%= WebUtils.escapeHtml(track.title) %>">
+          <% if (track.youtubeId != null) { %><img src="/yt-thumb/<%= WebUtils.escapeHtml(track.youtubeId) %>/mqdefault.jpg" alt="" loading="lazy"><% } else { %><span class="song-thumb-placeholder"><i class="fa-solid fa-music" aria-hidden="true"></i></span><% } %>
+        </a>
+        <div class="song-info">
+          <span class="song-name"><%= WebUtils.escapeHtml(track.title) %></span>
+          <% if (track.year != null) { %><span class="song-year"><%= track.year %></span><% } %>
+        </div>
+        <% if (track.hidden) { %><p class="pt-track-hidden"><i class="fa-solid fa-lock" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("tracks.hidden").replace("{0}", track.hiddenReason == null ? "" : track.hiddenReason)) %></p><% } %>
+        <nav class="disco-dock" aria-label="<%= WebUtils.escapeHtml(track.title) %>">
+          <% if (track.youtubeId != null) { %><a class="disco-youtube" href="<%= WebUtils.escapeHtml(track.youtubeUrl()) %>" target="_blank" rel="noopener nofollow ugc" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
+          <% if (track.spotify != null) { %><a class="disco-spotify" href="<%= WebUtils.escapeHtml(track.spotifyUrl()) %>" target="_blank" rel="noopener nofollow ugc" title="Spotify" aria-label="Spotify"><i class="fab fa-spotify" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
+          <% if (track.apple != null) { %><a class="disco-apple" href="<%= WebUtils.escapeHtml(track.appleUrl()) %>" target="_blank" rel="noopener nofollow ugc" title="Apple Music" aria-label="Apple Music"><i class="fab fa-apple" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
+          <% if (track.soundcloud != null) { %><a class="disco-soundcloud" href="<%= WebUtils.escapeHtml(track.soundcloudUrl()) %>" target="_blank" rel="noopener nofollow ugc" title="SoundCloud" aria-label="SoundCloud"><i class="fab fa-soundcloud" aria-hidden="true"></i></a><% } else { %><span></span><% } %>
+        </nav>
+        <% if (tracksAdmin) { %>
+        <form class="pt-track-admin" method="post" action="/admin/user-track">
+          <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="id" value="<%= track.id %>"><input type="hidden" name="back" value="<%= WebUtils.escapeHtml(tracksBack) %>">
+          <% if (track.hidden) { %>
+          <input type="hidden" name="action" value="show"><button type="submit" class="btn-outline friend-btn"><%= t.getProperty("tracks.admin.show") %></button>
+          <% } else { %>
+          <input type="hidden" name="action" value="hide">
+          <input name="reason" required maxlength="200" placeholder="<%= t.getProperty("tracks.admin.reason") %>" aria-label="<%= t.getProperty("tracks.admin.reason") %>">
+          <button type="submit" class="btn-outline friend-btn"><%= t.getProperty("tracks.admin.hide") %></button>
+          <% } %>
+        </form>
+        <% } %>
+      </article>
+      <% } %>
+    </div>
+  </div>
+</section>
+<% } %>

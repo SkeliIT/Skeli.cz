@@ -32,7 +32,7 @@
           <c:otherwise><span class="songs-pic songs-pic-empty"><i class="fa-solid fa-music" aria-hidden="true"></i></span></c:otherwise>
         </c:choose>
         <a class="songs-main" href="/admin/song?uuid=${song.uuid}">
-          <span class="songs-title"><c:out value="${song.name}"/></span>
+          <span class="songs-title"><c:out value="${song.name}"/><c:if test="${song.collab}"> <small class="songs-ft" title="Spolupráce – cizí track, kde hostuju">ft.</small></c:if></span>
           <span class="songs-year">${song.year != null ? song.year : '—'}</span>
           <span class="songs-icons">
             <i class="fab fa-youtube${song.hasVideo ? '' : ' off'}" role="img" title="YouTube: ${song.hasVideo ? 'je' : 'chybí'}" aria-label="YouTube: ${song.hasVideo ? 'je' : 'chybí'}"></i>

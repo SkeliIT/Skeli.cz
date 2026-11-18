@@ -1,4 +1,4 @@
-<%@ page import="com.github.skeliit.dao.AdminDao, com.github.skeliit.model.AdminUser, com.github.skeliit.WebUtils" %>
+<%@ page import="com.github.skeliit.dao.AdminDao, com.github.skeliit.dao.ModerationDao, com.github.skeliit.model.AdminUser, com.github.skeliit.model.UserReport, com.github.skeliit.WebUtils" %>
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <main class="admin-page">
@@ -9,10 +9,78 @@
     if (!"ADMIN".equals(role)) { out.println("<p>Pouze pro ADMIN.</p>"); } else {
       java.util.List<AdminUser> users = new AdminDao().users();
       String adminMsg = request.getParameter("msg");
+      java.util.List<UserReport> reports = new ModerationDao().openReports();
+      java.util.List<com.github.skeliit.model.ChatReport> chatReports = new com.github.skeliit.dao.ChatDao().openReports();
+      boolean urgentOpen = chatReports.stream().anyMatch(x -> com.github.skeliit.service.UrgentReports.isUrgent(x.reason))
+              || reports.stream().anyMatch(x -> com.github.skeliit.service.UrgentReports.isUrgent(x.reason));
   %>
     <% if ("image_removed".equals(adminMsg)) { %><p class="admin-flash">Obrázek je odebraný a smazaný z disku. Kdo měl nevhodnou fotku, je odhlášený.</p><% } %>
+    <% if ("blocked".equals(adminMsg)) { %><p class="admin-flash">Účet je zablokovaný a odhlášený. Nepřihlásí se a profil není vidět, data zůstávají.</p><% } %>
+    <% if ("unblocked".equals(adminMsg)) { %><p class="admin-flash">Účet je zase odblokovaný.</p><% } %>
+    <% if ("report_done".equals(adminMsg)) { %><p class="admin-flash">Nahlášení je vyřízené.</p><% } %>
+    <% if ("self_block".equals(adminMsg)) { %><p class="admin-flash error">Sám sebe zablokovat nemůžeš.</p><% } %>
     <% if ("self".equals(adminMsg)) { %><p class="admin-flash error">Sám sebe smazat nemůžeš. Svůj účet smažeš v Nastavení.</p><% } %>
     <% if ("last_admin".equals(adminMsg)) { %><p class="admin-flash error">Tohle je poslední admin. Web musí mít aspoň jednoho.</p><% } %>
+    <%-- postup při naléhavém nahlášení: je tu napořád, aby se nemusel hledat, když je potřeba --%>
+    <details class="admin-card urgent-guide"<%= urgentOpen ? " open" : "" %>>
+      <summary><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Co dělat při naléhavém nahlášení</summary>
+      <ol>
+        <li><b>Účet zablokuj hned</b> tady níž v Uživatelích. Zprávu ani profil nemaž, dokud nevíš, že to policie nepotřebuje.</li>
+        <li><b>Ohrožení dítěte:</b> nic si nestahuj, nefoť, neposílej dál a neukazuj kamarádům, ani jako důkaz. Nahlas to na <a href="https://stoponline.cz" target="_blank" rel="noopener">stoponline.cz</a> a zavolej policii na <b>158</b>. Když jde o bezprostřední nebezpečí, volej hned.</li>
+        <li><b>Drogy, zbraně a jiný nelegální obsah:</b> obsah smaž z webu, účet nech zablokovaný. Když to vypadá vážně, nahlas to policii.</li>
+        <li><b>Přijde žádost od policie:</b> odpověz jen na to, na co se ptá, a jen na oficiální žádost. Když si nejsi jistý, zeptej se právníka.</li>
+        <li><b>Zapiš si</b>, kdy se to stalo a co jsi udělal. Záznam změn v adminu ti s tím pomůže.</li>
+      </ol>
+      <p class="text-dim">Tohle je můj rychlý postup, ne právní rada. Před spuštěním ho ukaž právníkovi.</p>
+    </details>
+    <%-- nahlášené zprávy z chatu: jediné zprávy, které admin vidí --%>
+    <% if (!chatReports.isEmpty()) { %>
+    <section class="admin-card" id="chat-reports">
+      <h3><i class="fa-solid fa-comments" aria-hidden="true"></i> Nahlášené zprávy (<%= chatReports.size() %>)</h3>
+      <div class="note-list">
+      <% for (com.github.skeliit.model.ChatReport r : chatReports) { %>
+        <article class="note-item<%= com.github.skeliit.service.UrgentReports.isUrgent(r.reason) ? " urgent" : "" %>">
+          <div class="note-item-text">
+            <strong><%= WebUtils.escapeHtml(r.sender) %> <small class="text-dim">napsal(a) · nahlásil(a) <%= WebUtils.escapeHtml(r.reporter) %></small></strong>
+            <span class="note-item-say">„<%= WebUtils.escapeHtml(r.body) %>“</span>
+            <small class="text-dim"><%= WebUtils.escapeHtml(t.getProperty("chat.report." + r.reason)) %><% if (r.note != null) { %>: „<%= WebUtils.escapeHtml(r.note) %>“<% } %> · <%= r.createdAt == null ? "" : new java.text.SimpleDateFormat("d. M. yyyy HH:mm").format(r.createdAt) %></small>
+          </div>
+          <form method="post" action="/admin/chat-report">
+            <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="id" value="<%= r.id %>"><input type="hidden" name="action" value="delete">
+            <button type="submit">Smazat zprávu</button>
+          </form>
+          <form method="post" action="/admin/chat-report">
+            <input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="id" value="<%= r.id %>"><input type="hidden" name="action" value="dismiss">
+            <button type="submit">Nechat být</button>
+          </form>
+        </article>
+      <% } %>
+      </div>
+    </section>
+    <% } %>
+    <%-- nahlášené profily: co se děje, náhled obrázků je v řádku uživatele níž --%>
+    <% if (!reports.isEmpty()) { %>
+    <section class="admin-card" id="reports">
+      <h3><i class="fa-solid fa-flag" aria-hidden="true"></i> Nahlášené profily (<%= reports.size() %>)</h3>
+      <div class="note-list">
+      <% for (UserReport r : reports) { %>
+        <article class="note-item">
+          <div class="note-item-text">
+            <strong><%= WebUtils.escapeHtml(r.username) %><% if (r.blocked) { %> · <span class="user-blocked">zablokovaný</span><% } %></strong>
+            <span class="note-item-say"><%= WebUtils.escapeHtml(r.getReasonText()) %><% if (r.note != null) { %>: „<%= WebUtils.escapeHtml(r.note) %>“<% } %></span>
+            <small class="text-dim"><%= r.createdAt == null ? "" : new java.text.SimpleDateFormat("d. M. yyyy HH:mm").format(r.createdAt) %></small>
+          </div>
+          <form method="post" action="/admin/users">
+            <input type="hidden" name="csrf" value="${csrf}">
+            <input type="hidden" name="action" value="resolve_report">
+            <input type="hidden" name="report_id" value="<%= r.id %>">
+            <button type="submit">Vyřízeno</button>
+          </form>
+        </article>
+      <% } %>
+      </div>
+    </section>
+    <% } %>
     <%-- find someone by name or e-mail; deleted (anonymised) accounts are hidden unless asked for --%>
     <div class="admin-toolbar">
       <label class="admin-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
@@ -30,7 +98,7 @@
             for (AdminUser u : users) {
           %>
           <tr class="role-<%= WebUtils.escapeHtml(u.role).toLowerCase() %>">
-            <td><%= WebUtils.escapeHtml(u.username) %></td>
+            <td><%= WebUtils.escapeHtml(u.username) %><% if (u.blocked) { %><br><span class="user-blocked" title="<%= WebUtils.escapeHtml(u.blockedReason) %>"><i class="fa-solid fa-ban" aria-hidden="true"></i> zablokovaný</span><% } %></td>
             <td><%= WebUtils.escapeHtml(WebUtils.maskEmail(u.email)) %></td>
             <td><%= u.createdAt == null ? "" : new java.text.SimpleDateFormat("d. M. yyyy HH:mm").format(u.createdAt) %></td>
             <%-- nevhodná fotka nebo záhlaví: náhled a odebrání (smaže soubor, zápis je v Záznamu změn) --%>
@@ -68,6 +136,26 @@
               </form>
             </td>
             <td class="act">
+              <% if ("DELETED".equals(u.role)) { %>
+              <% } else if (u.blocked) { %>
+              <form method="post" action="/admin/users">
+                <input type="hidden" name="csrf" value="${csrf}">
+                <input type="hidden" name="user_id" value="<%= u.id %>">
+                <input type="hidden" name="action" value="unblock">
+                <button type="submit">Odblokovat</button>
+              </form>
+              <% } else { %>
+              <details class="user-block">
+                <summary>Zablokovat</summary>
+                <form method="post" action="/admin/users">
+                  <input type="hidden" name="csrf" value="${csrf}">
+                  <input type="hidden" name="user_id" value="<%= u.id %>">
+                  <input type="hidden" name="action" value="block">
+                  <input name="reason" maxlength="200" placeholder="Důvod (uvidíš jen ty)" aria-label="Důvod zablokování">
+                  <button type="submit" class="btn-delete">Zablokovat</button>
+                </form>
+              </details>
+              <% } %>
               <form method="post" action="/admin/users" onsubmit="return confirm('Smazat uživatele?');">
                 <input type="hidden" name="csrf" value="${csrf}">
                 <input type="hidden" name="user_id" value="<%= u.id %>">

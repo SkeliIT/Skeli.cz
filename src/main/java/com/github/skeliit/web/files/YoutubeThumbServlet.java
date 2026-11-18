@@ -26,7 +26,8 @@ import java.util.regex.Pattern;
 @WebServlet(name = "YoutubeThumbServlet", urlPatterns = {"/yt-thumb/*"})
 public class YoutubeThumbServlet extends HttpServlet {
     private static final Pattern ID = Pattern.compile("[A-Za-z0-9_-]{6,20}");
-    private static final Set<String> NAMES = Set.of("default", "mqdefault", "hqdefault", "sddefault", "maxresdefault");
+    private static final Set<String> NAMES = Set.of("default", "mqdefault", "hqdefault", "sddefault", "maxresdefault",
+            "hq1", "hq2", "hq3", "maxres1", "maxres2", "maxres3");   // snímky z klipu (admin: obrázek v Diskografii)
     private static final long MAX_AGE_MS = 7L * 24 * 3600 * 1000;
     private static final HttpClient HTTP = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(4)).followRedirects(HttpClient.Redirect.NORMAL).build();

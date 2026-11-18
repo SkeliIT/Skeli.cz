@@ -24,13 +24,14 @@ body.light::after { opacity: 0.03; }
    The smoke from the background photo rolls slowly inside the gold (img/smoke-tex.webp:
    mirrored 2x2, so the tile repeats without a seam; it moves exactly one tile per loop).
    Every few seconds a soft glint sweeps across (::after, clipped by the sign's mask). */
-:root {
-  --gold-base: #ffd23f;
-  --gold-hi: rgba(255, 244, 190, 0.9);
+/* logo má barvu fotky v pozadí (--accent mění js/effects.js na body, proto se to počítá až na body, ne na :root) */
+body {
+  --gold-base: var(--accent);
+  --gold-hi: color-mix(in srgb, var(--accent-2) 45%, rgba(255, 244, 200, 0.9));
 }
 body.light {
-  --gold-base: #a37b00;
-  --gold-hi: rgba(226, 182, 52, 0.9);
+  --gold-base: var(--accent);
+  --gold-hi: color-mix(in srgb, var(--accent) 60%, rgba(255, 255, 255, 0.9));
 }
 .hero-title .logo-mark,
 .masthead-brand .squad-mark,
@@ -69,7 +70,7 @@ body.light {
    signs and the tape are plain polished gold, light from above (the user's pick); the glint stays */
 body.light .hero-title .logo-mark,
 body.light .masthead-brand .squad-mark {
-  background: linear-gradient(180deg, #e6b730 0%, #c99a12 38%, #8f6600 70%, #b8860b 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 70%, #fff) 0%, var(--accent) 38%, color-mix(in srgb, var(--accent) 70%, #000) 70%, var(--accent) 100%);
   animation: none;
 }
 body.light .tape-gold {
@@ -205,8 +206,9 @@ body.light .hero-quote.is-burnt .qc { animation: none; }
   width: var(--s);
   height: var(--s);
   border-radius: 50%;
-  background: radial-gradient(circle, #ffd27a, #ff6a2b 55%, transparent 70%);
-  box-shadow: 0 0 8px 2px rgba(255, 110, 40, 0.5);
+  /* jiskry mají barvu fotky v pozadí (--accent mění js/effects.js) */
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 45%, #fff), var(--accent) 55%, transparent 70%);
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--accent) 50%, transparent);
   opacity: 0;
   animation: ember var(--t) linear var(--delay) infinite;
 }
@@ -216,7 +218,9 @@ body.light .hero-quote.is-burnt .qc { animation: none; }
   80% { opacity: .45; }
   100% { transform: translate(var(--dx), -80vh); opacity: 0; }
 }
-body.light .hero-particles span { top: -10px; bottom: auto; background: #fff; box-shadow: 0 0 6px rgba(255, 255, 255, 0.9); animation-name: snow; }
+/* sníh: bílý u sněhové fotky, u ostatních v barvě fotky (--flake), jemný stín, aby byl vidět i na světlém */
+body.light .hero-particles span { top: -10px; bottom: auto; width: calc(var(--s) * .6); height: calc(var(--s) * .6); background: var(--flake, #fff);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--flake, #fff) 80%, transparent), 0 1px 3px rgba(40, 60, 90, .35); animation-name: snow; transition: background 4s ease-in-out; }
 @keyframes snow {
   0% { transform: translate(0, 0); opacity: 0; }
   10% { opacity: .95; }
@@ -315,7 +319,7 @@ body.light:has(main.texty-page) { background-color: #e9ecef; }
   inset: 0;
   opacity: 0;
   background: var(--bg-overlay), var(--slide) var(--pos, center) / cover no-repeat;
-  transition: opacity 2.6s ease;
+  transition: opacity 4s ease-in-out;   /* stejně dlouho jako přelití barvy webu (base.css) */
 }
 .bg-slides > div.on { opacity: 1; }
 /* a new page starts on the photo the last one showed, without fading in again */
@@ -384,7 +388,8 @@ body.light .photo-band::before {
 .gallery-item.tall { grid-row: span 2; }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05); transform: scale(1.01); transition: filter .6s ease, transform .9s cubic-bezier(.2, .7, .2, 1); }
 .gallery-item:hover img, .gallery-item:focus-visible img { filter: none; transform: scale(1.06); }
-@media (hover: none) { .gallery-item img { filter: none; } }
+/* dotyk: barevná je fotka uprostřed obrazovky (js/effects.js galleryColor), ostatní černobílé jako na PC */
+@media (hover: none) { .gallery-item.in-view img { filter: none; transform: scale(1.06); } }
 @media (max-width: 760px) {
   .gallery-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; }
   .photo-band { min-height: 360px; }
@@ -524,6 +529,7 @@ body.light .photo-band::before {
 @media (max-width: 1024px) {
   .header-inner > .kevin-paw.in-header {
     width: 40px; height: 40px; margin-left: auto;
+    flex-shrink: 0; min-width: 40px;   /* hlavička je pružný řádek a tlapku vedle loga a Menu smačkla na 12–18 px */
     border-color: var(--panel-border); background: var(--panel); bottom: auto;
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
@@ -1108,9 +1114,6 @@ button.is-sending { cursor: progress; opacity: 0.85; }
 @media (max-width: 1024px) {
   /* the open menu sheet lives in the header: lift it above the cookie bar and the player */
   .site-header:has(.main-nav.open) { z-index: 10001; }
-  /* the minimised Spotify button is only a round icon here, so it covers less */
-  .sp-minbar { width: 48px; height: 48px; padding: 0 !important; gap: 0; justify-content: center; font-size: 0 !important; border-radius: 50% !important; }
-  .sp-minbar i.fa-spotify { font-size: 1.35rem; margin: 0; }
 }
 
 @media (max-width: 600px) {
@@ -1403,3 +1406,517 @@ body.light .kevin-bubble:has(.kevin-extra:not([hidden])) { --glass: rgba(255, 25
 /* bublina nad ním, ne vedle (ta vedle by v levém rohu skončila za okrajem obrazovky) */
 .kevin.over-lightbox .kevin-bubble { left: 10px; right: auto; top: auto; bottom: calc(100% - 6px); max-width: min(320px, calc(100vw - 40px)); border-radius: 18px 18px 18px 6px; }
 .kevin.over-lightbox .kevin-bubble::after { left: 22px; right: auto; top: auto; bottom: -7px; transform: rotate(45deg); }
+
+/* ---------- Lehký režim pro slabé telefony (html.low-fx, rozhoduje hlavička stránky a watchSmooth v js/effects.js) ----------
+   Vzhled zůstává, pryč je jen to, co telefon překresluje pořád dokola: rozmazané sklo, zrno přes stránku,
+   dýchající a střídané pozadí, jiskry a nekonečné animace nápisů. Jezdící páska zůstává, ta je levná. */
+html.low-fx *, html.low-fx *::before, html.low-fx *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+html.low-fx body { --panel: rgba(18, 18, 21, .92); }
+html.low-fx body.light { --panel: rgba(255, 255, 255, .93); }
+html.low-fx body::after, html.low-fx .hero-particles, html.low-fx .lyric-ambient { display: none !important; }
+/* fotky pozadí se střídají i tady (nesou barvu webu), jen nedýchají */
+html.low-fx .bg-slides { animation: none !important; will-change: auto; }
+html.low-fx body::before, html.low-fx .auth-art::before,
+html.low-fx .hero-title .logo-mark, html.low-fx .hero-title .logo-mark::after,
+html.low-fx .masthead-brand .squad-mark, html.low-fx .masthead-brand .squad-mark::after,
+html.low-fx .tape-gold, html.low-fx .tape-gold::after,
+html.low-fx .hero-quote.is-burnt .qc, html.low-fx .eq i, html.low-fx .page-hero-title, html.low-fx .lyric-page .lyric-title,
+
+/* =====================================================================
+   ÚVOD „ULICE“ (2026-11): jméno sprejem vlevo, citát laserem, tlačítka; pod hlavičkou tmavá stránka,
+   do které se fotka ztrácí kouřem (js/smoke.js). Barvy = barva fotky v pozadí (--accent, js/effects.js).
+   ===================================================================== */
+.home-page.ulice .hero {
+  align-items: flex-start; justify-content: flex-end; text-align: left;
+  min-height: min(calc(100svh - var(--header-h) - var(--masthead-h)), 780px);
+  padding: 30px 0 clamp(120px, 14vw, 190px);
+}
+/* tmavý závoj zleva, aby text byl čitelný na každé fotce */
+.home-page.ulice .hero::before {
+  content: ""; position: absolute; top: -400px; bottom: 0; left: calc(50% - 50vw); width: 100vw; z-index: -1; pointer-events: none;   /* až k hornímu okraji stránky (lišta a nápis nad hlavičkou) */
+  background: linear-gradient(90deg, rgba(9, 9, 11, .88) 0%, rgba(9, 9, 11, .5) 42%, rgba(9, 9, 11, 0) 70%);
+}
+body.light .home-page.ulice .hero::before { background: linear-gradient(90deg, rgba(244, 242, 238, .92) 0%, rgba(244, 242, 238, .55) 45%, rgba(244, 242, 238, 0) 72%); }
+.uh-in { position: relative; z-index: 2; max-width: 640px; }
+.uh-crown { display: inline-block; color: var(--accent); font-size: 2rem; transform: rotate(-12deg); filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 60%, transparent)); }
+.uh-name { margin: 2px 0 10px; line-height: .8; }
+.uh-sign {
+  display: inline-block; padding: 0 .12em .06em 0; transform: rotate(-4deg); transform-origin: left bottom;
+  font-family: 'Permanent Marker', var(--font-display); font-weight: 400; font-size: clamp(4.4rem, 11vw, 8.4rem);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 30%, #fff) 5%, var(--accent) 48%, var(--accent-2));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 24px color-mix(in srgb, var(--accent) 50%, transparent));
+}
+body.light .uh-sign { background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 65%, #000) 5%, var(--accent) 50%, var(--accent-2)); filter: drop-shadow(0 6px 16px rgba(0, 0, 0, .18)); }
+.uh-roles { margin: 0 0 20px; font-size: var(--fs-small); letter-spacing: .3em; text-transform: uppercase; color: var(--text); opacity: .85; }
+/* citát vlevo; vypálená písmena doutnají v barvě fotky */
+.home-page.ulice .hero-quote {
+  align-items: flex-start; text-align: left; margin: 0 0 22px; max-width: 640px;
+  --burn: color-mix(in srgb, var(--accent) 55%, #ffe2b8);
+  --burn-glow: 0 0 5px color-mix(in srgb, var(--accent) 75%, transparent), 0 0 16px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 34px color-mix(in srgb, var(--accent) 20%, transparent);
+  --hot: 0 0 3px #fff, 0 0 9px #ffe08a, 0 0 20px var(--accent);
+}
+body.light .home-page.ulice .hero-quote { --burn: color-mix(in srgb, var(--accent) 55%, #1d0f05); --burn-glow: 0 0 1px rgba(0, 0, 0, .25); }
+.home-page.ulice .hero-quote-text { font-size: clamp(1.9rem, 3.3vw, 2.7rem); transform: rotate(-2deg); transform-origin: left center; }
+.home-page.ulice .hero-quote-song { font-size: clamp(1.15rem, 2vw, 1.55rem); transform: rotate(-1deg); transform-origin: left center; color: var(--accent); }
+.home-page.ulice .hero-latest { margin: 0 0 20px; }
+.home-page.ulice .hero-actions { justify-content: flex-start; margin-top: 0; }
+/* na velké obrazovce fotku posuneme doprava, aby postava nebyla pod textem (levý okraj zakrývá závoj) */
+@media (min-width: 1025px) {
+  /* posun podle toho, kde na fotce postava stojí (lebka a pole ji mají vpravo už samy) */
+  body:has(main.home-page.ulice)::before { translate: 14vw 0; }
+  body:has(main.home-page.ulice) .bg-slides > div { transition: opacity 4s ease-in-out, translate .9s ease; }
+  body:has(main.home-page.ulice) .bg-slides > div[data-name="mic"], body:has(main.home-page.ulice) .bg-slides > div[data-name="square"],
+  body:has(main.home-page.ulice) .bg-slides > div[data-name="point"] { translate: 12vw 0; }
+  body:has(main.home-page.ulice) .bg-slides > div[data-name="walker"] { translate: 9vw 0; }
+  body::before { transition: translate .9s ease; }
+}
+
+/* KOUŘ na předělu (js/smoke.js). Bez WebGL / na slabém telefonu jen klidný přechod do barvy stránky. */
+.smoke-edge { position: absolute; left: calc(50% - 50vw); width: 100vw; height: calc(max(22vw, 180px) * 1.6); z-index: 1; pointer-events: none; }
+.smoke-edge.b { bottom: calc(-1 * max(6vw, 50px)); }
+.smoke-edge.t { top: calc(-1 * max(6vw, 50px)); transform: scaleY(-1); }
+.smoke-edge canvas { display: block; width: 100%; height: 100%; }
+.smoke-edge:not(.live) canvas { display: none; }
+.smoke-edge:not(.live)::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 35%, var(--bg) 72%); }
+
+/* všechno pod hlavičkou na plné barvě stránky (přes celou šířku), nad kouřem */
+.home-page.ulice .home-below { position: relative; z-index: 2; background: var(--bg); box-shadow: 0 0 0 100vmax var(--bg); clip-path: inset(0 -100vmax); }
+
+/* pás s názvy písní */
+.home-page.ulice .ticker { width: 100vw; margin: 0 calc(50% - 50vw) 34px; overflow: hidden; border-block: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); background: color-mix(in srgb, var(--accent) 4%, rgba(0, 0, 0, .35)); }
+body.light .home-page.ulice .ticker { background: color-mix(in srgb, var(--accent) 5%, rgba(255, 255, 255, .6)); }
+.home-page.ulice .ticker .marquee-track { gap: 36px; padding: 12px 0; animation-duration: 70s; }
+.home-page.ulice .ticker a { color: var(--text); font-size: var(--fs-small); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; text-decoration: none; }
+.home-page.ulice .ticker a i { color: var(--accent); margin-right: 6px; }
+.home-page.ulice .ticker a:hover { color: var(--accent); }
+
+
+/* pás s fotkou: nahoře i dole se ztrácí kouřem */
+.home-page.ulice .photo-band { margin-top: 60px; }
+.home-page.ulice .photo-band .smoke-edge { height: 190px; }
+.home-page.ulice .photo-band .smoke-edge.t { top: 0; }
+.home-page.ulice .photo-band .smoke-edge.b { bottom: 0; }
+.home-page.ulice .photo-band-text { position: relative; z-index: 2; }
+
+/* telefon: text dole přes fotku, závoj odspodu */
+@media (max-width: 760px) {
+  .home-page.ulice .hero { min-height: min(calc(100svh - var(--header-h)), 720px); padding-bottom: 110px; }
+  .home-page.ulice .hero::before { background: linear-gradient(0deg, rgba(9, 9, 11, .95) 25%, rgba(9, 9, 11, .35) 60%, rgba(9, 9, 11, .1)); }
+  body.light .home-page.ulice .hero::before { background: linear-gradient(0deg, rgba(244, 242, 238, .96) 28%, rgba(244, 242, 238, .4) 62%, rgba(244, 242, 238, .1)); }
+}
+
+/* ---- Ulice, 2. kolo: podle ukázky ---- */
+/* videa: stejné sklo s nádechem barvy fotky jako karty */
+.video { background: color-mix(in srgb, var(--accent) 5%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 24%, var(--panel-border)); }
+.video:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--accent) 55%, transparent); }
+.card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--panel-border)); }
+/* fotka v hlavičce úvodu jasnější (pod hlavičkou je stejně plná barva stránky) */
+body:has(main.home-page.ulice) { --bg-overlay: linear-gradient(180deg, rgba(9, 9, 11, 0.12) 0%, rgba(9, 9, 11, 0.35) 55%, rgba(9, 9, 11, 0.7) 100%); }
+body.light:has(main.home-page.ulice) { --bg-overlay: linear-gradient(180deg, rgba(244, 242, 238, 0.1) 0%, rgba(244, 242, 238, 0.35) 55%, rgba(244, 242, 238, 0.7) 100%); }
+/* Novinky: velké video a pod ním 3 menší v řadě */
+.home-page.ulice .videos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.home-page.ulice .videos .video:not(.video-featured) .meta { padding: 10px 12px 12px; }
+.home-page.ulice .videos .video:not(.video-featured) .video-title { font-size: var(--fs-card); }
+@media (max-width: 760px) {
+  .home-page.ulice .videos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home-page.ulice .videos .video:nth-child(4) { display: none; }
+}
+/* CatSmash: text a tlačítko vlevo, Kevin vpravo */
+.ulice-game { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 10px; align-items: end; }
+.ulice-game .game-card-play { margin-top: 4px; }
+.ulice-kevin { display: block; width: 96px; height: auto; filter: drop-shadow(0 8px 16px rgba(0, 0, 0, .55)); }
+/* patička: nápis v barvě fotky */
+.footer-brand .brand { color: var(--accent); }
+/* O mně: hodnocení webu dole */
+.about-feedback { display: grid; gap: 16px; max-width: 760px; margin: 30px auto 0; }
+/* světlušky / sníh přes celou obrazovku (js/effects.js, fireflies): zadní vrstva za obsahem, přední (pár kusů) přes něj */
+.ff-layer { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
+.ff-layer.ff-front { z-index: 5; }
+/* plátno světlušek pod hlavičkou úvodu: lepí se k obrazovce, leží za kartami (přes celou šířku) */
+.ff-local { position: sticky; top: 0; display: block; width: 100vw; height: 100vh; margin: 0 calc(50% - 50vw) -100vh; pointer-events: none; }
+/* pás s fotkou na úvodu: noční ulice s maskou (tmavý) / silueta na poli (světlý), citát z písně štětcem */
+.home-page.ulice .photo-band { --band: url('/img/photos/walker-lg.webp'); }
+body.light .home-page.ulice .photo-band { --band: url('/img/photos/field-wide.webp'); }
+.home-page.ulice .photo-band-img { filter: none; background-position: 60% 14%; }   /* celý obličej s maskou */
+.photo-band blockquote.band-lyric { font-family: var(--font-brush); font-size: clamp(1.9rem, 3.4vw, 2.6rem); line-height: 1.05; color: var(--text); text-shadow: 0 2px 14px rgba(0, 0, 0, .55); }
+body.light .band-lyric { text-shadow: 0 1px 10px rgba(255, 255, 255, .8); }
+.home-page.ulice .photo-band-sign a { color: var(--accent); text-decoration: none; }
+
+/* ---- Ulice na podstránkách (pageHero.tag) ---- */
+/* nadpis v barvě fotky (dřív zlatý), lesk zůstává */
+.page-hero-title {
+  background: linear-gradient(100deg, transparent 40%, rgba(255, 250, 230, 0.7) 50%, transparent 60%) -200% 0 / 200% 100% no-repeat,
+              linear-gradient(180deg, color-mix(in srgb, var(--accent) 30%, #fff) 0%, var(--accent) 45%, var(--accent-2) 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+body.light .page-hero-title {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 65%, #000) 0%, var(--accent) 45%, var(--accent-2) 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+/* pás s kouřem dole: fotka se ztrácí do plné barvy stránky */
+.page-hero.with-smoke { position: relative; padding-bottom: clamp(100px, 11vw, 150px); margin-bottom: 0; }
+.page-hero.with-smoke .page-hero-inner { position: relative; z-index: 2; }
+.page-hero.with-smoke .smoke-edge.b { bottom: 0; }
+/* plná barva stránky pod úvodním pásem, přes celou šířku (hranici nastavuje js/effects.js: --floor-top) */
+/* plná barva pod úvodním pásem přes celou šířku až dolů (dřív border-image – na krátkých stránkách se nevykreslil) */
+/* overflow-y: clip = světlušky pod úvodním pásem (.ff-local, výška celé obrazovky) nepřečuhují přes konec krátké stránky –
+   dřív na Podpoř zůstalo pod patičkou ~200 px prázdného místa. Do stran se nic neořízne (podlaha jde přes celou šířku). */
+main.has-floor { position: relative; overflow-x: visible; overflow-y: clip; }
+main.has-floor::before { content: ""; position: absolute; z-index: -1; top: var(--floor-top, 0px); bottom: 0; left: calc(50% - 50vw); width: 100vw; background: var(--bg); pointer-events: none; }
+main.has-floor > .page-hero.with-smoke + * { margin-top: 24px; }
+/* nadpis písně v barvě písně (js/effects.js songPaint), dřív zlatý */
+.lyric-page .lyric-title {
+  background: linear-gradient(100deg, transparent 40%, rgba(255, 250, 230, 0.7) 50%, transparent 60%) -200% 0 / 200% 100% no-repeat,
+              linear-gradient(180deg, color-mix(in srgb, var(--accent) 30%, #fff) 0%, var(--accent) 45%, var(--accent-2) 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+body.light .lyric-page .lyric-title {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 65%, #000) 0%, var(--accent) 45%, var(--accent-2) 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+/* pod pásem s fotkou až k patičce plná barva (dřív tam ve spodním odsazení prosvítala fotka pozadí) */
+main.home-page.ulice { padding-bottom: 0; }
+.home-page.ulice .home-below { padding-bottom: 70px; }
+body:has(main.home-page.ulice) .site-footer, body:has(main.has-floor) .site-footer { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+/* logo: čistá výplň v barvě fotky bez zlatého kouře (kouř byl dělaný pro zlatou, s jinými barvami dělal bláto); třpyt zůstává */
+.hero-title .logo-mark,
+.masthead-brand .squad-mark {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 35%, #fff) 0%, var(--accent) 48%, var(--accent-2) 100%);
+  animation: none;
+}
+body.light .hero-title .logo-mark,
+body.light .masthead-brand .squad-mark {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 70%, #fff) 0%, var(--accent) 45%, color-mix(in srgb, var(--accent) 70%, #000) 100%);
+}
+/* O mně: jméno sprejem s korunkou jako na úvodu (barva fotky); h2 bez zlaté čárky pod sebou */
+.about-header h2.about-name { display: flex; flex-direction: column; align-items: center; gap: 0; line-height: .9; }
+.about-header h2.about-name::after { display: none; }
+.about-name .uh-sign { font-size: clamp(3.6rem, 10vw, 6.6rem); transform: rotate(-3deg); transform-origin: center; }
+.about-squad-title { color: var(--accent); }
+
+/* ---- Profil (můj i cizí) – první krok ke „Časové ose“: obří jméno v barvě fotky, fotka v barevném kruhu ---- */
+.pt-hero .acct-name {
+  font-size: clamp(2rem, 6vw, 4rem); line-height: .95; letter-spacing: .02em; text-shadow: none;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 20%, #fff) 10%, var(--accent) 60%, var(--accent-2));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 40%, transparent)) drop-shadow(0 2px 8px rgba(0, 0, 0, .6));
+}
+body.light .pt-hero .acct-name { background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 65%, #000) 10%, var(--accent) 60%, var(--accent-2)); filter: drop-shadow(0 1px 6px rgba(255, 255, 255, .8)); }
+.pt-hero .acct-name .acct-badge { -webkit-text-fill-color: currentColor; color: var(--text); background-clip: border-box; filter: none; font-size: var(--fs-small); letter-spacing: .06em; }
+.pt-hero .acct-name .acct-badge.artist { color: var(--accent-ink); background: var(--accent); }
+@media (max-width: 760px) { .pt-hero .acct-name { font-size: clamp(1.8rem, 9vw, 2.6rem); } }
+/* fotka v kruhu barvy fotky (rámeček z odznaků má přednost) */
+.pt-hero .acct-photo:not(.av-frame) { box-shadow: 0 0 0 3px var(--accent), 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent), 0 0 30px color-mix(in srgb, var(--accent) 55%, transparent); }
+.pt-hero .acct-photo:not(.av-frame) .acct-avatar { border-radius: 50%; border: 0; }   /* kroužek dělá jen stín obalu – s okrajem obrázku byly vidět dva */
+/* moto v barvě fotky (dřív zlaté) */
+.acct-motto { color: var(--accent); }
+body.light .acct-motto { color: var(--accent); }
+/* kouř na podstránkách přes celou šířku: stránku do stran ořízne až html (Hudba měla ořez na <main>, ten useknul kouř) */
+html { overflow-x: clip; }
+.music-page.has-floor { overflow-x: visible; }
+/* na podstránkách nižší kouř a víc místa pod textem, ať neleze přes nadpis */
+.page-hero.with-smoke { padding-bottom: clamp(110px, 10vw, 140px); }
+.page-hero.with-smoke .smoke-edge { height: 210px; }
+/* posunutá fotka (jen úvod na PC) se do levé strany plynule ztrácí – po posunu tam nesmí zůstat hrana ani pruh */
+@media (min-width: 1025px) {
+  body:has(main.home-page.ulice)::before,
+  body:has(main.home-page.ulice) .bg-slides > div[data-name="mic"], body:has(main.home-page.ulice) .bg-slides > div[data-name="square"],
+  body:has(main.home-page.ulice) .bg-slides > div[data-name="point"], body:has(main.home-page.ulice) .bg-slides > div[data-name="walker"] {
+    --fl: max(24vw, var(--fx, 0px));
+    -webkit-mask-image: var(--fit-x), var(--fit-y); mask-image: var(--fit-x), var(--fit-y); -webkit-mask-composite: source-in; mask-composite: intersect;
+  }
+}
+/* nová stránka navazuje na fotku té předchozí hned (bez prolínání) – i na úvodu, kde mají vrstvy vlastní přechod */
+body:has(main.home-page.ulice) .bg-slides > div.instant { transition: none; }
+/* světlý pás: silueta na poli celá od hlavy (fotka posunutá dolů) */
+body.light .home-page.ulice .photo-band-img { background-position: 50% 4%; }
+/* pás s fotkou vyšší, kouř jen na okrajích – hlava ani nohy pod kouřem nemizí */
+.home-page.ulice .photo-band { min-height: 600px; }
+.home-page.ulice .photo-band .smoke-edge { height: 150px; }
+@media (max-width: 760px) { .home-page.ulice .photo-band { min-height: 480px; } }
+/* horní okraj fotky = horní okraj pásu (vrstva fotky je kvůli posunu při scrollu o 60 px vyšší) – hlava i maska celá */
+.home-page.ulice .photo-band-img { background-position: 60% 60px; }
+body.light .home-page.ulice .photo-band-img { background-position: 50% 110px; }
+
+/* =====================================================================
+   HUDBA: kolotoč videí „Hologram“ (EllipticPlayerServlet): HUD rám, skenovací linky, glitch při přepnutí,
+   skleněné miniatury ve 3D se zrcadlením na svítící mřížce, natáčení za myší
+   ===================================================================== */
+.ep-frame-wrap { clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px); border-radius: 4px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), 0 30px 80px -30px color-mix(in srgb, var(--accent) 50%, transparent); }
+.ep-hud { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.ep-hud::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px); }
+.ep-hud::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--accent) 18%, transparent) 50%, transparent) 0 -100% / 100% 40% no-repeat; animation: ep-scan 5s linear infinite; }
+@keyframes ep-scan { to { background-position: 0 250%; } }
+.ep-hud i { position: absolute; width: 30px; height: 30px; border: 2px solid var(--accent); filter: drop-shadow(0 0 6px var(--accent)); }
+.ep-hud i:nth-child(1) { left: 8px; top: 8px; border-right: 0; border-bottom: 0; } .ep-hud i:nth-child(2) { right: 8px; top: 8px; border-left: 0; border-bottom: 0; }
+.ep-hud i:nth-child(3) { left: 8px; bottom: 8px; border-right: 0; border-top: 0; } .ep-hud i:nth-child(4) { right: 8px; bottom: 8px; border-left: 0; border-top: 0; }
+.ep-tc { position: absolute; top: 16px; left: 46px; max-width: 45%; font-size: var(--fs-small); letter-spacing: .14em; color: var(--accent); text-shadow: 0 0 8px var(--accent), 0 1px 3px #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ep-tc-r { left: auto; right: 46px; text-align: right; }
+.ep-tc-r::before { content: "● "; color: #ff3b30; animation: ep-blink 1.2s infinite; }
+@keyframes ep-blink { 50% { opacity: .2; } }
+.ep-frame-wrap.glitch iframe, .ep-frame-wrap.glitch .ep-poster { animation: ep-glitch .45s steps(6) 1; }
+@keyframes ep-glitch { 0% { clip-path: inset(10% 0 60% 0); transform: translateX(-12px); filter: hue-rotate(60deg) saturate(3); } 30% { clip-path: inset(50% 0 20% 0); transform: translateX(10px); }
+  60% { clip-path: inset(30% 0 40% 0); transform: translateX(-6px); filter: hue-rotate(-40deg); } 100% { clip-path: inset(0); transform: none; filter: none; } }
+/* kolotoč */
+.ep-carousel.ep-holo { max-width: 1000px; padding: 10px 70px 30px; background: none; border: 0; perspective: 900px; }
+.ep-holo .ep-viewport { height: 230px; padding-top: 0; overflow: visible; transform-style: preserve-3d; transition: transform .25s ease-out; transform: rotateX(var(--cx, 8deg)) rotateY(var(--cy, 0deg)); touch-action: pan-y; }
+.ep-holo .ep-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; transform: perspective(600px) rotateX(70deg); transform-origin: bottom; pointer-events: none;
+  background: linear-gradient(color-mix(in srgb, var(--accent) 30%, transparent) 1px, transparent 1px) 0 0 / 40px 40px, linear-gradient(90deg, color-mix(in srgb, var(--accent) 30%, transparent) 1px, transparent 1px) 0 0 / 40px 40px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 15%, transparent 70%); mask-image: radial-gradient(ellipse at center, #000 15%, transparent 70%); animation: ep-grid 4s linear infinite; }
+@keyframes ep-grid { to { background-position: 0 40px, 0 0; } }
+.ep-holo .ep-item { left: 50%; top: 18px; width: 240px; margin-left: -120px; transform: none; opacity: 1; border: 0; border-radius: 4px; overflow: visible; box-shadow: none; background: none; cursor: pointer;
+  transition: transform .6s cubic-bezier(.2, .8, .2, 1), opacity .6s, filter .6s; }
+.ep-holo .ep-item img { aspect-ratio: 16 / 9; height: auto; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  -webkit-box-reflect: below 6px linear-gradient(transparent 55%, rgba(0, 0, 0, .35)); }
+.ep-holo .ep-item:not(.is-active) img { filter: saturate(.4); opacity: .75; }
+.ep-holo .ep-item.is-active { filter: drop-shadow(0 0 16px var(--accent)) !important; }
+.ep-holo .ep-item.is-active img { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ep-holo .ep-title { position: static; margin-top: 30px; padding: 0; background: none; text-align: center; font-size: var(--fs-small); letter-spacing: .08em; color: var(--accent); opacity: 0; transition: opacity .4s; }
+.ep-holo .ep-item.is-active .ep-title { opacity: 1; }
+.ep-holo .ep-item.is-hidden, .ep-holo .ep-item.is-prev2, .ep-holo .ep-item.is-next2 { display: block; -webkit-mask-image: none; mask-image: none; }
+.ep-holo .ep-arrow { width: 44px; height: 44px; background: color-mix(in srgb, var(--accent) 8%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 30%, var(--panel-border)); }
+.ep-holo .ep-arrow:hover { background: var(--accent); color: var(--accent-ink); }
+.ep-holo #ep-prev { left: 10px; } .ep-holo #ep-next { right: 10px; }
+@media (max-width: 600px) {
+  .ep-carousel.ep-holo { padding: 6px 0 24px; }
+  .ep-holo .ep-viewport { height: 170px; }
+  .ep-holo .ep-item, .ep-holo .ep-item.is-active { width: 170px !important; margin-left: -85px; }
+  .ep-holo .ep-arrow { top: auto; bottom: -20px; transform: none; }
+  .ep-holo #ep-prev { left: calc(50% - 60px); } .ep-holo #ep-next { right: calc(50% - 60px); }
+  .ep-tc { left: 40px; font-size: var(--fs-small); } .ep-tc-r { display: none; }
+}
+/* když na Hudbě hraje/je vybrané video, fotky pozadí se ztlumí (barvu stránky bere z videa js/effects.js) */
+body.clip-on .bg-slides, body.clip-on::before { filter: brightness(.45) saturate(.6); transition: filter 1.2s ease; }
+html.low-fx .ep-hud::after, html.low-fx .ep-holo .ep-floor { animation: none; }
+@media (prefers-reduced-motion: reduce) { .ep-hud::after, .ep-holo .ep-floor, .ep-frame-wrap.glitch iframe { animation: none; } }
+/* HUD nápisy nad videem */
+.ep-hud-bar { position: relative; z-index: 2; display: flex; justify-content: space-between; gap: 16px; max-width: 880px; margin: 0 auto 8px; padding: 0 6px; }
+.ep-hud-bar .ep-tc { position: static; max-width: 60%; }
+.ep-carousel.ep-holo { margin-top: -30px; }
+@media (max-width: 600px) { .ep-hud-bar .ep-tc-r { display: block; font-size: var(--fs-small); } .ep-carousel.ep-holo { margin-top: 0; } }
+
+/* =====================================================================
+   HUDBA: Diskografie jako otočné karty – vpředu náhled, po najetí (telefon: ťuknutí) se otočí,
+   vzadu řádek z textu, verze videa a odkazy k poslechu. Jen v Diskografii (profil má stejné třídy bez otáčení).
+   ===================================================================== */
+.discography .song-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+.discography .flip-card { position: relative; aspect-ratio: 3 / 4; padding: 0; background: none; border: 0; box-shadow: none; perspective: 1000px; outline: none; overflow: visible; }
+.discography .flip-card:hover { transform: none; }
+.flip-in { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.2, .8, .2, 1); }
+.flip-card:hover .flip-in, .flip-card:focus-within .flip-in, .flip-card.open .flip-in { transform: rotateY(180deg); }
+/* otočená karta: přední strana už nesmí brát kliknutí (její popisek má vlastní vrstvu a na telefonu zakrýval ▶ Přehrát) */
+.flip-card:hover .flip-front, .flip-card:focus-within .flip-front, .flip-card.open .flip-front { pointer-events: none; }
+.flip-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: var(--radius); overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--panel-border)); }
+.flip-front .song-thumb { position: absolute; inset: 0; display: block; aspect-ratio: auto; border-radius: 0; }
+.flip-front .song-thumb > img, .flip-front .thumb-split { width: 100%; height: 100%; object-fit: cover; transform: scale(1.35); }
+/* obrázek upravený v adminu: bez pevného zvětšení 1,35, aby karta vypadala přesně jako náhled v adminu */
+.flip-front .song-thumb > img.placed { transform: none; }
+.flip-front::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0, 0, 0, .9) 0%, rgba(0, 0, 0, .25) 45%, transparent 70%); pointer-events: none; }
+.flip-front .song-info { position: absolute; z-index: 2; left: 14px; right: 14px; bottom: 12px; padding: 0; color: #fff; }
+.flip-front .song-name { color: #fff; }
+.flip-front .song-year { color: color-mix(in srgb, var(--accent) 60%, #fff); }
+.flip-hint { position: absolute; z-index: 2; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: rgba(0, 0, 0, .45); color: #fff; font-size: .75rem; backdrop-filter: blur(6px); }
+.flip-back { transform: rotateY(180deg); display: flex; flex-direction: column; gap: 6px; padding: 16px;
+  background: radial-gradient(circle at 30% 15%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 60%), color-mix(in srgb, var(--accent) 6%, var(--panel-strong)); }
+.flip-name { font-size: var(--fs-h4); font-weight: 400; overflow-wrap: anywhere; }
+.flip-back .song-year { font-size: var(--fs-small); color: var(--text-dim); }
+.flip-quote { margin: 6px 0 0; font-family: var(--font-brush); font-size: 1.5rem; line-height: 1.05; color: var(--accent); }
+.flip-back .disco-versions { font-size: var(--fs-small); }
+.flip-back .disco-dock { margin-top: auto; }
+.flip-open { display: flex; justify-content: center; gap: 8px; align-items: center; padding: 9px 12px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: var(--fs-card); text-decoration: none; }
+.flip-open:hover { text-decoration: none; filter: brightness(1.1); }
+/* ▶ Přehrát (video hraje v přehrávači nahoře); vedle něj odkaz na text jako obrys */
+.flip-play { display: flex; justify-content: center; gap: 8px; align-items: center; width: 100%; padding: 9px 12px; border: 0; border-radius: 999px;
+  background: var(--accent); color: var(--accent-ink); font: inherit; font-size: var(--fs-card); cursor: pointer; }
+.flip-play:hover { filter: brightness(1.1); }
+.flip-play:focus-visible, .flip-open:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+/* tlačítko dole nad lištou ikon (lišta pod ním, ne odsunutá na kraj) */
+.flip-back .flip-play, .flip-back .flip-open { margin-top: auto; }
+.flip-back .flip-play + .disco-dock, .flip-back .flip-open + .disco-dock { margin-top: 0; }
+.flip-back .song-year { align-self: flex-start; }
+@media (max-width: 560px) {
+  /* telefon: zadní strana je malá – rok je vpředu, citát nejvýš 2 řádky, ať se tlačítko vejde */
+  .flip-back .song-year { display: none; }
+  .flip-back .flip-quote { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .flip-back .flip-play, .flip-back .flip-open { padding: 8px 10px; }
+}
+/* na PC je celá karta „tlačítko“: klik pustí video (js/effects.js) */
+@media (hover: hover) { .discography .flip-card { cursor: pointer; } }
+.flip-card:hover .flip-face { box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--accent) 60%, transparent); }
+@media (max-width: 560px) {
+  .discography .song-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .flip-back { padding: 12px; } .flip-quote { font-size: 1.15rem; } .flip-name { font-size: var(--fs-card); }
+}
+@media (prefers-reduced-motion: reduce) { .flip-in { transition: none; } }
+.flip-hint { font-size: 1rem; line-height: 1; }
+.flip-front .song-info { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.flip-front .song-note-mini { top: 10px; bottom: auto; left: 10px; right: 46px; max-width: none; }
+
+/* =====================================================================
+   AKTUALITY: časová osa – svítící čára v barvě fotky uprostřed, příspěvky střídavě vlevo a vpravo
+   s datem u čáry; na telefonu čára vlevo a příspěvky pod sebou
+   ===================================================================== */
+.news-timeline { position: relative; display: block; max-width: 980px; margin: 0 auto; }
+.news-timeline::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; translate: -1px 0;
+  background: linear-gradient(transparent, var(--accent) 4%, var(--accent-2) 80%, transparent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent); }
+.news-timeline .tl-item { position: relative; width: 50%; padding: 0 36px 30px 0; }
+.news-timeline .tl-item:nth-child(even) { margin-left: 50%; padding: 0 0 30px 36px; }
+.news-timeline .tl-item::after { content: ""; position: absolute; top: 4px; right: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg);
+  border: 2px solid var(--accent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 70%, transparent); }
+.news-timeline .tl-item:nth-child(even)::after { right: auto; left: -7px; }
+.news-timeline .tl-when { margin: 0 0 8px; font-size: var(--fs-small); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.news-timeline .tl-item:nth-child(odd) .tl-when { text-align: right; }
+.news-timeline .news-card { display: block; background: color-mix(in srgb, var(--accent) 5%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 26%, var(--panel-border)); }
+.news-timeline .news-card:hover { border-color: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--accent) 60%, transparent); }
+.news-timeline .news-image { aspect-ratio: 16 / 10; }
+.news-timeline .tl-item:has(.news-card:hover)::after { background: var(--accent); }
+@media (max-width: 760px) {
+  .news-timeline::before { left: 8px; }
+  .news-timeline .tl-item, .news-timeline .tl-item:nth-child(even) { width: auto; margin-left: 0; padding: 0 0 24px 30px; }
+  .news-timeline .tl-item::after, .news-timeline .tl-item:nth-child(even)::after { left: 2px; right: auto; }
+  .news-timeline .tl-item:nth-child(odd) .tl-when { text-align: left; }
+}
+
+/* =====================================================================
+   PROFIL: Aktivita jako časová osa (můj i cizí profil) – přes celou šířku, svítící čára v barvě fotky,
+   ikona jako uzel na čáře, datum u čáry; na PC záznamy střídavě vlevo a vpravo, na telefonu čára vlevo
+   ===================================================================== */
+.pt-grid > .pt-activity { grid-column: 1 / -1; --glow: var(--accent); }
+.pt-activity .pt-feed { position: relative; gap: 0; padding: 6px 0 4px; }
+.pt-activity .pt-feed::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; translate: -1px 0;
+  background: linear-gradient(transparent, var(--accent) 8%, var(--accent-2) 85%, transparent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent); }
+.pt-activity .pt-feed li { position: relative; width: 50%; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding: 0 30px 18px 0; text-align: right; }
+.pt-activity .pt-feed li:nth-child(even) { margin-left: 50%; align-items: flex-start; padding: 0 0 18px 30px; text-align: left; }
+.pt-activity .pt-feed li > i { position: absolute; top: -2px; right: -15px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; font-size: .8rem;
+  background: var(--bg); color: var(--accent); border: 2px solid var(--accent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent); z-index: 1; }
+.pt-activity .pt-feed li:nth-child(even) > i { right: auto; left: -15px; }
+.pt-activity .pt-feed time { order: -1; font-family: var(--font-body); font-size: var(--fs-small); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.pt-activity .pt-feed span { font-size: var(--fs-text); line-height: 1.35; }
+@media (max-width: 700px) {
+  .pt-activity .pt-feed::before { left: 15px; }
+  .pt-activity .pt-feed li, .pt-activity .pt-feed li:nth-child(even) { width: auto; margin-left: 0; align-items: flex-start; text-align: left; padding: 0 0 16px 44px; }
+  .pt-activity .pt-feed li > i, .pt-activity .pt-feed li:nth-child(even) > i { left: 0; right: auto; }
+}
+/* Velké karty na ose (2026-11-15): komentář s náhledem písně, odznak jako medaile v barvě vzácnosti, přítel s fotkou,
+   výhra v CatSmash s časem. Karta s odkazem vede přímo na místo (komentář u písně, profil přítele).
+   Selektory začínají .pt-activity .pt-feed, aby přebily obecné „.pt-feed span“ výš. */
+.pt-activity .pt-feed .pt-act-card { display: grid; gap: 8px; width: 100%; max-width: 520px; margin-top: 4px; padding: 12px 14px; text-align: left; color: inherit; text-decoration: none;
+  border-radius: var(--radius); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--panel)); transition: border-color .2s, transform .2s; }
+.pt-activity .pt-feed a.pt-act-card:hover, .pt-activity .pt-feed a.pt-act-card:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
+.pt-activity .pt-feed .pt-act-k { font-family: var(--font-body); font-size: var(--fs-small); letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); }
+.pt-activity .pt-feed .pt-act-quote { margin: 0; font-family: var(--font-text); font-size: var(--fs-text); line-height: 1.4; overflow-wrap: anywhere; }
+.pt-activity .pt-feed .pt-act-thumb { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: calc(var(--radius) * .7); background: color-mix(in srgb, var(--accent) 12%, #000); }
+.pt-activity .pt-feed .pt-act-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pt-activity .pt-feed .pt-act-thumb b { position: absolute; left: 10px; bottom: 10px; max-width: calc(100% - 20px); padding: 5px 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  border-radius: 999px; background: rgba(0, 0, 0, .68); color: #fff; font-family: var(--font-body); font-size: var(--fs-small); font-weight: 400; }
+.pt-activity .pt-feed .pt-act-song { font-size: var(--fs-card); color: var(--accent); }
+.pt-activity .pt-feed .pt-act-medal { display: flex; align-items: center; gap: 14px; }
+.pt-activity .pt-feed .pt-act-medal > span:last-child { display: grid; gap: 2px; min-width: 0; }
+.pt-activity .pt-feed .pt-act-medal b { font-family: var(--font-body); font-size: var(--fs-card); font-weight: 400; overflow-wrap: anywhere; }
+.pt-activity .pt-feed .pt-act-medal small { font-family: var(--font-text); font-size: var(--fs-card); color: var(--text-dim); }
+.pt-activity .pt-feed .pt-act-coin { --rar: var(--accent); flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; color: #fff; font-size: 1.35rem;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--rar) 35%, #fff), var(--rar) 55%, color-mix(in srgb, var(--rar) 50%, #000));
+  box-shadow: 0 0 16px -4px var(--rar); }
+.pt-activity .pt-feed .pt-act-coin i { color: inherit; }
+.pt-activity .pt-feed .pt-act-coin[data-rar="c"] { --rar: #9aa0a8; } .pt-activity .pt-feed .pt-act-coin[data-rar="u"] { --rar: #4fd17a; } .pt-activity .pt-feed .pt-act-coin[data-rar="r"] { --rar: #4ea3ff; }
+.pt-activity .pt-feed .pt-act-coin[data-rar="e"] { --rar: #b06bff; } .pt-activity .pt-feed .pt-act-coin[data-rar="l"] { --rar: #ff9a2e; }
+body.light .pt-activity .pt-feed .pt-act-coin[data-rar="c"] { --rar: #5f6670; } body.light .pt-activity .pt-feed .pt-act-coin[data-rar="u"] { --rar: #16803c; } body.light .pt-activity .pt-feed .pt-act-coin[data-rar="r"] { --rar: #1d62b8; }
+body.light .pt-activity .pt-feed .pt-act-coin[data-rar="e"] { --rar: #7a35c9; } body.light .pt-activity .pt-feed .pt-act-coin[data-rar="l"] { --rar: #c0570a; }
+.pt-activity .pt-feed .pt-act-face { flex: none; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
+@media (prefers-reduced-motion: reduce) { .pt-activity .pt-feed a.pt-act-card { transition: none; } .pt-activity .pt-feed a.pt-act-card:hover { transform: none; } }
+/* žhavý okraj nad patičkou: lem kouře leží přesně na horní hraně patičky, kouř stoupá do konce stránky */
+.footer-smoke { display: none; }
+body:has(main.has-floor) .site-footer { position: relative; border-top: 0; }
+body:has(main.has-floor) .footer-smoke { display: block; top: auto; bottom: calc(100% - 55px); height: 210px; }
+body:has(main.has-floor) .site-footer > :not(.footer-smoke) { position: relative; z-index: 2; }
+
+/* ZMENŠENÁ FOTKA na velkém monitoru (js/effects.js fitBox): fotky mají menší rozlišení, „cover“ by je nafoukl a byly by
+   rozmazané. Vrstva je pak menší a uprostřed, strany, které nedosáhnou na kraj obrazovky, se ztratí do barvy stránky.
+   --fl/--fr/--ft/--fb = jak široký je přechod vlevo, vpravo, nahoře, dole (úvod přidává vlevo vlastní přechod za textem). */
+.bg-slides > div, body::before {
+  --fl: var(--fx, 0px); --fr: var(--fx, 0px); --ft: var(--fy, 0px); --fb: var(--fy, 0px);
+  --fit-x: linear-gradient(90deg, transparent, #000 var(--fl), #000 calc(100% - var(--fr)), transparent);
+  --fit-y: linear-gradient(180deg, transparent, #000 var(--ft), #000 calc(100% - var(--fb)), transparent);
+}
+.bg-slides > div { --fx: var(--bfx, 0px); --fy: var(--bfy, 0px); }
+body::before { --fx: var(--bbfx, 0px); --fy: var(--bbfy, 0px); }
+.bg-slides > div.fit { inset: 0; margin: auto; width: var(--bw); height: var(--bh); }
+body.bg-fit::before { inset: 0; margin: auto; width: var(--bbw); height: var(--bbh); }
+.bg-slides > div.fit, body.bg-fit::before { -webkit-mask-image: var(--fit-x), var(--fit-y); mask-image: var(--fit-x), var(--fit-y); -webkit-mask-composite: source-in; mask-composite: intersect; }
+
+/* VÝMĚNA FOTEK POZADÍ: nová fotka se prolíná nahoře (js/effects.js jí dá nejvyšší z-index), ta pod ní a obvyklé
+   pozadí (body::before) mizí až ke konci prolínání. Zmenšená fotka na velkém monitoru má okraje do průhledna – dřív
+   pod nimi zůstala vidět obvyklá rudá fotka a vypadalo to jako dvě zaseknuté fotky přes sebe. */
+.bg-slides > div, body:has(main.home-page.ulice) .bg-slides > div { transition: opacity 4s cubic-bezier(.75, 0, .9, 1), translate .9s ease; }
+.bg-slides > div.on, body:has(main.home-page.ulice) .bg-slides > div.on { transition: opacity 4s ease-in-out, translate .9s ease; }
+.bg-slides > div.instant, body:has(main.home-page.ulice) .bg-slides > div.instant { transition: none; }
+body::before { transition: opacity 4s ease-in-out, translate .9s ease; }
+body.slide-on::before { opacity: 0; transition: opacity 4s cubic-bezier(.75, 0, .9, 1), translate .9s ease; }
+body.slide-instant::before { transition: none; }
+
+/* KYSELINOVÉ BUBLINKY (js/effects.js bubbles): malinkaté, vznikají v žhavém lemu kouře, kreslí se na jedno plátno */
+.acid-layer { position: fixed; inset: 0; z-index: 6; width: 100vw; height: 100vh; pointer-events: none; }
+html.low-fx .acid-layer { display: none; }
+
+/* telefon: barva webu se přelévá po krocích z js/effects.js (setAccents), ne CSS přechodem v každém snímku */
+body.paint-steps { transition: none; }
+
+/* Stránka písně ve vzhledu „Ulice“ (2026-11-15): nahoře rozmazaný náhled videa = nálada písně (.lyric-ambient zůstává),
+   pod videem kouř (js/smoke.js), pod ním podlaha v odstínu písně (--bg nastaví js/effects.js songFloor; kouř si ho čte taky,
+   takže mezi kouřem a podlahou není šev). Kouř je za efektem vody a ohně (z-index -1). Text na skle zabarveném barvou písně. */
+.lyric-stage.with-smoke .smoke-edge.b { bottom: 0; height: 280px; z-index: -1; left: var(--edge-x, calc(50% - 50vw)); }
+.lyric-page .lyric-main::before { background: color-mix(in srgb, var(--accent) 6%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 26%, var(--panel-border)); }
+/* plátno kouře v sekci s videem nesmí převzít pravidla efektu vody a ohně (.clip-stage canvas: posun o 140 px, prolínání,
+   schování při vypnutém efektu) – kouř patří ke vzhledu stránky, ne k efektu u videa */
+.clip-stage .smoke-edge canvas { position: static; inset: auto; width: 100%; height: 100%; opacity: 1; mix-blend-mode: normal; z-index: auto; }
+.clip-stage.no-fx .smoke-edge.live canvas { display: block; }
+/* stránka písně: podlaha musí být NAD rozmazaným náhledem (.lyric-ambient), jinak pod kouřem zase prosvítá a kouř končí
+   ostrou hranou. Všechno je ve vrstvě -1 a rozhoduje pořadí: ::before je první (pod náhledem), ::after poslední. */
+main.lyric-page.has-floor::before { display: none; }
+main.lyric-page.has-floor::after { content: ""; position: absolute; z-index: -1; top: var(--floor-top, 0px); bottom: 0; left: calc(50% - 50vw); width: 100vw; background: var(--bg); pointer-events: none; }
+
+/* rozmazaný náhled nahoře na stránce písně dobarvený barvou písně (z celého videa, js/effects.js): náhled bývá úvodní
+   karta v jiné barvě (Machine gun fialový, video zelené). Ne úplně – trochu z obrazu zůstane. Barva se mění jen jednou. */
+.lyric-ambient::after { content: ""; position: absolute; inset: 0; background: var(--accent); mix-blend-mode: hue; opacity: .75; }
+
+/* ===== Profil v2 (2026-11-15, podle návrhu „Časová osa“) – hlavička, čísla, záložky, první kroky =====
+   Záhlaví vyšší, jméno přes jeho spodní okraj vedle fotky, vždy na jednom řádku (dlouhé zmenší js/profile-tabs.js),
+   štítky (Umělec, Admin, Soukromý) pod jménem. Nejdřív telefon. */
+.pt-hero .pt-cover { aspect-ratio: auto; height: clamp(150px, 44vw, 320px); max-height: none; }
+.pt-hero .pt-who { align-items: flex-end; gap: 14px; }
+.pt-hero .pt-who-text { flex: 1 1 auto; padding-top: 0; margin-top: -34px; position: relative; z-index: 2; }
+.pt-hero .acct-name { display: block; white-space: nowrap; font-size: clamp(2rem, 10vw, 2.8rem); padding-bottom: .06em; }
+.pt-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 0; }
+.pt-tags .acct-badge { font-size: var(--fs-small); letter-spacing: .06em; color: var(--text); }
+.pt-tags .acct-badge.artist { color: var(--accent-ink); background: var(--accent); }
+.pt-tags .acct-mark { color: var(--accent); font-size: 1.1rem; }
+.pt-hero .acct-meta { margin-top: 6px; }
+/* čísla v jednom řádku, na telefonu se posouvají do strany (okraj se rozplyne) */
+.pt-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px;
+  -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+.pt-chips::-webkit-scrollbar { display: none; }
+.pt-chip { flex: 0 0 auto; white-space: nowrap; }
+/* záložky s popiskem i na telefonu (dřív jen ikony), řádek se posouvá */
+.profile-tabs.acct-tabs { overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
+.profile-tabs.acct-tabs::-webkit-scrollbar { display: none; }
+.profile-tabs.acct-tabs a, .profile-tabs.acct-tabs a.active { flex: 1 0 auto; min-height: 44px; padding-inline: 12px; justify-content: center; white-space: nowrap; }
+.profile-tabs a:not(.active) .tab-name { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+/* první kroky: malý pruh, seznam po rozbalení */
+.pt-start { padding: 0; min-height: 0; }
+.pt-start-sum { position: relative; z-index: 2; /* nad září dlaždice (.pt::before), jinak je text schovaný */ display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px 16px; cursor: pointer; list-style: none; }
+.pt-start-sum::-webkit-details-marker { display: none; }
+.pt-start-title { flex: 0 1 auto; font-family: var(--font-display); font-size: var(--fs-card); color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-start-count { flex: none; font-size: var(--fs-small); color: var(--text-dim); }
+.pt-start-sum .pt-start-bar { flex: 1 1 60px; min-width: 40px; }
+.pt-start-sum .fa-chevron-down { flex: none; color: var(--text-dim); transition: transform .2s ease; }
+.pt-start[open] .pt-start-sum .fa-chevron-down { transform: rotate(180deg); }
+.pt-start > .pt-in { padding-top: 0; }
+.pt-start .pt-start-hide { align-self: flex-start; }
+@media (min-width: 768px) {
+  .pt-hero .pt-who-text { margin-top: -48px; }
+  .pt-hero .acct-name { font-size: clamp(2.6rem, 5vw, 4rem); }
+}

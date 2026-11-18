@@ -117,7 +117,54 @@ body.light .main-nav a:hover { background: rgba(0, 0, 0, 0.05); }
 /* the current page is a filled gold pill */
 .main-nav a.active { opacity: 1; color: var(--accent-ink); background: var(--accent); }
 .main-nav a.active:hover { background: var(--accent); }
-.main-nav .nav-donate, .main-nav .nav-game { display: none; }
+/* položka s rozbalovací nabídkou */
+.nav-group { position: relative; display: flex; }
+.nav-group-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 12px 8px 15px; border: 0; border-radius: 999px; background: transparent; color: var(--text);
+  font: inherit; font-size: 0.86rem; letter-spacing: 0.03em; white-space: nowrap; opacity: 0.8; cursor: pointer;
+  transition: opacity .2s, color .2s, background-color .2s;
+}
+.nav-group-btn:hover, .nav-group.open > .nav-group-btn { opacity: 1; background: rgba(255, 255, 255, 0.06); }
+body.light .nav-group-btn:hover, body.light .nav-group.open > .nav-group-btn { background: rgba(0, 0, 0, 0.05); }
+.nav-group.has-active > .nav-group-btn { opacity: 1; color: var(--accent-ink); background: var(--accent); }
+.nav-chev { font-size: .62em; transition: transform .2s; }
+.nav-group.open .nav-chev { transform: rotate(180deg); }
+.nav-sub {
+  display: none; position: absolute; top: calc(100% + 11px); left: 0; z-index: 1100;
+  gap: 2px; min-width: 260px; padding: 8px; border: 1px solid var(--panel-border); border-radius: 16px;
+  background: var(--panel-strong); box-shadow: var(--shadow);
+}
+.nav-sub::before { content: ""; position: absolute; left: 0; right: 0; top: -13px; height: 13px; }   /* myš nesmí mezerou nabídku zavřít */
+.nav-group.open > .nav-sub { display: grid; }
+@media (hover: hover) and (min-width: 1025px) {
+  .nav-group:hover:not(.just-used) > .nav-sub { display: grid; }
+  .nav-group:hover:not(.just-used) .nav-chev { transform: rotate(180deg); }
+}
+.main-nav .nav-sub a { display: block; padding: 9px 12px; border-radius: 10px; white-space: normal; opacity: 1; }
+.main-nav .nav-sub a.active { color: var(--accent); background: var(--accent-soft); }
+.nav-sub-t { display: block; font-size: 0.82rem; }
+.nav-sub small { display: block; margin-top: 2px; color: var(--text-dim); font-family: var(--font-text); font-size: var(--fs-small); letter-spacing: 0; }
+.nav-sub .nav-badge {
+  display: inline-block; margin-left: 6px; padding: 0 7px; border: 1px solid var(--accent); border-radius: 999px;
+  color: var(--accent); font: 500 var(--fs-small)/1.5 var(--font-text); letter-spacing: 0; vertical-align: 1px;
+}
+.nav-sub .nav-badge i { display: none; }
+/* kolečko Vzhled a zvuk */
+.view-menu { position: relative; }
+.view-dropdown {
+  display: none; position: absolute; right: 0; top: calc(100% + 8px); z-index: 1100; min-width: 220px; padding: 6px;
+  border: 1px solid var(--panel-border); border-radius: 14px; background: var(--panel-strong); box-shadow: var(--shadow);
+}
+.view-menu.open .view-dropdown { display: grid; gap: 2px; }
+.view-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 6px 12px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--text); font: inherit; font-size: var(--fs-card); text-align: left; cursor: pointer;
+}
+.view-row:hover { background: rgba(255, 255, 255, 0.06); }
+body.light .view-row:hover { background: rgba(0, 0, 0, 0.05); }
+.view-row.active { color: var(--accent); }
+.view-row i { width: 18px; text-align: center; color: var(--accent); }
 
 .top-controls {
   display: flex;
@@ -127,9 +174,9 @@ body.light .main-nav a:hover { background: rgba(0, 0, 0, 0.05); }
 }
 /* inside the pill the round buttons need no frame of their own */
 .top-controls > .icon-btn,
-.top-controls > .lang-switch > .icon-btn:not([data-lang]),
-.top-controls > .donate-link { border-color: transparent; background: transparent; }
-body.light .top-controls > .icon-btn { background: transparent; }
+.top-controls > .view-menu > .icon-btn,
+.top-controls > .lang-switch > .icon-btn:not([data-lang]) { border-color: transparent; background: transparent; }
+body.light .top-controls > .icon-btn, body.light .top-controls > .view-menu > .icon-btn { background: transparent; }
 
 /* Round icon buttons in the header */
 .icon-btn {
@@ -151,7 +198,6 @@ body.light .top-controls > .icon-btn { background: transparent; }
 .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 body.light .icon-btn { background: rgba(255, 255, 255, 0.6); }
 
-.donate-link,
 .auth-link {
   display: inline-flex;
   align-items: center;
@@ -165,8 +211,7 @@ body.light .icon-btn { background: rgba(255, 255, 255, 0.6); }
   white-space: nowrap;
   transition: color .2s, background-color .2s, border-color .2s;
 }
-.donate-link:hover, .auth-link:hover { text-decoration: none; color: var(--accent); }
-.donate-link i { color: var(--red); }
+.auth-link:hover { text-decoration: none; color: var(--accent); }
 .auth-link.auth-primary { background: var(--accent); color: var(--accent-ink); }
 .auth-link.auth-primary:hover { color: var(--accent-ink); filter: brightness(1.08); }
 
@@ -274,19 +319,17 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
 /* Header: longer words (German, Vietnamese) need tighter spacing before the labels go */
 @media (max-width: 1440px) {
   .header-inner { gap: 12px; }
-  .main-nav a { padding: 8px 8px; }
+  .main-nav a, .nav-group-btn { padding: 8px 8px; }
 }
 /* six menu items (Karaoke) in German still fit under the sign on a small laptop */
 @media (max-width: 1180px) {
   .header-inner { gap: 10px; }
-  .main-nav a { padding: 8px 6px; font-size: 0.8rem; letter-spacing: 0.01em; }
+  .main-nav a, .nav-group-btn { padding: 8px 6px; font-size: 0.8rem; letter-spacing: 0.01em; }
 }
 
-/* Header: donate and login are round icons (their label is in title) so the menu
-   can stay centred under the big sign; Register keeps its label a while longer */
-.donate-link span, .auth-link:not(.auth-primary) span { display: none; }
-.donate-link, .auth-link:not(.auth-primary) { width: 36px; padding: 0; justify-content: center; }
-.donate-link { border: 1px solid var(--panel-border); }
+/* Hlavička: přihlášení je kulatá ikona (nápis v title), aby menu zůstalo uprostřed pod velkým logem */
+.auth-link:not(.auth-primary) span { display: none; }
+.auth-link:not(.auth-primary) { width: 36px; padding: 0; justify-content: center; }
 @media (max-width: 1280px) {
   .auth-link span { display: none; }
   .auth-link { width: 36px; padding: 0; justify-content: center; }
@@ -338,220 +381,247 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   }
   .menu-toggle[aria-expanded="true"] { background: var(--panel-strong); color: var(--text); border: 1px solid var(--accent); }
   .site-header .brand .squad-mark { height: 38px; }
-  .donate-link { display: none; }
 
-  /* opened from Menu: a sheet under the bar */
+}
+
+/* ---------- Menu na telefonu a tabletu (listopad 2026, náhled Skeli.cz-podklady/navrhy/menu-2026-11) ----------
+   Do 767 px přes celou obrazovku, 768–1024 px panel zprava (zbytek stránky ztmavený), telefon na šířku ve dvou
+   sloupcích. Řádky s ikonou, skupiny se rozbalují pod sebou, dole účet, ovládání a odhlášení. Plná barva stránky
+   s jemným přechodem barvy webu nahoře, bez rozmazání (na slabém telefonu by sekalo). Od 1025 px nic z toho
+   neplatí – tam jsou kapsle pod logem (výš). Skript: includes/header.jsp (setMenu, setGroup). */
+.mnav-top, .nav-shade, .nav-account, .nav-settings, .nav-logout, .nav-foot { display: none; }
+.nav-pages, .nav-tools { display: contents; }   /* na PC jsou stránky přímo v kapsli */
+.main-nav .nav-ico { display: none; }   /* ikonky jen v menu na telefonu a tabletu */
+@media (max-width: 1024px) {
+  html.menu-open, html.menu-open body { overflow: hidden; }   /* stránka pod menu se neposouvá a zůstane na místě */
+  /* rozmazaná lišta by z ní udělala rámec pro menu (fixed by se počítalo od lišty, ne od obrazovky) */
+  html.menu-open .site-header { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  /* Kevin a bublina chatu se pod otevřeným menu schovají (Kevin nikdy nepřekrývá obsah) */
+  html.menu-open .kevin-paw, html.menu-open .kevin, html.menu-open .chat-dock { visibility: hidden; }
   .main-nav {
-    display: none;
-    position: fixed;
-    top: calc(var(--header-h) + 6px);
-    left: 12px;
-    right: 12px;
-    max-height: calc(100dvh - var(--header-h) - 24px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    flex-direction: column;
-    /* from the top: centred, a sheet taller than the screen would hide its first items out of reach */
-    justify-content: flex-start;
-    gap: 2px;
-    padding: 10px;
-    background: var(--panel-strong);
-    border: 1px solid var(--panel-border);
-    border-radius: 22px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    --nav-row: 48px; --nav-sub: 44px;
+    display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 30;   /* nad tlačítkem Menu a Kevinovou tlapkou v liště */
+    height: 100vh; height: 100dvh;
+    flex-direction: column; justify-content: flex-start; gap: 2px;
+    padding: 0 14px calc(18px + env(safe-area-inset-bottom));
+    overflow-y: auto; overscroll-behavior: contain;
+    border: 0; border-radius: 0; box-shadow: none;
+    --nav-bg: linear-gradient(180deg, color-mix(in srgb, var(--accent) 20%, var(--bg)) 0, var(--bg) 160px), var(--bg);
+    background: var(--nav-bg);
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+    animation: mnav-in .2s ease;
   }
   .main-nav.open { display: flex; }
-  .main-nav a { padding: 12px 14px; font-size: 0.95rem; border-radius: 10px; }
-  .main-nav a.active { background: var(--accent-soft); color: var(--accent); }
-  .main-nav .nav-donate, .main-nav .nav-game { display: block; }
-  .main-nav .nav-donate i { color: var(--red); }
-}
+  /* po odscrollování platí pro lištu na PC skleněné pozadí kapsle (.site-header.scrolled .main-nav) – menu na telefonu
+     a tabletu musí zůstat plné, jinak by prosvítala stránka */
+  .site-header.scrolled .main-nav, .site-header .main-nav { background: var(--nav-bg); }
+  .main-nav .nav-pages { display: flex; flex-direction: column; gap: 2px; }
+  .main-nav .nav-tools { display: block; }
+  @keyframes mnav-in { from { opacity: .2; transform: translateY(-8px); } }   /* ne od nuly: úplně průhledné menu by testy i čtečky braly jako skryté */
+  .mnav-top { display: flex; align-items: center; justify-content: space-between; flex: none; min-height: var(--header-h);
+    padding-top: env(safe-area-inset-top); color: var(--accent); }
+  .mnav-top .squad-mark { height: 36px; }
+  .mnav-close { flex: none; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%;
+    border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); font-size: 1.1rem; }
+  .mnav-close:hover { border-color: var(--accent); color: var(--accent); }
 
-.nav-settings { display: none; }
-/* Phones and tablets: bold, theme, language and the account at the bottom of the menu */
-@media (max-width: 1024px) {
-  .main-nav .nav-settings {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 6px;
-    padding: 12px 6px 4px;
-    border-top: 1px solid var(--panel-border);
+  /* řádky: hlavní položky, tlačítka skupin, podpoložky, účet, odhlášení */
+  .main-nav .nav-top, .main-nav .nav-group-btn, .main-nav .nav-row, .main-nav .nav-sub a, .main-nav .nav-logout button {
+    position: relative; display: flex; align-items: center; gap: 14px; width: 100%; min-height: var(--nav-row); padding: 6px 12px;
+    border: 0; border-radius: 12px; background: transparent; color: var(--text); opacity: 1;
+    font: inherit; font-size: 1rem; letter-spacing: .02em; line-height: 1.25; text-align: left; white-space: normal; text-decoration: none; cursor: pointer;
   }
-  .main-nav .nav-settings { flex-wrap: wrap; }
-  /* the languages get a row of their own under bold and theme */
-  .nav-langs { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 100%; }
-  .main-nav .nav-langs a {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 7px 8px;
-    border-radius: 999px;
-    font-size: var(--fs-small);
-    opacity: 0.7;
-  }
-  .main-nav .nav-langs a.active { opacity: 1; color: var(--accent); background: var(--accent-soft); }
-  .main-nav .nav-account { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--panel-border); }
-  .main-nav .nav-account i { width: 20px; color: var(--accent); }
-  .main-nav .nav-account .nav-register { color: var(--accent); }
-  .main-nav .nav-user { color: var(--text-dim); }
-  .main-nav .logout-form button {
-    width: 100%;
-    justify-content: flex-start;
-    gap: 6px;
-    padding: 12px 14px;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--text);
-    font: inherit;
-    font-size: 0.95rem;
-  }
-  .main-nav .nav-langs a { min-height: 40px; }
-}
-.nav-account { display: none; }
-.main-nav .nav-ico { display: none; }   /* ikonky jen v mobilním menu */
+  .main-nav .nav-top:hover, .main-nav .nav-group-btn:hover, .main-nav .nav-row:hover, .main-nav .nav-sub a:hover, .main-nav .nav-logout button:hover {
+    background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); text-decoration: none; }
+  .main-nav .nav-ico { display: block; flex: none; width: 22px; text-align: center; font-size: 1.05rem; color: color-mix(in srgb, var(--accent) 80%, var(--text)); }
+  .main-nav .nav-t, .main-nav .nav-sub-t { flex: 1; min-width: 0; overflow-wrap: break-word; hyphens: auto; -webkit-hyphens: auto; }
+  /* aktuální stránka a rozbalená skupina: barva webu a svislá čárka vlevo */
+  .main-nav a.active, .main-nav a.active:hover { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .main-nav a.active::before, .main-nav .nav-group.open::before {
+    content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: var(--accent); }
+  .main-nav .nav-group { position: relative; display: block; }
+  .main-nav .nav-group.has-active > .nav-group-btn { color: var(--accent); background: transparent; opacity: 1; }
+  .main-nav .nav-chev { margin-left: auto; flex: none; font-size: .75em; color: var(--text-dim); transition: transform .2s; }
+  .main-nav .nav-group.open .nav-chev { transform: rotate(180deg); }
+  .nav-sub, .nav-group.open > .nav-sub { position: static; display: none; gap: 2px; min-width: 0; padding: 0 0 4px 30px;
+    border: 0; border-radius: 0; background: none; box-shadow: none; }
+  .main-nav .nav-group.open > .nav-sub { display: grid; }
+  .nav-sub::before { display: none; }
+  .main-nav .nav-sub a { min-height: var(--nav-sub); font-size: .88rem; }
+  .main-nav .nav-sub a .nav-ico { font-size: .95rem; opacity: .85; }
+  .nav-sub small { display: none; }
+  /* Karaoke u nepřihlášeného: „pro členy“ (stránka jde otevřít, zpívat smí jen přihlášení) */
+  .main-nav .nav-sub .nav-badge { display: inline-block; margin-left: 8px; padding: 0 8px; border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+    border-radius: 999px; background: none; color: var(--accent); font: 500 var(--fs-small)/1.6 var(--font-text); letter-spacing: 0; vertical-align: 1px; }
 
-/* Mobilní menu jako dlaždice: stránky ve dvou sloupcích s ikonkou, Podpoř přes celou šířku, nastavení
-   na jednom řádku (B, režim | jazyky jako přepínač), účet jako dvě tlačítka vedle sebe */
-@media (max-width: 1024px) {
-  .main-nav.open { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; align-content: start; }
-  .main-nav > a {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    min-height: 78px;
-    padding: 14px;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--panel-border);
-    font-size: var(--fs-card);
-    line-height: 1.2;
-    opacity: 1;
-  }
-  body.light .main-nav > a { background: rgba(0, 0, 0, 0.03); }
-  .main-nav > a .nav-ico { display: block; font-size: 1.15rem; color: var(--accent); opacity: .9; }
-  .main-nav > a.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-  .main-nav > .nav-donate, .main-nav > .nav-game {
-    grid-column: 1 / -1;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-    padding: 12px 14px;
-  }
-  .main-nav > .nav-donate i { color: var(--red); }
-  /* karaoke: zlatavá dlaždice, okrajem pomalu přejede odlesk, štítek „pro členy“ vpravo nahoře */
-  .main-nav > a.nav-karaoke {
-    position: relative; overflow: hidden;
-    border-color: rgba(230, 183, 48, .55);
-    background: linear-gradient(135deg, rgba(230, 183, 48, .16), rgba(230, 183, 48, .03) 60%);
-  }
-  .main-nav > a.nav-karaoke::after {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(115deg, transparent 35%, rgba(255, 236, 170, .22) 50%, transparent 65%) -100% 0 / 220% 100% no-repeat;
-    animation: nav-shine 5s ease-in-out infinite;
-  }
-  .main-nav > a.nav-karaoke .nav-badge {
-    position: absolute; top: 8px; right: 8px; display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 8px; border-radius: 999px; font-size: var(--fs-small); line-height: 1.6;
-    background: var(--accent); color: var(--accent-ink);
-  }
-  .main-nav > a.nav-karaoke .nav-badge i { font-size: .65em; }
-  .main-nav .nav-settings {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 8px;
-    margin-top: 4px;
-    padding: 12px 2px 4px;
-  }
-  .main-nav .nav-settings .icon-btn { flex: 0 0 auto; }
-  /* jazyky: jeden úhledný přepínač, každý jazyk stejně široký */
-  .main-nav .nav-langs {
-    flex: 1 1 auto;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 2px;
-    padding: 3px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--panel-border);
-  }
-  body.light .main-nav .nav-langs { background: rgba(0, 0, 0, 0.04); }
-  .main-nav .nav-langs a {
-    justify-content: center;
-    gap: 4px;
-    min-height: 36px;
-    padding: 0 2px;
-    font-size: var(--fs-small);
-  }
-  .main-nav .nav-langs a .flag { width: 14px; height: 9px; }
-  .main-nav .nav-langs a.active { background: var(--accent); color: var(--accent-ink); opacity: 1; }
-  .main-nav .nav-account {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 4px;
-    padding-top: 12px;
-  }
-  .main-nav .nav-account > a,
-  .main-nav .nav-account > .nav-notif,
-  .main-nav .nav-account .logout-form button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 12px;
-    border-radius: 999px;
-    border: 1px solid var(--panel-border);
-    background: transparent;
-    color: var(--text);
-    font: inherit;
-    font-size: var(--fs-card);
-  }
-  .main-nav .nav-account .logout-form { margin: 0; }
-  .main-nav .nav-account > .nav-register { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  .main-nav .nav-account > .nav-register i { color: var(--accent-ink); }
-  .main-nav .nav-account .nav-user { display: none; }   /* jméno je v kartě účtu, tady by tlačítko natáhlo */
-}
-/* malý telefon: jazyky jen s vlajkou a zkratkou bez mezer navíc */
-@media (max-width: 360px) {
-  .main-nav .nav-langs a .flag { display: none; }
-}
+  /* účet: přihlášený = karta (fotka, jméno → Můj profil, Nastavení, Upozornění, Admin); nepřihlášený = dvě tlačítka */
+  .main-nav .nav-account { display: grid; gap: 2px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--panel-border); }
+  .main-nav .nav-account:has(.nav-me) { padding: 6px; border: 1px solid var(--panel-border); border-radius: 16px; background: color-mix(in srgb, var(--text) 4%, transparent); }
+  .main-nav .nav-me { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 10px; border-radius: 12px; color: var(--text); opacity: 1; text-decoration: none; }
+  .main-nav .nav-me:hover { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+  .main-nav .nav-me.active::before { content: none; }
+  .nav-me-av { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+    background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+  .nav-me-t { flex: 1; display: grid; min-width: 0; }
+  .nav-me-t b { font-weight: inherit; overflow-wrap: anywhere; }
+  .nav-me-t small { color: var(--text-dim); font: 300 var(--fs-card) var(--font-text); letter-spacing: 0; }
+  .main-nav .nav-notif .notif-badge { position: static; margin-left: auto; box-shadow: none; }
+  .main-nav .nav-row.admin { color: var(--accent); }
+  .main-nav .nav-account:has(.nav-login) { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .main-nav .nav-login, .main-nav .nav-register { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 6px 10px;
+    border-radius: 999px; border: 1px solid var(--panel-border); color: var(--text); opacity: 1; font-size: var(--fs-card); text-align: center; white-space: normal; }
+  .main-nav .nav-register, .main-nav .nav-register:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
-/* A phone on its side: a thin bar, and the open menu in two columns (pages | settings and account)
-   so all of it fits the low screen without scrolling inside the sheet */
-@media (max-width: 1024px) and (orientation: landscape) and (max-height: 500px) {
-  :root { --header-h: 52px; }
-  .site-header .brand .squad-mark { height: 30px; }
-  .menu-toggle { padding: 8px 14px; }
-  .main-nav.open {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-auto-flow: row dense;
-    align-content: start;
-    column-gap: 18px;
-    left: auto;
-    width: min(620px, calc(100vw - 24px));
+  /* dok u palce: kolečka s popisky (Tma/Světlo, Písmo, Zvuk, jazyk, Podpoř moji tvorbu); jazyky vyskočí nahoru nad kolečkem */
+  .main-nav .nav-dock { position: relative; z-index: 3; display: flex; justify-content: center; align-items: flex-start; gap: 14px; margin-top: 14px; padding-top: 16px;
+    border-top: 1px solid var(--panel-border); }
+  .main-nav .dk-it { position: relative; display: grid; justify-items: center; gap: 6px; width: 54px; padding: 0; border-radius: 0; color: var(--text); opacity: 1; text-decoration: none; }   /* padding 0: srdce je odkaz (.main-nav a má odsazení) */
+  .main-nav a.dk-it:hover, .main-nav a.dk-it.active { background: none; }
+  .main-nav a.dk-it.active::before { content: none; }
+  .main-nav .dk-it small { font: 300 var(--fs-small) var(--font-text); letter-spacing: 0; color: var(--text-dim); text-align: center; line-height: 1.15; }
+  .main-nav .dk-cb { display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border-radius: 50%; border: 1px solid var(--panel-border); cursor: pointer;
+    background: color-mix(in srgb, var(--text) 7%, var(--bg)); color: var(--text); font-size: 1rem; }
+  .main-nav .dk-cb .flag { width: 22px; height: 15px; border-radius: 3px; }
+  .main-nav .dk-cb b { font-weight: 700; }
+  /* zapnuté: barva webu (tučnější písmo, otevřený seznam jazyků) */
+  html.bold-text .main-nav .dk-font .dk-cb, .main-nav .dk-lang .dk-cb[aria-expanded="true"] {
+    border-color: color-mix(in srgb, var(--accent) 70%, transparent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+  html.bold-text .main-nav .dk-font small { color: var(--accent); }
+  /* ikona a popisek podle stavu: režim (body.light), zvuk (aria-pressed = ztlumeno) */
+  .main-nav .dk-light, body.light .main-nav .dk-dark, .main-nav .dk-off, .main-nav .dk-sound:has([aria-pressed="true"]) .dk-on { display: none; }
+  body.light .main-nav .dk-light, .main-nav .dk-sound:has([aria-pressed="true"]) .dk-off { display: inline; }
+  /* srdce: barva webu, jemně tepe (na slabém telefonu a při omezení pohybu ne) */
+  .main-nav .dk-don .dk-cb { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 0 14px -4px var(--accent); }
+  .main-nav .dk-don .dk-cb i { animation: dk-beat 2.4s ease-in-out infinite; }
+  .main-nav .dk-don small { color: var(--accent); white-space: normal; }   /* „Podpoř moji / tvorbu“ na dva řádky */
+  .main-nav .dk-don { width: 62px; }
+  @keyframes dk-beat { 0%, 60%, 100% { transform: none; } 8% { transform: scale(1.18); } 16% { transform: scale(1.02); } 24% { transform: scale(1.12); } }
+  /* seznam jazyků nahoru nad kolečkem (u pravého okraje doku, aby nevyjel z obrazovky) */
+  .main-nav .dk-pop { position: absolute; z-index: 5; bottom: calc(100% + 8px); right: -60px; display: none; min-width: 210px; padding: 6px; border-radius: 16px;
+    border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--bg) 92%, var(--text)); box-shadow: 0 18px 40px -12px rgba(0, 0, 0, .7); }
+  .main-nav .dk-pop.open { display: grid; animation: dk-up .18s ease; }
+  @keyframes dk-up { from { opacity: 0; transform: translateY(6px); } }
+  .main-nav .dk-pop a { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; color: var(--text); opacity: 1; white-space: nowrap; }
+  .main-nav .dk-pop a:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+  .main-nav .dk-pop a.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .main-nav .dk-pop a.active::before { content: none; }
+  .main-nav .dk-pop a.active::after { content: "\f00c"; margin-left: auto; font: 900 .8rem 'Font Awesome 6 Free'; }
+  .main-nav .dk-pop a:lang(vi) { font-family: 'Exo 2', system-ui, sans-serif; }
+  .main-nav .dk-pop .flag { width: 22px; height: 15px; border-radius: 3px; }
+  /* odhlášení v kartě účtu: poslední, tlumeně, pod čarou */
+  .main-nav .nav-account hr { width: calc(100% - 24px); margin: 2px auto; border: 0; border-top: 1px solid var(--panel-border); }
+
+  /* spodek menu: podpis – čára, uprostřed smajlík loga v kroužku (barva webu, s fotkou se vymění), pod tím SKELO SQUAD,
+     dole jemný žár. Nad čárou je volný pruh pro easter egg (js/squad-egg.js): 7× ťuknout = obličeje se rozsvítí, SQUAD UNLOCKED. */
+  .main-nav .nav-foot { position: relative; display: grid; justify-items: center; gap: 8px; flex: none; margin: auto -14px calc(-18px - env(safe-area-inset-bottom)) ;
+    /* dole velká rezerva: u spodního okraje iPhonu je pruh pro gesto domů – ťukání těsně u něj aplikaci minimalizovalo.
+       Menu se o tu rezervu prodlouží (dá se dojet), smajlík se tím nepřiblíží k nastavení. */
+    padding: 112px 14px calc(84px + env(safe-area-inset-bottom)); overflow: hidden; overflow: clip; }   /* clip: nejde ani odscrollovat (focus, scrollIntoView) */
+  .main-nav .nav-foot::before { content: ""; position: absolute; left: -20%; right: -20%; bottom: -50px; height: 130px; pointer-events: none; filter: blur(8px);
+    background: radial-gradient(60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%); }
+
+  /* odhlášení: v kartě účtu, tlumeně */
+  .main-nav .nav-logout { display: block; margin: 0; }
+  .main-nav .nav-logout button { color: var(--text-dim); }
+
+  /* tablet: panel zprava, zbytek stránky ztmavený (klik na něj menu zavře) */
+  @media (min-width: 768px) {
+    .main-nav { left: auto; width: min(420px, 100%); border-left: 1px solid var(--panel-border); box-shadow: -20px 0 50px -20px rgba(0, 0, 0, .6); animation-name: mnav-side; }
+    html.menu-open .nav-shade { display: block; position: fixed; inset: 0; z-index: 29; background: rgba(0, 0, 0, .5); }
   }
-  .main-nav > a { grid-column: 1; padding: 7px 14px; min-height: 0; flex-direction: row; align-items: center; }
-  .main-nav > .nav-donate, .main-nav > .nav-game { grid-column: 1; justify-content: flex-start; }
-  .main-nav .nav-account { grid-template-columns: 1fr 1fr; align-content: start; align-self: start; }
-  .main-nav .nav-settings { align-self: start; }
-  .main-nav .nav-account > a, .main-nav .nav-account > .nav-notif, .main-nav .nav-account .logout-form button { min-height: 40px; }
-  .main-nav .nav-settings,
-  .main-nav .nav-account { grid-column: 2; margin-top: 0; border-top: 0; }
-  .main-nav .nav-settings { grid-row: 1; align-content: flex-start; padding-top: 4px; }
-  .main-nav .nav-account { grid-row: 2 / span 2; padding-top: 0; }
+  @keyframes mnav-side { from { opacity: .2; transform: translateX(24px); } }
+  /* telefon na šířku (nízká obrazovka): přes celou obrazovku ve dvou sloupcích – stránky | účet a ovládání */
+  @media (orientation: landscape) and (max-height: 500px) {
+    :root { --header-h: 52px; }
+    .site-header .brand .squad-mark { height: 30px; }
+    .menu-toggle { padding: 8px 14px; }
+    .main-nav { left: 0; width: auto; border-left: 0; animation-name: mnav-in; }
+    html.menu-open .nav-shade { display: none; }
+    .main-nav.open { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; align-content: start; align-items: start; }
+    .mnav-top { grid-column: 1 / -1; }
+    .main-nav .nav-tools > :first-child { margin-top: 0; }
+    .main-nav .nav-foot { display: none; }
+    .main-nav .nav-top, .main-nav .nav-group-btn, .main-nav .nav-row, .main-nav .nav-sub a { min-height: 42px; }
+  }
 }
+/* ---------- Easter egg SKELO SQUAD (js/squad-egg.js, includes/squad-egg.jspf) ----------
+   Stejný v menu na telefonu (.nav-foot) i v patičce na PC (.foot-squad); obal má třídu .sq-home. */
+.sq-home .sq-seal { touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }   /* rychlé ťukání = žádné přiblížení ani nabídka */
+/* jiskry ze žáru a bublinky u zelené (js/squad-egg.js), jen když je místo vidět */
+.sq-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.sq-line { position: relative; z-index: 2; display: flex; align-items: center; gap: 12px; width: 100%; }
+.sq-line::before, .sq-line::after { content: ""; flex: 1; height: 1px; }
+.sq-line::before { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 55%, transparent)); }
+.sq-line::after { background: linear-gradient(270deg, transparent, color-mix(in srgb, var(--accent) 55%, transparent)); }
+.sq-home .sq-seal { position: relative; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--bg) 70%, transparent); box-shadow: 0 0 14px -4px var(--accent); }
+.sq-home .sq-seal span { width: 22px; height: 22px; background: var(--accent);
+  -webkit-mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat; mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat; }
+.sq-home .sq-seal.swap span { animation: face-pop .6s ease-out; }
+.sq-home .sq-seal.hop span { animation: sq-hop .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes sq-hop { 30% { transform: translateY(-6px) scale(1.12, .9); } 60% { transform: translateY(0) scale(.92, 1.08); } }
+/* kroužek nápovědy: 7 dílků, každé ťuknutí rozsvítí jeden (dokud se neťukne, není vidět) */
+.sq-home .sq-seal::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .6s;
+  background: conic-gradient(var(--accent) calc(var(--p7, 0) / 7 * 1turn), color-mix(in srgb, var(--text) 20%, transparent) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)), repeating-conic-gradient(#000 0 47deg, transparent 47deg 51.43deg);
+  -webkit-mask-composite: source-in; mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)) intersect, repeating-conic-gradient(#000 0 47deg, transparent 47deg 51.43deg); }
+.sq-home .sq-seal[data-p]:not([data-p="0"])::before { opacity: 1; }
+.sq-sig { position: relative; z-index: 2; font-size: var(--fs-small); letter-spacing: .28em;   /* aspoň malé písmo webu (SiteAuditIT) */ color: var(--text-dim); text-align: center; }
+.sq-sig.kevin { letter-spacing: .02em; font: 300 var(--fs-small) var(--font-text); color: var(--text); max-width: 30ch; }
+/* easter egg: ve tmě se rozsvítí obličeje, pak nápis SKELO SQUAD a SQUAD UNLOCKED (zhasnuté nejsou vidět vůbec) */
+.sq-arena { position: absolute; z-index: 3; left: 0; right: 0; top: 10px; display: grid; justify-items: center; gap: 7px; pointer-events: none; opacity: 0; transition: opacity .5s; }
+.sq-arena.show { opacity: 1; }
+.sq-sign { width: 196px; aspect-ratio: 6556 / 1144; background: var(--accent); opacity: 0; filter: blur(8px); transform: scale(1.04);
+  -webkit-mask: url('/img/logo-skelosquad.svg') center / contain no-repeat; mask: url('/img/logo-skelosquad.svg') center / contain no-repeat;
+  transition: opacity 2.4s ease-out, filter 2.8s ease-out, transform 2.8s ease-out; }
+.sq-sign.on { opacity: 1; filter: blur(0) drop-shadow(0 0 6px var(--accent)); transform: none; }
+.sq-lamps { position: relative; display: flex; gap: 7px; }
+/* struna nad smajlíkem: při brnknutí harfy se objeví, rozechvěje a zmizí (js/squad-egg.js twang) – nepřekážejí si */
+/* struna u smajlíka: větší část pod ním, nad něj vyčuhuje jen kousek; oba konce do ztracena, spodní dlouhý,
+   ale průhledný dávno před čárou se smajlíkem. Objeví se ~150 ms před brnknutím, s tónem se rozechvěje a zmizí. */
+/* Při odhalení struna přes smajlíka nevede: maska ji přeruší přesně na jeho horní špičce a spodku (obrázek má nahoře
+   a dole ~2,5 px průhledný okraj → mezera 18,5–35,5 px), takže se ho struna dotýká a smajlík na ní „visí“. */
+.sq-str { position: absolute; top: -16px; left: calc(var(--i) * 29px + 10.5px); width: 1px; height: 88px; opacity: 0; pointer-events: none;
+  background: linear-gradient(transparent 0, var(--accent) 9px, var(--accent) 48px, transparent 74px);
+  -webkit-mask: linear-gradient(#000 18.5px, transparent 18.5px 35.5px, #000 35.5px); mask: linear-gradient(#000 18.5px, transparent 18.5px 35.5px, #000 35.5px); }
+.sq-str.go { animation: sq-twang 1.45s ease-out; }
+/* při ťukání (harfa) se struna objeví hned s tónem – bez 150ms náběhu – a je celá */
+.sq-str.now { animation-delay: -.15s; -webkit-mask: none; mask: none; }   /* při ťukání smajlíci ještě nejsou → struna celá */
+/* smajlík se chvěje spolu se strunou (stejné časy jako sq-twang) */
+.sq-lamp.buzz { animation: sq-buzz 1.45s ease-out; }
+@keyframes sq-buzz { 0%, 10% { translate: 0; } 14% { translate: 2px; } 19% { translate: -2px; } 24% { translate: 1.5px; } 30% { translate: -1.1px; }
+  38% { translate: .7px; } 48% { translate: -.3px; } 100% { translate: 0; } }
+/* při ťukání u harfy je aréna vidět kvůli strunám (obličeje i nápis jsou zatím zhasnuté) */
+.sq-arena.tease { opacity: 1; transition: none; }
+@keyframes sq-twang { 0% { opacity: 0; } 10% { opacity: .9; transform: none; } 14% { transform: translateX(2px); filter: drop-shadow(0 0 3px var(--accent)); }
+  19% { transform: translateX(-2px); } 24% { transform: translateX(1.5px); } 30% { transform: translateX(-1.1px); } 38% { transform: translateX(.7px); }
+  48% { transform: translateX(-.3px); opacity: .7; } 100% { transform: none; opacity: 0; } }
+/* EKG křivka při ťukání (verze se srdcem): v prostoru, kde se pak objeví obličeje, vykreslí se tep a zmizí */
+.sq-ekg { position: absolute; z-index: 2; left: 50%; top: 40px; width: 220px; height: 44px; translate: -50% 0; pointer-events: none; overflow: visible; }
+.sq-ekg path { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0;
+  filter: drop-shadow(0 0 3px var(--accent)); }
+.sq-ekg.go path { animation: sq-ekg 1.2s ease-out; }
+@keyframes sq-ekg { 0% { stroke-dashoffset: 100; opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+.sq-lamp { width: 22px; height: 22px; background: var(--accent); opacity: 0; filter: blur(6px); transform: scale(.8);
+  -webkit-mask: var(--f) center / contain no-repeat; mask: var(--f) center / contain no-repeat; transition: opacity .5s ease-out, filter .6s ease-out, transform .6s ease-out; }
+.sq-lamp.on { opacity: 1; filter: blur(0) drop-shadow(0 0 5px var(--accent)); transform: none; }
+.sq-lamp.beat, .sq-sign.beat { animation: sq-beat .5s ease-out; }
+@keyframes sq-beat { 0% { transform: scale(1.18); } 30% { transform: scale(1.02); } 45% { transform: scale(1.1); } 100% { transform: none; } }
+.sq-unlock { font-size: .74rem; letter-spacing: .8em; color: var(--accent); opacity: 0; filter: blur(6px); transition: opacity 1.6s ease-out, letter-spacing 2s ease-out, filter 1.6s ease-out; }
+.sq-unlock.on { opacity: 1; letter-spacing: .26em; filter: none; }
+@keyframes face-pop { from { opacity: 0; transform: scale(.7) rotate(-12deg); } }
+/* patička: jen tam, kde není vidět spodek menu (PC, telefon na šířku). Nad čárou volný pruh pro odhalení,
+   jiskry z „ohniště“ kolem smajlíka (vítr je rozfouká přes celou patičku). Bez žáru pod smajlíkem (Skeli: elipsa se nelíbila). */
+.foot-squad { display: none; }
+@media (min-width: 1025px), (orientation: landscape) and (max-height: 500px) {
+  .foot-squad { position: relative; display: grid; justify-items: center; gap: 8px; margin-top: 16px; padding: 140px 16px 26px; overflow: hidden; overflow: clip; }
+  .foot-squad .sq-line { max-width: 760px; }
+  /* na velké obrazovce je odhalení o třetinu větší (EKG se posune a zvětší s ním) */
+  .foot-squad .sq-arena { transform: scale(1.3); transform-origin: 50% 0; }
+  .foot-squad .sq-ekg { top: 55px; scale: 1.3; }
+}
+html.low-fx .main-nav, html.low-fx .sq-home .sq-seal span, html.low-fx .main-nav .dk-don .dk-cb i { animation: none; }
+@media (prefers-reduced-motion: reduce) { .sq-lamp.beat, .sq-lamp.buzz, .sq-sign.beat, .sq-home .sq-seal.hop span, .main-nav .dk-don .dk-cb i { animation: none; } }
 
 /* ---------- Buttons ---------- */
 /* :where() keeps specificity at zero, so any component class overrides these */
@@ -631,72 +701,6 @@ input[type=file]::file-selector-button {
 input[type=file]::file-selector-button:hover { border-color: var(--accent); }
 
 /* ---------- Persistent Spotify player (floating card) ---------- */
-.sp-bar {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  width: min(400px, calc(100vw - 32px));
-  z-index: 9999;
-  display: none;
-  border-radius: 14px;
-  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.7);
-}
-.sp-inner { position: relative; }
-.sp-iframe {
-  display: block;
-  width: 100%;
-  height: 80px;
-  border: 0;
-  border-radius: 14px;
-  background: #121212;
-}
-.sp-hide {
-  position: absolute;
-  top: -12px;
-  right: -8px;
-  z-index: 1;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: #1c1c1f;
-  color: #fff;
-  font-size: 0.7rem;
-  cursor: pointer;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-}
-.sp-hide:hover { background: #2a2a2e; border-color: var(--accent); }
-
-.sp-minbar {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 9998;
-  display: none;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(18, 18, 21, 0.92);
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: transform .15s, border-color .2s;
-}
-.sp-minbar:hover { transform: translateY(-2px); border-color: var(--spotify); }
-.sp-minbar i.fa-spotify { color: var(--spotify); font-size: 1.2em; margin-right: 6px; }
-
-@media (max-width: 600px) {
-  .sp-bar { right: 16px; bottom: 16px; }
-  .sp-minbar { right: 16px; bottom: 16px; }
-}
-
 /* ---------- Footer ---------- */
 .site-footer {
   margin-top: auto;
@@ -947,20 +951,11 @@ body.light .flash-warn { background: rgba(255, 170, 40, 0.16); color: #8a4b00; }
   box-shadow: 0 0 0 2px var(--bg);
 }
 .notif-badge[hidden] { display: none; }
-.nav-notif { display: none; }
-.nav-notif .notif-badge { position: static; margin-left: 4px; box-shadow: none; }
 /* phones: a red dot on "Menu" while something is unread */
 .menu-toggle.has-unread { position: relative; }
 .menu-toggle.has-unread::after {
   content: ""; position: absolute; top: 2px; right: 2px; width: 10px; height: 10px; border-radius: 50%;
   background: #ff4d6d; box-shadow: 0 0 0 2px var(--bg);
-}
-@media (max-width: 1024px) {
-  .main-nav .nav-notif,
-  body.light .main-nav .nav-notif {
-    display: flex; align-items: center; justify-content: flex-start; gap: 6px; width: 100%; padding: 12px 14px; border: 0; border-radius: 10px;
-    background: transparent; color: var(--text); font: inherit; font-size: 0.95rem; text-align: left; cursor: pointer;
-  }
 }
 .notif-panel {
   position: fixed; z-index: 1200; top: calc(var(--header-h) + 8px); right: 16px; width: min(400px, calc(100vw - 32px));
@@ -1037,12 +1032,12 @@ body.light .card-gold {
 .av-frame { position: relative; display: inline-flex; flex-shrink: 0; border-radius: 50%; line-height: 0; font-size: var(--cmt-av, 40px); --fw: .09em; }
 .av-frame::before, .av-frame::after { content: ""; position: absolute; pointer-events: none; border-radius: 50%; }
 .av-frame::before {
-  inset: calc(var(--fw) * -1.2); padding: var(--fw);
+  inset: calc(var(--fw) * -1.05); padding: var(--fw);   /* prstenec těsně u fotky */
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--fw)), #000 calc(100% - var(--fw) + 1px));
   mask: radial-gradient(farthest-side, transparent calc(100% - var(--fw)), #000 calc(100% - var(--fw) + 1px));
 }
 .acct-photo.av-frame { font-size: 116px; }
-.acct-photo.av-frame .acct-avatar { border-color: transparent; }
+.acct-photo.av-frame .acct-avatar { border: 0; }   /* dřív jen průhledný okraj: fotka se o 3 px zmenšila a mezi ní a rámečkem byla mezera */
 @media (max-width: 600px) { .acct-photo.av-frame { font-size: 84px; } }
 .kpong-board .av-frame { font-size: 24px; --fw: .12em; }
 @keyframes av-spin { to { transform: rotate(1turn); } }
@@ -1128,14 +1123,6 @@ body.light .card-gold {
 .av-frame.f-champ1::before, .av-frame.f-champ2::before, .av-frame.f-champ3::before { background-image: var(--champ-img); }
 .av-frame.f-champ1 { box-shadow: 0 0 .3em rgba(255, 210, 63, .45); }
 .cmt-reply .av-frame { font-size: 30px; }
-@keyframes nav-shine { 0%, 55% { background-position: -100% 0; } 85%, 100% { background-position: 200% 0; } }
-/* karaoke v liště na počítači: jen malá zlatá hvězdička (štítek s textem by menu nevešel) */
-@media (min-width: 1025px) {
-  .main-nav a.nav-karaoke { position: relative; }
-  .main-nav a.nav-karaoke .nav-badge { position: absolute; top: 2px; right: 0; font-size: .55rem; color: var(--accent); line-height: 1; }
-  .main-nav a.nav-karaoke .nav-badge span { display: none; }
-}
-
 /* legendární znak u jména (CatSmash, odznaky za nejtěžší obtížnost) – jen když si ho autor zapnul */
 .cmt-mark { margin-left: 4px; font-size: .85em; color: var(--accent); filter: drop-shadow(0 0 4px rgba(230, 183, 48, .55)); vertical-align: baseline; }
 body.light .cmt-mark { color: #8f6600; filter: none; }

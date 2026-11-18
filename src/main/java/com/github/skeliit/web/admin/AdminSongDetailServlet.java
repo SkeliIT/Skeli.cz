@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Song hub in admin: media + per-language lyrics / SEO / meta description.
  * GET  /admin/song?uuid=…
- * POST action=save|save_locale|save_art|save_poster|link_video|unlink_video|translate_locale
+ * POST action=save|save_locale|save_art|save_poster|save_disco_src|link_video|unlink_video|translate_locale
  */
 @WebServlet(name = "AdminSongDetailServlet", urlPatterns = { "/admin/song" })
 public class AdminSongDetailServlet extends HttpServlet {
@@ -60,6 +60,7 @@ public class AdminSongDetailServlet extends HttpServlet {
             // the delete box at the end: a song can go only once its lyrics are gone
             req.setAttribute("lyricLangs", songs.lyricLanguages(song.id));
             req.setAttribute("premiere", new com.github.skeliit.dao.PremiereDao().forSong(song.id));   // premiéra s odpočtem
+            req.setAttribute("premiereVideo", new com.github.skeliit.dao.PremiereDao().pendingVideo(song.id));   // neveřejné video čekající na premiéru (jen admin)
             // „Hledáme pomoc s textem“: je zapnutá, v jakém jazyce, od kdy; a co návštěvníci poslali
             String[] helpWanted = help.wanted(song.id);
             req.setAttribute("helpOn", helpWanted != null);
@@ -72,8 +73,16 @@ public class AdminSongDetailServlet extends HttpServlet {
                     ? "/yt-thumb/" + videos.get(0).youtubeId + "/hqdefault.jpg"
                     : WebUtils.safeUrl(song.previewImageUrl, null);
             req.setAttribute("rowArt", rowArt);
-            // the Karaoke poster always shows the newest clip (songs without a clip have no karaoke)
-            req.setAttribute("posterArt", !videos.isEmpty() && videos.get(0).youtubeId != null ? "/yt-thumb/" + videos.get(0).youtubeId + "/hqdefault.jpg" : null);
+            // Obrázek v Diskografii: automatický (ostrý obrázek z klipu, jinak náhled z YouTube), snímky z YouTube, nahraný
+            String newestYt = !videos.isEmpty() ? videos.get(0).youtubeId : null;
+            String discoAuto = newestYt == null ? WebUtils.safeUrl(song.previewImageUrl, null)
+                    : getServletContext().getResource("/img/disco/" + newestYt + ".webp") != null ? "/img/disco/" + newestYt + ".webp" : "/yt-thumb/" + newestYt + "/maxresdefault.jpg";
+            String discoImage = songs.getDiscoImage(song.id);
+            req.setAttribute("discoAuto", discoAuto);
+            req.setAttribute("discoImage", discoImage);
+            req.setAttribute("discoShown", discoImage != null ? discoImage : discoAuto);
+            req.setAttribute("discoYt", newestYt);
+            req.setAttribute("discoStyle", com.github.skeliit.model.Song.posterStyle(song.posterX, song.posterY, song.posterZoom));
             req.setAttribute("songTitle", com.github.skeliit.model.SongTitle.of(song.name));
             req.setAttribute("locales", buildLocaleMap(song.id));
             req.setAttribute("langs", LANGS);
@@ -173,6 +182,12 @@ public class AdminSongDetailServlet extends HttpServlet {
                         resp.sendRedirect(hub + "&msg=bad_release#premiere");
                     }
                 }
+                case "premiere_video" -> {
+                    // neveřejné video k premiéře: do videos se přesune samo v čas premiéry (job/PremiereJob)
+                    String yt = AdminVideoServlet.youtubeId(req.getParameter("youtube"));
+                    new com.github.skeliit.dao.PremiereDao().setVideo(id, yt);
+                    resp.sendRedirect(hub + "&msg=" + (yt == null ? "premiere_video_cleared" : "premiere_video_saved") + "#premiere");
+                }
                 case "clear_release" -> {
                     new com.github.skeliit.dao.PremiereDao().set(id, null, null);
                     resp.sendRedirect(hub + "&msg=release_cleared#premiere");
@@ -221,6 +236,15 @@ public class AdminSongDetailServlet extends HttpServlet {
                     }
                     resp.sendRedirect(hub + "&msg=art_saved#row-art");
                 }
+                case "save_disco_src" -> {   // zdroj obrázku v Diskografii (prázdný = automaticky)
+                    String src = req.getParameter("src");
+                    if (src == null || src.isBlank()) songs.updateDiscoImage(id, null);
+                    else if (src.matches("/yt-thumb/[A-Za-z0-9_-]{6,20}/(maxresdefault|maxres[123]|hq[123]|hqdefault|sddefault)\\.jpg")
+                            || src.matches("/uploads/song-previews/disco-\\d+\\.jpg(\\?v=\\d+)?")
+                            || src.matches("/img/disco/[A-Za-z0-9_-]{6,20}\\.webp")) songs.updateDiscoImage(id, src);
+                    else { resp.sendRedirect(hub + "&msg=bad_art#disco-art"); return; }
+                    resp.sendRedirect(hub + "&msg=disco_saved#disco-art");
+                }
                 case "save_poster" -> {
                     if ("1".equals(req.getParameter("auto"))) {
                         songs.updatePoster(id, null, null, null);
@@ -232,9 +256,9 @@ public class AdminSongDetailServlet extends HttpServlet {
                             resp.sendRedirect(hub + "&msg=bad_art#poster-art");
                             return;
                         }
-                        songs.updatePoster(id, Song.clamp(x, 0, 100), Song.clamp(y, 0, 100), Song.clamp(zoom, 1, 3));
+                        songs.updatePoster(id, Song.clamp(x, 0, 100), Song.clamp(y, 0, 100), Song.clamp(zoom, 0.4, 3));   // pod 1 = zmenšený obrázek, okraje vyplní rozmazaná kopie
                     }
-                    resp.sendRedirect(hub + "&msg=poster_saved#poster-art");
+                    resp.sendRedirect(hub + "&msg=poster_saved#disco-art");
                 }
                 case "save_locale" -> {
                     String lang = I18n.safeLang(req.getParameter("lang"));
@@ -336,10 +360,14 @@ public class AdminSongDetailServlet extends HttpServlet {
                     }
                     SongLocale cs = lyrics.findLocale(id, "cs");
                     String seoKeep = cs != null ? cs.seoSlug : song.seoSlug;
+                    // formulář „Píseň“ posílá jen název a rok: chybějící pole = ponechat (dřív se tím smazala ID Spotify a Apple Music)
+                    String appleRaw = req.getParameter("apple_music_id"), spotifyRaw = req.getParameter("spotify_id");
                     songs.updateBasics(id, name.trim(), year,
-                            appleMusicId(req.getParameter("apple_music_id")),
-                            spotifyId(req.getParameter("spotify_id")),
+                            appleRaw == null ? song.appleMusicId : appleMusicId(appleRaw),
+                            spotifyRaw == null ? song.spotifyId : spotifyId(spotifyRaw),
                             seoKeep);
+                    // přepínač Spolupráce je jen ve formuláři „Píseň“ (nezaškrtnuté pole prohlížeč nepošle)
+                    if (req.getParameter("collab_form") != null) songs.updateCollab(id, req.getParameter("collab") != null);
                     resp.sendRedirect(hub + "&msg=saved");
                 }
             }

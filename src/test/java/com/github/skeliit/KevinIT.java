@@ -233,4 +233,17 @@ class KevinIT extends UiTestSupport {
             update("DELETE FROM site_reports WHERE message=?", note);
         }
     }
+
+    @Test
+    @DisplayName("Přihlášenému jednou řekne o novém profilu a při další návštěvě o soukromí")
+    void tellsAboutProfileAndPrivacy() throws Exception {
+        registerAndLogin("kn" + uniq());
+        openWithKevin("/about.jsp", "localStorage.removeItem('kevinProfileNews'); sessionStorage.removeItem('kevinProfileNewsNow');");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        wait.until(d -> "1".equals(js.executeScript("return localStorage.getItem('kevinProfileNews')")));
+        // další návštěva = nové sezení prohlížeče
+        openWithKevin("/about.jsp", "sessionStorage.removeItem('kevinProfileNewsNow');");
+        wait.until(d -> "2".equals(js.executeScript("return localStorage.getItem('kevinProfileNews')")));
+    }
 }

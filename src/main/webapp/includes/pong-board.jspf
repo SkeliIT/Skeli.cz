@@ -12,6 +12,7 @@
   data-goals="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("home.game.goals")) %>"
   data-levels="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pb.levels")) %>"
   data-empty="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pb.empty")) %>"
+  data-anon="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pong.anon")) %>"
   data-error="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pb.error")) %>"
   data-lang="<%= com.github.skeliit.WebUtils.escapeHtml(cur) %>">
   <div class="pb" role="dialog" aria-modal="true" aria-labelledby="pbTitle">

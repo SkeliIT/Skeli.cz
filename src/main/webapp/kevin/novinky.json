@@ -1,47 +1,47 @@
 [
   {
-    "d": "2026-11-05",
-    "href": "/nastaveni.jsp#zahlavi",
-    "cs": "Na profilu si teď můžeš nahrát vlastní záhlaví: široký obrázek nad tvou fotkou. Najdeš ho v Nastavení.",
-    "en": "You can now upload your own header to your profile: a wide picture above your photo. You’ll find it in Settings.",
-    "de": "Du kannst jetzt ein eigenes Titelbild für dein Profil hochladen: ein breites Bild über deinem Foto. Du findest es in den Einstellungen.",
-    "uk": "Тепер можна завантажити власну шапку профілю: широке зображення над твоїм фото. Шукай у Налаштуваннях.",
-    "vi": "Giờ bạn có thể tải lên ảnh bìa riêng cho hồ sơ: một ảnh rộng phía trên ảnh đại diện. Bạn tìm thấy trong Cài đặt."
+    "d": "2026-11-17",
+    "href": "/index.jsp",
+    "cs": "Nové menu na mobilu. Otevře se přes celou obrazovku a všechno najdeš na jednom místě.",
+    "en": "A new menu on phones. It opens over the whole screen and everything is in one place.",
+    "de": "Ein neues Menü auf dem Handy. Es öffnet sich über den ganzen Bildschirm, alles ist an einem Ort.",
+    "uk": "Нове меню на телефоні. Відкривається на весь екран, усе знайдеш в одному місці.",
+    "vi": "Menu mới trên điện thoại. Mở ra toàn màn hình và mọi thứ ở cùng một chỗ."
   },
   {
-    "d": "2026-11-04",
-    "href": "/?kevin=pong",
-    "cs": "Každý automat v CatSmash má teď vlastní kolečka a táhla: ledová, lávová, plyšová… Vyber si pálku a mrkni dovnitř.",
-    "en": "Every CatSmash machine now has its own gears and rods: ice, lava, plush… Pick a paddle and take a look inside.",
-    "de": "Jeder CatSmash-Automat hat jetzt eigene Zahnräder und Stangen: aus Eis, Lava, Plüsch… Wähl einen Schläger und schau hinein.",
-    "uk": "Кожен автомат у CatSmash тепер має власні колеса й тяги: крижані, лавові, плюшеві… Обери ракетку й зазирни всередину.",
-    "vi": "Mỗi máy CatSmash giờ có bánh răng và thanh truyền riêng: băng, dung nham, nhung… Chọn một chiếc vợt và nhìn vào bên trong nhé."
+    "d": "2026-11-15",
+    "href": "/karaoke",
+    "cs": "Nová stránka Karaoke. Vybereš si písničku a zpíváš se Skelim, text svítí slovo po slově. Stačí se přihlásit.",
+    "en": "A new Karaoke page. Pick a song and sing along with Skeli, the lyrics light up word by word. Just sign in.",
+    "de": "Eine neue Karaoke-Seite. Such dir einen Song aus und sing mit Skeli, der Text leuchtet Wort für Wort auf. Du musst dich nur anmelden.",
+    "uk": "Нова сторінка Караоке. Обери пісню й співай зі Skeli, текст світиться слово за словом. Достатньо увійти.",
+    "vi": "Trang Karaoke mới. Chọn một bài và hát cùng Skeli, lời bài hát sáng lên từng chữ. Chỉ cần đăng nhập."
   },
   {
-    "d": "2026-11-04",
-    "href": "/?kevin=pong",
-    "cs": "CatSmash se teď barví podle tvojí pálky: s ledovou je celá hra namodralá, s čipem zelená. A menu hry má nový vzhled, všechny věci vidíš naráz.",
-    "en": "CatSmash now takes its colours from your paddle: blue with the ice one, green with the chip. And the game menu has a new look, with everything in view at once.",
-    "de": "CatSmash richtet seine Farben jetzt nach deinem Schläger: mit dem Eisschläger bläulich, mit dem Chip grün. Und das Spielmenü sieht neu aus, du siehst alles auf einmal.",
-    "uk": "CatSmash тепер забарвлюється за твоєю ракеткою: із крижаною гра блакитна, із чипом зелена. А меню гри має новий вигляд, усе видно одразу.",
-    "vi": "CatSmash giờ đổi màu theo vợt của bạn: vợt băng thì cả trò chơi xanh nhạt, vợt chip thì xanh lá. Menu trò chơi cũng có diện mạo mới, mọi thứ hiện ra cùng lúc."
+    "d": "2026-11-15",
+    "href": "/texty.jsp",
+    "cs": "Texty se teď točí jako kolotoč. Vybraná píseň ukáže kus textu, jedním ťuknutím čteš nebo zpíváš.",
+    "en": "The lyrics now spin like a carousel. The chosen song shows a piece of its lyrics, one tap and you read or sing.",
+    "de": "Die Texte drehen sich jetzt wie ein Karussell. Der gewählte Song zeigt ein Stück Text, ein Tipp und du liest oder singst.",
+    "uk": "Тексти тепер крутяться, як карусель. Обрана пісня покаже шматок тексту, одним дотиком читаєш або співаєш.",
+    "vi": "Lời bài hát giờ xoay như vòng quay ngựa gỗ. Bài được chọn hiện một đoạn lời, chạm một lần là đọc hoặc hát."
   },
   {
-    "d": "2026-11-04",
-    "href": "/?kevin=pong",
-    "cs": "V CatSmash na telefonu zase běhám po velkém kole a tím hýbu svou pálkou. Pod hřištěm máš celé okénko s koly pro prst.",
-    "en": "In CatSmash on a phone I’m back to running on a big wheel, and that’s what moves my paddle. Below the court, the whole gear window is yours for your finger.",
-    "de": "In CatSmash auf dem Handy laufe ich wieder auf einem großen Rad und bewege so meinen Schläger. Unter dem Spielfeld gehört das ganze Zahnradfenster deinem Finger.",
-    "uk": "У CatSmash на телефоні я знову бігаю по великому колесу й так рухаю своєю ракеткою. Під полем усе віконце з колесами твоє — для пальця.",
-    "vi": "Trong CatSmash trên điện thoại, tôi lại chạy trên bánh xe lớn và nhờ đó di chuyển vợt của mình. Dưới sân, cả ô bánh răng là chỗ cho ngón tay của bạn."
+    "d": "2026-11-15",
+    "href": "/texty.jsp",
+    "cs": "Každá písnička má barvy svého videa. Kolem videa teče jeho nálada a celá stránka se přebarví podle něj.",
+    "en": "Every song has the colours of its video. Its mood flows around the video and the whole page takes on its colours.",
+    "de": "Jeder Song hat die Farben seines Videos. Seine Stimmung fließt um das Video, und die ganze Seite färbt sich danach.",
+    "uk": "Кожна пісня має кольори свого відео. Довкола відео тече його настрій, і вся сторінка перефарбовується під нього.",
+    "vi": "Mỗi bài hát mang màu sắc video của nó. Không khí của video lan tỏa xung quanh và cả trang đổi màu theo."
   },
   {
-    "d": "2026-11-04",
-    "href": "/uzivatel.jsp",
-    "cs": "Můj profil má nový vzhled: skleněné dlaždice s tvými čísly, odznaky a oblíbeným songem. Mrkni, jak ti to sluší.",
-    "en": "My profile has a new look: glass tiles with your numbers, badges and favourite song. Go and see how it suits you.",
-    "de": "Mein Profil sieht jetzt neu aus: Glaskacheln mit deinen Zahlen, Abzeichen und deinem Lieblingssong. Schau mal, wie es dir steht.",
-    "uk": "Мій профіль має новий вигляд: скляні плитки з твоїми числами, значками й улюбленою піснею. Глянь, як тобі пасує.",
-    "vi": "Hồ sơ của tôi có diện mạo mới: các ô kính với số liệu, huy hiệu và bài hát yêu thích của bạn. Vào xem hợp với bạn thế nào nhé."
+    "d": "2026-11-15",
+    "href": "/",
+    "cs": "Web se převlíkl. Barvy se mění s fotkami v pozadí, valí se kouř a jiskry uhýbají tvé myši.",
+    "en": "The site got a new look. The colours change with the photos in the background, smoke rolls and sparks dodge your mouse.",
+    "de": "Die Seite hat sich umgezogen. Die Farben wechseln mit den Fotos im Hintergrund, Rauch zieht vorbei und Funken weichen deiner Maus aus.",
+    "uk": "Сайт перевдягнувся. Кольори змінюються з фото на тлі, клубочиться дим, а іскри ухиляються від твоєї миші.",
+    "vi": "Trang web đã thay áo mới. Màu sắc đổi theo ảnh nền, khói cuộn và tia lửa né con chuột của bạn."
   }
 ]

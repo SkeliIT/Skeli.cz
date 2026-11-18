@@ -21,16 +21,26 @@ are easy to get wrong.
   never hides while scrolling (the menu is always one tap away), tap targets are at least ~40 px
   (`@media (pointer: coarse)` block at the end of `css/components.css`), text at least `--fs-small`.
 - Colours, fonts and sizes come from the variables in `css/base.css`; check light and dark theme and
-  a phone. After a CSS or JS change raise `assetVersion` in `includes/header.jsp`.
+  a phone. After a CSS or JS change raise `assetVersion` in `includes/version.jspf`.
 - Code comments (Java, JSP, JS, CSS, SQL) and commit messages are written in Czech – the owner reads them.
 - Escape output (`WebUtils.escapeHtml`, `c:out`), SQL only through prepared statements, every form
   posts the CSRF token. Secrets live in `.env` on the server, never in Git.
 - Where code goes: SQL in `dao/` (JSPs only render what a DAO returns, as plain classes in `model/`:
   the JSP compiler can't read records), servlets in `web/<area>/`, filters in `filter/`, background jobs
   in `job/`. Admin templates live in `WEB-INF/views/admin/`; old addresses go to `LegacyRedirectServlet`.
+- Weak phones get `html.low-fx` (set early in `includes/header.jsp`, by `watchSmooth` in `js/effects.js` too): a new effect that
+  repaints all the time must switch off there (block at the end of `css/effects.css`). Icon fonts hold only the used icons:
+  a new Font Awesome icon = run `python tools/fa-subset.py` (`IconFontTest` fails otherwise).
 - User images (avatar, profile header) go through `service/ProfileImages`: random file names, served only by
   `web/files/ProfileImageServlet` (the header also checks who is looking). A new servlet with `@MultipartConfig`
   must call `CsrfFilter.isValid` and be added to `CsrfFilter.MULTIPART_PATHS`.
+- The profile (`uzivatel.jsp`, `WEB-INF/views/player.jsp`) is split into parts by `js/profile-tabs.js`: Overview = about the person,
+  Games = one block per game (`.game-head` + its tiles; a new game adds a block, never mixes into Overview), Friends (own profile only), Comments.
+- Friends and blocks: `dao/FriendDao` + POST `/profile/friends`; "me" always comes from the session. A block is silent: the blocked person's pending request stays
+  visible to them as pending, never to the blocker, and nothing may reveal the block. A private profile still takes friend requests (found by full name only). Moderation: `dao/ModerationDao`. A new table with user
+  data also goes into `AccountDeletion`, `ProfileExportServlet` and the privacy text.
+- Chat (`/zpravy`, `dao/ChatDao`, `/api/chat`, `js/chat.js`): friends only, plain text only (never render a message as HTML), the bell never shows the text, an error never says why someone can't be messaged, and the admin sees only reported messages.
+- User music links go through `service/MusicLinks` (exact hosts, only the verified part is stored, the URL is rebuilt from it); never store or print a link as the user typed it.
 - Comments under lyrics and under clips are one system: `dao/CommentDao` (the `Kind` picks the table),
   `/api/comments`, drawn by `js/comments.js` from `includes/comments.jspf`. Change both kinds together.
 - Kevin's lines live in `js/lines/kevin-{cs,en,de,uk,vi}.js` (a page loads only its own language, footer.jsp);
@@ -49,10 +59,18 @@ are easy to get wrong.
 - RSS/Atom feeds (`/{lang}/feed/*`, `web/site/FeedServlet` + `dao/FeedDao`): entry ids are `tag:skeli.cz,2025:…`
   URIs and must never change (readers would show everything as new). PJAX navigation swaps only `<main>`,
   so the feed `<link rel="alternate">` in `<head>` stays from the first page until a full reload.
-- The water-and-fire effect round a clip (`js/clip-fx.js`) reads `eq/<youtubeId>.json`, made once per clip
+- The song-atmosphere effect round a clip (`js/clip-fx.js`: colours of the clip's left/right edges, calm or fiery by the
+  song's loudness; was water and fire until 2026-11-15) reads `eq/<youtubeId>.json`, made once per clip
   with `tools/clip-fx-data.js`; a clip without the file still works (calm rhythm, thumbnail colours).
+- Karaoke style Lyric video (`kino/styly.js`): the text always stands in one place, bottom left (every line starts at
+  the same point), the whole line shows in advance and words light up as sung, so people can recite. Never move it
+  around the picture and never put it in the middle.
 
 ## Tests
 - `mvn test` runs the unit tests (`*Test`, also part of `mvn verify`).
 - `*IT` are Selenium tests (headless Chrome) against a running local site and the local database
   `skeliweb`: `mvn test -Dtest='*IT'`.
+- **Before every release to www** run the whole-site check `mvn test -Dtest=SiteAuditIT` (~25 min, every page on phone
+  upright/sideways and PC, dark and light, 5 languages; script errors, overflow, untranslated keys, broken images, menu
+  out of reach = failure; tiny text and small tap targets = warnings). Report in Czech: `target/site-audit/zprava.txt`.
+  Quick version while working: `-Dquick=true` (phone, dark, Czech). `PersonalDataCoverageTest` guards deletion/export of user data.
