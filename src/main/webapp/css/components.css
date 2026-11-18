@@ -488,7 +488,10 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   /* spodek menu: podpis – čára, uprostřed smajlík loga v kroužku (barva webu, s fotkou se vymění), pod tím SKELO SQUAD,
      dole jemný žár. Nad čárou je volný pruh pro easter egg (js/squad-egg.js): 7× ťuknout = obličeje se rozsvítí, SQUAD UNLOCKED. */
   .main-nav .nav-foot { position: relative; display: grid; justify-items: center; gap: 8px; flex: none; margin: auto -14px calc(-18px - env(safe-area-inset-bottom)) ;
-    padding: 112px 14px calc(18px + env(safe-area-inset-bottom)); overflow: hidden; }
+    /* dole velká rezerva: u spodního okraje iPhonu je pruh pro gesto domů – ťukání těsně u něj aplikaci minimalizovalo.
+       Menu se o tu rezervu prodlouží (dá se dojet), smajlík se tím nepřiblíží k nastavení. */
+    padding: 112px 14px calc(84px + env(safe-area-inset-bottom)); overflow: hidden; }
+  .main-nav .sq-seal { touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }   /* rychlé ťukání = žádné přiblížení ani nabídka */
   .main-nav .nav-foot::before { content: ""; position: absolute; left: -20%; right: -20%; bottom: -50px; height: 130px; pointer-events: none; filter: blur(8px);
     background: radial-gradient(60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%); }
   .sq-line { position: relative; z-index: 2; display: flex; align-items: center; gap: 12px; width: 100%; }
