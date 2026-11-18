@@ -13,6 +13,8 @@
   var lampBox = arena.querySelector('.sq-lamps'), lamps = [].slice.call(lampBox.querySelectorAll('.sq-lamp'));
   var sign = arena.querySelector('.sq-sign'), unlock = arena.querySelector('.sq-unlock');
   var taps = 0, face = 0, running = false, resetT = 0, mode = null;
+  // vítr z tunelu: kdy začal foukat a kterým směrem (-1 doleva, 1 doprava) – odnáší jiskry i bublinky dole v menu
+  var gust = { t0: -1e9, dir: 1 };
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // struny nad smajlíky (rozechvějí se při brnknutí harfy a zase zmizí)
   var strs = lamps.map(function (l, i) { var s = document.createElement('i'); s.className = 'sq-str'; s.style.setProperty('--i', i); lampBox.appendChild(s); return s; });
@@ -155,7 +157,7 @@
     running = true; arena.classList.add('show'); arena.classList.remove('tease');
     var harp = mode === 'harfa', t = 400, gap = 900;
     if (harp) { pluck(82.41, 1.0, L.basa, { bright: 0.25, damp: 0.9995, len: 5, cut: 700, wet: 0.3 }); }   // basa na E (napětí)
-    else tunnel(5.45);
+    else { tunnel(5.45); gust.t0 = performance.now(); gust.dir = Math.random() < 0.5 ? -1 : 1; }
     lamps.forEach(function (l, i) {
       if (harp) setTimeout(function () { twang(i); }, Math.max(0, t - 150));   // struna o chvilku dřív než smajlík
       setTimeout(function () {
@@ -207,6 +209,12 @@
       var r = m[1] / 255, g = m[2] / 255, b = m[3] / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b); if (mx - mn < 0.15 || mx !== g) return false;
       var h = 60 * (((b - r) / (mx - mn)) + 2); return h > 80 && h < 150;
     }
+    // síla větru 0–1: sílí stejně jako hučení tunelu (5,45 s až k nápisu), pak 3 s utichá; fouká v poryvech
+    function gustNow() {
+      var s = (performance.now() - gust.t0) / 1000; if (s < 0 || s > 8.45) return 0;
+      var g = s < 5.45 ? Math.pow(s / 5.45, 1.6) : 1 - (s - 5.45) / 3;
+      return g * (0.7 + 0.3 * Math.sin(s * 2.3) * Math.sin(s * 0.9 + 1));
+    }
     function on() { return document.documentElement.classList.contains('menu-open') && !document.documentElement.classList.contains('low-fx') && !still && !document.hidden; }
     function pos(e) { var r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
     foot.addEventListener('pointermove', function (e) { var p = pos(e); if (last) { wind.vx = p.x - last.x; wind.vy = p.y - last.y; } wind.x = p.x; wind.y = p.y; wind.t = 1; last = p; });
@@ -224,12 +232,13 @@
       if (!W) size();
       var col = accent(), gr = green(col);
       ctx.clearRect(0, 0, W, H); wind.t *= 0.9;
+      var gw = gustNow() * gust.dir;   // vítr z tunelu (0, když nefouká)
       while (P.length < 14) P.push(ember(true));
       for (var i = P.length - 1; i >= 0; i--) {
         var p = P[i], dx = p.x - wind.x, dy = p.y - wind.y, d = Math.hypot(dx, dy);
         if (wind.t > 0.05 && d < 60) { var f = (1 - d / 60) * wind.t; p.vx += (wind.vx * 0.025 + dx / (d + 1) * 0.3) * f; p.vy += (wind.vy * 0.025 + dy / (d + 1) * 0.3) * f; }
         var sp = Math.hypot(p.vx, p.vy); if (sp > 2.2) { p.vx *= 2.2 / sp; p.vy *= 2.2 / sp; }
-        p.vx *= 0.95; p.vy = p.vy * 0.97 - 0.012; p.x += p.vx; p.y += p.vy;
+        p.vx = p.vx * 0.95 + gw * 0.09 * (0.6 + p.r * 0.3); p.vy = p.vy * 0.97 - 0.012; p.x += p.vx; p.y += p.vy;
         var top = Math.max(0, Math.min(1, (p.y - H * 0.08) / (H * 0.45))), al = p.a * top * top;   // vyhasne dřív, než dojde k okraji
         if (al < 0.02 || p.x < -8 || p.x > W + 8) { P[i] = ember(false); continue; }
         ctx.globalAlpha = al; ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 6; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill();
@@ -240,7 +249,8 @@
         var b = B[j]; b.ph += 0.03;
         var dx2 = b.x - wind.x, dy2 = b.y - wind.y, d2 = Math.hypot(dx2, dy2);
         if (wind.t > 0.05 && d2 < 50 && d2 > 22) b.vx += dx2 / (d2 + 1) * 0.12 * wind.t;
-        b.vx *= 0.95; b.x += b.vx + Math.sin(b.ph) * 0.25; b.y += b.vy;
+        b.vx = b.vx * 0.95 + gw * 0.05; b.x += b.vx + Math.sin(b.ph) * 0.25; b.y += b.vy;
+        if (b.x < -b.r - 4 || b.x > W + b.r + 4) { B.splice(j, 1); continue; }   // vítr ji odnesl z menu
         var bt = Math.max(0, Math.min(1, (b.y - H * 0.08) / (H * 0.4)));
         if ((!gr && Math.random() < 0.01) || bt <= 0.02) { pop(b, false); B.splice(j, 1); continue; }
         ctx.globalAlpha = 0.12 * bt; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 7); ctx.fill();
