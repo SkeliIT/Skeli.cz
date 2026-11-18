@@ -110,7 +110,7 @@
   if (foot.dataset.ready) return;
   foot.dataset.ready = '1';
   var menu = !!foot.closest('.main-nav');   // v menu se kreslí při otevřeném menu, v patičce když je vidět
-  var seal = foot.querySelector('.sq-seal'), arena = foot.querySelector('.sq-arena'), sig = foot.querySelector('.sq-sig');
+  var seal = foot.querySelector('.sq-seal'), arena = foot.querySelector('.sq-arena'), sig = foot.querySelector('.sq-sig');   // podpis pod smajlíkem je zatím pryč (null)
   var lampBox = arena.querySelector('.sq-lamps'), lamps = [].slice.call(lampBox.querySelectorAll('.sq-lamp'));
   var sign = arena.querySelector('.sq-sign'), unlock = arena.querySelector('.sq-unlock');
   var taps = 0, face = 0, running = false, resetT = 0, mode = null;
@@ -187,7 +187,8 @@
         [0, 1.1, 2.2, 3.3].forEach(function (d, j) { setTimeout(function () { heart((0.7 - j * 0.1) * L.srdce); if (!still) { sign.classList.remove('beat'); void sign.offsetWidth; sign.classList.add('beat'); } }, d * 1000); });
       } else whisper(0.02, 0.2);
     }, stop);
-    setTimeout(function () { unlock.classList.add('on'); sig.classList.add('kevin'); sig.textContent = 'Kevin: ' + (foot.dataset.kevin || ''); }, stop + 700);
+    // Kevinova hláška pod smajlíkem je zatím vypnutá (měnila výšku patičky, stránka poskakovala) – vrátí se po doladění
+    setTimeout(function () { unlock.classList.add('on'); }, stop + 700);
     // srdce se znovu rozběhne a nápis SKELO SQUAD na každý úder zatepe
     if (!harp) [2.2, 3.4, 4.9].forEach(function (d, j) { setTimeout(function () { heart(0.5 - j * 0.12); if (!still) { sign.classList.remove('beat'); void sign.offsetWidth; sign.classList.add('beat'); } }, stop + d * 1000); });
     setTimeout(function () { arena.classList.remove('show'); }, stop + 5900);
@@ -195,7 +196,6 @@
       lamps.forEach(function (l) { l.classList.remove('on', 'beat', 'buzz'); }); sign.classList.remove('on', 'beat'); unlock.classList.remove('on');
       taps = 0; setRing(0); running = false;
     }, stop + 6600);
-    setTimeout(function () { sig.classList.remove('kevin'); sig.textContent = 'SKELO SQUAD'; }, stop + 8000);
   }
   // ---------- jiskry ze žáru a bublinky u zelené (spodek menu) ----------
   // Kreslí se jen při otevřeném menu (html.menu-open), ne na slabém telefonu (html.low-fx) ani při „omezit pohyb“.

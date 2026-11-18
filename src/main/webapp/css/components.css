@@ -566,8 +566,6 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)), repeating-conic-gradient(#000 0 47deg, transparent 47deg 51.43deg);
   -webkit-mask-composite: source-in; mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)) intersect, repeating-conic-gradient(#000 0 47deg, transparent 47deg 51.43deg); }
 .sq-home .sq-seal[data-p]:not([data-p="0"])::before { opacity: 1; }
-.sq-sig { position: relative; z-index: 2; font-size: var(--fs-small); letter-spacing: .28em;   /* aspoň malé písmo webu (SiteAuditIT) */ color: var(--text-dim); text-align: center; }
-.sq-sig.kevin { letter-spacing: .02em; font: 300 var(--fs-small) var(--font-text); color: var(--text); max-width: 30ch; }
 /* easter egg: ve tmě se rozsvítí obličeje, pak nápis SKELO SQUAD a SQUAD UNLOCKED (zhasnuté nejsou vidět vůbec) */
 .sq-arena { position: absolute; z-index: 3; left: 0; right: 0; top: 10px; display: grid; justify-items: center; gap: 7px; pointer-events: none; opacity: 0; transition: opacity .5s; }
 .sq-arena.show { opacity: 1; }
