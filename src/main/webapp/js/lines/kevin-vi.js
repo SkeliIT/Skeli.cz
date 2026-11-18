@@ -169,7 +169,6 @@
   ],
   "sleep": [
     "Khò… chỉ nhắm mắt để suy nghĩ tốt hơn.",
-    "Nghỉ ngơi là quan trọng. Nhất là khi không phải làm việc.",
     "Có gì thì tôi vẫn thức. Chỉ là nhìn bên ngoài không giống thôi.",
     "Chế độ tiết kiệm năng lượng. Chân đã tắt.",
     "Làm ơn yên lặng. Tôi đang không làm gì cả."
@@ -572,7 +571,7 @@
 
 // ---------- Rady k funkcím, reakce a svátky (2026-11-08, překlad české sady; klíče stejné jako v kevin-cs.js) ----------
 (function (L) {
-  L.hints = {
+  L.hints = {
     "wheel": ["Chế độ sáng, chữ đậm và âm thanh nằm trong bánh xe phía trên. Bạn làm gì với chúng thì tôi mặc kệ.", "Bánh xe phía trên có giao diện và âm thanh. Tôi sẽ thêm một nút để ngủ lâu hơn."],
     "verify": ["Chưa xác minh e-mail thì chưa bình luận, gửi lời mời kết bạn hay nhắn tin được.", "Đường link xác minh đã gửi vào hộp thư. Đôi khi nó lạc vào thư rác."],
     "photo": ["Hồ sơ chịu được một tấm ảnh và một ảnh bìa rộng. Không bắt buộc. Nhưng chịu được.", "Ảnh và ảnh bìa được thêm ngay tại đây, trên hồ sơ."],

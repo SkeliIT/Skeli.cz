@@ -33,12 +33,12 @@ public class SongDao {
 
     /** Písně s textem pro stránku Texty: nejdřív vlastní skladby, pak spolupráce; v obou nejnovější rok, pak nejnovější video. */
     public List<LyricListItem> withLyrics(String lang) throws SQLException {
-        String sql = "SELECT s.id, s.uuid, s.name, s.year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, s.collab, MIN(l.id) AS lyric_id, "
+        String sql = "SELECT s.id, s.uuid, s.name, s.year, s.preview_image_url, s.disco_image, s.art_x, s.art_y, s.art_zoom, s.collab, MIN(l.id) AS lyric_id, "
                 + "(SELECT v.youtube_id FROM videos v WHERE v.song_id = s.id ORDER BY v.published_at DESC, v.id DESC LIMIT 1) AS youtube_id, "
                 + "(SELECT MAX(v.published_at) FROM videos v WHERE v.song_id = s.id) AS newest_clip, "
                 + "(SELECT lt.title FROM lyrics lt WHERE lt.song_id = s.id AND lt.lang = ? ORDER BY lt.id LIMIT 1) AS tr_title "
                 + "FROM lyrics l JOIN songs s ON s.id = l.song_id "
-                + "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url, s.art_x, s.art_y, s.art_zoom, s.collab "
+                + "GROUP BY s.id, s.uuid, s.name, s.year, s.preview_image_url, s.disco_image, s.art_x, s.art_y, s.art_zoom, s.collab "
                 + "ORDER BY s.collab, s.year DESC, newest_clip DESC, s.name ASC";
         List<LyricListItem> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
@@ -52,6 +52,7 @@ public class SongDao {
                             lyricId, rs.getString("youtube_id"), rs.getString("preview_image_url"), rs.getString("tr_title"),
                             Song.artStyle(x, y, z));
                     item.collab = rs.getBoolean("collab");
+                    item.mainImage = rs.getString("disco_image");   // hlavní obrázek písně z adminu (null = automaticky)
                     out.add(item);
                 }
             }

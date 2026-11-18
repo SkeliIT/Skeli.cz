@@ -169,7 +169,6 @@
   ],
   "sleep": [
     "Zzz… ich schließe nur die Augen, um besser nachzudenken.",
-    "Ausruhen ist wichtig. Vor allem, wenn man nicht arbeiten muss.",
     "Falls was ist, ich bin wach. Sieht von außen nur nicht so aus.",
     "Energiesparmodus. Pfoten ausgeschaltet.",
     "Ruhe, bitte. Ich tu gerade nichts."
@@ -572,7 +571,7 @@
 
 // ---------- Rady k funkcím, reakce a svátky (2026-11-08, překlad české sady; klíče stejné jako v kevin-cs.js) ----------
 (function (L) {
-  L.hints = {
+  L.hints = {
     "wheel": ["Heller Modus, fette Schrift und Töne sind im Rädchen oben. Was du damit machst, ist mir egal.", "Im Rädchen oben gibt es Aussehen und Töne. Ich würde noch einen Knopf für längere Nickerchen einbauen."],
     "verify": ["Ohne bestätigte E-Mail gehen Kommentare, Freundschaftsanfragen und Nachrichten noch nicht.", "Der Bestätigungslink ist in deinem Postfach. Manchmal landet er im Spam."],
     "photo": ["Ein Profil verträgt ein Foto und ein breites Titelbild. Muss nicht. Verträgt es aber.", "Foto und Titelbild fügst du direkt hier im Profil hinzu."],

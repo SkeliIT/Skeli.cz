@@ -135,14 +135,54 @@
         <a class="side-link" href="/aktuality.jsp"><%= t.getProperty("home.allNews") %></a>
       </div>
 
-      <%-- hra CatSmash: krátce, s Kevinem (tabulka a šampioni jsou ve hře) --%>
+      <%-- hra CatSmash: krátce, s Kevinem ve vyzývavé póze (img/kevin-souboj.webp z 3D modelu: thumbsUp v 1,1 s,
+           navrhy/kevin-model/pozy.html?one=thumbsUp@1.1&face=1); pod tím první tři šampioni (ať to soutěživé láká si zahrát) --%>
       <div class="card side-card game-card ulice-game">
         <div>
           <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
           <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
           <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
         </div>
-        <a href="/?kevin=pong" data-play-game tabindex="-1" aria-hidden="true"><img class="ulice-kevin" src="/img/kevin.webp" alt="" width="110" height="127" loading="lazy"></a>
+        <a href="/?kevin=pong" data-play-game tabindex="-1" aria-hidden="true"><img class="ulice-kevin" src="/img/kevin-souboj.webp" alt="" width="96" height="135" loading="lazy"></a>
+<%
+  // šampioni CatSmash: první tři tohoto měsíce; když tento měsíc ještě nikdo nevyhrál, Síň slávy (navždy).
+  // Kdo nemá v Nastavení zapnuté „Moje jméno v tabulkách CatSmash“, je tu jen „Anonymní hráč“ bez fotky (PongDao.hide).
+  java.util.List<com.github.skeliit.model.PongScoreRank> champs = java.util.List.of();
+  String champsHead = null;
+  try {
+    com.github.skeliit.dao.PongDao pongDao = new com.github.skeliit.dao.PongDao();
+    java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague"));
+    champs = pongDao.champions(3, today.withDayOfMonth(1).atStartOfDay());
+    if (!champs.isEmpty()) {
+      String month = today.getMonth().getDisplayName(java.time.format.TextStyle.FULL_STANDALONE, java.util.Locale.forLanguageTag(cur));
+      champsHead = t.getProperty("home.game.champs").replace("{month}", month.substring(0, 1).toUpperCase() + month.substring(1));
+    } else {
+      champs = pongDao.champions(3, null);
+      champsHead = t.getProperty("home.game.fame");
+    }
+  } catch (SQLException ex) { /* bez šampionů */ }
+  if (!champs.isEmpty()) {
+%>
+        <div class="game-champs">
+          <p class="game-champs-head"><i class="fa-solid fa-crown" aria-hidden="true"></i> <%= com.github.skeliit.WebUtils.escapeHtml(champsHead) %></p>
+          <ol>
+          <% for (com.github.skeliit.model.PongScoreRank r : champs) { boolean anon = r.anon || r.username == null; %>
+            <li class="p<%= r.place %>">
+              <span class="champ-place"><%= r.place %>.</span>
+              <% if (r.frame != null) { %><span class="av-frame f-<%= com.github.skeliit.WebUtils.escapeHtml(r.frame) %>"><% } %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(com.github.skeliit.WebUtils.safeUrl(r.avatarUrl, "/img/avatar-default.svg")) %>" alt="" width="26" height="26" loading="lazy"><% if (r.frame != null) { %></span><% } %>
+              <span class="champ-who"><span class="champ-name"><% if (anon) { %><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pong.anon")) %><% } else { %><% if (r.pub) { %><a href="/hrac/<%= java.net.URLEncoder.encode(r.username, "UTF-8").replace("+", "%20") %>"><% } %><%= com.github.skeliit.WebUtils.escapeHtml(r.username) %><% if (r.pub) { %></a><% } %><% if (r.mark != null) { %> <i class="fa-solid <%= r.getMarkIcon() %> champ-mark" aria-hidden="true"></i><% } %><% } %></span>
+                <small><b><%= com.github.skeliit.I18n.number(cur, r.score) %></b> <%= "★★★".substring(0, Math.max(1, Math.min(3, r.difficulty))) %> · <%= com.github.skeliit.I18n.number(cur, r.len) %>&nbsp;<%= com.github.skeliit.WebUtils.escapeHtml(com.github.skeliit.I18n.countWord(t, cur, "home.game.goal", r.len)) %></small></span>
+            </li>
+          <% } %>
+          </ol>
+<%
+    // přihlášený, který má jméno v tabulkách skryté (pongAnon z includes/header.jsp): odkaz rovnou na přepínač v Nastavení
+    if (pongAnon) {
+%>
+          <a class="game-champs-hint" href="/nastaveni.jsp#jmeno-catsmash"><i class="fa-solid fa-eye" aria-hidden="true"></i> <%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("home.game.nameHint")) %></a>
+<%  } %>
+        </div>
+<% } %>
       </div>
 
       <div class="card side-card newsletter card-gold">

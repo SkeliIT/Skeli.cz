@@ -1,5 +1,14 @@
 [
   {
+    "d": "2026-11-18",
+    "href": "/nastaveni.jsp#jmeno-catsmash",
+    "cs": "Tvoje jméno v tabulkách CatSmash a mezi šampiony se teď ukáže, jen když chceš. Zapneš si ho v Nastavení, jinak hraješ jako anonymní hráč.",
+    "en": "Your name in the CatSmash leaderboards and among the champions now shows only if you want it to. Switch it on in Settings, otherwise you play as an anonymous player.",
+    "de": "Dein Name in den CatSmash-Ranglisten und bei den Champions erscheint jetzt nur, wenn du willst. Schalte ihn in den Einstellungen ein, sonst spielst du als anonymer Spieler.",
+    "uk": "Твоє ім'я в таблицях CatSmash і серед чемпіонів тепер видно, лише якщо ти цього хочеш. Увімкни його в Налаштуваннях, інакше ти граєш як анонімний гравець.",
+    "vi": "Tên bạn trong bảng xếp hạng CatSmash và danh sách nhà vô địch giờ chỉ hiện khi bạn muốn. Hãy bật trong Cài đặt, nếu không bạn chơi như người chơi ẩn danh."
+  },
+  {
     "d": "2026-11-17",
     "href": "/index.jsp",
     "cs": "Nové menu na mobilu. Otevře se přes celou obrazovku a všechno najdeš na jednom místě.",
@@ -34,14 +43,5 @@
     "de": "Jeder Song hat die Farben seines Videos. Seine Stimmung fließt um das Video, und die ganze Seite färbt sich danach.",
     "uk": "Кожна пісня має кольори свого відео. Довкола відео тече його настрій, і вся сторінка перефарбовується під нього.",
     "vi": "Mỗi bài hát mang màu sắc video của nó. Không khí của video lan tỏa xung quanh và cả trang đổi màu theo."
-  },
-  {
-    "d": "2026-11-15",
-    "href": "/",
-    "cs": "Web se převlíkl. Barvy se mění s fotkami v pozadí, valí se kouř a jiskry uhýbají tvé myši.",
-    "en": "The site got a new look. The colours change with the photos in the background, smoke rolls and sparks dodge your mouse.",
-    "de": "Die Seite hat sich umgezogen. Die Farben wechseln mit den Fotos im Hintergrund, Rauch zieht vorbei und Funken weichen deiner Maus aus.",
-    "uk": "Сайт перевдягнувся. Кольори змінюються з фото на тлі, клубочиться дим, а іскри ухиляються від твоєї миші.",
-    "vi": "Trang web đã thay áo mới. Màu sắc đổi theo ảnh nền, khói cuộn và tia lửa né con chuột của bạn."
   }
 ]

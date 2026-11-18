@@ -119,59 +119,6 @@
       </form>
     </section>
 
-    <!-- Náhled / OG -->
-    <section class="admin-card">
-      <h3>Vlastní obrázek písně</h3>
-      <p class="text-dim">Ukáže se u písně bez videa a při sdílení odkazu (Facebook, WhatsApp). Na šířku 16:9, max. 20&nbsp;MB.</p>
-      <c:if test="${param.msg == 'too_large'}"><p class="admin-error">Soubor je příliš velký (max. 20&nbsp;MB).</p></c:if>
-      <c:if test="${param.msg == 'invalid_image'}"><p class="admin-error">Soubor není platný obrázek.</p></c:if>
-      <c:if test="${param.msg == 'no_file'}"><p class="admin-error">Nebyl vybrán žádný soubor.</p></c:if>
-      <c:if test="${param.msg == 'csrf'}"><p class="admin-error">Relace vypršela — obnov stránku a zkus znovu.</p></c:if>
-
-      <div class="song-preview-toolbar">
-        <label class="song-preview-upload">
-          <input id="song-preview-input" type="file" accept="image/jpeg,image/png,image/webp">
-          <span>Nahrát jiný soubor</span>
-        </label>
-        <c:if test="${not empty song.previewImageUrl}">
-          <form method="post" action="/admin/songs/preview" class="song-preview-form" id="song-preview-delete">
-            <input type="hidden" name="csrf" value="${csrf}">
-            <input type="hidden" name="song_id" value="${song.id}">
-            <input type="hidden" name="action" value="delete">
-            <input type="hidden" name="redirect" value="/admin/song?uuid=${song.uuid}">
-            <button type="submit" class="btn-delete" onclick="return confirm('Smazat náhled?')">Smazat náhled</button>
-          </form>
-        </c:if>
-      </div>
-
-      <p id="song-preview-empty" class="text-dim"<c:if test="${not empty song.previewImageUrl}"> hidden</c:if>>Zatím žádný náhled — vyber soubor.</p>
-
-      <div id="song-cropper-wrap" class="song-cropper-wrap"<c:if test="${empty song.previewImageUrl}"> hidden</c:if>>
-        <c:choose>
-          <c:when test="${not empty song.previewImageUrl}">
-            <img id="song-cropper-img" alt="Ořez náhledu" src="<c:out value='${song.previewImageUrl}'/>">
-          </c:when>
-          <c:otherwise>
-            <img id="song-cropper-img" alt="Ořez náhledu">
-          </c:otherwise>
-        </c:choose>
-        <div class="song-cropper-btns">
-          <button type="button" id="song-zoom-out" class="control-btn" title="Oddálit"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-          <button type="button" id="song-zoom-in" class="control-btn" title="Přiblížit"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-          <button type="button" id="song-rotate-left" class="control-btn" title="Otočit vlevo"><i class="fa-solid fa-rotate-left"></i></button>
-          <button type="button" id="song-rotate-right" class="control-btn" title="Otočit vpravo"><i class="fa-solid fa-rotate-right"></i></button>
-          <button type="button" id="song-crop-reset" class="control-btn" title="Obnovit uložený">Obnovit</button>
-          <button type="button" id="song-crop-save" class="control-btn control-btn-primary">Uložit náhled</button>
-        </div>
-        <p id="song-crop-status" class="text-dim" hidden></p>
-      </div>
-
-      <form id="song-preview-form" method="post" action="/admin/songs/preview" enctype="multipart/form-data" hidden>
-        <input type="hidden" name="csrf" value="${csrf}">
-        <input type="hidden" name="song_id" value="${song.id}">
-        <input type="hidden" name="redirect" value="/admin/song?uuid=${song.uuid}">
-      </form>
-    </section>
 
     <!-- Streaming IDs -->
     <section class="admin-card">
@@ -385,16 +332,96 @@
   </div>
 
   <div class="song-tab-panel admin-grid song-hub-grid" id="obrazky" role="tabpanel" hidden>
-    <section class="admin-card admin-card-wide" id="row-art">
-      <h3>Obrázek v seznamu Texty</h3>
+    <%-- Obrázky písně (2026-11): jeden hlavní obrázek pro Hudbu, Texty i ikonku v Karaoke (sloupec songs.disco_image),
+         pod ním doladění posunu zvlášť pro každé místo, dole obrázek pro sdílení odkazu. Přehled všech písní: /admin/disco. --%>
+    <section class="admin-card admin-card-wide" id="disco-art">
+      <h3>Hlavní obrázek písně</h3>
+      <p class="text-dim">Vyber jednou, použije se všude: karta na Hudbě, řádek v Textech a ikonka v Karaoke. Níž ho pro každé místo posuneš a zvětšíš. <a href="/admin/disco">Obrázky všech písní →</a></p>
+      <form method="post" action="/admin/song" class="disco-src">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="id" value="${song.id}">
+        <input type="hidden" name="action" value="save_disco_src">
+        <div class="disco-src-grid">
+          <label class="disco-src-tile"><input type="radio" name="src" value="" ${empty discoImage ? 'checked' : ''}>
+            <span class="disco-src-img"><c:if test="${not empty discoAuto}"><img src="<c:out value='${discoAuto}'/>" alt="" loading="lazy"></c:if></span><span>Automaticky</span></label>
+          <c:if test="${not empty discoYt}">
+            <c:forEach var="n" items="maxresdefault,maxres1,maxres2,maxres3">
+              <c:set var="ytSrc" value="/yt-thumb/${discoYt}/${n}.jpg"/>
+              <label class="disco-src-tile"><input type="radio" name="src" value="${ytSrc}" ${discoImage == ytSrc ? 'checked' : ''}>
+                <span class="disco-src-img"><img src="${ytSrc}" alt="" loading="lazy" onerror="this.closest('label').hidden=true"></span>
+                <span>${n == 'maxresdefault' ? 'Titulní z YouTube' : 'Snímek z klipu '.concat(n.substring(6))}</span></label>
+            </c:forEach>
+          </c:if>
+          <c:if test="${not empty discoImage and discoImage.startsWith('/uploads/')}">
+            <label class="disco-src-tile"><input type="radio" name="src" value="<c:out value='${discoImage}'/>" checked>
+              <span class="disco-src-img"><img src="<c:out value='${discoImage}'/>" alt="" loading="lazy"></span><span>Vlastní obrázek</span></label>
+          </c:if>
+        </div>
+        <button type="submit">Použít vybraný</button>
+      </form>
+      <form method="post" action="/admin/songs/preview" enctype="multipart/form-data" class="admin-inline-form disco-upload">
+        <input type="hidden" name="csrf" value="${csrf}">
+        <input type="hidden" name="song_id" value="${song.id}">
+        <input type="hidden" name="target" value="disco">
+        <input type="hidden" name="redirect" value="/admin/song?id=${song.id}">
+        <label>Nahrát vlastní fotku (nebo snímek obrazovky z klipu): <input type="file" name="file" accept="image/*" required></label>
+        <button type="submit" class="control-btn">Nahrát</button>
+      </form>
+    </section>
+
+    <section class="admin-card admin-card-wide" id="img-places">
+      <h3>Doladění pro každé místo</h3>
+      <p class="text-dim">Obrázek <strong>posuň myší nebo prstem</strong>, <strong>kolečkem nebo posuvníkem</strong> ho zvětšíš. Každé místo se ukládá zvlášť.</p>
+      <div class="img-place-tabs" id="imgPlaceTabs" role="group" aria-label="Místo na webu">
+        <button type="button" class="on" data-place="hudba" aria-pressed="true">Hudba <small>karta + ikonka v Karaoke</small></button>
+        <button type="button" data-place="texty" aria-pressed="false">Texty <small>řádek v seznamu</small></button>
+      </div>
+      <div class="img-place" data-place="hudba">
+      <c:if test="${empty discoShown}"><p class="text-dim">Píseň nemá klip ani obrázek. Nahraj ho nahoře.</p></c:if>
+      <c:if test="${not empty discoShown}">
+      <div class="disco-edit-wrap">
+        <div class="disco-edit" id="discoEditor" style="--thumb-bg: url(&quot;<c:out value='${discoShown}'/>&quot;)" data-x="${song.posterX != null ? song.posterX : ''}" data-y="${song.posterY != null ? song.posterY : ''}" data-zoom="${song.posterZoom != null ? song.posterZoom : ''}">
+          <img class="placed" src="<c:out value='${discoShown}'/>" alt="" draggable="false">
+          <span class="disco-edit-name"><c:out value="${songTitle.title}"/></span>
+        </div>
+        <div class="kar-icon-prev">
+          <c:choose>
+            <c:when test="${not empty discoImage}"><span class="kar-icon"><img class="placed" id="karIcon" src="<c:out value='${discoShown}'/>" alt=""></span>
+              <span class="text-dim">Ikonka v Karaoke: stejný posun jako karta</span></c:when>
+            <c:otherwise><span class="text-dim">Ikonka v Karaoke: náhled klipu, dokud nevybereš hlavní obrázek.</span></c:otherwise>
+          </c:choose>
+        </div>
+        <div>
+          <div class="art-controls">
+            <label class="art-zoom">Velikost
+              <input type="range" id="posterZoom" min="40" max="300" step="1" value="100">
+              <output id="posterZoomOut">100 %</output>
+            </label>
+            <button type="button" id="posterCenter" class="control-btn">Na střed</button>
+          </div>
+          <form method="post" action="/admin/song" class="admin-inline-form art-form">
+            <input type="hidden" name="csrf" value="${csrf}">
+            <input type="hidden" name="id" value="${song.id}">
+            <input type="hidden" name="action" value="save_poster">
+            <input type="hidden" name="poster_x" id="posterX">
+            <input type="hidden" name="poster_y" id="posterY">
+            <input type="hidden" name="poster_zoom" id="posterZoomVal">
+            <button type="submit">Uložit posun</button>
+            <button type="submit" name="auto" value="1" class="control-btn">Bez posunu</button>
+            <span class="text-dim">${song.posterZoom != null ? 'Teď: posunuto ručně' : 'Teď: střed obrázku'}</span>
+          </form>
+        </div>
+      </div>
+      </c:if>
+      </div>
+      <div class="img-place" data-place="texty" id="row-art" hidden>
       <c:choose>
         <c:when test="${empty rowArt}">
-          <p class="text-dim">Song nemá video ani náhledovou fotku, v seznamu má jen zlatou záři. Nahraj náhled výš a pak ho tu můžeš posunout.</p>
+          <p class="text-dim">Píseň nemá klip ani obrázek, v seznamu má jen zlatou záři. Nahraj obrázek nahoře a pak ho tu posuneš.</p>
         </c:when>
         <c:otherwise>
           <p class="text-dim">
-            Obrázek <strong>posuň myší</strong> (prstem), <strong>kolečkem</strong> zvětšíš.
-            Nahoře je řádek na počítači, pod ním na telefonu. Používá se nejnovější video, jinak náhledová fotka.
+            Nahoře je řádek na počítači, pod ním na telefonu.
           </p>
           <div class="art-editor" id="artEditor"
                data-x="${song.artX != null ? song.artX : ''}" data-y="${song.artY != null ? song.artY : ''}" data-zoom="${song.artZoom != null ? song.artZoom : ''}">
@@ -432,71 +459,75 @@
           </form>
         </c:otherwise>
       </c:choose>
+      </div>
+      <script>
+      // přepínač Hudba / Texty; #row-art nebo hláška o uložení řádku otevře rovnou Texty
+      (function () {
+        var box = document.getElementById('imgPlaceTabs');
+        function pick(name) {
+          box.querySelectorAll('[data-place]').forEach(function (b) { var on = b.dataset.place === name; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+          document.querySelectorAll('.img-place').forEach(function (p) { p.hidden = p.dataset.place !== name; });
+          window.dispatchEvent(new Event('resize'));   // editory si přeměří velikost
+        }
+        box.addEventListener('click', function (e) { var b = e.target.closest('[data-place]'); if (b) pick(b.dataset.place); });
+        var msg = new URLSearchParams(location.search).get('msg');
+        if (location.hash === '#row-art' || msg === 'art_saved' || msg === 'bad_art') pick('texty');
+      })();
+      </script>
     </section>
 
-    <!-- Obrázek v Diskografii (Hudba): zdroj (automaticky / snímek z YouTube / vlastní) a posun se zvětšením -->
-    <section class="admin-card admin-card-wide" id="disco-art">
-      <h3>Obrázek v Diskografii</h3>
-      <p class="text-dim">1) Vyber obrázek, 2) v náhledu karty ho <strong>posuň myší nebo prstem</strong> a <strong>kolečkem / posuvníkem</strong> zvětši nebo zmenši (40–300 %), 3) Uložit. <a href="/admin/disco">Všechny obrázky v Diskografii →</a></p>
-      <form method="post" action="/admin/song" class="disco-src">
-        <input type="hidden" name="csrf" value="${csrf}">
-        <input type="hidden" name="id" value="${song.id}">
-        <input type="hidden" name="action" value="save_disco_src">
-        <div class="disco-src-grid">
-          <label class="disco-src-tile"><input type="radio" name="src" value="" ${empty discoImage ? 'checked' : ''}>
-            <span class="disco-src-img"><c:if test="${not empty discoAuto}"><img src="<c:out value='${discoAuto}'/>" alt="" loading="lazy"></c:if></span><span>Automaticky</span></label>
-          <c:if test="${not empty discoYt}">
-            <c:forEach var="n" items="maxresdefault,maxres1,maxres2,maxres3">
-              <c:set var="ytSrc" value="/yt-thumb/${discoYt}/${n}.jpg"/>
-              <label class="disco-src-tile"><input type="radio" name="src" value="${ytSrc}" ${discoImage == ytSrc ? 'checked' : ''}>
-                <span class="disco-src-img"><img src="${ytSrc}" alt="" loading="lazy" onerror="this.closest('label').hidden=true"></span>
-                <span>${n == 'maxresdefault' ? 'Titulní z YouTube' : 'Snímek z klipu '.concat(n.substring(6))}</span></label>
-            </c:forEach>
-          </c:if>
-          <c:if test="${not empty discoImage and discoImage.startsWith('/uploads/')}">
-            <label class="disco-src-tile"><input type="radio" name="src" value="<c:out value='${discoImage}'/>" checked>
-              <span class="disco-src-img"><img src="<c:out value='${discoImage}'/>" alt="" loading="lazy"></span><span>Vlastní obrázek</span></label>
-          </c:if>
+    <!-- Náhled / OG -->
+    <section class="admin-card admin-card-wide" id="share-art">
+      <h3>Obrázek pro sdílení odkazu</h3>
+      <p class="text-dim">Ukáže se, když někdo pošle odkaz na píseň (Facebook, WhatsApp), a u písně bez klipu. Na šířku 16:9, max. 20&nbsp;MB.</p>
+      <c:if test="${param.msg == 'too_large'}"><p class="admin-error">Soubor je příliš velký (max. 20&nbsp;MB).</p></c:if>
+      <c:if test="${param.msg == 'invalid_image'}"><p class="admin-error">Soubor není platný obrázek.</p></c:if>
+      <c:if test="${param.msg == 'no_file'}"><p class="admin-error">Nebyl vybrán žádný soubor.</p></c:if>
+      <c:if test="${param.msg == 'csrf'}"><p class="admin-error">Relace vypršela — obnov stránku a zkus znovu.</p></c:if>
+
+      <div class="song-preview-toolbar">
+        <label class="song-preview-upload">
+          <input id="song-preview-input" type="file" accept="image/jpeg,image/png,image/webp">
+          <span>Nahrát jiný soubor</span>
+        </label>
+        <c:if test="${not empty song.previewImageUrl}">
+          <form method="post" action="/admin/songs/preview" class="song-preview-form" id="song-preview-delete">
+            <input type="hidden" name="csrf" value="${csrf}">
+            <input type="hidden" name="song_id" value="${song.id}">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="redirect" value="/admin/song?uuid=${song.uuid}">
+            <button type="submit" class="btn-delete" onclick="return confirm('Smazat náhled?')">Smazat náhled</button>
+          </form>
+        </c:if>
+      </div>
+
+      <p id="song-preview-empty" class="text-dim"<c:if test="${not empty song.previewImageUrl}"> hidden</c:if>>Zatím žádný náhled — vyber soubor.</p>
+
+      <div id="song-cropper-wrap" class="song-cropper-wrap"<c:if test="${empty song.previewImageUrl}"> hidden</c:if>>
+        <c:choose>
+          <c:when test="${not empty song.previewImageUrl}">
+            <img id="song-cropper-img" alt="Ořez náhledu" src="<c:out value='${song.previewImageUrl}'/>">
+          </c:when>
+          <c:otherwise>
+            <img id="song-cropper-img" alt="Ořez náhledu">
+          </c:otherwise>
+        </c:choose>
+        <div class="song-cropper-btns">
+          <button type="button" id="song-zoom-out" class="control-btn" title="Oddálit"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+          <button type="button" id="song-zoom-in" class="control-btn" title="Přiblížit"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+          <button type="button" id="song-rotate-left" class="control-btn" title="Otočit vlevo"><i class="fa-solid fa-rotate-left"></i></button>
+          <button type="button" id="song-rotate-right" class="control-btn" title="Otočit vpravo"><i class="fa-solid fa-rotate-right"></i></button>
+          <button type="button" id="song-crop-reset" class="control-btn" title="Obnovit uložený">Obnovit</button>
+          <button type="button" id="song-crop-save" class="control-btn control-btn-primary">Uložit náhled</button>
         </div>
-        <button type="submit">Použít vybraný</button>
-      </form>
-      <form method="post" action="/admin/songs/preview" enctype="multipart/form-data" class="admin-inline-form disco-upload">
+        <p id="song-crop-status" class="text-dim" hidden></p>
+      </div>
+
+      <form id="song-preview-form" method="post" action="/admin/songs/preview" enctype="multipart/form-data" hidden>
         <input type="hidden" name="csrf" value="${csrf}">
         <input type="hidden" name="song_id" value="${song.id}">
-        <input type="hidden" name="target" value="disco">
-        <input type="hidden" name="redirect" value="/admin/song?id=${song.id}">
-        <label>Nahrát vlastní obrázek (fotka, snímek obrazovky z klipu): <input type="file" name="file" accept="image/*" required></label>
-        <button type="submit" class="control-btn">Nahrát</button>
+        <input type="hidden" name="redirect" value="/admin/song?uuid=${song.uuid}">
       </form>
-
-      <c:if test="${not empty discoShown}">
-      <div class="disco-edit-wrap">
-        <div class="disco-edit" id="discoEditor" style="--thumb-bg: url(&quot;<c:out value='${discoShown}'/>&quot;)" data-x="${song.posterX != null ? song.posterX : ''}" data-y="${song.posterY != null ? song.posterY : ''}" data-zoom="${song.posterZoom != null ? song.posterZoom : ''}">
-          <img class="placed" src="<c:out value='${discoShown}'/>" alt="" draggable="false">
-          <span class="disco-edit-name"><c:out value="${songTitle.title}"/></span>
-        </div>
-        <div>
-          <div class="art-controls">
-            <label class="art-zoom">Velikost
-              <input type="range" id="posterZoom" min="40" max="300" step="1" value="100">
-              <output id="posterZoomOut">100 %</output>
-            </label>
-            <button type="button" id="posterCenter" class="control-btn">Na střed</button>
-          </div>
-          <form method="post" action="/admin/song" class="admin-inline-form art-form">
-            <input type="hidden" name="csrf" value="${csrf}">
-            <input type="hidden" name="id" value="${song.id}">
-            <input type="hidden" name="action" value="save_poster">
-            <input type="hidden" name="poster_x" id="posterX">
-            <input type="hidden" name="poster_y" id="posterY">
-            <input type="hidden" name="poster_zoom" id="posterZoomVal">
-            <button type="submit">Uložit posun</button>
-            <button type="submit" name="auto" value="1" class="control-btn">Bez posunu</button>
-            <span class="text-dim">${song.posterZoom != null ? 'Teď: posunuto ručně' : 'Teď: střed obrázku'}</span>
-          </form>
-        </div>
-      </div>
-      </c:if>
     </section>
 
   </div>
@@ -575,7 +606,8 @@
   var byMsg = { video_linked: 'videa', video_unlinked: 'videa', video_deleted: 'videa', bad_youtube: 'videa',
     text_deleted: 'texty', locale_saved: 'texty', bad_seo_slug: 'texty', seo_slug_taken: 'texty', translated: 'texty',
     no_translator: 'texty', no_cs_source: 'texty', translate_failed: 'texty', help_saved: 'texty', help_deleted: 'texty',
-    art_saved: 'obrazky', poster_saved: 'obrazky', bad_art: 'obrazky' };
+    art_saved: 'obrazky', poster_saved: 'obrazky', bad_art: 'obrazky', disco_saved: 'obrazky', preview_saved: 'obrazky',
+    preview_deleted: 'obrazky', too_large: 'obrazky', invalid_image: 'obrazky', no_file: 'obrazky' };
   function show(name, push) {
     if (!document.getElementById(name)) name = 'zaklad';
     document.querySelectorAll('.song-tab-panel').forEach(function (p) { p.hidden = p.id !== name; });
@@ -796,7 +828,7 @@
 })();
 </script>
 <script>
-// Obrázek v Diskografii: obrázek táhneš myší / prstem, kolečkem nebo posuvníkem zvětšíš. Stejné CSS proměnné jako
+// Hlavní obrázek na kartě na Hudbě (a v ikonce Karaoke): obrázek táhneš myší / prstem, kolečkem nebo posuvníkem zvětšíš. Stejné CSS proměnné jako
 // karta na Hudbě (--px / --py = bod obrázku v procentech, který je vidět uprostřed; --pz = zvětšení).
 (function () {
   var ed = document.getElementById('discoEditor');
@@ -807,7 +839,9 @@
   var st = { x: num(ed.dataset.x, 50), y: num(ed.dataset.y, 50), z: num(ed.dataset.zoom, 1) };
   function apply() {
     st.z = clamp(st.z, 0.4, 3); st.x = clamp(st.x, 0, 100); st.y = clamp(st.y, 0, 100);
-    img.style.setProperty('--px', st.x.toFixed(2)); img.style.setProperty('--py', st.y.toFixed(2)); img.style.setProperty('--pz', st.z.toFixed(3));
+    [img, document.getElementById('karIcon')].forEach(function (i) {   // karta na Hudbě i ikonka v Karaoke mají stejný posun
+      if (i) { i.style.setProperty('--px', st.x.toFixed(2)); i.style.setProperty('--py', st.y.toFixed(2)); i.style.setProperty('--pz', st.z.toFixed(3)); }
+    });
     range.value = Math.round(st.z * 100); out.textContent = Math.round(st.z * 100) + ' %';
     document.getElementById('posterX').value = st.x.toFixed(2);
     document.getElementById('posterY').value = st.y.toFixed(2);

@@ -324,6 +324,9 @@ body.light:has(main.texty-page) { background-color: #e9ecef; }
 .bg-slides > div.on { opacity: 1; }
 /* a new page starts on the photo the last one showed, without fading in again */
 .bg-slides > div.instant { transition: none; }
+/* stránky s krátkým úvodem (page-hero s kouřem): pod ohnivým okrajem je už plná barva, takže fotka, kde má Skeli
+   hlavu uprostřed výšky (square: kšiltovka NY), se posune nahoru – jinak z něj nad okrajem kouká jen čepice */
+body:has(.page-hero.with-smoke) .bg-slides > div[data-name="square"] { translate: 0 -15vh; }
 
 /* wide photo band with a line from Skeli */
 .photo-band {
@@ -1525,6 +1528,9 @@ body.light:has(main.home-page.ulice) { --bg-overlay: linear-gradient(180deg, rgb
 /* CatSmash: text a tlačítko vlevo, Kevin vpravo */
 .ulice-game { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 10px; align-items: end; }
 .ulice-game .game-card-play { margin-top: 4px; }
+.ulice-game .game-champs { grid-column: 1 / -1; margin: 2px 0 0; }   /* šampioni pod Kevinem přes celou šířku karty */
+.game-champs-hint { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; margin-top: 4px; font-size: var(--fs-small); color: var(--text-dim); }   /* „Chceš tu mít svoje jméno?“ → Nastavení */
+.game-champs-hint:hover { color: var(--accent); }
 .ulice-kevin { display: block; width: 96px; height: auto; filter: drop-shadow(0 8px 16px rgba(0, 0, 0, .55)); }
 /* patička: nápis v barvě fotky */
 .footer-brand .brand { color: var(--accent); }
@@ -1589,10 +1595,12 @@ body.light .hero-title .logo-mark,
 body.light .masthead-brand .squad-mark {
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 70%, #fff) 0%, var(--accent) 45%, color-mix(in srgb, var(--accent) 70%, #000) 100%);
 }
-/* O mně: jméno sprejem s korunkou jako na úvodu (barva fotky); h2 bez zlaté čárky pod sebou */
-.about-header h2.about-name { display: flex; flex-direction: column; align-items: center; gap: 0; line-height: .9; }
-.about-header h2.about-name::after { display: none; }
-.about-name .uh-sign { font-size: clamp(3.6rem, 10vw, 6.6rem); transform: rotate(-3deg); transform-origin: center; }
+/* O mně: v nadpisu úvodu (pageHero) jméno sprejem s korunkou jako na úvodní stránce (barva fotky). Přechod barvy má
+   podpis vlastní, nadpis ho nemá (jinak by se korunka i podpis ztratily v průhledném textu). */
+.about-page .page-hero-title { display: flex; flex-direction: column; align-items: center; gap: 0; line-height: .9; background: none; animation: none; }
+body.light .about-page .page-hero-title { background: none; }
+.about-page .page-hero-title .uh-crown { -webkit-text-fill-color: currentColor; }   /* nadpis úvodu má průhledný text (přechod), korunka svou barvu */
+.about-page .page-hero-title .uh-sign { font-size: clamp(3.6rem, 10vw, 6.6rem); transform: rotate(-3deg); transform-origin: center; }
 .about-squad-title { color: var(--accent); }
 
 /* ---- Profil (můj i cizí) – první krok ke „Časové ose“: obří jméno v barvě fotky, fotka v barevném kruhu ---- */

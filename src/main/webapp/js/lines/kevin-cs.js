@@ -169,7 +169,6 @@
   ],
   "sleep": [
     "Zzz… jen zavírám oči, abych líp přemýšlel.",
-    "Odpočinek je důležitý. Hlavně když nemusíš pracovat.",
     "Kdyby něco, jsem vzhůru. Jen zvenku to tak nevypadá.",
     "Režim úspory energie. Tlapky vypnuty.",
     "Ticho, prosím. Právě nic nedělám."

@@ -1,0 +1,108 @@
+# Testy v prohlížeči (Selenium *IT, kontrola celého webu SiteAuditIT, snímky stránek SnimkyIT) na počítači GitHubu,
+# ne na Skeliho PC. Repozitář je veřejný, takže minuty GitHub Actions jsou zdarma.
+# Spuštění: GitHub → Actions → „Testy v prohlížeči“ → Run workflow, nebo z terminálu:
+#   gh workflow run ui-testy.yml -f testy=SiteAuditIT -f rychle=true
+#   gh workflow run ui-testy.yml -f testy=SnimkyIT -f stranky=about.jsp,donate.jsp
+# Databáze je čistá jen pro tenhle běh (MariaDB v kontejneru, obsah z migrací) a po běhu zmizí. Nic se nenasazuje,
+# žádná tajná hodnota se nepoužívá (šifrovací klíč se pro běh vyrobí nový a zahodí se).
+# Výsledky: v běhu dole „Artifacts“ (zpráva kontroly webu, snímky, záznam webu) a krátké shrnutí na stránce běhu.
+name: Testy v prohlížeči
+
+on:
+  workflow_dispatch:
+    inputs:
+      testy:
+        description: 'Které testy (SiteAuditIT, AdminPanelIT, SnimkyIT, *IT…)'
+        default: 'SiteAuditIT'
+      rychle:
+        description: 'Rychlá kontrola webu (jen telefon, tmavý, čeština)'
+        type: boolean
+        default: false
+      stranky:
+        description: 'SnimkyIT: stránky oddělené čárkou (např. about.jsp,donate.jsp)'
+        default: ''
+
+concurrency:
+  group: ui-testy
+  cancel-in-progress: false
+
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      db:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: skeliweb
+          MARIADB_USER: skeli
+          MARIADB_PASSWORD: skeli
+        ports: [ '3306:3306' ]
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      DB_URL: jdbc:mariadb://127.0.0.1:3306/skeliweb?useUnicode=true&characterEncoding=utf8mb4
+      DB_USER: skeli
+      DB_PASS: skeli
+      HTTPS_ONLY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: maven
+
+      - name: Databáze (čeština, migrace)
+        run: |
+          mysql -h127.0.0.1 -uroot -proot -e "ALTER DATABASE skeliweb CHARACTER SET utf8mb4 COLLATE utf8mb4_czech_ci; GRANT ALL ON *.* TO 'skeli'@'%'; FLUSH PRIVILEGES;"
+          mvn -B -q flyway:migrate -Dflyway.url="$DB_URL" -Dflyway.user=skeli -Dflyway.password=skeli
+
+      - name: Jednorázový šifrovací klíč (jen pro tenhle běh)
+        run: |
+          key=$(openssl rand -base64 32)
+          echo "::add-mask::$key"
+          echo "DATA_KEY=$key" >> "$GITHUB_ENV"
+
+      - name: Spustit web
+        run: |
+          nohup mvn -B jetty:run > jetty.log 2>&1 &
+          for i in $(seq 1 120); do
+            if curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/ | grep -q 200; then echo "Web běží"; exit 0; fi
+            sleep 5
+          done
+          echo "Web se nespustil"; tail -80 jetty.log; exit 1
+
+      - name: Testy
+        env:
+          STRANKY: ${{ inputs.stranky }}
+        run: |
+          # -Dpages jen když jsou stránky zadané: prázdné -Dpages="" by kontrole webu (SiteAuditIT) řeklo „jen jedna prázdná
+          # stránka“ a prošla by jen úvod bez přihlášených stránek
+          PAGES=()
+          if [ -n "$STRANKY" ]; then PAGES=("-Dpages=$STRANKY"); fi
+          mvn -B test -Dtest="${{ inputs.testy }}" -Dsurefire.failIfNoSpecifiedTests=false \
+            -Dit.dbUser=skeli -Dit.dbPass=skeli -Dquick=${{ inputs.rychle }} "${PAGES[@]}"
+
+      - name: Shrnutí
+        if: always()
+        run: |
+          {
+            echo "## Testy v prohlížeči: ${{ inputs.testy }}"
+            for f in target/surefire-reports/*.txt; do [ -f "$f" ] && tail -n 3 "$f"; done
+            if [ -f target/site-audit/zprava.txt ]; then echo '### Kontrola webu'; echo '```'; head -n 60 target/site-audit/zprava.txt; echo '```'; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Výsledky ke stažení
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vysledky-testu
+          retention-days: 7
+          path: |
+            target/site-audit/
+            target/shots/
+            target/surefire-reports/
+            jetty.log

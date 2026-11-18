@@ -441,8 +441,8 @@ body.light .report-actions .btn-dismiss { background: transparent; color: var(--
 .art-row:hover .song-row-art img:not([data-manual]) { transform: none; }
 .art-row:hover .song-row-art img[data-manual] { transform: translate(calc(var(--tx, 0) * 1cqw), calc(var(--py, 45) * -1% * var(--az, 1))) scale(var(--az, 1)); }
 .art-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 10px; }
-.art-zoom { display: flex; align-items: center; gap: 10px; }
-.art-zoom input[type="range"] { width: 220px; accent-color: var(--accent); }
+.art-zoom { display: flex; align-items: center; gap: 10px; max-width: 100%; }
+.art-zoom input[type="range"] { width: 220px; min-width: 0; flex: 0 1 220px; accent-color: var(--accent); }   /* na telefonu se zúží, ať „100 %“ nepřeteče */
 .art-zoom output { min-width: 4.5em; font-variant-numeric: tabular-nums; }
 .art-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 
@@ -862,8 +862,6 @@ body.light .st-up { color: #1e7a45; } body.light .st-down { color: #b3261e; }
 .songs-row { position: relative; display: grid; grid-template-columns: 84px minmax(0, 1fr) 40px; gap: 12px; align-items: center; padding: 9px 10px 9px 9px; background: var(--panel-strong); border: 1px solid var(--panel-border); border-radius: 16px; transition: border-color .15s; }
 .songs-row[hidden] { display: none; }
 .songs-row:hover, .songs-row:focus-within { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
-.songs-pic { display: block; width: 84px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; background: #000; }
-.songs-pic-empty { display: grid; place-items: center; color: var(--text-dim); background: color-mix(in srgb, var(--text) 7%, transparent); }
 .songs-main { display: block; min-width: 0; color: var(--text); text-decoration: none; }
 .songs-main:hover { color: var(--text); text-decoration: none; }
 .songs-main::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
@@ -880,12 +878,30 @@ body.light .songs-icons small.lack { color: #a85b00; }
 .songs-web:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
 .songs-none { margin: 0 0 18px; }
 @media (min-width: 768px) {
-  .songs-row { grid-template-columns: 112px minmax(0, 1fr) 40px; }
-  .songs-pic { width: 112px; }
+
   .songs-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: center; }
   .songs-title { grid-column: 1; font-size: var(--fs-h4); }
   .songs-year { grid-column: 1; }
   .songs-icons { grid-column: 2; grid-row: 1 / span 2; margin: 0; justify-content: flex-end; flex-wrap: nowrap; }
+}
+/* Písně: u každé písně její obrázek na Hudbě, v Textech a v Karaoke (WEB-INF/views/admin/song-imgs.jspf, styly .imgs-* v pages.css).
+   Telefon: nahoře název a ikony, pod tím tři náhledy s popisky; počítač: náhledy vlevo. Náhledy jsou nad odkazem řádku (z-index). */
+.songs-row { grid-template-columns: minmax(0, 1fr) 40px; grid-template-areas: "main web" "imgs imgs"; align-items: center; }
+.songs-main { grid-area: main; }
+.songs-web { grid-area: web; }
+.songs-imgs { grid-area: imgs; position: relative; z-index: 1; display: grid; grid-template-columns: 56px minmax(0, 1fr) 52px; gap: 12px; align-items: start; }
+.songs-imgs .song-thumb { width: 56px; }
+.songs-imgs .kar-icon { width: 52px; height: 52px; }
+.songs-imgs .imgs-cell::after { content: attr(data-cap); display: block; margin-top: 4px; font-size: .72rem; line-height: 1.2; text-align: center; color: var(--text-dim); }
+.songs-imgs .imgs-none { align-self: center; font-size: var(--fs-card); line-height: 1.3; }
+.songs-imgs .imgs-none { text-align: center; color: var(--text-dim); }
+.songs-imgs .song-row-text { visibility: hidden; }   /* název je hned vedle, v náhledu řádku by se jen opakoval */
+.songs-imgs-none { grid-column: 1 / -1; }
+@media (min-width: 768px) {
+  .songs-row { grid-template-columns: 330px minmax(0, 1fr) 40px; grid-template-areas: "imgs main web"; }
+  .songs-imgs { grid-template-columns: 60px minmax(0, 1fr) 56px; }
+  .songs-imgs .song-thumb { width: 60px; }
+  .songs-imgs .kar-icon { width: 56px; height: 56px; }
 }
 
 /* Poznámky u písní */

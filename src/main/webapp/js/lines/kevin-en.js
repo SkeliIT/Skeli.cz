@@ -169,7 +169,6 @@
   ],
   "sleep": [
     "Zzz… just closing my eyes to think better.",
-    "Rest is important. Especially when you don't have to work.",
     "If anything happens, I'm awake. It just doesn't look like it.",
     "Power saving mode. Paws switched off.",
     "Quiet, please. I'm busy doing nothing."
@@ -572,7 +571,7 @@
 
 // ---------- Rady k funkcím, reakce a svátky (2026-11-08, překlad české sady; klíče stejné jako v kevin-cs.js) ----------
 (function (L) {
-  L.hints = {
+  L.hints = {
     "wheel": ["Light mode, bold text and sounds are in the wheel up top. What you do with them is your business.", "The wheel up top has looks and sounds. I'd add a button for longer naps."],
     "verify": ["Without a verified e-mail you can't comment, send friend requests or messages yet.", "The verification link is in your inbox. Sometimes it slips into spam."],
     "photo": ["A profile can take a photo and a wide header picture. It doesn't have to. But it can.", "Photo and header are added right here on the profile."],

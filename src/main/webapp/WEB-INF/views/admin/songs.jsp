@@ -5,7 +5,9 @@
 <main class="admin-page">
   <%@ include file="/includes/admin-nav.jspf" %>
   <h2 class="admin-page-title">Písně <a class="admin-btn primary admin-title-btn" href="/admin/track"><i class="fa-solid fa-plus"></i> Přidat track z YouTube</a></h2>
-  <p class="text-dim">Klikni na píseň a uprav u ní všechno. Zlatá ikona znamená, že to píseň má, bledá, že to chybí.</p>
+  <p class="text-dim">Klikni na píseň a uprav u ní všechno. Zlatá ikona znamená, že to píseň má, bledá, že to chybí.
+    U každé písně vidíš její obrázek na Hudbě, v Textech a v Karaoke – ťukni na něj a upravíš ho.
+    <a href="/admin/disco">Jak to vypadá dohromady →</a></p>
   <% if ("1".equals(request.getParameter("deleted"))) { %><p class="admin-flash"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Píseň je smazaná. 30 dní ji najdeš v Koši (Systém → Záznam změn a koš).</p><% } %>
 
   <c:if test="${not empty param.msg}">
@@ -21,16 +23,23 @@
     <button type="button" class="on" data-f="all" aria-pressed="true">Všechny <b></b></button>
     <button type="button" data-f="lack" aria-pressed="false">Něco chybí <b></b></button>
     <button type="button" data-f="done" aria-pressed="false">Hotové <b></b></button>
+    <button type="button" data-f="imgman" aria-pressed="false">Obrázek upravený <b></b></button>
+    <button type="button" data-f="imgmiss" aria-pressed="false">Obrázek chybí <b></b></button>
   </div>
 
   <%-- řádek = odkaz na úpravu; ikony tiše ukazují, co píseň má --%>
   <div class="songs-list" id="songList">
     <c:forEach var="song" items="${songs}">
-      <article class="songs-row" data-name="<c:out value='${song.name}'/>" data-lack="${song.complete ? '0' : '1'}">
-        <c:choose>
-          <c:when test="${not empty song.thumbUrl}"><img class="songs-pic" src="<c:out value='${song.thumbUrl}'/>" alt="" loading="lazy"></c:when>
-          <c:otherwise><span class="songs-pic songs-pic-empty"><i class="fa-solid fa-music" aria-hidden="true"></i></span></c:otherwise>
-        </c:choose>
+      <c:set var="p" value="${pics[song.id]}"/>
+      <article class="songs-row" data-name="<c:out value='${song.name}'/>" data-lack="${song.complete ? '0' : '1'}"
+               data-img="${empty p or empty p.src ? 'miss' : p.manual ? 'man' : 'auto'}">
+        <%-- obrázky písně na Hudbě, v Textech a v Karaoke (stejné jako Admin → Obrázky písní) --%>
+        <div class="songs-imgs">
+          <c:choose>
+            <c:when test="${not empty p}"><%@ include file="/WEB-INF/views/admin/song-imgs.jspf" %></c:when>
+            <c:otherwise><span class="imgs-none songs-imgs-none">Na Hudbě zatím není (chybí klip i obrázek).</span></c:otherwise>
+          </c:choose>
+        </div>
         <a class="songs-main" href="/admin/song?uuid=${song.uuid}">
           <span class="songs-title"><c:out value="${song.name}"/><c:if test="${song.collab}"> <small class="songs-ft" title="Spolupráce – cizí track, kde hostuju">ft.</small></c:if></span>
           <span class="songs-year">${song.year != null ? song.year : '—'}</span>
@@ -50,19 +59,21 @@
   </div>
   <p class="text-dim songs-none" id="songNone" hidden>Nic takového tu není.</p>
   <script>
-    // hledání (i bez háčků) a filtr Všechny / Něco chybí / Hotové
+    // hledání (i bez háčků) a filtr Všechny / Něco chybí / Hotové / Obrázek upravený / Obrázek chybí
     (function () {
       var rows = [].slice.call(document.querySelectorAll('#songList .songs-row')), input = document.getElementById('songFilter');
       var box = document.getElementById('songFilters'), none = document.getElementById('songNone'), filter = 'all';
       function plain(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
       function lacks(r) { return r.dataset.lack === '1'; }
-      box.querySelector('[data-f=all] b').textContent = rows.length;
-      box.querySelector('[data-f=lack] b').textContent = rows.filter(lacks).length;
-      box.querySelector('[data-f=done] b').textContent = rows.length - rows.filter(lacks).length;
+      function fits(r, f) {
+        return f === 'all' || (f === 'lack' && lacks(r)) || (f === 'done' && !lacks(r))
+          || (f === 'imgman' && r.dataset.img === 'man') || (f === 'imgmiss' && r.dataset.img === 'miss');
+      }
+      box.querySelectorAll('[data-f]').forEach(function (b) { b.querySelector('b').textContent = rows.filter(function (r) { return fits(r, b.dataset.f); }).length; });
       function render() {
         var q = plain(input.value.trim()), shown = 0;
         rows.forEach(function (r) {
-          var ok = (filter === 'all' || (filter === 'lack') === lacks(r)) && plain(r.dataset.name).indexOf(q) >= 0;
+          var ok = fits(r, filter) && plain(r.dataset.name).indexOf(q) >= 0;
           r.hidden = !ok;
           if (ok) shown++;
         });
@@ -95,4 +106,5 @@
   </details>
 </main>
 
+<script src="/js/trim-bars.js?v=<%= assetVersion %>"></script>
 <%@ include file="/includes/footer.jsp" %>

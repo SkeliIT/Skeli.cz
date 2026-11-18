@@ -1,10 +1,15 @@
 <%@ include file="includes/header.jsp" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="sk" tagdir="/WEB-INF/tags" %>
 
 <main class="about-page">
+  <%-- nový vzhled webu (Ulice) jako ostatní stránky: úvod na fotkách v pozadí, dole kouř s ohnivým okrajem a pod ním
+       plná barva (WEB-INF/tags/pageHero.tag). Nadpis je jméno umělce sprejem s korunou (jako na úvodu), ve všech
+       jazycích stejné; titulek záložky zůstává about.title. --%>
+  <sk:pageHero kicker="SKELO SQUAD"
+               title='<span class="uh-crown" aria-hidden="true"><i class="fa-solid fa-crown"></i></span><span class="uh-sign">Skeli</span>'
+               lead='<%= t.getProperty("about.hero.lead") %>'/>
   <section class="about-header">
-    <%-- the heading is the artist's name, the same in every language; the tab title stays about.title --%>
-    <h2 class="about-name"><span class="uh-crown" aria-hidden="true"><i class="fa-solid fa-crown"></i></span><span class="uh-sign">Skeli</span></h2>
     <div class="about-intro">
       <%-- the portrait heads the story and fades out into the text below it --%>
       <%-- dark theme: the photo on its black background; light theme: the same photo with the

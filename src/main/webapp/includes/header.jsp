@@ -149,7 +149,19 @@
   </head>
   <%-- v adminu (is-admin): klidné pozadí bez fotek, bez veřejné patičky (css/admin.css) --%>
   <%-- data-unverified: přihlášený s neověřeným e-mailem (Kevin mu jednou řekne proč nejdou komentáře) --%>
-  <body<%= String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin") ? " class=\"is-admin\"" : "" %><%= session.getAttribute("username") != null && !com.github.skeliit.web.auth.EmailVerification.isVerified(session) ? " data-unverified" : "" %>>
+  <%-- data-pong-anon: přihlášený, který má jméno v tabulkách CatSmash skryté (Kevin mu jednou nabídne, kde si ho zapne;
+       hra to připomene v tabulce). Zjistí se jednou za přihlášení a drží v relaci, Nastavení ho po uložení přepíše. --%>
+  <% boolean pongAnon = false;
+     Object pongUid = session.getAttribute("userId");
+     if (pongUid instanceof Integer) {
+       Object pongPub = session.getAttribute("pongPublic");
+       if (!(pongPub instanceof Boolean)) {
+         try { pongPub = new com.github.skeliit.dao.UserDao().pongPublic((Integer) pongUid); session.setAttribute("pongPublic", pongPub); }
+         catch (java.sql.SQLException ex) { pongPub = Boolean.TRUE; }   // bez databáze raději nic neříkat
+       }
+       pongAnon = !Boolean.TRUE.equals(pongPub);
+     } %>
+  <body<%= String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin") ? " class=\"is-admin\"" : "" %><%= session.getAttribute("username") != null && !com.github.skeliit.web.auth.EmailVerification.isVerified(session) ? " data-unverified" : "" %><%= pongAnon ? " data-pong-anon" : "" %>>
     <%-- na stránce písně vede přepínač rovnou na adresu písně v daném jazyce (/en/song/…), jinak by
          adresa /cs/song/… nechala text česky; jinde jen ?lang= --%>
     <% @SuppressWarnings("unchecked") java.util.Map<String, String> songLangs = (java.util.Map<String, String>) request.getAttribute("hreflang");

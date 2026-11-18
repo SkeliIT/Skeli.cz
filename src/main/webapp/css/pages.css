@@ -2217,6 +2217,7 @@ body.light .vis-preview { background: rgba(0, 0, 0, .05); }
 .vis-form.vis-hidden .vis-person { opacity: .45; }
 .vis-list { list-style: none; margin: 0; padding: 0; display: grid; }
 .vis-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; padding: 14px 0; border-top: 1px solid rgba(255, 255, 255, .08); }
+.vis-row:target { border-radius: 12px; box-shadow: 0 0 0 2px var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); scroll-margin-top: 90px; }   /* proklik z úvodu / od Kevina: tenhle přepínač je vidět hned */
 body.light .vis-row { border-top-color: rgba(0, 0, 0, .08); }
 .vis-ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 210, 63, .12); color: var(--accent); align-self: start; }
 .vis-text { display: grid; gap: 3px; min-width: 0; }
@@ -2864,6 +2865,7 @@ body.light .kp-ghost { background: rgba(255, 255, 255, .5); }
 @keyframes kpBar { to { height: 100%; } }
 .kp-row .th { position: relative; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
 .kp-row .th img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.34); }   /* hqdefault má černé pruhy */
+.kp-row .th img.placed { transform: scale(var(--pz, 1)); transform-origin: calc(var(--px, 50) * 1%) calc(var(--py, 50) * 1%); object-position: calc(var(--px, 50) * 1%) calc(var(--py, 50) * 1%); }   /* hlavní obrázek z adminu: bez pruhů, posun jako na kartě na Hudbě */
 .kp-row.sel { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 18%, transparent), transparent 75%); }
 .kp-row.sel .n { color: var(--accent); text-shadow: 0 0 16px var(--accent); }
 .kp-row.sel .eqr { display: inline-flex; }
@@ -2921,7 +2923,7 @@ body.light .kp-orb i:first-child { background: radial-gradient(ellipse at 50% 62
 .song-thumb:has(> img.placed)::before, .disco-edit::before { content: ""; position: absolute; inset: -12%; background: var(--thumb-bg, none) center / cover;
   filter: blur(14px) brightness(.5); }
 html.low-fx .song-thumb:has(> img.placed)::before { filter: brightness(.4); }
-/* Admin → Obrázky v Diskografii: karty 3:4 jako na Hudbě */
+/* Admin → Obrázky písní: karty 3:4 jako na Hudbě */
 .admin-disco-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin-top: 14px; }
 .admin-disco-card { display: grid; gap: 4px; color: var(--text); text-decoration: none; }
 .admin-disco-card:hover { text-decoration: none; }
@@ -2932,16 +2934,62 @@ html.low-fx .song-thumb:has(> img.placed)::before { filter: brightness(.4); }
 .admin-disco-meta { font-size: var(--fs-small); color: var(--text-dim); }
 .admin-disco-edit { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; font-size: var(--fs-small); color: var(--accent); }
 /* admin: výběr zdroje a náhled karty 3:4 */
-.disco-src-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin: 10px 0; }
+.disco-src-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; margin: 10px 0; max-width: 680px; }   /* na telefonu 3 vedle sebe, na PC nejvýš 6 */
 .disco-src-tile { display: grid; gap: 6px; cursor: pointer; font-size: var(--fs-small); text-align: center; }
 .disco-src-tile input { position: absolute; opacity: 0; }
+.disco-src-tile[hidden] { display: none; }   /* snímek, který se nenačte, se schová (display: grid by hidden přebil) */
 .disco-src-img { display: block; aspect-ratio: 3 / 4; border-radius: 10px; overflow: hidden; background: #000; border: 2px solid transparent; }
 .disco-src-img img { width: 100%; height: 100%; object-fit: cover; }
 .disco-src-tile input:checked + .disco-src-img { border-color: var(--accent); box-shadow: 0 0 16px -4px var(--accent); }
 .disco-src-tile input:focus-visible + .disco-src-img { outline: 2px solid var(--accent); outline-offset: 2px; }
 .disco-upload { margin: 10px 0 16px; }
+.disco-upload input[type="file"] { width: auto; max-width: 100%; }   /* admin-inline-form dává polím 120 px, tlačítko „Vybrat soubor“ se useklo */
 .disco-edit-wrap { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
 .disco-edit { position: relative; width: 200px; aspect-ratio: 3 / 4; border-radius: 14px; overflow: hidden; background: #000; cursor: grab; touch-action: none; user-select: none; }
+/* admin → píseň → Obrázky: přepínač míst (Hudba / Texty) a náhled kulaté ikonky v Karaoke se stejným posunem jako karta */
+.img-place-tabs { display: flex; gap: 6px; margin: 0 0 14px; }
+.img-place-tabs button { display: grid; place-content: center; text-align: center; flex: 1 1 0; max-width: 240px; min-height: 44px; padding: 6px 12px; border: 1px solid var(--panel-border); border-radius: 12px; background: transparent; color: var(--text); cursor: pointer; }
+.img-place-tabs button small { display: block; font-size: var(--fs-small); color: var(--text-dim); }
+.img-place-tabs button.on { border-color: var(--accent); color: var(--accent); font-weight: 600; box-shadow: 0 0 14px -6px var(--accent); }
+.kar-icon-prev { display: grid; justify-items: center; align-content: start; gap: 6px; width: 110px; text-align: center; font-size: var(--fs-small); }
+.kar-icon { display: block; flex: none; position: relative; width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #000; box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
+.kar-icon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: calc(var(--px, 50) * 1%) calc(var(--py, 50) * 1%);
+  transform: scale(var(--pz, 1)); transform-origin: calc(var(--px, 50) * 1%) calc(var(--py, 50) * 1%); }
+.kar-icon img.auto { transform: scale(1.34); }   /* náhled klipu (hqdefault) má černé pruhy, jako .kp-row .th img na Karaoke */
+/* admin → Obrázky písní (/admin/disco): přehled všech míst vedle sebe a pohledy „Jak to vypadá…“ */
+.imgs-view[hidden], .imgs-item[hidden] { display: none !important; }   /* display: grid / flex by hidden přebil */
+.imgs-bar { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 10px 0 6px; padding-bottom: 2px; }
+.imgs-bar button { flex: none; min-height: 42px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--panel-border); background: transparent; color: var(--text); cursor: pointer; }
+.imgs-bar button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.imgs-bar button b { font-weight: 400; opacity: .75; }
+.imgs-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: var(--fs-small); margin: 6px 0 12px; }
+.imgs-tag { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; font-size: .7rem; font-weight: 700; background: var(--accent); color: var(--accent-ink); }
+.imgs-tag.miss { background: #c0392b; color: #fff; }
+.imgs-head, .imgs-song { display: grid; grid-template-columns: minmax(0, 1fr) 84px minmax(160px, 260px) 64px; gap: 14px; align-items: center; }
+.imgs-head { padding: 0 10px 6px; font-size: var(--fs-small); color: var(--text-dim); }
+.imgs-song { padding: 10px; border-top: 1px solid var(--panel-border); }
+.imgs-name { min-width: 0; color: var(--text); text-decoration: none; }
+.imgs-name b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.imgs-name small { display: block; font-size: var(--fs-small); }
+.imgs-cell { position: relative; display: block; border-radius: 10px; text-decoration: none; color: inherit; }
+.imgs-cell > .imgs-tag { position: absolute; top: -6px; left: -6px; z-index: 3; }   /* nad obrázkem karty (song-thumb::after má z-index 2) */
+.imgs-cell:hover .song-thumb, .imgs-cell:hover .imgs-row, .imgs-cell:hover .kar-icon, .imgs-cell:focus-visible .song-thumb { box-shadow: 0 0 0 2px var(--accent); }
+.imgs-cell .song-thumb { display: block; width: 72px; aspect-ratio: 3 / 4; border-radius: 8px; }   /* span je řádkový: bez display: block by neměl tvar 3:4 */
+.imgs-none { font-size: var(--fs-small); color: var(--text-dim); }
+.imgs-row.song-row { min-height: 56px; margin: 0; padding: 10px 12px; pointer-events: none; }
+.imgs-row .song-row-title { display: block; font-size: var(--fs-small); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }   /* dlouhý název nesmí řádek roztáhnout */
+.imgs-wall-rows { display: grid; gap: 8px; max-width: 640px; }
+.imgs-wall-rows .song-row { margin: 0; }
+.imgs-wall-kar { display: grid; gap: 4px; max-width: 560px; }
+.imgs-kar-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 6px 10px; border-radius: 12px; color: var(--text); text-decoration: none; }
+.imgs-kar-row:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.imgs-kar-row b, .imgs-kar-row small { display: block; }
+/* telefon: název nahoře, pod ním tři místa vedle sebe */
+@media (max-width: 640px) {
+  .imgs-head { display: none; }
+  .imgs-song { grid-template-columns: 72px minmax(0, 1fr) 60px; grid-template-areas: "n n n" "d t k"; row-gap: 8px; }
+  .imgs-song .imgs-name { grid-area: n; } .imgs-song .c-disco { grid-area: d; } .imgs-song .c-texty { grid-area: t; } .imgs-song .c-kar { grid-area: k; }   /* jen přehled Obrázky písní, ne seznam Písní */
+}
 .disco-edit img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .disco-edit img.placed { position: absolute; }
 .disco-edit-name { position: absolute; left: 10px; right: 10px; bottom: 10px; font-size: var(--fs-small); color: #fff; text-shadow: 0 1px 6px #000; pointer-events: none; }
