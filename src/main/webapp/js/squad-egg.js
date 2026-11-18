@@ -16,7 +16,14 @@
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // struny nad smajlíky (rozechvějí se při brnknutí harfy a zase zmizí)
   var strs = lamps.map(function (l, i) { var s = document.createElement('i'); s.className = 'sq-str'; s.style.setProperty('--i', i); lampBox.appendChild(s); return s; });
+  // struna se objeví ~150 ms před brnknutím (animace: nejdřív se rozsvítí, pak se s tónem rozechvěje)
   function twang(i) { if (still) return; var s = strs[i]; s.classList.remove('go'); void s.offsetWidth; s.classList.add('go'); }
+  // EKG: při ťukání u verze se srdcem se v prostoru, kde se pak objeví obličeje, vykreslí kousek křivky tepu a zmizí
+  var ekgBox = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  ekgBox.setAttribute('class', 'sq-ekg'); ekgBox.setAttribute('viewBox', '0 0 220 44'); ekgBox.setAttribute('aria-hidden', 'true');
+  ekgBox.innerHTML = '<path pathLength="100" d="M0 26 H66 q6 -7 12 0 H90 l4 6 l6 -28 l6 36 l5 -14 H128 q10 -11 20 0 H220"/>';
+  foot.appendChild(ekgBox);
+  function ekg() { if (still) return; ekgBox.classList.remove('go'); void ekgBox.getBoundingClientRect(); ekgBox.classList.add('go'); }
 
   // ---------- zvuk ----------
   var ac = null, out = null, rev = null, whisperBuf = null;
@@ -92,7 +99,7 @@
   var HARP = [220, 246.94, 261.63, 293.66, 329.63, 349.23, 415.3], PAN = [-0.5, 0, 0.5, -0.3, 0.2, 0.4, 0];
   // hlasitosti podle Skeliho (náhled hlasitost.html, 2026-11-18: basa a kytara pozpátku ztišené na 30 % a 50 %), už přepočtené
   var L = { harfa: 0.075, basa: 0.036, pozpatku: 0.042, uder: 0.28, akord: 0.11, sepot: 0.047, srdce: 0.6 };
-  function harpNote(i, vol) { pluck(HARP[i], 0, vol, { bright: 0.55, damp: 0.997, len: 3.5, wet: 0.55, pan: PAN[i] }); twang(i); }
+  function harpNote(i, vol) { pluck(HARP[i], 0, vol, { bright: 0.55, damp: 0.997, len: 3.5, wet: 0.55, pan: PAN[i] }); }
   function steel(f, delay, vol) { pluck(f, delay, vol, { bright: 0.4, damp: 0.996, len: 4, echo: 0.36, wet: 0.4, cut: 2600 }); }
 
   // ---------- smajlík a kroužek ----------
@@ -110,7 +117,7 @@
     var forced = (location.search.match(/[?&]egg=(harfa|tunel)/) || [])[1];
     if (taps === 0) mode = forced || (Math.random() < 0.5 ? 'tunel' : 'harfa');
     taps++; nextFace(); setRing(taps);
-    if (mode === 'tunel') heart(0.55 + taps * 0.06); else harpNote(taps - 1, L.harfa * 0.8);
+    if (mode === 'tunel') { heart(0.55 + taps * 0.06); ekg(); } else harpNote(taps - 1, L.harfa * 0.8);
     clearTimeout(resetT);
     if (taps >= 7) { setTimeout(reveal, 600); return; }
     resetT = setTimeout(function () { taps = 0; setRing(0); }, 20000);   // kdo přestane, začne příště znovu
@@ -123,6 +130,7 @@
     if (harp) { pluck(82.41, 1.0, L.basa, { bright: 0.25, damp: 0.9995, len: 5, cut: 700, wet: 0.3 }); }   // basa na E (napětí)
     else tunnel(5.45);
     lamps.forEach(function (l, i) {
+      if (harp) setTimeout(function () { twang(i); }, Math.max(0, t - 150));   // struna o chvilku dřív než smajlík
       setTimeout(function () {
         if (harp) harpNote(i, L.harfa); else heart(0.7 + i * 0.06);
         l.classList.add('on');
@@ -138,15 +146,16 @@
       sign.classList.add('on');
       if (harp) {
         timpani(55, L.uder);
-        [110, 164.81, 220, 246.94, 261.63, 329.63].forEach(function (f, k) { steel(f, 0.04 + k * 0.03, L.akord); setTimeout(function () { twang(k); }, 40 + k * 30); });
-        steel(440, 0.5, L.akord * 0.9); setTimeout(function () { twang(6); }, 500);
+        [110, 164.81, 220, 246.94, 261.63, 329.63].forEach(function (f, k) { steel(f, 0.04 + k * 0.03, L.akord); setTimeout(function () { twang(k); }, Math.max(0, k * 30 - 110)); });
+        steel(440, 0.5, L.akord * 0.9); setTimeout(function () { twang(6); }, 350);
         whisper(L.sepot, 0.8);
         // srdce zabuší na pulsování nápisu (hned a pak 3× po 1,1 s)
         [0, 1.1, 2.2, 3.3].forEach(function (d, j) { setTimeout(function () { heart((0.7 - j * 0.1) * L.srdce); if (!still) { sign.classList.remove('beat'); void sign.offsetWidth; sign.classList.add('beat'); } }, d * 1000); });
       } else whisper(0.02, 0.2);
     }, stop);
     setTimeout(function () { unlock.classList.add('on'); sig.classList.add('kevin'); sig.textContent = 'Kevin: ' + (foot.dataset.kevin || ''); }, stop + 700);
-    if (!harp) [2.2, 3.4, 4.9].forEach(function (d, j) { setTimeout(function () { heart(0.5 - j * 0.12); }, stop + d * 1000); });   // srdce se znovu rozběhne
+    // srdce se znovu rozběhne a nápis SKELO SQUAD na každý úder zatepe
+    if (!harp) [2.2, 3.4, 4.9].forEach(function (d, j) { setTimeout(function () { heart(0.5 - j * 0.12); if (!still) { sign.classList.remove('beat'); void sign.offsetWidth; sign.classList.add('beat'); } }, stop + d * 1000); });
     setTimeout(function () { arena.classList.remove('show'); }, stop + 5900);
     setTimeout(function () {
       lamps.forEach(function (l) { l.classList.remove('on', 'beat'); }); sign.classList.remove('on', 'beat'); unlock.classList.remove('on');

@@ -522,11 +522,20 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .sq-sign.on { opacity: 1; filter: blur(0) drop-shadow(0 0 6px var(--accent)); transform: none; }
   .sq-lamps { position: relative; display: flex; gap: 7px; }
   /* struna nad smajlíkem: při brnknutí harfy se objeví, rozechvěje a zmizí (js/squad-egg.js twang) – nepřekážejí si */
-  .sq-str { position: absolute; bottom: calc(100% + 2px); left: calc(var(--i) * 29px + 10.5px); width: 1px; height: 30px; opacity: 0; pointer-events: none;
-    background: linear-gradient(transparent, var(--accent) 30%, var(--accent) 70%, transparent); transform-origin: 50% 50%; }
-  .sq-str.go { animation: sq-twang 1.3s ease-out; }
-  @keyframes sq-twang { 0% { opacity: 0; } 6% { opacity: .95; transform: translateX(2px); filter: drop-shadow(0 0 3px var(--accent)); } 12% { transform: translateX(-2px); } 18% { transform: translateX(1.5px); }
-    24% { transform: translateX(-1.2px); } 32% { transform: translateX(.8px); } 42% { transform: translateX(-.4px); opacity: .7; } 100% { transform: none; opacity: 0; } }
+  /* struna u smajlíka: větší část pod ním, nad něj vyčuhuje jen kousek; oba konce do ztracena, spodní dlouhý,
+     ale průhledný dávno před čárou se smajlíkem. Objeví se ~150 ms před brnknutím, s tónem se rozechvěje a zmizí. */
+  .sq-str { position: absolute; top: -12px; left: calc(var(--i) * 29px + 10.5px); width: 1px; height: 84px; opacity: 0; pointer-events: none;
+    background: linear-gradient(transparent 0, var(--accent) 14%, var(--accent) 32%, transparent 82%); }
+  .sq-str.go { animation: sq-twang 1.45s ease-out; }
+  @keyframes sq-twang { 0% { opacity: 0; } 10% { opacity: .9; transform: none; } 14% { transform: translateX(2px); filter: drop-shadow(0 0 3px var(--accent)); }
+    19% { transform: translateX(-2px); } 24% { transform: translateX(1.5px); } 30% { transform: translateX(-1.1px); } 38% { transform: translateX(.7px); }
+    48% { transform: translateX(-.3px); opacity: .7; } 100% { transform: none; opacity: 0; } }
+  /* EKG křivka při ťukání (verze se srdcem): v prostoru, kde se pak objeví obličeje, vykreslí se tep a zmizí */
+  .sq-ekg { position: absolute; z-index: 2; left: 50%; top: 40px; width: 220px; height: 44px; translate: -50% 0; pointer-events: none; overflow: visible; }
+  .sq-ekg path { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0;
+    filter: drop-shadow(0 0 3px var(--accent)); }
+  .sq-ekg.go path { animation: sq-ekg 1.2s ease-out; }
+  @keyframes sq-ekg { 0% { stroke-dashoffset: 100; opacity: 1; } 55% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
   .sq-lamp { width: 22px; height: 22px; background: var(--accent); opacity: 0; filter: blur(6px); transform: scale(.8);
     -webkit-mask: var(--f) center / contain no-repeat; mask: var(--f) center / contain no-repeat; transition: opacity .5s ease-out, filter .6s ease-out, transform .6s ease-out; }
   .sq-lamp.on { opacity: 1; filter: blur(0) drop-shadow(0 0 5px var(--accent)); transform: none; }
