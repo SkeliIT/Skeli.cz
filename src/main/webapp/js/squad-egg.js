@@ -90,8 +90,8 @@
   }
   // tóny (Hz): harfa stoupá A H C D E F Gis, napětí na E dur, rozuzlení do A moll
   var HARP = [220, 246.94, 261.63, 293.66, 329.63, 349.23, 415.3], PAN = [-0.5, 0, 0.5, -0.3, 0.2, 0.4, 0];
-  // hlasitosti podle Skeliho (harfa 0,5 · basa 0,6 · pozpátku 0,7 · úder 0,8 · akord 1 · šepot 1,2 · srdce 0,6), už přepočtené
-  var L = { harfa: 0.075, basa: 0.12, pozpatku: 0.084, uder: 0.28, akord: 0.11, sepot: 0.047, srdce: 0.6 };
+  // hlasitosti podle Skeliho (náhled hlasitost.html, 2026-11-18: basa a kytara pozpátku ztišené na 30 % a 50 %), už přepočtené
+  var L = { harfa: 0.075, basa: 0.036, pozpatku: 0.042, uder: 0.28, akord: 0.11, sepot: 0.047, srdce: 0.6 };
   function harpNote(i, vol) { pluck(HARP[i], 0, vol, { bright: 0.55, damp: 0.997, len: 3.5, wet: 0.55, pan: PAN[i] }); twang(i); }
   function steel(f, delay, vol) { pluck(f, delay, vol, { bright: 0.4, damp: 0.996, len: 4, echo: 0.36, wet: 0.4, cut: 2600 }); }
 
