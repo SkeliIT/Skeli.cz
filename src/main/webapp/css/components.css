@@ -494,6 +494,8 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav .sq-seal { touch-action: manipulation; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }   /* rychlé ťukání = žádné přiblížení ani nabídka */
   .main-nav .nav-foot::before { content: ""; position: absolute; left: -20%; right: -20%; bottom: -50px; height: 130px; pointer-events: none; filter: blur(8px);
     background: radial-gradient(60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%); }
+  /* jiskry ze žáru a bublinky u zelené (js/squad-egg.js), jen při otevřeném menu */
+  .sq-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
   .sq-line { position: relative; z-index: 2; display: flex; align-items: center; gap: 12px; width: 100%; }
   .sq-line::before, .sq-line::after { content: ""; flex: 1; height: 1px; }
   .sq-line::before { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 55%, transparent)); }

@@ -163,4 +163,72 @@
     }, stop + 6600);
     setTimeout(function () { sig.classList.remove('kevin'); sig.textContent = 'SKELO SQUAD'; }, stop + 8000);
   }
+  // ---------- jiskry ze žáru a bublinky u zelené (spodek menu) ----------
+  // Kreslí se jen při otevřeném menu (html.menu-open), ne na slabém telefonu (html.low-fx) ani při „omezit pohyb“.
+  // Jiskry pomalu stoupají a vyhasínají, prst je jen jemně odfoukne. Když je barva webu zelená (fotka s mikrofonem),
+  // stoupá i pár bublinek – ťuknutím prasknou (Skeliho nahraný zvuk, js/sounds.js).
+  (function () {
+    var cv = document.createElement('canvas'); cv.className = 'sq-fx'; foot.insertBefore(cv, foot.firstChild);
+    var ctx = cv.getContext('2d'), W = 0, H = 0, P = [], B = [], D = [], raf = 0, wind = { x: -999, y: 0, vx: 0, vy: 0, t: 0 }, last = null, bubbleT = 0;
+    var POP = ['/sounds/bublina-1.wav', '/sounds/bublina-2.wav', '/sounds/bublina-3.wav', '/sounds/bublina-4.wav'];
+    function size() { var r = foot.getBoundingClientRect(); W = cv.width = Math.round(r.width); H = cv.height = Math.round(r.height); }
+    function ember(any) { return { x: Math.random() * W, y: any ? H * (0.55 + Math.random() * 0.45) : H + 4, vx: 0, vy: -(0.22 + Math.random() * 0.38), r: 0.8 + Math.random() * 1.5, a: 0.55 + Math.random() * 0.45 }; }
+    function accent() { return getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#ff3b30'; }
+    function green(col) {   // zelená barva webu (odstín 80–150°) a tmavý režim
+      if (document.body.classList.contains('light')) return false;
+      var m = col.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/); if (!m) return false;
+      var r = m[1] / 255, g = m[2] / 255, b = m[3] / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b); if (mx - mn < 0.15 || mx !== g) return false;
+      var h = 60 * (((b - r) / (mx - mn)) + 2); return h > 80 && h < 150;
+    }
+    function on() { return document.documentElement.classList.contains('menu-open') && !document.documentElement.classList.contains('low-fx') && !still && !document.hidden; }
+    function pos(e) { var r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    foot.addEventListener('pointermove', function (e) { var p = pos(e); if (last) { wind.vx = p.x - last.x; wind.vy = p.y - last.y; } wind.x = p.x; wind.y = p.y; wind.t = 1; last = p; });
+    foot.addEventListener('pointerleave', function () { last = null; });
+    foot.addEventListener('pointerdown', function (e) {
+      var p = pos(e);
+      for (var i = 0; i < B.length; i++) { var b = B[i]; if (Math.hypot(p.x - b.x, p.y - b.y) < b.r + 16) { pop(b, true); B.splice(i, 1); return; } }
+    });
+    function pop(b, byHand) {
+      if (byHand && window.SkeliSound && SkeliSound.sample) SkeliSound.sample('pop', POP, 0.5, 1.15 - b.r * 0.03);
+      for (var k = 0; k < 8; k++) { var ang = k / 8 * 6.28 + Math.random() * 0.3, sp = 1 + Math.random() * 1.3; D.push({ x: b.x, y: b.y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 0.6, life: 1 }); }
+    }
+    function frame() {
+      raf = 0; if (!on()) { ctx.clearRect(0, 0, W, H); return; }
+      if (!W) size();
+      var col = accent(), gr = green(col);
+      ctx.clearRect(0, 0, W, H); wind.t *= 0.9;
+      while (P.length < 14) P.push(ember(true));
+      for (var i = P.length - 1; i >= 0; i--) {
+        var p = P[i], dx = p.x - wind.x, dy = p.y - wind.y, d = Math.hypot(dx, dy);
+        if (wind.t > 0.05 && d < 60) { var f = (1 - d / 60) * wind.t; p.vx += (wind.vx * 0.025 + dx / (d + 1) * 0.3) * f; p.vy += (wind.vy * 0.025 + dy / (d + 1) * 0.3) * f; }
+        var sp = Math.hypot(p.vx, p.vy); if (sp > 2.2) { p.vx *= 2.2 / sp; p.vy *= 2.2 / sp; }
+        p.vx *= 0.95; p.vy = p.vy * 0.97 - 0.012; p.x += p.vx; p.y += p.vy;
+        var top = Math.max(0, Math.min(1, (p.y - H * 0.08) / (H * 0.45))), al = p.a * top * top;   // vyhasne dřív, než dojde k okraji
+        if (al < 0.02 || p.x < -8 || p.x > W + 8) { P[i] = ember(false); continue; }
+        ctx.globalAlpha = al; ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 6; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+      if (gr && B.length < 4 && (bubbleT -= 1) <= 0) { B.push({ x: 30 + Math.random() * (W - 60), y: H + 12, r: 4 + Math.random() * 5, vy: -(0.18 + Math.random() * 0.2), ph: Math.random() * 6, vx: 0 }); bubbleT = 90 + Math.random() * 120; }
+      for (var j = B.length - 1; j >= 0; j--) {
+        var b = B[j]; b.ph += 0.03;
+        var dx2 = b.x - wind.x, dy2 = b.y - wind.y, d2 = Math.hypot(dx2, dy2);
+        if (wind.t > 0.05 && d2 < 50 && d2 > 22) b.vx += dx2 / (d2 + 1) * 0.12 * wind.t;
+        b.vx *= 0.95; b.x += b.vx + Math.sin(b.ph) * 0.25; b.y += b.vy;
+        var bt = Math.max(0, Math.min(1, (b.y - H * 0.08) / (H * 0.4)));
+        if ((!gr && Math.random() < 0.01) || bt <= 0.02) { pop(b, false); B.splice(j, 1); continue; }
+        ctx.globalAlpha = 0.12 * bt; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 7); ctx.fill();
+        ctx.globalAlpha = 0.85 * bt; ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.globalAlpha = 0.7 * bt; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.45, 3.5, 4.6); ctx.stroke();
+      }
+      for (var k = D.length - 1; k >= 0; k--) { var q = D[k]; q.vy += 0.06; q.x += q.vx; q.y += q.vy; q.life -= 0.035; if (q.life <= 0) { D.splice(k, 1); continue; } ctx.globalAlpha = q.life; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(q.x, q.y, 1.3, 0, 7); ctx.fill(); }
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(frame);
+    }
+    function start() { if (!raf && on()) { size(); raf = requestAnimationFrame(frame); } }
+    // menu se otevře / zavře = třída menu-open na <html>
+    new MutationObserver(start).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    addEventListener('resize', function () { W = 0; });
+    document.addEventListener('visibilitychange', start);
+    start();
+  })();
 })();
