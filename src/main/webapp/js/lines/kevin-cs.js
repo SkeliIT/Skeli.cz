@@ -169,7 +169,6 @@
   ],
   "sleep": [
     "Zzz… jen zavírám oči, abych líp přemýšlel.",
-    "Odpočinek je důležitý. Hlavně když nemusíš pracovat.",
     "Kdyby něco, jsem vzhůru. Jen zvenku to tak nevypadá.",
     "Režim úspory energie. Tlapky vypnuty.",
     "Ticho, prosím. Právě nic nedělám."
@@ -215,6 +214,7 @@
     ]
   },
   "profileNews": ["Předělali jsme profil. Fotka, záhlaví, přátelé, zprávy, tvoje skladby. Všechno si nastavíš podle sebe. Já bych tam dal fotku kočky.","A teď vážně: co o tobě ostatní uvidí, rozhoduješ jen ty. Profil veřejný, nebo soukromý, a každá věc má vlastní vypínač. Klikni, ukážu ti kde."],
+  "pongName": "Novinka v CatSmash: v tabulkách jsi teď anonymní hráč, dokud si to sám nezměníš. Chceš tam mít svoje jméno? Ťukni sem a zapni si ho. Nebo zůstaň tajný agent, mně je to fuk.",
   "privacyTip": "Nechceš, aby ti sem někdo koukal? V Nastavení si dej soukromý profil. Žádost o přátelství ti pošlou dál, ale dovnitř nikdo nevleze.",
   "profileHello": ["Tvůj profil. Zatím prázdnej jak moje miska. Začni tím seznamem.","Tak tady bydlíš? Trochu to tu zařiď, seznam ti poradí."],
   "profile": [

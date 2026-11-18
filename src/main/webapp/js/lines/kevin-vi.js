@@ -169,7 +169,6 @@
   ],
   "sleep": [
     "Khò… chỉ nhắm mắt để suy nghĩ tốt hơn.",
-    "Nghỉ ngơi là quan trọng. Nhất là khi không phải làm việc.",
     "Có gì thì tôi vẫn thức. Chỉ là nhìn bên ngoài không giống thôi.",
     "Chế độ tiết kiệm năng lượng. Chân đã tắt.",
     "Làm ơn yên lặng. Tôi đang không làm gì cả."
@@ -215,6 +214,7 @@
     ]
   },
   "profileNews": ["Chúng tôi đã làm lại hồ sơ. Ảnh, ảnh bìa, bạn bè, tin nhắn, các bài của bạn. Mọi thứ đều tùy bạn. Tôi thì sẽ để ảnh mèo.","Nói nghiêm túc nhé: người khác thấy gì về bạn là do bạn quyết định. Hồ sơ công khai hay riêng tư, và mỗi mục có công tắc riêng. Bấm đi, tôi chỉ cho."],
+  "pongName": "Tin mới ở CatSmash: trong bảng xếp hạng bạn giờ là người chơi ẩn danh, cho đến khi tự đổi. Muốn hiện tên mình? Chạm vào đây và bật lên. Hoặc cứ làm điệp viên bí mật, tôi chẳng bận tâm.",
   "privacyTip": "Không muốn ai nhòm vào đây? Hãy đặt hồ sơ ở chế độ riêng tư trong Cài đặt. Người khác vẫn gửi được lời mời kết bạn, nhưng không ai vào được.",
   "profileHello": ["Hồ sơ của bạn đây. Trống như cái bát của tôi vậy. Bắt đầu từ danh sách kia đi.","Vậy là bạn sống ở đây à? Sắp xếp lại một chút đi, danh sách sẽ giúp."],
   "profile": [
@@ -572,7 +572,7 @@
 
 // ---------- Rady k funkcím, reakce a svátky (2026-11-08, překlad české sady; klíče stejné jako v kevin-cs.js) ----------
 (function (L) {
-  L.hints = {
+  L.hints = {
     "wheel": ["Chế độ sáng, chữ đậm và âm thanh nằm trong bánh xe phía trên. Bạn làm gì với chúng thì tôi mặc kệ.", "Bánh xe phía trên có giao diện và âm thanh. Tôi sẽ thêm một nút để ngủ lâu hơn."],
     "verify": ["Chưa xác minh e-mail thì chưa bình luận, gửi lời mời kết bạn hay nhắn tin được.", "Đường link xác minh đã gửi vào hộp thư. Đôi khi nó lạc vào thư rác."],
     "photo": ["Hồ sơ chịu được một tấm ảnh và một ảnh bìa rộng. Không bắt buộc. Nhưng chịu được.", "Ảnh và ảnh bìa được thêm ngay tại đây, trên hồ sơ."],

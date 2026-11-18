@@ -742,6 +742,19 @@
     });
   }
 
+  // Jméno v tabulkách CatSmash (od 18. 11. 2026 skryté, dokud si ho hráč sám nezapne): každému přihlášenému, kdo ho má
+  // skryté (body[data-pong-anon], includes/header.jsp), to řekne jednou – i tomu, kdo ho zavřel (jako tip). Klik na bublinu
+  // vede rovnou na přepínač v Nastavení. Kdo si ho zapnul, nic neslyší.
+  function pongNameNotice() {
+    if (!L.pongName || !document.body.hasAttribute('data-pong-anon') || store.get('kevinPongName')) return;
+    whenAllowed(function () {
+      if (store.get('kevinPongName') || !document.body.hasAttribute('data-pong-anon')) return true;
+      if (!auto(L.pongName, 'point', 0.9, true, '/nastaveni.jsp#jmeno-catsmash')) return false;
+      store.set('kevinPongName', '1');
+      return true;
+    });
+  }
+
   // Novinky webu (kevin/novinky.json, nejnovější první): krátké lidské věty o tom, co jsme na webu změnili,
   // v 5 jazycích, s odkazem; přibývají při nasazení. „Co je nového“ = nové klipy a příspěvky + změny webu od
   // minulé návštěvy; když od minula nic, aspoň poslední novinka z dílny.
@@ -1289,6 +1302,7 @@
     });
     if (!adminPage) setTimeout(buildingNotice, 9000);
     if (!adminPage) setTimeout(profileNews, 25000);
+    if (!adminPage) setTimeout(pongNameNotice, 7000);    // jméno v CatSmash: jen jednou za celou dobu, proto má přednost před „web ve výstavbě“
     if (userHidden) { place(false); introPaw(); if (!adminPage) scheduleTip(); return; }   // pacička se vylíhne i tomu, kdo Kevina zavřel
     if (pocket()) { place(false); introPaw(); }   // in the paw until he has something to say (greet below)
     else ensureModel();          // a page without the header bar: he stands there from the start

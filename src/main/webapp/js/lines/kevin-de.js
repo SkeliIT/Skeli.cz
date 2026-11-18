@@ -169,7 +169,6 @@
   ],
   "sleep": [
     "Zzz… ich schließe nur die Augen, um besser nachzudenken.",
-    "Ausruhen ist wichtig. Vor allem, wenn man nicht arbeiten muss.",
     "Falls was ist, ich bin wach. Sieht von außen nur nicht so aus.",
     "Energiesparmodus. Pfoten ausgeschaltet.",
     "Ruhe, bitte. Ich tu gerade nichts."
@@ -215,6 +214,7 @@
     ]
   },
   "profileNews": ["Wir haben das Profil neu gebaut. Foto, Titelbild, Freunde, Nachrichten, deine Tracks. Alles stellst du dir selbst ein. Ich würde ein Katzenfoto nehmen.","Jetzt im Ernst: Was andere über dich sehen, entscheidest nur du. Öffentliches oder privates Profil, und jede Sache hat ihren eigenen Schalter. Klick, ich zeig dir wo."],
+  "pongName": "Neu bei CatSmash: In den Ranglisten bist du jetzt ein anonymer Spieler, bis du es selbst änderst. Willst du deinen Namen dort sehen? Tipp hier und schalte ihn ein. Oder bleib Geheimagent, mir egal.",
   "privacyTip": "Soll hier keiner reinschauen? Stell dein Profil in den Einstellungen auf privat. Freundschaftsanfragen gehen weiter, aber rein kommt keiner.",
   "profileHello": ["Dein Profil. Bisher so leer wie mein Napf. Fang mit der Liste an.","Hier wohnst du also? Richte es ein bisschen ein, die Liste hilft."],
   "profile": [
@@ -572,7 +572,7 @@
 
 // ---------- Rady k funkcím, reakce a svátky (2026-11-08, překlad české sady; klíče stejné jako v kevin-cs.js) ----------
 (function (L) {
-  L.hints = {
+  L.hints = {
     "wheel": ["Heller Modus, fette Schrift und Töne sind im Rädchen oben. Was du damit machst, ist mir egal.", "Im Rädchen oben gibt es Aussehen und Töne. Ich würde noch einen Knopf für längere Nickerchen einbauen."],
     "verify": ["Ohne bestätigte E-Mail gehen Kommentare, Freundschaftsanfragen und Nachrichten noch nicht.", "Der Bestätigungslink ist in deinem Postfach. Manchmal landet er im Spam."],
     "photo": ["Ein Profil verträgt ein Foto und ein breites Titelbild. Muss nicht. Verträgt es aber.", "Foto und Titelbild fügst du direkt hier im Profil hinzu."],

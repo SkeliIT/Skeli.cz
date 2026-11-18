@@ -169,7 +169,6 @@
   ],
   "sleep": [
     "Zzz… just closing my eyes to think better.",
-    "Rest is important. Especially when you don't have to work.",
     "If anything happens, I'm awake. It just doesn't look like it.",
     "Power saving mode. Paws switched off.",
     "Quiet, please. I'm busy doing nothing."
@@ -215,6 +214,7 @@
     ]
   },
   "profileNews": ["We rebuilt the profile. Photo, header, friends, messages, your tracks. You set it all up your way. I'd go with a photo of a cat.","Now seriously: what others see about you is your call alone. Public or private profile, and every item has its own switch. Click and I’ll show you where."],
+  "pongName": "CatSmash news: in the leaderboards you're an anonymous player now, until you change it yourself. Want your name there? Tap here and switch it on. Or stay a secret agent, I don't mind.",
   "privacyTip": "Don't want people looking in here? Make your profile private in Settings. They can still send you a friend request, but nobody gets inside.",
   "profileHello": ["Your profile. Empty as my bowl so far. Start with that list.","So this is where you live? Furnish it a bit, the list will help."],
   "profile": [
@@ -572,7 +572,7 @@
 
 // ---------- Rady k funkcím, reakce a svátky (2026-11-08, překlad české sady; klíče stejné jako v kevin-cs.js) ----------
 (function (L) {
-  L.hints = {
+  L.hints = {
     "wheel": ["Light mode, bold text and sounds are in the wheel up top. What you do with them is your business.", "The wheel up top has looks and sounds. I'd add a button for longer naps."],
     "verify": ["Without a verified e-mail you can't comment, send friend requests or messages yet.", "The verification link is in your inbox. Sometimes it slips into spam."],
     "photo": ["A profile can take a photo and a wide header picture. It doesn't have to. But it can.", "Photo and header are added right here on the profile."],

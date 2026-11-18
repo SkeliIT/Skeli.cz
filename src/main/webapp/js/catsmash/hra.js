@@ -1485,6 +1485,17 @@
     var keys = { left: false, right: false }, raf = 0, last = 0, signedIn = false, csrf = null;
     // nepřihlášený hráč (web to ví hned: přihlášený má v hlavičce formulář na odhlášení; signedIn přijde až z /api/pong/me)
     function guest() { return !signedIn && !document.querySelector('form.logout-form'); }
+    // přihlášený se skrytým jménem v tabulkách (body[data-pong-anon] z includes/header.jsp): v tabulce mu to hra připomene
+    // s odkazem do Nastavení a Kevin to jednou za návštěvu řekne při otevření hry
+    function anonMe() { return !guest() && document.body.hasAttribute('data-pong-anon'); }
+    function anonNote() {
+      return anonMe() && T.anonNote ? '<p class="kpong-note">' + esc(T.anonNote) + ' <a href="/nastaveni.jsp#jmeno-catsmash">' + esc(T.anonLink || '') + '</a></p>' : '';
+    }
+    function anonSayOnce() {
+      if (!anonMe() || !T.anonSay) return null;
+      try { if (sessionStorage.getItem('kevinPongAnonSaid')) return null; sessionStorage.setItem('kevinPongAnonSaid', '1'); } catch (e) { /* bez úložiště: řekne ho, nevadí */ }
+      return pick(T.anonSay);
+    }
 
     var TALK = D.TALK, TALK_KEYS = ['more', 'normal', 'less', 'mute'];
     var talk = TALK[store.get('kevinPongTalk')] ? store.get('kevinPongTalk') : 'normal';
@@ -2919,7 +2930,9 @@
       if (ta) ta.addEventListener('click', function () { tutAgain = true; begin(); });
       champs();
       drawGiftThumbs(panel);
-      say(pick(guest() && T.guestSay ? T.guestSay : T.hello), guest() ? 5000 : 3000);   // nepřihlášenému Kevin nabídne účet
+      var anonLine = guest() ? null : anonSayOnce();
+      // nepřihlášenému Kevin nabídne účet, anonymnímu hráči jednou za návštěvu připomene jméno v tabulkách
+      say(anonLine || pick(guest() && T.guestSay ? T.guestSay : T.hello), guest() || anonLine ? 5000 : 3000);
     }
 
     var RARITY = D.RARITY;
@@ -3183,7 +3196,7 @@
         var local = +(store.get(ptsKey(len, d)) || 0);
         var guest = !signedIn ? '<p class="kpong-note">' + esc(T.loginToRank) + ' <a href="/login.jsp?next=' + encodeURIComponent(location.pathname + location.search) + '">' + esc(T.login) + '</a>' +
           (local ? ' · ' + esc((T.localScore || '').replace('{score}', local)) : '') + '</p>' : '';
-        box.innerHTML = head + (rows ? '<ol class="kpong-list">' + rows + '</ol>' : '<p class="kpong-note">' + esc(T.emptyScore || T.empty) + '</p>') + mine + guest;
+        box.innerHTML = head + (rows ? '<ol class="kpong-list">' + rows + '</ol>' : '<p class="kpong-note">' + esc(T.emptyScore || T.empty) + '</p>') + mine + guest + anonNote();
         var rec = panel.querySelector('.kp-rec'), best = j.me ? j.me.score : local;
         if (rec && len === matchLen && d === level) {
           rec.hidden = !best;
@@ -3212,7 +3225,7 @@
         var local = +(store.get(timeKey(d, len)) || 0);
         var guest = !signedIn ? '<p class="kpong-note">' + esc(T.loginToRank) + ' <a href="/login.jsp?next=' + encodeURIComponent(location.pathname + location.search) + '">' + esc(T.login) + '</a>' +
           (local ? ' · ' + esc((T.localBest || '').replace('{time}', time(local))) : '') + '</p>' : '';
-        box.innerHTML = head + (rows ? '<ol class="kpong-list">' + rows + '</ol>' : '<p class="kpong-note">' + esc(T.empty) + '</p>') + mine + guest;
+        box.innerHTML = head + (rows ? '<ol class="kpong-list">' + rows + '</ol>' : '<p class="kpong-note">' + esc(T.empty) + '</p>') + mine + guest + anonNote();
       }).catch(function () { box.innerHTML = '<p class="kpong-note">' + esc(T.boardFail) + '</p>'; });
     }
 
