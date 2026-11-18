@@ -526,9 +526,19 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   /* struna nad smajlíkem: při brnknutí harfy se objeví, rozechvěje a zmizí (js/squad-egg.js twang) – nepřekážejí si */
   /* struna u smajlíka: větší část pod ním, nad něj vyčuhuje jen kousek; oba konce do ztracena, spodní dlouhý,
      ale průhledný dávno před čárou se smajlíkem. Objeví se ~150 ms před brnknutím, s tónem se rozechvěje a zmizí. */
-  .sq-str { position: absolute; top: -12px; left: calc(var(--i) * 29px + 10.5px); width: 1px; height: 84px; opacity: 0; pointer-events: none;
-    background: linear-gradient(transparent 0, var(--accent) 14%, var(--accent) 32%, transparent 82%); }
+  /* Přes smajlíka struna nevede: maska ji přeruší 2 px nad ním a začne 2 px pod ním (smajlík je na struně „navlečený“). */
+  .sq-str { position: absolute; top: -16px; left: calc(var(--i) * 29px + 10.5px); width: 1px; height: 88px; opacity: 0; pointer-events: none;
+    background: linear-gradient(transparent 0, var(--accent) 9px, var(--accent) 48px, transparent 74px);
+    -webkit-mask: linear-gradient(#000 14px, transparent 14px 40px, #000 40px); mask: linear-gradient(#000 14px, transparent 14px 40px, #000 40px); }
   .sq-str.go { animation: sq-twang 1.45s ease-out; }
+  /* při ťukání (harfa) se struna objeví hned s tónem – bez 150ms náběhu */
+  .sq-str.now { animation-delay: -.15s; }
+  /* smajlík se chvěje spolu se strunou (stejné časy jako sq-twang) */
+  .sq-lamp.buzz { animation: sq-buzz 1.45s ease-out; }
+  @keyframes sq-buzz { 0%, 10% { translate: 0; } 14% { translate: 2px; } 19% { translate: -2px; } 24% { translate: 1.5px; } 30% { translate: -1.1px; }
+    38% { translate: .7px; } 48% { translate: -.3px; } 100% { translate: 0; } }
+  /* při ťukání u harfy je aréna vidět kvůli strunám (obličeje i nápis jsou zatím zhasnuté) */
+  .sq-arena.tease { opacity: 1; transition: none; }
   @keyframes sq-twang { 0% { opacity: 0; } 10% { opacity: .9; transform: none; } 14% { transform: translateX(2px); filter: drop-shadow(0 0 3px var(--accent)); }
     19% { transform: translateX(-2px); } 24% { transform: translateX(1.5px); } 30% { transform: translateX(-1.1px); } 38% { transform: translateX(.7px); }
     48% { transform: translateX(-.3px); opacity: .7; } 100% { transform: none; opacity: 0; } }
@@ -572,7 +582,7 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   }
 }
 html.low-fx .main-nav, html.low-fx .main-nav .sq-seal span { animation: none; }
-@media (prefers-reduced-motion: reduce) { .sq-lamp.beat, .sq-sign.beat, .main-nav .sq-seal.hop span { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .sq-lamp.beat, .sq-lamp.buzz, .sq-sign.beat, .main-nav .sq-seal.hop span { animation: none; } }
 
 /* ---------- Buttons ---------- */
 /* :where() keeps specificity at zero, so any component class overrides these */

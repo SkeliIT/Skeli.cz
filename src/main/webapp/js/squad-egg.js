@@ -17,7 +17,12 @@
   // struny nad smajlíky (rozechvějí se při brnknutí harfy a zase zmizí)
   var strs = lamps.map(function (l, i) { var s = document.createElement('i'); s.className = 'sq-str'; s.style.setProperty('--i', i); lampBox.appendChild(s); return s; });
   // struna se objeví ~150 ms před brnknutím (animace: nejdřív se rozsvítí, pak se s tónem rozechvěje)
-  function twang(i) { if (still) return; var s = strs[i]; s.classList.remove('go'); void s.offsetWidth; s.classList.add('go'); }
+  // now = při ťukání (struna se rozechvěje hned s tónem); smajlík na struně se chvěje s ní
+  function twang(i, now) {
+    if (still) return; var s = strs[i], l = lamps[i];
+    s.classList.remove('go', 'now'); l.classList.remove('buzz'); void s.offsetWidth;
+    s.classList.add('go'); if (now) s.classList.add('now'); else l.classList.add('buzz');
+  }
   // EKG: při ťukání u verze se srdcem se v prostoru, kde se pak objeví obličeje, vykreslí kousek křivky tepu a zmizí
   var ekgBox = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   ekgBox.setAttribute('class', 'sq-ekg'); ekgBox.setAttribute('viewBox', '0 0 220 44'); ekgBox.setAttribute('aria-hidden', 'true');
@@ -138,16 +143,16 @@
     var forced = (location.search.match(/[?&]egg=(harfa|tunel)/) || [])[1];
     if (taps === 0) { mode = forced || (Math.random() < 0.5 ? 'tunel' : 'harfa'); if (!muted() && ac) { if (mode === 'harfa') prewarm(); else setTimeout(function () { noiseBuf(5.45 + 3); }, 50); } }
     taps++; nextFace(); setRing(taps);
-    if (mode === 'tunel') { heart(0.55 + taps * 0.06); ekg(); } else harpNote(taps - 1, L.harfa * 0.8);
+    if (mode === 'tunel') { heart(0.55 + taps * 0.06); ekg(); } else { harpNote(taps - 1, L.harfa * 0.8); arena.classList.add('tease'); twang(taps - 1, true); }
     clearTimeout(resetT);
     // po 7. ťuknutí se smajlík hned zamkne: další rychlá ťuknutí už nespustí odhalení podruhé
     if (taps >= 7) { running = true; setTimeout(reveal, 600); return; }
-    resetT = setTimeout(function () { taps = 0; setRing(0); }, 20000);   // kdo přestane, začne příště znovu
+    resetT = setTimeout(function () { taps = 0; setRing(0); arena.classList.remove('tease'); }, 20000);   // kdo přestane, začne příště znovu
   });
 
   // ---------- odhalení (stejné časy jako schválený náhled) ----------
   function reveal() {
-    running = true; arena.classList.add('show');
+    running = true; arena.classList.add('show'); arena.classList.remove('tease');
     var harp = mode === 'harfa', t = 400, gap = 900;
     if (harp) { pluck(82.41, 1.0, L.basa, { bright: 0.25, damp: 0.9995, len: 5, cut: 700, wet: 0.3 }); }   // basa na E (napětí)
     else tunnel(5.45);
@@ -180,7 +185,7 @@
     if (!harp) [2.2, 3.4, 4.9].forEach(function (d, j) { setTimeout(function () { heart(0.5 - j * 0.12); if (!still) { sign.classList.remove('beat'); void sign.offsetWidth; sign.classList.add('beat'); } }, stop + d * 1000); });
     setTimeout(function () { arena.classList.remove('show'); }, stop + 5900);
     setTimeout(function () {
-      lamps.forEach(function (l) { l.classList.remove('on', 'beat'); }); sign.classList.remove('on', 'beat'); unlock.classList.remove('on');
+      lamps.forEach(function (l) { l.classList.remove('on', 'beat', 'buzz'); }); sign.classList.remove('on', 'beat'); unlock.classList.remove('on');
       taps = 0; setRing(0); running = false;
     }, stop + 6600);
     setTimeout(function () { sig.classList.remove('kevin'); sig.textContent = 'SKELO SQUAD'; }, stop + 8000);
