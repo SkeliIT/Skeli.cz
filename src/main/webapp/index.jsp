@@ -175,6 +175,15 @@
             </li>
           <% } %>
           </ol>
+<%
+    // přihlášený, který má jméno v tabulkách skryté: odkaz rovnou na přepínač v Nastavení (dobrovolné, nic se nemění samo)
+    boolean nameHidden = false;
+    Object meId = session.getAttribute("userId");
+    if (meId instanceof Integer) try { nameHidden = !new com.github.skeliit.dao.UserDao().pongPublic((Integer) meId); } catch (SQLException ex) { /* bez odkazu */ }
+    if (nameHidden) {
+%>
+          <a class="game-champs-hint" href="/nastaveni.jsp#jmeno-catsmash"><i class="fa-solid fa-eye" aria-hidden="true"></i> <%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("home.game.nameHint")) %></a>
+<%  } %>
         </div>
 <% } %>
       </div>

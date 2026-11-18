@@ -384,7 +384,7 @@
           <span class="vis-text"><b id="visPeopleT"><%= t.getProperty("vis.people.title") %></b><small><%= t.getProperty("vis.people.lead") %></small></span>
           <label class="vis-switch"><input type="checkbox" name="people" value="1" aria-labelledby="visPeopleT"<%= communityPublic ? " checked" : "" %>><span aria-hidden="true"></span></label>
         </li>
-        <li class="vis-row">
+        <li class="vis-row" id="jmeno-catsmash">   <%-- sem vede odkaz z úvodu (šampioni) a Kevinova novinka --%>
           <span class="vis-ico"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
           <span class="vis-text"><b id="visPongT"><%= t.getProperty("vis.pong.title") %></b><small><%= t.getProperty("vis.pong.lead") %></small></span>
           <label class="vis-switch"><input type="checkbox" name="pong" value="1" aria-labelledby="visPongT"<%= pongPublic ? " checked" : "" %>><span aria-hidden="true"></span></label>

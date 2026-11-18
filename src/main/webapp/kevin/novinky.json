@@ -1,5 +1,14 @@
 [
   {
+    "d": "2026-11-18",
+    "href": "/nastaveni.jsp#jmeno-catsmash",
+    "cs": "Šampioni CatSmash jsou zpátky na úvodní stránce. Chceš tam mít svoje jméno? Zapni si ho v Nastavení, jinak hraješ jako anonymní hráč.",
+    "en": "CatSmash champions are back on the home page. Want your name there? Turn it on in Settings, otherwise you play as an anonymous player.",
+    "de": "Die CatSmash-Champions sind zurück auf der Startseite. Willst du dort deinen Namen sehen? Schalte ihn in den Einstellungen ein, sonst spielst du als anonymer Spieler.",
+    "uk": "Чемпіони CatSmash знову на головній сторінці. Хочеш, щоб там було твоє ім'я? Увімкни його в Налаштуваннях, інакше ти граєш як анонімний гравець.",
+    "vi": "Các nhà vô địch CatSmash đã trở lại trang chủ. Muốn tên bạn hiện ở đó? Hãy bật trong Cài đặt, nếu không bạn chơi như người chơi ẩn danh."
+  },
+  {
     "d": "2026-11-17",
     "href": "/index.jsp",
     "cs": "Nové menu na mobilu. Otevře se přes celou obrazovku a všechno najdeš na jednom místě.",
@@ -34,14 +43,5 @@
     "de": "Jeder Song hat die Farben seines Videos. Seine Stimmung fließt um das Video, und die ganze Seite färbt sich danach.",
     "uk": "Кожна пісня має кольори свого відео. Довкола відео тече його настрій, і вся сторінка перефарбовується під нього.",
     "vi": "Mỗi bài hát mang màu sắc video của nó. Không khí của video lan tỏa xung quanh và cả trang đổi màu theo."
-  },
-  {
-    "d": "2026-11-15",
-    "href": "/",
-    "cs": "Web se převlíkl. Barvy se mění s fotkami v pozadí, valí se kouř a jiskry uhýbají tvé myši.",
-    "en": "The site got a new look. The colours change with the photos in the background, smoke rolls and sparks dodge your mouse.",
-    "de": "Die Seite hat sich umgezogen. Die Farben wechseln mit den Fotos im Hintergrund, Rauch zieht vorbei und Funken weichen deiner Maus aus.",
-    "uk": "Сайт перевдягнувся. Кольори змінюються з фото на тлі, клубочиться дим, а іскри ухиляються від твоєї миші.",
-    "vi": "Trang web đã thay áo mới. Màu sắc đổi theo ảnh nền, khói cuộn và tia lửa né con chuột của bạn."
   }
 ]

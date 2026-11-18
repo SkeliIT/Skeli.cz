@@ -1526,6 +1526,8 @@ body.light:has(main.home-page.ulice) { --bg-overlay: linear-gradient(180deg, rgb
 .ulice-game { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 10px; align-items: end; }
 .ulice-game .game-card-play { margin-top: 4px; }
 .ulice-game .game-champs { grid-column: 1 / -1; margin: 2px 0 0; }   /* šampioni pod Kevinem přes celou šířku karty */
+.game-champs-hint { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; margin-top: 4px; font-size: var(--fs-small); color: var(--text-dim); }   /* „Chceš tu mít svoje jméno?“ → Nastavení */
+.game-champs-hint:hover { color: var(--accent); }
 .ulice-kevin { display: block; width: 96px; height: auto; filter: drop-shadow(0 8px 16px rgba(0, 0, 0, .55)); }
 /* patička: nápis v barvě fotky */
 .footer-brand .brand { color: var(--accent); }
