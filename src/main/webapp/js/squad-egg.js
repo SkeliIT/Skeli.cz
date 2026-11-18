@@ -15,6 +15,9 @@
   var taps = 0, face = 0, running = false, resetT = 0, mode = null;
   // vítr z tunelu: kdy začal foukat a kterým směrem (-1 doleva, 1 doprava) – odnáší jiskry i bublinky dole v menu
   var gust = { t0: -1e9, dir: 1 };
+  // tlakové vlny od tepu srdce (tunel, při ťukání): neviditelné, jen jemně odstrčí jiskry a bublinky od kroužku
+  var waves = [];
+  function pulse(v) { var n = performance.now(); waves.push({ t0: n, s: v, pr: 0 }, { t0: n + 170, s: v * 0.6, pr: 0 }); }   // lub-dub jako zvuk
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // struny nad smajlíky (rozechvějí se při brnknutí harfy a zase zmizí)
   var strs = lamps.map(function (l, i) { var s = document.createElement('i'); s.className = 'sq-str'; s.style.setProperty('--i', i); lampBox.appendChild(s); return s; });
@@ -145,7 +148,7 @@
     var forced = (location.search.match(/[?&]egg=(harfa|tunel)/) || [])[1];
     if (taps === 0) { mode = forced || (Math.random() < 0.5 ? 'tunel' : 'harfa'); if (!muted() && ac) { if (mode === 'harfa') prewarm(); else setTimeout(function () { noiseBuf(5.45 + 3); }, 50); } }
     taps++; nextFace(); setRing(taps);
-    if (mode === 'tunel') { heart(0.55 + taps * 0.06); ekg(); } else { harpNote(taps - 1, L.harfa * 0.8); arena.classList.add('tease'); twang(taps - 1, true); }
+    if (mode === 'tunel') { heart(0.55 + taps * 0.06); ekg(); pulse(0.8 + taps * 0.05); } else { harpNote(taps - 1, L.harfa * 0.8); arena.classList.add('tease'); twang(taps - 1, true); }
     clearTimeout(resetT);
     // po 7. ťuknutí se smajlík hned zamkne: další rychlá ťuknutí už nespustí odhalení podruhé
     if (taps >= 7) { running = true; setTimeout(reveal, 600); return; }
@@ -235,11 +238,25 @@
       for (var k = 0; k < 8; k++) { var ang = k / 8 * 6.28 + Math.random() * 0.3, sp = 1 + Math.random() * 1.3; D.push({ x: b.x, y: b.y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 0.6, life: 1 }); }
     }
     function frame() {
-      raf = 0; if (!on()) { ctx.clearRect(0, 0, W, H); return; }
+      raf = 0; if (!on()) { ctx.clearRect(0, 0, W, H); waves.length = 0; return; }
       if (!W) size();
       var col = accent(), gr = green(col);
       ctx.clearRect(0, 0, W, H); wind.t *= 0.9;
       var ge = gustNow(), gw = ge * gust.dir;   // vítr z tunelu: síla a směr (0, když nefouká)
+      if (waves.length) {   // tlaková vlna se rozbíhá od kroužku (~300 px/s, dosah 120 px); koho přejde, toho lehce odstrčí
+        var now = performance.now(), sr = seal.getBoundingClientRect(), cr = cv.getBoundingClientRect(), sx = sr.left + sr.width / 2 - cr.left, sy = sr.top + sr.height / 2 - cr.top;
+        for (var w = waves.length - 1; w >= 0; w--) {
+          var wv = waves[w]; if (now < wv.t0) continue;
+          var rr = Math.min(120, (now - wv.t0) * 0.3);
+          [[P, 1.2], [B, 0.3]].forEach(function (set) {   // bublinky jsou těžší: pohnou se míň
+            set[0].forEach(function (q) {
+              var qx = q.x - sx, qy = q.y - sy, qd = Math.hypot(qx, qy);
+              if (qd > wv.pr && qd <= rr && qd > 1) { var push = wv.s * (1 - qd / 120) * set[1]; q.vx += qx / qd * push; if (set[0] === B) q.py = (q.py || 0) + qy / qd * push; else q.vy += qy / qd * push; }
+            });
+          });
+          wv.pr = rr; if (rr >= 120) waves.splice(w, 1);
+        }
+      }
       while (P.length < 14) P.push(ember(true));
       for (var i = P.length - 1; i >= 0; i--) {
         var p = P[i], dx = p.x - wind.x, dy = p.y - wind.y, d = Math.hypot(dx, dy);
@@ -263,7 +280,8 @@
         var dx2 = b.x - wind.x, dy2 = b.y - wind.y, d2 = Math.hypot(dx2, dy2);
         if (wind.t > 0.05 && d2 < 50 && d2 > 22) b.vx += dx2 / (d2 + 1) * 0.12 * wind.t;
         if (ge > 0.01) b.vx += (gw * 1.3 - b.vx) * 0.03; else b.vx *= 0.95;
-        b.x += b.vx + Math.sin(b.ph) * 0.25; b.y += b.vy * (1 - 0.8 * ge);   // bublinka ve větru skoro nestoupá
+        b.py = (b.py || 0) * 0.93;   // postrčení tlakovou vlnou nahoru/dolů postupně vyprchá
+        b.x += b.vx + Math.sin(b.ph) * 0.25; b.y += b.vy * (1 - 0.8 * ge) + b.py;   // bublinka ve větru skoro nestoupá
         if (b.x < -b.r - 4 || b.x > W + b.r + 4) { B.splice(j, 1); continue; }   // vítr ji odnesl z menu
         var bt = Math.max(0, Math.min(1, (b.y - H * 0.08) / (H * 0.4)));
         if ((!gr && Math.random() < 0.01) || bt <= 0.02) { pop(b, false); B.splice(j, 1); continue; }
