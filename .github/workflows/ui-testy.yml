@@ -76,9 +76,15 @@ jobs:
           echo "Web se nespustil"; tail -80 jetty.log; exit 1
 
       - name: Testy
+        env:
+          STRANKY: ${{ inputs.stranky }}
         run: |
+          # -Dpages jen když jsou stránky zadané: prázdné -Dpages="" by kontrole webu (SiteAuditIT) řeklo „jen jedna prázdná
+          # stránka“ a prošla by jen úvod bez přihlášených stránek
+          PAGES=()
+          if [ -n "$STRANKY" ]; then PAGES=("-Dpages=$STRANKY"); fi
           mvn -B test -Dtest="${{ inputs.testy }}" -Dsurefire.failIfNoSpecifiedTests=false \
-            -Dit.dbUser=skeli -Dit.dbPass=skeli -Dquick=${{ inputs.rychle }} -Dpages="${{ inputs.stranky }}"
+            -Dit.dbUser=skeli -Dit.dbPass=skeli -Dquick=${{ inputs.rychle }} "${PAGES[@]}"
 
       - name: Shrnutí
         if: always()
