@@ -135,14 +135,15 @@
         <a class="side-link" href="/aktuality.jsp"><%= t.getProperty("home.allNews") %></a>
       </div>
 
-      <%-- hra CatSmash: krátce, s Kevinem; pod tím první tři šampioni (ať to soutěživé láká si zahrát) --%>
+      <%-- hra CatSmash: krátce, s Kevinem ve vyzývavé póze (img/kevin-souboj.webp z 3D modelu: thumbsUp v 1,1 s,
+           navrhy/kevin-model/pozy.html?one=thumbsUp@1.1&face=1); pod tím první tři šampioni (ať to soutěživé láká si zahrát) --%>
       <div class="card side-card game-card ulice-game">
         <div>
           <h3><i class="fa-solid fa-table-tennis-paddle-ball"></i> CatSmash</h3>
           <p class="text-dim"><%= t.getProperty("home.game.text") %></p>
           <a class="btn btn-primary game-card-play" href="/?kevin=pong" data-play-game><i class="fa-solid fa-play" aria-hidden="true"></i> <%= t.getProperty("home.game.play") %></a>
         </div>
-        <a href="/?kevin=pong" data-play-game tabindex="-1" aria-hidden="true"><img class="ulice-kevin" src="/img/kevin.webp" alt="" width="110" height="127" loading="lazy"></a>
+        <a href="/?kevin=pong" data-play-game tabindex="-1" aria-hidden="true"><img class="ulice-kevin" src="/img/kevin-souboj.webp" alt="" width="96" height="135" loading="lazy"></a>
 <%
   // šampioni CatSmash: první tři tohoto měsíce; když tento měsíc ještě nikdo nevyhrál, Síň slávy (navždy).
   // Kdo nemá v Nastavení zapnuté „Moje jméno v tabulkách CatSmash“, je tu jen „Anonymní hráč“ bez fotky (PongDao.hide).
