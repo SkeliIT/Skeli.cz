@@ -39,37 +39,7 @@
       <article class="imgs-song imgs-item" data-name="<c:out value='${p.name}'/>" data-man="${p.manual ? 1 : 0}" data-miss="${empty p.src ? 1 : 0}">
         <a class="imgs-name" href="/admin/song?id=${p.id}#obrazky"><b><c:out value="${p.name}"/></b>
           <small class="text-dim">${p.year}${p.collab ? ' · spolupráce' : ''}</small></a>
-        <a class="imgs-cell c-disco" href="/admin/song?id=${p.id}#disco-art" title="Upravit kartu na Hudbě">
-          <span class="song-thumb disco-thumb-3x4" style="--thumb-bg: url('<c:out value="${p.src}"/>')">
-            <c:if test="${not empty p.src}"><img class="${p.placed ? 'placed' : ''}" src="<c:out value='${p.src}'/>" alt="" loading="lazy" style="<c:out value='${p.style}'/>"></c:if>
-          </span>
-          <c:choose>
-            <c:when test="${empty p.src}"><span class="imgs-tag miss">!</span></c:when>
-            <c:when test="${p.own}"><span class="imgs-tag"><i class="fa-regular fa-image" aria-hidden="true"></i></span></c:when>
-            <c:when test="${p.placed}"><span class="imgs-tag"><i class="fa-solid fa-pen" aria-hidden="true"></i></span></c:when>
-          </c:choose>
-        </a>
-        <c:choose>
-          <c:when test="${p.inTexty}">
-            <a class="imgs-cell c-texty" href="/admin/song?id=${p.id}#row-art" title="Upravit řádek v Textech">
-              <span class="song-row art-row imgs-row"><span class="song-row-art"><c:if test="${not empty p.textySrc}"><img src="<c:out value='${p.textySrc}'/>" alt="" loading="lazy" data-trim-bars<c:if test="${p.textyPlaced}"> style="<c:out value='${p.textyStyle}'/>" data-manual="1"</c:if>></c:if></span>
-                <span class="song-row-text"><span class="song-row-title"><c:out value="${p.name}"/></span></span></span>
-              <c:choose>
-                <c:when test="${empty p.textySrc}"><span class="imgs-tag miss">!</span></c:when>
-                <c:when test="${p.textyPlaced}"><span class="imgs-tag"><i class="fa-solid fa-pen" aria-hidden="true"></i></span></c:when>
-              </c:choose>
-            </a>
-          </c:when>
-          <c:otherwise><span class="imgs-cell c-texty imgs-none">není v Textech</span></c:otherwise>
-        </c:choose>
-        <c:choose>
-          <c:when test="${not empty p.karSrc}">
-            <a class="imgs-cell c-kar" href="/admin/song?id=${p.id}#disco-art" title="Ikonka v Karaoke má stejný posun jako karta na Hudbě">
-              <span class="kar-icon"><img class="${p.karMain ? 'placed' : 'auto'}" src="<c:out value='${p.karSrc}'/>" alt="" loading="lazy" style="<c:out value='${p.karStyle}'/>"></span>
-            </a>
-          </c:when>
-          <c:otherwise><span class="imgs-cell c-kar imgs-none">není v Karaoke</span></c:otherwise>
-        </c:choose>
+        <%@ include file="/WEB-INF/views/admin/song-imgs.jspf" %>
       </article>
     </c:forEach>
   </div>

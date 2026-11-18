@@ -2976,7 +2976,7 @@ html.low-fx .song-thumb:has(> img.placed)::before { filter: brightness(.4); }
 .imgs-cell .song-thumb { display: block; width: 72px; aspect-ratio: 3 / 4; border-radius: 8px; }   /* span je řádkový: bez display: block by neměl tvar 3:4 */
 .imgs-none { font-size: var(--fs-small); color: var(--text-dim); }
 .imgs-row.song-row { min-height: 56px; margin: 0; padding: 10px 12px; pointer-events: none; }
-.imgs-row .song-row-title { font-size: var(--fs-small); }
+.imgs-row .song-row-title { display: block; font-size: var(--fs-small); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }   /* dlouhý název nesmí řádek roztáhnout */
 .imgs-wall-rows { display: grid; gap: 8px; max-width: 640px; }
 .imgs-wall-rows .song-row { margin: 0; }
 .imgs-wall-kar { display: grid; gap: 4px; max-width: 560px; }
@@ -2987,7 +2987,7 @@ html.low-fx .song-thumb:has(> img.placed)::before { filter: brightness(.4); }
 @media (max-width: 640px) {
   .imgs-head { display: none; }
   .imgs-song { grid-template-columns: 72px minmax(0, 1fr) 60px; grid-template-areas: "n n n" "d t k"; row-gap: 8px; }
-  .imgs-name { grid-area: n; } .c-disco { grid-area: d; } .c-texty { grid-area: t; } .c-kar { grid-area: k; }
+  .imgs-song .imgs-name { grid-area: n; } .imgs-song .c-disco { grid-area: d; } .imgs-song .c-texty { grid-area: t; } .imgs-song .c-kar { grid-area: k; }   /* jen přehled Obrázky písní, ne seznam Písní */
 }
 .disco-edit img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .disco-edit img.placed { position: absolute; }

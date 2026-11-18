@@ -13,6 +13,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Admin → Písně: seznam všech písní, u každé co má (YouTube, Spotify, Apple, jazyky) a její obrázky na webu. */
 @WebServlet(name = "AdminSongsServlet", urlPatterns = { "/admin/songs" })
 public class AdminSongsServlet extends HttpServlet {
     @Override
@@ -26,6 +27,10 @@ public class AdminSongsServlet extends HttpServlet {
         try (Connection conn = Db.get()) {
             List<SongOverview> songs = fetchSongsOverview(conn);
             req.setAttribute("songs", songs);
+            // obrázky na všech místech webu (Hudba, Texty, Karaoke) u každé písně – stejný výpočet jako Obrázky písní
+            java.util.Map<Integer, com.github.skeliit.model.DiscoPicture> pics = new java.util.HashMap<>();
+            for (com.github.skeliit.model.DiscoPicture p : AdminDiscoServlet.pictures(getServletContext())) pics.put(p.id, p);
+            req.setAttribute("pics", pics);
             req.getRequestDispatcher("/WEB-INF/views/admin/songs.jsp").forward(req, resp);
         } catch (SQLException e) {
             throw new ServletException(e);
