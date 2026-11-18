@@ -230,23 +230,30 @@
                 <a href="<%= ctx %>/nastaveni.jsp" class="nav-row"><i class="fa-solid fa-gear nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.settings") %></span></a>
                 <button type="button" class="nav-row nav-notif" data-notif-open aria-controls="notifPanel"><i class="fa-regular fa-bell nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("notif.title") %></span><span class="notif-badge" hidden></span></button>
                 <% if ("ADMIN".equals(currentRole)) { %><a href="<%= ctx %>/admin.jsp" class="nav-row admin"><i class="fa-solid fa-star nav-ico" aria-hidden="true"></i><span class="nav-t">Admin</span></a><% } %>
+                <%-- odhlášení je poslední v kartě účtu, tlumeně a oddělené čarou --%>
+                <hr>
+                <form method="post" action="<%= ctx %>/logout" class="logout-form nav-logout">
+                  <input type="hidden" name="csrf" value="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
+                  <button type="submit"><i class="fa-solid fa-right-from-bracket nav-ico" aria-hidden="true"></i> <%= t.getProperty("btn.logout") %></button>
+                </form>
               <% } %>
               </div>
-              <%-- telefon a tablet: režim, tučnější text, zvuky (přihlášený) a 5 jazyků; tlačítka mačkají ta v liště (#themeToggle, #fontToggle) --%>
-              <div class="nav-settings">
-                <button type="button" class="icon-btn" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i></button>
-                <button type="button" class="icon-btn" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><i class="fa-solid fa-bold" aria-hidden="true"></i></button>
-                <% if (currentUser != null) { %><button type="button" class="icon-btn" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>" title="<%= t.getProperty("sound.off") %>" aria-label="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button><% } %>
-                <span class="nav-langs" role="group" aria-label="<%= t.getProperty("header.language") %>">
-                  <% for (String l : new String[]{"cs", "en", "de", "uk", "vi"}) { %><a href="<%= langHref.apply(l) %>"<% if (l.equals(cur)) { %> class="active" aria-current="true"<% } %><% if ("vi".equals(l)) { %> lang="vi"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l %>.svg" alt="" width="16" height="10"><%= com.github.skeliit.I18n.label(l) %></a><% } %>
+              <%-- telefon a tablet: dok u palce – kolečka s popisky: Tma/Světlo, Písmo, Zvuk (přihlášený), jazyk (seznam vyskočí
+                   nahoru nad kolečkem) a srdce Podpoř moji tvorbu. Režim a písmo mačkají tlačítka v liště (#themeToggle, #fontToggle),
+                   stav ukazuje CSS podle body.light, html.bold-text a aria-pressed u zvuku (js/sounds.js). --%>
+              <div class="nav-settings nav-dock">
+                <span class="dk-it dk-theme"><button type="button" class="dk-cb" data-proxy="themeToggle" title="<%= t.getProperty("header.theme") %>" aria-label="<%= t.getProperty("header.theme") %>"><i class="fa-solid fa-moon dk-dark" aria-hidden="true"></i><i class="fa-solid fa-sun dk-light" aria-hidden="true"></i></button><small aria-hidden="true"><span class="dk-dark"><%= t.getProperty("menu.dock.dark") %></span><span class="dk-light"><%= t.getProperty("menu.dock.light") %></span></small></span>
+                <span class="dk-it dk-font"><button type="button" class="dk-cb" data-proxy="fontToggle" title="<%= t.getProperty("header.fontWeight") %>" aria-label="<%= t.getProperty("header.fontWeight") %>"><b aria-hidden="true">B</b></button><small aria-hidden="true"><%= t.getProperty("menu.dock.font") %></small></span>
+                <% if (currentUser != null) { %><span class="dk-it dk-sound"><button type="button" class="dk-cb" data-sound-toggle data-t-on="<%= t.getProperty("sound.on") %>" data-t-off="<%= t.getProperty("sound.off") %>" title="<%= t.getProperty("sound.off") %>" aria-label="<%= t.getProperty("sound.off") %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button><small aria-hidden="true"><span class="dk-on"><%= t.getProperty("menu.dock.sound") %></span><span class="dk-off"><%= t.getProperty("menu.dock.mute") %></span></small></span><% } %>
+                <span class="dk-it dk-lang">
+                  <button type="button" class="dk-cb" aria-expanded="false" aria-controls="navLangPop" title="<%= t.getProperty("header.language") %>" aria-label="<%= t.getProperty("header.language") %>"><img class="flag" src="<%= ctx %>/img/flags/<%= cur %>.svg" alt="" width="22" height="15"></button><small aria-hidden="true"><%= com.github.skeliit.I18n.label(cur) %></small>
+                  <span class="nav-langs dk-pop" id="navLangPop" role="group" aria-label="<%= t.getProperty("header.language") %>">
+                    <% String[][] dkLangs = { { "cs", "Čeština" }, { "en", "English" }, { "de", "Deutsch" }, { "uk", "Українська" }, { "vi", "Tiếng Việt" } };
+                       for (String[] l : dkLangs) { %><a href="<%= langHref.apply(l[0]) %>" lang="<%= l[0] %>"<% if (l[0].equals(cur)) { %> class="active" aria-current="true"<% } %>><img class="flag" src="<%= ctx %>/img/flags/<%= l[0] %>.svg" alt="" width="22" height="15"><%= l[1] %></a><% } %>
+                  </span>
                 </span>
+                <a href="<%= ctx %>/donate.jsp" class="dk-it dk-don"><span class="dk-cb" aria-hidden="true"><i class="fa-solid fa-heart"></i></span><small><%= t.getProperty("menu.dock.donate") %></small></a>
               </div>
-              <% if (currentUser != null) { %>
-              <form method="post" action="<%= ctx %>/logout" class="logout-form nav-logout">
-                <input type="hidden" name="csrf" value="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>">
-                <button type="submit"><i class="fa-solid fa-right-from-bracket nav-ico" aria-hidden="true"></i> <%= t.getProperty("btn.logout") %></button>
-              </form>
-              <% } %>
               </div>
               <%-- spodek menu na telefonu: podpis se smajlíkem loga (barva webu, s fotkou se vymění – js/effects.js setFace).
                    Kdo na smajlíka 7× ťukne, spustí easter egg SQUAD UNLOCKED (js/squad-egg.js): obličeje se rozsvítí na údery srdce. --%>
@@ -481,6 +488,15 @@
                 e.stopPropagation();
                 document.getElementById(b.dataset.proxy).click();
               }));
+              // jazyk v doku: kolečko otevře seznam nahoru; zavře ho klik mimo, Esc nebo zavření menu
+              const dockLangBtn = mainNav.querySelector('.dk-lang .dk-cb'), dockLangPop = document.getElementById('navLangPop');
+              const setDockLang = (open) => { if (!dockLangBtn) return; dockLangPop.classList.toggle('open', open); dockLangBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); };
+              if (dockLangBtn) {
+                dockLangBtn.addEventListener('click', (e) => { e.stopPropagation(); setDockLang(!dockLangPop.classList.contains('open')); });
+                mainNav.addEventListener('click', (e) => { if (!e.target.closest('.dk-lang')) setDockLang(false); }, true);   // true: dřív, než ho tlačítka (data-proxy) zastaví
+                document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && dockLangPop.classList.contains('open')) { setDockLang(false); dockLangBtn.focus(); } });
+                document.addEventListener('pjax:done', () => setDockLang(false));
+              }
               navMq.addEventListener('change', () => { if (!navMq.matches) setMenu(false, true); });
               document.addEventListener('pjax:done', () => setMenu(false, true));
             }

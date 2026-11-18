@@ -472,18 +472,44 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     border-radius: 999px; border: 1px solid var(--panel-border); color: var(--text); opacity: 1; font-size: var(--fs-card); text-align: center; white-space: normal; }
   .main-nav .nav-register, .main-nav .nav-register:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
-  /* ovládání: režim, tučnější text, zvuky; pod nimi 5 jazyků na vlastním řádku (když se nevejdou s vlajkami, vlajky zmizí) */
-  .main-nav .nav-settings { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--panel-border); }
-  .main-nav .nav-settings .icon-btn { width: 44px; height: 44px; font-size: .95rem; }
-  .main-nav .nav-langs { flex: 1 1 100%; container-type: inline-size; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 3px;
-    border-radius: 999px; border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--text) 5%, transparent); }
-  .main-nav .nav-langs a { display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 40px; padding: 0 2px; border-radius: 999px;
-    color: var(--text-dim); opacity: 1; font-size: var(--fs-small); white-space: nowrap; }
-  .main-nav .nav-langs a .flag { width: 16px; height: 11px; }
-  .main-nav .nav-langs a.active { background: var(--accent); color: var(--accent-ink); }
-  .main-nav .nav-langs a.active::before { content: none; }
-  .main-nav .nav-langs a:lang(vi) { font-family: 'Exo 2', system-ui, sans-serif; }
-  @container (max-width: 19em) { .main-nav .nav-langs a .flag { display: none; } }
+  /* dok u palce: kolečka s popisky (Tma/Světlo, Písmo, Zvuk, jazyk, Podpoř moji tvorbu); jazyky vyskočí nahoru nad kolečkem */
+  .main-nav .nav-dock { position: relative; z-index: 3; display: flex; justify-content: center; align-items: flex-start; gap: 14px; margin-top: 14px; padding-top: 16px;
+    border-top: 1px solid var(--panel-border); }
+  .main-nav .dk-it { position: relative; display: grid; justify-items: center; gap: 6px; width: 54px; padding: 0; border-radius: 0; color: var(--text); opacity: 1; text-decoration: none; }   /* padding 0: srdce je odkaz (.main-nav a má odsazení) */
+  .main-nav a.dk-it:hover, .main-nav a.dk-it.active { background: none; }
+  .main-nav a.dk-it.active::before { content: none; }
+  .main-nav .dk-it small { font: 300 var(--fs-small) var(--font-text); letter-spacing: 0; color: var(--text-dim); text-align: center; line-height: 1.15; }
+  .main-nav .dk-cb { display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border-radius: 50%; border: 1px solid var(--panel-border); cursor: pointer;
+    background: color-mix(in srgb, var(--text) 7%, var(--bg)); color: var(--text); font-size: 1rem; }
+  .main-nav .dk-cb .flag { width: 22px; height: 15px; border-radius: 3px; }
+  .main-nav .dk-cb b { font-weight: 700; }
+  /* zapnuté: barva webu (tučnější písmo, otevřený seznam jazyků) */
+  html.bold-text .main-nav .dk-font .dk-cb, .main-nav .dk-lang .dk-cb[aria-expanded="true"] {
+    border-color: color-mix(in srgb, var(--accent) 70%, transparent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+  html.bold-text .main-nav .dk-font small { color: var(--accent); }
+  /* ikona a popisek podle stavu: režim (body.light), zvuk (aria-pressed = ztlumeno) */
+  .main-nav .dk-light, body.light .main-nav .dk-dark, .main-nav .dk-off, .main-nav .dk-sound:has([aria-pressed="true"]) .dk-on { display: none; }
+  body.light .main-nav .dk-light, .main-nav .dk-sound:has([aria-pressed="true"]) .dk-off { display: inline; }
+  /* srdce: barva webu, jemně tepe (na slabém telefonu a při omezení pohybu ne) */
+  .main-nav .dk-don .dk-cb { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 0 14px -4px var(--accent); }
+  .main-nav .dk-don .dk-cb i { animation: dk-beat 2.4s ease-in-out infinite; }
+  .main-nav .dk-don small { color: var(--accent); white-space: normal; }   /* „Podpoř moji / tvorbu“ na dva řádky */
+  .main-nav .dk-don { width: 62px; }
+  @keyframes dk-beat { 0%, 60%, 100% { transform: none; } 8% { transform: scale(1.18); } 16% { transform: scale(1.02); } 24% { transform: scale(1.12); } }
+  /* seznam jazyků nahoru nad kolečkem (u pravého okraje doku, aby nevyjel z obrazovky) */
+  .main-nav .dk-pop { position: absolute; z-index: 5; bottom: calc(100% + 8px); right: -60px; display: none; min-width: 210px; padding: 6px; border-radius: 16px;
+    border: 1px solid var(--panel-border); background: color-mix(in srgb, var(--bg) 92%, var(--text)); box-shadow: 0 18px 40px -12px rgba(0, 0, 0, .7); }
+  .main-nav .dk-pop.open { display: grid; animation: dk-up .18s ease; }
+  @keyframes dk-up { from { opacity: 0; transform: translateY(6px); } }
+  .main-nav .dk-pop a { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; color: var(--text); opacity: 1; white-space: nowrap; }
+  .main-nav .dk-pop a:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+  .main-nav .dk-pop a.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .main-nav .dk-pop a.active::before { content: none; }
+  .main-nav .dk-pop a.active::after { content: "00c"; margin-left: auto; font: 900 .8rem 'Font Awesome 6 Free'; }
+  .main-nav .dk-pop a:lang(vi) { font-family: 'Exo 2', system-ui, sans-serif; }
+  .main-nav .dk-pop .flag { width: 22px; height: 15px; border-radius: 3px; }
+  /* odhlášení v kartě účtu: poslední, tlumeně, pod čarou */
+  .main-nav .nav-account hr { width: calc(100% - 24px); margin: 2px auto; border: 0; border-top: 1px solid var(--panel-border); }
 
   /* spodek menu: podpis – čára, uprostřed smajlík loga v kroužku (barva webu, s fotkou se vymění), pod tím SKELO SQUAD,
      dole jemný žár. Nad čárou je volný pruh pro easter egg (js/squad-egg.js): 7× ťuknout = obličeje se rozsvítí, SQUAD UNLOCKED. */
@@ -494,8 +520,8 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav .nav-foot::before { content: ""; position: absolute; left: -20%; right: -20%; bottom: -50px; height: 130px; pointer-events: none; filter: blur(8px);
     background: radial-gradient(60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%); }
 
-  /* odhlášení: poslední, tlumeně */
-  .main-nav .nav-logout { display: block; margin: 8px 0 0; }
+  /* odhlášení: v kartě účtu, tlumeně */
+  .main-nav .nav-logout { display: block; margin: 0; }
   .main-nav .nav-logout button { color: var(--text-dim); }
 
   /* tablet: panel zprava, zbytek stránky ztmavený (klik na něj menu zavře) */
@@ -585,7 +611,7 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
 .sq-unlock.on { opacity: 1; letter-spacing: .26em; filter: none; }
 @keyframes face-pop { from { opacity: 0; transform: scale(.7) rotate(-12deg); } }
 /* patička: jen tam, kde není vidět spodek menu (PC, telefon na šířku). Nad čárou volný pruh pro odhalení,
-   jiskry z „ohniště“ kolem smajlíka (vítr je rozfouká přes celou patičku). */
+   jiskry z „ohniště“ kolem smajlíka (vítr je rozfouká přes celou patičku). Bez žáru pod smajlíkem (Skeli: elipsa se nelíbila). */
 .foot-squad { display: none; }
 @media (min-width: 1025px), (orientation: landscape) and (max-height: 500px) {
   .foot-squad { position: relative; display: grid; justify-items: center; gap: 8px; margin-top: 16px; padding: 140px 16px 26px; overflow: hidden; overflow: clip; }
@@ -593,12 +619,9 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   /* na velké obrazovce je odhalení o třetinu větší (EKG se posune a zvětší s ním) */
   .foot-squad .sq-arena { transform: scale(1.3); transform-origin: 50% 0; }
   .foot-squad .sq-ekg { top: 55px; scale: 1.3; }
-  /* žár pod smajlíkem: elipsa celá uvnitř pruhu, takže nikde nemá ostrou hranu */
-  .foot-squad::before { content: ""; position: absolute; left: 50%; bottom: 0; width: min(760px, 100%); height: 170px; translate: -50% 0; pointer-events: none;
-    background: radial-gradient(50% 40% at 50% 60%, color-mix(in srgb, var(--accent) 24%, transparent), transparent); }
 }
-html.low-fx .main-nav, html.low-fx .sq-home .sq-seal span { animation: none; }
-@media (prefers-reduced-motion: reduce) { .sq-lamp.beat, .sq-lamp.buzz, .sq-sign.beat, .sq-home .sq-seal.hop span { animation: none; } }
+html.low-fx .main-nav, html.low-fx .sq-home .sq-seal span, html.low-fx .main-nav .dk-don .dk-cb i { animation: none; }
+@media (prefers-reduced-motion: reduce) { .sq-lamp.beat, .sq-lamp.buzz, .sq-sign.beat, .sq-home .sq-seal.hop span, .main-nav .dk-don .dk-cb i { animation: none; } }
 
 /* ---------- Buttons ---------- */
 /* :where() keeps specificity at zero, so any component class overrides these */
