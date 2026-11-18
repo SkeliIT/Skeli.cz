@@ -389,7 +389,7 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
    sloupcích. Řádky s ikonou, skupiny se rozbalují pod sebou, dole účet, ovládání a odhlášení. Plná barva stránky
    s jemným přechodem barvy webu nahoře, bez rozmazání (na slabém telefonu by sekalo). Od 1025 px nic z toho
    neplatí – tam jsou kapsle pod logem (výš). Skript: includes/header.jsp (setMenu, setGroup). */
-.mnav-top, .nav-shade, .nav-account, .nav-settings, .nav-logout, .nav-face { display: none; }
+.mnav-top, .nav-shade, .nav-account, .nav-settings, .nav-logout, .nav-foot { display: none; }
 .nav-pages, .nav-tools { display: contents; }   /* na PC jsou stránky přímo v kapsli */
 .main-nav .nav-ico { display: none; }   /* ikonky jen v menu na telefonu a tabletu */
 @media (max-width: 1024px) {
@@ -485,13 +485,46 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   .main-nav .nav-langs a:lang(vi) { font-family: 'Exo 2', system-ui, sans-serif; }
   @container (max-width: 19em) { .main-nav .nav-langs a .flag { display: none; } }
 
-  /* smajlík loga dole v menu: barva webu (maska), s novou fotkou jiný obličej; jemně se vznáší (ne na slabém telefonu) */
-  .main-nav .nav-face { display: grid; place-items: center; margin: 26px 0 8px; }
-  .main-nav .nav-face span { width: 86px; height: 86px; background: var(--accent);
-    -webkit-mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat; mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat;
-    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--accent) 40%, transparent)); animation: face-float 6s ease-in-out infinite; }
-  .main-nav .nav-face.swap span { animation: face-pop .6s ease-out, face-float 6s ease-in-out .6s infinite; }
-  @keyframes face-float { 50% { transform: translateY(-5px) rotate(-3deg); } }
+  /* spodek menu: podpis – čára, uprostřed smajlík loga v kroužku (barva webu, s fotkou se vymění), pod tím SKELO SQUAD,
+     dole jemný žár. Nad čárou je volný pruh pro easter egg (js/squad-egg.js): 7× ťuknout = obličeje se rozsvítí, SQUAD UNLOCKED. */
+  .main-nav .nav-foot { position: relative; display: grid; justify-items: center; gap: 8px; flex: none; margin: auto -14px calc(-18px - env(safe-area-inset-bottom)) ;
+    padding: 112px 14px calc(18px + env(safe-area-inset-bottom)); overflow: hidden; }
+  .main-nav .nav-foot::before { content: ""; position: absolute; left: -20%; right: -20%; bottom: -50px; height: 130px; pointer-events: none; filter: blur(8px);
+    background: radial-gradient(60% 70% at 50% 100%, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%); }
+  .sq-line { position: relative; z-index: 2; display: flex; align-items: center; gap: 12px; width: 100%; }
+  .sq-line::before, .sq-line::after { content: ""; flex: 1; height: 1px; }
+  .sq-line::before { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 55%, transparent)); }
+  .sq-line::after { background: linear-gradient(270deg, transparent, color-mix(in srgb, var(--accent) 55%, transparent)); }
+  .main-nav .sq-seal { position: relative; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%; cursor: pointer;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--bg) 70%, transparent); box-shadow: 0 0 14px -4px var(--accent); }
+  .main-nav .sq-seal span { width: 22px; height: 22px; background: var(--accent);
+    -webkit-mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat; mask: var(--nav-face, url('/img/faces/face-1.webp')) center / contain no-repeat; }
+  .main-nav .sq-seal.swap span { animation: face-pop .6s ease-out; }
+  .main-nav .sq-seal.hop span { animation: sq-hop .45s cubic-bezier(.3, 1.6, .5, 1); }
+  @keyframes sq-hop { 30% { transform: translateY(-6px) scale(1.12, .9); } 60% { transform: translateY(0) scale(.92, 1.08); } }
+  /* kroužek nápovědy: 7 dílků, každé ťuknutí rozsvítí jeden (dokud se neťukne, není vidět) */
+  .main-nav .sq-seal::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .6s;
+    background: conic-gradient(var(--accent) calc(var(--p7, 0) / 7 * 1turn), color-mix(in srgb, var(--text) 20%, transparent) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)), repeating-conic-gradient(#000 0 47deg, transparent 47deg 51.43deg);
+    -webkit-mask-composite: source-in; mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)) intersect, repeating-conic-gradient(#000 0 47deg, transparent 47deg 51.43deg); }
+  .main-nav .sq-seal[data-p]:not([data-p="0"])::before { opacity: 1; }
+  .sq-sig { position: relative; z-index: 2; font-size: .62rem; letter-spacing: .32em; color: var(--text-dim); text-align: center; }
+  .sq-sig.kevin { letter-spacing: .02em; font: 300 var(--fs-small) var(--font-text); color: var(--text); max-width: 30ch; }
+  /* easter egg: ve tmě se rozsvítí obličeje, pak nápis SKELO SQUAD a SQUAD UNLOCKED (zhasnuté nejsou vidět vůbec) */
+  .sq-arena { position: absolute; z-index: 3; left: 0; right: 0; top: 10px; display: grid; justify-items: center; gap: 7px; pointer-events: none; opacity: 0; transition: opacity .5s; }
+  .sq-arena.show { opacity: 1; }
+  .sq-sign { width: 196px; aspect-ratio: 6556 / 1144; background: var(--accent); opacity: 0; filter: blur(8px); transform: scale(1.04);
+    -webkit-mask: url('/img/logo-skelosquad.svg') center / contain no-repeat; mask: url('/img/logo-skelosquad.svg') center / contain no-repeat;
+    transition: opacity 2.4s ease-out, filter 2.8s ease-out, transform 2.8s ease-out; }
+  .sq-sign.on { opacity: 1; filter: blur(0) drop-shadow(0 0 6px var(--accent)); transform: none; }
+  .sq-lamps { display: flex; gap: 7px; }
+  .sq-lamp { width: 22px; height: 22px; background: var(--accent); opacity: 0; filter: blur(6px); transform: scale(.8);
+    -webkit-mask: var(--f) center / contain no-repeat; mask: var(--f) center / contain no-repeat; transition: opacity .5s ease-out, filter .6s ease-out, transform .6s ease-out; }
+  .sq-lamp.on { opacity: 1; filter: blur(0) drop-shadow(0 0 5px var(--accent)); transform: none; }
+  .sq-lamp.beat, .sq-sign.beat { animation: sq-beat .5s ease-out; }
+  @keyframes sq-beat { 0% { transform: scale(1.18); } 30% { transform: scale(1.02); } 45% { transform: scale(1.1); } 100% { transform: none; } }
+  .sq-unlock { font-size: .74rem; letter-spacing: .8em; color: var(--accent); opacity: 0; filter: blur(6px); transition: opacity 1.6s ease-out, letter-spacing 2s ease-out, filter 1.6s ease-out; }
+  .sq-unlock.on { opacity: 1; letter-spacing: .26em; filter: none; }
   @keyframes face-pop { from { opacity: 0; transform: scale(.7) rotate(-12deg); } }
 
   /* odhlášení: poslední, tlumeně */
@@ -514,11 +547,12 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
     .main-nav.open { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; align-content: start; align-items: start; }
     .mnav-top { grid-column: 1 / -1; }
     .main-nav .nav-tools > :first-child { margin-top: 0; }
-    .main-nav .nav-face { display: none; }
+    .main-nav .nav-foot { display: none; }
     .main-nav .nav-top, .main-nav .nav-group-btn, .main-nav .nav-row, .main-nav .nav-sub a { min-height: 42px; }
   }
 }
-html.low-fx .main-nav, html.low-fx .main-nav .nav-face span { animation: none; filter: none; }
+html.low-fx .main-nav, html.low-fx .main-nav .sq-seal span { animation: none; }
+@media (prefers-reduced-motion: reduce) { .sq-lamp.beat, .sq-sign.beat, .main-nav .sq-seal.hop span { animation: none; } }
 
 /* ---------- Buttons ---------- */
 /* :where() keeps specificity at zero, so any component class overrides these */

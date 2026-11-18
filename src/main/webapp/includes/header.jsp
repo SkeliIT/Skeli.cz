@@ -208,9 +208,9 @@
                    (Zeď, Rookie Chart – překlady menu.wall, menu.chart, menu.squad zůstávají) --%>
               <a href="<%= ctx %>/?kevin=pong" class="nav-top" data-play-game><i class="fa-solid fa-table-tennis-paddle-ball nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.catsmash") %></span></a>
               <div class="nav-group">
-                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubAbout"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.about") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
+                <button type="button" class="nav-group-btn" aria-expanded="false" aria-controls="navSubAbout"><i class="fa-solid fa-circle-user nav-ico" aria-hidden="true"></i><span class="nav-t"><%= t.getProperty("menu.about") %></span><i class="fa-solid fa-chevron-down nav-chev" aria-hidden="true"></i></button>
                 <div class="nav-sub" id="navSubAbout">
-                  <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-paw nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.about") %></span><small><%= t.getProperty("menu.d.about") %></small></a>
+                  <a href="<%= ctx %>/about.jsp"><i class="fa-solid fa-circle-user nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("menu.about") %></span><small><%= t.getProperty("menu.d.about") %></small></a>
                   <a href="<%= ctx %>/donate.jsp" class="nav-donate"><i class="fa-solid fa-heart nav-ico" aria-hidden="true"></i><span class="nav-sub-t"><%= t.getProperty("btn.donate") %></span><small><%= t.getProperty("menu.d.donate") %></small></a>
                 </div>
               </div>
@@ -247,8 +247,13 @@
                 <button type="submit"><i class="fa-solid fa-right-from-bracket nav-ico" aria-hidden="true"></i> <%= t.getProperty("btn.logout") %></button>
               </form>
               <% } %>
-              <%-- jeden ze smajlíků loga SKELO SQUAD v barvě webu; s novou fotkou a barvou se vymění (js/effects.js setFace) --%>
-              <div class="nav-face" aria-hidden="true"><span></span></div>
+              </div>
+              <%-- spodek menu na telefonu: podpis se smajlíkem loga (barva webu, s fotkou se vymění – js/effects.js setFace).
+                   Kdo na smajlíka 7× ťukne, spustí easter egg SQUAD UNLOCKED (js/squad-egg.js): obličeje se rozsvítí na údery srdce. --%>
+              <div class="nav-foot" data-kevin="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("squad.kevin")) %>">
+                <div class="sq-arena" aria-hidden="true"><span class="sq-sign"></span><span class="sq-lamps"><% for (int sq = 1; sq <= 7; sq++) { %><span class="sq-lamp" style="--f:url('<%= ctx %>/img/faces/face-<%= sq %>.webp')"></span><% } %></span><span class="sq-unlock">SQUAD UNLOCKED</span></div>
+                <div class="sq-line"><button type="button" class="nav-face sq-seal" aria-label="SKELO SQUAD"><span></span></button></div>
+                <small class="sq-sig">SKELO SQUAD</small>
               </div>
             </nav>
 
