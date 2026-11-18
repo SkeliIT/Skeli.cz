@@ -526,13 +526,14 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
   /* struna nad smajlíkem: při brnknutí harfy se objeví, rozechvěje a zmizí (js/squad-egg.js twang) – nepřekážejí si */
   /* struna u smajlíka: větší část pod ním, nad něj vyčuhuje jen kousek; oba konce do ztracena, spodní dlouhý,
      ale průhledný dávno před čárou se smajlíkem. Objeví se ~150 ms před brnknutím, s tónem se rozechvěje a zmizí. */
-  /* Přes smajlíka struna nevede: maska ji přeruší 2 px nad ním a začne 2 px pod ním (smajlík je na struně „navlečený“). */
+  /* Při odhalení struna přes smajlíka nevede: maska ji přeruší přesně na jeho horní špičce a spodku (obrázek má nahoře
+     a dole ~2,5 px průhledný okraj → mezera 18,5–35,5 px), takže se ho struna dotýká a smajlík na ní „visí“. */
   .sq-str { position: absolute; top: -16px; left: calc(var(--i) * 29px + 10.5px); width: 1px; height: 88px; opacity: 0; pointer-events: none;
     background: linear-gradient(transparent 0, var(--accent) 9px, var(--accent) 48px, transparent 74px);
-    -webkit-mask: linear-gradient(#000 14px, transparent 14px 40px, #000 40px); mask: linear-gradient(#000 14px, transparent 14px 40px, #000 40px); }
+    -webkit-mask: linear-gradient(#000 18.5px, transparent 18.5px 35.5px, #000 35.5px); mask: linear-gradient(#000 18.5px, transparent 18.5px 35.5px, #000 35.5px); }
   .sq-str.go { animation: sq-twang 1.45s ease-out; }
-  /* při ťukání (harfa) se struna objeví hned s tónem – bez 150ms náběhu */
-  .sq-str.now { animation-delay: -.15s; }
+  /* při ťukání (harfa) se struna objeví hned s tónem – bez 150ms náběhu – a je celá */
+  .sq-str.now { animation-delay: -.15s; -webkit-mask: none; mask: none; }   /* při ťukání smajlíci ještě nejsou → struna celá */
   /* smajlík se chvěje spolu se strunou (stejné časy jako sq-twang) */
   .sq-lamp.buzz { animation: sq-buzz 1.45s ease-out; }
   @keyframes sq-buzz { 0%, 10% { translate: 0; } 14% { translate: 2px; } 19% { translate: -2px; } 24% { translate: 1.5px; } 30% { translate: -1.1px; }
