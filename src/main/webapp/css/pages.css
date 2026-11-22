@@ -3101,6 +3101,14 @@ button.vz-tile:hover { border-color: color-mix(in srgb, var(--accent) 60%, trans
 .vz-p-metro span { padding: 2px 10px; border-radius: 4px; background: #0f2d5c; color: #fff; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .85); font-family: 'Barlow Condensed', 'Oswald', sans-serif; font-weight: 700; }
 .vz-p-zapisnik { background: linear-gradient(90deg, transparent 18px, rgba(220, 70, 70, .4) 18px 20px, transparent 20px), repeating-linear-gradient(transparent 0 13px, rgba(70, 110, 200, .25) 13px 14px), #fbf7ee; place-items: center; }
 .vz-p-zapisnik span { color: #2b2a33; font-family: 'Caveat', cursive; font-weight: 700; text-decoration: underline wavy #ff6f9a 2px; }
+.vz-p-mixtape { background: linear-gradient(180deg, #2a2826, #171615); place-items: center; }
+.vz-p-mixtape span { padding: 2px 12px; border-radius: 4px; background: linear-gradient(180deg, #f3eee3 0 70%, #e63a2e 70% 80%, #f3eee3 80%); color: #151413; font-family: 'Permanent Marker', cursive; rotate: -2deg; }
+.vz-p-carbon { background: radial-gradient(ellipse at 85% 0%, rgba(255, 122, 26, .35), transparent 60%), repeating-linear-gradient(45deg, rgba(255, 255, 255, .04) 0 3px, transparent 3px 6px), #141619; place-items: center; }
+.vz-p-carbon span { color: #e9edf1; font-weight: 700; letter-spacing: .14em; text-shadow: 0 0 12px rgba(255, 122, 26, .8); }
+.vz-p-jizda { background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(58, 215, 255, .25), transparent 70%), #030507; place-items: center; }
+.vz-p-jizda span { color: #e6f8ff; letter-spacing: .14em; text-shadow: 0 0 12px #3ad7ff; }
+.vz-p-arkada { background: repeating-linear-gradient(0deg, rgba(0, 0, 0, .25) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 50% 30%, #1a1236, #07040f 70%); place-items: center; }
+.vz-p-arkada span { color: #ffe14d; text-shadow: 3px 3px 0 #ff4fd8; font-weight: 700; }
 .vz-p-aurora { background: radial-gradient(40% 50% at 30% 30%, rgba(124, 245, 213, .6), transparent 70%), radial-gradient(40% 60% at 75% 50%, rgba(196, 155, 255, .55), transparent 70%), #050812; }
 .vz-p-aurora span { color: #fff; }
 .vz-p-gal { background: radial-gradient(40% 80% at 50% 0%, rgba(255, 250, 235, .3), transparent 70%), #1a1918; place-items: center; }

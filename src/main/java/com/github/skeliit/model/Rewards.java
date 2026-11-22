@@ -99,6 +99,10 @@ public final class Rewards {
         days("profile", "komiks", 3);        // Komiks (místo Obálky)
         days("profile", "zapisnik", 7);      // Zápisník (místo Galerie)
         site("profile", "metro", "s_friend");// Metro (místo Radaru) – první přítel
+        site("profile", "mixtape", "s_voice");// Mixtape (místo Monolitu) – první komentář
+        site("profile", "carbon", "s_talk"); // Carbon (místo Hologramu) – 25 komentářů
+        days("profile", "jizda", 30);        // Noční jízda (místo Kokpitu)
+        days("profile", "arkada", 21);       // Arkáda (nová)
 
         // Karaoke – písmo textu (css/karaoke-fonts.css). Výchozí = Bruno Ace SC (prázdná hodnota).
         free("kfont", "oswald");
