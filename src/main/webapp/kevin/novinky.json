@@ -1,5 +1,14 @@
 [
   {
+    "d": "2026-11-22",
+    "href": "/nastaveni.jsp#vzhled",
+    "cs": "Dvanáct nových vzhledů profilu: Komiks, Metro, Zápisník, Arkáda a další. Vyber si v Nastavení, který ti sedí.",
+    "en": "Twelve new profile looks: Comic, Metro, Scrapbook, Arcade and more. Pick the one that suits you in Settings.",
+    "de": "Zwölf neue Profil-Looks: Comic, Metro, Notizbuch, Spielhalle und mehr. Such dir in den Einstellungen deinen aus.",
+    "uk": "Дванадцять нових виглядів профілю: Комікс, Метро, Блокнот, Аркада та інші. Обери свій у Налаштуваннях.",
+    "vi": "Mười hai giao diện hồ sơ mới: Truyện tranh, Tàu điện ngầm, Sổ tay, Arcade và nhiều hơn nữa. Chọn cái hợp với bạn trong Cài đặt."
+  },
+  {
     "d": "2026-11-18",
     "href": "/nastaveni.jsp#jmeno-catsmash",
     "cs": "Tvoje jméno v tabulkách CatSmash a mezi šampiony se teď ukáže, jen když chceš. Zapneš si ho v Nastavení, jinak hraješ jako anonymní hráč.",
@@ -34,14 +43,5 @@
     "de": "Die Texte drehen sich jetzt wie ein Karussell. Der gewählte Song zeigt ein Stück Text, ein Tipp und du liest oder singst.",
     "uk": "Тексти тепер крутяться, як карусель. Обрана пісня покаже шматок тексту, одним дотиком читаєш або співаєш.",
     "vi": "Lời bài hát giờ xoay như vòng quay ngựa gỗ. Bài được chọn hiện một đoạn lời, chạm một lần là đọc hoặc hát."
-  },
-  {
-    "d": "2026-11-15",
-    "href": "/texty.jsp",
-    "cs": "Každá písnička má barvy svého videa. Kolem videa teče jeho nálada a celá stránka se přebarví podle něj.",
-    "en": "Every song has the colours of its video. Its mood flows around the video and the whole page takes on its colours.",
-    "de": "Jeder Song hat die Farben seines Videos. Seine Stimmung fließt um das Video, und die ganze Seite färbt sich danach.",
-    "uk": "Кожна пісня має кольори свого відео. Довкола відео тече його настрій, і вся сторінка перефарбовується під нього.",
-    "vi": "Mỗi bài hát mang màu sắc video của nó. Không khí của video lan tỏa xung quanh và cả trang đổi màu theo."
   }
 ]

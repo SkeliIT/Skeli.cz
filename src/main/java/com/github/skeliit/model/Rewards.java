@@ -86,15 +86,20 @@ public final class Rewards {
         days("kstyle", "u", 7);           // Ulice
         days("kstyle", "g", 21);          // Galerie
 
-        // Vzhledy profilu (css/profile-looks.css). Základní (barva webu) je prázdná hodnota a má ji každý.
-        days("profile", "cover", 3);         // Obálka
-        site("profile", "mono", "s_voice");  // Monolit – první komentář
-        days("profile", "gal", 7);           // Galerie
-        site("profile", "radar", "s_friend");// Radar – první přítel
-        site("profile", "wall", "s_fan");    // Zeď – srdce pěti písním
-        days("profile", "aurora", 14);       // Polární záře
-        site("profile", "holo", "s_talk");   // Hologram – 25 komentářů
-        days("profile", "cock", 30);         // Kokpit
+        // Vzhledy profilu 2026-11 (navrhy/profil-vzhledy-6, css/profile-looks.css). Základní (barva webu) = prázdná hodnota.
+        // Staré vzhledy (Obálka, Monolit…) převedla migrace V144 na nové na stejném místě.
+        days("profile", "komiks", 3);        // Komiks (místo Obálky)
+        days("profile", "zapisnik", 7);      // Zápisník (místo Galerie)
+        site("profile", "metro", "s_friend");// Metro (místo Radaru) – první přítel
+        site("profile", "mixtape", "s_voice");// Mixtape (místo Monolitu) – první komentář
+        site("profile", "carbon", "s_talk"); // Carbon (místo Hologramu) – 25 komentářů
+        days("profile", "jizda", 30);        // Noční jízda (místo Kokpitu)
+        days("profile", "arkada", 21);       // Arkáda (nová)
+        days("profile", "trpyt", 14);        // Půlnoční třpyt (místo Polární záře)
+        site("profile", "sakura", "s_fan");  // Sakura (místo Zdi) – srdce pěti písním
+        site("profile", "opal", "s_artist"); // Opál (nový) – přidaná vlastní tvorba
+        site("profile", "aura", "s_karaoke");// Aura (nová) – karaoke
+        site("profile", "y2k", "s_heart");   // Y2K chrom (nový, místo zamítnuté Levandule) – srdce od Skeliho
 
         // Karaoke – písmo textu (css/karaoke-fonts.css). Výchozí = Bruno Ace SC (prázdná hodnota).
         free("kfont", "oswald");

@@ -1,5 +1,5 @@
 /* Vzhledy profilu (odměny, Nastavení → Vzhled; katalog model/Rewards, slot „profile“).
-   Převedeno z náhledu Skeli.cz-podklady/navrhy/profil-vzhledy/index.html na skutečné prvky profilu (uzivatel.jsp, views/player.jsp).
+   Převedeno z náhledu Skeli.cz-podklady/navrhy/profil-vzhledy-6/index.html (12 vzhledů, 2026-11) na skutečné prvky profilu (uzivatel.jsp, views/player.jsp).
    Načítá se jen na profilu se zvoleným vzhledem. Třída na <main>: pl-look + pl-<vzhled>. Ozdoby: .pl-page (pozadí přes celé okno),
    .pl-bgfx, .pl-fx.a/b/c (prázdné prvky, jen některé vzhledy je ukážou). Pohyb jen transform/opacity, na slabém telefonu a při
    omezení pohybu stojí (konec souboru). */
@@ -76,379 +76,66 @@ main.pl-look :is(.btn, .btn-primary, .btn-outline, .pt-play, .friend-btn, .pt-ge
 main.pl-look :is(.btn-outline, .friend-btn:not(.btn-primary)) { border-color: var(--pl-line); color: var(--pl-ctxt); }
 main.pl-look :is(.btn-primary, .pt-song-play) { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 main.pl-look .profile-tabs a.active { color: var(--accent); }
+/* záložky se při posouvání drží nahoře (sticky): bez podkladu by přes ně prosvítal obsah, který jede pod nimi.
+   Vzhled může dát vlastní pozadí (pravidla níž mají přednost), tohle je jen záchranný podklad v barvě stránky vzhledu. */
+main.pl-look .profile-tabs { background: color-mix(in srgb, var(--pl-bg) 94%, transparent); }
 
 @font-face { font-family: 'Anton'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/anton-400-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: 'Anton'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/anton-400-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Black Ops One'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/black-ops-one-400-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
-@font-face { font-family: 'Black Ops One'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/black-ops-one-400-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Jost'; font-style: italic; font-weight: 300; font-display: swap; src: url(/fonts/jost-300i-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
-@font-face { font-family: 'Jost'; font-style: italic; font-weight: 300; font-display: swap; src: url(/fonts/jost-300i-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Jost'; font-style: normal; font-weight: 200 400; font-display: swap; src: url(/fonts/jost-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
-@font-face { font-family: 'Jost'; font-style: normal; font-weight: 200 400; font-display: swap; src: url(/fonts/jost-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: 'Playfair Display'; font-style: italic; font-weight: 600 900; font-display: swap; src: url(/fonts/playfair-display-i-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: 'Playfair Display'; font-style: italic; font-weight: 600 900; font-display: swap; src: url(/fonts/playfair-display-i-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: 'Playfair Display'; font-style: normal; font-weight: 900; font-display: swap; src: url(/fonts/playfair-display-900-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: 'Playfair Display'; font-style: normal; font-weight: 900; font-display: swap; src: url(/fonts/playfair-display-900-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Rubik Spray Paint'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/rubik-spray-paint-400-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
-@font-face { font-family: 'Rubik Spray Paint'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/rubik-spray-paint-400-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: 'Syne'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(/fonts/syne-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
-@font-face { font-family: 'Syne'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(/fonts/syne-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-ext.woff2') format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-
-/* ---------- vzhledy (převedené z náhledu) ---------- */
-main.pl-holo { --accent: #3fe0ff; --accent-2: #b8f6ff; --pl-acct: #6fe9ff; --pl-bg: #01050a; --pl-card: rgba(30,170,255,.07); --pl-line: rgba(63,224,255,.45); --pl-fname: 'JetBrains Mono'; --pl-flab: 'JetBrains Mono'; }
-body.light main.pl-holo { --pl-bg: #e9f4f8; --pl-card: rgba(0,120,170,.06); --pl-acct: #006b8a; --pl-line: rgba(0,120,170,.4); --pl-txt: #08202a; }
-main.pl-holo .pl-bgfx { display: block; position: absolute; left: -50%; right: -50%; bottom: -10%; height: 70%; z-index: 0;
-  background: repeating-linear-gradient(90deg, rgba(63,224,255,.35) 0 1px, transparent 1px 60px), repeating-linear-gradient(0deg, rgba(63,224,255,.35) 0 1px, transparent 1px 60px);
-  transform: perspective(600px) rotateX(64deg); transform-origin: bottom; -webkit-mask: linear-gradient(transparent, #000 40%); mask: linear-gradient(transparent, #000 40%); }
-main.pl-holo { perspective: 1400px; }
-main.pl-holo .pt-hero { transform: rotateX(10deg); transform-origin: 50% 100%; border-radius: 6px; box-shadow: 0 0 40px rgba(63,224,255,.25), inset 0 0 60px rgba(63,224,255,.1); }
-main.pl-holo .pt-cover { filter: grayscale(1) brightness(.9) contrast(1.2); mix-blend-mode: screen; opacity: .75; }
-main.pl-holo .pt-cover::after { background: linear-gradient(180deg, rgba(63,224,255,.25), transparent 60%); }
-main.pl-holo .pl-fx.a { display: block; position: absolute; inset: 0; z-index: 4; background: linear-gradient(transparent 0 45%, rgba(63,224,255,.16) 50%, transparent 55%); background-size: 100% 300%; animation: pl-holoScan 5s linear infinite; }
-main.pl-holo .pl-fx.b { display: block; position: absolute; left: 50%; bottom: -40px; width: 240px; height: 380px; margin-left: -120px; z-index: 0;
-  background: linear-gradient(0deg, rgba(63,224,255,.45), transparent 75%); clip-path: polygon(46% 100%, 54% 100%, 100% 0, 0 0); filter: blur(6px); }
-main.pl-holo .pt-who { flex-direction: column; align-items: center; text-align: center; }
-main.pl-holo .acct-photo { border-radius: 50%; filter: grayscale(.4) contrast(1.1); box-shadow: 0 0 0 1px #3fe0ff, 0 0 0 10px rgba(63,224,255,.08), 0 0 0 11px rgba(63,224,255,.5), 0 0 40px #3fe0ff; }
-main.pl-holo .acct-name { background: none; color: #dffbff; letter-spacing: .25em; text-transform: uppercase; text-shadow: 3px 0 rgba(255,40,140,.5), -3px 0 rgba(63,224,255,.8), 0 0 20px rgba(63,224,255,.6); }
-body.light main.pl-holo .acct-name { color: #08202a; }
-main.pl-holo .pt-tags,
-main.pl-holo .pt-tools,
-main.pl-holo .pt-chips { justify-content: center; }
-main.pl-holo .acct-meta,
-main.pl-holo .acct-motto { text-align: center; }
-main.pl-holo .acct-badge,
-main.pl-holo .pt-gear,
-main.pl-holo .pt-chip { border-radius: 2px; background: transparent; color: var(--pl-acct); border: 1px solid var(--pl-line); }
-main.pl-holo .pt-gear:last-child { background: rgba(63,224,255,.18); }
-main.pl-holo .pt-act-card { border-radius: 4px; backdrop-filter: none; box-shadow: 0 0 20px rgba(63,224,255,.12); }
-@media (min-width: 760px) {
-main.pl-holo .pt-cols { perspective: 1200px; }
-main.pl-holo .pt-act:nth-child(odd) .pt-act-card { transform: rotateY(4deg) translateZ(-10px); }
-main.pl-holo .pt-act:nth-child(even) .pt-act-card { transform: rotateY(-4deg) translateZ(10px); }
-main.pl-holo .pt-side { transform: rotateY(-10deg); transform-origin: left; }
-}
-main.pl-mono { --accent: #ff2a00; --accent-2: #ff2a00; --pl-acct: #ff2a00; --pl-bg: #0c0c0c; --pl-card: #0c0c0c; --pl-line: #f2f2f2; --pl-txt: #f2f2f2; --pl-dim: #b8b8b8; --pl-fname: 'Anton'; --pl-flab: 'JetBrains Mono'; }
-body.light main.pl-mono { --pl-bg: #efede6; --pl-card: #efede6; --pl-line: #0c0c0c; --pl-txt: #0c0c0c; --pl-dim: #444; --pl-acct: #d42200; }
-main.pl-mono .pt-hero { border: 3px solid var(--pl-line); border-radius: 0; box-shadow: 10px 10px 0 var(--accent); }
-main.pl-mono .pt-who { position: static; }
-main.pl-mono .pt-hero .pt-in { position: static; }
-main.pl-mono .pt-hero .acct-name { max-width: none; }
-main.pl-mono .pt-cover { grid-area: c; height: clamp(120px, 26vw, 220px); filter: grayscale(1) contrast(1.6); border-bottom: 3px solid var(--pl-line); }
-main.pl-mono .pt-cover::after { display: none; }
-main.pl-mono .pt-who { grid-area: w; margin: 0; padding: 16px; align-items: flex-start; }
-main.pl-mono .pt-who-text { position: static; }
-main.pl-mono .acct-name { position: absolute; left: 0; top: 0; bottom: 0; grid-area: n; writing-mode: vertical-rl; transform: rotate(180deg); background: var(--accent); color: #0c0c0c; -webkit-background-clip: border-box; background-clip: border-box;
-  font-size: clamp(3.5rem, 15vw, 8.5rem); line-height: .85; padding: 10px 6px; text-transform: uppercase; display: flex; align-items: center; }
-main.pl-mono .pt-hero { padding-left: clamp(70px, 16vw, 140px); }
-main.pl-mono .acct-photo { width: 110px; height: 110px; border-radius: 0; box-shadow: none; border: 3px solid var(--pl-line); filter: grayscale(1) contrast(1.4); }
-main.pl-mono .acct-badge { border-radius: 0; background: var(--pl-txt); color: var(--pl-bg); font: 700 11px 'JetBrains Mono'; text-transform: uppercase; }
-main.pl-mono .acct-badge:not(.artist) { background: none; border: 2px solid var(--pl-line); color: var(--pl-txt); }
-main.pl-mono .acct-meta { grid-area: m; font-family: 'JetBrains Mono'; text-transform: uppercase; font-size: 12px; }
-main.pl-mono .acct-motto { grid-area: o; font: 400 clamp(1.4rem, 5vw, 2.4rem)/1 'Anton'; text-transform: uppercase; color: var(--pl-txt); }
-main.pl-mono .pt-tools { grid-area: a; }
-main.pl-mono .pt-gear { border-radius: 0; border: 3px solid var(--pl-line); font: 700 12px 'JetBrains Mono'; text-transform: uppercase; }
-main.pl-mono .pt-gear:last-child { color: #0c0c0c; border-color: var(--accent); }
-main.pl-mono .pt-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 0; margin: 18px 14px 0; border: 3px solid var(--pl-line); padding: 0; }
-main.pl-mono .pt-chip { border: 0; border-right: 3px solid var(--pl-line); border-radius: 0; display: grid; padding: 10px; font: 700 11px 'JetBrains Mono'; text-transform: uppercase; white-space: normal; background: none; }
-main.pl-mono .pt-chip:last-child { border-right: 0; }
-main.pl-mono .pt-chip b { font: 400 clamp(1.8rem, 6vw, 3.4rem)/1 'Anton'; color: var(--pl-txt); }
-main.pl-mono .profile-tabs { border: 0; gap: 0; }
-main.pl-mono .profile-tabs a { border: 3px solid var(--pl-line); margin-right: -3px; font: 700 12px 'JetBrains Mono'; text-transform: uppercase; }
-main.pl-mono .profile-tabs a.active { background: var(--pl-txt); color: var(--pl-bg); box-shadow: none; }
-main.pl-mono .pt-act-card { border: 3px solid var(--pl-line); border-radius: 0; box-shadow: 8px 8px 0 var(--accent); }
-main.pl-mono .pt-act-k { font: 700 11px 'JetBrains Mono'; color: var(--pl-acct); }
-main.pl-mono .pt-feed::before { width: 3px; background: var(--pl-line); }
-main.pl-mono .pt-act-thumb img { border-radius: 0; filter: grayscale(1) contrast(1.3); }
-main.pl-mono .pt-act-coin { border-radius: 0; background: var(--accent); }
-main.pl-radar { --accent: #39ff7a; --accent-2: #b9ffd0; --pl-acct: #5dff92; --pl-bg: #020a05; --pl-card: rgba(4,24,12,.92); --pl-line: rgba(57,255,122,.3); --pl-txt: #c9ffd9; --pl-dim: #6fbf8a; --pl-fname: 'JetBrains Mono'; --pl-flab: 'JetBrains Mono'; }
-body.light main.pl-radar { --pl-bg: #eef7f0; --pl-card: #fff; --pl-acct: #0d7a34; --pl-line: rgba(13,122,52,.3); --pl-txt: #08240f; --pl-dim: #3d6b4b; }
-main.pl-radar .pt-cover { display: none; }
-main.pl-radar .pt-hero { padding-top: 66px; background: radial-gradient(circle at 50% 170px, rgba(57,255,122,.12), transparent 60%), var(--pl-card); }
-main.pl-radar .pt-who { flex-direction: column; align-items: center; text-align: center; margin: 0; }
-main.pl-radar .pl-fx.a,
-main.pl-radar .pl-fx.b,
-main.pl-radar .pl-fx.c { display: block; position: absolute; left: 50%; top: 66px; border-radius: 50%; z-index: 1; }
-main.pl-radar .pl-fx.a { width: 230px; height: 230px; margin: -15px 0 0 -115px; border: 1px solid rgba(57,255,122,.5); box-shadow: 0 0 0 40px rgba(57,255,122,.04), 0 0 0 41px rgba(57,255,122,.35), 0 0 0 80px rgba(57,255,122,.03), 0 0 0 81px rgba(57,255,122,.2);
-  background: linear-gradient(rgba(57,255,122,.25), rgba(57,255,122,.25)) center / 1px 100% no-repeat, linear-gradient(rgba(57,255,122,.25), rgba(57,255,122,.25)) center / 100% 1px no-repeat; }
-main.pl-radar .pl-fx.b { width: 230px; height: 230px; margin: -15px 0 0 -115px; background: conic-gradient(from 0deg, rgba(57,255,122,.55), transparent 70deg); animation: pl-sweep 4s linear infinite; }
-main.pl-radar .pl-fx.c { width: 8px; height: 8px; margin: 40px 0 0 70px; background: #b9ffd0; box-shadow: 0 0 10px #39ff7a, -150px 110px 0 -1px #39ff7a, -60px 150px 0 0 #b9ffd0; }
-main.pl-radar .acct-photo { position: relative; z-index: 2; width: 200px; height: 200px; filter: grayscale(1) sepia(1) hue-rotate(80deg) saturate(2.5) brightness(.85) contrast(1.1); box-shadow: 0 0 0 2px #39ff7a, 0 0 30px rgba(57,255,122,.6); }
-main.pl-radar .acct-name { margin-top: 26px; background: none; color: var(--pl-acct); letter-spacing: .3em; text-transform: uppercase; text-shadow: 0 0 12px rgba(57,255,122,.8); }
-main.pl-radar .acct-name::before { content: "◉ "; font-size: .35em; letter-spacing: .15em; vertical-align: middle; }
-main.pl-radar .pt-tags,
-main.pl-radar .pt-tools { justify-content: center; }
-main.pl-radar .acct-meta,
-main.pl-radar .acct-motto { text-align: center; }
-main.pl-radar .acct-badge,
-main.pl-radar .pt-gear,
-main.pl-radar .pt-chip { border-radius: 2px; background: none; color: var(--pl-acct); border: 1px solid var(--pl-line); }
-main.pl-radar .pt-chips { justify-content: center; }
-main.pl-radar .pt-chip { display: grid; text-align: center; padding: 10px 16px; }
-main.pl-radar .pt-chip b { font-size: 24px; text-shadow: 0 0 10px rgba(57,255,122,.7); margin: 0; }
-main.pl-radar .pt-act-card { border-radius: 4px; background-image: repeating-linear-gradient(transparent 0 2px, rgba(57,255,122,.04) 2px 3px); }
-main.pl-radar .pt-act-k::before { content: "▸ "; }
-main.pl-radar .pt-act-thumb img { filter: grayscale(1) sepia(1) hue-rotate(80deg) saturate(1.6) brightness(.8); }
-main.pl-cock { --accent: #ffb000; --accent-2: #ff5a00; --pl-acct: #ffb000; --pl-bg: #0b0d10; --pl-card: #151a20; --pl-line: #3a4450; --pl-fname: 'Black Ops One'; --pl-flab: 'JetBrains Mono'; }
-body.light main.pl-cock { --pl-bg: #e8ebef; --pl-card: #ffffff; --pl-acct: #8a5a00; --pl-line: #9aa6b4; --pl-txt: #0f1720; }
-main.pl-cock .pt-hero { border-radius: 0; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 40px), calc(100% - 40px) 100%, 0 100%); }
-main.pl-cock .pl-fx.a { display: block; position: absolute; left: 0; right: 0; top: 0; height: 14px; z-index: 3; background: repeating-linear-gradient(-45deg, #ffb000 0 14px, #111 14px 28px); }
-main.pl-cock .pt-cover { filter: grayscale(1) brightness(.55); clip-path: polygon(0 0, 100% 0, 100% 75%, 0 100%); }
-main.pl-cock .acct-photo { width: 150px; height: 170px; border-radius: 48% 48% 30% 30% / 42% 42% 58% 58%; box-shadow: 0 0 0 4px #2a323c, 0 0 0 6px #ffb000; filter: contrast(1.1);
-  -webkit-mask: none; position: relative; }
-main.pl-cock .pl-fx.b { display: block; position: absolute; z-index: 3; left: 18px; top: calc(clamp(150px, 40vw, 320px) - 50px); width: 150px; height: 170px;
-  background: radial-gradient(circle, transparent 0 18px, rgba(255,176,0,.9) 18px 20px, transparent 20px), linear-gradient(rgba(255,176,0,.8), rgba(255,176,0,.8)) center / 2px 40px no-repeat, linear-gradient(rgba(255,176,0,.8), rgba(255,176,0,.8)) center / 40px 2px no-repeat; }
-@media (min-width: 760px) {
-main.pl-cock .pl-fx.b { left: 26px; top: calc(clamp(150px, 40vw, 320px) - 66px); }
-}
-main.pl-cock .acct-name { font-size: clamp(2.4rem, 11vw, 5rem); transform: skewX(-12deg); background-image: linear-gradient(180deg, #fff 0, #ffd36b 50%, #ff5a00 100%); text-transform: uppercase; }
-main.pl-cock .acct-badge,
-main.pl-cock .pt-gear { border-radius: 0; clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); font: 700 11px 'JetBrains Mono'; text-transform: uppercase; }
-main.pl-cock .acct-badge:not(.artist) { background: #2a323c; color: #ffb000; }
-main.pl-cock .pt-chips { gap: 10px; }
-main.pl-cock .pt-chip { border-radius: 0; display: grid; gap: 6px; min-width: 120px; font: 700 10px 'JetBrains Mono'; text-transform: uppercase; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
-main.pl-cock .pt-chip::after { content: ""; height: 8px; background: repeating-linear-gradient(90deg, #ffb000 0 8px, transparent 8px 11px) 0 0 / 70% 100% no-repeat, repeating-linear-gradient(90deg, #3a4450 0 8px, transparent 8px 11px); }
-main.pl-cock .profile-tabs a { font: 700 12px 'JetBrains Mono'; text-transform: uppercase; }
-main.pl-cock .profile-tabs a.active { box-shadow: inset 0 -4px 0 var(--accent); }
-main.pl-cock .pt-act-card { border-radius: 0; transform: skewX(-4deg); border-left: 6px solid var(--accent); }
-main.pl-cock .pt-act-card > * { transform: skewX(4deg); }
-main.pl-cock .pt-feed::before { width: 4px; background: repeating-linear-gradient(180deg, #ffb000 0 10px, transparent 10px 16px); }
-main.pl-cock .pt-act-coin { border-radius: 0; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
-main.pl-wall { --accent: #ff2d55; --accent-2: #ffe600; --pl-acct: #ff2d55; --pl-bg: #1b1a19; --pl-card: #f1ece3; --pl-line: #1b1a19; --pl-txt: #f1ece3; --pl-dim: #bdb7ad; --pl-fname: 'Rubik Spray Paint'; --pl-flab: 'Oswald'; }
-body.light main.pl-wall { --pl-bg: #cfcac2; --pl-txt: #1b1a19; --pl-dim: #444; --pl-acct: #c4002e; }
-main.pl-wall { background: radial-gradient(circle at 20% 30%, rgba(255,45,85,.35) 0 2px, transparent 3px) 0 0 / 37px 41px, radial-gradient(circle at 70% 60%, rgba(255,230,0,.3) 0 1.5px, transparent 2.5px) 0 0 / 53px 47px,
-  repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 2px, transparent 2px 64px), repeating-linear-gradient(90deg, rgba(0,0,0,.14) 0 2px, transparent 2px 128px); }
-main.pl-wall .pt-hero { background: none; border: 0; overflow: visible; padding-top: 10px; }
-main.pl-wall .pt-cover { width: 92%; margin: 0 auto; transform: rotate(-2deg); filter: grayscale(1) contrast(1.4); box-shadow: 0 10px 30px rgba(0,0,0,.6);
-  -webkit-mask: linear-gradient(#000, #000); clip-path: polygon(1% 2%, 99% 0, 100% 96%, 96% 100%, 3% 98%, 0 60%); }
-main.pl-wall .pt-cover::after { background: linear-gradient(120deg, rgba(255,255,255,.12), transparent 30%, rgba(0,0,0,.25)); }
-main.pl-wall .pt-who { margin-top: -70px; }
-main.pl-wall .acct-photo { border-radius: 8px; transform: rotate(-6deg); box-shadow: 0 0 0 7px #fff, 0 14px 26px rgba(0,0,0,.6); }
-main.pl-wall .acct-name { position: relative; z-index: 3; background: none; color: #ff2d55; transform: rotate(-7deg) translateY(-10px); font-size: clamp(3.4rem, 17vw, 8rem); text-shadow: 4px 4px 0 #ffe600, 0 0 30px rgba(255,45,85,.5); }
-main.pl-wall .acct-badge { border-radius: 4px; background: #ffe600; color: #111; transform: rotate(3deg); font: 700 13px 'Oswald'; text-transform: uppercase; box-shadow: 0 0 0 3px #fff; }
-main.pl-wall .acct-badge:not(.artist) { background: #111; color: #fff; transform: rotate(-4deg); }
-main.pl-wall .acct-meta { color: var(--pl-dim); }
-main.pl-wall .acct-motto { font: 400 26px 'Rubik Spray Paint'; color: #ffe600; transform: rotate(-2deg); }
-main.pl-wall .pt-gear { border-radius: 4px; background: #111; color: #fff; border: 0; box-shadow: 0 0 0 3px #fff; transform: rotate(-1deg); }
-main.pl-wall .pt-gear:last-child { background: #ff2d55; }
-main.pl-wall .pt-chips { padding: 10px 14px; gap: 14px; }
-main.pl-wall .pt-chip { border-radius: 50%; width: 92px; height: 92px; display: grid; place-content: center; text-align: center; padding: 0; white-space: normal; font: 700 11px 'Oswald'; text-transform: uppercase;
-  background: #f1ece3; color: #111; border: 0; box-shadow: 0 0 0 4px #fff, 0 6px 14px rgba(0,0,0,.5); }
-main.pl-wall .pt-chip b { display: block; font: 400 28px 'Rubik Spray Paint'; color: #ff2d55; margin: 0; }
-main.pl-wall .pt-chip:nth-child(2) { transform: rotate(8deg); background: #ffe600; }
-main.pl-wall .pt-chip:nth-child(3) { transform: rotate(-6deg); border-radius: 12px; }
-main.pl-wall .pt-chip:nth-child(4) { transform: rotate(5deg); background: #111; color: #fff; }
-main.pl-wall .pt-chip:nth-child(5) { transform: rotate(-9deg); }
-main.pl-wall .profile-tabs a { font: 400 18px 'Rubik Spray Paint'; color: var(--pl-dim); }
-main.pl-wall .profile-tabs a.active { color: #ffe600; box-shadow: none; text-decoration: underline wavy #ff2d55; }
-main.pl-wall .pt-act-card { background: #f1ece3; color: #1b1a19; border: 0; border-radius: 2px; transform: rotate(-1.2deg); box-shadow: 0 10px 22px rgba(0,0,0,.5); margin-bottom: 26px; }
-main.pl-wall .pt-act-quote,
-main.pl-wall .pt-act-card b,
-main.pl-wall .pt-act-card span { color: #1b1a19; }
-main.pl-wall .pt-act-k { color: #ff2d55; font: 700 12px 'Oswald'; }
-main.pl-wall .pt-act-card small { color: #555; }
-main.pl-wall .pt-act:nth-child(even) .pt-act-card { transform: rotate(1.4deg); }
-main.pl-wall .pt-act-card::before { content: ""; position: absolute; top: -12px; left: 30%; width: 100px; height: 24px; transform: rotate(-4deg); background: rgba(255,230,0,.55); }
-main.pl-wall .pt-feed::before { width: 0; border-left: 4px dotted #ff2d55; }
-main.pl-wall .pt-side .pt-label { color: #ff2d55; font: 700 13px 'Oswald'; }
-main.pl-cover { --accent: #ffffff; --accent-2: #f2c4b8; --pl-acct: #f2c4b8; --pl-bg: #0b0909; --pl-card: #141010; --pl-line: #3a2a26; --pl-fname: 'Playfair Display'; --pl-flab: 'Jost'; }
-body.light main.pl-cover { --pl-bg: #f6f1ee; --pl-card: #fffaf8; --pl-acct: #8a3b2c; --pl-line: #e2c3ba; --pl-txt: #1d1414; }
-/* Obálka – titulní strana časopisu: fotka přes celou hlavičku (obrázek záhlaví, jinak profilová fotka = --pl-photo),
-   obří jméno nahoře, štítky, údaje a moto dole (ručně pro skutečný profil, ne z převodu) */
-main.pl-cover .pt-hero { display: flex; flex-direction: column; justify-content: flex-end; min-height: clamp(460px, 120vw, 680px); border: 0; border-radius: 0; background: #000; overflow: hidden; }
-main.pl-cover .pt-cover { position: absolute; inset: 0; height: auto; max-height: none; aspect-ratio: auto; border-radius: 0; z-index: 0; background: var(--pl-photo) center 18% / cover; filter: contrast(1.05); }
-main.pl-cover .pt-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.4), transparent 32%, transparent 48%, rgba(0,0,0,.9)); }
-main.pl-cover .pt-tools { position: absolute; top: 10px; right: 10px; z-index: 3; }
-main.pl-cover .pt-gear { border-radius: 0; color: #fff; border-color: rgba(255,255,255,.7); background: rgba(0,0,0,.35); font: 400 11px "Jost"; letter-spacing: .2em; text-transform: uppercase; }
-main.pl-cover .pt-hero .pt-in { position: static; height: auto; padding: 0 6% 22px; }
-main.pl-cover .pt-hero .pt-who { display: block; }
-main.pl-cover .pt-hero .acct-photo { display: none; }
-main.pl-cover .pt-hero .pt-who-text { position: static; margin: 0; }
-main.pl-cover .pt-hero .acct-name { position: absolute; top: 64px; left: 4%; right: 4%; z-index: 2; text-align: center; white-space: nowrap;
-  font: italic 900 clamp(3rem, 17vw, 9rem)/.85 "Playfair Display"; letter-spacing: -.04em; color: #fff; background: none; -webkit-text-fill-color: #fff; text-shadow: 0 4px 30px rgba(0,0,0,.5); }
-main.pl-cover .pt-tags { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin: 0 0 10px; }
-main.pl-cover .acct-badge { background: none; padding: 0; color: #fff; font: 400 12px "Jost"; letter-spacing: .25em; text-transform: uppercase; text-shadow: 0 1px 8px rgba(0,0,0,.8); }
-main.pl-cover .acct-badge::before { content: "— "; color: var(--accent-2); }
-main.pl-cover .acct-meta { position: relative; z-index: 2; color: #fff; opacity: .85; font: 400 11px "Jost"; letter-spacing: .25em; text-transform: uppercase; }
-main.pl-cover .acct-motto { position: relative; z-index: 2; margin: 10px 0 0; font: italic 600 clamp(1.5rem, 6vw, 3rem)/1.05 "Playfair Display"; color: #fff; }
-main.pl-cover .pt-hero .pt-in > :not(.pt-who) { position: relative; z-index: 2; }
-main.pl-cover .pt-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); padding: 18px 14px; gap: 0; border-bottom: 1px solid var(--pl-line); }
-main.pl-cover .pt-chip { border: 0; background: none; border-radius: 0; white-space: normal; padding: 0 8px; border-left: 1px solid var(--pl-line); font: 400 11px 'Jost'; letter-spacing: .15em; text-transform: uppercase; }
-main.pl-cover .pt-chip:first-child { border-left: 0; }
-main.pl-cover .pt-chip b { display: block; font: italic 900 clamp(1.6rem, 6vw, 3rem)/1 'Playfair Display'; color: var(--pl-txt); margin: 0 0 4px; }
-main.pl-cover .profile-tabs a { font: 400 12px 'Jost'; letter-spacing: .25em; text-transform: uppercase; }
-main.pl-cover .pt-feed { padding-left: 0; }
-main.pl-cover .pt-feed::before { display: none; }
-main.pl-cover .pt-act-card { border: 0; border-top: 1px solid var(--pl-line); border-radius: 0; background: none; padding: 16px 0 0 70px; counter-increment: post; }
-main.pl-cover .pt-act-card::before { content: counter(post, decimal-leading-zero); position: absolute; left: 0; top: 8px; font: italic 900 46px/1 'Playfair Display'; color: var(--pl-acct); }
-main.pl-cover .pt-act-quote { font: italic 600 22px/1.25 'Playfair Display'; }
-main.pl-cover .pt-act-thumb img { border-radius: 0; }
-main.pl-cover .pt-act-coin { border-radius: 0; background: linear-gradient(135deg, #8a3b2c, #f2c4b8); }
-main.pl-cover .pt-side .pt { padding-left: 0; }
-main.pl-cover .pt-side .pt::before { content: none; }
-/* fotka = štítek uprostřed desky */
-main.pl-aurora { --accent: #7cf5d5; --accent-2: #c49bff; --pl-acct: #9ff8e0; --pl-bg: #050812; --pl-card: rgba(255,255,255,.06); --pl-line: rgba(255,255,255,.14); --pl-fname: 'Syne'; --pl-flab: 'Syne'; }
-body.light main.pl-aurora { --pl-bg: #eaf0fb; --pl-card: rgba(255,255,255,.62); --pl-acct: #0f6d58; --pl-line: rgba(40,60,120,.18); --pl-txt: #121a30; }
-main.pl-aurora .pl-bgfx { display: block; position: absolute; inset: -30%; z-index: 0; filter: blur(50px); opacity: .9;
-  background: radial-gradient(30% 20% at 30% 30%, rgba(124,245,213,.55), transparent 70%), radial-gradient(25% 35% at 70% 40%, rgba(196,155,255,.5), transparent 70%), radial-gradient(35% 18% at 50% 70%, rgba(80,170,255,.35), transparent 70%);
-  animation: pl-aur 26s ease-in-out infinite alternate; }
-main.pl-aurora .pt-hero,
-main.pl-aurora .pt-act-card,
-main.pl-aurora .pt-chip { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 30px; box-shadow: inset 0 1px 0 rgba(255,255,255,.18); }
-main.pl-aurora .pt-cover { margin: 12px; border-radius: 22px; filter: saturate(.3) brightness(.85); mix-blend-mode: luminosity; }
-main.pl-aurora .pt-cover::after { display: none; }
-main.pl-aurora .acct-photo { width: 150px; height: 150px; border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; animation: pl-blob 12s ease-in-out infinite alternate; box-shadow: 0 0 0 4px rgba(255,255,255,.2), 0 0 50px rgba(124,245,213,.45); }
-main.pl-aurora .acct-name { font: 800 clamp(2.6rem, 12vw, 5.4rem)/1 'Syne'; letter-spacing: -.03em; background-image: linear-gradient(100deg, #7cf5d5, #c49bff 50%, #7fb0ff); }
-/* na telefonu fotka nad jménem (vedle velké fotky se jméno nevešlo) */
-main.pl-aurora .pt-hero .pt-who { flex-direction: column; align-items: center; text-align: center; }
-main.pl-aurora .pt-hero .pt-tags { justify-content: center; }
-@media (min-width: 760px) { main.pl-aurora .pt-hero .pt-who { flex-direction: row; align-items: flex-end; text-align: left; } main.pl-aurora .pt-hero .pt-tags { justify-content: flex-start; } }
-main.pl-aurora .acct-badge { background: rgba(255,255,255,.12); color: var(--pl-txt); font: 400 12px 'Syne'; }
-main.pl-aurora .pt-gear { border-radius: 999px; font: 800 12px 'Syne'; }
-main.pl-aurora .pt-gear:last-child { background: linear-gradient(100deg, #7cf5d5, #c49bff); }
-main.pl-aurora .profile-tabs { border: 0; gap: 8px; }
-main.pl-aurora .profile-tabs a { border-radius: 999px; font: 400 13px 'Syne'; }
-main.pl-aurora .profile-tabs a.active { box-shadow: none; background: rgba(255,255,255,.12); color: var(--pl-txt); }
-main.pl-aurora .pt-feed::before { width: 3px; border-radius: 3px; background: linear-gradient(180deg, #7cf5d5, #c49bff, transparent); }
-main.pl-aurora .pt-act-thumb img { border-radius: 22px; }
-main.pl-aurora .pt-act-coin { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; background: linear-gradient(135deg, #7cf5d5, #c49bff); }
-main.pl-gal { --accent: #d8d2c6; --accent-2: #ffffff; --pl-acct: #d8d2c6; --pl-bg: #1a1918; --pl-card: #222120; --pl-line: #3a3836; --pl-txt: #ece8e1; --pl-dim: #a29d94; --pl-fname: 'Jost'; --pl-flab: 'Jost'; }
-body.light main.pl-gal { --pl-bg: #f4f2ee; --pl-card: #ffffff; --pl-acct: #3b3832; --pl-line: #dcd7cd; --pl-txt: #1d1c1a; --pl-dim: #77726a; }
-main.pl-gal .pt-cover { display: none; }
-main.pl-gal .pt-hero { border: 0; background: radial-gradient(28% 60% at 50% 0%, rgba(255,250,235,.16), transparent 70%), var(--pl-bg); padding: 46px 0 20px; }
-main.pl-gal .pt-who { flex-direction: column; align-items: center; margin: 0; gap: 26px; }
-main.pl-gal .acct-photo { width: 190px; height: 240px; border-radius: 0; background-size: cover; filter: grayscale(.2);
-  box-shadow: 0 0 0 26px #f4f1ea, 0 0 0 28px #b9b3a8, 0 0 0 34px #111, 0 30px 60px rgba(0,0,0,.6); margin: 34px 0 30px; }
-main.pl-gal .pt-who-text { text-align: center; }
-main.pl-gal .acct-name { font: 200 clamp(2.4rem, 10vw, 4.4rem)/1 'Jost'; letter-spacing: .35em; text-transform: uppercase; background: none; color: var(--pl-txt); padding-left: .35em; }
-main.pl-gal .pt-tags { justify-content: center; }
-main.pl-gal .acct-badge { background: none; color: var(--pl-dim); font: 300 12px 'Jost'; letter-spacing: .2em; text-transform: uppercase; padding: 0 8px; }
-main.pl-gal .acct-meta { width: 240px; margin: 18px auto 0; padding: 12px 14px; background: #f4f1ea; color: #3b3832; font: 300 12px/1.5 'Jost'; text-align: left; box-shadow: 0 6px 14px rgba(0,0,0,.35); }
-main.pl-gal .acct-motto { text-align: center; font: 300 italic 18px 'Jost'; color: var(--pl-dim); padding-top: 18px; }
-main.pl-gal .pt-tools { justify-content: center; }
-main.pl-gal .pt-gear { border-radius: 0; font: 300 12px 'Jost'; letter-spacing: .2em; text-transform: uppercase; }
-main.pl-gal .pt-gear:last-child { background: var(--pl-txt); color: var(--pl-bg); border-color: var(--pl-txt); }
-main.pl-gal .pt-chips { justify-content: center; gap: 28px; }
-main.pl-gal .pt-chip { border: 0; background: none; text-align: center; display: grid; font: 300 11px 'Jost'; letter-spacing: .2em; text-transform: uppercase; }
-main.pl-gal .pt-chip b { font: 200 34px 'Jost'; color: var(--pl-txt); margin: 0; }
-main.pl-gal .profile-tabs a { font: 300 12px 'Jost'; letter-spacing: .25em; text-transform: uppercase; }
-main.pl-gal .profile-tabs a.active { color: var(--pl-txt); box-shadow: inset 0 -1px 0 var(--pl-txt); }
-main.pl-gal .pt-feed { padding-left: 0; display: grid; gap: 30px; counter-reset: ex; }
-main.pl-gal .pt-feed::before { display: none; }
-@media (min-width: 760px) {
-main.pl-gal .pt-feed { grid-template-columns: 1fr 1fr; }
-}
-main.pl-gal .pt-act-card { border: 0; border-radius: 0; background: var(--pl-card); padding: 22px; box-shadow: 0 0 0 10px var(--pl-card), 0 0 0 11px var(--pl-line), 0 18px 30px rgba(0,0,0,.35); counter-increment: ex; margin: 12px; }
-main.pl-gal .pt-act-k::before { content: "№ " counter(ex, decimal-leading-zero) " · "; color: var(--pl-txt); }
-main.pl-gal .pt-act-k { font: 300 11px 'Jost'; letter-spacing: .2em; }
-main.pl-gal .pt-act-quote { font: 300 italic 17px/1.5 'Jost'; }
-main.pl-gal .pt-act-thumb img { border-radius: 0; }
-main.pl-gal .pt-act-coin { border-radius: 0; background: #f4f1ea; box-shadow: 0 0 0 4px #b9b3a8; }
-/* ---------- tokeny jednotné vrstvy pro každý vzhled (karty, písma, tón fotek, barvy vzácnosti) ---------- */
-/* Hologram: tyrkysový HUD, všechno strojovým písmem, karty se svítícími rohy, fotky tyrkysově */
-main.pl-holo { --pl-txt: #dffbff; --pl-dim: #7fb7c6; --pl-fhead: 'JetBrains Mono', 'Exo 2', monospace; --pl-fbody: 'JetBrains Mono', 'Exo 2', monospace;
-  --pl-tile: linear-gradient(180deg, rgba(63, 224, 255, .1), rgba(1, 12, 20, .9) 62%); --pl-chip: rgba(63, 224, 255, .07); --pl-rad: 4px; --pl-brad: 2px;
-  --pl-shadow: 0 0 22px rgba(63, 224, 255, .12), inset 0 0 30px rgba(63, 224, 255, .05);
-  --pl-imgf: grayscale(1) sepia(1) hue-rotate(150deg) saturate(2.2) brightness(.82) contrast(1.1);
-  --pl-r1: #6c8a96; --pl-r2: #2fb6d6; --pl-r3: #3fe0ff; --pl-r4: #b8f6ff; --pl-r5: #ffffff; }
-body.light main.pl-holo { --pl-dim: #3f6f7d; --pl-tile: linear-gradient(180deg, rgba(0, 144, 184, .09), #f7fcfe 62%); --pl-chip: rgba(0, 144, 184, .07);
-  --pl-shadow: 0 10px 24px -16px rgba(0, 90, 120, .45); --pl-imgf: grayscale(1) sepia(1) hue-rotate(150deg) saturate(1.4) brightness(1.02);
-  --pl-r1: #7a96a0; --pl-r2: #3a8fa8; --pl-r3: #0090b8; --pl-r4: #005f7a; --pl-r5: #00394a; }
-main.pl-holo .pt:not(.pt-hero)::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; --c: var(--accent);
-  background: linear-gradient(var(--c), var(--c)) 0 0 / 14px 2px, linear-gradient(var(--c), var(--c)) 0 0 / 2px 14px, linear-gradient(var(--c), var(--c)) 100% 0 / 14px 2px, linear-gradient(var(--c), var(--c)) 100% 0 / 2px 14px,
-    linear-gradient(var(--c), var(--c)) 0 100% / 14px 2px, linear-gradient(var(--c), var(--c)) 0 100% / 2px 14px, linear-gradient(var(--c), var(--c)) 100% 100% / 14px 2px, linear-gradient(var(--c), var(--c)) 100% 100% / 2px 14px;
-  background-repeat: no-repeat; }
-main.pl-holo :is(.pt-label, .pt-act-k, .pt-feed time, .game-head h2) { text-transform: uppercase; letter-spacing: .18em; }
-main.pl-holo :is(.pt-song-name, .pt-like-name, .song-name, .pt-big) { text-shadow: 2px 0 rgba(255, 40, 140, .35), -2px 0 rgba(63, 224, 255, .55); }
-body.light main.pl-holo :is(.pt-song-name, .pt-like-name, .song-name, .pt-big) { text-shadow: none; }
-
-/* Monolit: plakát černá–bílá–červená, tlusté rámy, ostré rohy, plný stín v barvě, fotky černobílé */
-main.pl-mono { --pl-fhead: 'Anton', 'Exo 2', sans-serif; --pl-fbody: 'JetBrains Mono', 'Exo 2', monospace; --pl-tile: #0c0c0c; --pl-chip: transparent; --pl-bw: 3px;
-  --pl-rad: 0; --pl-brad: 0; --pl-shadow: 8px 8px 0 var(--accent); --pl-imgf: grayscale(1) contrast(1.35); --pl-ringbg: #0c0c0c;
-  --pl-r1: #8a8a8a; --pl-r2: #d9d9d9; --pl-r3: #f2f2f2; --pl-r4: #ff7a5c; --pl-r5: #ff2a00; }
-body.light main.pl-mono { --pl-tile: #efede6; --pl-ringbg: #efede6; --pl-shadow: 8px 8px 0 var(--accent); --pl-r1: #8a8a8a; --pl-r2: #444; --pl-r3: #0c0c0c; --pl-r4: #b32000; --pl-r5: #d42200; }
-main.pl-mono :is(.pt-lv, .song-card, .acct-comment, .pt-steps a, .pt-like-none) { border: 2px solid var(--pl-line); }
-main.pl-mono .pt-label { align-self: flex-start; padding: 3px 7px; background: var(--pl-txt); color: var(--pl-bg); text-transform: uppercase; letter-spacing: .08em; }
-main.pl-mono :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .pt-big, .friend-head) { text-transform: uppercase; letter-spacing: .02em; }
-main.pl-mono .pt-big { font-size: clamp(2.4rem, 9vw, 3.4rem); }
-main.pl-mono .pt-activity .pt-feed li > i { border-radius: 0; }
-
-/* Radar: zelená obrazovka se skenovacími linkami, strojové písmo, fotky zeleně */
-main.pl-radar { --pl-fhead: 'JetBrains Mono', 'Exo 2', monospace; --pl-fbody: 'JetBrains Mono', 'Exo 2', monospace;
-  --pl-tile: repeating-linear-gradient(transparent 0 2px, rgba(57, 255, 122, .035) 2px 3px), radial-gradient(120% 90% at 50% 0, rgba(57, 255, 122, .08), transparent 60%), rgba(4, 24, 12, .94);
-  --pl-chip: rgba(57, 255, 122, .06); --pl-rad: 4px; --pl-brad: 2px; --pl-shadow: 0 0 18px rgba(57, 255, 122, .1), inset 0 0 0 1px rgba(57, 255, 122, .06); --pl-ringbg: #04180c;
-  --pl-imgf: grayscale(1) sepia(1) hue-rotate(80deg) saturate(2) brightness(.8) contrast(1.05);
-  --pl-r1: #4f7a5c; --pl-r2: #2fbf62; --pl-r3: #39ff7a; --pl-r4: #b9ffd0; --pl-r5: #f2fff5; }
-body.light main.pl-radar { --pl-tile: repeating-linear-gradient(transparent 0 2px, rgba(13, 122, 52, .04) 2px 3px), #fbfffc; --pl-ringbg: #fbfffc; --pl-chip: rgba(13, 122, 52, .06);
-  --pl-imgf: grayscale(1) sepia(.6) hue-rotate(80deg) saturate(1.3); --pl-r1: #7b9583; --pl-r2: #3d9a5c; --pl-r3: #0d7a34; --pl-r4: #075020; --pl-r5: #03300f; }
-main.pl-radar :is(.pt-label, .pt-act-k, .pt-feed time, .game-head h2) { text-transform: uppercase; letter-spacing: .14em; }
-main.pl-radar .pt-label::before { content: "▸ "; color: var(--accent); }
-main.pl-radar :is(.pt-big, .pt-song-name) { text-shadow: 0 0 10px rgba(57, 255, 122, .55); }
-body.light main.pl-radar :is(.pt-big, .pt-song-name) { text-shadow: none; }
-
-/* Kokpit: ocel a jantar, karty se seříznutým rohem a jantarovým pruhem nahoře, fotky do jantaru */
-main.pl-cock { --pl-txt: #e8edf2; --pl-dim: #8e9aa8; --pl-fhead: 'Black Ops One', 'Exo 2', sans-serif; --pl-fbody: 'JetBrains Mono', 'Exo 2', monospace;
-  --pl-tile: linear-gradient(180deg, #1b2129, #12161b); --pl-chip: #0d1115; --pl-rad: 0; --pl-brad: 0; --pl-ringbg: #161b21;
-  --pl-shadow: inset 0 3px 0 var(--accent), 0 16px 28px -18px #000; --pl-imgf: grayscale(1) sepia(.9) saturate(1.6) hue-rotate(-12deg) brightness(.82) contrast(1.1);
-  --pl-r1: #5d6773; --pl-r2: #9aa6b4; --pl-r3: #ffb000; --pl-r4: #ff7a1a; --pl-r5: #ff3d00; }
-body.light main.pl-cock { --pl-dim: #4d5a68; --pl-tile: linear-gradient(180deg, #ffffff, #eef1f4); --pl-chip: #e3e8ee; --pl-ringbg: #f6f8fa;
-  --pl-shadow: inset 0 3px 0 var(--accent), 0 12px 22px -16px rgba(0, 0, 0, .35); --pl-imgf: grayscale(1) sepia(.6) saturate(1.2);
-  --pl-r1: #8592a0; --pl-r2: #4d5a68; --pl-r3: #c27f00; --pl-r4: #b35400; --pl-r5: #8f2a00; }
-main.pl-cock .pt:not(.pt-hero)::before { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%); }
-main.pl-cock :is(.pt-label, .pt-act-k, .pt-feed time, .pt-lv span) { text-transform: uppercase; letter-spacing: .12em; }
-main.pl-cock :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .friend-head) { text-transform: uppercase; }
-main.pl-cock :is(.btn, .btn-primary, .btn-outline, .pt-play, .friend-btn, .pt-likes-go) { clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
-
-/* Zeď: plakáty z papíru nalepené páskou na betonu, nadpisy sprejem, fotky sytější */
-main.pl-wall { --pl-card: #26231f; --pl-fhead: 'Rubik Spray Paint', 'Exo 2', sans-serif; --pl-fbody: 'Oswald', 'Exo 2', sans-serif;
-  --pl-tile: radial-gradient(circle at 30% 20%, rgba(0, 0, 0, .04) 0 1px, transparent 1.5px) 0 0 / 9px 9px, linear-gradient(170deg, #f6f1e8, #e9e2d5);
-  --pl-ctxt: #1b1a19; --pl-cdim: #5a554e; --pl-chip: rgba(0, 0, 0, .06); --pl-bw: 0; --pl-rad: 3px; --pl-brad: 4px; --pl-ringbg: #efe9de;
-  --pl-shadow: 0 10px 22px rgba(0, 0, 0, .5); --pl-imgf: contrast(1.15) saturate(1.25);
-  --pl-r1: #8a8378; --pl-r2: #1b1a19; --pl-r3: #ff2d55; --pl-r4: #e8b400; --pl-r5: #c2003a; }
-body.light main.pl-wall { --pl-card: #e8e3da; --pl-shadow: 0 10px 20px rgba(0, 0, 0, .28); }
-main.pl-wall .pt:not(.pt-hero):nth-child(odd) { rotate: -.5deg; }
-main.pl-wall .pt:not(.pt-hero):nth-child(even) { rotate: .6deg; }
-main.pl-wall .pt:not(.pt-hero)::after { content: ""; position: absolute; top: -10px; left: 50%; z-index: 3; width: 92px; height: 22px; margin-left: -46px; rotate: -3deg; pointer-events: none; background: rgba(255, 230, 0, .55); }
-main.pl-wall :is(.pt-label, .pt-act-k) { color: #ff2d55; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-main.pl-wall :is(.pt-big, .pt-song-name, .game-head h2) { color: #ff2d55; }
-main.pl-wall .pt-song-name { text-shadow: 2px 2px 0 #ffe600; }
-main.pl-wall .profile-tabs a.active { color: #ffe600; }
-body.light main.pl-wall .profile-tabs a.active { color: #c4002e; }
-
-/* Obálka: časopis – bez krabic, silná linka nahoře, nadpisy patkovou kurzívou, štítky prostrkaným Jostem */
-main.pl-cover { --pl-txt: #f4ece8; --pl-dim: #b5a59f; --pl-fhead: 'Playfair Display', 'Exo 2', serif; --pl-fbody: 'Jost', 'Exo 2', sans-serif;
-  --pl-tile: #141010; --pl-chip: rgba(242, 196, 184, .06); --pl-bw: 0; --pl-rad: 0; --pl-brad: 0; --pl-shadow: inset 0 2px 0 var(--pl-txt); --pl-ringbg: #141010;
-  --pl-imgf: grayscale(.2) contrast(1.08) sepia(.12); --pl-r1: #7a6a66; --pl-r2: #c89a8c; --pl-r3: #f2c4b8; --pl-r4: #ffffff; --pl-r5: #e8b04a; }
-body.light main.pl-cover { --pl-dim: #6d5a55; --pl-tile: #fffaf8; --pl-ringbg: #fffaf8; --pl-chip: rgba(138, 59, 44, .06); --pl-shadow: inset 0 2px 0 var(--pl-txt);
-  --pl-r1: #9b8a85; --pl-r2: #b0705f; --pl-r3: #8a3b2c; --pl-r4: #5a1f14; --pl-r5: #b07a1a; }
-main.pl-cover :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .pt-big, .friend-head, .pt-start-top h2, .pt-act-medal b) { font-style: italic; font-weight: 900; letter-spacing: -.01em; }
-main.pl-cover :is(.pt-label, .pt-act-k, .pt-feed time, .pt-lv span) { text-transform: uppercase; letter-spacing: .25em; font-weight: 400; }
-main.pl-cover .pt-quote { font: italic 600 1.15rem/1.3 'Playfair Display', serif; }
-
-
-/* Polární záře: mléčné sklo nad pohyblivou září, oblé karty, fotky do chladných tónů */
-main.pl-aurora { --pl-txt: #eef3ff; --pl-dim: #a8b3cc; --pl-fhead: 'Syne', 'Exo 2', sans-serif; --pl-fbody: 'Jost', 'Exo 2', sans-serif; --pl-card: rgba(18, 22, 40, .7);
-  --pl-tile: linear-gradient(160deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .03)); --pl-chip: rgba(255, 255, 255, .07); --pl-rad: 28px; --pl-brad: 999px; --pl-ringbg: #121a2c;
-  --pl-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 20px 40px -26px rgba(0, 0, 0, .7); --pl-imgf: saturate(.7) hue-rotate(-8deg) brightness(.95);
-  --pl-r1: #8a93a8; --pl-r2: #7fb0ff; --pl-r3: #7cf5d5; --pl-r4: #c49bff; --pl-r5: #f0b3ff; }
-body.light main.pl-aurora { --pl-dim: #4c5875; --pl-card: rgba(255, 255, 255, .7); --pl-tile: linear-gradient(160deg, rgba(255, 255, 255, .8), rgba(255, 255, 255, .5)); --pl-ringbg: #f4f7fd;
-  --pl-shadow: inset 0 1px 0 #fff, 0 16px 32px -22px rgba(40, 60, 120, .45); --pl-r1: #7d879c; --pl-r2: #2f6fd0; --pl-r3: #0f8f72; --pl-r4: #7a3fd0; --pl-r5: #b0208a; }
-main.pl-aurora .pt::before { backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2); }
-main.pl-aurora :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .pt-big, .friend-head, .pt-start-top h2) { font-weight: 800; letter-spacing: -.02em; }
-main.pl-aurora .pt-big { background: linear-gradient(100deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-
-/* Galerie: výstavní síň – rovné rámy, světlo shora, tenké prostrkané písmo, fotky jemně do šeda */
-main.pl-gal { --pl-fhead: 'Jost', 'Exo 2', sans-serif; --pl-fbody: 'Jost', 'Exo 2', sans-serif;
-  --pl-tile: radial-gradient(60% 45% at 50% 0, rgba(255, 250, 235, .09), transparent 70%), #222120; --pl-chip: rgba(255, 255, 255, .04); --pl-bw: 0; --pl-rad: 0; --pl-brad: 0;
-  --pl-shadow: 0 0 0 1px var(--pl-line), 0 24px 40px -24px rgba(0, 0, 0, .7); --pl-ringbg: #222120; --pl-imgf: grayscale(.35) contrast(1.05);
-  --pl-r1: #6f6a62; --pl-r2: #a29d94; --pl-r3: #d8d2c6; --pl-r4: #f4efe4; --pl-r5: #e0c37a; }
-body.light main.pl-gal { --pl-tile: radial-gradient(60% 45% at 50% 0, rgba(255, 240, 200, .25), transparent 70%), #ffffff; --pl-ringbg: #fff; --pl-chip: rgba(0, 0, 0, .03);
-  --pl-shadow: 0 0 0 1px var(--pl-line), 0 18px 30px -22px rgba(0, 0, 0, .3); --pl-r1: #a8a29a; --pl-r2: #77726a; --pl-r3: #3b3832; --pl-r4: #1d1c1a; --pl-r5: #9a7420; }
-main.pl-gal :is(.pt-song-name, .pt-like-name, .song-name, .game-head h2, .friend-head, .pt-start-top h2) { font-weight: 300; letter-spacing: .14em; text-transform: uppercase; }
-main.pl-gal .pt-big { font-weight: 200; }
-main.pl-gal :is(.pt-label, .pt-act-k, .pt-feed time, .pt-lv span) { font-weight: 300; letter-spacing: .22em; text-transform: uppercase; }
-main.pl-gal :is(.pt-quote, .pt-note, .pt-act-quote) { font-weight: 300; }
+@font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/bangers-400-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/bangers-400-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/bangers-400-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/barlow-condensed-500-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/barlow-condensed-500-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/barlow-condensed-500-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/barlow-condensed-700-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/barlow-condensed-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/barlow-condensed-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Caveat'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/caveat-500-700-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: 'Caveat'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/caveat-500-700-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Caveat'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/caveat-500-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Caveat'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/caveat-500-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Shantell Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(/fonts/shantell-sans-400-700-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: 'Shantell Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(/fonts/shantell-sans-400-700-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Shantell Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(/fonts/shantell-sans-400-700-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Shantell Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(/fonts/shantell-sans-400-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Shantell Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(/fonts/shantell-sans-400-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Rajdhani'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/rajdhani-500-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Rajdhani'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/rajdhani-500-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Rajdhani'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/rajdhani-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Rajdhani'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/rajdhani-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Orbitron'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/orbitron-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Pixelify Sans'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/pixelify-sans-500-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Pixelify Sans'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/pixelify-sans-500-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Pixelify Sans'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/pixelify-sans-500-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Pixelify Sans'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/pixelify-sans-700-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Pixelify Sans'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/pixelify-sans-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Pixelify Sans'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/pixelify-sans-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 200 800; font-display: swap; src: url(/fonts/inter-200-800-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 200 800; font-display: swap; src: url(/fonts/inter-200-800-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 200 800; font-display: swap; src: url(/fonts/inter-200-800-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 200 800; font-display: swap; src: url(/fonts/inter-200-800-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 200 800; font-display: swap; src: url(/fonts/inter-200-800-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Great Vibes'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/great-vibes-400-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: 'Great Vibes'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/great-vibes-400-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Great Vibes'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/great-vibes-400-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Great Vibes'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/great-vibes-400-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Great Vibes'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/great-vibes-400-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Quicksand'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/quicksand-500-700-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Quicksand'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/quicksand-500-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Quicksand'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/quicksand-500-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Rubik Bubbles'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/rubik-bubbles-400-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: 'Rubik Bubbles'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/rubik-bubbles-400-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Rubik Bubbles'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/rubik-bubbles-400-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Rubik Bubbles'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/rubik-bubbles-400-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Fredoka'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/fredoka-500-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Fredoka'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/fredoka-500-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
 /* ---------- ikony a odznaky: každý vzhled má vlastní podobu ----------
    Platí pro odznaky v Přehledu (lišta, vitrína), medaile na časové ose, uzly osy a odznaky CatSmash v záložce Hry.
@@ -469,79 +156,562 @@ main.pl-look .pong-badges li.on { border-color: color-mix(in srgb, var(--accent)
 main.pl-look :is(.pong-badges b, .pong-badge-head b) { font-family: var(--pl-fhead); }
 main.pl-look :is(.pong-badge-text span, .pong-badge-rule, .pong-badge-head span) { font-family: var(--pl-fbody); }
 
-/* Hologram: kruh s dvojitou svítící obručí */
-main.pl-holo :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 50%; border: 1px solid var(--ic);
-  background: radial-gradient(circle, color-mix(in srgb, var(--ic) 24%, transparent), transparent 70%);
-  box-shadow: 0 0 0 3px var(--pl-bg), 0 0 0 4px color-mix(in srgb, var(--ic) 45%, transparent), 0 0 16px color-mix(in srgb, var(--ic) 70%, transparent); text-shadow: 0 0 8px var(--ic); }
-/* Monolit: plný čtverec v barvě, tlustý rám a ostrý stín */
-main.pl-mono :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 0; background: var(--ic); color: var(--pl-bg);
-  border: 2px solid var(--pl-line); box-shadow: 3px 3px 0 var(--pl-line); }
-/* Radar: terč s křížem a zelenou září */
-main.pl-radar :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 50%; border: 1px solid var(--ic);
-  background: linear-gradient(color-mix(in srgb, var(--ic) 30%, transparent), color-mix(in srgb, var(--ic) 30%, transparent)) center / 1px 100% no-repeat,
-    linear-gradient(color-mix(in srgb, var(--ic) 30%, transparent), color-mix(in srgb, var(--ic) 30%, transparent)) center / 100% 1px no-repeat,
-    radial-gradient(circle, color-mix(in srgb, var(--ic) 16%, transparent), transparent 72%);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ic) 8%, transparent), 0 0 12px color-mix(in srgb, var(--ic) 55%, transparent); text-shadow: 0 0 6px var(--ic); }
-/* Kokpit: ocelový šestiúhelník s barevným prstencem */
-main.pl-cock :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border: 0; border-radius: 0; box-shadow: none;
-  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-  background: radial-gradient(circle, transparent 0 56%, var(--ic) 57% 63%, transparent 64%), linear-gradient(180deg, #2c3540, #151a20); }
-body.light main.pl-cock :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) {
-  background: radial-gradient(circle, transparent 0 56%, var(--ic) 57% 63%, transparent 64%), linear-gradient(180deg, #ffffff, #dfe5ec); }
-/* Zeď: nálepka v barvě s bílým okrajem, trochu nakřivo */
-main.pl-wall :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border: 0; border-radius: 30%; rotate: -6deg;
-  background: var(--ic); color: #fff; box-shadow: 0 0 0 3px #fff, 2px 4px 8px rgba(0, 0, 0, .35); text-shadow: 0 1px 0 rgba(0, 0, 0, .35); }
-/* Obálka: tenká dvojitá linka jako razítko */
-main.pl-cover :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 50%; border: 1px solid var(--ic);
-  background: var(--pl-ringbg); box-shadow: inset 0 0 0 3px var(--pl-ringbg), inset 0 0 0 4px var(--ic); }
-/* Polární záře: měkká kapka s přechodem */
-main.pl-aurora :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border: 0; border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
-  background: linear-gradient(135deg, var(--ic), color-mix(in srgb, var(--ic) 40%, var(--accent-2))); color: #0b1020;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 8px 20px -8px var(--ic); }
-/* Galerie: obrázek v paspartě, barva jen jako proužek dole */
-main.pl-gal :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pong-badge-icon, .pt-activity .pt-feed li > i) { border-radius: 0; border: 1px solid #b9b3a8; border-bottom: 3px solid var(--ic);
-  background: #f4f1ea; color: color-mix(in srgb, var(--ic) 35%, #2a2826); box-shadow: 0 0 0 3px #f4f1ea, 0 0 0 4px #b9b3a8, 0 8px 16px -8px rgba(0, 0, 0, .6); }
 /* nezískané odznaky CatSmash: stejný tvar, jen vybledlé */
 main.pl-look .pong-badges li:not(.on) .pong-badge-icon { opacity: .45; filter: grayscale(1); }
+
+/* =====================================================================
+   VZHLEDY 2026-11 (náhled Skeli.cz-podklady/navrhy/profil-vzhledy-6). Staré (Obálka, Monolit…) převedla migrace V144.
+   Písma hostuje web sám (tools/stahni-pismo.py); Bangers a Barlow Condensed nemají azbuku → ukrajinština dostane Oswald.
+   ===================================================================== */
+
+/* Komiks: stránka komiksu – rastr z teček, tlusté černé linky a plné stíny, paprsky akce za fotkou, jméno v bublině,
+   čísla ve výbuších, záložky jako okénka, karty se žlutým popiskem. */
+main.pl-komiks { --accent: #ffd23f; --accent-2: #ff4b3e; --pl-acct: #ffd23f; --pl-bg: #15161c; --pl-card: #22232c; --pl-line: #050507; --pl-txt: #f4f4f4; --pl-dim: #b9bac4;
+  --pl-fname: 'Bangers', 'Oswald', sans-serif; --pl-flab: 'Shantell Sans', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: var(--pl-flab);
+  --pl-tile: #22232c; --pl-bw: 3px; --pl-rad: 2px; --pl-brad: 2px; --pl-shc: #ff4b3e; --pl-shadow: 6px 6px 0 var(--pl-shc); --pl-hero: #2b2346; --pl-ray: rgba(255,210,63,.13);
+  --pl-imgf: contrast(1.1) saturate(1.15); --pl-r1: #9a9aa6; --pl-r2: #3ec6ff; --pl-r3: #7ee06a; --pl-r4: #ffd23f; --pl-r5: #ff4b3e; }
+body.light main.pl-komiks { --accent: #e2231a; --accent-2: #ffd23f; --pl-acct: #e2231a; --pl-bg: #fff8e6; --pl-card: #fff; --pl-tile: #fff; --pl-line: #111; --pl-txt: #111; --pl-dim: #444;
+  --pl-shc: #111; --pl-hero: #ffd23f; --pl-ray: rgba(226,35,26,.16); --pl-r1: #777; --pl-r2: #0a84c6; --pl-r3: #2f9e1f; --pl-r4: #c99400; --pl-r5: #e2231a; }
+main.pl-komiks .pl-bgfx { display: block; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,.07) 1.3px, transparent 1.8px) 0 0 / 11px 11px; }
+body.light main.pl-komiks .pl-bgfx { background: radial-gradient(circle, rgba(0,0,0,.1) 1.3px, transparent 1.8px) 0 0 / 11px 11px; }
+main.pl-komiks .pt-hero { background: var(--pl-hero); border: 4px solid var(--pl-line); border-radius: 2px; box-shadow: 7px 7px 0 var(--pl-shc); }
+main.pl-komiks .pl-fx.a { display: block; position: absolute; inset: 0; z-index: 0; background: repeating-conic-gradient(from 0deg at 50% 62%, var(--pl-ray) 0 7deg, transparent 7deg 16deg); }
+main.pl-komiks .pl-fx.b { display: block; position: absolute; z-index: 3; right: 14px; bottom: 12px; }
+main.pl-komiks .pl-fx.b::before { content: "POW!"; font: 400 2.2rem/1 'Bangers', sans-serif; letter-spacing: .04em; color: #ffd23f; -webkit-text-stroke: 2px #111; paint-order: stroke fill; display: block; transform: rotate(12deg); }
+body.light main.pl-komiks .pl-fx.b::before { color: #e2231a; }
+main.pl-komiks .pt-cover { border-radius: 0; border-bottom: 4px solid var(--pl-line); }
+main.pl-komiks .acct-photo { border-radius: 0; background: #fff; padding: 5px; border: 4px solid #111; box-shadow: 6px 6px 0 #111; rotate: -3deg; }
+main.pl-komiks .acct-photo .acct-avatar { border-radius: 0; }
+/* jméno v bublině (bílá bublina s černým okrajem a ocáskem) */
+main.pl-komiks .pt-hero .acct-name { position: relative; width: fit-content; max-width: 100%; margin-bottom: 14px; padding: 8px 24px 6px; background: #fff; -webkit-background-clip: border-box; background-clip: border-box;
+  color: #111; -webkit-text-fill-color: #111; filter: none; border: 3px solid #111; border-radius: 50% / 50%; letter-spacing: .04em; }
+main.pl-komiks .pt-hero .acct-name::before, main.pl-komiks .pt-hero .acct-name::after { content: ""; position: absolute; left: 26%; top: 100%; width: 24px; height: 20px; background: #111; clip-path: polygon(0 0, 100% 0, 10% 100%); }
+main.pl-komiks .pt-hero .acct-name::after { left: calc(26% + 4px); top: calc(100% - 4px); width: 16px; height: 16px; background: #fff; }
+main.pl-komiks .acct-meta { width: fit-content; padding: 2px 9px; background: #ffd23f; color: #111; border: 2.5px solid #111; font-weight: 700; rotate: -1.5deg; }
+main.pl-komiks :is(.acct-badge, .pt-gear) { border: 3px solid #111; border-radius: 2px; background: #fff; color: #111; box-shadow: 3px 3px 0 #111; }
+/* čísla ve výbuších: černý výbuch, v něm barevný */
+main.pl-komiks .pt-chips { justify-content: center; gap: 2px 6px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-komiks .pt-chip { --clip: polygon(50% 0%, 61% 17%, 81% 7%, 78% 29%, 100% 34%, 84% 50%, 100% 66%, 78% 71%, 81% 93%, 61% 83%, 50% 100%, 39% 83%, 19% 93%, 22% 71%, 0% 66%, 16% 50%, 0% 34%, 22% 29%, 19% 7%, 39% 17%);
+  position: relative; display: grid; place-items: center; align-content: center; gap: 0; width: 104px; height: 104px; white-space: normal; min-height: 0; padding: 0; border: 0; border-radius: 0;
+  clip-path: var(--clip); background: #111; text-align: center; animation: pl-kxPop .5s cubic-bezier(.3, 1.6, .5, 1) both; }
+main.pl-komiks .pt-chip::before { content: ""; position: absolute; inset: 5px; clip-path: var(--clip); background: var(--bc, #ffd23f); }
+main.pl-komiks .pt-chip:nth-child(5n+2) { --bc: #3ec6ff; animation-delay: .08s; } main.pl-komiks .pt-chip:nth-child(5n+3) { --bc: #ff4b3e; animation-delay: .16s; }
+main.pl-komiks .pt-chip:nth-child(5n+4) { --bc: #7ee06a; animation-delay: .24s; } main.pl-komiks .pt-chip:nth-child(5n+5) { --bc: #ff9ad5; animation-delay: .32s; }
+main.pl-komiks .pt-chip b, main.pl-komiks .pt-chip span { position: relative; color: #111; }
+main.pl-komiks .pt-chip b { font: 400 1.7rem/1 'Bangers', 'Oswald', sans-serif; } main.pl-komiks .pt-chip span { font: 700 .6rem/1.05 'Shantell Sans', sans-serif; max-width: 64px; }
+main.pl-komiks .pt-chip:hover { transform: rotate(-6deg) scale(1.05); }
+/* záložky = okénka, aktivní žlutá a nakřivo */
+main.pl-komiks .profile-tabs { gap: 8px; border: 0; }
+main.pl-komiks .profile-tabs a { border: 3px solid var(--pl-line); border-radius: 2px; background: var(--pl-card); color: var(--pl-txt); box-shadow: 3px 3px 0 var(--pl-shc); font-family: 'Bangers', 'Oswald', sans-serif; letter-spacing: .05em; }
+main.pl-komiks .profile-tabs a.active { background: #ffd23f; color: #111; box-shadow: 5px 5px 0 var(--pl-shc); rotate: -2deg; translate: 0 -2px; }
+/* karty: popisek jako žlutý štítek nakřivo, sudé bílé */
+main.pl-komiks .pt-label { width: fit-content; padding: 2px 9px; background: #ffd23f; color: #111; border: 2.5px solid #111; font-family: 'Bangers', 'Oswald', sans-serif; font-size: 1.05rem; letter-spacing: .05em; rotate: -2deg; }
+main.pl-komiks .pt:nth-child(even) .pt-label { background: #fff; rotate: 1.5deg; }
+main.pl-komiks .pt-label i { color: #111; }
+main.pl-komiks .pt-act-card { border: 3px solid var(--pl-line); border-radius: 2px; box-shadow: 5px 5px 0 var(--pl-shc); }
+main.pl-komiks .pt-activity .pt-feed li > i { border-radius: 2px; border-width: 3px; }
+@keyframes pl-kxPop { from { transform: scale(.3) rotate(-20deg); opacity: 0; } }
+
+/* Metro: noční stanice – obklad, jméno na modré ceduli stanice, čísla na odjezdové tabuli, záložky jako stanice na lince,
+   karty s barevným pruhem linky (zelená, žlutá, červená). */
+main.pl-metro { --accent: #ffc20e; --accent-2: #00a562; --pl-acct: #ffc20e; --pl-bg: #111316; --pl-card: #1b1e23; --pl-line: #2b3038; --pl-txt: #f2f4f7; --pl-dim: #a9b0bb;
+  --pl-fname: 'Barlow Condensed', 'Oswald', sans-serif; --pl-flab: 'Barlow Condensed', 'Oswald', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: 'Exo 2', system-ui, sans-serif;
+  --pl-tile: #1b1e23; --pl-rad: 10px; --pl-brad: 8px; --pl-bw: 0px; --pl-tiles: rgba(255,255,255,.045);
+  --pl-r1: #8d949e; --pl-r2: #00a562; --pl-r3: #3ec6ff; --pl-r4: #ffc20e; --pl-r5: #e2231a; }
+body.light main.pl-metro { --accent: #a77a00; --accent-2: #00824d; --pl-acct: #8a6400; --pl-bg: #f3f1ec; --pl-card: #fff; --pl-tile: #fff; --pl-line: #dcd8d0; --pl-txt: #15171a; --pl-dim: #59606a;
+  --pl-tiles: rgba(0,0,0,.07); --pl-r1: #777; --pl-r2: #00824d; --pl-r3: #0a7ab8; --pl-r4: #a77a00; --pl-r5: #c1121f; }
+main.pl-metro .pl-bgfx { display: block; position: absolute; inset: 0;
+  background: linear-gradient(var(--pl-tiles) 1px, transparent 1px) 0 0 / 64px 32px, linear-gradient(90deg, var(--pl-tiles) 1px, transparent 1px) 0 0 / 64px 32px; }
+main.pl-metro .pt-hero { border-radius: 14px; box-shadow: 0 18px 40px -26px #000; }
+main.pl-metro .pl-fx.a { display: block; position: absolute; left: 0; right: 0; top: 0; height: 10px; z-index: 3; border-radius: 14px 14px 0 0; background: linear-gradient(90deg, #00a562 0 33.3%, #ffc20e 0 66.6%, #e2231a 0); }
+/* jméno na ceduli stanice s kolečkem M */
+main.pl-metro .pt-hero .acct-name { position: relative; width: fit-content; max-width: 100%; padding: 6px 16px 6px 58px; border-radius: 8px; background: #0f2d5c; -webkit-background-clip: border-box; background-clip: border-box;
+  color: #fff; -webkit-text-fill-color: #fff; filter: none; box-shadow: inset 0 0 0 2px rgba(255,255,255,.85), 0 8px 18px -10px #000; text-transform: uppercase; letter-spacing: .02em; font-weight: 700; }
+main.pl-metro .pt-hero .acct-name::before { content: "M"; position: absolute; left: 10px; top: 50%; translate: 0 -50%; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+  background: #e2231a; color: #fff; -webkit-text-fill-color: #fff; font: 700 1.3rem/1 'Barlow Condensed', sans-serif; letter-spacing: 0; }
+main.pl-metro .acct-photo { box-shadow: 0 0 0 4px var(--pl-card), 0 0 0 8px var(--accent); }
+main.pl-metro .acct-meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+main.pl-metro :is(.acct-badge, .pt-gear) { border-radius: 6px; text-transform: uppercase; letter-spacing: .06em; }
+/* čísla na odjezdové tabuli: vždy tmavá, jantarová čísla v okénku s dělicí čarou, barevné kolečko linky */
+main.pl-metro .pt-chips { display: grid; gap: 0; overflow: visible; -webkit-mask-image: none; mask-image: none; margin-top: 16px; padding: 8px 14px; border-radius: 10px; background: #0b0b0c; box-shadow: inset 0 0 0 2px #26282c, 0 10px 24px -14px #000; }
+main.pl-metro .pt-chip { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 0; border: 0; border-top: 1px solid #1c1d20; border-radius: 0; background: none;
+  color: #ffc20e; font: 600 .85rem 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .1em; }
+main.pl-metro .pt-chip:first-child { border-top: 0; }
+main.pl-metro .pt-chip::before { content: ""; flex: none; width: 18px; height: 18px; border-radius: 50%; background: #00a562; }
+main.pl-metro .pt-chip:nth-child(3n+2)::before { background: #ffc20e; } main.pl-metro .pt-chip:nth-child(3n)::before { background: #e2231a; }
+main.pl-metro .pt-chip b { position: relative; min-width: 3.2ch; padding: 3px 6px; border-radius: 3px; text-align: right; color: #ffc20e; background: linear-gradient(#202125 50%, #18191c 50%);
+  font: 700 1.05rem/1.2 'JetBrains Mono', monospace; animation: pl-mFlip .5s both; }
+main.pl-metro .pt-chip b::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: #000; }
+main.pl-metro .pt-chip:nth-child(2) b { animation-delay: .1s; } main.pl-metro .pt-chip:nth-child(3) b { animation-delay: .2s; }
+main.pl-metro .pt-chip:nth-child(4) b { animation-delay: .3s; } main.pl-metro .pt-chip:nth-child(5) b { animation-delay: .4s; }
+main.pl-metro .pt-chip span { color: #ffc20e; }
+main.pl-metro .pt-chip:hover b { background: linear-gradient(#2a2b30 50%, #202125 50%); }
+@keyframes pl-mFlip { 0% { transform: rotateX(90deg); color: transparent; } 60% { transform: rotateX(-20deg); } 100% { transform: none; } }
+/* záložky = stanice na lince */
+main.pl-metro .profile-tabs { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 0; }
+main.pl-metro .profile-tabs::before { content: ""; position: absolute; left: 12.5%; right: 12.5%; top: 12px; height: 6px; border-radius: 3px; background: var(--accent-2); }
+main.pl-metro .profile-tabs a { position: relative; display: grid; justify-items: center; align-content: start; gap: 6px; min-height: 56px; padding: 4px 2px; background: none; border: 0; box-shadow: none;
+  color: var(--pl-dim); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; text-align: center; }
+main.pl-metro .profile-tabs a::before { content: ""; width: 16px; height: 16px; margin-top: 4px; border-radius: 50%; background: var(--pl-card); box-shadow: 0 0 0 4px var(--accent-2); }
+main.pl-metro .profile-tabs a > i { display: none; }
+main.pl-metro .profile-tabs a.active { color: var(--pl-txt); background: none; box-shadow: none; }
+main.pl-metro .profile-tabs a.active::before { width: 22px; height: 22px; margin-top: 1px; background: #fff; box-shadow: 0 0 0 5px var(--accent-2), 0 0 16px var(--accent-2); }
+/* karty s pruhem linky nahoře */
+main.pl-metro .pt:not(.pt-hero)::before { border-top: 6px solid #ffc20e; }
+main.pl-metro .pt:not(.pt-hero):nth-child(3n+2)::before { border-top-color: #00a562; } main.pl-metro .pt:not(.pt-hero):nth-child(3n)::before { border-top-color: #e2231a; }
+main.pl-metro .pt-label { text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+main.pl-metro .pt-act-card { border-top: 4px solid var(--accent); }
+
+/* Zápisník: scrapbook – linkovaný papír s okrajem, fotka jako polaroid, jméno ručně a podtržené fixou, čísla zakroužkovaná,
+   záložky jako lepicí papírky, karty jako vytržené stránky s páskou. */
+main.pl-zapisnik { --accent: #8fb8ff; --accent-2: #ff8fb1; --pl-acct: #ff8fb1; --pl-bg: #1b1a1f; --pl-card: #26252b; --pl-line: #3a3840; --pl-txt: #f3efe6; --pl-dim: #bdb6a8;
+  --pl-fname: 'Caveat', 'Exo 2', cursive; --pl-flab: 'Caveat', 'Exo 2', cursive; --pl-fhead: var(--pl-fname); --pl-fbody: 'Shantell Sans', 'Exo 2', sans-serif;
+  --pl-tile: #26252b; --pl-rad: 2px; --pl-brad: 4px; --pl-bw: 0px; --pl-shadow: 0 10px 18px -10px rgba(0,0,0,.6); --pl-lines: rgba(255,255,255,.07); --pl-margin: rgba(255,120,150,.25);
+  --pl-r1: #9b958a; --pl-r2: #8fb8ff; --pl-r3: #b9e6a0; --pl-r4: #ffd66e; --pl-r5: #ff8fb1; }
+body.light main.pl-zapisnik { --accent: #2f5f9e; --accent-2: #ff6f9a; --pl-acct: #2f5f9e; --pl-bg: #fbf7ee; --pl-card: #fffdf8; --pl-tile: #fffdf8; --pl-line: #e7dfcf; --pl-txt: #2b2a33; --pl-dim: #6b6676;
+  --pl-shadow: 0 8px 16px -10px rgba(0,0,0,.35); --pl-lines: rgba(70,110,200,.18); --pl-margin: rgba(220,70,70,.35); --pl-r1: #8a857a; --pl-r2: #2f5f9e; --pl-r3: #3f8f3a; --pl-r4: #c98a00; --pl-r5: #e0457a; }
+main.pl-zapisnik .pl-bgfx { display: block; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 44px, var(--pl-margin) 44px 46px, transparent 46px), repeating-linear-gradient(transparent 0 27px, var(--pl-lines) 27px 28px); }
+main.pl-zapisnik .pt-hero { border-radius: 2px; box-shadow: var(--pl-shadow); }
+/* páska přes horní okraj hlavičky */
+main.pl-zapisnik .pl-fx.b { display: block; position: absolute; z-index: 4; top: -10px; left: calc(50% - 50px); width: 100px; height: 26px; background: rgba(255,214,120,.7); rotate: 3deg; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+main.pl-zapisnik .pt-cover { border-radius: 2px 2px 0 0; }
+main.pl-zapisnik .acct-photo { border-radius: 0; background: #fff; padding: 7px 7px 26px; box-shadow: 0 10px 22px -10px rgba(0,0,0,.5); rotate: -3deg; }
+main.pl-zapisnik .acct-photo .acct-avatar { border-radius: 0; }
+main.pl-zapisnik .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pl-txt); -webkit-text-fill-color: var(--pl-txt); filter: none;
+  font-weight: 700; rotate: -2deg; text-decoration: underline wavy var(--accent-2) 3px; text-underline-offset: 8px; text-decoration-skip-ink: none; margin-bottom: 10px; }
+main.pl-zapisnik .acct-meta { font-family: 'Caveat', cursive; font-size: 1.15rem; }
+main.pl-zapisnik .acct-bio, main.pl-zapisnik .acct-motto { font-family: 'Caveat', cursive; font-size: 1.3rem; line-height: 1.25; }
+main.pl-zapisnik :is(.acct-badge, .pt-gear) { border-radius: 2px; background: #fff27a; color: #2b2a33; border: 0; box-shadow: 0 3px 6px -2px rgba(0,0,0,.3); font-size: 1.05rem; }
+/* čísla zakroužkovaná fixou, každé trochu jinak nakřivo */
+main.pl-zapisnik .pt-chips { justify-content: center; gap: 12px 18px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-zapisnik .pt-chip { display: grid; justify-items: center; gap: 2px; padding: 0; border: 0; background: none; box-shadow: none; rotate: -3deg; }
+main.pl-zapisnik .pt-chip:nth-child(even) { rotate: 3deg; }
+main.pl-zapisnik .pt-chip b { display: grid; place-items: center; min-width: 58px; height: 50px; padding: 0 8px; font: 700 1.9rem/1 'Caveat', cursive; color: var(--accent);
+  border: 2.5px solid var(--accent-2); border-radius: 52% 46% 55% 44% / 50% 56% 44% 50%; }
+main.pl-zapisnik .pt-chip span { font: 600 1.15rem/1 'Caveat', cursive; color: var(--pl-dim); }
+/* záložky = lepicí papírky */
+main.pl-zapisnik .profile-tabs { gap: 8px; border: 0; }
+main.pl-zapisnik .profile-tabs a { background: #fff27a; color: #2b2a33; border: 0; border-radius: 0; box-shadow: 0 3px 6px -2px rgba(0,0,0,.3); rotate: -2deg; font-size: 1.2rem; font-weight: 700; }
+main.pl-zapisnik .profile-tabs a:nth-child(2) { background: #ffc2d6; rotate: 1.5deg; } main.pl-zapisnik .profile-tabs a:nth-child(3) { background: #bfe6ff; rotate: -1deg; }
+main.pl-zapisnik .profile-tabs a:nth-child(4) { background: #cdf2b8; rotate: 2deg; }
+main.pl-zapisnik .profile-tabs a.active { color: #2b2a33; background-color: inherit; rotate: 0deg; translate: 0 -5px; box-shadow: 0 8px 14px -4px rgba(0,0,0,.35); text-decoration: underline 2px; text-underline-offset: 3px; }
+main.pl-zapisnik .profile-tabs a:nth-child(1).active { background: #fff27a; }
+/* karty = vytržené stránky: zubatý spodek (maska jen na pozadí karty), páska nahoře, střídavě nakřivo */
+main.pl-zapisnik .pt:not(.pt-hero) { rotate: -.4deg; } main.pl-zapisnik .pt:not(.pt-hero):nth-child(even) { rotate: .5deg; }
+main.pl-zapisnik .pt:not(.pt-hero)::before { -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%; mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%; }
+main.pl-zapisnik .pt:not(.pt-hero)::after { content: ""; position: absolute; z-index: 3; top: -8px; left: 22px; width: 72px; height: 18px; background: rgba(255,214,120,.65); rotate: -3deg; pointer-events: none; }
+main.pl-zapisnik .pt:not(.pt-hero):nth-child(even)::after { left: auto; right: 22px; background: rgba(160,210,255,.6); rotate: 3deg; }
+main.pl-zapisnik .pt-label { width: fit-content; font-size: 1.5rem; font-weight: 700; color: var(--pl-txt);
+  background: linear-gradient(transparent 55%, color-mix(in srgb, var(--accent-2) 40%, transparent) 55% 88%, transparent 88%); }
+main.pl-zapisnik .pt-act-card { border: 0; border-radius: 2px; box-shadow: var(--pl-shadow); }
+/* telefon: čtyři záložky Komiksu a Zápisníku se vejdou vedle sebe jen bez ikon */
+@media (max-width: 600px) {
+  main.pl-komiks .profile-tabs a > i, main.pl-zapisnik .profile-tabs a > i { display: none; }
+  main.pl-komiks .profile-tabs a, main.pl-zapisnik .profile-tabs a { padding: 10px 6px; }
+}
+
+/* Mixtape: rapový underground – hlavička jako kazeta (jméno fixou na štítku, fotka jako cívka), čísla jako tracklist,
+   záložky jako tlačítka kazeťáku, karty jako xeroxové letáky s natrženými okraji. */
+main.pl-mixtape { --accent: #e63a2e; --accent-2: #f2c230; --pl-acct: #f2c230; --pl-bg: #0e0d0c; --pl-card: #1c1a18; --pl-line: rgba(0,0,0,.14); --pl-txt: #f3eee3; --pl-dim: #a39d92;
+  --pl-fname: 'Permanent Marker', 'Oswald', cursive; --pl-flab: 'Oswald', sans-serif; --pl-fhead: 'Anton', 'Oswald', sans-serif; --pl-fbody: 'Oswald', sans-serif;
+  --pl-tile: #ece6d8; --pl-ctxt: #151413; --pl-cdim: #5d5850; --pl-chip: rgba(0,0,0,.06); --pl-bw: 0px; --pl-rad: 2px; --pl-brad: 3px; --pl-shadow: 0 14px 24px -16px #000;
+  --pl-imgf: grayscale(1) contrast(1.3); --pl-r1: #8a847a; --pl-r2: #5d5850; --pl-r3: #151413; --pl-r4: #f2c230; --pl-r5: #e63a2e; }
+body.light main.pl-mixtape { --pl-bg: #e7e1d5; --pl-txt: #151413; --pl-dim: #5d5850; --pl-acct: #b3261e; --pl-shadow: 0 12px 20px -14px rgba(0,0,0,.45); }
+main.pl-mixtape .pl-bgfx { display: block; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 40% at 15% 0%, rgba(230,58,46,.22), transparent 60%); }
+main.pl-mixtape .pl-bgfx::before { content: "UNDERGROUND"; position: absolute; left: -4%; top: 34%; font: 400 22vw/1 'Permanent Marker', cursive; color: rgba(255,255,255,.035); rotate: -12deg; white-space: nowrap; }
+body.light main.pl-mixtape .pl-bgfx::before { color: rgba(0,0,0,.05); }
+/* hlavička = kazeta (vždy tmavá, je to věc), šroubky v rozích */
+main.pl-mixtape .pt-hero { --pl-txt: #f3eee3; --pl-dim: #a39d92; color: #f3eee3; border-radius: 16px 16px 10px 10px; background: linear-gradient(180deg, #2a2826, #171615);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 30px 60px -30px #000; }
+main.pl-mixtape .pl-fx.a { display: block; position: absolute; inset: 7px; z-index: 3; --sc: radial-gradient(circle, #9a958d 0 2px, #4b4844 2.5px 4px, transparent 4.5px);
+  background: var(--sc) left top / 10px 10px no-repeat, var(--sc) right top / 10px 10px no-repeat, var(--sc) left bottom / 10px 10px no-repeat, var(--sc) right bottom / 10px 10px no-repeat; }
+main.pl-mixtape .pl-fx.b { display: block; position: absolute; z-index: 4; right: 12px; bottom: 12px; padding: 4px 9px; background: #111; color: #fff; border: 2px solid #fff; rotate: 5deg;
+  font: 400 .9rem/1 'Anton', sans-serif; letter-spacing: .06em; box-shadow: 0 8px 18px -8px #000; }
+main.pl-mixtape .pl-fx.b::before { content: "MIXTAPE"; }
+main.pl-mixtape .pt-cover { filter: grayscale(1) contrast(1.3); }
+/* jméno fixou na štítku kazety, vlevo kolečko strany A */
+main.pl-mixtape .pt-hero .acct-name { position: relative; width: fit-content; max-width: 100%; padding: 8px 18px 8px 50px; border-radius: 6px; color: #151413; -webkit-text-fill-color: #151413; filter: none;
+  background: linear-gradient(180deg, #f3eee3 0 70%, #e63a2e 70% 78%, #f3eee3 78%); -webkit-background-clip: border-box; background-clip: border-box; rotate: -1.5deg; }
+main.pl-mixtape .pt-hero .acct-name::before { content: "A"; position: absolute; left: 10px; top: 50%; translate: 0 -50%; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: #151413; color: #f3eee3; -webkit-text-fill-color: #f3eee3; font: 400 1rem/1 'Anton', sans-serif; }
+/* fotka jako cívka */
+main.pl-mixtape .acct-photo { box-shadow: 0 0 0 4px #e9e3d6, 0 0 0 7px #111, 0 0 0 16px #3b2a1f, 0 0 0 18px #111; }
+main.pl-mixtape .acct-photo .acct-avatar { filter: grayscale(1) contrast(1.3); }
+main.pl-mixtape .acct-meta { font-family: 'Oswald', sans-serif; letter-spacing: .16em; text-transform: uppercase; font-size: 12px; }
+main.pl-mixtape :is(.acct-badge, .pt-gear) { border-radius: 3px; background: linear-gradient(180deg, #5a5753, #3a3835); color: #f3eee3; border: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 3px 0 #0b0a09; }
+/* čísla jako tracklist: 01 SLOVO ....... ČÍSLO */
+main.pl-mixtape .pt-chips { display: grid; gap: 0; max-width: 560px; margin-top: 16px; overflow: visible; -webkit-mask-image: none; mask-image: none; counter-reset: trk; }
+main.pl-mixtape .pt-chip { counter-increment: trk; display: flex; align-items: baseline; gap: 10px; padding: 7px 2px; border: 0; border-radius: 0; background: none; color: var(--pl-txt);
+  font: 600 1rem 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+main.pl-mixtape .pt-chip::before { content: counter(trk, decimal-leading-zero); font: 400 .9rem 'Anton', sans-serif; color: var(--accent); }
+main.pl-mixtape .pt-chip span { order: 1; }
+main.pl-mixtape .pt-chip::after { content: ""; order: 2; flex: 1; min-width: 20px; border-bottom: 2px dotted var(--pl-dim); translate: 0 -4px; }
+main.pl-mixtape .pt-chip b { order: 3; font: 400 1.35rem 'Anton', sans-serif; color: var(--pl-acct); }
+main.pl-mixtape .pt-chip:hover span { color: var(--pl-acct); }
+/* záložky = tlačítka kazeťáku, aktivní zamáčknuté */
+main.pl-mixtape .profile-tabs { gap: 4px; padding: 6px 6px 10px; border: 0; border-radius: 8px; background: #1a1918; box-shadow: inset 0 2px 6px #000; }
+main.pl-mixtape .profile-tabs a { border-radius: 4px; color: #cfc9be; background: linear-gradient(180deg, #5a5753, #3a3835); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 4px 0 #0b0a09;
+  text-transform: uppercase; letter-spacing: .08em; transition: translate .1s; }
+main.pl-mixtape .profile-tabs a.active { translate: 0 3px; color: #f2c230; background: linear-gradient(180deg, #3a3835, #2c2a28); box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 1px 0 #0b0a09; }
+/* karty = xeroxové letáky: natržený horní i dolní okraj (maska jen na pozadí karty), střídavě nakřivo */
+main.pl-mixtape .pt:not(.pt-hero) { rotate: -.5deg; } main.pl-mixtape .pt:not(.pt-hero):nth-child(even) { rotate: .5deg; }
+main.pl-mixtape .pt:not(.pt-hero)::before {
+  -webkit-mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 12px 51% repeat-x, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 12px 51% repeat-x;
+  mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 12px 51% repeat-x, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 12px 51% repeat-x; }
+main.pl-mixtape .pt-label { width: fit-content; padding: 4px 10px; background: #151413; color: #f3eee3; font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: .06em; rotate: -1.5deg; }
+main.pl-mixtape .pt-label i { color: var(--accent); }
+main.pl-mixtape .pt-act-card { color: #151413; background: #ece6d8; }
+@media (max-width: 600px) { main.pl-mixtape .profile-tabs a > i { display: none; } main.pl-mixtape .profile-tabs a { padding: 10px 6px; } }
+
+/* Carbon: uhlíkové vlákno a oranžový neon – šestiúhelníková síť v pozadí, fotka v šestiúhelníku, čísla v šestiúhelnících,
+   karty se seříznutými rohy, záložky s podsvíceným podtržením. */
+main.pl-carbon { --accent: #ff7a1a; --accent-2: #ffb36b; --pl-acct: #ff7a1a; --pl-bg: #141619; --pl-card: #1b1e22; --pl-line: rgba(255,255,255,.1); --pl-txt: #e9edf1; --pl-dim: #8d96a1;
+  --pl-fname: 'Rajdhani', 'Exo 2', sans-serif; --pl-flab: 'Rajdhani', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: 'Exo 2', system-ui, sans-serif;
+  --pl-tile: #1b1e22; --pl-chip: rgba(255,122,26,.08); --pl-rad: 0px; --pl-brad: 0px; --pl-bw: 0px; --pl-hexs: rgba(255,255,255,.045);
+  --pl-r1: #8d96a1; --pl-r2: #c9d1d9; --pl-r3: #ffb36b; --pl-r4: #ff7a1a; --pl-r5: #ff3d00; }
+body.light main.pl-carbon { --accent: #e5630a; --accent-2: #b34a00; --pl-acct: #c95400; --pl-bg: #eef0f2; --pl-card: #fff; --pl-tile: #fff; --pl-line: rgba(0,0,0,.12); --pl-txt: #15181c; --pl-dim: #5a636d;
+  --pl-chip: rgba(229,99,10,.08); --pl-hexs: rgba(0,0,0,.06); --pl-r1: #8a939c; --pl-r2: #4a535c; --pl-r3: #e5630a; --pl-r4: #b34a00; --pl-r5: #c42a00; }
+main.pl-carbon .pl-bgfx { display: block; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 50% 35% at 85% 0%, rgba(255,122,26,.22), transparent 70%), radial-gradient(ellipse 45% 35% at 5% 28%, rgba(0,190,255,.12), transparent 70%); }
+main.pl-carbon .pl-bgfx::before { content: ""; position: absolute; inset: 0; background-color: var(--pl-hexs); -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='104'><path d='M30 0 L60 17.3 L60 52 L30 69.3 L0 52 L0 17.3 Z M30 69.3 L30 104' fill='none' stroke='black' stroke-width='1.5'/></svg>") 0 0 / 60px 104px;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='104'><path d='M30 0 L60 17.3 L60 52 L30 69.3 L0 52 L0 17.3 Z M30 69.3 L30 104' fill='none' stroke='black' stroke-width='1.5'/></svg>") 0 0 / 60px 104px; }
+main.pl-carbon .pt-hero { border-radius: 0; clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  background: linear-gradient(135deg, rgba(255,122,26,.08), transparent 40%), repeating-linear-gradient(45deg, rgba(255,255,255,.025) 0 3px, transparent 3px 6px), var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line); }
+main.pl-carbon .pl-fx.a { display: block; position: absolute; left: 0; right: 0; top: 0; height: 3px; z-index: 3; background: linear-gradient(90deg, transparent, var(--accent), transparent); box-shadow: 0 0 18px var(--accent); }
+main.pl-carbon .pt-cover { border-radius: 0; filter: grayscale(.5) contrast(1.15); }
+/* fotka v šestiúhelníku s oranžovým rámem */
+main.pl-carbon .acct-photo { border-radius: 0; padding: 5px; background: conic-gradient(from 0deg, var(--accent), transparent 25%, var(--accent) 50%, transparent 75%, var(--accent));
+  clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); box-shadow: none; }
+main.pl-carbon .acct-photo .acct-avatar { border-radius: 0; clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); filter: grayscale(.5) contrast(1.15); }
+main.pl-carbon .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pl-txt); -webkit-text-fill-color: var(--pl-txt); filter: none;
+  font-weight: 700; text-transform: uppercase; letter-spacing: .1em; text-shadow: 0 0 22px rgba(255,122,26,.35); }
+main.pl-carbon :is(.acct-badge, .pt-gear) { border-radius: 0; background: transparent; color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); text-transform: uppercase; letter-spacing: .1em; }
+/* čísla v šestiúhelnících */
+main.pl-carbon .pt-chips { justify-content: center; gap: 4px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-carbon .pt-chip { display: grid; place-items: center; align-content: center; width: 92px; height: 104px; padding: 0; border: 0; border-radius: 0; background: var(--pl-chip); white-space: normal; text-align: center;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); transition: background .2s; }
+main.pl-carbon .pt-chip:hover { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+main.pl-carbon .pt-chip b { font: 700 1.6rem/1 'Rajdhani', sans-serif; color: var(--accent); } main.pl-carbon .pt-chip span { max-width: 72px; font: 600 .66rem/1.1 'Rajdhani', sans-serif; text-transform: uppercase; letter-spacing: .1em; color: var(--pl-dim); }
+/* záložky s podsvíceným podtržením */
+main.pl-carbon .profile-tabs a { border-radius: 0; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+main.pl-carbon .profile-tabs a.active { color: var(--accent); box-shadow: inset 0 -3px 0 var(--accent); text-shadow: 0 0 12px var(--accent); }
+/* karty se seříznutými rohy */
+main.pl-carbon .pt:not(.pt-hero)::before { clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); box-shadow: inset 0 0 0 1px var(--pl-line); }
+main.pl-carbon .pt-label { text-transform: uppercase; letter-spacing: .14em; font-weight: 700; }
+main.pl-carbon .pt-act-card { border-radius: 0; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+
+/* Noční jízda: rozsvícená palubní deska v noci – hlavička jako přístrojový štít, fotka jako budík se stupnicí,
+   čísla jako digitální údaje, záložky jako tlačítka infotainmentu, karty s jemným podsvícením. */
+main.pl-jizda { --accent: #3ad7ff; --accent-2: #ff3d6e; --pl-acct: #3ad7ff; --pl-bg: #030507; --pl-card: rgba(6,12,18,.94); --pl-line: rgba(58,215,255,.18); --pl-txt: #e6f8ff; --pl-dim: #6f8ca0;
+  --pl-fname: 'Rajdhani', 'Exo 2', sans-serif; --pl-flab: 'Rajdhani', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: 'Exo 2', system-ui, sans-serif;
+  --pl-tile: rgba(6,12,18,.94); --pl-chip: rgba(79,216,255,.07); --pl-rad: 22px; --pl-brad: 16px; --pl-bw: 0px; --pl-shadow: inset 0 0 0 1px var(--pl-line), 0 20px 40px -26px #000;
+  --pl-imgf: contrast(1.1) saturate(1.1) brightness(.85); --pl-r1: #6f8ca0; --pl-r2: #a6e9ff; --pl-r3: #3ad7ff; --pl-r4: #39ffa5; --pl-r5: #ff3d6e; }
+body.light main.pl-jizda { --accent: #0089c2; --accent-2: #d7263d; --pl-acct: #0077a8; --pl-bg: #eef3f6; --pl-card: rgba(255,255,255,.95); --pl-tile: rgba(255,255,255,.95); --pl-line: rgba(0,120,170,.2);
+  --pl-txt: #0d2230; --pl-dim: #567080; --pl-chip: rgba(0,137,194,.07); --pl-shadow: inset 0 0 0 1px var(--pl-line), 0 14px 28px -20px rgba(0,0,0,.3); --pl-r1: #7b8f9b; --pl-r2: #3b6f8a; --pl-r3: #0089c2; --pl-r4: #0a9f66; --pl-r5: #d7263d; }
+main.pl-jizda .pl-bgfx { display: block; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 45% at 50% 0%, #07202c, transparent 70%); }
+body.light main.pl-jizda .pl-bgfx { background: radial-gradient(ellipse 80% 45% at 50% 0%, #d6ecf7, transparent 70%); }
+main.pl-jizda .pt-hero { border-radius: 26px; background: radial-gradient(ellipse 70% 90% at 50% 100%, rgba(79,216,255,.08), transparent 70%), var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line), 0 30px 60px -30px #000; }
+main.pl-jizda .pt-cover { border-radius: 26px 26px 0 0; filter: contrast(1.1) saturate(1.1) brightness(.8); }
+/* fotka jako budík: tečkovaná stupnice kolem a modré podsvícení */
+main.pl-jizda .acct-photo { box-shadow: 0 0 0 2px rgba(79,216,255,.6), 0 0 30px rgba(79,216,255,.35); outline: 3px dotted color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 9px; }
+main.pl-jizda .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pl-txt); -webkit-text-fill-color: var(--pl-txt); filter: none;
+  font-weight: 700; text-transform: uppercase; letter-spacing: .12em; text-shadow: 0 0 18px rgba(79,216,255,.55); }
+body.light main.pl-jizda .pt-hero .acct-name { text-shadow: none; }
+main.pl-jizda .acct-meta { letter-spacing: .14em; text-transform: uppercase; font-size: 12px; }
+/* řadicí páka vpravo dole: P R N a rozsvícené D */
+main.pl-jizda .pl-fx.c { display: block; position: absolute; z-index: 3; right: 18px; bottom: 14px; font: 700 .85rem 'Orbitron', 'Rajdhani', sans-serif; letter-spacing: .3em; color: var(--pl-dim); }
+main.pl-jizda .pl-fx.c::before { content: "P R N "; } main.pl-jizda .pl-fx.c::after { content: "D"; color: var(--accent); text-shadow: 0 0 8px var(--accent); }
+main.pl-jizda :is(.acct-badge, .pt-gear) { border-radius: 14px; background: rgba(79,216,255,.08); color: var(--pl-txt); border: 1px solid var(--pl-line); text-transform: uppercase; letter-spacing: .1em; }
+/* čísla jako digitální údaje na štítu */
+main.pl-jizda .pt-chips { gap: 8px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-jizda .pt-chip { flex: 1 1 96px; display: grid; justify-items: center; gap: 2px; min-width: 0; max-width: 180px; padding: 10px 10px; white-space: normal; text-align: center; border: 0; border-radius: 16px; background: var(--pl-chip); box-shadow: inset 0 0 0 1px var(--pl-line); }
+main.pl-jizda .pt-chip b { font: 700 1.5rem/1 'Orbitron', 'Rajdhani', sans-serif; color: var(--pl-txt); text-shadow: 0 0 12px var(--accent); }
+body.light main.pl-jizda .pt-chip b { text-shadow: none; color: var(--accent); }
+main.pl-jizda .pt-chip span { font: 600 .66rem 'Rajdhani', sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--pl-dim); }
+main.pl-jizda .pt-chip:hover { box-shadow: inset 0 0 0 1px var(--accent), 0 0 18px -6px var(--accent); }
+/* záložky = tlačítka infotainmentu */
+main.pl-jizda .profile-tabs { gap: 8px; padding: 8px; border: 0; border-radius: 22px; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line); }
+main.pl-jizda .profile-tabs a { border-radius: 16px; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+main.pl-jizda .profile-tabs a.active { color: var(--accent); background: rgba(79,216,255,.1); box-shadow: inset 0 0 0 1px rgba(79,216,255,.4), 0 0 22px -6px var(--accent); }
+main.pl-jizda .pt-label { text-transform: uppercase; letter-spacing: .2em; font-weight: 700; }
+main.pl-jizda .pt-lv b, main.pl-jizda .pt-big { font-family: 'Orbitron', 'Rajdhani', sans-serif; }
+main.pl-jizda .pt-act-card { border-radius: 18px; box-shadow: inset 0 0 0 1px var(--pl-line); }
+@media (max-width: 600px) { main.pl-jizda .profile-tabs a > i { display: none; } main.pl-jizda .profile-tabs a { padding: 10px 6px; } }
+
+/* Arkáda: herní automat z 80. let – obrazovka s řádky, pixelové písmo, pixelové rámy, čísla jako tabulka rekordů,
+   záložky jako menu hry s blikající šipkou. */
+main.pl-arkada { --accent: #ffe14d; --accent-2: #ff4fd8; --pl-acct: #ffe14d; --pl-bg: #07040f; --pl-card: #0b0718; --pl-line: #3a2a7a; --pl-txt: #f1eaff; --pl-dim: #9a8fc4;
+  --pl-fname: 'Pixelify Sans', 'Exo 2', sans-serif; --pl-flab: 'Pixelify Sans', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: 'JetBrains Mono', 'Exo 2', monospace;
+  --pl-tile: #0b0718; --pl-chip: rgba(255,225,77,.06); --pl-rad: 0px; --pl-brad: 0px; --pl-bw: 0px;
+  --pl-shadow: 0 -4px 0 0 var(--pl-line), 0 4px 0 0 var(--pl-line), -4px 0 0 0 var(--pl-line), 4px 0 0 0 var(--pl-line); --pl-imgf: saturate(1.3) contrast(1.15);
+  --pl-r1: #9a8fc4; --pl-r2: #7cf5ff; --pl-r3: #7dff7a; --pl-r4: #ffe14d; --pl-r5: #ff4fd8; --pl-scan: rgba(0,0,0,.2); }
+body.light main.pl-arkada { --accent: #b3261e; --accent-2: #2a4fbf; --pl-acct: #b3261e; --pl-bg: #e9e2cf; --pl-card: #fbf6e8; --pl-tile: #fbf6e8; --pl-line: #a99a72; --pl-txt: #1d1630; --pl-dim: #5b5070;
+  --pl-chip: rgba(0,0,0,.04); --pl-r1: #8a8070; --pl-r2: #2a4fbf; --pl-r3: #1f7a3a; --pl-r4: #b37b00; --pl-r5: #b3261e; --pl-scan: rgba(0,0,0,.05); }
+main.pl-arkada .pl-bgfx { display: block; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, var(--pl-scan) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 50% 30%, #1a1236, transparent 70%); }
+body.light main.pl-arkada .pl-bgfx { background: repeating-linear-gradient(0deg, var(--pl-scan) 0 1px, transparent 1px 3px); }
+main.pl-arkada .pt-hero { border-radius: 0; margin: 4px; box-shadow: var(--pl-shadow); }
+/* řádky obrazovky přes hlavičku */
+main.pl-arkada .pl-fx.a { display: block; position: absolute; inset: 0; z-index: 5; pointer-events: none; background: repeating-linear-gradient(0deg, var(--pl-scan) 0 1px, transparent 1px 3px); }
+main.pl-arkada .pl-fx.b { display: block; position: absolute; z-index: 4; left: 16px; top: 14px; font: 700 .95rem 'Pixelify Sans', sans-serif; color: var(--accent-2); }
+main.pl-arkada .pl-fx.b::before { content: "1UP"; animation: pl-blink 1.2s steps(1) infinite; }
+main.pl-arkada .pt-cover { border-radius: 0; image-rendering: pixelated; }
+main.pl-arkada .acct-photo { border-radius: 0; box-shadow: 0 0 0 4px var(--pl-card), 0 0 0 8px var(--accent), 0 0 0 12px var(--accent-2); }
+main.pl-arkada .acct-photo .acct-avatar { border-radius: 0; image-rendering: pixelated; }
+main.pl-arkada .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--accent); -webkit-text-fill-color: var(--accent); filter: none;
+  font-weight: 700; text-shadow: 4px 4px 0 var(--accent-2); }
+main.pl-arkada :is(.acct-badge, .pt-gear) { border-radius: 0; background: var(--pl-card); color: var(--accent); border: 0; box-shadow: 0 0 0 3px var(--accent-2); }
+/* čísla jako tabulka rekordů */
+main.pl-arkada .pt-chips { display: grid; gap: 0; max-width: 460px; margin: 14px 4px 0; padding: 10px 14px; background: var(--pl-card); box-shadow: var(--pl-shadow); overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-arkada .pt-chip { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 3px 0; border: 0; border-radius: 0; background: none; font: 500 1.05rem/1.7 'Pixelify Sans', sans-serif; text-transform: uppercase; }
+main.pl-arkada .pt-chip span { order: 1; color: var(--accent-2); } main.pl-arkada .pt-chip b { order: 2; font: 700 1.1rem 'Pixelify Sans', sans-serif; color: var(--accent); }
+main.pl-arkada .pt-chip:hover span { color: var(--accent); }
+/* záložky = menu hry, u vybrané bliká šipka */
+main.pl-arkada .profile-tabs { gap: 4px; margin: 18px 4px; padding: 8px; border: 0; border-radius: 0; background: var(--pl-card); box-shadow: var(--pl-shadow); }
+main.pl-arkada .profile-tabs a { position: relative; border-radius: 0; color: var(--pl-dim); font-weight: 700; }
+main.pl-arkada .profile-tabs a > i { display: none; }
+main.pl-arkada .profile-tabs a.active { color: var(--accent); background: none; box-shadow: none; }
+main.pl-arkada .profile-tabs a.active::before { content: "▶"; margin-right: 4px; color: var(--accent-2); animation: pl-blink 1s steps(1) infinite; }
+main.pl-arkada .pt:not(.pt-hero) { margin: 4px; }
+main.pl-arkada .pt-label { font-weight: 700; color: var(--accent); }
+main.pl-arkada .pt-act-card { border-radius: 0; box-shadow: var(--pl-shadow); border: 0; }
+@keyframes pl-blink { 50% { opacity: 0; } }
+
+/* Sakura: všechno v bublinách – oblouková hlavička v růžové, jméno ozdobným písmem, čísla jako bubliny různé velikosti,
+   záložky jako kulatá tlačítka, karty s velkým zaoblením a kvítkem v nadpisu. */
+main.pl-sakura { --accent: #f2a7bf; --accent-2: #c98aa5; --pl-acct: #f2a7bf; --pl-bg: #170d14; --pl-card: rgba(44,24,36,.9); --pl-line: #5a3046; --pl-txt: #fbeef3; --pl-dim: #c9a3b4;
+  --pl-fname: 'Great Vibes', 'Playfair Display', cursive; --pl-flab: 'Quicksand', 'Exo 2', sans-serif; --pl-fhead: 'Playfair Display', 'Exo 2', serif; --pl-fbody: 'Quicksand', 'Exo 2', sans-serif;
+  --pl-tile: rgba(44,24,36,.9); --pl-chip: rgba(242,167,191,.1); --pl-rad: 34px; --pl-brad: 999px; --pl-shadow: 0 16px 34px -26px rgba(180,80,120,.6); --pl-hero: linear-gradient(160deg, #5a2a43, #2a1422);
+  --pl-r1: #a3808f; --pl-r2: #f7bfd1; --pl-r3: #f2a7bf; --pl-r4: #ff8fb8; --pl-r5: #ff5c9a; }
+body.light main.pl-sakura { --accent: #d4688d; --accent-2: #f2a7bf; --pl-acct: #c2557c; --pl-bg: #fff7f9; --pl-card: rgba(255,255,255,.88); --pl-tile: rgba(255,255,255,.88); --pl-line: #f6d5e1; --pl-txt: #4a2232; --pl-dim: #8c6273;
+  --pl-chip: rgba(212,104,141,.08); --pl-hero: linear-gradient(160deg, #ffd6e2, #fbe4ec); --pl-r1: #a8899a; --pl-r2: #e7a3bb; --pl-r3: #d4688d; --pl-r4: #b8456f; --pl-r5: #9a2152; }
+main.pl-sakura .pl-bgfx { display: block; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 0%, rgba(242,167,191,.18), transparent 55%),
+  radial-gradient(ellipse 7px 5px at 30% 40%, rgba(247,191,209,.5), transparent 70%) 0 0 / 220px 260px, radial-gradient(ellipse 6px 4px at 70% 75%, rgba(247,191,209,.4), transparent 70%) 0 0 / 300px 340px; }
+body.light main.pl-sakura .pl-bgfx { background: radial-gradient(ellipse at 20% 0%, #ffe3ec, transparent 55%), radial-gradient(ellipse at 90% 30%, #fde8f0, transparent 50%),
+  radial-gradient(ellipse 7px 5px at 30% 40%, rgba(240,150,180,.45), transparent 70%) 0 0 / 220px 260px, radial-gradient(ellipse 6px 4px at 70% 75%, rgba(240,150,180,.35), transparent 70%) 0 0 / 300px 340px; }
+main.pl-sakura .pt-hero { background: var(--pl-hero); border-radius: 34px 34px 48% 48% / 34px 34px 14% 14%; padding-bottom: 26px; }
+main.pl-sakura .pt-cover { border-radius: 34px 34px 0 0; }
+main.pl-sakura .acct-photo { box-shadow: 0 0 0 7px rgba(255,255,255,.7), 0 0 0 8px var(--accent-2), 0 20px 40px -18px rgba(180,80,120,.6); }
+main.pl-sakura .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--accent); -webkit-text-fill-color: var(--accent); filter: none;
+  font-weight: 400; font-size: clamp(2.6rem, 11vw, 4.4rem); line-height: 1; }
+body.light main.pl-sakura .pt-hero .acct-name { color: #c2557c; -webkit-text-fill-color: #c2557c; }
+main.pl-sakura :is(.acct-badge, .pt-gear) { border-radius: 999px; background: var(--pl-card); border: 1px solid var(--pl-line); color: var(--pl-txt); }
+/* čísla jako bubliny: každá jinak velká a trochu jinak vysoko */
+main.pl-sakura .pt-chips { justify-content: center; align-items: center; gap: 6px 10px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; padding: 6px 0 12px; }
+main.pl-sakura .pt-chip { display: grid; place-items: center; align-content: center; width: 96px; height: 96px; padding: 0; border: 0; border-radius: 50%; background: var(--pl-card); white-space: normal; text-align: center;
+  box-shadow: 0 14px 30px -16px rgba(180,80,120,.55), inset 0 0 0 1px var(--pl-line); }
+main.pl-sakura .pt-chip:nth-child(3n+1) { width: 108px; height: 108px; } main.pl-sakura .pt-chip:nth-child(3n) { width: 86px; height: 86px; translate: 0 10px; }
+main.pl-sakura .pt-chip:nth-child(even) { translate: 0 -8px; }
+main.pl-sakura .pt-chip b { font: italic 600 1.45rem/1 'Playfair Display', serif; color: var(--accent); } main.pl-sakura .pt-chip span { max-width: 74px; font: 600 .68rem/1.1 'Quicksand', sans-serif; color: var(--pl-dim); }
+/* záložky = kulatá tlačítka s popiskem pod nimi */
+main.pl-sakura .profile-tabs { justify-content: center; gap: 10px; border: 0; }
+main.pl-sakura .profile-tabs a { flex: 0 1 auto; display: grid; justify-items: center; gap: 4px; padding: 4px; background: none; box-shadow: none; font-size: .78rem; font-weight: 600; }
+main.pl-sakura .profile-tabs a > i { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line); font-size: 19px; color: var(--accent); transition: transform .2s; }
+main.pl-sakura .profile-tabs a.active { background: none; box-shadow: none; color: var(--pl-txt); }
+main.pl-sakura .profile-tabs a.active > i { background: var(--accent); color: #2a0f1c; box-shadow: 0 10px 22px -10px var(--accent); transform: scale(1.08); }
+body.light main.pl-sakura .profile-tabs a.active > i { color: #fff; }
+main.pl-sakura .pt-label { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.15rem; }
+main.pl-sakura .pt-label::before { content: "✿"; margin-right: 6px; font-style: normal; color: var(--accent-2); }
+main.pl-sakura .pt-label > i { display: none; }
+main.pl-sakura .pt-act-card { border-radius: 26px; }
+
+/* Opál: zamčená obrazovka telefonu – mléčné sklo nad barevnými skvrnami, obrovské tenké jméno v duhovém přechodu,
+   čísla jako skleněné widgety, záložky jako dok s ikonami. */
+main.pl-opal { --accent: #c4a5ff; --accent-2: #ff7ac3; --pl-acct: #c4a5ff; --pl-bg: #0e0d13; --pl-card: rgba(255,255,255,.07); --pl-line: rgba(255,255,255,.14); --pl-txt: #f6f3ff; --pl-dim: #b0a9c4;
+  --pl-fname: 'Inter', 'Exo 2', sans-serif; --pl-flab: 'Inter', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: var(--pl-fname);
+  --pl-tile: rgba(255,255,255,.07); --pl-chip: rgba(255,255,255,.08); --pl-rad: 28px; --pl-brad: 14px; --pl-shadow: 0 20px 40px -30px rgba(0,0,0,.6); --pl-ic: rgba(255,255,255,.08);
+  --pl-r1: #b0a9c4; --pl-r2: #9fd4ff; --pl-r3: #c4a5ff; --pl-r4: #ff7ac3; --pl-r5: #ffb86b; }
+body.light main.pl-opal { --accent: #8b5cf6; --accent-2: #ec4899; --pl-acct: #7c3aed; --pl-bg: #f4f2f8; --pl-card: rgba(255,255,255,.45); --pl-tile: rgba(255,255,255,.45); --pl-line: rgba(255,255,255,.7);
+  --pl-txt: #1d1a26; --pl-dim: #5f5a70; --pl-chip: rgba(255,255,255,.5); --pl-shadow: 0 20px 40px -30px rgba(60,30,90,.4); --pl-ic: rgba(255,255,255,.65); --pl-r1: #8a8599; --pl-r2: #3b82c4; --pl-r3: #8b5cf6; --pl-r4: #db2777; --pl-r5: #c2410c; }
+main.pl-opal .pl-bgfx { display: block; position: absolute; inset: 0; background: radial-gradient(ellipse at 15% 10%, #3a1d4a, transparent 50%), radial-gradient(ellipse at 90% 22%, #1d3552, transparent 50%), radial-gradient(ellipse at 50% 92%, #12392c, transparent 55%); }
+body.light main.pl-opal .pl-bgfx { background: radial-gradient(ellipse at 15% 10%, #ffd6ee, transparent 50%), radial-gradient(ellipse at 90% 22%, #cfe6ff, transparent 50%), radial-gradient(ellipse at 50% 92%, #d8ffef, transparent 55%); }
+main.pl-opal :is(.pt-hero, .pt-chip, .profile-tabs, .pt-act-card), main.pl-opal .pt::before { backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); }
+main.pl-opal .pt-hero { border-radius: 40px; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line), var(--pl-shadow); }
+main.pl-opal .pt-cover { border-radius: 40px 40px 0 0; }
+main.pl-opal .acct-photo { box-shadow: 0 0 0 3px rgba(255,255,255,.7); }
+main.pl-opal .pt-hero .acct-name { font-weight: 200; font-size: clamp(2.8rem, 12vw, 5.6rem); line-height: .95; letter-spacing: -.05em; filter: none;
+  background: linear-gradient(120deg, #ff8ccf, #8b5cf6 38%, #4fc3ff 68%, #6ee7b7); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+main.pl-opal :is(.acct-badge, .pt-gear) { border-radius: 14px; background: var(--pl-ic); border: 0; color: var(--pl-txt); }
+/* čísla jako skleněné widgety s barevnou ikonou */
+main.pl-opal .pt-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-opal .pt-chip { display: grid; justify-items: start; gap: 2px; padding: 14px; border: 0; border-radius: 26px; background: var(--pl-chip); box-shadow: inset 0 0 0 1px var(--pl-line); white-space: normal; }
+main.pl-opal .pt-chip::before { content: ""; width: 30px; height: 30px; margin-bottom: 8px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); box-shadow: 0 6px 14px -6px var(--accent); }
+main.pl-opal .pt-chip:nth-child(3n+2)::before { background: linear-gradient(135deg, #4fc3ff, #6ee7b7); } main.pl-opal .pt-chip:nth-child(3n)::before { background: linear-gradient(135deg, #ffb86b, #ff7ac3); }
+main.pl-opal .pt-chip b { font: 800 2rem/1 'Inter', sans-serif; letter-spacing: -.04em; color: var(--pl-txt); } main.pl-opal .pt-chip span { font-size: 12px; color: var(--pl-dim); }
+/* záložky = dok s ikonami */
+main.pl-opal .profile-tabs { gap: 6px; padding: 10px; border: 0; border-radius: 30px; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line); }
+main.pl-opal .profile-tabs a { display: grid; justify-items: center; gap: 5px; padding: 2px; background: none; box-shadow: none; font-size: .72rem; font-weight: 600; }
+main.pl-opal .profile-tabs a > i { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; background: var(--pl-ic); color: var(--accent); font-size: 19px; }
+main.pl-opal .profile-tabs a.active { background: none; box-shadow: none; color: var(--pl-txt); }
+main.pl-opal .profile-tabs a.active > i { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff; box-shadow: 0 10px 20px -8px var(--accent); }
+main.pl-opal .pt-label { font-weight: 800; letter-spacing: -.02em; color: var(--pl-txt); }
+main.pl-opal .pt-label > i { display: inline-grid; place-items: center; width: 28px; height: 28px; margin-right: 4px; border-radius: 9px; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); font-size: 12px; }
+main.pl-opal .pt-act-card { border-radius: 22px; background: var(--pl-chip); }
+
+/* Aura: měkké barevné aury v pozadí, sklo, fotka v duhovém kroužku, čísla jako skleněné pilulky,
+   záložky jako kroužky příběhů. */
+main.pl-aura { --accent: #b794ff; --accent-2: #ff9f86; --pl-acct: #b794ff; --pl-bg: #121016; --pl-card: rgba(40,34,52,.55); --pl-line: rgba(255,255,255,.1); --pl-txt: #f5f0ff; --pl-dim: #b5aac6;
+  --pl-fname: 'Inter', 'Exo 2', sans-serif; --pl-flab: 'Inter', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: var(--pl-fname);
+  --pl-tile: rgba(40,34,52,.55); --pl-chip: rgba(255,255,255,.07); --pl-rad: 30px; --pl-brad: 999px; --pl-shadow: 0 20px 40px -30px rgba(0,0,0,.6);
+  --pl-r1: #b5aac6; --pl-r2: #6dd5c0; --pl-r3: #b794ff; --pl-r4: #ff9f86; --pl-r5: #ff6fa8; }
+body.light main.pl-aura { --accent: #8d5cf6; --accent-2: #ff8a6b; --pl-acct: #7c3aed; --pl-bg: #f6f1ee; --pl-card: rgba(255,255,255,.55); --pl-tile: rgba(255,255,255,.55); --pl-line: rgba(255,255,255,.75);
+  --pl-txt: #2a2230; --pl-dim: #6f6478; --pl-chip: rgba(255,255,255,.6); --pl-shadow: 0 20px 40px -30px rgba(60,30,90,.45); --pl-r1: #8a8090; --pl-r2: #1f9e86; --pl-r3: #8d5cf6; --pl-r4: #e0603f; --pl-r5: #c2185b; }
+main.pl-aura .pl-bgfx { display: block; position: absolute; inset: 0; }
+main.pl-aura .pl-bgfx::before, main.pl-aura .pl-bgfx::after { content: ""; position: absolute; width: 80vmax; height: 80vmax; border-radius: 50%; opacity: .5; animation: pl-aura 18s ease-in-out infinite alternate; }
+main.pl-aura .pl-bgfx::before { left: -30vmax; top: -25vmax; background: radial-gradient(circle, #ffb59e, transparent 62%); }
+main.pl-aura .pl-bgfx::after { right: -35vmax; top: 5vmax; background: radial-gradient(circle, #b9a0ff, transparent 62%); animation-delay: -9s; }
+main.pl-aura .pl-bgfx { background: radial-gradient(circle at 30% 110%, rgba(158,230,208,.35), transparent 45%); }
+body:not(.light) main.pl-aura .pl-bgfx::before, body:not(.light) main.pl-aura .pl-bgfx::after { opacity: .28; }
+@keyframes pl-aura { to { transform: translate(6vmax, 4vmax) scale(1.08); } }
+main.pl-aura :is(.pt-hero, .pt-chip, .pt-act-card), main.pl-aura .pt::before { backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); }
+main.pl-aura .pt-hero { border-radius: 34px; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line), var(--pl-shadow); }
+main.pl-aura .pt-cover { border-radius: 34px 34px 0 0; }
+/* fotka v duhovém kroužku */
+main.pl-aura .acct-photo { padding: 4px; background: conic-gradient(var(--accent), var(--accent-2), #6dd5c0, var(--accent)); box-shadow: none; }
+main.pl-aura .acct-photo .acct-avatar { border: 3px solid var(--pl-bg); }
+main.pl-aura .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pl-txt); -webkit-text-fill-color: var(--pl-txt); filter: none; font-weight: 800; letter-spacing: -.04em; }
+main.pl-aura :is(.acct-badge, .pt-gear) { border-radius: 999px; background: var(--pl-chip); border: 0; box-shadow: inset 0 0 0 1px var(--pl-line); color: var(--pl-txt); }
+/* čísla jako skleněné pilulky */
+main.pl-aura .pt-chips { gap: 6px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-aura .pt-chip { gap: 6px; padding: 8px 14px; border: 0; border-radius: 999px; background: var(--pl-chip); box-shadow: inset 0 0 0 1px var(--pl-line); font-weight: 600; }
+main.pl-aura .pt-chip b { color: var(--accent); font-weight: 800; }
+/* záložky = kroužky příběhů, vybraný má duhový okraj */
+main.pl-aura .profile-tabs { gap: 12px; border: 0; justify-content: flex-start; }
+main.pl-aura .profile-tabs a { flex: 0 0 auto; display: grid; justify-items: center; gap: 6px; padding: 2px; background: none; box-shadow: none; font-size: .78rem; font-weight: 600; }
+main.pl-aura .profile-tabs a > i { display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; border: 3px solid transparent; font-size: 21px; color: var(--pl-txt);
+  background: linear-gradient(var(--pl-chip), var(--pl-chip)) padding-box, linear-gradient(rgba(140,120,160,.35), rgba(140,120,160,.35)) border-box; }
+main.pl-aura .profile-tabs a.active { background: none; box-shadow: none; color: var(--pl-txt); }
+main.pl-aura .profile-tabs a.active > i { background: linear-gradient(var(--pl-bg), var(--pl-bg)) padding-box, conic-gradient(var(--accent), var(--accent-2), #6dd5c0, var(--accent)) border-box; }
+main.pl-aura .pt-label { font-weight: 800; letter-spacing: -.02em; color: var(--pl-txt); }
+main.pl-aura .pt-act-card { border-radius: 24px; }
+
+/* Y2K chrom (místo Levandule, 2026-11-22): styl roku 2000 – duhový holografický lesk, jméno chromovým bublinovým písmem,
+   hvězdičky a motýl, čísla jako lesklá stříbrná tlačítka starých telefonů, záložky jako bonbonové lesklé pilulky. */
+main.pl-y2k { --accent: #ff8be0; --accent-2: #8bd8ff; --pl-acct: #ff8be0; --pl-bg: #0d0b1f; --pl-card: #1a1636; --pl-line: rgba(255,255,255,.28); --pl-txt: #f7f4ff; --pl-dim: #bdb4dd;
+  --pl-fname: 'Rubik Bubbles', 'Fredoka', sans-serif; --pl-flab: 'Fredoka', 'Exo 2', sans-serif; --pl-fhead: 'Fredoka', 'Exo 2', sans-serif; --pl-fbody: 'Fredoka', 'Exo 2', sans-serif;
+  --pl-tile: #1d1838; --pl-chip: rgba(255,255,255,.08); --pl-rad: 22px; --pl-brad: 999px;
+  --pl-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 16px 30px -20px rgba(255,139,224,.45); --pl-holo: linear-gradient(120deg, rgba(255,139,224,.28), rgba(139,216,255,.28) 40%, rgba(190,160,255,.28) 70%, rgba(150,255,220,.22));
+  --pl-chrome: linear-gradient(180deg, #ffffff 0%, #dfe2ec 34%, #8d93aa 50%, #f3f5ff 53%, #b9bed2 78%, #ffffff 100%);
+  --pl-r1: #bdb4dd; --pl-r2: #8bd8ff; --pl-r3: #b7a1ff; --pl-r4: #ff8be0; --pl-r5: #ffe58b; }
+body.light main.pl-y2k { --accent: #d1349e; --accent-2: #2f8fd0; --pl-acct: #c0268e; --pl-bg: #f3eefc; --pl-card: #ffffff; --pl-line: rgba(80,60,140,.18); --pl-txt: #2a2140; --pl-dim: #6e6488;
+  --pl-tile: #ffffff; --pl-chip: rgba(80,60,140,.06); --pl-shadow: inset 0 1px 0 #fff, 0 14px 26px -18px rgba(160,60,140,.35);
+  --pl-holo: linear-gradient(120deg, #ffd1f5, #c9e7ff 40%, #e2d4ff 70%, #d4fff2); --pl-chrome: linear-gradient(180deg, #8a8fa8 0%, #4b5068 45%, #2b2f44 50%, #6d7290 70%, #a3a8c0 100%);
+  --pl-r1: #8a80a6; --pl-r2: #2f8fd0; --pl-r3: #7a55d6; --pl-r4: #d1349e; --pl-r5: #c98a00; }
+main.pl-y2k .pl-bgfx { display: block; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 10% 0%, rgba(255,139,224,.22), transparent 50%), radial-gradient(ellipse at 95% 30%, rgba(139,216,255,.2), transparent 50%), radial-gradient(ellipse at 40% 100%, rgba(190,160,255,.18), transparent 55%); }
+/* hvězdičky rozházené po stránce (písmena ✦ ✧, ne obrázky) */
+main.pl-y2k .pl-bgfx::before, main.pl-y2k .pl-bgfx::after { position: absolute; white-space: pre; line-height: 3.2; letter-spacing: 3em; font-size: 18px; opacity: .55; }
+main.pl-y2k .pl-bgfx::before { content: "✦       ✧          ✦\A    ✧        ✦      ✧\A ✦          ✧     ✦"; left: 4%; top: 8%; color: #ff8be0; }
+main.pl-y2k .pl-bgfx::after { content: "✧     ✦        ✧\A        ✦     ✧\A  ✧        ✦"; right: 2%; top: 46%; color: #8bd8ff; }
+/* hlavička s duhovým holografickým leskem, hvězdička a motýl v rozích */
+main.pl-y2k .pt-hero { border-radius: 28px; background: var(--pl-holo), var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line), inset 0 2px 0 rgba(255,255,255,.5), 0 24px 50px -30px rgba(255,139,224,.5); }
+main.pl-y2k .pt-cover { border-radius: 28px 28px 0 0; }
+main.pl-y2k .pl-fx.a { display: block; position: absolute; z-index: 3; right: 18px; bottom: 14px; font-size: 30px; line-height: 1; color: var(--accent); text-shadow: 0 0 14px var(--accent); }
+main.pl-y2k .pl-fx.a::before { content: "✦"; }
+main.pl-y2k .pl-fx.b { display: block; position: absolute; z-index: 3; right: 56px; bottom: 34px; font-size: 16px; color: var(--accent-2); text-shadow: 0 0 10px var(--accent-2); }
+main.pl-y2k .pl-fx.b::before { content: "✧"; }
+main.pl-y2k .pl-fx.c { display: block; position: absolute; z-index: 3; left: 16px; top: 14px; font-size: 26px; line-height: 1; rotate: -14deg; filter: hue-rotate(260deg) saturate(1.4); }
+main.pl-y2k .pl-fx.c::before { content: "🦋"; }
+main.pl-y2k .acct-photo { box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--accent), 0 0 0 10px var(--accent-2), 0 12px 30px -8px var(--accent); }
+/* jméno chromovým bublinovým písmem s růžovým okrajem */
+main.pl-y2k .pt-hero .acct-name { font-weight: 400; letter-spacing: .02em; background: var(--pl-chrome); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 0 var(--accent)) drop-shadow(0 0 10px color-mix(in srgb, var(--accent-2) 70%, transparent)); }
+/* ve světlém režimu je chrom na světlém pozadí bledý: tenký tmavý obrys */
+body.light main.pl-y2k .pt-hero .acct-name { -webkit-text-stroke: 1px #4b3f6b; filter: drop-shadow(0 2px 0 var(--accent)); }
+main.pl-y2k .acct-meta { font-weight: 500; }
+main.pl-y2k :is(.acct-badge, .pt-gear) { border-radius: 999px; border: 1px solid var(--pl-line); background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.06)); color: var(--pl-txt);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5); }
+/* čísla jako lesklá stříbrná tlačítka starých telefonů */
+main.pl-y2k .pt-chips { gap: 8px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-y2k .pt-chip { position: relative; overflow: hidden; display: grid; justify-items: center; gap: 0; min-width: 92px; padding: 9px 14px 10px; border: 1px solid rgba(0,0,0,.18); border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #eceef5 46%, #c9cfdf 52%, #f4f6fb 100%); color: #2a2140; box-shadow: inset 0 1px 0 #fff, 0 6px 14px -8px rgba(0,0,0,.5); white-space: normal; text-align: center; }
+main.pl-y2k .pt-chip b { font: 700 1.45rem/1.05 'Fredoka', sans-serif; color: #d1349e; } main.pl-y2k .pt-chip span { font: 600 .7rem/1.1 'Fredoka', sans-serif; color: #4b4366; }
+main.pl-y2k .pt-chip:nth-child(even) b { color: #2f8fd0; }
+main.pl-y2k .pt-chip:hover { translate: 0 -2px; box-shadow: inset 0 1px 0 #fff, 0 10px 18px -8px var(--accent); }
+/* záložky = bonbonové lesklé pilulky, vybraná v duhovém přechodu s odleskem */
+main.pl-y2k .profile-tabs { gap: 6px; border: 0; }
+main.pl-y2k .profile-tabs a { position: relative; overflow: hidden; border-radius: 999px; border: 1px solid var(--pl-line); background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4); font-weight: 600; }
+main.pl-y2k .profile-tabs a.active { color: #fff; border-color: transparent; background: linear-gradient(120deg, #ff8be0, #b98bff 50%, #8bd8ff); box-shadow: 0 8px 20px -8px #ff8be0; }
+main.pl-y2k .profile-tabs a.active::after { content: ""; position: absolute; left: 10%; right: 10%; top: 2px; height: 45%; border-radius: 999px; background: linear-gradient(rgba(255,255,255,.55), rgba(255,255,255,0)); pointer-events: none; }
+/* karty = lesklé panely s odleskem nahoře */
+main.pl-y2k .pt:not(.pt-hero)::before { border-color: var(--pl-line); background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.03)), var(--pl-tile); }
+main.pl-y2k .pt-label { font-weight: 700; color: var(--pl-txt); }
+main.pl-y2k .pt-label::before { content: "✦"; margin-right: 6px; color: var(--accent-2); }
+main.pl-y2k .pt-act-card { border-radius: 18px; box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+@media (max-width: 600px) { main.pl-y2k .profile-tabs a > i { display: none; } main.pl-y2k .profile-tabs a { padding: 9px 8px; } }
+
+/* Půlnoční třpyt: noční nebe s hvězdami, fotka uprostřed s oběžnou dráhou, tenké prostrkané jméno, čísla jako planety,
+   záložky jako svítící pilulky. */
+main.pl-trpyt { --accent: #c9d6ff; --accent-2: #f3c5ff; --pl-acct: #c9d6ff; --pl-bg: #0a0d24; --pl-card: rgba(22,28,62,.7); --pl-line: rgba(201,214,255,.2); --pl-txt: #eef1ff; --pl-dim: #a9b2d8;
+  --pl-fname: 'Inter', 'Exo 2', sans-serif; --pl-flab: 'Inter', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: var(--pl-fname);
+  --pl-tile: rgba(22,28,62,.7); --pl-chip: rgba(201,214,255,.07); --pl-rad: 24px; --pl-brad: 999px; --pl-bw: 0px; --pl-shadow: inset 0 0 0 1px var(--pl-line);
+  --pl-r1: #a9b2d8; --pl-r2: #9fe4ff; --pl-r3: #c9d6ff; --pl-r4: #f3c5ff; --pl-r5: #ffe08a; }
+body.light main.pl-trpyt { --accent: #4a58b8; --accent-2: #a45cc2; --pl-acct: #3d4aa8; --pl-bg: #f4f6ff; --pl-card: rgba(255,255,255,.88); --pl-tile: rgba(255,255,255,.88); --pl-line: #d6dcf5; --pl-txt: #1d2350; --pl-dim: #5d6590;
+  --pl-chip: rgba(74,88,184,.06); --pl-r1: #7d84a8; --pl-r2: #2a7fb8; --pl-r3: #4a58b8; --pl-r4: #a45cc2; --pl-r5: #b8860b; }
+main.pl-trpyt .pl-bgfx { display: block; position: absolute; inset: 0;
+  background: radial-gradient(circle at 10% 20%, #fff 0 1px, transparent 1.5px) 0 0 / 180px 180px, radial-gradient(circle at 60% 70%, #dfe6ff 0 1px, transparent 1.5px) 0 0 / 230px 230px,
+    radial-gradient(circle at 35% 55%, rgba(255,255,255,.7) 0 .8px, transparent 1.3px) 0 0 / 130px 150px, radial-gradient(ellipse at 50% 0%, #26306a, transparent 60%); }
+body.light main.pl-trpyt .pl-bgfx { background: radial-gradient(circle at 10% 20%, rgba(74,88,184,.35) 0 1px, transparent 1.5px) 0 0 / 180px 180px, radial-gradient(ellipse at 50% 0%, #dfe5ff, transparent 60%); }
+main.pl-trpyt .pt-act-card, main.pl-trpyt .pt::before { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+main.pl-trpyt .pt-hero { border-radius: 30px; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line); }
+main.pl-trpyt .pt-cover { border-radius: 30px 30px 0 0; filter: saturate(.8); }
+main.pl-trpyt .pt-who { flex-direction: column; align-items: center; text-align: center; }
+/* text pod fotkou: na webu je vytažený nahoru vedle fotky (margin-top: -34px), tady by vjel do fotky a její dráhy */
+main.pl-trpyt .pt-hero .pt-who-text { margin-top: 22px; }
+/* fotka se zářivou oběžnou dráhou */
+main.pl-trpyt .acct-photo { margin: 14px 0 6px; box-shadow: 0 0 0 6px rgba(201,214,255,.12), 0 0 60px rgba(201,214,255,.45); outline: 1px dashed var(--pl-line); outline-offset: 18px; }
+main.pl-trpyt .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pl-txt); -webkit-text-fill-color: var(--pl-txt); filter: none;
+  font-weight: 300; text-transform: uppercase; letter-spacing: .28em; text-shadow: 0 0 18px rgba(201,214,255,.6); }
+body.light main.pl-trpyt .pt-hero .acct-name { text-shadow: none; }
+main.pl-trpyt :is(.pt-tags, .pt-chips) { justify-content: center; }
+main.pl-trpyt :is(.acct-meta, .acct-motto, .acct-bio) { text-align: center; }
+main.pl-trpyt :is(.acct-badge, .pt-gear) { border-radius: 999px; background: transparent; border: 0; box-shadow: inset 0 0 0 1px var(--pl-line); color: var(--pl-txt); }
+/* čísla jako planety (koule se světlem zleva nahoře), střídavě výš a níž */
+main.pl-trpyt .pt-chips { gap: 8px 12px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; padding: 8px 0 10px; }
+main.pl-trpyt .pt-chip { display: grid; place-items: center; align-content: center; width: 88px; height: 88px; padding: 0; border: 0; border-radius: 50%; white-space: normal; text-align: center;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.35), var(--pl-card) 60%); box-shadow: inset 0 0 0 1px var(--pl-line), 0 0 24px -6px var(--accent); }
+main.pl-trpyt .pt-chip:nth-child(even) { translate: 0 10px; width: 76px; height: 76px; }
+main.pl-trpyt .pt-chip b { font: 500 1.15rem/1 'Inter', sans-serif; color: var(--pl-txt); } main.pl-trpyt .pt-chip span { max-width: 66px; font-size: .58rem; line-height: 1.1; color: var(--pl-dim); }
+/* záložky = svítící pilulky */
+main.pl-trpyt .profile-tabs { justify-content: center; gap: 8px; border: 0; }
+main.pl-trpyt .profile-tabs a { border-radius: 999px; background: none; box-shadow: inset 0 0 0 1px var(--pl-line); font-weight: 500; }
+main.pl-trpyt .profile-tabs a.active { color: #0c1029; background: var(--accent); box-shadow: 0 0 20px -4px var(--accent); }
+body.light main.pl-trpyt .profile-tabs a.active { color: #fff; }
+main.pl-trpyt .pt-label { font-weight: 300; text-transform: uppercase; letter-spacing: .25em; }
+main.pl-trpyt .pt-act-card { border-radius: 20px; }
+@media (max-width: 600px) { main.pl-trpyt .profile-tabs a > i { display: none; } main.pl-trpyt .profile-tabs a { padding: 9px 10px; } }
 
 /* ---------- web kolem profilu (lišta, logo, jiskry, patička) v barvě zvoleného vzhledu ----------
    Fotky pozadí webu se na profilu se vzhledem schovají (vzhled má vlastní pozadí .pl-page). Barvu webu jinak
    nastavuje js/effects.js přímo na <body>, proto !important. */
 body:has(main.pl-look) .bg-slides { display: none; }
 body:has(main.pl-look)::before { opacity: 0; }
-body:has(main.pl-holo) { --accent: #3fe0ff !important; --accent-2: #b8f6ff !important; --bg: #01050a; }
-body.light:has(main.pl-holo) { --accent: #0090b8 !important; --accent-2: #005f7a !important; --bg: #e9f4f8; }
-body:has(main.pl-mono) { --accent: #ff2a00 !important; --accent-2: #ff2a00 !important; --bg: #0c0c0c; }
-body.light:has(main.pl-mono) { --accent: #d42200 !important; --accent-2: #d42200 !important; --bg: #efede6; }
-body:has(main.pl-radar) { --accent: #39ff7a !important; --accent-2: #b9ffd0 !important; --bg: #020a05; }
-body.light:has(main.pl-radar) { --accent: #0d7a34 !important; --accent-2: #075020 !important; --bg: #eef7f0; }
-body:has(main.pl-cock) { --accent: #ffb000 !important; --accent-2: #ff5a00 !important; --bg: #0b0d10; }
-body.light:has(main.pl-cock) { --accent: #c27f00 !important; --accent-2: #8a3a00 !important; --bg: #e8ebef; }
-body:has(main.pl-wall) { --accent: #ff2d55 !important; --accent-2: #ffe600 !important; --bg: #1b1a19; }
-body.light:has(main.pl-wall) { --accent: #d6003a !important; --accent-2: #b38f00 !important; --bg: #cfcac2; }
-body:has(main.pl-cover) { --accent: #f2c4b8 !important; --accent-2: #ffffff !important; --bg: #0b0909; }
-body.light:has(main.pl-cover) { --accent: #8a3b2c !important; --accent-2: #5a1f14 !important; --bg: #f6f1ee; }
-body:has(main.pl-aurora) { --accent: #7cf5d5 !important; --accent-2: #c49bff !important; --bg: #050812; }
-body.light:has(main.pl-aurora) { --accent: #0f8f72 !important; --accent-2: #7a3fd0 !important; --bg: #eaf0fb; }
-body:has(main.pl-gal) { --accent: #d8d2c6 !important; --accent-2: #ffffff !important; --bg: #1a1918; }
-body.light:has(main.pl-gal) { --accent: #3b3832 !important; --accent-2: #1d1c1a !important; --bg: #f4f2ee; }
+body:has(main.pl-komiks) { --accent: #ffd23f !important; --accent-2: #ff4b3e !important; --bg: #15161c; }
+body.light:has(main.pl-komiks) { --accent: #e2231a !important; --accent-2: #b8860b !important; --bg: #fff8e6; }
+body:has(main.pl-metro) { --accent: #ffc20e !important; --accent-2: #00a562 !important; --bg: #111316; }
+body.light:has(main.pl-metro) { --accent: #a77a00 !important; --accent-2: #00824d !important; --bg: #f3f1ec; }
+body:has(main.pl-zapisnik) { --accent: #8fb8ff !important; --accent-2: #ff8fb1 !important; --bg: #1b1a1f; }
+body.light:has(main.pl-zapisnik) { --accent: #2f5f9e !important; --accent-2: #e0457a !important; --bg: #fbf7ee; }
+body:has(main.pl-mixtape) { --accent: #e63a2e !important; --accent-2: #f2c230 !important; --bg: #0e0d0c; }
+body.light:has(main.pl-mixtape) { --accent: #b3261e !important; --accent-2: #8a6a00 !important; --bg: #e7e1d5; }
+body:has(main.pl-carbon) { --accent: #ff7a1a !important; --accent-2: #ffb36b !important; --bg: #141619; }
+body.light:has(main.pl-carbon) { --accent: #e5630a !important; --accent-2: #b34a00 !important; --bg: #eef0f2; }
+body:has(main.pl-jizda) { --accent: #3ad7ff !important; --accent-2: #ff3d6e !important; --bg: #030507; }
+body.light:has(main.pl-jizda) { --accent: #0089c2 !important; --accent-2: #d7263d !important; --bg: #eef3f6; }
+body:has(main.pl-arkada) { --accent: #ffe14d !important; --accent-2: #ff4fd8 !important; --bg: #07040f; }
+body.light:has(main.pl-arkada) { --accent: #b3261e !important; --accent-2: #2a4fbf !important; --bg: #e9e2cf; }
+body:has(main.pl-sakura) { --accent: #f2a7bf !important; --accent-2: #c98aa5 !important; --bg: #170d14; }
+body.light:has(main.pl-sakura) { --accent: #d4688d !important; --accent-2: #b8456f !important; --bg: #fff7f9; }
+body:has(main.pl-opal) { --accent: #c4a5ff !important; --accent-2: #ff7ac3 !important; --bg: #0e0d13; }
+body.light:has(main.pl-opal) { --accent: #8b5cf6 !important; --accent-2: #ec4899 !important; --bg: #f4f2f8; }
+body:has(main.pl-aura) { --accent: #b794ff !important; --accent-2: #ff9f86 !important; --bg: #121016; }
+body.light:has(main.pl-aura) { --accent: #8d5cf6 !important; --accent-2: #e0603f !important; --bg: #f6f1ee; }
+body:has(main.pl-y2k) { --accent: #ff8be0 !important; --accent-2: #8bd8ff !important; --bg: #0d0b1f; }
+body.light:has(main.pl-y2k) { --accent: #d1349e !important; --accent-2: #2f8fd0 !important; --bg: #f3eefc; }
+body:has(main.pl-trpyt) { --accent: #c9d6ff !important; --accent-2: #f3c5ff !important; --bg: #0a0d24; }
+body.light:has(main.pl-trpyt) { --accent: #4a58b8 !important; --accent-2: #a45cc2 !important; --bg: #f4f6ff; }
 
-@keyframes pl-holoScan { from { transform: translateY(-60%); } to { transform: translateY(60%); } }
-@keyframes pl-sweep { to { transform: rotate(1turn); } }
-@keyframes pl-spin { to { transform: rotate(1turn); } }
-@keyframes pl-aur { to { transform: translate(6%, -4%) rotate(8deg) scale(1.1); } }
-@keyframes pl-blob { 50% { border-radius: 58% 42% 38% 62% / 52% 61% 39% 48%; } to { border-radius: 40% 60% 54% 46% / 61% 37% 63% 39%; } }
-
-/* ---------- světlý režim: čitelné barvy na bílém a jméno bez barevného obdélníku ----------
-   (obecné body.light .pt-hero .acct-name vrací barevný přechod; vzhledy s plnou barvou jména ho nechtějí) */
-body.light main.pl-holo .pt-hero .acct-name, body.light main.pl-mono .pt-hero .acct-name, body.light main.pl-radar .pt-hero .acct-name,
-body.light main.pl-wall .pt-hero .acct-name, body.light main.pl-gal .pt-hero .acct-name, body.light main.pl-cover .pt-hero .acct-name { background-image: none; filter: none; }
-body.light main.pl-holo { --accent: #0090b8; }
-body.light main.pl-radar { --accent: #0d7a34; }
-body.light main.pl-cock { --accent: #c27f00; }
-body.light main.pl-cover { --accent: #8a3b2c; }
-body.light main.pl-aurora { --accent: #0f8f72; }
-body.light main.pl-gal { --accent: #3b3832; }
 
 /* ---------- slabý telefon a omezení pohybu: vzhled zůstane, pohyb a rozmazání ne ---------- */
 html.low-fx main.pl-look *, html.low-fx main.pl-look *::before, html.low-fx main.pl-look *::after { animation: none !important; }

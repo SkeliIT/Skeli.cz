@@ -35,7 +35,9 @@
   function fitNames() {
     document.querySelectorAll('.pt-hero .acct-name').forEach(function (h) {
       h.style.fontSize = '';
-      var w = h.clientWidth, sw = h.scrollWidth;
+      // odsazení (bublina Komiksu, cedule Metra) se nezmenšuje: počítat jen místo pro text
+      var cs = getComputedStyle(h), pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+      var w = h.clientWidth - pad, sw = h.scrollWidth - pad;
       if (w && sw > w) {
         var max = parseFloat(getComputedStyle(h).fontSize);
         h.style.fontSize = Math.max(max * 0.45, max * w / sw * 0.97) + 'px';
