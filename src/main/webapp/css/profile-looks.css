@@ -546,22 +546,22 @@ main.pl-komiks .pt-cover { border-radius: 0; border-bottom: 4px solid var(--pl-l
 main.pl-komiks .acct-photo { border-radius: 0; background: #fff; padding: 5px; border: 4px solid #111; box-shadow: 6px 6px 0 #111; rotate: -3deg; }
 main.pl-komiks .acct-photo .acct-avatar { border-radius: 0; }
 /* jméno v bublině (bílá bublina s černým okrajem a ocáskem) */
-main.pl-komiks .pt-hero .acct-name { position: relative; width: fit-content; margin-bottom: 14px; padding: 8px 24px 6px; background: #fff; -webkit-background-clip: border-box; background-clip: border-box;
+main.pl-komiks .pt-hero .acct-name { position: relative; width: fit-content; max-width: 100%; margin-bottom: 14px; padding: 8px 24px 6px; background: #fff; -webkit-background-clip: border-box; background-clip: border-box;
   color: #111; -webkit-text-fill-color: #111; filter: none; border: 3px solid #111; border-radius: 50% / 50%; letter-spacing: .04em; }
 main.pl-komiks .pt-hero .acct-name::before, main.pl-komiks .pt-hero .acct-name::after { content: ""; position: absolute; left: 26%; top: 100%; width: 24px; height: 20px; background: #111; clip-path: polygon(0 0, 100% 0, 10% 100%); }
 main.pl-komiks .pt-hero .acct-name::after { left: calc(26% + 4px); top: calc(100% - 4px); width: 16px; height: 16px; background: #fff; }
 main.pl-komiks .acct-meta { width: fit-content; padding: 2px 9px; background: #ffd23f; color: #111; border: 2.5px solid #111; font-weight: 700; rotate: -1.5deg; }
 main.pl-komiks :is(.acct-badge, .pt-gear) { border: 3px solid #111; border-radius: 2px; background: #fff; color: #111; box-shadow: 3px 3px 0 #111; }
 /* čísla ve výbuších: černý výbuch, v něm barevný */
-main.pl-komiks .pt-chips { justify-content: center; gap: 2px 6px; }
+main.pl-komiks .pt-chips { justify-content: center; gap: 2px 6px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
 main.pl-komiks .pt-chip { --clip: polygon(50% 0%, 61% 17%, 81% 7%, 78% 29%, 100% 34%, 84% 50%, 100% 66%, 78% 71%, 81% 93%, 61% 83%, 50% 100%, 39% 83%, 19% 93%, 22% 71%, 0% 66%, 16% 50%, 0% 34%, 22% 29%, 19% 7%, 39% 17%);
-  position: relative; display: grid; place-items: center; align-content: center; gap: 0; width: 98px; height: 98px; min-height: 0; padding: 0; border: 0; border-radius: 0;
+  position: relative; display: grid; place-items: center; align-content: center; gap: 0; width: 104px; height: 104px; white-space: normal; min-height: 0; padding: 0; border: 0; border-radius: 0;
   clip-path: var(--clip); background: #111; text-align: center; animation: pl-kxPop .5s cubic-bezier(.3, 1.6, .5, 1) both; }
 main.pl-komiks .pt-chip::before { content: ""; position: absolute; inset: 5px; clip-path: var(--clip); background: var(--bc, #ffd23f); }
 main.pl-komiks .pt-chip:nth-child(5n+2) { --bc: #3ec6ff; animation-delay: .08s; } main.pl-komiks .pt-chip:nth-child(5n+3) { --bc: #ff4b3e; animation-delay: .16s; }
 main.pl-komiks .pt-chip:nth-child(5n+4) { --bc: #7ee06a; animation-delay: .24s; } main.pl-komiks .pt-chip:nth-child(5n+5) { --bc: #ff9ad5; animation-delay: .32s; }
 main.pl-komiks .pt-chip b, main.pl-komiks .pt-chip span { position: relative; color: #111; }
-main.pl-komiks .pt-chip b { font: 400 1.7rem/1 'Bangers', 'Oswald', sans-serif; } main.pl-komiks .pt-chip span { font: 700 .62rem/1.1 'Shantell Sans', sans-serif; max-width: 70px; }
+main.pl-komiks .pt-chip b { font: 400 1.7rem/1 'Bangers', 'Oswald', sans-serif; } main.pl-komiks .pt-chip span { font: 700 .6rem/1.05 'Shantell Sans', sans-serif; max-width: 64px; }
 main.pl-komiks .pt-chip:hover { transform: rotate(-6deg) scale(1.05); }
 /* záložky = okénka, aktivní žlutá a nakřivo */
 main.pl-komiks .profile-tabs { gap: 8px; border: 0; }
@@ -596,7 +596,7 @@ main.pl-metro .acct-photo { box-shadow: 0 0 0 4px var(--pl-card), 0 0 0 8px var(
 main.pl-metro .acct-meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
 main.pl-metro :is(.acct-badge, .pt-gear) { border-radius: 6px; text-transform: uppercase; letter-spacing: .06em; }
 /* čísla na odjezdové tabuli: vždy tmavá, jantarová čísla v okénku s dělicí čarou, barevné kolečko linky */
-main.pl-metro .pt-chips { display: grid; gap: 0; margin-top: 16px; padding: 8px 14px; border-radius: 10px; background: #0b0b0c; box-shadow: inset 0 0 0 2px #26282c, 0 10px 24px -14px #000; }
+main.pl-metro .pt-chips { display: grid; gap: 0; overflow: visible; -webkit-mask-image: none; mask-image: none; margin-top: 16px; padding: 8px 14px; border-radius: 10px; background: #0b0b0c; box-shadow: inset 0 0 0 2px #26282c, 0 10px 24px -14px #000; }
 main.pl-metro .pt-chip { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 0; border: 0; border-top: 1px solid #1c1d20; border-radius: 0; background: none;
   color: #ffc20e; font: 600 .85rem 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .1em; }
 main.pl-metro .pt-chip:first-child { border-top: 0; }
@@ -642,12 +642,12 @@ main.pl-zapisnik .pt-cover { border-radius: 2px 2px 0 0; }
 main.pl-zapisnik .acct-photo { border-radius: 0; background: #fff; padding: 7px 7px 26px; box-shadow: 0 10px 22px -10px rgba(0,0,0,.5); rotate: -3deg; }
 main.pl-zapisnik .acct-photo .acct-avatar { border-radius: 0; }
 main.pl-zapisnik .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pl-txt); -webkit-text-fill-color: var(--pl-txt); filter: none;
-  font-weight: 700; rotate: -2deg; text-decoration: underline wavy var(--accent-2) 3px; text-underline-offset: 8px; text-decoration-skip-ink: none; }
+  font-weight: 700; rotate: -2deg; text-decoration: underline wavy var(--accent-2) 3px; text-underline-offset: 8px; text-decoration-skip-ink: none; margin-bottom: 10px; }
 main.pl-zapisnik .acct-meta { font-family: 'Caveat', cursive; font-size: 1.15rem; }
 main.pl-zapisnik .acct-bio, main.pl-zapisnik .acct-motto { font-family: 'Caveat', cursive; font-size: 1.3rem; line-height: 1.25; }
 main.pl-zapisnik :is(.acct-badge, .pt-gear) { border-radius: 2px; background: #fff27a; color: #2b2a33; border: 0; box-shadow: 0 3px 6px -2px rgba(0,0,0,.3); font-size: 1.05rem; }
 /* čísla zakroužkovaná fixou, každé trochu jinak nakřivo */
-main.pl-zapisnik .pt-chips { justify-content: center; gap: 12px 18px; }
+main.pl-zapisnik .pt-chips { justify-content: center; gap: 12px 18px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
 main.pl-zapisnik .pt-chip { display: grid; justify-items: center; gap: 2px; padding: 0; border: 0; background: none; box-shadow: none; rotate: -3deg; }
 main.pl-zapisnik .pt-chip:nth-child(even) { rotate: 3deg; }
 main.pl-zapisnik .pt-chip b { display: grid; place-items: center; min-width: 58px; height: 50px; padding: 0 8px; font: 700 1.9rem/1 'Caveat', cursive; color: var(--accent);
@@ -668,6 +668,11 @@ main.pl-zapisnik .pt:not(.pt-hero):nth-child(even)::after { left: auto; right: 2
 main.pl-zapisnik .pt-label { width: fit-content; font-size: 1.5rem; font-weight: 700; color: var(--pl-txt);
   background: linear-gradient(transparent 55%, color-mix(in srgb, var(--accent-2) 40%, transparent) 55% 88%, transparent 88%); }
 main.pl-zapisnik .pt-act-card { border: 0; border-radius: 2px; box-shadow: var(--pl-shadow); }
+/* telefon: čtyři záložky Komiksu a Zápisníku se vejdou vedle sebe jen bez ikon */
+@media (max-width: 600px) {
+  main.pl-komiks .profile-tabs a > i, main.pl-zapisnik .profile-tabs a > i { display: none; }
+  main.pl-komiks .profile-tabs a, main.pl-zapisnik .profile-tabs a { padding: 10px 6px; }
+}
 
 /* ---------- web kolem profilu (lišta, logo, jiskry, patička) v barvě zvoleného vzhledu ----------
    Fotky pozadí webu se na profilu se vzhledem schovají (vzhled má vlastní pozadí .pl-page). Barvu webu jinak
