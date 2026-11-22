@@ -3083,18 +3083,6 @@ button.vz-tile:hover { border-color: color-mix(in srgb, var(--accent) 60%, trans
 /* barvy náhledů vzhledů profilu (písma vzhledů se tady nenačítají – jen barvy a tvar) */
 .vz-p-base { background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 40%, #111), #0a0909); }
 .vz-p-base span { color: var(--accent); }
-.vz-p-holo { background: radial-gradient(ellipse at 50% 110%, rgba(63, 224, 255, .45), #01050a 65%); place-items: center; }
-.vz-p-holo span { color: #dffbff; letter-spacing: .2em; text-shadow: 2px 0 rgba(255, 40, 140, .5), -2px 0 rgba(63, 224, 255, .8); }
-.vz-p-mono { background: #0c0c0c; box-shadow: inset 0 0 0 3px #f2f2f2, inset 10px 0 0 3px #ff2a00; }
-.vz-p-mono span { color: #f2f2f2; font-weight: 900; }
-.vz-p-radar { background: conic-gradient(from 0deg, rgba(57, 255, 122, .5), transparent 70deg), radial-gradient(circle, #04180c, #020a05); place-items: center; }
-.vz-p-radar span { color: #5dff92; text-shadow: 0 0 10px rgba(57, 255, 122, .8); }
-.vz-p-cock { background: repeating-linear-gradient(-45deg, #ffb000 0 8px, #111 8px 16px) top / 100% 10px no-repeat, #151a20; }
-.vz-p-cock span { color: #ffb000; font-style: italic; }
-.vz-p-wall { background: #1b1a19; }
-.vz-p-wall span { color: #ff2d55; text-shadow: 2px 2px 0 #ffe600; transform: rotate(-7deg); }
-.vz-p-cover { background: linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .8)), linear-gradient(135deg, #8a3b2c, #f2c4b8); place-items: start center; }
-.vz-p-cover span { color: #fff; font-style: italic; font-family: Georgia, serif; font-weight: 900; }
 .vz-p-komiks { background: repeating-conic-gradient(from 0deg at 50% 60%, rgba(255, 210, 63, .2) 0 8deg, transparent 8deg 18deg), #2b2346; place-items: center; }
 .vz-p-komiks span { padding: 2px 12px; background: #fff; color: #111; border: 2px solid #111; border-radius: 50%; font-family: 'Bangers', 'Oswald', sans-serif; letter-spacing: .04em; }
 .vz-p-metro { background: linear-gradient(90deg, #00a562 0 33.3%, #ffc20e 0 66.6%, #e2231a 0) top / 100% 7px no-repeat, #111316; place-items: center; }
@@ -3119,10 +3107,6 @@ button.vz-tile:hover { border-color: color-mix(in srgb, var(--accent) 60%, trans
 .vz-p-y2k span { font-size: 1.3em; background: linear-gradient(180deg, #8a8fa8, #2b2f44 50%, #a3a8c0); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 1px 0 #d1349e); }
 .vz-p-trpyt { background: radial-gradient(circle at 20% 30%, #fff 0 1px, transparent 1.5px) 0 0 / 40px 40px, radial-gradient(circle at 70% 60%, #dfe6ff 0 1px, transparent 1.5px) 0 0 / 55px 55px, radial-gradient(ellipse at 50% 0%, #26306a, #0a0d24 70%); place-items: center; }
 .vz-p-trpyt span { color: #eef1ff; letter-spacing: .25em; text-shadow: 0 0 12px rgba(201, 214, 255, .8); }
-.vz-p-aurora { background: radial-gradient(40% 50% at 30% 30%, rgba(124, 245, 213, .6), transparent 70%), radial-gradient(40% 60% at 75% 50%, rgba(196, 155, 255, .55), transparent 70%), #050812; }
-.vz-p-aurora span { color: #fff; }
-.vz-p-gal { background: radial-gradient(40% 80% at 50% 0%, rgba(255, 250, 235, .3), transparent 70%), #1a1918; place-items: center; }
-.vz-p-gal span { color: #ece8e1; font-weight: 200; letter-spacing: .3em; }
 /* karaoke: písmo (ukázka přímo tím písmem) a animace */
 .vz-font-sample { display: block; width: 100%; padding: 10px 4px; font-size: 1.35rem; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: clip; }
 .vz-sub { margin: 16px 0 0; font-size: var(--fs-card); color: var(--text-dim); }
