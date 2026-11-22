@@ -95,6 +95,24 @@ main.pl-look .profile-tabs a.active { color: var(--accent); }
 @font-face { font-family: 'Syne'; font-style: normal; font-weight: 400 800; font-display: swap; src: url(/fonts/syne-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-ext.woff2') format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/bangers-400-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/bangers-400-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Bangers'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/bangers-400-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/barlow-condensed-500-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/barlow-condensed-500-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 500; font-display: swap; src: url(/fonts/barlow-condensed-500-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/barlow-condensed-700-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/barlow-condensed-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/barlow-condensed-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Caveat'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/caveat-500-700-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: 'Caveat'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/caveat-500-700-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Caveat'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/caveat-500-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Caveat'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/caveat-500-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Shantell Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(/fonts/shantell-sans-400-700-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: 'Shantell Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(/fonts/shantell-sans-400-700-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Shantell Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(/fonts/shantell-sans-400-700-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Shantell Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(/fonts/shantell-sans-400-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Shantell Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url(/fonts/shantell-sans-400-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
 /* ---------- vzhledy (převedené z náhledu) ---------- */
 main.pl-holo { --accent: #3fe0ff; --accent-2: #b8f6ff; --pl-acct: #6fe9ff; --pl-bg: #01050a; --pl-card: rgba(30,170,255,.07); --pl-line: rgba(63,224,255,.45); --pl-fname: 'JetBrains Mono'; --pl-flab: 'JetBrains Mono'; }
@@ -504,6 +522,153 @@ main.pl-gal :is(.pt-bdg i, .pt-activity .pt-feed .pt-act-coin, .pong-badges .pon
 /* nezískané odznaky CatSmash: stejný tvar, jen vybledlé */
 main.pl-look .pong-badges li:not(.on) .pong-badge-icon { opacity: .45; filter: grayscale(1); }
 
+/* =====================================================================
+   NOVÉ VZHLEDY 2026-11 (náhled Skeli.cz-podklady/navrhy/profil-vzhledy-6): Komiks, Metro, Zápisník.
+   Písma hostuje web sám (tools/stahni-pismo.py); Bangers a Barlow Condensed nemají azbuku → ukrajinština dostane Oswald.
+   ===================================================================== */
+
+/* Komiks: stránka komiksu – rastr z teček, tlusté černé linky a plné stíny, paprsky akce za fotkou, jméno v bublině,
+   čísla ve výbuších, záložky jako okénka, karty se žlutým popiskem. */
+main.pl-komiks { --accent: #ffd23f; --accent-2: #ff4b3e; --pl-acct: #ffd23f; --pl-bg: #15161c; --pl-card: #22232c; --pl-line: #050507; --pl-txt: #f4f4f4; --pl-dim: #b9bac4;
+  --pl-fname: 'Bangers', 'Oswald', sans-serif; --pl-flab: 'Shantell Sans', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: var(--pl-flab);
+  --pl-tile: #22232c; --pl-bw: 3px; --pl-rad: 2px; --pl-brad: 2px; --pl-shc: #ff4b3e; --pl-shadow: 6px 6px 0 var(--pl-shc); --pl-hero: #2b2346; --pl-ray: rgba(255,210,63,.13);
+  --pl-imgf: contrast(1.1) saturate(1.15); --pl-r1: #9a9aa6; --pl-r2: #3ec6ff; --pl-r3: #7ee06a; --pl-r4: #ffd23f; --pl-r5: #ff4b3e; }
+body.light main.pl-komiks { --accent: #e2231a; --accent-2: #ffd23f; --pl-acct: #e2231a; --pl-bg: #fff8e6; --pl-card: #fff; --pl-tile: #fff; --pl-line: #111; --pl-txt: #111; --pl-dim: #444;
+  --pl-shc: #111; --pl-hero: #ffd23f; --pl-ray: rgba(226,35,26,.16); --pl-r1: #777; --pl-r2: #0a84c6; --pl-r3: #2f9e1f; --pl-r4: #c99400; --pl-r5: #e2231a; }
+main.pl-komiks .pl-bgfx { display: block; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,.07) 1.3px, transparent 1.8px) 0 0 / 11px 11px; }
+body.light main.pl-komiks .pl-bgfx { background: radial-gradient(circle, rgba(0,0,0,.1) 1.3px, transparent 1.8px) 0 0 / 11px 11px; }
+main.pl-komiks .pt-hero { background: var(--pl-hero); border: 4px solid var(--pl-line); border-radius: 2px; box-shadow: 7px 7px 0 var(--pl-shc); }
+main.pl-komiks .pl-fx.a { display: block; position: absolute; inset: 0; z-index: 0; background: repeating-conic-gradient(from 0deg at 50% 62%, var(--pl-ray) 0 7deg, transparent 7deg 16deg); }
+main.pl-komiks .pl-fx.b { display: block; position: absolute; z-index: 3; right: 14px; bottom: 12px; }
+main.pl-komiks .pl-fx.b::before { content: "POW!"; font: 400 2.2rem/1 'Bangers', sans-serif; letter-spacing: .04em; color: #ffd23f; -webkit-text-stroke: 2px #111; paint-order: stroke fill; display: block; transform: rotate(12deg); }
+body.light main.pl-komiks .pl-fx.b::before { color: #e2231a; }
+main.pl-komiks .pt-cover { border-radius: 0; border-bottom: 4px solid var(--pl-line); }
+main.pl-komiks .acct-photo { border-radius: 0; background: #fff; padding: 5px; border: 4px solid #111; box-shadow: 6px 6px 0 #111; rotate: -3deg; }
+main.pl-komiks .acct-photo .acct-avatar { border-radius: 0; }
+/* jméno v bublině (bílá bublina s černým okrajem a ocáskem) */
+main.pl-komiks .pt-hero .acct-name { position: relative; width: fit-content; margin-bottom: 14px; padding: 8px 24px 6px; background: #fff; -webkit-background-clip: border-box; background-clip: border-box;
+  color: #111; -webkit-text-fill-color: #111; filter: none; border: 3px solid #111; border-radius: 50% / 50%; letter-spacing: .04em; }
+main.pl-komiks .pt-hero .acct-name::before, main.pl-komiks .pt-hero .acct-name::after { content: ""; position: absolute; left: 26%; top: 100%; width: 24px; height: 20px; background: #111; clip-path: polygon(0 0, 100% 0, 10% 100%); }
+main.pl-komiks .pt-hero .acct-name::after { left: calc(26% + 4px); top: calc(100% - 4px); width: 16px; height: 16px; background: #fff; }
+main.pl-komiks .acct-meta { width: fit-content; padding: 2px 9px; background: #ffd23f; color: #111; border: 2.5px solid #111; font-weight: 700; rotate: -1.5deg; }
+main.pl-komiks :is(.acct-badge, .pt-gear) { border: 3px solid #111; border-radius: 2px; background: #fff; color: #111; box-shadow: 3px 3px 0 #111; }
+/* čísla ve výbuších: černý výbuch, v něm barevný */
+main.pl-komiks .pt-chips { justify-content: center; gap: 2px 6px; }
+main.pl-komiks .pt-chip { --clip: polygon(50% 0%, 61% 17%, 81% 7%, 78% 29%, 100% 34%, 84% 50%, 100% 66%, 78% 71%, 81% 93%, 61% 83%, 50% 100%, 39% 83%, 19% 93%, 22% 71%, 0% 66%, 16% 50%, 0% 34%, 22% 29%, 19% 7%, 39% 17%);
+  position: relative; display: grid; place-items: center; align-content: center; gap: 0; width: 98px; height: 98px; min-height: 0; padding: 0; border: 0; border-radius: 0;
+  clip-path: var(--clip); background: #111; text-align: center; animation: pl-kxPop .5s cubic-bezier(.3, 1.6, .5, 1) both; }
+main.pl-komiks .pt-chip::before { content: ""; position: absolute; inset: 5px; clip-path: var(--clip); background: var(--bc, #ffd23f); }
+main.pl-komiks .pt-chip:nth-child(5n+2) { --bc: #3ec6ff; animation-delay: .08s; } main.pl-komiks .pt-chip:nth-child(5n+3) { --bc: #ff4b3e; animation-delay: .16s; }
+main.pl-komiks .pt-chip:nth-child(5n+4) { --bc: #7ee06a; animation-delay: .24s; } main.pl-komiks .pt-chip:nth-child(5n+5) { --bc: #ff9ad5; animation-delay: .32s; }
+main.pl-komiks .pt-chip b, main.pl-komiks .pt-chip span { position: relative; color: #111; }
+main.pl-komiks .pt-chip b { font: 400 1.7rem/1 'Bangers', 'Oswald', sans-serif; } main.pl-komiks .pt-chip span { font: 700 .62rem/1.1 'Shantell Sans', sans-serif; max-width: 70px; }
+main.pl-komiks .pt-chip:hover { transform: rotate(-6deg) scale(1.05); }
+/* záložky = okénka, aktivní žlutá a nakřivo */
+main.pl-komiks .profile-tabs { gap: 8px; border: 0; }
+main.pl-komiks .profile-tabs a { border: 3px solid var(--pl-line); border-radius: 2px; background: var(--pl-card); color: var(--pl-txt); box-shadow: 3px 3px 0 var(--pl-shc); font-family: 'Bangers', 'Oswald', sans-serif; letter-spacing: .05em; }
+main.pl-komiks .profile-tabs a.active { background: #ffd23f; color: #111; box-shadow: 5px 5px 0 var(--pl-shc); rotate: -2deg; translate: 0 -2px; }
+/* karty: popisek jako žlutý štítek nakřivo, sudé bílé */
+main.pl-komiks .pt-label { width: fit-content; padding: 2px 9px; background: #ffd23f; color: #111; border: 2.5px solid #111; font-family: 'Bangers', 'Oswald', sans-serif; font-size: 1.05rem; letter-spacing: .05em; rotate: -2deg; }
+main.pl-komiks .pt:nth-child(even) .pt-label { background: #fff; rotate: 1.5deg; }
+main.pl-komiks .pt-label i { color: #111; }
+main.pl-komiks .pt-act-card { border: 3px solid var(--pl-line); border-radius: 2px; box-shadow: 5px 5px 0 var(--pl-shc); }
+main.pl-komiks .pt-activity .pt-feed li > i { border-radius: 2px; border-width: 3px; }
+@keyframes pl-kxPop { from { transform: scale(.3) rotate(-20deg); opacity: 0; } }
+
+/* Metro: noční stanice – obklad, jméno na modré ceduli stanice, čísla na odjezdové tabuli, záložky jako stanice na lince,
+   karty s barevným pruhem linky (zelená, žlutá, červená). */
+main.pl-metro { --accent: #ffc20e; --accent-2: #00a562; --pl-acct: #ffc20e; --pl-bg: #111316; --pl-card: #1b1e23; --pl-line: #2b3038; --pl-txt: #f2f4f7; --pl-dim: #a9b0bb;
+  --pl-fname: 'Barlow Condensed', 'Oswald', sans-serif; --pl-flab: 'Barlow Condensed', 'Oswald', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: 'Exo 2', system-ui, sans-serif;
+  --pl-tile: #1b1e23; --pl-rad: 10px; --pl-brad: 8px; --pl-bw: 0px; --pl-tiles: rgba(255,255,255,.045);
+  --pl-r1: #8d949e; --pl-r2: #00a562; --pl-r3: #3ec6ff; --pl-r4: #ffc20e; --pl-r5: #e2231a; }
+body.light main.pl-metro { --accent: #a77a00; --accent-2: #00824d; --pl-acct: #8a6400; --pl-bg: #f3f1ec; --pl-card: #fff; --pl-tile: #fff; --pl-line: #dcd8d0; --pl-txt: #15171a; --pl-dim: #59606a;
+  --pl-tiles: rgba(0,0,0,.07); --pl-r1: #777; --pl-r2: #00824d; --pl-r3: #0a7ab8; --pl-r4: #a77a00; --pl-r5: #c1121f; }
+main.pl-metro .pl-bgfx { display: block; position: absolute; inset: 0;
+  background: linear-gradient(var(--pl-tiles) 1px, transparent 1px) 0 0 / 64px 32px, linear-gradient(90deg, var(--pl-tiles) 1px, transparent 1px) 0 0 / 64px 32px; }
+main.pl-metro .pt-hero { border-radius: 14px; box-shadow: 0 18px 40px -26px #000; }
+main.pl-metro .pl-fx.a { display: block; position: absolute; left: 0; right: 0; top: 0; height: 10px; z-index: 3; border-radius: 14px 14px 0 0; background: linear-gradient(90deg, #00a562 0 33.3%, #ffc20e 0 66.6%, #e2231a 0); }
+/* jméno na ceduli stanice s kolečkem M */
+main.pl-metro .pt-hero .acct-name { position: relative; width: fit-content; max-width: 100%; padding: 6px 16px 6px 58px; border-radius: 8px; background: #0f2d5c; -webkit-background-clip: border-box; background-clip: border-box;
+  color: #fff; -webkit-text-fill-color: #fff; filter: none; box-shadow: inset 0 0 0 2px rgba(255,255,255,.85), 0 8px 18px -10px #000; text-transform: uppercase; letter-spacing: .02em; font-weight: 700; }
+main.pl-metro .pt-hero .acct-name::before { content: "M"; position: absolute; left: 10px; top: 50%; translate: 0 -50%; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+  background: #e2231a; color: #fff; -webkit-text-fill-color: #fff; font: 700 1.3rem/1 'Barlow Condensed', sans-serif; letter-spacing: 0; }
+main.pl-metro .acct-photo { box-shadow: 0 0 0 4px var(--pl-card), 0 0 0 8px var(--accent); }
+main.pl-metro .acct-meta { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+main.pl-metro :is(.acct-badge, .pt-gear) { border-radius: 6px; text-transform: uppercase; letter-spacing: .06em; }
+/* čísla na odjezdové tabuli: vždy tmavá, jantarová čísla v okénku s dělicí čarou, barevné kolečko linky */
+main.pl-metro .pt-chips { display: grid; gap: 0; margin-top: 16px; padding: 8px 14px; border-radius: 10px; background: #0b0b0c; box-shadow: inset 0 0 0 2px #26282c, 0 10px 24px -14px #000; }
+main.pl-metro .pt-chip { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 0; border: 0; border-top: 1px solid #1c1d20; border-radius: 0; background: none;
+  color: #ffc20e; font: 600 .85rem 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .1em; }
+main.pl-metro .pt-chip:first-child { border-top: 0; }
+main.pl-metro .pt-chip::before { content: ""; flex: none; width: 18px; height: 18px; border-radius: 50%; background: #00a562; }
+main.pl-metro .pt-chip:nth-child(3n+2)::before { background: #ffc20e; } main.pl-metro .pt-chip:nth-child(3n)::before { background: #e2231a; }
+main.pl-metro .pt-chip b { position: relative; min-width: 3.2ch; padding: 3px 6px; border-radius: 3px; text-align: right; color: #ffc20e; background: linear-gradient(#202125 50%, #18191c 50%);
+  font: 700 1.05rem/1.2 'JetBrains Mono', monospace; animation: pl-mFlip .5s both; }
+main.pl-metro .pt-chip b::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: #000; }
+main.pl-metro .pt-chip:nth-child(2) b { animation-delay: .1s; } main.pl-metro .pt-chip:nth-child(3) b { animation-delay: .2s; }
+main.pl-metro .pt-chip:nth-child(4) b { animation-delay: .3s; } main.pl-metro .pt-chip:nth-child(5) b { animation-delay: .4s; }
+main.pl-metro .pt-chip span { color: #ffc20e; }
+main.pl-metro .pt-chip:hover b { background: linear-gradient(#2a2b30 50%, #202125 50%); }
+@keyframes pl-mFlip { 0% { transform: rotateX(90deg); color: transparent; } 60% { transform: rotateX(-20deg); } 100% { transform: none; } }
+/* záložky = stanice na lince */
+main.pl-metro .profile-tabs { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 0; }
+main.pl-metro .profile-tabs::before { content: ""; position: absolute; left: 12.5%; right: 12.5%; top: 12px; height: 6px; border-radius: 3px; background: var(--accent-2); }
+main.pl-metro .profile-tabs a { position: relative; display: grid; justify-items: center; align-content: start; gap: 6px; min-height: 56px; padding: 4px 2px; background: none; border: 0; box-shadow: none;
+  color: var(--pl-dim); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; text-align: center; }
+main.pl-metro .profile-tabs a::before { content: ""; width: 16px; height: 16px; margin-top: 4px; border-radius: 50%; background: var(--pl-card); box-shadow: 0 0 0 4px var(--accent-2); }
+main.pl-metro .profile-tabs a > i { display: none; }
+main.pl-metro .profile-tabs a.active { color: var(--pl-txt); background: none; box-shadow: none; }
+main.pl-metro .profile-tabs a.active::before { width: 22px; height: 22px; margin-top: 1px; background: #fff; box-shadow: 0 0 0 5px var(--accent-2), 0 0 16px var(--accent-2); }
+/* karty s pruhem linky nahoře */
+main.pl-metro .pt:not(.pt-hero)::before { border-top: 6px solid #ffc20e; }
+main.pl-metro .pt:not(.pt-hero):nth-child(3n+2)::before { border-top-color: #00a562; } main.pl-metro .pt:not(.pt-hero):nth-child(3n)::before { border-top-color: #e2231a; }
+main.pl-metro .pt-label { text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+main.pl-metro .pt-act-card { border-top: 4px solid var(--accent); }
+
+/* Zápisník: scrapbook – linkovaný papír s okrajem, fotka jako polaroid, jméno ručně a podtržené fixou, čísla zakroužkovaná,
+   záložky jako lepicí papírky, karty jako vytržené stránky s páskou. */
+main.pl-zapisnik { --accent: #8fb8ff; --accent-2: #ff8fb1; --pl-acct: #ff8fb1; --pl-bg: #1b1a1f; --pl-card: #26252b; --pl-line: #3a3840; --pl-txt: #f3efe6; --pl-dim: #bdb6a8;
+  --pl-fname: 'Caveat', 'Exo 2', cursive; --pl-flab: 'Caveat', 'Exo 2', cursive; --pl-fhead: var(--pl-fname); --pl-fbody: 'Shantell Sans', 'Exo 2', sans-serif;
+  --pl-tile: #26252b; --pl-rad: 2px; --pl-brad: 4px; --pl-bw: 0px; --pl-shadow: 0 10px 18px -10px rgba(0,0,0,.6); --pl-lines: rgba(255,255,255,.07); --pl-margin: rgba(255,120,150,.25);
+  --pl-r1: #9b958a; --pl-r2: #8fb8ff; --pl-r3: #b9e6a0; --pl-r4: #ffd66e; --pl-r5: #ff8fb1; }
+body.light main.pl-zapisnik { --accent: #2f5f9e; --accent-2: #ff6f9a; --pl-acct: #2f5f9e; --pl-bg: #fbf7ee; --pl-card: #fffdf8; --pl-tile: #fffdf8; --pl-line: #e7dfcf; --pl-txt: #2b2a33; --pl-dim: #6b6676;
+  --pl-shadow: 0 8px 16px -10px rgba(0,0,0,.35); --pl-lines: rgba(70,110,200,.18); --pl-margin: rgba(220,70,70,.35); --pl-r1: #8a857a; --pl-r2: #2f5f9e; --pl-r3: #3f8f3a; --pl-r4: #c98a00; --pl-r5: #e0457a; }
+main.pl-zapisnik .pl-bgfx { display: block; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 44px, var(--pl-margin) 44px 46px, transparent 46px), repeating-linear-gradient(transparent 0 27px, var(--pl-lines) 27px 28px); }
+main.pl-zapisnik .pt-hero { border-radius: 2px; box-shadow: var(--pl-shadow); }
+/* páska přes horní okraj hlavičky */
+main.pl-zapisnik .pl-fx.b { display: block; position: absolute; z-index: 4; top: -10px; left: calc(50% - 50px); width: 100px; height: 26px; background: rgba(255,214,120,.7); rotate: 3deg; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+main.pl-zapisnik .pt-cover { border-radius: 2px 2px 0 0; }
+main.pl-zapisnik .acct-photo { border-radius: 0; background: #fff; padding: 7px 7px 26px; box-shadow: 0 10px 22px -10px rgba(0,0,0,.5); rotate: -3deg; }
+main.pl-zapisnik .acct-photo .acct-avatar { border-radius: 0; }
+main.pl-zapisnik .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pl-txt); -webkit-text-fill-color: var(--pl-txt); filter: none;
+  font-weight: 700; rotate: -2deg; text-decoration: underline wavy var(--accent-2) 3px; text-underline-offset: 8px; text-decoration-skip-ink: none; }
+main.pl-zapisnik .acct-meta { font-family: 'Caveat', cursive; font-size: 1.15rem; }
+main.pl-zapisnik .acct-bio, main.pl-zapisnik .acct-motto { font-family: 'Caveat', cursive; font-size: 1.3rem; line-height: 1.25; }
+main.pl-zapisnik :is(.acct-badge, .pt-gear) { border-radius: 2px; background: #fff27a; color: #2b2a33; border: 0; box-shadow: 0 3px 6px -2px rgba(0,0,0,.3); font-size: 1.05rem; }
+/* čísla zakroužkovaná fixou, každé trochu jinak nakřivo */
+main.pl-zapisnik .pt-chips { justify-content: center; gap: 12px 18px; }
+main.pl-zapisnik .pt-chip { display: grid; justify-items: center; gap: 2px; padding: 0; border: 0; background: none; box-shadow: none; rotate: -3deg; }
+main.pl-zapisnik .pt-chip:nth-child(even) { rotate: 3deg; }
+main.pl-zapisnik .pt-chip b { display: grid; place-items: center; min-width: 58px; height: 50px; padding: 0 8px; font: 700 1.9rem/1 'Caveat', cursive; color: var(--accent);
+  border: 2.5px solid var(--accent-2); border-radius: 52% 46% 55% 44% / 50% 56% 44% 50%; }
+main.pl-zapisnik .pt-chip span { font: 600 1.15rem/1 'Caveat', cursive; color: var(--pl-dim); }
+/* záložky = lepicí papírky */
+main.pl-zapisnik .profile-tabs { gap: 8px; border: 0; }
+main.pl-zapisnik .profile-tabs a { background: #fff27a; color: #2b2a33; border: 0; border-radius: 0; box-shadow: 0 3px 6px -2px rgba(0,0,0,.3); rotate: -2deg; font-size: 1.2rem; font-weight: 700; }
+main.pl-zapisnik .profile-tabs a:nth-child(2) { background: #ffc2d6; rotate: 1.5deg; } main.pl-zapisnik .profile-tabs a:nth-child(3) { background: #bfe6ff; rotate: -1deg; }
+main.pl-zapisnik .profile-tabs a:nth-child(4) { background: #cdf2b8; rotate: 2deg; }
+main.pl-zapisnik .profile-tabs a.active { color: #2b2a33; background-color: inherit; rotate: 0deg; translate: 0 -5px; box-shadow: 0 8px 14px -4px rgba(0,0,0,.35); text-decoration: underline 2px; text-underline-offset: 3px; }
+main.pl-zapisnik .profile-tabs a:nth-child(1).active { background: #fff27a; }
+/* karty = vytržené stránky: zubatý spodek (maska jen na pozadí karty), páska nahoře, střídavě nakřivo */
+main.pl-zapisnik .pt:not(.pt-hero) { rotate: -.4deg; } main.pl-zapisnik .pt:not(.pt-hero):nth-child(even) { rotate: .5deg; }
+main.pl-zapisnik .pt:not(.pt-hero)::before { -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%; mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 14px 100%; }
+main.pl-zapisnik .pt:not(.pt-hero)::after { content: ""; position: absolute; z-index: 3; top: -8px; left: 22px; width: 72px; height: 18px; background: rgba(255,214,120,.65); rotate: -3deg; pointer-events: none; }
+main.pl-zapisnik .pt:not(.pt-hero):nth-child(even)::after { left: auto; right: 22px; background: rgba(160,210,255,.6); rotate: 3deg; }
+main.pl-zapisnik .pt-label { width: fit-content; font-size: 1.5rem; font-weight: 700; color: var(--pl-txt);
+  background: linear-gradient(transparent 55%, color-mix(in srgb, var(--accent-2) 40%, transparent) 55% 88%, transparent 88%); }
+main.pl-zapisnik .pt-act-card { border: 0; border-radius: 2px; box-shadow: var(--pl-shadow); }
+
 /* ---------- web kolem profilu (lišta, logo, jiskry, patička) v barvě zvoleného vzhledu ----------
    Fotky pozadí webu se na profilu se vzhledem schovají (vzhled má vlastní pozadí .pl-page). Barvu webu jinak
    nastavuje js/effects.js přímo na <body>, proto !important. */
@@ -525,6 +690,12 @@ body:has(main.pl-aurora) { --accent: #7cf5d5 !important; --accent-2: #c49bff !im
 body.light:has(main.pl-aurora) { --accent: #0f8f72 !important; --accent-2: #7a3fd0 !important; --bg: #eaf0fb; }
 body:has(main.pl-gal) { --accent: #d8d2c6 !important; --accent-2: #ffffff !important; --bg: #1a1918; }
 body.light:has(main.pl-gal) { --accent: #3b3832 !important; --accent-2: #1d1c1a !important; --bg: #f4f2ee; }
+body:has(main.pl-komiks) { --accent: #ffd23f !important; --accent-2: #ff4b3e !important; --bg: #15161c; }
+body.light:has(main.pl-komiks) { --accent: #e2231a !important; --accent-2: #b8860b !important; --bg: #fff8e6; }
+body:has(main.pl-metro) { --accent: #ffc20e !important; --accent-2: #00a562 !important; --bg: #111316; }
+body.light:has(main.pl-metro) { --accent: #a77a00 !important; --accent-2: #00824d !important; --bg: #f3f1ec; }
+body:has(main.pl-zapisnik) { --accent: #8fb8ff !important; --accent-2: #ff8fb1 !important; --bg: #1b1a1f; }
+body.light:has(main.pl-zapisnik) { --accent: #2f5f9e !important; --accent-2: #e0457a !important; --bg: #fbf7ee; }
 
 @keyframes pl-holoScan { from { transform: translateY(-60%); } to { transform: translateY(60%); } }
 @keyframes pl-sweep { to { transform: rotate(1turn); } }

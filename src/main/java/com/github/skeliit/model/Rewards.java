@@ -95,6 +95,10 @@ public final class Rewards {
         days("profile", "aurora", 14);       // Polární záře
         site("profile", "holo", "s_talk");   // Hologram – 25 komentářů
         days("profile", "cock", 30);         // Kokpit
+        // nové vzhledy 2026-11 (navrhy/profil-vzhledy-6); staré výše po převodu všech nových zmizí (migrace starý → nový)
+        days("profile", "komiks", 3);        // Komiks (místo Obálky)
+        days("profile", "zapisnik", 7);      // Zápisník (místo Galerie)
+        site("profile", "metro", "s_friend");// Metro (místo Radaru) – první přítel
 
         // Karaoke – písmo textu (css/karaoke-fonts.css). Výchozí = Bruno Ace SC (prázdná hodnota).
         free("kfont", "oswald");
