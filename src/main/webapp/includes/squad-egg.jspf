@@ -2,5 +2,5 @@
      na telefonu (includes/header.jsp .nav-foot) i patička na PC (includes/footer.jsp .foot-squad); obal má třídu .sq-home
      a data-kevin s Kevinovou hláškou (zatím vypnutá, doladí se). Nahoře aréna pro odhalení (obličeje, nápis), pod ní čára se smajlíkem.
      Podpis „SKELO SQUAD“ pod smajlíkem je pryč (2026-11-18): střídal se s Kevinovou hláškou a stránka pak poskakovala. --%>
-<div class="sq-arena" aria-hidden="true"><span class="sq-sign"></span><span class="sq-lamps"><% for (int sq = 1; sq <= 7; sq++) { %><span class="sq-lamp" style="--f:url('<%= ctx %>/img/faces/face-<%= sq %>.webp')"></span><% } %></span><span class="sq-unlock">SQUAD UNLOCKED</span></div>
+<div class="sq-arena" aria-hidden="true"><span class="sq-sign"></span><span class="sq-lamps"><% for (int sq = 1; sq <= 7; sq++) { %><span class="sq-lamp" style="--f:url('<%= ctx %>/img/faces/face-<%= sq %>.webp')"></span><% } %></span><span class="sq-unlock"><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("squad.unlock")) %></span></div>
 <div class="sq-line"><button type="button" class="nav-face sq-seal" aria-label="SKELO SQUAD"><span></span></button></div>
