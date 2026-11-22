@@ -605,7 +605,9 @@ img.user-avatar { object-fit: cover; background: var(--panel-strong); }
 .sq-lamp.on { opacity: 1; filter: blur(0) drop-shadow(0 0 5px var(--accent)); transform: none; }
 .sq-lamp.beat, .sq-sign.beat { animation: sq-beat .5s ease-out; }
 @keyframes sq-beat { 0% { transform: scale(1.18); } 30% { transform: scale(1.02); } 45% { transform: scale(1.1); } 100% { transform: none; } }
-.sq-unlock { font-size: .74rem; letter-spacing: .8em; color: var(--accent); opacity: 0; filter: blur(6px); transition: opacity 1.6s ease-out, letter-spacing 2s ease-out, filter 1.6s ease-out; }
+/* nápis po odhalení je přeložený (squad.unlock, nejdelší je němčina ~22 znaků): jeden řádek, na úzkém telefonu menší písmo;
+   při náběhu písmena přilétají zpoza okrajů (menu i patička je ořezávají, stránka do strany neujede) */
+.sq-unlock { white-space: nowrap; font-size: min(.74rem, 3.3vw); letter-spacing: .8em; color: var(--accent); opacity: 0; filter: blur(6px); transition: opacity 1.6s ease-out, letter-spacing 2s ease-out, filter 1.6s ease-out; }
 .sq-unlock.on { opacity: 1; letter-spacing: .26em; filter: none; }
 @keyframes face-pop { from { opacity: 0; transform: scale(.7) rotate(-12deg); } }
 /* patička: jen tam, kde není vidět spodek menu (PC, telefon na šířku). Nad čárou volný pruh pro odhalení,
