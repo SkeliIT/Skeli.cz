@@ -107,7 +107,7 @@ public final class Rewards {
         site("profile", "sakura", "s_fan");  // Sakura (místo Zdi) – srdce pěti písním
         site("profile", "opal", "s_artist"); // Opál (nový) – přidaná vlastní tvorba
         site("profile", "aura", "s_karaoke");// Aura (nová) – karaoke
-        site("profile", "levandule", "s_heart");// Levandule (nová) – srdce od Skeliho
+        site("profile", "y2k", "s_heart");   // Y2K chrom (nový, místo zamítnuté Levandule) – srdce od Skeliho
 
         // Karaoke – písmo textu (css/karaoke-fonts.css). Výchozí = Bruno Ace SC (prázdná hodnota).
         free("kfont", "oswald");
