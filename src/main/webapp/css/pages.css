@@ -2897,7 +2897,9 @@ body.light .kp-orb i:first-child { background: radial-gradient(ellipse at 50% 62
 .pt-chip:hover { border-color: var(--accent); transform: translateY(-1px); text-decoration: none; }
 .pt-cols { grid-column: 1 / -1; display: grid; gap: 12px; }
 .pt-main, .pt-side { display: grid; gap: 12px; align-content: start; min-width: 0; }
-.pt-cols .pt, .pt-cols .pt-show-add { grid-column: auto; }
+/* ve sloupcích je každá dlaždice přes celou šířku svého sloupce; silnější výběr než starší „span 12“ pro oblíbený song
+   (.player-page #prehled .pt-song, .pt-solo) – jinak si boční panel vyrobil 12 úzkých sloupečků a text šel po písmenkách */
+.pt-cols .pt, .pt-cols .pt-show-add, .pt-tab .pt-cols .pt, .player-page #prehled .pt-cols .pt { grid-column: auto; }
 .pt-side .pt-stat { min-height: 0; }
 @media (min-width: 1025px) {
   .pt-cols { grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; }
