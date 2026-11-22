@@ -1006,12 +1006,14 @@ main.pl-y2k .pl-fx.a { display: block; position: absolute; z-index: 3; right: 18
 main.pl-y2k .pl-fx.a::before { content: "✦"; }
 main.pl-y2k .pl-fx.b { display: block; position: absolute; z-index: 3; right: 56px; bottom: 34px; font-size: 16px; color: var(--accent-2); text-shadow: 0 0 10px var(--accent-2); }
 main.pl-y2k .pl-fx.b::before { content: "✧"; }
-main.pl-y2k .pl-fx.c { display: block; position: absolute; z-index: 3; left: 14px; bottom: 10px; font-size: 26px; line-height: 1; rotate: -14deg; filter: hue-rotate(260deg) saturate(1.4); }
+main.pl-y2k .pl-fx.c { display: block; position: absolute; z-index: 3; left: 16px; top: 14px; font-size: 26px; line-height: 1; rotate: -14deg; filter: hue-rotate(260deg) saturate(1.4); }
 main.pl-y2k .pl-fx.c::before { content: "🦋"; }
 main.pl-y2k .acct-photo { box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--accent), 0 0 0 10px var(--accent-2), 0 12px 30px -8px var(--accent); }
 /* jméno chromovým bublinovým písmem s růžovým okrajem */
 main.pl-y2k .pt-hero .acct-name { font-weight: 400; letter-spacing: .02em; background: var(--pl-chrome); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 2px 0 var(--accent)) drop-shadow(0 0 10px color-mix(in srgb, var(--accent-2) 70%, transparent)); }
+/* ve světlém režimu je chrom na světlém pozadí bledý: tenký tmavý obrys */
+body.light main.pl-y2k .pt-hero .acct-name { -webkit-text-stroke: 1px #4b3f6b; filter: drop-shadow(0 2px 0 var(--accent)); }
 main.pl-y2k .acct-meta { font-weight: 500; }
 main.pl-y2k :is(.acct-badge, .pt-gear) { border-radius: 999px; border: 1px solid var(--pl-line); background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.06)); color: var(--pl-txt);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.5); }
