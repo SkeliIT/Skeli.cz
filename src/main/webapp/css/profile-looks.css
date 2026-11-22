@@ -798,8 +798,8 @@ main.pl-jizda .pl-fx.c { display: block; position: absolute; z-index: 3; right: 
 main.pl-jizda .pl-fx.c::before { content: "P R N "; } main.pl-jizda .pl-fx.c::after { content: "D"; color: var(--accent); text-shadow: 0 0 8px var(--accent); }
 main.pl-jizda :is(.acct-badge, .pt-gear) { border-radius: 14px; background: rgba(79,216,255,.08); color: var(--pl-txt); border: 1px solid var(--pl-line); text-transform: uppercase; letter-spacing: .1em; }
 /* čísla jako digitální údaje na štítu */
-main.pl-jizda .pt-chips { gap: 8px; }
-main.pl-jizda .pt-chip { display: grid; justify-items: center; gap: 2px; min-width: 96px; padding: 10px 14px; border: 0; border-radius: 16px; background: var(--pl-chip); box-shadow: inset 0 0 0 1px var(--pl-line); }
+main.pl-jizda .pt-chips { gap: 8px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-jizda .pt-chip { flex: 1 1 96px; display: grid; justify-items: center; gap: 2px; min-width: 0; max-width: 180px; padding: 10px 10px; white-space: normal; text-align: center; border: 0; border-radius: 16px; background: var(--pl-chip); box-shadow: inset 0 0 0 1px var(--pl-line); }
 main.pl-jizda .pt-chip b { font: 700 1.5rem/1 'Orbitron', 'Rajdhani', sans-serif; color: var(--pl-txt); text-shadow: 0 0 12px var(--accent); }
 body.light main.pl-jizda .pt-chip b { text-shadow: none; color: var(--accent); }
 main.pl-jizda .pt-chip span { font: 600 .66rem 'Rajdhani', sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--pl-dim); }
@@ -827,7 +827,7 @@ body.light main.pl-arkada .pl-bgfx { background: repeating-linear-gradient(0deg,
 main.pl-arkada .pt-hero { border-radius: 0; margin: 4px; box-shadow: var(--pl-shadow); }
 /* řádky obrazovky přes hlavičku */
 main.pl-arkada .pl-fx.a { display: block; position: absolute; inset: 0; z-index: 5; pointer-events: none; background: repeating-linear-gradient(0deg, var(--pl-scan) 0 1px, transparent 1px 3px); }
-main.pl-arkada .pl-fx.b { display: block; position: absolute; z-index: 4; left: 16px; bottom: 12px; font: 700 .95rem 'Pixelify Sans', sans-serif; color: var(--accent-2); }
+main.pl-arkada .pl-fx.b { display: block; position: absolute; z-index: 4; left: 16px; top: 14px; font: 700 .95rem 'Pixelify Sans', sans-serif; color: var(--accent-2); }
 main.pl-arkada .pl-fx.b::before { content: "1UP"; animation: pl-blink 1.2s steps(1) infinite; }
 main.pl-arkada .pt-cover { border-radius: 0; image-rendering: pixelated; }
 main.pl-arkada .acct-photo { border-radius: 0; box-shadow: 0 0 0 4px var(--pl-card), 0 0 0 8px var(--accent), 0 0 0 12px var(--accent-2); }
