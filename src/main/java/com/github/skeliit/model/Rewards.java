@@ -103,6 +103,11 @@ public final class Rewards {
         site("profile", "carbon", "s_talk"); // Carbon (místo Hologramu) – 25 komentářů
         days("profile", "jizda", 30);        // Noční jízda (místo Kokpitu)
         days("profile", "arkada", 21);       // Arkáda (nová)
+        days("profile", "trpyt", 14);        // Půlnoční třpyt (místo Polární záře)
+        site("profile", "sakura", "s_fan");  // Sakura (místo Zdi) – srdce pěti písním
+        site("profile", "opal", "s_artist"); // Opál (nový) – přidaná vlastní tvorba
+        site("profile", "aura", "s_karaoke");// Aura (nová) – karaoke
+        site("profile", "levandule", "s_heart");// Levandule (nová) – srdce od Skeliho
 
         // Karaoke – písmo textu (css/karaoke-fonts.css). Výchozí = Bruno Ace SC (prázdná hodnota).
         free("kfont", "oswald");

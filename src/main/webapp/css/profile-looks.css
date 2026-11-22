@@ -124,6 +124,19 @@ main.pl-look .profile-tabs a.active { color: var(--accent); }
 @font-face { font-family: 'Pixelify Sans'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/pixelify-sans-700-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
 @font-face { font-family: 'Pixelify Sans'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/pixelify-sans-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: 'Pixelify Sans'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/pixelify-sans-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 200 800; font-display: swap; src: url(/fonts/inter-200-800-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 200 800; font-display: swap; src: url(/fonts/inter-200-800-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 200 800; font-display: swap; src: url(/fonts/inter-200-800-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 200 800; font-display: swap; src: url(/fonts/inter-200-800-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 200 800; font-display: swap; src: url(/fonts/inter-200-800-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Great Vibes'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/great-vibes-400-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: 'Great Vibes'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/great-vibes-400-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Great Vibes'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/great-vibes-400-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Great Vibes'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/great-vibes-400-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Great Vibes'; font-style: normal; font-weight: 400; font-display: swap; src: url(/fonts/great-vibes-400-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Quicksand'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/quicksand-500-700-vietnamese.woff2) format('woff2'); unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: 'Quicksand'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/quicksand-500-700-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Quicksand'; font-style: normal; font-weight: 500 700; font-display: swap; src: url(/fonts/quicksand-500-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
 /* ---------- vzhledy (převedené z náhledu) ---------- */
 main.pl-holo { --accent: #3fe0ff; --accent-2: #b8f6ff; --pl-acct: #6fe9ff; --pl-bg: #01050a; --pl-card: rgba(30,170,255,.07); --pl-line: rgba(63,224,255,.45); --pl-fname: 'JetBrains Mono'; --pl-flab: 'JetBrains Mono'; }
@@ -851,6 +864,181 @@ main.pl-arkada .pt-label { font-weight: 700; color: var(--accent); }
 main.pl-arkada .pt-act-card { border-radius: 0; box-shadow: var(--pl-shadow); border: 0; }
 @keyframes pl-blink { 50% { opacity: 0; } }
 
+/* Sakura: všechno v bublinách – oblouková hlavička v růžové, jméno ozdobným písmem, čísla jako bubliny různé velikosti,
+   záložky jako kulatá tlačítka, karty s velkým zaoblením a kvítkem v nadpisu. */
+main.pl-sakura { --accent: #f2a7bf; --accent-2: #c98aa5; --pl-acct: #f2a7bf; --pl-bg: #170d14; --pl-card: rgba(44,24,36,.9); --pl-line: #5a3046; --pl-txt: #fbeef3; --pl-dim: #c9a3b4;
+  --pl-fname: 'Great Vibes', 'Playfair Display', cursive; --pl-flab: 'Quicksand', 'Exo 2', sans-serif; --pl-fhead: 'Playfair Display', 'Exo 2', serif; --pl-fbody: 'Quicksand', 'Exo 2', sans-serif;
+  --pl-tile: rgba(44,24,36,.9); --pl-chip: rgba(242,167,191,.1); --pl-rad: 34px; --pl-brad: 999px; --pl-shadow: 0 16px 34px -26px rgba(180,80,120,.6); --pl-hero: linear-gradient(160deg, #5a2a43, #2a1422);
+  --pl-r1: #a3808f; --pl-r2: #f7bfd1; --pl-r3: #f2a7bf; --pl-r4: #ff8fb8; --pl-r5: #ff5c9a; }
+body.light main.pl-sakura { --accent: #d4688d; --accent-2: #f2a7bf; --pl-acct: #c2557c; --pl-bg: #fff7f9; --pl-card: rgba(255,255,255,.88); --pl-tile: rgba(255,255,255,.88); --pl-line: #f6d5e1; --pl-txt: #4a2232; --pl-dim: #8c6273;
+  --pl-chip: rgba(212,104,141,.08); --pl-hero: linear-gradient(160deg, #ffd6e2, #fbe4ec); --pl-r1: #a8899a; --pl-r2: #e7a3bb; --pl-r3: #d4688d; --pl-r4: #b8456f; --pl-r5: #9a2152; }
+main.pl-sakura .pl-bgfx { display: block; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 0%, rgba(242,167,191,.18), transparent 55%),
+  radial-gradient(ellipse 7px 5px at 30% 40%, rgba(247,191,209,.5), transparent 70%) 0 0 / 220px 260px, radial-gradient(ellipse 6px 4px at 70% 75%, rgba(247,191,209,.4), transparent 70%) 0 0 / 300px 340px; }
+body.light main.pl-sakura .pl-bgfx { background: radial-gradient(ellipse at 20% 0%, #ffe3ec, transparent 55%), radial-gradient(ellipse at 90% 30%, #fde8f0, transparent 50%),
+  radial-gradient(ellipse 7px 5px at 30% 40%, rgba(240,150,180,.45), transparent 70%) 0 0 / 220px 260px, radial-gradient(ellipse 6px 4px at 70% 75%, rgba(240,150,180,.35), transparent 70%) 0 0 / 300px 340px; }
+main.pl-sakura .pt-hero { background: var(--pl-hero); border-radius: 34px 34px 48% 48% / 34px 34px 14% 14%; padding-bottom: 26px; }
+main.pl-sakura .pt-cover { border-radius: 34px 34px 0 0; }
+main.pl-sakura .acct-photo { box-shadow: 0 0 0 7px rgba(255,255,255,.7), 0 0 0 8px var(--accent-2), 0 20px 40px -18px rgba(180,80,120,.6); }
+main.pl-sakura .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--accent); -webkit-text-fill-color: var(--accent); filter: none;
+  font-weight: 400; font-size: clamp(2.6rem, 11vw, 4.4rem); line-height: 1; }
+body.light main.pl-sakura .pt-hero .acct-name { color: #c2557c; -webkit-text-fill-color: #c2557c; }
+main.pl-sakura :is(.acct-badge, .pt-gear) { border-radius: 999px; background: var(--pl-card); border: 1px solid var(--pl-line); color: var(--pl-txt); }
+/* čísla jako bubliny: každá jinak velká a trochu jinak vysoko */
+main.pl-sakura .pt-chips { justify-content: center; align-items: center; gap: 6px 10px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; padding: 6px 0 12px; }
+main.pl-sakura .pt-chip { display: grid; place-items: center; align-content: center; width: 96px; height: 96px; padding: 0; border: 0; border-radius: 50%; background: var(--pl-card); white-space: normal; text-align: center;
+  box-shadow: 0 14px 30px -16px rgba(180,80,120,.55), inset 0 0 0 1px var(--pl-line); }
+main.pl-sakura .pt-chip:nth-child(3n+1) { width: 108px; height: 108px; } main.pl-sakura .pt-chip:nth-child(3n) { width: 86px; height: 86px; translate: 0 10px; }
+main.pl-sakura .pt-chip:nth-child(even) { translate: 0 -8px; }
+main.pl-sakura .pt-chip b { font: italic 600 1.45rem/1 'Playfair Display', serif; color: var(--accent); } main.pl-sakura .pt-chip span { max-width: 74px; font: 600 .68rem/1.1 'Quicksand', sans-serif; color: var(--pl-dim); }
+/* záložky = kulatá tlačítka s popiskem pod nimi */
+main.pl-sakura .profile-tabs { justify-content: center; gap: 10px; border: 0; }
+main.pl-sakura .profile-tabs a { flex: 0 1 auto; display: grid; justify-items: center; gap: 4px; padding: 4px; background: none; box-shadow: none; font-size: .78rem; font-weight: 600; }
+main.pl-sakura .profile-tabs a > i { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line); font-size: 19px; color: var(--accent); transition: transform .2s; }
+main.pl-sakura .profile-tabs a.active { background: none; box-shadow: none; color: var(--pl-txt); }
+main.pl-sakura .profile-tabs a.active > i { background: var(--accent); color: #2a0f1c; box-shadow: 0 10px 22px -10px var(--accent); transform: scale(1.08); }
+body.light main.pl-sakura .profile-tabs a.active > i { color: #fff; }
+main.pl-sakura .pt-label { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.15rem; }
+main.pl-sakura .pt-label::before { content: "✿"; margin-right: 6px; font-style: normal; color: var(--accent-2); }
+main.pl-sakura .pt-label > i { display: none; }
+main.pl-sakura .pt-act-card { border-radius: 26px; }
+
+/* Opál: zamčená obrazovka telefonu – mléčné sklo nad barevnými skvrnami, obrovské tenké jméno v duhovém přechodu,
+   čísla jako skleněné widgety, záložky jako dok s ikonami. */
+main.pl-opal { --accent: #c4a5ff; --accent-2: #ff7ac3; --pl-acct: #c4a5ff; --pl-bg: #0e0d13; --pl-card: rgba(255,255,255,.07); --pl-line: rgba(255,255,255,.14); --pl-txt: #f6f3ff; --pl-dim: #b0a9c4;
+  --pl-fname: 'Inter', 'Exo 2', sans-serif; --pl-flab: 'Inter', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: var(--pl-fname);
+  --pl-tile: rgba(255,255,255,.07); --pl-chip: rgba(255,255,255,.08); --pl-rad: 28px; --pl-brad: 14px; --pl-shadow: 0 20px 40px -30px rgba(0,0,0,.6); --pl-ic: rgba(255,255,255,.08);
+  --pl-r1: #b0a9c4; --pl-r2: #9fd4ff; --pl-r3: #c4a5ff; --pl-r4: #ff7ac3; --pl-r5: #ffb86b; }
+body.light main.pl-opal { --accent: #8b5cf6; --accent-2: #ec4899; --pl-acct: #7c3aed; --pl-bg: #f4f2f8; --pl-card: rgba(255,255,255,.45); --pl-tile: rgba(255,255,255,.45); --pl-line: rgba(255,255,255,.7);
+  --pl-txt: #1d1a26; --pl-dim: #5f5a70; --pl-chip: rgba(255,255,255,.5); --pl-shadow: 0 20px 40px -30px rgba(60,30,90,.4); --pl-ic: rgba(255,255,255,.65); --pl-r1: #8a8599; --pl-r2: #3b82c4; --pl-r3: #8b5cf6; --pl-r4: #db2777; --pl-r5: #c2410c; }
+main.pl-opal .pl-bgfx { display: block; position: absolute; inset: 0; background: radial-gradient(ellipse at 15% 10%, #3a1d4a, transparent 50%), radial-gradient(ellipse at 90% 22%, #1d3552, transparent 50%), radial-gradient(ellipse at 50% 92%, #12392c, transparent 55%); }
+body.light main.pl-opal .pl-bgfx { background: radial-gradient(ellipse at 15% 10%, #ffd6ee, transparent 50%), radial-gradient(ellipse at 90% 22%, #cfe6ff, transparent 50%), radial-gradient(ellipse at 50% 92%, #d8ffef, transparent 55%); }
+main.pl-opal :is(.pt-hero, .pt-chip, .profile-tabs, .pt-act-card), main.pl-opal .pt::before { backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); }
+main.pl-opal .pt-hero { border-radius: 40px; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line), var(--pl-shadow); }
+main.pl-opal .pt-cover { border-radius: 40px 40px 0 0; }
+main.pl-opal .acct-photo { box-shadow: 0 0 0 3px rgba(255,255,255,.7); }
+main.pl-opal .pt-hero .acct-name { font-weight: 200; font-size: clamp(2.8rem, 12vw, 5.6rem); line-height: .95; letter-spacing: -.05em; filter: none;
+  background: linear-gradient(120deg, #ff8ccf, #8b5cf6 38%, #4fc3ff 68%, #6ee7b7); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+main.pl-opal :is(.acct-badge, .pt-gear) { border-radius: 14px; background: var(--pl-ic); border: 0; color: var(--pl-txt); }
+/* čísla jako skleněné widgety s barevnou ikonou */
+main.pl-opal .pt-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-opal .pt-chip { display: grid; justify-items: start; gap: 2px; padding: 14px; border: 0; border-radius: 26px; background: var(--pl-chip); box-shadow: inset 0 0 0 1px var(--pl-line); white-space: normal; }
+main.pl-opal .pt-chip::before { content: ""; width: 30px; height: 30px; margin-bottom: 8px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-2), var(--accent)); box-shadow: 0 6px 14px -6px var(--accent); }
+main.pl-opal .pt-chip:nth-child(3n+2)::before { background: linear-gradient(135deg, #4fc3ff, #6ee7b7); } main.pl-opal .pt-chip:nth-child(3n)::before { background: linear-gradient(135deg, #ffb86b, #ff7ac3); }
+main.pl-opal .pt-chip b { font: 800 2rem/1 'Inter', sans-serif; letter-spacing: -.04em; color: var(--pl-txt); } main.pl-opal .pt-chip span { font-size: 12px; color: var(--pl-dim); }
+/* záložky = dok s ikonami */
+main.pl-opal .profile-tabs { gap: 6px; padding: 10px; border: 0; border-radius: 30px; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line); }
+main.pl-opal .profile-tabs a { display: grid; justify-items: center; gap: 5px; padding: 2px; background: none; box-shadow: none; font-size: .72rem; font-weight: 600; }
+main.pl-opal .profile-tabs a > i { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; background: var(--pl-ic); color: var(--accent); font-size: 19px; }
+main.pl-opal .profile-tabs a.active { background: none; box-shadow: none; color: var(--pl-txt); }
+main.pl-opal .profile-tabs a.active > i { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff; box-shadow: 0 10px 20px -8px var(--accent); }
+main.pl-opal .pt-label { font-weight: 800; letter-spacing: -.02em; color: var(--pl-txt); }
+main.pl-opal .pt-label > i { display: inline-grid; place-items: center; width: 28px; height: 28px; margin-right: 4px; border-radius: 9px; color: #fff; background: linear-gradient(135deg, var(--accent-2), var(--accent)); font-size: 12px; }
+main.pl-opal .pt-act-card { border-radius: 22px; background: var(--pl-chip); }
+
+/* Aura: měkké barevné aury v pozadí, sklo, fotka v duhovém kroužku, čísla jako skleněné pilulky,
+   záložky jako kroužky příběhů. */
+main.pl-aura { --accent: #b794ff; --accent-2: #ff9f86; --pl-acct: #b794ff; --pl-bg: #121016; --pl-card: rgba(40,34,52,.55); --pl-line: rgba(255,255,255,.1); --pl-txt: #f5f0ff; --pl-dim: #b5aac6;
+  --pl-fname: 'Inter', 'Exo 2', sans-serif; --pl-flab: 'Inter', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: var(--pl-fname);
+  --pl-tile: rgba(40,34,52,.55); --pl-chip: rgba(255,255,255,.07); --pl-rad: 30px; --pl-brad: 999px; --pl-shadow: 0 20px 40px -30px rgba(0,0,0,.6);
+  --pl-r1: #b5aac6; --pl-r2: #6dd5c0; --pl-r3: #b794ff; --pl-r4: #ff9f86; --pl-r5: #ff6fa8; }
+body.light main.pl-aura { --accent: #8d5cf6; --accent-2: #ff8a6b; --pl-acct: #7c3aed; --pl-bg: #f6f1ee; --pl-card: rgba(255,255,255,.55); --pl-tile: rgba(255,255,255,.55); --pl-line: rgba(255,255,255,.75);
+  --pl-txt: #2a2230; --pl-dim: #6f6478; --pl-chip: rgba(255,255,255,.6); --pl-shadow: 0 20px 40px -30px rgba(60,30,90,.45); --pl-r1: #8a8090; --pl-r2: #1f9e86; --pl-r3: #8d5cf6; --pl-r4: #e0603f; --pl-r5: #c2185b; }
+main.pl-aura .pl-bgfx { display: block; position: absolute; inset: 0; }
+main.pl-aura .pl-bgfx::before, main.pl-aura .pl-bgfx::after { content: ""; position: absolute; width: 80vmax; height: 80vmax; border-radius: 50%; opacity: .5; animation: pl-aura 18s ease-in-out infinite alternate; }
+main.pl-aura .pl-bgfx::before { left: -30vmax; top: -25vmax; background: radial-gradient(circle, #ffb59e, transparent 62%); }
+main.pl-aura .pl-bgfx::after { right: -35vmax; top: 5vmax; background: radial-gradient(circle, #b9a0ff, transparent 62%); animation-delay: -9s; }
+main.pl-aura .pl-bgfx { background: radial-gradient(circle at 30% 110%, rgba(158,230,208,.35), transparent 45%); }
+body:not(.light) main.pl-aura .pl-bgfx::before, body:not(.light) main.pl-aura .pl-bgfx::after { opacity: .28; }
+@keyframes pl-aura { to { transform: translate(6vmax, 4vmax) scale(1.08); } }
+main.pl-aura :is(.pt-hero, .pt-chip, .pt-act-card), main.pl-aura .pt::before { backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); }
+main.pl-aura .pt-hero { border-radius: 34px; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line), var(--pl-shadow); }
+main.pl-aura .pt-cover { border-radius: 34px 34px 0 0; }
+/* fotka v duhovém kroužku */
+main.pl-aura .acct-photo { padding: 4px; background: conic-gradient(var(--accent), var(--accent-2), #6dd5c0, var(--accent)); box-shadow: none; }
+main.pl-aura .acct-photo .acct-avatar { border: 3px solid var(--pl-bg); }
+main.pl-aura .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pl-txt); -webkit-text-fill-color: var(--pl-txt); filter: none; font-weight: 800; letter-spacing: -.04em; }
+main.pl-aura :is(.acct-badge, .pt-gear) { border-radius: 999px; background: var(--pl-chip); border: 0; box-shadow: inset 0 0 0 1px var(--pl-line); color: var(--pl-txt); }
+/* čísla jako skleněné pilulky */
+main.pl-aura .pt-chips { gap: 6px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-aura .pt-chip { gap: 6px; padding: 8px 14px; border: 0; border-radius: 999px; background: var(--pl-chip); box-shadow: inset 0 0 0 1px var(--pl-line); font-weight: 600; }
+main.pl-aura .pt-chip b { color: var(--accent); font-weight: 800; }
+/* záložky = kroužky příběhů, vybraný má duhový okraj */
+main.pl-aura .profile-tabs { gap: 12px; border: 0; justify-content: flex-start; }
+main.pl-aura .profile-tabs a { flex: 0 0 auto; display: grid; justify-items: center; gap: 6px; padding: 2px; background: none; box-shadow: none; font-size: .78rem; font-weight: 600; }
+main.pl-aura .profile-tabs a > i { display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; border: 3px solid transparent; font-size: 21px; color: var(--pl-txt);
+  background: linear-gradient(var(--pl-chip), var(--pl-chip)) padding-box, linear-gradient(rgba(140,120,160,.35), rgba(140,120,160,.35)) border-box; }
+main.pl-aura .profile-tabs a.active { background: none; box-shadow: none; color: var(--pl-txt); }
+main.pl-aura .profile-tabs a.active > i { background: linear-gradient(var(--pl-bg), var(--pl-bg)) padding-box, conic-gradient(var(--accent), var(--accent-2), #6dd5c0, var(--accent)) border-box; }
+main.pl-aura .pt-label { font-weight: 800; letter-spacing: -.02em; color: var(--pl-txt); }
+main.pl-aura .pt-act-card { border-radius: 24px; }
+
+/* Levandule: čistá bento mřížka – levandule a šalvěj, hlavička jako velká dlaždice, čísla jako dlaždice různých barev,
+   záložky jako text s podtržením. */
+main.pl-levandule { --accent: #b7a1ff; --accent-2: #9fd4bc; --pl-acct: #b7a1ff; --pl-bg: #131118; --pl-card: #1d1a25; --pl-line: #2c2838; --pl-txt: #f1eef8; --pl-dim: #a39cb6;
+  --pl-fname: 'Inter', 'Exo 2', sans-serif; --pl-flab: 'Inter', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: var(--pl-fname);
+  --pl-tile: #1d1a25; --pl-chip: #262132; --pl-rad: 26px; --pl-brad: 14px; --pl-bw: 0px; --pl-shadow: 0 1px 0 var(--pl-line), 0 18px 34px -30px rgba(0,0,0,.6); --pl-hero: linear-gradient(135deg, #2a2240, #1d1a25);
+  --pl-r1: #a39cb6; --pl-r2: #9fd4bc; --pl-r3: #b7a1ff; --pl-r4: #8f74ff; --pl-r5: #ff9fc4; }
+body.light main.pl-levandule { --accent: #7c5cd6; --accent-2: #6f9f8a; --pl-acct: #6a48c8; --pl-bg: #f4f2f8; --pl-card: #fff; --pl-tile: #fff; --pl-line: #e8e3f2; --pl-txt: #221d2e; --pl-dim: #6b6480;
+  --pl-chip: #f3effb; --pl-shadow: 0 1px 0 var(--pl-line), 0 18px 34px -30px rgba(60,40,120,.4); --pl-hero: linear-gradient(135deg, #e9e2ff, #f6f2ff); --pl-r1: #8a8399; --pl-r2: #5a8c76; --pl-r3: #7c5cd6; --pl-r4: #5b3bb5; --pl-r5: #c23a7a; }
+main.pl-levandule .pt-hero { border-radius: 26px; background: var(--pl-hero); box-shadow: var(--pl-shadow); }
+main.pl-levandule .pt-cover { border-radius: 26px 26px 0 0; }
+main.pl-levandule .acct-photo { box-shadow: 0 0 0 5px var(--pl-card); }
+main.pl-levandule .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pl-txt); -webkit-text-fill-color: var(--pl-txt); filter: none; font-weight: 800; letter-spacing: -.05em; }
+main.pl-levandule :is(.acct-badge, .pt-gear) { border-radius: 14px; background: var(--pl-card); border: 1px solid var(--pl-line); color: var(--pl-txt); }
+/* čísla jako bento dlaždice: popisek nahoře, velké číslo dole, druhá v levanduli, třetí v šalvěji */
+main.pl-levandule .pt-chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+main.pl-levandule .pt-chip { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 16px; border: 0; border-radius: 22px; background: var(--pl-card); box-shadow: var(--pl-shadow); white-space: normal; }
+main.pl-levandule .pt-chip span { order: 1; font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--pl-dim); }
+main.pl-levandule .pt-chip b { order: 2; font: 800 2.3rem/1 'Inter', sans-serif; letter-spacing: -.04em; color: var(--pl-txt); }
+main.pl-levandule .pt-chip:nth-child(3n+2) { background: var(--accent); } main.pl-levandule .pt-chip:nth-child(3n+2) :is(b, span) { color: #160f2c; }
+main.pl-levandule .pt-chip:nth-child(3n) { background: var(--accent-2); } main.pl-levandule .pt-chip:nth-child(3n) :is(b, span) { color: #10241b; }
+body.light main.pl-levandule .pt-chip:nth-child(3n+2) :is(b, span), body.light main.pl-levandule .pt-chip:nth-child(3n) :is(b, span) { color: #fff; }
+/* záložky = text s podtržením */
+main.pl-levandule .profile-tabs { gap: 18px; border: 0; }
+main.pl-levandule .profile-tabs a { flex: 0 0 auto; padding: 8px 2px; background: none; border-radius: 0; box-shadow: none; font-weight: 600; }
+main.pl-levandule .profile-tabs a.active { background: none; color: var(--pl-txt); box-shadow: inset 0 -2px 0 var(--accent); }
+main.pl-levandule .pt-label { font-weight: 800; letter-spacing: -.02em; color: var(--pl-txt); }
+main.pl-levandule .pt-act-card { border: 0; box-shadow: var(--pl-shadow); }
+
+/* Půlnoční třpyt: noční nebe s hvězdami, fotka uprostřed s oběžnou dráhou, tenké prostrkané jméno, čísla jako planety,
+   záložky jako svítící pilulky. */
+main.pl-trpyt { --accent: #c9d6ff; --accent-2: #f3c5ff; --pl-acct: #c9d6ff; --pl-bg: #0a0d24; --pl-card: rgba(22,28,62,.7); --pl-line: rgba(201,214,255,.2); --pl-txt: #eef1ff; --pl-dim: #a9b2d8;
+  --pl-fname: 'Inter', 'Exo 2', sans-serif; --pl-flab: 'Inter', 'Exo 2', sans-serif; --pl-fhead: var(--pl-fname); --pl-fbody: var(--pl-fname);
+  --pl-tile: rgba(22,28,62,.7); --pl-chip: rgba(201,214,255,.07); --pl-rad: 24px; --pl-brad: 999px; --pl-bw: 0px; --pl-shadow: inset 0 0 0 1px var(--pl-line);
+  --pl-r1: #a9b2d8; --pl-r2: #9fe4ff; --pl-r3: #c9d6ff; --pl-r4: #f3c5ff; --pl-r5: #ffe08a; }
+body.light main.pl-trpyt { --accent: #4a58b8; --accent-2: #a45cc2; --pl-acct: #3d4aa8; --pl-bg: #f4f6ff; --pl-card: rgba(255,255,255,.88); --pl-tile: rgba(255,255,255,.88); --pl-line: #d6dcf5; --pl-txt: #1d2350; --pl-dim: #5d6590;
+  --pl-chip: rgba(74,88,184,.06); --pl-r1: #7d84a8; --pl-r2: #2a7fb8; --pl-r3: #4a58b8; --pl-r4: #a45cc2; --pl-r5: #b8860b; }
+main.pl-trpyt .pl-bgfx { display: block; position: absolute; inset: 0;
+  background: radial-gradient(circle at 10% 20%, #fff 0 1px, transparent 1.5px) 0 0 / 180px 180px, radial-gradient(circle at 60% 70%, #dfe6ff 0 1px, transparent 1.5px) 0 0 / 230px 230px,
+    radial-gradient(circle at 35% 55%, rgba(255,255,255,.7) 0 .8px, transparent 1.3px) 0 0 / 130px 150px, radial-gradient(ellipse at 50% 0%, #26306a, transparent 60%); }
+body.light main.pl-trpyt .pl-bgfx { background: radial-gradient(circle at 10% 20%, rgba(74,88,184,.35) 0 1px, transparent 1.5px) 0 0 / 180px 180px, radial-gradient(ellipse at 50% 0%, #dfe5ff, transparent 60%); }
+main.pl-trpyt .pt-act-card, main.pl-trpyt .pt::before { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+main.pl-trpyt .pt-hero { border-radius: 30px; background: var(--pl-card); box-shadow: inset 0 0 0 1px var(--pl-line); }
+main.pl-trpyt .pt-cover { border-radius: 30px 30px 0 0; filter: saturate(.8); }
+main.pl-trpyt .pt-who { flex-direction: column; align-items: center; text-align: center; }
+/* fotka se zářivou oběžnou dráhou */
+main.pl-trpyt .acct-photo { margin: 14px 0 6px; box-shadow: 0 0 0 6px rgba(201,214,255,.12), 0 0 60px rgba(201,214,255,.45); outline: 1px dashed var(--pl-line); outline-offset: 18px; }
+main.pl-trpyt .pt-hero .acct-name { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pl-txt); -webkit-text-fill-color: var(--pl-txt); filter: none;
+  font-weight: 300; text-transform: uppercase; letter-spacing: .28em; text-shadow: 0 0 18px rgba(201,214,255,.6); }
+body.light main.pl-trpyt .pt-hero .acct-name { text-shadow: none; }
+main.pl-trpyt :is(.pt-tags, .pt-chips) { justify-content: center; }
+main.pl-trpyt :is(.acct-meta, .acct-motto, .acct-bio) { text-align: center; }
+main.pl-trpyt :is(.acct-badge, .pt-gear) { border-radius: 999px; background: transparent; border: 0; box-shadow: inset 0 0 0 1px var(--pl-line); color: var(--pl-txt); }
+/* čísla jako planety (koule se světlem zleva nahoře), střídavě výš a níž */
+main.pl-trpyt .pt-chips { gap: 8px 12px; flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; padding: 8px 0 10px; }
+main.pl-trpyt .pt-chip { display: grid; place-items: center; align-content: center; width: 88px; height: 88px; padding: 0; border: 0; border-radius: 50%; white-space: normal; text-align: center;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.35), var(--pl-card) 60%); box-shadow: inset 0 0 0 1px var(--pl-line), 0 0 24px -6px var(--accent); }
+main.pl-trpyt .pt-chip:nth-child(even) { translate: 0 10px; width: 76px; height: 76px; }
+main.pl-trpyt .pt-chip b { font: 500 1.15rem/1 'Inter', sans-serif; color: var(--pl-txt); } main.pl-trpyt .pt-chip span { max-width: 66px; font-size: .58rem; line-height: 1.1; color: var(--pl-dim); }
+/* záložky = svítící pilulky */
+main.pl-trpyt .profile-tabs { justify-content: center; gap: 8px; border: 0; }
+main.pl-trpyt .profile-tabs a { border-radius: 999px; background: none; box-shadow: inset 0 0 0 1px var(--pl-line); font-weight: 500; }
+main.pl-trpyt .profile-tabs a.active { color: #0c1029; background: var(--accent); box-shadow: 0 0 20px -4px var(--accent); }
+body.light main.pl-trpyt .profile-tabs a.active { color: #fff; }
+main.pl-trpyt .pt-label { font-weight: 300; text-transform: uppercase; letter-spacing: .25em; }
+main.pl-trpyt .pt-act-card { border-radius: 20px; }
+@media (max-width: 600px) { main.pl-trpyt .profile-tabs a > i { display: none; } main.pl-trpyt .profile-tabs a { padding: 9px 10px; } }
+
 /* ---------- web kolem profilu (lišta, logo, jiskry, patička) v barvě zvoleného vzhledu ----------
    Fotky pozadí webu se na profilu se vzhledem schovají (vzhled má vlastní pozadí .pl-page). Barvu webu jinak
    nastavuje js/effects.js přímo na <body>, proto !important. */
@@ -886,6 +1074,16 @@ body:has(main.pl-jizda) { --accent: #3ad7ff !important; --accent-2: #ff3d6e !imp
 body.light:has(main.pl-jizda) { --accent: #0089c2 !important; --accent-2: #d7263d !important; --bg: #eef3f6; }
 body:has(main.pl-arkada) { --accent: #ffe14d !important; --accent-2: #ff4fd8 !important; --bg: #07040f; }
 body.light:has(main.pl-arkada) { --accent: #b3261e !important; --accent-2: #2a4fbf !important; --bg: #e9e2cf; }
+body:has(main.pl-sakura) { --accent: #f2a7bf !important; --accent-2: #c98aa5 !important; --bg: #170d14; }
+body.light:has(main.pl-sakura) { --accent: #d4688d !important; --accent-2: #b8456f !important; --bg: #fff7f9; }
+body:has(main.pl-opal) { --accent: #c4a5ff !important; --accent-2: #ff7ac3 !important; --bg: #0e0d13; }
+body.light:has(main.pl-opal) { --accent: #8b5cf6 !important; --accent-2: #ec4899 !important; --bg: #f4f2f8; }
+body:has(main.pl-aura) { --accent: #b794ff !important; --accent-2: #ff9f86 !important; --bg: #121016; }
+body.light:has(main.pl-aura) { --accent: #8d5cf6 !important; --accent-2: #e0603f !important; --bg: #f6f1ee; }
+body:has(main.pl-levandule) { --accent: #b7a1ff !important; --accent-2: #9fd4bc !important; --bg: #131118; }
+body.light:has(main.pl-levandule) { --accent: #7c5cd6 !important; --accent-2: #5a8c76 !important; --bg: #f4f2f8; }
+body:has(main.pl-trpyt) { --accent: #c9d6ff !important; --accent-2: #f3c5ff !important; --bg: #0a0d24; }
+body.light:has(main.pl-trpyt) { --accent: #4a58b8 !important; --accent-2: #a45cc2 !important; --bg: #f4f6ff; }
 
 @keyframes pl-holoScan { from { transform: translateY(-60%); } to { transform: translateY(60%); } }
 @keyframes pl-sweep { to { transform: rotate(1turn); } }
