@@ -55,7 +55,7 @@
        if (premiere != null) {
          String pName = com.github.skeliit.WebUtils.escapeHtml(premiere.name);
          String pKind = t.getProperty("song".equals(premiere.kind) ? "premiere.song" : "premiere.clip"); %>
-    <a class="hero-latest hero-premiere<%= premiere.isOut() ? " is-out" : "" %>" href="<%= com.github.skeliit.I18n.songPath(request, premiere.uuid, 0) %>" data-premiere="<%= premiere.at %>">
+    <a class="hero-latest hero-premiere<%= premiere.isOut() ? " is-out" : "" %>" href="/premiera" data-premiere="<%= premiere.at %>">
       <% if (premiere.thumb != null) { %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(premiere.thumb) %>" alt="" width="104" height="58"><% } %>
       <span>
         <small><span class="dot"></span><span class="hp-soon"><%= t.getProperty("premiere.soon") %></span><span class="hp-out"><%= t.getProperty("premiere.out") %></span> · <%= pKind %></small>

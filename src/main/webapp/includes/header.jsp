@@ -596,7 +596,7 @@
                 // allow full reload for language switch to refresh header/nav strings
                 if (href.includes('lang=')) return;
                 // disable PJAX for pages that need full refresh or include page-scoped styles/scripts
-                const noPjax = ['/auth/', '/karaoke', '/lyrics/', '/texty', '/admin', '/logout', '/login.jsp', '/register.jsp', '/uzivatel.jsp', '/nastaveni.jsp', '/profile.jsp'];
+                const noPjax = ['/auth/', '/karaoke', '/premiera', '/lyrics/', '/texty', '/admin', '/logout', '/login.jsp', '/register.jsp', '/uzivatel.jsp', '/nastaveni.jsp', '/profile.jsp'];
                 if (noPjax.some(p => href.includes(p))) return;
                 if (document.body.classList.contains('is-admin')) return;   // z adminu ven vždy celou stránkou (jiné pozadí a patička)
                 e.preventDefault();
