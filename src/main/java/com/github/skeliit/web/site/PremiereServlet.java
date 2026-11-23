@@ -90,7 +90,7 @@ public class PremiereServlet extends HttpServlet {
         if (slug.isEmpty()) return null;
         String path = "/img/premiera/pozadi-" + slug + ".webp";
         try {
-            return ctx.getResource(path) != null ? path + "?v=1" : null;
+            return ctx.getResource(path) != null ? path + "?v=2" : null;   // v: po změně obrázku zvýšit (prohlížeče ho drží v paměti)
         } catch (java.net.MalformedURLException e) {
             return null;
         }
