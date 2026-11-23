@@ -89,7 +89,7 @@
         <small class="pmf-stitek"><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.teaser")) %></small>
       </div>
       <h2 class="pmh-nazev"><%= pName %></h2>
-      <p class="pmh-kdy"><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("premiere.at").replace("{when}", premiere.getWhen())) %> <small><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.tz")) %></small></p>
+      <p class="pmh-kdy"><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("premiere.at").replace("{when}", premiere.getWhen())) %></p>
       <p class="hp-count pmh-count" aria-label="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("premiere.at").replace("{when}", premiere.getWhen())) %>">
         <span data-u="d">0</span><i><%= t.getProperty("premiere.d") %></i>
         <span data-u="h">00</span><i><%= t.getProperty("premiere.h") %></i>

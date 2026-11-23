@@ -38,7 +38,7 @@
 
   <div class="pm-in">
     <div class="pm-hlavni">
-      <span class="pm-stitek"><span class="pm-tecka" aria-hidden="true"></span><span class="pm-st-wait"><%= pmWhen %> <small><%= WebUtils.escapeHtml(t.getProperty("pm.tz")) %></small></span><span class="pm-st-live"><%= WebUtils.escapeHtml(t.getProperty("pm.live")) %></span></span>
+      <span class="pm-stitek"><span class="pm-tecka" aria-hidden="true"></span><span class="pm-st-wait"><%= pmWhen %></span><span class="pm-st-live"><%= WebUtils.escapeHtml(t.getProperty("pm.live")) %></span></span>
       <h1 class="pm-nazev"><%= pmName %></h1>
       <div class="pm-odpocet" id="pmOdpocet" aria-live="off">--:--</div>
       <p class="pm-pod" id="pmPod"><%= WebUtils.escapeHtml(t.getProperty("pm.left")) %></p>
