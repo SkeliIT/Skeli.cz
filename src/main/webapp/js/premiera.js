@@ -108,7 +108,11 @@
 
   // ---------- video ----------
   var yt = null, hraje = false, clock = null;
-  function stav(s) { root.classList.remove('is-wait', 'is-soon', 'is-final', 'is-live', 'is-over'); root.classList.add(s); }
+  function stav(s) {
+    root.classList.remove('is-wait', 'is-soon', 'is-final', 'is-live', 'is-over'); root.classList.add(s);
+    // poslední minuta a premiéra patří zvuku premiéry: hrající upoutávku zavřít (js/upoutavka.js), CSS ji pak skryje
+    if (s !== 'is-wait' && window.skeliUpoutavkyZavri) window.skeliUpoutavkyZavri();
+  }
   function embed(start, autoplay, mute) {
     var box = $('pmVideoIn');
     if (clock) { clock.stop(); clock = null; }
