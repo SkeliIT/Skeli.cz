@@ -24,6 +24,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 String year;
                 String preview; // song preview image, optional
                 boolean collab; // spolupráce (cizí track, kde Skeli hostuje) – vlastní číslování a štítek
+                boolean premiere; // video čeká na premiéru (admin → píseň → Premiéra): štítek Premiéra, název a fotka písně
         }
 
         @Override
@@ -31,8 +32,10 @@ public class EllipticPlayerServlet extends HttpServlet {
                 resp.setContentType("text/html; charset=UTF-8");
                 List<Vid> vids = new ArrayList<>();
                 // Titles missing in the DB are filled from YouTube in the background (VideoTitles)
-                String sql = "SELECT v.youtube_id, v.title, s.name, s.year, s.preview_image_url, COALESCE(s.collab, 0) " +
+                // pm = píseň, jejíž premiéra na tohle video ještě čeká (dokud nevyjde, nemá video spojené s písní)
+                String sql = "SELECT v.youtube_id, v.title, s.name, s.year, s.preview_image_url, COALESCE(s.collab, 0), pm.name " +
                                 "FROM videos v LEFT JOIN songs s ON s.id=v.song_id " +
+                                "LEFT JOIN songs pm ON pm.premiere_video_id = v.youtube_id AND pm.premiere_video_done = 0 " +
                                 "ORDER BY COALESCE(s.collab, 0), s.year DESC, v.id DESC";   // spolupráce až za mými videi
                 try (Connection c = Db.get();
                                 PreparedStatement ps = c.prepareStatement(sql);
@@ -41,10 +44,18 @@ public class EllipticPlayerServlet extends HttpServlet {
                                 Vid v = new Vid();
                                 v.id = rs.getString(1);
                                 String title = VideoTitles.display(rs.getString(2));
+                                if (title != null && title.equals(v.id)) title = null;   // místo názvu jen kód videa (YouTube ho ještě neprozradil)
                                 v.title = title != null ? title : (rs.getString(3) != null ? rs.getString(3) : "YouTube");
                                 v.year = rs.getString(4);
                                 v.preview = rs.getString(5);
                                 v.collab = rs.getBoolean(6);
+                                String pmName = rs.getString(7);
+                                if (pmName != null) {                     // čekající premiéra: název písně a úvodní fotka klipu
+                                        v.premiere = true;
+                                        v.title = pmName;
+                                        String[] teaser = PremiereServlet.teaser(getServletContext(), pmName);
+                                        if (teaser != null) v.preview = teaser[1];
+                                }
                                 vids.add(v);
                         }
                 } catch (SQLException e) {
@@ -85,7 +96,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                                         : v.title.replace("\\", "\\\\").replace("\"", "\\\"").replace("'", "\\'");
                         String prev = v.preview == null ? ""
                                         : v.preview.replace("\\", "\\\\").replace("\"", "\\\"").replace("'", "\\'");
-                        out.printf("videos.push({id:'%s', title:'%s', preview:'%s', collab:%s});%n", v.id, escTitle, prev, v.collab);
+                        out.printf("videos.push({id:'%s', title:'%s', preview:'%s', collab:%s, premiere:%s});%n", v.id, escTitle, prev, v.collab, v.premiere);
                 }
                 out.println("function esc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;'); }");
                 out.println("const frame = document.getElementById('ep-main');");
@@ -95,6 +106,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 // spolupráce jsou na konci seznamu a mají vlastní číslování (SPOLUPRÁCE 01 / 05)
                 String collabLabel = WebUtils.escapeJs(tr.getProperty("music.collabs", "").toUpperCase(java.util.Locale.ROOT));
                 out.println("const COLLAB = '" + collabLabel + "', SOLO_N = videos.filter(v => !v.collab).length;");
+                out.println("const PREMIERA = '" + WebUtils.escapeJs(tr.getProperty("pm.title", "")) + "';");
 
                 out.println("function build(){");
                 out.println("  videos.forEach((video, index) => {");
@@ -104,7 +116,7 @@ public class EllipticPlayerServlet extends HttpServlet {
                 out.println("    const thumb = video.preview || `/yt-thumb/${video.id}/hqdefault.jpg`;");
                 out.println("    item.innerHTML = `");
                 out.println("      <img src='${thumb}' alt='${esc(video.title)}'>");
-                out.println("      ${video.collab ? `<span class='ep-ft'>ft.</span>` : ''}<div class='ep-title'>${esc(video.title)}</div>");
+                out.println("      ${video.collab ? `<span class='ep-ft'>ft.</span>` : ''}${video.premiere ? `<span class='ep-ft ep-pm'>${esc(PREMIERA)}</span>` : ''}<div class='ep-title'>${esc(video.title)}</div>");
                 out.println("    `;");
                 out.println("    item.addEventListener('click', () => goTo(index, true));");
                 out.println("    viewport.appendChild(item);");

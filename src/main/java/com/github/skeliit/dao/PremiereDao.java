@@ -129,7 +129,10 @@ public class PremiereDao {
                             ps.executeUpdate();
                         }
                         try (PreparedStatement ps = c.prepareStatement("INSERT INTO videos (youtube_id, title, published_at, song_id) VALUES (?, ?, ?, ?) "
-                                + "ON DUPLICATE KEY UPDATE song_id = VALUES(song_id), published_at = VALUES(published_at)")) {
+                                // video už v tabulce bylo (přišlo z YouTube dřív, než se nastavila premiéra): bez názvu
+                                // nebo jen s kódem videa dostane název písně
+                                + "ON DUPLICATE KEY UPDATE song_id = VALUES(song_id), published_at = VALUES(published_at), "
+                                + "title = IF(title IS NULL OR title = '' OR title = youtube_id, VALUES(title), title)")) {
                             ps.setString(1, (String) d[1]);
                             ps.setString(2, (String) d[3]);
                             ps.setTimestamp(3, new java.sql.Timestamp((Long) d[2]));

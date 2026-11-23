@@ -3020,6 +3020,8 @@ html.low-fx .song-thumb:has(> img.placed)::before { filter: brightness(.4); }
 /* přehrávač na Hudbě: štítek ft. na miniatuře spolupráce */
 .ep-item .ep-ft { position: absolute; top: 6px; left: 6px; z-index: 1; padding: 1px 8px; border-radius: 999px; font-size: var(--fs-small);
   color: var(--accent-ink); background: var(--accent); }
+/* video čekající na premiéru (EllipticPlayerServlet): štítek PREMIÉRA */
+.ep-item .ep-pm { text-transform: uppercase; letter-spacing: .08em; box-shadow: 0 0 12px var(--accent); }
 
 /* ===== Nastavení → Vzhled (includes/settings-looks.jspf) =====
    Dlaždice: na telefonu dvě vedle sebe, na PC víc. Zvolená = rámeček v barvě webu, zamčená = ztlumená se zámkem a postupem. */
