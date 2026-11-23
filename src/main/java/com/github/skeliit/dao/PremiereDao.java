@@ -11,8 +11,8 @@ import java.sql.Types;
 
 /** Premiéry písní a klipů (V95): nastavení v adminu a co ukázat na webu. */
 public class PremiereDao {
-    /** Jak dlouho po premiéře ještě úvod hlásí „Venku!“ (3 dny). */
-    public static final long SHOW_AFTER_MS = 3L * 24 * 3600 * 1000;
+    /** Jak dlouho po premiéře ještě úvod hlásí „Venku!“ a nabízí „Zažij premiéru znovu“ (24 h, pak archiv /premiera). */
+    public static final long SHOW_AFTER_MS = 24L * 3600 * 1000;
 
     private static final String SELECT = "SELECT s.id, s.uuid, s.name, s.release_kind, "
             // obrázek: nejnovější klip, jinak vlastní obrázek písně

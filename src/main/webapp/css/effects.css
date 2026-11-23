@@ -1363,6 +1363,9 @@ body.light .kevin-emote {
 .hero-premiere small { display: flex; align-items: center; gap: 4px; }
 .hero-premiere .hp-out, .hero-premiere.is-out .hp-soon, .hero-premiere.is-out .hp-count { display: none; }
 .hero-premiere.is-out .hp-out { display: inline; }
+/* po premiéře: „Zažij premiéru znovu“ (/?pmZnovu=1 = celá proměna od 30 min, jde zrychlit a přeskočit) */
+.hero-premiere .hp-again { display: none; font-size: var(--fs-small); color: var(--accent); }
+.hero-premiere.is-out .hp-again { display: block; }
 .hp-count { display: flex; align-items: baseline; gap: 3px; margin-top: 2px; font-family: var(--font-body); font-size: var(--fs-h4); color: var(--accent);
   font-variant-numeric: tabular-nums; }
 .hp-count i { margin-right: 6px; font-style: normal; font-size: var(--fs-small); color: var(--text-dim); }

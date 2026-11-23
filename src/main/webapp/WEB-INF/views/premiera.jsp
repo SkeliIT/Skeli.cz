@@ -48,6 +48,7 @@
     </div>
     <p class="pm-konec" id="pmKonec" hidden><%= WebUtils.escapeHtml(t.getProperty("pm.end")) %></p>
     <p class="pm-probehla" hidden id="pmProbehla"><%= WebUtils.escapeHtml(t.getProperty("pm.over").replace("{when}", pm.getWhen())) %></p>
+    <% if (pm.isOut()) { %><a class="pm-btn" href="/?pmZnovu=1"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("premiere.again")) %></a><% } %>
 
     <button type="button" class="pm-jsemtu" id="pmJsemTu" data-done="<%= WebUtils.escapeHtml(t.getProperty("pm.hereDone")) %>"><%= WebUtils.escapeHtml(t.getProperty("pm.here")) %></button>
     <p class="pm-spolu"><%= WebUtils.escapeHtml(t.getProperty("pm.together")) %></p>

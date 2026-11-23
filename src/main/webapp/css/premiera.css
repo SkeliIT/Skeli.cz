@@ -156,3 +156,115 @@ html.low-fx .pm-okno { box-shadow: none; }
   .pm-zablesk.ted { animation-duration: .01s; }
   .pm-video-in.tep { animation: none; box-shadow: 0 0 0 2px rgb(255 210 120 / .6), 0 0 50px rgb(var(--pm-okno) / .6); }
 }
+
+/* =====================================================================
+   PREMIÉRA NA ÚVODU (index.jsp #pmUvod, js/premiera-uvod.js)
+   30 min před startem: barvy webu se vysají (body.pm-sede), z karty premiéry se roztáhne velké okno s ulicí
+   nakreslenou jako výkres; po premiéře se okno smrskne zpátky do karty a barvy se vrátí.
+   ===================================================================== */
+/* barvy webu do šeda: sytost barev (js/effects.js je přelévá 4 s) na nulu, fotka v pozadí černobílá a tmavší */
+body.pm-sede { --a1s: 0% !important; --a2s: 0% !important; }
+body .bg-slides, body::before, .masthead { transition: filter 5s ease; }
+body.pm-sede .bg-slides, body.pm-sede::before { filter: grayscale(1) brightness(.45); }
+body.pm-sede .masthead { filter: grayscale(1); }
+
+/* hrdina úvodu: nejdřív zmizí jméno, citát a tlačítka (karta zůstane), pak celý obsah pod oknem */
+.hero .uh-in > * { transition: opacity 1.2s ease, filter 1.2s ease; }
+.hero.pm-odchod .uh-in > :not(.hero-premiere) { opacity: 0; filter: blur(6px); pointer-events: none; }
+.hero.pm-hero .uh-in { visibility: hidden; }
+/* okno = přesně zbytek obrazovky pod hlavičkou (tlačítko i razítko vždy vidět) */
+.home-page.ulice .hero.pm-hero { height: max(520px, var(--pm-h, calc(100svh - var(--header-h) - var(--masthead-h) - 40px))); min-height: 0; padding: 0; overflow: visible; }
+
+.pmu { position: absolute; z-index: 2; top: 0; bottom: 0; left: calc(50% - 50vw); width: 100vw; overflow: hidden;
+  background: #050608; color: #e9ecf2; opacity: 0; transition: opacity .6s;
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 10px; padding: 14px 16px 18px; }
+.pmu.on { opacity: 1; }
+.pmu.roste { transition: clip-path 1.6s cubic-bezier(.7, 0, .2, 1), opacity .4s; }
+.pmu[hidden] { display: none; }
+.pmu [hidden] { display: none !important; }
+.pmu-scena { position: absolute; inset: 0; z-index: 0; }
+.pmu-scena canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pmu-foto { filter: grayscale(1) contrast(1.05) brightness(.85); }
+.pmu-hlava, .pmu-dole { position: relative; z-index: 1; grid-row: auto; }
+.pmu-dole { grid-row: 3; }
+
+.pmu-hlava { display: grid; gap: 6px; justify-items: start; pointer-events: none; }
+.pmu-stitek { display: inline-flex; align-items: center; gap: 8px; padding: 6px 11px; border-radius: 99px;
+  font: 400 var(--fs-small)/1.2 var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: #ffcf7a;
+  background: rgba(5, 6, 8, .7); border: 1px solid rgba(255, 207, 122, .35); }
+.pmu-tecka { width: 8px; height: 8px; border-radius: 50%; background: #ffcf7a; }
+.pmu-st-zive { display: none; }
+.pmu.is-live .pmu-st-cek { display: none; }
+.pmu.is-live .pmu-st-zive { display: inline; }
+.pmu.is-live .pmu-tecka { background: #e0312b; box-shadow: 0 0 8px #e0312b; }
+.pmu-nazev { margin: 0; font: 400 clamp(26px, 6vw, 54px)/1.05 var(--font-text, sans-serif); color: #fff; text-shadow: 0 2px 14px #000; }
+
+/* rámeček videa uprostřed: ve finále se objeví jako díl výkresu (čárkovaný, kóta 16 : 9), pak v něm hraje klip */
+.pmu-ram { position: absolute; z-index: 2; left: 50%; top: 52%; width: min(calc(100vw - 32px), calc((var(--pm-h, 640px) - 200px) * 16 / 9), 980px);
+  display: grid; gap: 10px; justify-items: center; opacity: 0; transform: translate(-50%, -50%) scale(.96); transition: opacity .8s, transform .8s; pointer-events: none; }
+.pmu.is-final .pmu-ram, .pmu.is-live .pmu-ram, .pmu.is-konec .pmu-ram { opacity: 1; transform: translate(-50%, -50%); pointer-events: auto; }
+.pmu-tvare { display: flex; gap: clamp(4px, 1.5vw, 10px); }
+.pmu-tvare img { width: clamp(30px, 8vw, 46px); height: auto; opacity: .1; transform: scale(.8); transition: opacity .25s, transform .35s, filter .35s; }
+.pmu-tvare img.on { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 5px #ffcf7a) drop-shadow(0 0 14px #ff8a3d); }
+.pmu.is-live .pmu-tvare { opacity: 0; transition: opacity 1.2s 3s; }
+.pmu-video { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 6px; background: rgba(5, 6, 8, .55);
+  border: 1px dashed rgba(235, 238, 245, .55); display: grid; place-items: center; overflow: hidden; }
+.pmu.is-live .pmu-video, .pmu.is-konec .pmu-video { border: 0; background: #000; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 0 60px rgba(255, 207, 122, .25); }
+.pmu-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.pmu-kota { font: 400 11px/1 var(--font-body); letter-spacing: .2em; color: rgba(235, 238, 245, .5); }
+.pmu-video.tep { animation: pmu-tep .5s ease-out; }
+@keyframes pmu-tep { 16% { transform: scale(1.025); box-shadow: 0 0 0 2px rgba(255, 210, 120, .8), 0 0 90px rgba(255, 186, 102, .9); } }
+.pmu-zvuk { display: grid; gap: 4px; justify-items: center; }
+.pmu-zvuk small, .pmu-diky { color: #c9ccd3; margin: 0; text-align: center; }
+.pmu-pustit { position: absolute; inset: 0; width: 100%; display: grid; place-items: center; align-content: center; gap: 10px; border: 0; cursor: pointer;
+  background: rgba(0, 0, 0, .6); color: #fff; font: inherit; }
+.pmu-play { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; color: #141414;
+  background: linear-gradient(135deg, #ffd23f, #ff8a3d); box-shadow: 0 0 40px rgba(255, 186, 102, .6); }
+
+/* dole: Jsem tu + stav vlevo, razítko výkresu vpravo */
+.pmu-dole { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.pmu-akce { display: grid; gap: 8px; max-width: 420px; }
+.pmu-jsemtu { min-height: 52px; padding: 0 22px; border: 0; border-radius: 14px; cursor: pointer; justify-self: start;
+  font: 400 1.05rem/1.2 var(--font-body); letter-spacing: .06em; color: #141414; background: linear-gradient(135deg, #ffd23f, #ff8a3d);
+  box-shadow: 0 6px 24px rgba(255, 186, 102, .35); }
+.pmu-jsemtu:disabled { background: rgba(5, 6, 8, .7); color: #ffcf7a; border: 1px solid rgba(255, 207, 122, .4); box-shadow: none; font-size: .9rem; cursor: default; }
+.pmu-stav { margin: 0; color: #ffcf7a; font-size: .95rem; min-height: 1.2em; }
+.pmu-napoveda { margin: 0; color: #c9ccd3; font-size: .9rem; text-shadow: 0 1px 4px #000; }
+.pmu.is-final .pmu-akce, .pmu.is-live .pmu-akce, .pmu.is-konec .pmu-akce { visibility: hidden; }
+.pmu-razitko { border: 1px solid rgba(235, 238, 245, .45); background: rgba(5, 6, 8, .78); display: grid; grid-template-columns: 1fr 1fr;
+  min-width: 270px; font: 400 12px/1.1 var(--font-body); letter-spacing: .05em; color: rgba(235, 238, 245, .9); }
+.pmu-razitko > div { padding: 6px 9px; border-right: 1px solid rgba(235, 238, 245, .22); border-bottom: 1px solid rgba(235, 238, 245, .22); }
+.pmu-razitko small { display: block; font: 9px/1 'Exo 2', sans-serif; letter-spacing: .1em; text-transform: uppercase; opacity: .6; margin-bottom: 4px; }
+.pmu-r-velke { grid-column: 1 / -1; font-size: 18px; color: #fff; text-transform: uppercase; }
+.pmu-r-odpocet { grid-column: 1 / -1; font-size: 30px; color: #ffcf7a; text-shadow: 0 0 18px rgba(255, 186, 102, .5); font-variant-numeric: tabular-nums; }
+.pmu.is-live .pmu-scena, .pmu.is-konec .pmu-scena { opacity: .35; transition: opacity 2s; }
+.pmu.is-live .pmu-razitko { opacity: .6; }
+
+.pmu-zablesk { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse at 50% 45%, rgba(255, 245, 225, .85), rgba(255, 200, 120, .3) 40%, transparent 75%); }
+.pmu-zablesk.ted { animation: pm-zablesk 1.4s ease-out; }
+
+/* telefon na výšku: název nahoře uprostřed, výkres pás pod ním, dole tlačítko a razítko přes celou šířku */
+@media (orientation: portrait) {
+  .pmu-hlava { justify-items: center; text-align: center; }
+  .pmu-dole { flex-direction: column; align-items: stretch; }
+  .pmu-akce { max-width: none; justify-items: center; text-align: center; }
+  .pmu-jsemtu { justify-self: stretch; }
+  .pmu-razitko { min-width: 0; }
+  .pmu-r-odpocet { font-size: 26px; }
+}
+html.low-fx .pmu-tvare img.on { filter: none; }
+@media (prefers-reduced-motion: reduce) { .pmu.roste { transition: opacity .4s; } .pmu-video.tep { animation: none; } }
+
+/* panel simulace (jen ?pmSim na localhostu a testu) */
+.pmu-sim { position: fixed; left: 10px; bottom: 10px; z-index: 9999; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  max-width: calc(100vw - 20px); padding: 8px; border-radius: 12px; background: rgba(0, 0, 0, .85); border: 1px solid #444; font: 13px/1.2 'Exo 2', sans-serif; }
+.pmu-sim b { color: #ffcf7a; margin-right: 4px; }
+.pmu-sim a, .pmu-sim button { color: #ddd; background: #222; border: 1px solid #555; border-radius: 8px; padding: 8px 10px; text-decoration: none; font: inherit; cursor: pointer; }
+
+/* přehrání po premiéře: zrychlit / na odpočet / rovnou na klip (pod názvem) */
+.pmu-znovu { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; pointer-events: auto; margin-top: 4px; }
+.pmu-znovu span { color: #c9ccd3; font-size: .85rem; margin-right: 4px; }
+.pmu-znovu button { min-height: 40px; padding: 0 12px; border-radius: 10px; cursor: pointer; font: inherit; font-size: .85rem;
+  color: #e9ecf2; background: rgba(5, 6, 8, .75); border: 1px solid rgba(235, 238, 245, .35); }
+@media (orientation: portrait) { .pmu-znovu { justify-content: center; } }
