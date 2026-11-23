@@ -14,7 +14,9 @@
     if (ac) { if (ac.state === 'suspended') ac.resume(); return ac; }
     var C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
     ac = new C();
-    out = ac.createDynamicsCompressor(); out.threshold.value = -14; out.ratio.value = 4; out.connect(ac.destination);
+    // za kompresorem společné zesílení celého setu: +4 dB (×1,585) – na mobilu bylo srdce, šepot i vítr skoro neslyšet (Skeli 23. 11.)
+    out = ac.createDynamicsCompressor(); out.threshold.value = -14; out.ratio.value = 4;
+    var master = ac.createGain(); master.gain.value = 1.585; out.connect(master); master.connect(ac.destination);
     var len = Math.floor(ac.sampleRate * 4), b = ac.createBuffer(2, len, ac.sampleRate);   // dozvuk velkého prostoru
     for (var ch = 0; ch < 2; ch++) { var d = b.getChannelData(ch); for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.4); }
     rev = ac.createConvolver(); rev.buffer = b; var rg = ac.createGain(); rg.gain.value = 0.7; rev.connect(rg); rg.connect(out);
@@ -38,6 +40,11 @@
       lp.type = 'lowpass'; lp.frequency.value = 150; o.frequency.setValueAtTime(j ? 56 : 64, t); o.frequency.exponentialRampToValueAtTime(36, t + 0.16);
       g.gain.setValueAtTime((j ? 0.3 : 0.42) * v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
       o.connect(lp); lp.connect(g); send(g, 0.25); o.start(t); o.stop(t + 0.27);
+      // vyšší „ozvěna“ téhož úderu (3× výš): reproduktor mobilu tóny pod ~150 Hz nezahraje, tohle ano; ve sluchátkách skoro neznát
+      var o2 = ac.createOscillator(), g2 = ac.createGain(), lp2 = ac.createBiquadFilter();
+      lp2.type = 'lowpass'; lp2.frequency.value = 480; o2.frequency.setValueAtTime((j ? 56 : 64) * 3, t); o2.frequency.exponentialRampToValueAtTime(110, t + 0.12);
+      g2.gain.setValueAtTime((j ? 0.1 : 0.14) * v, t); g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+      o2.connect(lp2); lp2.connect(g2); send(g2, 0.15); o2.start(t); o2.stop(t + 0.16);
     });
   }
   function tunnel(len) {   // hluboké hučení tunelu: sílí až k nápisu, pak pomalu utichne
@@ -102,6 +109,12 @@
   var HARP = [220, 246.94, 261.63, 293.66, 329.63, 349.23, 415.3], PAN = [-0.5, 0, 0.5, -0.3, 0.2, 0.4, 0];
   // hlasitosti podle Skeliho (náhled hlasitost.html, 2026-11-18: basa a kytara pozpátku ztišené na 30 % a 50 %), už přepočtené
   var L = { harfa: 0.075, basa: 0.036, pozpatku: 0.042, uder: 0.28, akord: 0.11, sepot: 0.047, srdce: 0.6 };
+  // zvuky pro jiné části webu (premiéra: posledních 7 s srdce a šepot SKELO SQUAD, js/premiera.js)
+  window.SquadZvuk = {
+    odemkni: function () { return !!ok(); },              // zavolat při ťuknutí (prohlížeč pustí zvuk jen po něm)
+    srdce: function (v) { heart(v == null ? 0.7 : v); },
+    sepot: function (gain, delay) { whisper(gain == null ? L.sepot : gain, delay || 0); }
+  };
   function harpNote(i, vol) { pluck(HARP[i], 0, vol, { bright: 0.55, damp: 0.997, len: 3.5, wet: 0.55, pan: PAN[i] }); }
   function steel(f, delay, vol) { pluck(f, delay, vol, { bright: 0.4, damp: 0.996, len: 4, echo: 0.36, wet: 0.4, cut: 2600 }); }
 

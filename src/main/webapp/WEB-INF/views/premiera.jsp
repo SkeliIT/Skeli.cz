@@ -2,7 +2,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="com.github.skeliit.model.Premiere, com.github.skeliit.WebUtils" %>
 <%--
-  Premiéra (/premiera, web/site/PremiereServlet): fotka ulice, okna se rozsvěcí s blížícím se startem a „Jsem tu“
+  Premiéra (/premiera, web/site/PremiereServlet): posledních 7 s naskakuje 7 smajlíků na tep srdce (zvuky z js/squad-egg.js),
+  rámeček videa na každý úder zapulzuje, šepot SKELO SQUAD a start. Fotka ulice, okna se rozsvěcí s blížícím se startem a „Jsem tu“
   rozsvítí tvoje okno (a odemkne zvuk). V okamžiku premiéry se celá ulice rozsvítí a všem se pustí klip od stejné
   vteřiny; kdo přijde pozdě, naskočí do běžícího. Video ID tu není: js/premiera.js ho dostane z /api/premiere
   až po startu. Po premiéře zůstane stránka jako přehrání klipu.
@@ -38,6 +39,7 @@
     </div>
 
     <div class="pm-video" id="pmVideo" hidden>
+      <div class="pm-tvare" id="pmTvare" aria-hidden="true"><% for (int fi = 1; fi <= 7; fi++) { %><img src="/img/faces/face-<%= fi %>.webp" alt="" width="44" height="44"><% } %></div>
       <div class="pm-video-in" id="pmVideoIn"><span class="pm-nacita"><%= WebUtils.escapeHtml(t.getProperty("pm.loading")) %></span></div>
     </div>
     <div class="pm-zvuk" id="pmZvuk" hidden>
@@ -57,7 +59,6 @@
   </div>
 
   <div class="pm-zablesk" aria-hidden="true"></div>
-  <div class="pm-cislo" id="pmCislo" aria-hidden="true"></div>
 </main>
 <script src="/js/yt-clock.js?v=<%= assetVersion %>"></script>
 <script src="/js/premiera.js?v=<%= assetVersion %>"></script>

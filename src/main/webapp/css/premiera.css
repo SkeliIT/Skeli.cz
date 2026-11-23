@@ -85,6 +85,7 @@ main.pm .pm-jsemtu:disabled { cursor: default; background: rgba(0, 0, 0, .35); c
   box-shadow: 0 0 0 1px rgba(255, 255, 255, .08), 0 0 50px rgb(var(--pm-okno) / .35); display: grid; place-items: center; }
 .pm-video-in iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .pm-nacita { color: #bbb; }
+.pm.is-final .pm-nacita { visibility: hidden; }
 main.pm .pm-pustit { position: absolute; inset: 0; width: 100%; display: grid; place-items: center; align-content: center; gap: 10px; border: 0; cursor: pointer;
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, .35), rgba(0, 0, 0, .8)), var(--pm-nahled, #000) center / cover; color: #fff; font: inherit; }
 .pm-pustit .pm-play { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; color: #141414;
@@ -98,11 +99,22 @@ main.pm .pm-pustit { position: absolute; inset: 0; width: 100%; display: grid; p
 .pm-zvuk small, .pm-konec, .pm-probehla { color: var(--text-dim); margin: 0; }
 .pm-konec { font-size: 1.05rem; color: var(--text); }
 
-/* ---------- 3-2-1 a rozsvícení ---------- */
-.pm-cislo { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; pointer-events: none; opacity: 0;
-  font: 400 min(40vh, 60vw)/1 var(--font-body); color: #fff; text-shadow: 0 0 40px rgb(var(--pm-okno)), 0 4px 30px #000; }
-.pm-cislo.ted { animation: pm-cislo 1s ease-out forwards; }
-@keyframes pm-cislo { 0% { opacity: 0; transform: scale(1.6); } 15% { opacity: 1; transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(.85); } }
+/* ---------- posledních 7 s: smajlíci na tep srdce, rámeček pulzuje (is-final), pak klip ---------- */
+.pm-tvare { display: none; justify-content: center; gap: clamp(4px, 1.5vw, 10px); margin: 0 0 12px; max-height: 60px;
+  transition: opacity 1s 3s, max-height .6s 4s, margin .6s 4s; }
+.pm.ma-tvare .pm-tvare { display: flex; }
+.pm.is-live .pm-tvare { opacity: 0; max-height: 0; margin: 0; }
+.pm-tvare img { width: clamp(30px, 9vw, 48px); height: auto; opacity: .1; transform: scale(.8); transition: opacity .25s, transform .35s, filter .35s; }
+.pm-tvare img.on { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 5px var(--pm-zlata)) drop-shadow(0 0 14px #ff8a3d); }
+body.light .pm-tvare img { filter: invert(1); }
+body.light .pm-tvare img.on { filter: invert(1) drop-shadow(0 0 4px #ff8a3d); }
+.pm.is-final .pm-odpocet, .pm.is-final .pm-pod, .pm.is-final .pm-jsemtu, .pm.is-final .pm-spolu { display: none; }
+.pm-video-in.tep { animation: pm-tep .5s ease-out; }
+@keyframes pm-tep {
+  0% { transform: scale(1); }
+  16% { transform: scale(1.025); box-shadow: 0 0 0 2px rgb(255 210 120 / .75), 0 0 90px rgb(var(--pm-okno) / .9); }
+  100% { transform: scale(1); }
+}
 .pm-zablesk { position: fixed; inset: 0; z-index: 39; pointer-events: none; opacity: 0;
   background: radial-gradient(ellipse at 50% 45%, rgb(255 236 190 / .8), rgb(255 170 70 / .3) 40%, transparent 75%); }
 .pm-zablesk.ted { animation: pm-zablesk 1.4s ease-out; }
@@ -137,8 +149,10 @@ body.light main.pm .pm-prechod { background: linear-gradient(to bottom, transpar
 
 /* slabý telefon a omezení pohybu: kouř stojí, okna jen prolnou */
 html.low-fx .pm-kour, html.low-fx .pm-okno.nove { animation: none; }
+html.low-fx .pm-tvare img.on { filter: none; }
 html.low-fx .pm-okno { box-shadow: none; }
 @media (prefers-reduced-motion: reduce) {
   .pm-kour, .pm-okno.nove { animation: none; }
-  .pm-cislo.ted, .pm-zablesk.ted { animation-duration: .01s; }
+  .pm-zablesk.ted { animation-duration: .01s; }
+  .pm-video-in.tep { animation: none; box-shadow: 0 0 0 2px rgb(255 210 120 / .6), 0 0 50px rgb(var(--pm-okno) / .6); }
 }

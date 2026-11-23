@@ -59,13 +59,14 @@
   }
   jsemTu.addEventListener('click', function () {
     tady = klepnuto = true;
+    if (window.SquadZvuk) window.SquadZvuk.odemkni();     // zvuk srdce a šepotu smí hrát jen po ťuknutí
     try { sessionStorage.setItem('pmTady:' + song, '1'); } catch (e) { /* nevadí */ }
     oznacTady(true);
   });
   if (tady) oznacTady(false);
 
   // ---------- odpočet ----------
-  var odpocet = $('pmOdpocet'), pod = $('pmPod'), cislo = $('pmCislo');
+  var odpocet = $('pmOdpocet'), pod = $('pmPod');
   function dva(n) { return (n < 10 ? '0' : '') + n; }
   function ukazOdpocet(ms) {
     var s = Math.ceil(ms / 1000), d = Math.floor(s / 86400), h = Math.floor(s / 3600) % 24, m = Math.floor(s / 60) % 60, x = s % 60;
@@ -75,11 +76,25 @@
     pod.textContent = ms <= 60000 ? root.dataset.tSoon : root.dataset.tLeft;
     root.classList.toggle('is-soon', ms <= 60000);
   }
-  var posledniCislo = 0;
-  function trojka(n) {
-    if (n === posledniCislo) return;
-    posledniCislo = n;
-    cislo.textContent = n; cislo.classList.remove('ted'); void cislo.offsetWidth; cislo.classList.add('ted');
+  // ---------- posledních 7 s: smajlíci naskakují na tep srdce, rámeček videa pulzuje, šepot SKELO SQUAD ----------
+  // údery 7,5 s až 2,1 s před startem (každý o něco silnější), šepot 1,4 s před startem, ve 0 se pustí klip do téhož rámečku
+  var TEPY = [7.5, 6.6, 5.7, 4.8, 3.9, 3.0, 2.1], SEPOT = 1.4, finale = false;
+  var tvare = [].slice.call(document.querySelectorAll('#pmTvare img')), ram = $('pmVideoIn');
+  function zvuk() { return klepnuto && window.SquadZvuk ? window.SquadZvuk : null; }
+  function finalePrijde(zbyva) {
+    if (finale) return; finale = true;
+    root.classList.add('is-final', 'ma-tvare'); $('pmVideo').hidden = false;
+    TEPY.forEach(function (pred, i) {
+      var d = zbyva - pred * 1000;
+      if (d < -300) { tvare[i].classList.add('on'); return; }   // přišel pozdě: ty smajlíky už svítí
+      setTimeout(function () {
+        tvare[i].classList.add('on');
+        ram.classList.remove('tep'); void ram.offsetWidth; ram.classList.add('tep');
+        var z = zvuk(); if (z) z.srdce(0.55 + i * 0.07);
+      }, Math.max(0, d));
+    });
+    var ds = zbyva - SEPOT * 1000;
+    if (ds > -300) setTimeout(function () { var z = zvuk(); if (z) z.sepot(0.09); }, Math.max(0, ds));
   }
 
   // ---------- start: celá ulice se rozsvítí ----------
@@ -93,7 +108,7 @@
 
   // ---------- video ----------
   var yt = null, hraje = false, clock = null;
-  function stav(s) { root.classList.remove('is-wait', 'is-soon', 'is-live', 'is-over'); root.classList.add(s); }
+  function stav(s) { root.classList.remove('is-wait', 'is-soon', 'is-final', 'is-live', 'is-over'); root.classList.add(s); }
   function embed(start, autoplay, mute) {
     var box = $('pmVideoIn');
     if (clock) { clock.stop(); clock = null; }
@@ -184,7 +199,7 @@
     if (zbyva > 0) {
       ukazOdpocet(zbyva);
       atmosfera(Math.max(0, Math.min(1, 1 - zbyva / 1800000)));
-      if (zbyva <= 3000) trojka(Math.ceil(zbyva / 1000));
+      if (zbyva <= 8000) finalePrijde(zbyva);
       if (Date.now() - posledniSync > 300000) { posledniSync = Date.now(); zeptej(); }
       return;
     }
