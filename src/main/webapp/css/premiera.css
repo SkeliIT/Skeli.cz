@@ -174,7 +174,17 @@ main.pm .pm-jsemtu:disabled { opacity: 1; color: #fff; background: rgba(0, 0, 0,
 .pm-btn-ghost { border-radius: 999px; color: #f2f2f2; background: rgba(0, 0, 0, .4); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); min-height: 48px; padding: 0 20px; }
 .pm .pmf { width: min(460px, 86vw); --base: -12deg; }
 
-/* pozadí z fotky klipu: přes celou stránku, bez oken a lamp; střed tmavší, aby text byl čitelný */
+/* pozadí z fotky klipu: premiéra je velká DLAŽDICE jako ostatní na webu (zaoblené rohy, rámeček a záře v barvě webu,
+   kolem normální pozadí webu) – fotka končí na okraji dlaždice, žádná ostrá hrana pod hlavičkou; bez oken a lamp */
+main.pm.klip { width: min(1280px, calc(100% - 32px)); margin: 18px auto 48px; border-radius: 28px;
+  min-height: calc(100svh - var(--header-h, 64px) - 66px);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45), 0 0 70px -22px var(--accent), 0 30px 80px -40px #000;
+  transition: border-color .6s, box-shadow .6s; }
+@media (max-width: 700px) { main.pm.klip { width: calc(100% - 16px); margin: 8px auto 32px; border-radius: 20px; }
+  main.pm.klip .pm-jsemtu { padding: 0 14px; font-size: .92rem; letter-spacing: .03em; }   /* tlačítko na jeden řádek i v užší dlaždici */
+  main.pm.klip .pm-stitek { flex-wrap: nowrap; gap: 6px; padding: 6px 10px; letter-spacing: .06em; font-size: .72rem; }
+  main.pm.klip .pm-stitek small { white-space: nowrap; } }
 .pm.klip .pm-foto { top: 0; left: 0; right: 0; bottom: 0; height: auto; aspect-ratio: auto; transform: none; }
 .pm.klip .pm-ulice { object-fit: cover; }
 .pm.klip .pm-okno, .pm.klip .pm-lampa, .pm.klip .pm-tvoje { display: none; }
@@ -183,13 +193,13 @@ main.pm .pm-jsemtu:disabled { opacity: 1; color: #fff; background: rgba(0, 0, 0,
 .pm.klip .pm-foto { filter: brightness(calc(var(--pm-jas) + .5)) saturate(.9); }
 .pm.klip.is-live .pm-foto, .pm.klip.is-over .pm-foto { filter: brightness(.35); }
 .pm.klip .pm-prechod, body.light main.pm.klip .pm-prechod { top: 0; height: 100%;
-  background: linear-gradient(to bottom, rgba(9, 9, 11, .55), rgba(9, 9, 11, .35) 35%, rgba(9, 9, 11, .6) 70%, var(--bg)); }
+  background: linear-gradient(to bottom, rgba(9, 9, 11, .55), rgba(9, 9, 11, .35) 35%, rgba(9, 9, 11, .7)); }
 .pm.klip .pm-prechod::after { display: none; }
 .pm.klip .pm-in { padding-top: clamp(20px, 6vh, 70px); }
 @media (orientation: landscape) {
   .pm.klip .pm-prechod, body.light main.pm.klip .pm-prechod {
     background: linear-gradient(90deg, rgba(9, 9, 11, .88), rgba(9, 9, 11, .62) 38%, rgba(9, 9, 11, .18) 72%, rgba(9, 9, 11, .3)),
-      linear-gradient(to bottom, transparent 78%, var(--bg)); }
+      linear-gradient(to bottom, transparent 70%, rgba(9, 9, 11, .5)); }
 }
 /* fotka je i ve světlém režimu tmavá (premiéra je večer): texty zůstanou světlé */
 body.light main.pm.klip .pm-nazev { color: #fff6e8; text-shadow: 0 0 6px rgba(255, 255, 255, .55), 0 0 18px var(--accent), 0 0 42px var(--accent); }
@@ -200,7 +210,7 @@ body.light main.pm.klip .pm-pod, body.light main.pm.klip .pm-spolu, body.light m
 /* (okénko stojí mimo řádky textu – position: absolute – takže když se roztáhne, text vlevo se nehne) */
 @media (min-width: 1100px) and (orientation: landscape) {
   .pm.is-wait .pm-in { max-width: 1180px; grid-template-columns: minmax(0, 560px); justify-items: start; text-align: left;
-    min-height: max(760px, calc(100svh - var(--header-h, 64px))); align-content: center; }   /* obsah uprostřed obrazovky; roztažené okénko se vejde celé */
+    min-height: max(720px, calc(100svh - var(--header-h, 64px) - 66px)); align-content: center; padding-bottom: 60px; }   /* obsah uprostřed dlaždice; roztažené okénko se vejde celé */
   .pm.is-wait .pm-hlavni { justify-items: start; }
   .pm.is-wait .pmf, .pm.is-wait .pmf.is-open { position: absolute; left: auto; right: clamp(16px, 3vw, 48px); top: 50%; translate: 0 -50%; margin: 0; }
   .pm.is-wait .pmf:not(.is-open) { width: clamp(360px, 32vw, 480px); --base: -22deg; }   /* roztažené: velikost z js, rovně */
