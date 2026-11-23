@@ -1131,7 +1131,7 @@ button.is-sending { cursor: progress; opacity: 0.85; }
   .hero-particles, .bg-slides,
   .hero-title .logo-mark::after, .masthead-brand .squad-mark::after, .tape-gold::after { display: none; }
   .photo-band-img { transform: none; }
-  .marquee-track, .tape-gold, .eq i, .hero-title .logo-mark, .masthead-brand .squad-mark, .hero-latest small .dot { animation: none; }
+  .marquee-track, .tape-gold, .eq i, .hero-title .logo-mark, .masthead-brand .squad-mark, .hero-latest small .dot, .pmh-kicker .dot { animation: none; }
   [data-tilt] { transform: none !important; }
 }
 
@@ -1375,18 +1375,53 @@ body.light .kevin-emote {
   .hero-premiere .hp-count { font-size: var(--fs-body); }
   .hero-premiere img { width: 84px; height: auto; }
 }
-/* upoutávka (short) před premiérou (js/upoutavka.js): fotka s ▶ v kartě, video se rozbalí pod kartou;
-   stejné okénko s videem používá i stránka /premiera (.pm-teaser v premiera.css) */
-.hp-teaser { position: relative; flex-shrink: 0; display: block; border-radius: 11px; cursor: pointer; }
-.hp-teaser img { display: block; }
-.hp-teaser i, .pm-teaser i { position: absolute; inset: 0; margin: auto; width: 32px; height: 32px; border-radius: 50%;
-  display: grid; place-items: center; font-size: 12px; color: #fff; background: rgba(0, 0, 0, .6); border: 1px solid rgba(255, 255, 255, .55); }
-.hp-teaser.is-open, .pm-teaser.is-open { outline: 2px solid var(--accent); outline-offset: 2px; }
-.upoutavka { position: relative; width: fit-content; max-width: 100%; margin: 12px 0 0; border-radius: 16px; overflow: hidden;
-  background: #000; border: 1px solid var(--panel-border); box-shadow: var(--shadow); }
-.upoutavka video { display: block; width: auto; max-width: 100%; height: min(70vh, 620px); height: min(70svh, 620px); aspect-ratio: 9 / 16; background: #000; }
-.upoutavka-x { position: absolute; top: 8px; right: 8px; width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer;
-  display: grid; place-items: center; color: #fff; background: rgba(0, 0, 0, .6); }
+/* premiéra s upoutávkou na úvodu (index.jsp .pmh, js/upoutavka.js): velký blok jako ukázka na Karaoke – nakloněné okénko
+   v rámečku barvy webu (pod myší i prstem se naklání), po ťuknutí se srovná, roztáhne na výšku a short hraje v něm.
+   Stejné okénko (.pmf) má i stránka /premiera (premiera.css). */
+.pmh.hero-premiere { position: relative; display: grid; gap: 10px; justify-items: start; margin: 4px 0 24px; border: 0; box-shadow: none; }
+.pmh small { display: inline; white-space: normal; }
+.pmh-kicker { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--fs-small); letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
+.pmh-kicker .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s infinite; }
+.pmh-nazev { margin: 6px 0 0; font: 400 clamp(1.9rem, 6vw, 3.1rem)/1.05 var(--font-body); text-transform: uppercase; letter-spacing: .03em; color: #fff6e8;
+  text-shadow: 0 0 6px rgba(255, 255, 255, .6), 0 0 18px var(--accent), 0 0 42px var(--accent); }
+body.light .pmh-nazev { color: var(--accent); text-shadow: 0 0 1px var(--accent); }
+.pmh-kdy { margin: 0; font-size: var(--fs-body); color: var(--text); }
+.pmh-kdy small { color: var(--text-dim); font-size: var(--fs-small); }
+.pmh-count.hp-count { margin: 0; font-size: clamp(1.7rem, 5.4vw, 2.5rem); line-height: 1.1; }
+.pmh-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.pmh-cta .kp-ghost { font: inherit; font-size: var(--fs-card); cursor: pointer; }
+
+.pmf { position: relative; z-index: 5; display: block; width: min(100%, 460px); aspect-ratio: 16 / 9; margin: 10px 0 8px; border-radius: 14px; overflow: hidden;
+  cursor: pointer; touch-action: pan-y; -webkit-tap-highlight-color: transparent; border: 2px solid var(--accent); background: #000; --base: -14deg;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45), 0 0 34px -6px var(--accent), 0 34px 60px -30px #000;
+  transform: perspective(900px) rotateY(calc(var(--base) + var(--ry, 0deg))) rotateX(var(--rx, 0deg));
+  transition: transform .5s cubic-bezier(.2, .8, .2, 1), width .6s cubic-bezier(.2, .8, .2, 1), height .6s cubic-bezier(.2, .8, .2, 1), box-shadow .6s; }
+.pmf.tilting { transition: transform .12s linear, width .6s cubic-bezier(.2, .8, .2, 1), height .6s cubic-bezier(.2, .8, .2, 1), box-shadow .6s; }
+.pmf:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+/* odlesk skla, posouvá se s nakloněním */
+.pmf::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; transition: opacity .4s;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, .14) 50%, transparent 62%); transform: translateX(calc(var(--ry, 0deg) / 1deg * 3%)); }
+.pmf .pmf-foto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }   /* .pmf: přebít .hero-premiere img z malé karty */
+.pmf-play { position: absolute; z-index: 3; inset: 0; margin: auto; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 22px; color: var(--accent-ink, #111); background: var(--accent); pointer-events: none; transition: transform .3s, opacity .3s;
+  box-shadow: 0 0 0 7px color-mix(in srgb, var(--accent) 28%, transparent), 0 0 34px var(--accent); }
+.pmf-play i { margin-left: 4px; }
+.pmf:hover .pmf-play { transform: scale(1.08); }
+.pmf-stitek { position: absolute; z-index: 3; left: 10px; bottom: 10px; padding: 3px 10px; border-radius: 6px; font-size: var(--fs-small); letter-spacing: .12em;
+  text-transform: uppercase; white-space: nowrap; color: #fff; background: rgba(0, 0, 0, .65); transition: opacity .3s; }
+/* roztažené: rovně, na výšku, short přes celé okénko; pauza ukáže zase ▶ */
+.pmf.is-open { --base: 0deg; cursor: default; aspect-ratio: auto; box-shadow: 0 0 0 1px rgba(0, 0, 0, .45), 0 0 60px -6px var(--accent), 0 40px 80px -30px #000; }
+.pmf.is-open::after, .pmf.is-open .pmf-stitek, .pmf.is-playing .pmf-play { opacity: 0; }
+.pmf-video { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000; opacity: 0; transition: opacity .4s; }
+.pmf.is-playing .pmf-video, .pmf.is-open .pmf-video[data-hralo] { opacity: 1; }
+.pmf-x { position: absolute; z-index: 4; top: 8px; right: 8px; width: 42px; height: 42px; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center; font-size: 18px; color: #fff; background: rgba(0, 0, 0, .6); }
+.pmf-prubeh { position: absolute; z-index: 4; left: 0; right: 0; bottom: 0; height: 4px; background: var(--accent); transform-origin: left; transform: scaleX(0); }
+/* PC: text vlevo pod jménem, okénko vedle něj vpravo (jako na Karaoke) */
+@media (min-width: 1200px) {
+  .pmf { position: absolute; left: calc(100% + clamp(40px, 5vw, 96px)); top: 50%; translate: 0 -50%; width: clamp(340px, 30vw, 470px); margin: 0; --base: -22deg; }
+}
+@media (prefers-reduced-motion: reduce) { .pmf, .pmf.tilting { transition: none; } }
 
 /* Ukázka Kevinových kousků (kevin-ukazka.jsp): karty, po kterých chodí, sedá a ze kterých padá */
 .kevin-show { position: relative; min-height: 160vh; }

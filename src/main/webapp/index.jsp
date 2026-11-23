@@ -55,13 +55,37 @@
        if (premiere != null) {
          String pName = com.github.skeliit.WebUtils.escapeHtml(premiere.name);
          String pKind = t.getProperty("song".equals(premiere.kind) ? "premiere.song" : "premiere.clip"); %>
+    <%-- před premiérou s upoutávkou (img/premiera/short-<název>.mp4): velký blok jako ukázka na Karaoke – nakloněné okénko
+         s fotkou klipu (ťuknutí ho roztáhne a pustí v něm short, js/upoutavka.js), název, datum, odpočet, Na premiéru a Sdílet.
+         Třída hero-premiere: z bloku se 30 min předem roztáhne proměna úvodu (js/premiera-uvod.js). --%>
+    <% String[] pmTeaser = premiere.isOut() ? null : com.github.skeliit.web.site.PremiereServlet.teaser(application, premiere.name);
+       if (pmTeaser != null) {
+         String pmShareText = t.getProperty("pm.shareText").replace("{name}", premiere.name).replace("{when}", premiere.getWhen()); %>
+    <div class="pmh hero-premiere" data-premiere="<%= premiere.at %>">
+      <p class="pmh-kicker"><span class="dot" aria-hidden="true"></span><%= t.getProperty("premiere.soon") %> · <%= pKind %></p>
+      <div class="pmf" role="button" tabindex="0" aria-expanded="false" data-teaser="<%= pmTeaser[0] %>"
+           data-close="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("common.close")) %>" aria-label="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.teaserPlay")) %>">
+        <img class="pmf-foto" src="<%= pmTeaser[1] %>" alt="" width="640" height="360">
+        <span class="pmf-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
+        <small class="pmf-stitek"><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.teaser")) %></small>
+      </div>
+      <h2 class="pmh-nazev"><%= pName %></h2>
+      <p class="pmh-kdy"><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("premiere.at").replace("{when}", premiere.getWhen())) %> <small><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.tz")) %></small></p>
+      <p class="hp-count pmh-count" aria-label="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("premiere.at").replace("{when}", premiere.getWhen())) %>">
+        <span data-u="d">0</span><i><%= t.getProperty("premiere.d") %></i>
+        <span data-u="h">00</span><i><%= t.getProperty("premiere.h") %></i>
+        <span data-u="m">00</span><i><%= t.getProperty("premiere.m") %></i>
+        <span data-u="s">00</span><i><%= t.getProperty("premiere.s") %></i>
+      </p>
+      <div class="pmh-cta">
+        <a class="kp-sing" href="/premiera"><i class="fa-solid fa-play" aria-hidden="true"></i><%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.go")) %></a>
+        <button type="button" class="kp-ghost" data-pm-share data-title="<%= pName %>" data-text="<%= com.github.skeliit.WebUtils.escapeHtml(pmShareText) %>"
+                data-copied="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.copied")) %>"><i class="fas fa-share-alt" aria-hidden="true"></i>&nbsp;<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.share")) %></button>
+      </div>
+    </div>
+    <% } else { %>
     <a class="hero-latest hero-premiere<%= premiere.isOut() ? " is-out" : "" %>" href="/premiera" data-premiere="<%= premiere.at %>">
-      <%-- před premiérou: fotka s ▶ pustí upoutávku (short) pod kartou (js/upoutavka.js), zbytek karty vede na /premiera --%>
-      <% String[] pmTeaser = premiere.isOut() ? null : com.github.skeliit.web.site.PremiereServlet.teaser(application, premiere.name);
-         if (pmTeaser != null) { %><span class="hp-teaser" role="button" tabindex="0" aria-expanded="false" data-teaser="<%= pmTeaser[0] %>"
-           data-close="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("common.close")) %>" aria-label="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.teaserPlay")) %>"><img
-           src="<%= pmTeaser[1] %>" alt="" width="104" height="58"><i class="fa-solid fa-play" aria-hidden="true"></i></span><%
-         } else if (premiere.thumb != null) { %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(premiere.thumb) %>" alt="" width="104" height="58"><% } %>
+      <% if (premiere.thumb != null) { %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(premiere.thumb) %>" alt="" width="104" height="58"><% } %>
       <span>
         <small><span class="dot"></span><span class="hp-soon"><%= t.getProperty("premiere.soon") %></span><span class="hp-out"><%= t.getProperty("premiere.out") %></span> · <%= pKind %></small>
         <b><%= pName %></b>
@@ -74,6 +98,7 @@
       </span>
       <span class="play"><i class="fa-solid fa-play"></i></span>
     </a>
+    <% } %>
     <script src="/js/premiere.js?v=<%= assetVersion %>"></script>
     <% if (pmTeaser != null) { %><script src="/js/upoutavka.js?v=<%= assetVersion %>"></script><% } %>
     <% } %>

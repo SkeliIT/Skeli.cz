@@ -38,13 +38,13 @@
       <p class="pm-pod" id="pmPod"><%= WebUtils.escapeHtml(t.getProperty("pm.left")) %></p>
       <% String[] teaser = (String[]) request.getAttribute("teaser");
          if (teaser != null && !pm.isOut()) { %>
-      <%-- upoutávka (short) do začátku premiéry: fotka s ▶, ťuknutí pustí video hned pod ní (js/upoutavka.js) --%>
-      <span class="pm-teaser" role="button" tabindex="0" aria-expanded="false" data-teaser="<%= teaser[0] %>"
-            data-close="<%= WebUtils.escapeHtml(t.getProperty("common.close")) %>" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.teaserPlay")) %>">
-        <img src="<%= teaser[1] %>" alt="" width="640" height="360">
-        <i class="fa-solid fa-play" aria-hidden="true"></i>
-        <small><%= WebUtils.escapeHtml(t.getProperty("pm.teaser")) %></small>
-      </span>
+      <%-- upoutávka (short) do začátku premiéry: nakloněné okénko jako na úvodu, ťuknutí ho roztáhne a pustí v něm video (js/upoutavka.js) --%>
+      <div class="pmf" role="button" tabindex="0" aria-expanded="false" data-teaser="<%= teaser[0] %>"
+           data-close="<%= WebUtils.escapeHtml(t.getProperty("common.close")) %>" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.teaserPlay")) %>">
+        <img class="pmf-foto" src="<%= teaser[1] %>" alt="" width="640" height="360">
+        <span class="pmf-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
+        <small class="pmf-stitek"><%= WebUtils.escapeHtml(t.getProperty("pm.teaser")) %></small>
+      </div>
       <% } %>
     </div>
 
