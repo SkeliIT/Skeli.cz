@@ -67,17 +67,12 @@ main.pm [hidden] { display: none !important; }
 .pm-odpocet .pm-dny { font-size: .45em; margin-right: .3em; vertical-align: .35em; }
 .pm-pod { margin: -4px 0 0; color: var(--text-dim); font-size: 1rem; }
 .pm-spolu { margin: 0; color: var(--text-dim); font-size: .95rem; max-width: 36ch; }
-/* upoutávka (short) do začátku premiéry: fotka klipu s ▶, video pod ní (js/upoutavka.js, okénko videa v effects.css);
+/* upoutávka (short) do začátku premiéry: stejné nakloněné okénko jako na úvodu (.pmf v effects.css), tady uprostřed;
    v poslední minutě a při premiéře zmizí, zvuk patří klipu */
-.pm-teaser { position: relative; display: block; width: min(300px, 78vw); border-radius: 12px; cursor: pointer; margin-top: 4px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, .6); }
-.pm-teaser img { display: block; width: 100%; height: auto; border-radius: 12px; }
-.pm-teaser i { width: 52px; height: 52px; font-size: 18px; }
-.pm-teaser small { position: absolute; left: 8px; bottom: 8px; padding: 2px 8px; border-radius: 6px; font-size: var(--fs-small);
-  color: #fff; background: rgba(0, 0, 0, .65); }
-.pm .upoutavka { margin: 0 auto; }
-.pm:not(.is-wait) .pm-teaser, .pm:not(.is-wait) .upoutavka { display: none; }
-@media (orientation: landscape) and (max-height: 500px) { .pm-teaser { width: min(220px, 40vw); } }
+.pm .pmf, .pm .pmf.is-open { position: relative; left: auto; top: auto; translate: none; margin: 8px auto 4px; }
+.pm .pmf { width: min(340px, 80vw); --base: -10deg; }
+.pm:not(.is-wait) .pmf { display: none; }
+@media (orientation: landscape) and (max-height: 500px) { .pm .pmf { width: min(240px, 42vw); } }
 
 main.pm .pm-jsemtu { width: 100%; max-width: 420px; min-height: 56px; border: 0; border-radius: 16px; cursor: pointer;
   font: 400 1.1rem/1.2 var(--font-body); letter-spacing: .06em; color: #141414;
