@@ -28,6 +28,18 @@ public class PremiereDao {
         }
     }
 
+    /**
+     * Premiéra pro stránku /premiera: nejbližší budoucí, jinak poslední proběhlá (bez omezení stáří –
+     * stránka pak slouží jako záznam); nebo null, když žádná premiéra nikdy nebyla.
+     */
+    public Premiere forPage() throws SQLException {
+        long now = System.currentTimeMillis();
+        try (Connection c = Db.get()) {
+            Premiere p = one(c, SELECT + "WHERE s.release_at >= ? ORDER BY s.release_at ASC LIMIT 1", now);
+            return p != null ? p : one(c, SELECT + "WHERE s.release_at IS NOT NULL AND s.release_at < ? ORDER BY s.release_at DESC LIMIT 1", now);
+        }
+    }
+
     /** Premiéra jedné písně (i už proběhlá), nebo null. */
     public Premiere forSong(int songId) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(SELECT + "WHERE s.id = ? AND s.release_at IS NOT NULL")) {

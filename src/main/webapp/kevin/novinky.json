@@ -1,5 +1,14 @@
 [
   {
+    "d": "2026-11-23",
+    "href": "/premiera",
+    "cs": "Ve čtvrtek 26. 11. v 19:00 tu má premiéru můj nový klip „Musíš odejít“. Ťukni na Jsem tu a rozsviť si okno v ulici.",
+    "en": "On Thursday 26 Nov at 19:00 my new video “Musíš odejít” premieres here. Tap I'm here and light up a window in the street.",
+    "de": "Am Donnerstag, 26. 11., um 19:00 feiert hier mein neues Video „Musíš odejít“ Premiere. Tipp auf Ich bin da und lass ein Fenster in der Straße leuchten.",
+    "uk": "У четвер 26. 11. о 19:00 тут прем'єра мого нового кліпу «Musíš odejít». Торкнися «Я тут» і засвіти вікно на вулиці.",
+    "vi": "Thứ Năm 26/11 lúc 19:00, video mới “Musíš odejít” của tôi ra mắt tại đây. Chạm Tôi ở đây và thắp sáng một cửa sổ trên phố."
+  },
+  {
     "d": "2026-11-22",
     "href": "/nastaveni.jsp#vzhled",
     "cs": "Dvanáct nových vzhledů profilu: Komiks, Metro, Zápisník, Arkáda a další. Vyber si v Nastavení, který ti sedí.",
@@ -34,14 +43,5 @@
     "de": "Eine neue Karaoke-Seite. Such dir einen Song aus und sing mit Skeli, der Text leuchtet Wort für Wort auf. Du musst dich nur anmelden.",
     "uk": "Нова сторінка Караоке. Обери пісню й співай зі Skeli, текст світиться слово за словом. Достатньо увійти.",
     "vi": "Trang Karaoke mới. Chọn một bài và hát cùng Skeli, lời bài hát sáng lên từng chữ. Chỉ cần đăng nhập."
-  },
-  {
-    "d": "2026-11-15",
-    "href": "/texty.jsp",
-    "cs": "Texty se teď točí jako kolotoč. Vybraná píseň ukáže kus textu, jedním ťuknutím čteš nebo zpíváš.",
-    "en": "The lyrics now spin like a carousel. The chosen song shows a piece of its lyrics, one tap and you read or sing.",
-    "de": "Die Texte drehen sich jetzt wie ein Karussell. Der gewählte Song zeigt ein Stück Text, ein Tipp und du liest oder singst.",
-    "uk": "Тексти тепер крутяться, як карусель. Обрана пісня покаже шматок тексту, одним дотиком читаєш або співаєш.",
-    "vi": "Lời bài hát giờ xoay như vòng quay ngựa gỗ. Bài được chọn hiện một đoạn lời, chạm một lần là đọc hoặc hát."
   }
 ]
