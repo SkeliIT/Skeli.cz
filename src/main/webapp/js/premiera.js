@@ -220,9 +220,10 @@
   var share = $('pmShare');
   share.addEventListener('click', function () {
     var url = location.origin + '/premiera';
-    if (navigator.share) { navigator.share({ title: share.dataset.title, url: url }).catch(function () { /* zavřel */ }); return; }
+    // text s datem a časem: v příspěvku je vidět, kdy premiéra je, i když síť ukáže starý náhled
+    if (navigator.share) { navigator.share({ title: share.dataset.title, text: share.dataset.text, url: url }).catch(function () { /* zavřel */ }); return; }
     var hotovo = function () { var p = share.innerHTML; share.textContent = root.dataset.tCopied; setTimeout(function () { share.innerHTML = p; }, 2000); };
-    if (navigator.clipboard) navigator.clipboard.writeText(url).then(hotovo).catch(function () { /* nejde */ });
+    if (navigator.clipboard) navigator.clipboard.writeText(share.dataset.text + ' ' + url).then(hotovo).catch(function () { /* nejde */ });
   });
 
   // první dotaz hned: přesný čas a (po premiéře) video

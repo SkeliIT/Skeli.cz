@@ -54,7 +54,7 @@
 
     <div class="pm-odkazy">
       <a class="pm-btn pm-btn-ghost" href="<%= WebUtils.escapeHtml((String) request.getAttribute("songHref")) %>"><i class="fa-solid fa-align-left" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.lyrics")) %></a>
-      <button type="button" class="pm-btn pm-btn-ghost" id="pmShare" data-title="<%= pmName %>"><i class="fas fa-share-alt" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.share")) %></button>
+      <button type="button" class="pm-btn pm-btn-ghost" id="pmShare" data-title="<%= pmName %>" data-text="<%= WebUtils.escapeHtml(t.getProperty("pm.shareText").replace("{name}", pm.name).replace("{when}", pm.getWhen())) %>"><i class="fas fa-share-alt" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.share")) %></button>
     </div>
   </div>
 
