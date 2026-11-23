@@ -68,7 +68,8 @@ public class TrackDao {
                                 + "ON DUPLICATE KEY UPDATE song_id = VALUES(song_id), title = COALESCE(NULLIF(VALUES(title), ''), title), "
                                 + "published_at = COALESCE(published_at, VALUES(published_at))")) {
                     ps.setString(1, youtubeId);
-                    ps.setString(2, videoTitle == null ? youtubeId : videoTitle);
+                    // bez názvu z YouTube (např. naplánovaná premiéra) NULL, ne kód videa – doplní ho VideoTitles
+                    ps.setString(2, videoTitle == null || videoTitle.isBlank() ? null : videoTitle);
                     ps.setTimestamp(3, released);
                     ps.setInt(4, songId);
                     ps.executeUpdate();
