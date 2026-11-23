@@ -32,6 +32,13 @@ public class PremiereServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
+        // simulace (?pmSim=sekund do startu) jen lokálně a na testu: ukázka čekárny bez nastavené premiéry, nic neukládá
+        String host = req.getServerName();
+        if (req.getParameter("pmSim") != null && ("localhost".equals(host) || host.startsWith("test."))) {
+            long sec = 3 * 24 * 3600;
+            try { sec = Long.parseLong(req.getParameter("pmSim")); } catch (NumberFormatException e) { /* výchozí 3 dny */ }
+            p = new Premiere(0, "sim", "Musíš odejít", "clip", null, System.currentTimeMillis() + sec * 1000);
+        }
         if (p == null) { resp.sendRedirect("/"); return; }
         // stav se mění v čase: nikdy ze staré mezipaměti
         resp.setHeader("Cache-Control", "no-store");
@@ -46,6 +53,7 @@ public class PremiereServlet extends HttpServlet {
         if (og == null && p.thumb != null && p.thumb.startsWith("/")) og = p.thumb;
         if (og != null) req.setAttribute("pageImage", LyricRouterServlet.absoluteImage(og));
         req.setAttribute("teaser", teaser(getServletContext(), p.name));
+        req.setAttribute("pmBackground", background(getServletContext(), p.name));
         req.getRequestDispatcher("/WEB-INF/views/premiera.jsp").forward(req, resp);
     }
 
@@ -74,6 +82,18 @@ public class PremiereServlet extends HttpServlet {
             return null;
         }
         return new String[] {base + ".mp4?v=1", base + ".jpg?v=1"};
+    }
+
+    /** Pozadí stránky premiéry: rozmazaná úvodní fotka klipu /img/premiera/pozadi-<název>.webp, jinak null (pak fotka ulice). */
+    public static String background(ServletContext ctx, String name) {
+        String slug = slug(name);
+        if (slug.isEmpty()) return null;
+        String path = "/img/premiera/pozadi-" + slug + ".webp";
+        try {
+            return ctx.getResource(path) != null ? path + "?v=1" : null;
+        } catch (java.net.MalformedURLException e) {
+            return null;
+        }
     }
 
     /** „Musíš odejít“ → „musis-odejit“. */

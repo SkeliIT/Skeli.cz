@@ -14,7 +14,8 @@
   String pmWhen = WebUtils.escapeHtml(t.getProperty("premiere.at").replace("{when}", pm.getWhen()));
 %>
 <link rel="stylesheet" href="/css/premiera.css?v=<%= assetVersion %>">
-<main class="pm is-wait" data-song="<%= WebUtils.escapeHtml(pm.uuid) %>" data-at="<%= pm.at %>" data-now="<%= request.getAttribute("serverNow") %>"
+<% String pmBg = (String) request.getAttribute("pmBackground"); %>
+<main class="pm is-wait<%= pmBg != null ? " klip" : "" %>" data-song="<%= WebUtils.escapeHtml(pm.uuid) %>" data-at="<%= pm.at %>" data-now="<%= request.getAttribute("serverNow") %>"
       data-t-day="<%= WebUtils.escapeHtml(t.getProperty("premiere.d")) %>"
       data-t-soon="<%= WebUtils.escapeHtml(t.getProperty("pm.soonNow")) %>"
       data-t-left="<%= WebUtils.escapeHtml(t.getProperty("pm.left")) %>"
@@ -22,9 +23,14 @@
       data-t-start="<%= WebUtils.escapeHtml(t.getProperty("pm.start")) %>"
       data-t-yt="<%= WebUtils.escapeHtml(t.getProperty("pm.ytNote")) %>"
       data-t-busy="<%= WebUtils.escapeHtml(t.getProperty("pm.busy")) %>">
+  <%-- pozadí: rozmazaná úvodní fotka klipu (img/premiera/pozadi-<název>.webp, bez svítících oken), jinak fotka ulice s okny --%>
   <div class="pm-foto" aria-hidden="true">
+    <% if (pmBg != null) { %>
+    <img class="pm-ulice" src="<%= pmBg %>" alt="" width="1600" height="899" fetchpriority="high">
+    <% } else { %>
     <img class="pm-ulice" src="/img/photos/street-md.webp" srcset="/img/photos/street-md.webp 1200w, /img/photos/street-lg.webp 1920w"
          sizes="(orientation: portrait) 150vh, max(100vw, 240vh)" alt="" width="1200" height="512" fetchpriority="high">
+    <% } %>
     <div class="pm-kour"></div>
     <span class="pm-tvoje"><%= WebUtils.escapeHtml(t.getProperty("pm.yourWindow")) %></span>
   </div>

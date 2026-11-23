@@ -1424,6 +1424,8 @@ body.light .pmh-nazev { color: var(--accent); text-shadow: 0 0 1px var(--accent)
 @media (min-width: 1200px) {
   .pmf { position: absolute; left: calc(100% + clamp(40px, 5vw, 96px)); top: 50%; translate: 0 -50%; width: clamp(340px, 30vw, 470px); margin: 0; --base: -22deg; }
 }
+/* roztažené okénko je vždy rovně, i když stránka nastavila jiné natočení (/premiera, PC) */
+.pmf.is-open, .pm .pmf.is-open, .pm.is-wait .pmf.is-open { --base: 0deg; }
 @media (prefers-reduced-motion: reduce) { .pmf, .pmf.tilting { transition: none; } }
 
 /* Ukázka Kevinových kousků (kevin-ukazka.jsp): karty, po kterých chodí, sedá a ze kterých padá */

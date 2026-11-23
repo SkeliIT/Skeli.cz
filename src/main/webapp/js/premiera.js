@@ -44,11 +44,13 @@
   }
 
   // ---------- Jsem tu ----------
-  var tady = false, klepnuto = false;                      // klepnuto = v tomhle načtení ťukl (zvuk smí hrát)
-  try { tady = sessionStorage.getItem('pmTady:' + song) === '1'; } catch (e) { /* soukromé okno */ }
+  // Stav se po obnovení stránky NEOBNOVUJE: prohlížeč pustí zvuk jen po ťuknutí v tomhle načtení, takže hotové
+  // „pustí se ti i se zvukem“ by po obnovení nebyla pravda – tlačítko je zase k ťuknutí.
+  var klepnuto = false;                                    // v tomhle načtení ťukl (zvuk smí hrát)
   var jsemTu = $('pmJsemTu');
   function oznacTady(ukaz) {
     jsemTu.disabled = true; jsemTu.textContent = jsemTu.dataset.done;
+    root.classList.add('je-tu');                           // CSS schová vysvětlující text pod tlačítkem
     if (mojeOkno < 0) { mojeOkno = okna.findIndex(function (o) { return !o.classList.contains('sviti'); }); if (mojeOkno < 0) mojeOkno = 0; }
     var o = okna[mojeOkno]; rozsvit(o);
     if (!ukaz) return;
@@ -58,12 +60,10 @@
     setTimeout(function () { t.classList.remove('videt'); }, 4000);
   }
   jsemTu.addEventListener('click', function () {
-    tady = klepnuto = true;
+    klepnuto = true;
     if (window.SquadZvuk) window.SquadZvuk.odemkni();     // zvuk srdce a šepotu smí hrát jen po ťuknutí
-    try { sessionStorage.setItem('pmTady:' + song, '1'); } catch (e) { /* nevadí */ }
-    oznacTady(true);
+    oznacTady(!root.classList.contains('klip'));          // štítek „tvoje okno“ jen na fotce ulice (s okny)
   });
-  if (tady) oznacTady(false);
 
   // ---------- odpočet ----------
   var odpocet = $('pmOdpocet'), pod = $('pmPod');
