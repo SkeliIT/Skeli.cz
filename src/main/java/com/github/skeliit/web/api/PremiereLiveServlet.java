@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Živá místnost premiéry (kinosál na /premiera, js/premiera-sal.js). Otevře se 30 min před premiérou.
+ * Živá místnost premiéry (kinosál na /premiera, js/premiera-sal.js). Je otevřená pořád, co je premiéra nastavená (ve čt 30 min předem se otevře všem sama).
  * <p>GET ?song=uuid&k=klíč&po=posledníIdZprávy → {now, otevreno, lidi, reakce:{f1:…}, chat:[…], pin, vyp:{chat,reakce,efekty}, ja:{…}}
  * – zároveň počítá prohlížeč „v sále“ (klíč k = náhodný řetězec z prohlížeče, ne účet). Prohlížeč se ptá ~každé 3 s,
  * ve schované záložce vůbec.
@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
 @WebServlet(name = "PremiereLiveServlet", urlPatterns = {"/api/premiere/live"})
 public class PremiereLiveServlet extends HttpServlet {
     private static final ObjectMapper JSON = new ObjectMapper();
-    static final long OPEN_BEFORE_MS = 30 * 60 * 1000L;          // místnost se otevře 30 min předem
     static final long CHAT_AFTER_MS = 6 * 3600 * 1000L;          // psát jde ještě 6 h po startu
     static final int CHAT_MAX = 200;
     private static final Pattern KEY = Pattern.compile("[A-Za-z0-9]{12,40}");
@@ -66,7 +65,7 @@ public class PremiereLiveServlet extends HttpServlet {
             Room room = room(req);
             if (room == null) { write(resp, 404, Map.of("error", "song")); return; }
             long now = System.currentTimeMillis();
-            boolean open = now >= room.at - OPEN_BEFORE_MS;
+            boolean open = true;                                  // sál je otevřený pořád (domluva 23. 11.)
             Map<String, Object> out = new LinkedHashMap<>();
             out.put("now", now);
             out.put("otevreno", open);
@@ -110,7 +109,6 @@ public class PremiereLiveServlet extends HttpServlet {
             Room room = room(req);
             if (room == null) { write(resp, 404, Map.of("error", "song")); return; }
             long now = System.currentTimeMillis();
-            if (now < room.at - OPEN_BEFORE_MS) { write(resp, 409, Map.of("error", "closed")); return; }
             String action = String.valueOf(req.getParameter("action"));
             if ("react".equals(action)) {
                 if (PremiereLive.off("reakce")) { write(resp, 409, Map.of("error", "off")); return; }

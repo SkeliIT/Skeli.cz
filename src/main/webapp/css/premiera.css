@@ -338,3 +338,151 @@ html.low-fx .pmu-tvare img.on { filter: none; }
 .pmu-znovu button { min-height: 40px; padding: 0 12px; border-radius: 10px; cursor: pointer; font: inherit; font-size: .85rem;
   color: #e9ecf2; background: rgba(5, 6, 8, .75); border: 1px solid rgba(235, 238, 245, .35); }
 @media (orientation: portrait) { .pmu-znovu { justify-content: center; } }
+
+/* ---------- KINOSÁL (js/premiera-sal.js, ukázka navrhy/premiera/kino/index.html schválená 23. 11.) ----------
+   Main dostane .v-sale: dlaždice s odpočtem se schová, místo ní sál (jeviště + lišta smajlíků + chat).
+   Obrázek sálu 1672×941; plátno v něm = pixely 438–1238 × 107–457. Písmo vybral Skeli: název štětcem jako logo,
+   odpočet Bebas Neue (css/karaoke-fonts.css, připojené v premiera.jsp). Chat má pevnou výšku (nikdy nezvětší stránku),
+   nejnovější zpráva nahoře. */
+.pm.v-sale .pm-hlavni, .pm.v-sale .pm-jsemtu, .pm.v-sale .pm-spolu { display: none; }
+.pm.v-sale .pm-in { max-width: 1280px; padding: 12px 16px 60px; }
+.pm.v-sale .pm-foto, .pm.v-sale .pm-prechod { opacity: .35; }
+.pm-sal { width: 100%; text-align: left; border-radius: 24px; overflow: hidden; background: #050507;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); box-shadow: 0 0 60px -24px var(--accent), 0 30px 80px -40px #000; }
+.pm-sal-roz { display: grid; grid-template-columns: minmax(0, 1fr) 320px; }
+.pm-sal-hl { min-width: 0; }
+@media (max-width: 900px) {
+  .pm-sal-roz { grid-template-columns: minmax(0, 1fr); }
+  .pm-sal { border-radius: 18px; }
+  .pm.v-sale .pm-in { padding-left: 8px; padding-right: 8px; }
+}
+
+/* jeviště = výřez se scénou; PC a na šířku celý sál, telefon na výšku střed (plátno a ulička) */
+.pm-jeviste { position: relative; overflow: hidden; aspect-ratio: 1672 / 941; background: #000; }
+@media (orientation: portrait) and (max-width: 900px) { .pm-jeviste { aspect-ratio: auto; height: 52svh; } }
+.pm-scena { position: absolute; top: 0; left: 50%; height: 100%; aspect-ratio: 1672 / 941; translate: -50% 0;
+  transform-origin: 50.1% 30%;                     /* střed plátna */
+  transform: translateY(var(--ty, 0%)) scale(var(--zoom, 1)); transition: transform 13s cubic-bezier(.45, 0, .2, 1); }
+.pm-scena.jede { will-change: transform; }
+@media (orientation: landscape), (min-width: 901px) { .pm-scena { width: 100%; height: auto; } }
+.pm-sal-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* plátno s názvem a odpočtem; diváci sedí PŘED ním (záře plátna se přes hlavy nekreslí) */
+.pm-platno { position: absolute; z-index: 1; left: 26.2%; top: 11.37%; width: 47.85%; height: 37.2%; display: grid; place-items: center;
+  text-align: center; color: #f4f1ea; container-type: inline-size; }
+.pm-platno.ma-short { cursor: pointer; }
+.pm-pl-text > * { transition: opacity .8s; }
+.pm-pl-napis { font: 400 11cqw/1 'Comforter Brush', cursive; color: #fff; text-shadow: 0 0 1.2cqw rgba(255, 255, 255, .45), 0 0 3.2cqw var(--accent); }
+.pm-pl-kdy { font: 400 3.2cqw/1 'Bebas Neue', var(--font-body), sans-serif; letter-spacing: .3em; color: #ddd; margin-top: 1.2cqw; }
+.pm-pl-odpocet { font: 400 15cqw/1 'Bebas Neue', var(--font-body), sans-serif; letter-spacing: .03em; color: var(--accent);
+  font-variant-numeric: tabular-nums; margin-top: .8cqw; text-shadow: 0 0 3cqw color-mix(in srgb, var(--accent) 55%, transparent); }
+.pm-pl-lidi, .pm-pl-tip { font: 400 2.8cqw/1 'Bebas Neue', var(--font-body), sans-serif; color: #ccc; margin-top: 1cqw; letter-spacing: .14em; }
+.pm-pl-tip { color: #999; font-size: 2.4cqw; }
+.pm.is-soon .pm-pl-tip, .pm:not(.is-wait) .pm-pl-tip { display: none; }
+.pm-pl-short { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: contain; background: #000; }
+.pm-platno.hraje-short .pm-pl-text { opacity: 0; }
+
+.pm-divaci { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+/* divák vyjede zpoza opěradla (obrázek uvnitř ořezu jede nahoru), nikdy přes sedadlo */
+.pm-divak { position: absolute; overflow: hidden; opacity: 0; transition: opacity 1.1s; }
+.pm-divak.sedi { opacity: 1; }
+.pm-divak img { position: absolute; left: 0; top: 0; width: 100%; height: auto; display: block; transform: translateY(22%);
+  transition: transform 1.2s cubic-bezier(.2, .8, .2, 1); }
+.pm-divak.sedi img { transform: none; }
+
+/* zhasnutí = jedna černá vrstva přes sál i lidi (jen průhlednost jedné plochy); plátno je v tu chvíli NAD ní */
+.pm-tma { position: absolute; inset: -2%; z-index: 3; background: #000; opacity: 0; pointer-events: none; transition: opacity 2.8s ease; }
+.pm-scena.jede .pm-tma { opacity: .4; transition-duration: 4s; }
+.pm-scena.tma .pm-tma { opacity: .96; transition-duration: 5s; transition-timing-function: cubic-bezier(.4, 0, .6, 1); }
+.pm-scena.tma .pm-platno { z-index: 4; }
+
+/* posledních 7 s: obličeje na tep srdce nad odpočtem, logo SKELO SQUAD pod ním (odpočet zůstává vidět) */
+.pm-pl-finale { position: absolute; inset: 0; opacity: 0; transition: opacity .8s; pointer-events: none; }
+.pm-pl-tvare { position: absolute; left: 0; right: 0; top: 7%; display: flex; justify-content: center; gap: 2.2cqw; }
+.pm-pl-tvare img { width: 7.5cqw; height: 7.5cqw; opacity: .06; transform: scale(.94); transition: opacity .9s ease, transform .9s ease, filter .9s ease; }
+.pm-pl-tvare img.on { opacity: .95; transform: scale(1); filter: brightness(2) drop-shadow(0 0 .5cqw rgba(255, 255, 255, .6)); }
+.pm-pl-logo { position: absolute; left: 50%; bottom: 3%; translate: -50% 0; width: 46cqw; aspect-ratio: 6556 / 1144; background: #fff; opacity: 0;
+  transform: scale(.85); transition: opacity .6s, transform 1.2s cubic-bezier(.2, .8, .2, 1);
+  -webkit-mask: url(/img/logo-skelosquad.svg) center / contain no-repeat; mask: url(/img/logo-skelosquad.svg) center / contain no-repeat;
+  filter: drop-shadow(0 0 1.5cqw var(--accent)); }
+.pm-platno.v-finale .pm-pl-finale { opacity: 1; }
+.pm-platno.v-finale .pm-pl-napis, .pm-platno.v-finale .pm-pl-kdy, .pm-platno.v-finale .pm-pl-lidi { opacity: 0; }
+.pm-platno.ma-logo .pm-pl-logo { opacity: 1; transform: scale(1); }
+.pm-platno.tep .pm-pl-odpocet { animation: pm-sal-tep 1s ease-out; }
+@keyframes pm-sal-tep { 15% { text-shadow: 0 0 5cqw color-mix(in srgb, var(--accent) 85%, transparent); } }
+
+/* klip premiéry (#pmVideo z premiera.js) přes celé jeviště – ostrý, ne zvětšené plátno */
+.pm-jeviste .pm-video { position: absolute; inset: 0; z-index: 5; width: auto; opacity: 0; pointer-events: none; transition: opacity 1s; }
+.pm-jeviste.hraje .pm-video { opacity: 1; pointer-events: auto; }
+.pm-jeviste .pm-video-in { aspect-ratio: auto; height: 100%; border-radius: 0; box-shadow: none; }
+.pm-jeviste .pm-tvare { display: none !important; }
+
+/* smajlíci: proud u pravého okraje (jako živé vysílání); při klipu nic přes obraz */
+.pm-reakce { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; transition: opacity .8s; }
+.pm-jeviste.klid .pm-reakce { opacity: 0; }
+.pm-let { position: absolute; bottom: -10px; right: 2%; width: 38px; height: 38px; font-size: 30px; line-height: 38px; text-align: center;
+  animation: pm-let 2.8s cubic-bezier(.25, .5, .3, 1) forwards; }
+.pm-let.moje { width: 46px; height: 46px; font-size: 36px; line-height: 46px; }
+.pm-let img { width: 100%; height: 100%; filter: brightness(2.2) drop-shadow(0 0 5px var(--accent)); }   /* obrysy obličejů na tmavém sále vidět */
+@keyframes pm-let { 0% { transform: translate(0, 0) scale(.5); opacity: 0; } 10% { opacity: 1; transform: translate(calc(var(--dx) * .3), -8%) scale(1); }
+  70% { opacity: .9; } 100% { transform: translate(var(--dx), var(--vyska)) scale(1.1); opacity: 0; } }
+
+main.pm .pm-celo { position: absolute; z-index: 7; top: 10px; left: 10px; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
+  background: rgba(0, 0, 0, .5); color: #fff; font-size: 18px; cursor: pointer; display: grid; place-items: center; opacity: .75; transition: opacity .3s; }
+main.pm .pm-celo:hover, main.pm .pm-celo:focus-visible { opacity: 1; }
+/* na celé obrazovce jen sál (a klip), scéna vycentrovaná a co největší */
+.pm-jeviste:fullscreen, .pm-jeviste.na-celou { aspect-ratio: auto; width: 100vw; height: 100vh; height: 100dvh; background: #000; }
+.pm-jeviste.na-celou { position: fixed; inset: 0; z-index: 1000; }
+.pm-jeviste:fullscreen .pm-scena, .pm-jeviste.na-celou .pm-scena { width: min(100vw, 177.7vh); height: auto; top: 50%; translate: -50% -50%; }
+
+/* lišta smajlíků pod jevištěm */
+.pm-lista { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; padding: 10px; background: var(--panel); border-top: 1px solid var(--panel-border); }
+main.pm .pm-lista button { width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--panel-border); background: rgba(0, 0, 0, .35); cursor: pointer;
+  padding: 6px; font-size: 22px; line-height: 1; display: grid; place-items: center; }
+main.pm .pm-lista button:hover { border-color: var(--accent); }
+.pm-lista button img { width: 100%; height: 100%; }
+body.light .pm-lista button { background: rgba(255, 255, 255, .6); }
+body.light .pm-lista button img { filter: invert(1); }
+.pm-lista button.puls { animation: pm-puls .5s ease-out; }
+@keyframes pm-puls { 30% { transform: scale(1.18); border-color: var(--accent); box-shadow: 0 0 14px var(--accent); } }
+.pm-sal.bez-reakci .pm-lista, .pm-sal.bez-reakci .pm-reakce { display: none; }
+.pm-sal-hl .pm-zvuk, .pm-sal-hl .pm-konec { padding: 10px 12px; text-align: center; background: var(--panel); }
+
+/* chat */
+.pm-chat { position: relative; min-height: 0; background: var(--panel); border-left: 1px solid var(--panel-border); color: var(--text); }
+.pm-chat-in { position: absolute; inset: 0; display: grid; grid-template-rows: auto auto auto auto minmax(0, 1fr); }
+@media (max-width: 900px) { .pm-chat { border-left: 0; border-top: 1px solid var(--panel-border); height: 42svh; min-height: 260px; } }
+.pm-chat-h { margin: 0; padding: 12px 14px; font: 600 .95rem/1.2 var(--font-body); letter-spacing: .08em; text-transform: uppercase;
+  border-bottom: 1px solid var(--panel-border); display: flex; justify-content: space-between; gap: 8px; }
+.pm-chat-h span:last-child { color: var(--text-dim); text-transform: none; letter-spacing: 0; font-weight: 400; }
+.pm-psani { display: flex; gap: 6px; padding: 10px; border-bottom: 1px solid var(--panel-border); }
+.pm-psani input { flex: 1; min-width: 0; min-height: 44px; border-radius: 10px; border: 1px solid var(--panel-border); background: rgba(0, 0, 0, .3);
+  color: var(--text); padding: 0 10px; font: inherit; font-size: 16px; }   /* 16 px: iPhone pak při psaní nepřibližuje stránku */
+body.light .pm-psani input { background: #fff; }
+main.pm .pm-psani button { min-height: 44px; padding: 0 14px; border-radius: 10px; border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 700; cursor: pointer; }
+.pm-psani button:disabled { opacity: .6; cursor: default; }
+a.pm-prihlas { justify-content: center; align-items: center; min-height: 64px; color: var(--accent); text-decoration: none; font-weight: 600; }
+.pm-chat-info { margin: 8px 12px 0; font-size: .85rem; color: var(--accent); }
+.pm-pripnuto { margin: 8px 12px 0; padding: 8px 10px; border-radius: 10px; font-size: .88rem; overflow-wrap: anywhere;
+  background: color-mix(in srgb, #ffd23f 12%, transparent); border: 1px solid color-mix(in srgb, #ffd23f 40%, transparent); }
+.pm-sal.bez-chatu .pm-psani, .pm-sal.bez-chatu .pm-zpravy { display: none; }
+.pm-zpravy { overflow-y: auto; overscroll-behavior: contain; padding: 8px 12px 14px; display: grid; gap: 10px; align-content: start; }
+.pm-zp { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 0 8px; font-size: .92rem; animation: pm-zp-nova .35s ease-out; }
+@keyframes pm-zp-nova { from { opacity: 0; transform: translateY(-6px); } }
+.pm-zp-foto { width: 28px; height: 28px; border-radius: 50%; background: var(--panel-border); object-fit: cover; }
+.pm-zp-t { min-width: 0; }
+.pm-zp-t b { font-weight: 600; margin-right: 6px; }
+.pm-zp-t time { color: var(--text-dim); font-size: var(--fs-small); }
+.pm-zp-t p { margin: 2px 0 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.pm-zp.skeli b::after { content: "★ SKELI"; font-size: var(--fs-small); color: #141414; background: #ffd23f; padding: 0 5px; border-radius: 4px; margin-left: 6px; }
+main.pm .pm-zp-vic { width: 40px; height: 40px; margin: -8px -8px 0 0; border: 0; background: none; color: var(--text-dim); font-size: 20px; cursor: pointer; border-radius: 50%; }
+main.pm .pm-zp-vic:hover { color: var(--text); }
+.pm-zp-akce { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+main.pm .pm-zp-akce button { min-height: 40px; padding: 0 12px; border-radius: 99px; border: 1px solid var(--panel-border); background: none; color: var(--text); cursor: pointer; font: inherit; font-size: .85rem; }
+.pm-zp-prazdno { margin: 12px 0; color: var(--text-dim); text-align: center; font-size: .9rem; }
+
+/* slabý telefon a omezený pohyb: bez jízdy kamery, kratší a méně smajlíků (počet hlídá i skript) */
+html.low-fx .pm-scena { transition: none; }
+html.low-fx .pm-let { animation-duration: 1.8s; }
+html.low-fx .pm-zp { animation: none; }
+@media (prefers-reduced-motion: reduce) { .pm-scena { transition: none; } .pm-let { display: none; } .pm-divak img { transition: none; } }

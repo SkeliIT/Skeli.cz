@@ -82,6 +82,7 @@
   var tvare = [].slice.call(document.querySelectorAll('#pmTvare img')), ram = $('pmVideoIn');
   function zvuk() { return klepnuto && window.SquadZvuk ? window.SquadZvuk : null; }
   function finalePrijde(zbyva) {
+    if (root.classList.contains('v-sale')) return;     // v kinosále má finále vlastní plátno (js/premiera-sal.js)
     if (finale) return; finale = true;
     root.classList.add('is-final', 'ma-tvare'); $('pmVideo').hidden = false;
     TEPY.forEach(function (pred, i) {
@@ -229,6 +230,9 @@
     var hotovo = function () { var p = share.innerHTML; share.textContent = root.dataset.tCopied; setTimeout(function () { share.innerHTML = p; }, 2000); };
     if (navigator.clipboard) navigator.clipboard.writeText(share.dataset.text + ' ' + url).then(hotovo).catch(function () { /* nejde */ });
   });
+
+  // kinosál (js/premiera-sal.js) jede podle stejných hodin serveru a ví, jestli smí hrát zvuk
+  window.skeliPmCas = function () { return { now: now(), at: at, zvuk: klepnuto }; };
 
   // první dotaz hned: přesný čas a (po premiéře) video
   zeptej(function () { tik(); });
