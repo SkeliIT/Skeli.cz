@@ -82,6 +82,8 @@
 
   function loop(now) {
     if (!document.body.contains(cv)) return;              // the page was left (PJAX)
+    // proměna úvodu před premiérou (js/premiera-uvod.js) citát schová: nekreslit naprázdno, jen počkat
+    if (box.closest('.pm-hero, .pm-odchod')) { last = now; requestAnimationFrame(loop); return; }
     var dt = Math.min(.05, (now - last) / 1000); last = now;
     var dpr = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }

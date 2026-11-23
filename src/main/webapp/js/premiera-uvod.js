@@ -219,16 +219,21 @@
     // žhnoucí čáry (chladnou ~2,5 s)
     xs.globalCompositeOperation = 'lighter'; xs.lineCap = 'round';
     var chlad = dt / 2500;
+    // Záře BEZ shadowBlur: rozmazání u každé čáry zvlášť zahltilo grafiku a zamrazilo celý prohlížeč (23. 11. 2026,
+    // snímků ubývalo až na 3 za sekundu). Místo toho široký průsvitný tah pod tenkým jasným – vypadá skoro stejně.
+    var zare = !slaby();
     horke.forEach(function (i) {
       var h = heat[i] -= chlad;
       if (h <= 0) { heat[i] = 0; horke.delete(i); return; }
-      var s = segs[i];
+      var s = segs[i], sirka = (s[4] ? 2.2 : 1.6) * DPR;
+      xs.beginPath(); xs.moveTo(X(s[0]), Y(s[1])); xs.lineTo(X(s[2]), Y(s[3]));
+      if (zare) {
+        xs.strokeStyle = 'rgba(255,150,60,' + (.22 * h).toFixed(3) + ')';
+        xs.lineWidth = sirka * 5; xs.stroke();
+      }
       xs.strokeStyle = 'rgba(255,' + (120 + 100 * h | 0) + ',' + (50 + 60 * h | 0) + ',' + Math.min(1, h * 1.1) + ')';
-      xs.lineWidth = (s[4] ? 2.2 : 1.6) * DPR;
-      if (!slaby()) { xs.shadowColor = 'rgba(255,150,60,.9)'; xs.shadowBlur = 10 * DPR * h; }
-      xs.beginPath(); xs.moveTo(X(s[0]), Y(s[1])); xs.lineTo(X(s[2]), Y(s[3])); xs.stroke();
+      xs.lineWidth = sirka; xs.stroke();
     });
-    xs.shadowBlur = 0;
     for (var j = 0; j < ostatni.length; j++) jiskra(ostatni[j].x, ostatni[j].y, ostatni[j].barva, 9);
     if (ja.aktivni) jiskra(ja.x, ja.y, ja.barva, 15);
     xs.globalCompositeOperation = 'source-over';

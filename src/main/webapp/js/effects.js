@@ -646,7 +646,8 @@
     addEventListener('touchmove', function (e) { var p = e.touches[0]; if (!p) return; if (mx > -1e4) { vx = p.clientX - mx; vy = p.clientY - my; } mx = p.clientX; my = p.clientY; }, { passive: true });
     (function loop() {
       requestAnimationFrame(loop);
-      if (document.hidden || document.documentElement.classList.contains('kpong-open')) { gb.clearRect(0, 0, W, H); gf.clearRect(0, 0, W, H); return; }
+      // schovaná záložka, otevřená hra a proměna úvodu před premiérou (body.pm-sede, js/premiera-uvod.js – okno je zakryje): nekreslit
+      if (document.hidden || document.documentElement.classList.contains('kpong-open') || document.body.classList.contains('pm-sede')) { gb.clearRect(0, 0, W, H); gf.clearRect(0, 0, W, H); if (gl2) gl2.clearRect(0, 0, W, H); return; }
       if (low() && (skip = !skip)) return;   // lehký režim: každý druhý snímek
       t++;
       if (t % 20 === 0) colors();   // barva se mění s fotkou (přelévá se 4 s), stačí ji číst občas
