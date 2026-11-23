@@ -85,6 +85,34 @@ public class CommentDao {
         return nest(all, sort);
     }
 
+    /**
+     * Živý chat premiéry (web/api/PremiereLiveServlet): nejnovější hlavní komentáře s id větším než {@code afterId},
+     * nejvýš {@code limit}, od nejstaršího. Blokace platí stejně jako v {@link #threads} (zablokovaného autora nevidíš).
+     * {@code pinnedOnly} = jen připnutý komentář (nejnovější připnutí), pro připnutou zprávu nahoře.
+     */
+    public List<CommentItem> recent(Kind k, String target, Viewer viewer, int afterId, int limit, boolean pinnedOnly) throws SQLException {
+        String sql = "SELECT c.id, c.parent_id, c.user_id, c.content, c.created_at, c.updated_at, c.pinned_at, c.hearted_at, "
+                + "u.username, u.avatar_url, u.role, u.is_artist, u.pong_title, u.pong_frame, u.pong_mark, u.pong_champ, "
+                + "u.profile_public, u.blocked_at, 0 AS up, 0 AS down, 0 AS my "
+                + "FROM " + k.table + " c LEFT JOIN users u ON u.id = c.user_id "
+                + "WHERE c." + k.targetCol + " = ? AND c.parent_id IS NULL AND c.id > ? "
+                + (pinnedOnly ? "AND c.pinned_at IS NOT NULL " : "")
+                + "AND NOT " + BlockDao.blockedBy("c.user_id")
+                + (pinnedOnly ? " ORDER BY c.pinned_at DESC LIMIT 1" : " ORDER BY c.id DESC LIMIT ?");
+        List<CommentItem> out = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, target);
+            ps.setInt(2, Math.max(0, afterId));
+            if (viewer.userId() == null) ps.setNull(3, Types.INTEGER); else ps.setInt(3, viewer.userId());
+            if (!pinnedOnly) ps.setInt(4, Math.max(1, Math.min(limit, 100)));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) out.add(read(rs, viewer));
+            }
+        }
+        java.util.Collections.reverse(out);
+        return out;
+    }
+
     private static CommentItem read(ResultSet rs, Viewer viewer) throws SQLException {
         CommentItem it = new CommentItem();
         it.id = rs.getInt("id");

@@ -15,7 +15,7 @@
 %>
 <link rel="stylesheet" href="/css/premiera.css?v=<%= assetVersion %>">
 <% String pmBg = (String) request.getAttribute("pmBackground"); %>
-<main class="pm is-wait<%= pmBg != null ? " klip" : "" %>" data-song="<%= WebUtils.escapeHtml(pm.uuid) %>" data-at="<%= pm.at %>" data-now="<%= request.getAttribute("serverNow") %>"
+<main class="pm is-wait<%= pmBg != null ? " klip" : "" %>" data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>" data-song="<%= WebUtils.escapeHtml(pm.uuid) %>" data-at="<%= pm.at %>" data-now="<%= request.getAttribute("serverNow") %>"
       data-t-day="<%= WebUtils.escapeHtml(t.getProperty("premiere.d")) %>"
       data-t-soon="<%= WebUtils.escapeHtml(t.getProperty("pm.soonNow")) %>"
       data-t-left="<%= WebUtils.escapeHtml(t.getProperty("pm.left")) %>"

@@ -198,7 +198,7 @@ public class CommentsApiServlet extends HttpServlet {
     }
 
     /** The signed-in user's role and artist flag come from the database, not the session (they can change). */
-    private static Viewer viewer(HttpSession s) throws SQLException {
+    static Viewer viewer(HttpSession s) throws SQLException {   // i pro PremiereLiveServlet (chat premiéry)
         Integer uid = s != null ? (Integer) s.getAttribute("userId") : null;
         if (uid == null) return Viewer.ANONYMOUS;
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT role, is_artist FROM users WHERE id = ?")) {
@@ -229,7 +229,7 @@ public class CommentsApiServlet extends HttpServlet {
     }
 
     /** Titul z CatSmash u jména: název odznaku v jazyce stránky. */
-    private static void nameTitle(HttpServletRequest req, CommentItem it) {
+    static void nameTitle(HttpServletRequest req, CommentItem it) {
         if (it.titleKey != null) it.titleName = I18n.getText(req, "pong.badge." + it.titleKey, it.titleKey);
         if (it.mark != null) it.markName = I18n.getText(req, "pong.badge." + it.mark, it.mark);
     }

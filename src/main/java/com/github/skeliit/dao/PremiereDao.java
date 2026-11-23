@@ -161,6 +161,24 @@ public class PremiereDao {
         State(Long at, boolean out, String youtubeId) { this.at = at; this.out = out; this.youtubeId = youtubeId; }
     }
 
+    /** Pro živou místnost premiéry: okamžik premiéry a id videa k premiéře (pod ním se ukládá chat). */
+    public static final class Live {
+        public final long at;
+        public final String videoId;   // NIKDY neposílat do prohlížeče před premiérou – jen na serveru jako cíl chatu
+        Live(long at, String videoId) { this.at = at; this.videoId = videoId; }
+    }
+
+    /** Okamžik a video premiéry podle uuid písně; null = píseň nemá premiéru nebo video k ní. */
+    public Live live(String uuid) throws SQLException {
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
+                "SELECT release_at, premiere_video_id FROM songs WHERE BINARY uuid = BINARY ? AND release_at IS NOT NULL AND premiere_video_id IS NOT NULL")) {
+            ps.setString(1, uuid);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? new Live(rs.getLong(1), rs.getString(2)) : null;
+            }
+        }
+    }
+
     /** Stav podle uuid písně; null = píseň neexistuje. Video se vrací jen po zveřejnění (nikdy dřív). */
     public State state(String uuid) throws SQLException {
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(
