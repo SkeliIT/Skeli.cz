@@ -36,6 +36,16 @@
       <h1 class="pm-nazev"><%= pmName %></h1>
       <div class="pm-odpocet" id="pmOdpocet" aria-live="off">--:--</div>
       <p class="pm-pod" id="pmPod"><%= WebUtils.escapeHtml(t.getProperty("pm.left")) %></p>
+      <% String[] teaser = (String[]) request.getAttribute("teaser");
+         if (teaser != null && !pm.isOut()) { %>
+      <%-- upoutávka (short) do začátku premiéry: fotka s ▶, ťuknutí pustí video hned pod ní (js/upoutavka.js) --%>
+      <span class="pm-teaser" role="button" tabindex="0" aria-expanded="false" data-teaser="<%= teaser[0] %>"
+            data-close="<%= WebUtils.escapeHtml(t.getProperty("common.close")) %>" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.teaserPlay")) %>">
+        <img src="<%= teaser[1] %>" alt="" width="640" height="360">
+        <i class="fa-solid fa-play" aria-hidden="true"></i>
+        <small><%= WebUtils.escapeHtml(t.getProperty("pm.teaser")) %></small>
+      </span>
+      <% } %>
     </div>
 
     <div class="pm-video" id="pmVideo" hidden>
@@ -62,5 +72,6 @@
   <div class="pm-zablesk" aria-hidden="true"></div>
 </main>
 <script src="/js/yt-clock.js?v=<%= assetVersion %>"></script>
+<script src="/js/upoutavka.js?v=<%= assetVersion %>"></script>
 <script src="/js/premiera.js?v=<%= assetVersion %>"></script>
 <%@ include file="/includes/footer.jsp" %>

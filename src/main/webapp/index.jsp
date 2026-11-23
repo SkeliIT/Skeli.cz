@@ -75,7 +75,12 @@
          String pName = com.github.skeliit.WebUtils.escapeHtml(premiere.name);
          String pKind = t.getProperty("song".equals(premiere.kind) ? "premiere.song" : "premiere.clip"); %>
     <a class="hero-latest hero-premiere<%= premiere.isOut() ? " is-out" : "" %>" href="<%= premiere.isOut() ? "/?pmZnovu=1" : "/premiera" %>" data-premiere="<%= premiere.at %>">
-      <% if (premiere.thumb != null) { %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(premiere.thumb) %>" alt="" width="104" height="58"><% } %>
+      <%-- před premiérou: fotka s ▶ pustí upoutávku (short) pod kartou (js/upoutavka.js), zbytek karty vede na /premiera --%>
+      <% String[] pmTeaser = premiere.isOut() || pmZnovu ? null : com.github.skeliit.web.site.PremiereServlet.teaser(application, premiere.name);
+         if (pmTeaser != null) { %><span class="hp-teaser" role="button" tabindex="0" aria-expanded="false" data-teaser="<%= pmTeaser[0] %>"
+           data-close="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("common.close")) %>" aria-label="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.teaserPlay")) %>"><img
+           src="<%= pmTeaser[1] %>" alt="" width="104" height="58"><i class="fa-solid fa-play" aria-hidden="true"></i></span><%
+         } else if (premiere.thumb != null) { %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(premiere.thumb) %>" alt="" width="104" height="58"><% } %>
       <span>
         <small><span class="dot"></span><span class="hp-soon"><%= t.getProperty("premiere.soon") %></span><span class="hp-out"><%= t.getProperty("premiere.out") %></span> · <%= pKind %></small>
         <b><%= pName %></b>
@@ -90,6 +95,7 @@
       <span class="play"><i class="fa-solid fa-play"></i></span>
     </a>
     <script src="/js/premiere.js?v=<%= assetVersion %>"></script>
+    <% if (pmTeaser != null) { %><script src="/js/upoutavka.js?v=<%= assetVersion %>"></script><% } %>
     <% } %>
     <div class="hero-actions">
       <%-- Spotify je hlavní cesta k poslechu (streamy = výdělek): zlaté tlačítko webu vede rovnou na Spotify (na telefonu do aplikace,

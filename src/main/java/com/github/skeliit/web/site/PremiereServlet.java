@@ -3,6 +3,7 @@ package com.github.skeliit.web.site;
 import com.github.skeliit.I18n;
 import com.github.skeliit.dao.PremiereDao;
 import com.github.skeliit.model.Premiere;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -44,6 +45,7 @@ public class PremiereServlet extends HttpServlet {
         String og = ogImage(p.name, I18n.current(req));
         if (og == null && p.thumb != null && p.thumb.startsWith("/")) og = p.thumb;
         if (og != null) req.setAttribute("pageImage", LyricRouterServlet.absoluteImage(og));
+        req.setAttribute("teaser", teaser(getServletContext(), p.name));
         req.getRequestDispatcher("/WEB-INF/views/premiera.jsp").forward(req, resp);
     }
 
@@ -56,6 +58,22 @@ public class PremiereServlet extends HttpServlet {
             if (getServletContext().getResource(path) != null) return path + "?v=1";
         }
         return null;
+    }
+
+    /**
+     * Upoutávka (short) k premiéře: {video, fotka} z /img/premiera/short-<název bez diakritiky>.mp4 a .jpg,
+     * když obojí existuje, jinak null. Ukazuje ji karta na úvodu i stránka /premiera (js/upoutavka.js).
+     */
+    public static String[] teaser(ServletContext ctx, String name) {
+        String slug = slug(name);
+        if (slug.isEmpty()) return null;
+        String base = "/img/premiera/short-" + slug;
+        try {
+            if (ctx.getResource(base + ".mp4") == null || ctx.getResource(base + ".jpg") == null) return null;
+        } catch (java.net.MalformedURLException e) {
+            return null;
+        }
+        return new String[] {base + ".mp4?v=1", base + ".jpg?v=1"};
     }
 
     /** „Musíš odejít“ → „musis-odejit“. */

@@ -1378,6 +1378,18 @@ body.light .kevin-emote {
   .hero-premiere .hp-count { font-size: var(--fs-body); }
   .hero-premiere img { width: 84px; height: auto; }
 }
+/* upoutávka (short) před premiérou (js/upoutavka.js): fotka s ▶ v kartě, video se rozbalí pod kartou;
+   stejné okénko s videem používá i stránka /premiera (.pm-teaser v premiera.css) */
+.hp-teaser { position: relative; flex-shrink: 0; display: block; border-radius: 11px; cursor: pointer; }
+.hp-teaser img { display: block; }
+.hp-teaser i, .pm-teaser i { position: absolute; inset: 0; margin: auto; width: 32px; height: 32px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 12px; color: #fff; background: rgba(0, 0, 0, .6); border: 1px solid rgba(255, 255, 255, .55); }
+.hp-teaser.is-open, .pm-teaser.is-open { outline: 2px solid var(--accent); outline-offset: 2px; }
+.upoutavka { position: relative; width: fit-content; max-width: 100%; margin: 12px 0 0; border-radius: 16px; overflow: hidden;
+  background: #000; border: 1px solid var(--panel-border); box-shadow: var(--shadow); }
+.upoutavka video { display: block; width: auto; max-width: 100%; height: min(70vh, 620px); height: min(70svh, 620px); aspect-ratio: 9 / 16; background: #000; }
+.upoutavka-x { position: absolute; top: 8px; right: 8px; width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center; color: #fff; background: rgba(0, 0, 0, .6); }
 
 /* Ukázka Kevinových kousků (kevin-ukazka.jsp): karty, po kterých chodí, sedá a ze kterých padá */
 .kevin-show { position: relative; min-height: 160vh; }

@@ -276,6 +276,7 @@
   function obdelnikKarty() { return karta ? karta.getBoundingClientRect() : null; }
   function zapnout(animovat) {          // proměna úvodu (animovat = odehrálo se to před očima)
     faze = 'cekarna';
+    if (window.skeliUpoutavkyZavri) window.skeliUpoutavkyZavri();   // hrající upoutávka (js/upoutavka.js) by hrála do proměny
     body.classList.add('pm-sede');       // barvy webu se vysají (CSS, ~4 s) – jen po dobu těch 30 minut
     vyska();
     if (!animovat) { hero.classList.add('pm-hero'); box.hidden = false; box.classList.add('on'); rozmer(); nakreslit(2500); start(); return; }
