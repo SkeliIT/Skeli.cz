@@ -59,11 +59,11 @@ public class VideoTitles implements ServletContextListener {
         }
     }
 
-    /** Stores YouTube titles for videos that have none. Returns how many were filled. */
+    /** Stores YouTube titles for videos that have none (or only their own id – YouTube hid it before a premiere). Returns how many were filled. */
     public static int fillMissing() throws Exception {
         List<String> ids = new ArrayList<>();
         try (Connection c = Db.get();
-             PreparedStatement ps = c.prepareStatement("SELECT youtube_id FROM videos WHERE title IS NULL OR title = ''");
+             PreparedStatement ps = c.prepareStatement("SELECT youtube_id FROM videos WHERE title IS NULL OR title = '' OR title = youtube_id");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) ids.add(rs.getString(1));
         }
@@ -72,7 +72,7 @@ public class VideoTitles implements ServletContextListener {
             String title = fetch(id);
             if (title == null) continue;
             try (Connection c = Db.get();
-                 PreparedStatement up = c.prepareStatement("UPDATE videos SET title=? WHERE youtube_id=? AND (title IS NULL OR title = '')")) {
+                 PreparedStatement up = c.prepareStatement("UPDATE videos SET title=? WHERE youtube_id=? AND (title IS NULL OR title = '' OR title = youtube_id)")) {
                 up.setString(1, title);
                 up.setString(2, id);
                 filled += up.executeUpdate();
