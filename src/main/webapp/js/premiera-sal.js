@@ -138,7 +138,8 @@
   // ---------- smajlíci: svítící tlačítko v rohu sálu → okénko se 7 obličeji SQUADu (barvy podle nálady) a 7 smajlíky ----------
   var TVARE = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7'];
   var EMOJI = { srdce: '❤️', ohen: '🔥', smich: '😂', wow: '😮', tlesk: '👏', oslava: '🎉' };
-  var SMAJL = TVARE.concat(['srdce', 'ohen', 'smich', 'wow', 'tlesk', 'oslava', 'joint']);
+  // joint je pro tuhle premiéru schovaný (Skeli 24. 11.: téma klipu; příště se může hodit – stačí ho sem vrátit)
+  var SMAJL = TVARE.concat(['srdce', 'ohen', 'smich', 'wow', 'tlesk', 'oslava']);
   var NALADY = String(T.tMoods || '').split('|');                  // „naštvaný – štve mě to|…“ (7 nálad v jazyce stránky)
   var naObrazovce = 0, spoust = $('pmSpoust'), pop = $('pmPop');
   var nadpisT = pop.querySelector('.pm-pop-tvare'), nadpisE = pop.querySelector('.pm-pop-emoji');

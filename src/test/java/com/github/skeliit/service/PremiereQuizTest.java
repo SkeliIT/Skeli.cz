@@ -148,12 +148,16 @@ class PremiereQuizTest {
     }
 
     @Test
-    void vazneOtazkyNikdyZaSebou() {
+    void vazneOtazkyJsouBlokemNaKonci() {
         for (int p = 0; p < 300; p++) {
             var plan = PremiereQuiz.plan("musis-odejit", "premiera@" + p);
-            for (int i = 1; i < plan.size(); i++)
-                assertFalse(PremiereQuiz.obsah().otazky().get(plan.get(i).id()).vazne() && PremiereQuiz.obsah().otazky().get(plan.get(i - 1).id()).vazne(),
-                        "dvě vážné otázky za sebou v premiéře " + p);
+            boolean vBloku = false;
+            for (var b : plan) {
+                boolean v = PremiereQuiz.obsah().otazky().get(b.id()).vazne();
+                if (v) vBloku = true;
+                assertFalse(vBloku && !v, "po vážné otázce přišla zase zábava v premiéře " + p);
+            }
+            assertTrue(vBloku, "vážné otázky chybí v premiéře " + p);
         }
     }
 
