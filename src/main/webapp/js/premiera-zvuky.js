@@ -151,7 +151,60 @@
   }
   function atmoStop(delka) { Object.keys(smycky).forEach(function (k) { ztlum(smycky[k], 0, delka); delete smycky[k]; }); }
 
+  // ---------- ZVUČKY ŤUKNUTÍ NA SMAJLÍKY (Skeli 24. 11.: „ať je zábavné tam klikat“) – syntéza v prohlížeči, nic se nestahuje
+  // kromě Skeliho vlastních nahraných „prasknutí bublinky“ (sounds/bublina-1..4.wav, pár kB). Obličeje SQUADu = tóny
+  // D moll pentatoniky (víc ťuknutí za sebou = melodie), smajlíci každý svůj krátký zvuk; vše s jemným dozvukem sálu.
+  var NOTY = [293.66, 349.23, 392, 440, 523.25, 587.33, 698.46], kDozvuk = null;
+  function dozvuk() {
+    if (!kDozvuk) { var c = ac.createConvolver(), w = ac.createGain(); c.buffer = odezva(2.2); w.gain.value = 0.3; c.connect(w); w.connect(master); kDozvuk = c; }
+    return kDozvuk;
+  }
+  function ton(f, za, hl, delka, typ) {                           // měkký úder paličky: sinus + o oktávu výš tišeji
+    var t = ac.currentTime + (za || 0), g = ac.createGain(), o = ac.createOscillator(), o2 = ac.createOscillator(), g2 = ac.createGain();
+    o.type = typ || 'sine'; o.frequency.value = f; o2.type = 'triangle'; o2.frequency.value = f * 2; g2.gain.value = 0.22;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(hl, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + delka);
+    o.connect(g); o2.connect(g2); g2.connect(g); g.connect(master); g.connect(dozvuk());
+    o.start(t); o2.start(t); o.stop(t + delka + 0.05); o2.stop(t + delka + 0.05);
+  }
+  function sum(za, delka, hl, filtr, f1, f2) {                     // šum přes filtr (švihnutí, tlesknutí, vydechnutí)
+    if (!sumBuf) { sumBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate); var d = sumBuf.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+    var t = ac.currentTime + (za || 0), s = ac.createBufferSource(), fl = ac.createBiquadFilter(), g = ac.createGain();
+    s.buffer = sumBuf; fl.type = filtr; fl.frequency.setValueAtTime(f1, t); if (f2) fl.frequency.exponentialRampToValueAtTime(f2, t + delka);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(hl, t + Math.min(0.02, delka / 4)); g.gain.exponentialRampToValueAtTime(0.0001, t + delka);
+    s.connect(fl); fl.connect(g); g.connect(master); g.connect(dozvuk()); s.start(t); s.stop(t + delka + 0.05);
+  }
+  function bublina(rychlost, hl) {
+    var b = bubliny[Math.floor(Math.random() * bubliny.length)]; if (!b) return;
+    var s = ac.createBufferSource(), g = ac.createGain(); s.buffer = b; s.playbackRate.value = rychlost; g.gain.value = hl;
+    s.connect(g); g.connect(master); s.start();
+  }
+  var sumBuf = null, bubliny = [];
+  function nactiBubliny() {
+    if (bubliny.length) return;
+    [1, 2, 3, 4].forEach(function (n) {
+      fetch('/sounds/bublina-' + n + '.wav').then(function (r) { return r.arrayBuffer(); })
+        .then(function (x) { return new Promise(function (ok, ko) { ac.decodeAudioData(x, ok, ko); }); })
+        .then(function (b) { bubliny.push(b); }).catch(function () { /* bez bublinek */ });
+    });
+  }
+
   window.PmZvuky = {
+    klik: function (k) {
+      if (!zapnuto || !ac) return;
+      nactiBubliny();
+      if (k.charAt(0) === 'f') { var n = +k.slice(1) - 1; ton(NOTY[n] || 440, 0, 0.13, 1.1); bublina(0.85 + n * 0.07, 0.3); return; }
+      switch (k) {
+        case 'srdce': ton(110, 0, 0.16, 0.35); ton(98, 0.17, 0.12, 0.45); break;                     // lub-dub
+        case 'ohen': sum(0, 0.45, 0.09, 'bandpass', 500, 2600); break;                              // švihnutí
+        case 'smich': ton(587.33, 0, 0.07, 0.25); ton(698.46, 0.08, 0.07, 0.25); ton(880, 0.16, 0.07, 0.4); break;
+        case 'wow': (function () { var t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(260, t); o.frequency.exponentialRampToValueAtTime(520, t + 0.4);
+          g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6); o.connect(g); g.connect(master); g.connect(dozvuk()); o.start(t); o.stop(t + 0.65); })(); break;
+        case 'tlesk': sum(0, 0.06, 0.18, 'highpass', 1400); sum(0.11, 0.06, 0.14, 'highpass', 1600); break;
+        case 'oslava': ton(1046.5, 0, 0.05, 0.4); ton(1318.5, 0.06, 0.05, 0.4); ton(1568, 0.12, 0.05, 0.7); break;
+        case 'joint': sum(0, 0.7, 0.05, 'lowpass', 900, 300); bublina(0.7, 0.25); break;           // vydechnutí
+        default: bublina(1, 0.3);
+      }
+    },
     vypnuto: vypnuto,
     // zapnout (jen při ťuknutí, nebo když už prohlížeč zvuk povolil); doPremiery = ms do startu klipu
     start: function (doPremiery) {

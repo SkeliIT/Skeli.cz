@@ -67,19 +67,21 @@
       sedadla.forEach(function (st, i) { st.m = lide[i % lide.length]; });
       // do stránky od zadních řad k předním (bližší silueta překryje vzdálenější)
       sedadla.slice().sort(function (a, b) { return a.r - b.r; }).forEach(function (st) {
-        // silueta o 14 % užší než sedadlo, vycentrovaná; ramena (m.top) na horní hraně opěradla
-        var m = st.m, k = (st.x1 - st.x0) / (m.sr - m.sl) * 0.86, xc = (st.x0 + st.x1) / 2;
+        // silueta o 14 % užší než sedadlo, vycentrovaná; ramena (m.top) na horní hraně opěradla; celý obrázek ale nikdy
+        // širší než sedadlo (Skeli 24. 11.: široké postavy visely přes sousední sedadlo s rovnou hranou)
+        var m = st.m, k = Math.min((st.x1 - st.x0) / (m.sr - m.sl) * 0.86, (st.x1 - st.x0) / m.w), xc = (st.x0 + st.x1) / 2;
         var left = xc - (m.sr - m.sl) * k / 2 - m.sl * k, top = st.top - m.top * k, w = m.w * k;
         // nad hlavou a do stran místo pro zvednuté ruce (mexická vlna – img/premiera/kino/ruce.json: nad, bok)
         var ruka = RUCE[m.f];
         var nad = Math.max(w * 0.35, ruka ? ruka.nad * k : 0), top2 = top - nad;
         var bok = ruka ? ruka.bok * k : 0, left2 = left - bok, w2 = w + 2 * bok;
         var dno = Math.max.apply(null, st.c.map(function (p) { return p[1]; })), h = dno - top2 + 1;
-        // ořez po křivce opěradla (co je pod ní, schová sedadlo), po stranách vodorovně až k okrajům; clip-path = nic
-        // se nepřekresluje každý snímek
+        // ořez po křivce opěradla (co je pod ní, schová sedadlo); vedle sedadla až ve výšce horní hrany opěradla (tam stojí
+        // opěradlo souseda – dřív ve výšce rohu, tělo pak viselo přes sousední sedadlo); clip-path = nic se nepřekresluje
+        var horni = Math.min.apply(null, st.c.map(function (p) { return p[1]; }));
         var krivka = function (y0, vys, l0, ww) {
           var c = st.c, Y = function (y) { return ((y - y0) / vys * 100).toFixed(2) + '%'; }, X = function (x) { return ((x - l0) / ww * 100).toFixed(2) + '%'; };
-          return ['0% 0%', '100% 0%', '100% ' + Y(c[c.length - 1][1])].concat(c.slice().reverse().map(function (p) { return X(p[0]) + ' ' + Y(p[1]); }), ['0% ' + Y(c[0][1])]);
+          return ['0% 0%', '100% 0%', '100% ' + Y(horni)].concat(c.slice().reverse().map(function (p) { return X(p[0]) + ' ' + Y(p[1]); }), ['0% ' + Y(horni)]);
         };
         var d = document.createElement('div');
         d.className = 'pm-divak';
@@ -181,6 +183,7 @@
     if (odeslanoCas.length >= 5) return;                         // víc než 5 za sekundu nepošleme (server pustí 6)
     odeslanoCas.push(t);
     vypust(k, true);
+    if (window.PmZvuky) window.PmZvuky.klik(k);                    // zvuček jen pro toho, kdo ťukl (js/premiera-zvuky.js)
     zivy({ action: 'react', r: k }).then(function (r) {
       if (r.ok) odeslano[k] = (odeslano[k] || 0) + 1;
       if (k === 'tlesk' && Date.now() + 400 < dalsi) dalsi = Date.now() + 400;   // potlesk: hned ukázat kroužek vlny

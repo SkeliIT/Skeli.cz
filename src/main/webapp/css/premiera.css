@@ -691,3 +691,6 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 .pm-pomoc-linky { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: .92rem; }
 .pm-pomoc-linky a { display: inline-flex; align-items: center; min-height: 40px; min-width: 6.5ch; margin-right: 8px; font: 600 1.15rem/1 var(--font-body); color: var(--accent); }
 .pm-pomoc-cz { margin: 8px 0 0; color: var(--text-dim); font-size: var(--fs-small); }
+
+/* telefon: létající smajlíci menší (Skeli 24. 11.: na úzké obrazovce moc velcí) */
+@media (max-width: 600px) { .pm-let { width: 28px; height: 28px; font-size: 22px; line-height: 28px; } .pm-let.moje { width: 34px; height: 34px; font-size: 27px; line-height: 34px; } }
