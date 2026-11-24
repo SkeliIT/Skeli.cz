@@ -184,6 +184,8 @@
   // ---------- server: čas a video ----------
   var ptam = false, chyb = 0;
   function zeptej(hotovo) {
+    // simulace (?pmSim, data-sim-yt dává šablona jen pro „sim“ = jen test a lokálně): bez serveru, po startu veřejné video
+    if (root.dataset.simYt) { if (now() >= at) yt = root.dataset.simYt; if (hotovo) hotovo(); return; }
     if (ptam) return; ptam = true;
     var pred = Date.now();
     fetch('/api/premiere?song=' + encodeURIComponent(song), { cache: 'no-store', credentials: 'same-origin' })
