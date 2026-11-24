@@ -1991,3 +1991,7 @@ body.pm-sede { --a1s: 0% !important; --a2s: 0% !important; }
 body .bg-slides, body::before, .masthead { transition: filter 5s ease; }
 body.pm-sede .bg-slides, body.pm-sede::before { filter: grayscale(1) brightness(.45); }
 body.pm-sede .masthead { filter: grayscale(1); }
+/* i fotky v obsahu (náhledy videí, obaly, profilovky) a kreslené efekty (jiskry, oheň citátu) se přelijí do černobílé;
+   animace místo přechodu, ať se nepřepíšou přechody, které obrázky už mají. Přehrávače YouTube zůstávají barevné. */
+body.pm-sede main img, body.pm-sede canvas { animation: pm-sede-img 4s ease forwards; }
+@keyframes pm-sede-img { to { filter: grayscale(1); } }

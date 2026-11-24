@@ -699,7 +699,8 @@
     document.body.appendChild(cv);
     var px = -1e4, py = -1e4, pvx = 0, pvy = 0, pt = 0;
     // jen když stránka opravdu má zelenou barvu fotky s mikrofonem – ne na stránce písně ani u videa na Hudbě (barvu tam určuje video)
-    function green() { return always || (painted === 'mic' && !songColor && !document.body.classList.contains('light')); }
+    // (kolem premiéry je web černobílý – body.pm-sede – zelené bublinky tam nepatří: nové nevzniknou, staré prasknou)
+    function green() { return always || (painted === 'mic' && !songColor && !document.body.classList.contains('light') && !document.body.classList.contains('pm-sede')); }
     function size() { var d = Math.min(2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; g.setTransform(d, 0, 0, d, 0, 0); }
     size(); addEventListener('resize', size);
     // lem záře v kouři: v .smoke-edge.b leží ve 26 % výšky odspodu, v převráceném .t ve 26 % shora (js/smoke.js: 0,42 × výška ÷ 1,6)
