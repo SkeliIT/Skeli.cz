@@ -362,9 +362,16 @@ html.low-fx .pmu-tvare img.on { filter: none; }
 }
 /* VELKÝ SÁL na PC (Skeli 24. 11.: sál nesmí být okénko mezi kartami): sál s chatem přes celou šířku okna, ale jen tak
    velký, aby se jeviště celé vešlo na výšku pod lištu webu. Tlačítko Menší / Větší sál (js/premiera-sal.js, pamatuje se). */
+/* zvuk sálu (js/premiera-zvuky.js) hned vedle celé obrazovky; vypnutý = přeškrtnutý reproduktor */
+main.pm .pm-zvuk-sal { position: absolute; z-index: 7; top: 10px; left: 62px; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
+  background: rgba(0, 0, 0, .5); color: #fff; font-size: 17px; cursor: pointer; display: grid; place-items: center; opacity: .75; transition: opacity .3s; }
+main.pm .pm-zvuk-sal[hidden] { display: none; }
+main.pm .pm-zvuk-sal:hover, main.pm .pm-zvuk-sal:focus-visible { opacity: 1; }
+main.pm .pm-zvuk-sal.vyp { opacity: .6; }
+main.pm .pm-zvuk-sal.vyp::after { content: ""; position: absolute; width: 26px; height: 2px; border-radius: 2px; background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .6); transform: rotate(-45deg); }
 main.pm .pm-velky { display: none; }
 @media (min-width: 1100px) and (orientation: landscape) {
-  main.pm .pm-velky { position: absolute; z-index: 7; top: 10px; left: 62px; height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
+  main.pm .pm-velky { position: absolute; z-index: 7; top: 10px; left: 114px; height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
     background: rgba(0, 0, 0, .5); color: #fff; font: 600 .85rem/1 var(--font-body); cursor: pointer; display: inline-flex; align-items: center; opacity: .75; transition: opacity .3s; }
   main.pm .pm-velky:hover, main.pm .pm-velky:focus-visible { opacity: 1; }
   main.pm.klip.v-sale.velky-sal { width: calc(100% - 32px); }   /* dlaždice premiéry má jinak nejvýš 1280 px */

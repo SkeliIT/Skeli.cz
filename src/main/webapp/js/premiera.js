@@ -233,6 +233,8 @@
 
   // kinosál (js/premiera-sal.js) jede podle stejných hodin serveru a ví, jestli smí hrát zvuk
   window.skeliPmCas = function () { return { now: now(), at: at, zvuk: klepnuto }; };
+  // ťuknutí na 🔊 v sále (js/premiera-sal.js) platí jako ťuknutí na Vstoupit: srdce, šepot i klip se zvukem
+  window.skeliPmZvukPovolen = function () { klepnuto = true; if (window.SquadZvuk) window.SquadZvuk.odemkni(); };
 
   // první dotaz hned: přesný čas a (po premiéře) video
   zeptej(function () { tik(); });

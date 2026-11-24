@@ -93,7 +93,9 @@
              data-t-mood-text="<%= WebUtils.escapeHtml(t.getProperty("pm.moodText")) %>"
              data-t-mood-none="<%= WebUtils.escapeHtml(t.getProperty("pm.moodNone")) %>"
              data-t-bigger="<%= WebUtils.escapeHtml(t.getProperty("pm.bigger")) %>"
-             data-t-smaller="<%= WebUtils.escapeHtml(t.getProperty("pm.smaller")) %>">
+             data-t-smaller="<%= WebUtils.escapeHtml(t.getProperty("pm.smaller")) %>"
+             data-t-sound-on="<%= WebUtils.escapeHtml(t.getProperty("pm.soundOn")) %>"
+             data-t-sound-off="<%= WebUtils.escapeHtml(t.getProperty("pm.soundOff")) %>">
       <div class="pm-sal-roz">
         <div class="pm-sal-hl">
           <div class="pm-jeviste" id="pmJeviste">
@@ -136,6 +138,8 @@
             </div>
             <button type="button" class="pm-celo" id="pmCelo" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
             <%-- jen PC: sál přes celou šířku okna, nebo menší v obsahu stránky (text dá js/premiera-sal.js) --%>
+            <%-- zvuk sálu (js/premiera-zvuky.js): zapnout / vypnout, stejný vypínač jako zvuky webu --%>
+            <button type="button" class="pm-zvuk-sal" id="pmZvukSal"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
             <button type="button" class="pm-velky" id="pmVelky"></button>
           </div>
           <div class="pm-kviz-bar" id="pmKvizBar" hidden></div>
@@ -192,5 +196,6 @@
 <script src="/js/yt-clock.js?v=<%= assetVersion %>"></script>
 <script src="/js/upoutavka.js?v=<%= assetVersion %>"></script>
 <script src="/js/premiera.js?v=<%= assetVersion %>"></script>
+<script src="/js/premiera-zvuky.js?v=<%= assetVersion %>"></script>
 <script src="/js/premiera-sal.js?v=<%= assetVersion %>"></script>
 <%@ include file="/includes/footer.jsp" %>

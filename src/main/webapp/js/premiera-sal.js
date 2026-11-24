@@ -129,6 +129,7 @@
     var t = T.tLidi.replace('{n}', cislo ? cislo.format(n) : n);
     $('pmSalLidi').textContent = t; $('pmChatLidi').textContent = t;
     usad(n);
+    if (window.PmZvuky) window.PmZvuky.lidi(n);                    // hovor v sále sílí s počtem lidí
   }
 
   // ---------- smajlíci: svítící tlačítko v rohu sálu → okénko se 7 obličeji SQUADu (barvy podle nálady) a 7 smajlíky ----------
@@ -277,6 +278,7 @@
   function vlna() {
     if (jeviste.classList.contains('klid') || klid || vyp.efekty) return;
     hlaska(T.tWave);
+    if (window.PmZvuky) window.PmZvuky.vlna();
     mista.slice(0, ukazano).forEach(function (m) { m.el.classList.remove('vlna'); void m.el.offsetWidth; m.el.classList.add('vlna'); });
   }
 
@@ -464,6 +466,7 @@
     }
     platno.classList.add('ma-kviz');
     kvizBar.hidden = false;
+    if (window.PmZvuky) window.PmZvuky.kviz(k.faze, k.do - cas().now);   // napětí, bubnový vír, úder při odhalení
   }
   function oznacMoje(i, hlasovani) {
     document.querySelectorAll('.pm-kv-odp').forEach(function (b) {
@@ -544,13 +547,14 @@
   }
   function pust() {
     jeviste.classList.add('hraje', 'klid');
+    if (window.PmZvuky) window.PmZvuky.klip();                     // při klipu hraje jen klip
     setTimeout(function () { platno.classList.remove('v-finale', 'ma-logo'); }, 1200);
   }
   function tik() {
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
     if (zbyva <= 60000) zavriShort();
-    if (zbyva > 0 && zbyva <= 15000) najed();
+    if (zbyva > 0 && zbyva <= 15000) { najed(); if (window.PmZvuky) window.PmZvuky.finale(zbyva); }
     if (zbyva > 0 && zbyva <= 8000) finale7(zbyva);
     if (zbyva <= 0 && !jeviste.classList.contains('hraje')) pust();
     if (Date.now() >= dalsi) dotaz();
@@ -571,6 +575,7 @@
     postavSal();
     try { sessionStorage.setItem('pmSal', '1'); } catch (e) { /* nevadí */ }
     dalsi = 0; spust();
+    zvukSal(!sam || cas().zvuk);                                   // zvuk sálu jen po ťuknutí (jinak tlačítko 🔊)
     if (!sam) {                                                    // po ťuknutí: sál nahoru pod hlavičku
       var hh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 64;
       window.scrollTo({ top: Math.max(0, sal.getBoundingClientRect().top + window.scrollY - hh - 8), behavior: 'smooth' });
@@ -586,9 +591,32 @@
   if (maOtevritSam()) vstup(true);
   else hlidac = setInterval(function () { if (maOtevritSam()) { clearInterval(hlidac); vstup(true); } }, 1000);
   document.addEventListener('visibilitychange', function () {
+    if (window.PmZvuky) window.PmZvuky.schovej(document.hidden);    // ve schované záložce ticho
     if (document.hidden) zastav();
     else { dalsi = 0; spust(); }
   });
+
+  // ---------- ZVUK SÁLU (js/premiera-zvuky.js): tlačítko 🔊 vlevo nahoře = stejný vypínač jako zvuky celého webu ----------
+  // (funkce hledají tlačítko až při použití: vstup() do sálu se volá i dřív, než sem skript dojde)
+  function zvukKresli() {
+    var b = $('pmZvukSal'), Z = window.PmZvuky, on = !!(Z && Z.bezi());
+    b.hidden = !Z;                                                 // prohlížeč bez Web Audio: bez tlačítka
+    b.classList.toggle('vyp', !on);
+    b.setAttribute('aria-label', on ? T.tSoundOff : T.tSoundOn); b.title = on ? T.tSoundOff : T.tSoundOn;
+  }
+  function zvukSal(gesto) {
+    var Z = window.PmZvuky;
+    if (Z && gesto && !Z.vypnuto()) Z.start(cas().at - cas().now);
+    zvukKresli();
+  }
+  $('pmZvukSal').addEventListener('click', function () {
+    var Z = window.PmZvuky;
+    if (!Z) return;
+    if (Z.bezi()) Z.vypni();
+    else if (Z.zapni(cas().at - cas().now) && window.skeliPmZvukPovolen) window.skeliPmZvukPovolen();
+    zvukKresli();
+  });
+  zvukKresli();
 
   // ---------- VELKÝ SÁL na PC: sál přes celou šířku okna (výchozí), nebo menší v obsahu stránky; volba se pamatuje ----------
   // (tlačítko je vidět jen na širokém PC – css/premiera.css; na telefonu třída nic nemění)
