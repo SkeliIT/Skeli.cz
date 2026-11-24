@@ -66,17 +66,18 @@
       });
       sedadla.sort(function (a, b) { return a.poradi - b.poradi; });
       // kdo kde sedí (Skeli 25. 11.): menší postavy (nižší nad opěradlem vůči ramenům) dál od kamery, větší blíž; uvnitř řady
-      // náhodně (každý návštěvník vidí jiné rozesazení); Hitman (divák 23) jen jednou, uprostřed sálu; stejná postava ne vedle sebe
+      // náhodně (každý návštěvník vidí jiné rozesazení); Hitman (divák 23) jen jednou, uprostřed sálu; stejná postava nikdy
+      // dvakrát v jedné řadě (v přední řadě vypadala jako klon)
       var vyska = function (m) { return m.top / (m.sr - m.sl); };
       var hitman = meta.filter(function (m) { return /divak-23\./.test(m.f); })[0];
       var lide = meta.filter(function (m) { return m !== hitman; }).sort(function (a, b) { return vyska(a) - vyska(b); });
       var poradiMist = sedadla.slice().sort(function (a, b) { return a.r - b.r || Math.random() - 0.5; });   // od nejvzdálenější řady
       poradiMist.forEach(function (st, i) { st.m = lide[Math.min(lide.length - 1, Math.floor(i * lide.length / poradiMist.length))]; });
-      var vedle = function (a, b) { return a.r === b.r && Math.abs((a.x0 + a.x1) - (b.x0 + b.x1)) / 2 < (a.x1 - a.x0) * 1.6; };
-      poradiMist.forEach(function (a) {                              // dvojník hned vedle → prohodit s někým jiným v téže řadě
-        var soused = poradiMist.filter(function (b) { return b !== a && b.m === a.m && vedle(a, b); })[0];
-        if (!soused) return;
-        var jiny = poradiMist.filter(function (b) { return b.r === a.r && b.m !== a.m && !poradiMist.some(function (c) { return c !== b && c.m === a.m && vedle(b, c); }); })[0];
+      var vRade = function (r, m, krome) { return poradiMist.some(function (c) { return c !== krome && c.r === r && c.m === m; }); };
+      poradiMist.forEach(function (a) {                              // dvojník v téže řadě → prohodit s někým ze sousední řady
+        if (!vRade(a.r, a.m, a)) return;
+        var jiny = poradiMist.filter(function (b) { return Math.abs(b.r - a.r) <= 2 && b.r !== a.r && !vRade(a.r, b.m, a) && !vRade(b.r, a.m, b); })
+          .sort(function (x, y) { return Math.abs(x.r - a.r) - Math.abs(y.r - a.r); })[0];
         if (jiny) { var t = jiny.m; jiny.m = a.m; a.m = t; }
       });
       if (hitman) {
