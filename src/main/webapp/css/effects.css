@@ -1993,5 +1993,5 @@ body.pm-sede .bg-slides, body.pm-sede::before { filter: grayscale(1) brightness(
 body.pm-sede .masthead { filter: grayscale(1); }
 /* i fotky v obsahu (náhledy videí, obaly, profilovky) a kreslené efekty (jiskry, oheň citátu) se přelijí do černobílé;
    animace místo přechodu, ať se nepřepíšou přechody, které obrázky už mají. Přehrávače YouTube zůstávají barevné. */
-body.pm-sede main img, body.pm-sede canvas { animation: pm-sede-img 4s ease forwards; }
+body.pm-sede main img, body.pm-sede canvas, body.pm-sede .ep-poster { animation: pm-sede-img 4s ease forwards; }   /* .ep-poster = velký náhled na Hudbě (obrázek na pozadí) */
 @keyframes pm-sede-img { to { filter: grayscale(1); } }
