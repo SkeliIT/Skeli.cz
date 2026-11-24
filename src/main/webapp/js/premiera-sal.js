@@ -249,8 +249,13 @@
     });
     nalBox.appendChild(b); nalTlac[k] = b;
   });
+  // náladoměr na celé obrazovce: decentní proužek nahoře uprostřed (převládající nálada, procenta, čára všech nálad)
+  var nalFs = document.createElement('div');
+  nalFs.className = 'pm-nal-fs'; nalFs.hidden = true; nalFs.setAttribute('aria-hidden', 'true');
+  nalFs.innerHTML = '<span class="pm-tvar"></span><b></b><span class="pm-nal-fs-pas"></span>';
+  jeviste.appendChild(nalFs);
   function naladaStav(n) {
-    nalKarta.hidden = !n;
+    nalKarta.hidden = !n; nalFs.hidden = !n;
     if (!n) return;
     var suma = 0, max = 'f1';
     TVARE.forEach(function (k) { suma += n[k] || 0; if ((n[k] || 0) > (n[max] || 0)) max = k; });
@@ -258,6 +263,12 @@
       nalTlac[k].querySelector('.pm-nal-pct').textContent = (suma ? Math.round((n[k] || 0) / suma * 100) : 0) + '\u00a0%';
       nalTlac[k].classList.toggle('on', n.moje === k); nalTlac[k].setAttribute('aria-pressed', String(n.moje === k));
     });
+    if (suma) {
+      nalFs.querySelector('.pm-tvar').className = 'pm-tvar pm-tvar-' + max;
+      nalFs.querySelector('b').textContent = String(NALADY[+max.slice(1) - 1] || '').split(' – ')[0] + ' ' + Math.round((n[max] || 0) / suma * 100) + ' %';
+      nalFs.querySelector('.pm-nal-fs-pas').innerHTML = TVARE.map(function (k) { return '<i class="pm-tvar-' + k + '" style="flex-grow:' + (n[k] || 0) + '"></i>'; }).join('');
+    }
+    nalFs.classList.toggle('prazdny', !suma);
     $('pmNalText').textContent = suma ? T.tMoodText.replace('{m}', String(NALADY[+max.slice(1) - 1] || '').split(' – ')[0]).replace('{p}', Math.round((n[max] || 0) / suma * 100)) : T.tMoodNone;
   }
 
@@ -551,7 +562,7 @@
   var TEPY = [7.5, 6.6, 5.7, 4.8, 3.9, 3.0, 2.1], SEPOT = 1.4;
   function finale7(zbyva) {
     if (finale) return; finale = true;
-    var tv = [].slice.call(document.querySelectorAll('#pmSalTvare img'));
+    var tv = [].slice.call(document.querySelectorAll('#pmSalTvare .pm-tvar'));
     var zvuk = function () { return cas().zvuk && window.SquadZvuk ? window.SquadZvuk : null; };
     platno.classList.add('v-finale');
     TEPY.forEach(function (pred, i) {

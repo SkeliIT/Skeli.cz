@@ -113,7 +113,7 @@
                 </div>
                 <div class="pm-kviz" id="pmKviz" aria-live="polite"></div>
                 <div class="pm-pl-finale" aria-hidden="true">
-                  <div class="pm-pl-tvare" id="pmSalTvare"><% for (int fi = 1; fi <= 7; fi++) { %><img src="/img/faces/face-<%= fi %>.webp" alt="" width="44" height="44"><% } %></div>
+                  <div class="pm-pl-tvare" id="pmSalTvare"><% for (int fi = 1; fi <= 7; fi++) { %><span class="pm-tvar pm-tvar-f<%= fi %>"></span><% } %></div>
                   <div class="pm-pl-logo"></div>
                 </div>
               </div>

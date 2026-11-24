@@ -419,8 +419,8 @@ main.pm .pm-jeviste.fs .pm-velky, main.pm .pm-jeviste.na-celou .pm-velky, main.p
 /* posledních 7 s: obličeje na tep srdce nad odpočtem, logo SKELO SQUAD pod ním (odpočet zůstává vidět) */
 .pm-pl-finale { position: absolute; inset: 0; opacity: 0; transition: opacity .8s; pointer-events: none; }
 .pm-pl-tvare { position: absolute; left: 0; right: 0; top: 7%; display: flex; justify-content: center; gap: 2.2cqw; }
-.pm-pl-tvare img { width: 7.5cqw; height: 7.5cqw; opacity: .06; transform: scale(.94); transition: opacity .9s ease, transform .9s ease, filter .9s ease; }
-.pm-pl-tvare img.on { opacity: .95; transform: scale(1); filter: brightness(2) drop-shadow(0 0 .5cqw rgba(255, 255, 255, .6)); }
+.pm-pl-tvare .pm-tvar { width: 7.5cqw; height: 7.5cqw; opacity: .08; transform: scale(.94); transition: opacity .9s ease, transform .9s ease, filter .9s ease; }   /* barvy nálad (Skeli: napřed barevné) */
+.pm-pl-tvare .pm-tvar.on { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 .6cqw var(--c)); }
 .pm-pl-logo { position: absolute; left: 50%; bottom: 3%; translate: -50% 0; width: 46cqw; aspect-ratio: 6556 / 1144; background: #fff; opacity: 0;
   transform: scale(.85); transition: opacity .6s, transform 1.2s cubic-bezier(.2, .8, .2, 1);
   -webkit-mask: url(/img/logo-skelosquad.svg) center / contain no-repeat; mask: url(/img/logo-skelosquad.svg) center / contain no-repeat;
@@ -442,7 +442,7 @@ main.pm .pm-jeviste.fs .pm-velky, main.pm .pm-jeviste.na-celou .pm-velky, main.p
 .pm-jeviste.klid .pm-reakce { opacity: 0; }
 /* posledních 5 s (js/premiera-sal.js tik): plátno (obličeje SQUADu, odpočet, logo), smajlíci a jejich tlačítko se přelijí
    do černobílé (Skeli 24. 11.); animace, ne přechod – ať se nepřepíšou přechody, které prvky už mají */
-.pm-jeviste.cernobile .pm-platno, .pm-jeviste.cernobile .pm-reakce, .pm-jeviste.cernobile .pm-spoust { animation: pm-cernobile 2.5s ease forwards; }
+.pm-jeviste.cernobile .pm-platno, .pm-jeviste.cernobile .pm-reakce, .pm-jeviste.cernobile .pm-spoust { animation: pm-cernobile 4.5s ease-in forwards; }   /* od 5 s pozvolna ztrácí barvu */
 @keyframes pm-cernobile { to { filter: grayscale(1); } }
 .pm-let { position: absolute; bottom: -10px; right: 2%; width: 38px; height: 38px; font-size: 30px; line-height: 38px; text-align: center;
   animation: pm-let 2.8s cubic-bezier(.25, .5, .3, 1) forwards; }
@@ -700,3 +700,12 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 @media (max-width: 900px) { .pm-sal.kviz-okno .pm-kviz-bar { min-height: 180px; } }
 @media (max-width: 420px) { .pm-sal.kviz-okno .pm-kviz-bar { min-height: 280px; } }   /* změřeno: výsledek se zajímavostí 273 px */
 .pm-kv-cekej { margin: 0; text-align: center; color: var(--text-dim); font-size: .9rem; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+
+/* náladoměr na celé obrazovce (Skeli 24. 11.): decentní proužek nahoře uprostřed, jen během odpočtu */
+.pm-nal-fs { display: none; }
+.pm-jeviste.fs .pm-nal-fs:not([hidden]):not(.prazdny) { position: absolute; z-index: 7; top: 12px; left: 50%; translate: -50% 0; display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px 9px; border-radius: 99px; background: rgba(0, 0, 0, .45); color: #f2f2f5; font: 600 .8rem/1 var(--font-body); opacity: .85; pointer-events: none; }
+.pm-jeviste.fs.hraje .pm-nal-fs, .pm-jeviste.fs.klid .pm-nal-fs { display: none !important; }
+.pm-nal-fs .pm-tvar { width: 20px; height: 20px; }
+.pm-nal-fs-pas { position: absolute; left: 14px; right: 14px; bottom: 4px; height: 2px; display: flex; border-radius: 2px; overflow: hidden; }
+.pm-nal-fs-pas i { display: block; flex-basis: 0; background: var(--c); transition: flex-grow .8s; }

@@ -12,10 +12,10 @@
 (function () {
   var C = window.AudioContext || window.webkitAudioContext;
   if (!C || !window.fetch) return;
-  var CESTA = '/sounds/premiera/', VERZE = '3';
+  var CESTA = '/sounds/premiera/', VERZE = '4';
   var ATMO = { 'atmo-hovor': 0, 'atmo-ticho': 0.22, 'atmo-dest': 0.16, 'atmo-hukot': 0.2 };   // hlasitost (hovor podle lidí)
   var OSTATNI = ['kviz-napeti', 'kviz-vir', 'kviz-uder', 'vlna', 'finale-stoupani', 'finale-projektor', 'finale-ton',
-    'joint-1', 'joint-2', 'joint-3', 'joint-4'];   // joint = Skeliho nahrávka: cvaknutí zapalovače a nahulení (4 varianty)
+    'joint-1', 'joint-2', 'joint-3', 'joint-4', 'finale-uvod', 'finale-start'];   // joint = Skeliho nahrávka: cvaknutí zapalovače a nahulení (4 varianty)
   var ac = null, master = null, buf = {}, nacita = {}, smycky = {}, lidi = 1, zapnuto = false, vFinale = false, vir = null, napeti = null;
 
   // ---------- PROGRAM ODPOČTU (Skeli 24. 11.): hudba z Mixkitu (Stock Music Free License – smí na web, ne jako samostatná
@@ -36,10 +36,11 @@
     [566, 326, 'hudba-5', false],      // Fallen (Asper), druhá část – jen hudba
     [326, 250, '', true],              // posledních 5 min bez hudby, jen sál…
     [250, 192, '', false],             // …v 18:56 pozdrav od Skeliho, podkres po něm ještě ~20 s dohraje (hovor ztichne)…
-    [192, 20, '', true]                // …a zase ztichlý sál; pak finále
+    [192, 30, '', true],               // …a zase ztichlý sál…
+    [30, 20, '', false]                // …30 s předem sál ztichne, začne hluboký dech (finale-uvod); pak finále
   ];
   var HOVOR_OD = 5, HUDBA_HL = 0.2, POZDRAV_OD = 240;    // pozdrav = hlas v 18:56:00, podkres 3 s předem
-  var hovorSmi = false, hudba = null, kvizTise = false, posledniZ = 1e9, pozdravBezi = false;
+  var predfinale = false, hovorSmi = false, hudba = null, kvizTise = false, posledniZ = 1e9, pozdravBezi = false;
 
   function vypnuto() { try { return localStorage.getItem('soundMuted') === '1'; } catch (e) { return false; } }
   function kontext() {
@@ -230,6 +231,12 @@
       if (chci !== mam) { hudbaStop(3); if (chci) hudbaStart(seg[2], seg[0]); }
       if (seg && i + 1 < PLAN.length && PLAN[i + 1][2] && z - PLAN[i + 1][0] < 40) nacti(PLAN[i + 1][2]).catch(function () {});   // další skladbu dopředu
       if (!pozdravBezi && z <= POZDRAV_OD + 3 && z > POZDRAV_OD - 15) pozdrav();
+      // 30 s předem: „už se něco děje“ – hluboký dech dechů graduje a v 15 s předá startu kamery
+      if (!predfinale && z <= 30 && z > 15.5 && buf['finale-uvod']) {
+        predfinale = true;
+        var u = hraj('finale-uvod', 0.34, { od: Math.max(0, 30 - z), nabeh: 2 });
+        if (u) ztlum(u, Math.max(0, z - 15.4), 1.3);
+      }
     },
     lidi: function (n) {
       lidi = n;
@@ -256,6 +263,7 @@
       if (!zapnuto || vFinale) return;
       vFinale = true;
       var s = zbyva / 1000;
+      if (buf['finale-start'] && s > 13) hraj('finale-start', 0.5, { nabeh: 0.01 });   // start kamery: hluboký švih s úderem
       ztlum(napeti, 0, 0.5); ztlum(vir, 0, 0.3); hudbaStop(1.5);
       atmoStop(Math.max(1, s - 1.5));                                 // atmosféra utichne do tmy
       if (buf['finale-stoupani']) { var st = hraj('finale-stoupani', 0.5,   /* „Tep a tajemno“ (Mixkit), Skeli 24. 11. místo pištivých houslí */ { od: Math.max(0, 15 - s), nabeh: 1.5 }); ztlum(st, s - 0.4, 0.4); }
