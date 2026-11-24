@@ -40,7 +40,8 @@ public final class PremiereQuiz {
     private static final int MAX_NA_IP = 5;
 
     // ---------- obsah ----------
-    public record Otazka(String id, String premiera, int ok, Map<String, Texty> texty) {
+    /** vazne = vážné téma (domácí násilí): Kevin ho nikdy nekomentuje. */
+    public record Otazka(String id, String premiera, int ok, boolean vazne, Map<String, Texty> texty) {
         public Texty v(String jazyk) { Texty t = texty.get(jazyk); return t != null ? t : texty.get("cs"); }
     }
     public record Texty(String q, List<String> a, String fakt) {}
@@ -70,7 +71,7 @@ public final class PremiereQuiz {
                     }
                 });
                 otazky.put(q.get("id").asText(), new Otazka(q.get("id").asText(), q.hasNonNull("premiera") ? q.get("premiera").asText() : null,
-                        q.get("ok").asInt(), texty));
+                        q.get("ok").asInt(), q.path("vazne").asBoolean(false), texty));
             }
             Map<String, List<List<String>>> kevin = new LinkedHashMap<>();
             j.get("kevin").fields().forEachRemaining(e -> {
@@ -177,7 +178,7 @@ public final class PremiereQuiz {
             m.put("hlasu", celkem);
             if (celkem > 0) m.put("pct", procenta(h, celkem));
             boolean vsichni = celkem > 0 && h[o.ok()] == celkem;
-            if (celkem >= MIN_HLASU_KEVIN && (i % 5 == 1 || i % 5 == 3 || vsichni)) {
+            if (!o.vazne() && celkem >= MIN_HLASU_KEVIN && (i % 5 == 1 || i % 5 == 3 || vsichni)) {   // u vážného tématu Kevin mlčí
                 int kat = kategorie(h[o.ok()], celkem);
                 int idx = vyberHlasku(premiera, kat);
                 if (idx >= 0) { m.put("kevinKat", kat); m.put("kevinIdx", idx); }

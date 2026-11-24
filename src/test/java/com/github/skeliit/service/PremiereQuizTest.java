@@ -119,6 +119,21 @@ class PremiereQuizTest {
     }
 
     @Test
+    void uVazneOtazkyKevinMlci() {
+        long at = 10_000_000L;
+        var plan = PremiereQuiz.plan("musis-odejit");
+        int i = -1;
+        for (int n = 0; n < plan.size(); n++) if (PremiereQuiz.obsah().otazky().get(plan.get(n).id()).vazne()) { i = n; break; }
+        assertTrue(i >= 0, "plán má otázky o domácím násilí");
+        var q = PremiereQuiz.obsah().otazky().get(plan.get(i).id());
+        long start = at - plan.get(i).pred() * 1000L;
+        for (int n = 0; n < 5; n++) assertEquals(0, PremiereQuiz.hlasuj("p5", "musis-odejit", at, start + 100, i, q.ok(), "vaznyprohlizec" + n, "3.3.3." + n));
+        Map<String, Object> v = PremiereQuiz.stav("p5", "musis-odejit", at, start + 12_500, "cs", null);
+        assertEquals(5, v.get("hlasu"));
+        assertNull(v.get("kevin"), "100 % a 5 hlasů, ale vážné téma → Kevin mlčí");
+    }
+
+    @Test
     void procentaNikdyNeklamou() {
         assertArrayEquals(new int[] {99, 1, 0}, PremiereQuiz.procenta(new int[] {999, 1, 0}, 1000));
         assertEquals(5, PremiereQuiz.kategorie(7, 7));

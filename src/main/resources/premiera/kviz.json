@@ -1,5 +1,5 @@
 {
-  "_popis": "Kvíz na plátně kinosálu premiéry (service/PremiereQuiz). Otázky: ok = index správné odpovědi (0 = A, 1 = B, 2 = C); texty po jazycích (chybí-li jazyk, použije se cs). premiera = otázka jen pro danou premiéru (slug názvu písně), jinak obecná. Plány: pro každou premiéru seznam {id, pred = sekund před startem, kdy se otázka objeví}; 12 s hlasování + 14 s výsledek, poslední musí skončit nejpozději 2 min před startem (hlídá PremiereQuizTest). Obsah schválil Skeli 25. 11. 2026 (revize ChatGPT); fakta u ROADTRIP a Trosek zkrácená na ověřené.",
+  "_popis": "Kvíz na plátně kinosálu premiéry (service/PremiereQuiz). Otázky: ok = index správné odpovědi (0 = A, 1 = B, 2 = C); texty po jazycích (chybí-li jazyk, použije se cs). premiera = otázka jen pro danou premiéru (slug názvu písně), jinak obecná. Plány: pro každou premiéru seznam {id, pred = sekund před startem, kdy se otázka objeví}; 12 s hlasování + 14 s výsledek, poslední musí skončit nejpozději 2 min před startem (hlídá PremiereQuizTest). Obsah schválil Skeli 25. 11. 2026 (revize ChatGPT); fakta u ROADTRIP a Trosek zkrácená na ověřené. vazne = vážné téma (domácí násilí): Kevin nekomentuje; zdroj = odkaz, ze kterého je fakt ověřený. Plán musis-odejit = Skeliho výběr 25. 11. (17 otázek) + 5 o domácím násilí.",
   "otazky": [
     { "id": "logo", "ok": 1, "cs": { "q": "Kolik smajlíků tvoří logo SKELO SQUAD?", "a": ["Pět", "Sedm", "Devět"], "fakt": "Každý ze sedmi smajlíků představuje jiný výraz a náladu." } },
     { "id": "kevin", "ok": 0, "cs": { "q": "Jak se jmenuje kočičí maskot Skeli.cz?", "a": ["Kevin", "Chester", "Felix"], "fakt": "Kevin je nejen maskotem webu, ale také soupeřem ve hře CatSmash." } },
@@ -38,6 +38,12 @@
     { "id": "bengoro", "ok": 2, "cs": { "q": "Který slovenský rapper vydal album Bengoro?", "a": ["Separ", "Majk Spirit", "Rytmus"], "fakt": "Bengoro je debutové sólové album Rytmuse z roku 2006." } },
     { "id": "zijemelenraz", "ok": 0, "cs": { "q": "Kdo s Robertem Burianem vydal hit Žijeme len raz?", "a": ["Ego", "Separ", "Majk Spirit"], "fakt": "Skladba Žijeme len raz vyšla v roce 2012. Robert Burian je zároveň jejím producentem." } },
     { "id": "logic", "ok": 1, "cs": { "q": "Který český rapper dříve vystupoval jako Logic?", "a": ["Calin", "Yzomandias", "Viktor Sheen"], "fakt": "Yzomandias je jednou ze zakládajících osobností českého hudebního labelu Milion+." } },
+    {"id": "dn-formy", "vazne": true, "ok": 0, "zdroj": "https://vlada.gov.cz/assets/ppov/rovne-prilezitosti-zen-a-muzu/dokumenty/PLAKAT_A3_jednostranny.pdf", "cs": {"q": "Může mít domácí násilí i jinou než fyzickou podobu?", "a": ["Ano", "Ne", "Jen mezi manželi"], "fakt": "Domácí násilí může být také psychické, ekonomické nebo sexuální."}},
+    {"id": "dn-vykazani", "vazne": true, "ok": 2, "zdroj": "https://advokatnidenik.cz/2025/07/01/od-1-7-2025-je-ucinna-novela-jednotne-definujici-domaci-nasili/", "cs": {"q": "Na kolik dní může policie vykázat násilnou osobu?", "a": ["7 dní", "10 dní", "14 dní"], "fakt": "Od 1. července 2025 se v ČR doba policejního vykázání prodloužila z 10 na 14 dní."}},
+    {"id": "dn-158", "vazne": true, "ok": 1, "zdroj": "https://policie.gov.cz/kyberkriminalita/domaci-nasili-stalking-a-sexualni-nasili", "cs": {"q": "Kam v ČR volat při bezprostředním ohrožení násilím?", "a": ["155", "158", "156"], "fakt": "Na čísle 158 lze přivolat Policii ČR při bezprostředním ohrožení sebe nebo jiné osoby."}},
+    {"id": "dn-116kdo", "vazne": true, "ok": 2, "zdroj": "https://www.116006.cz/jsem-obeti-domaciho-nasili/", "cs": {"q": "Kdo může požádat linku 116 006 o radu kvůli násilí?", "a": ["Jen oběť", "Jen člen rodiny", "Oběť, blízcí i svědci"], "fakt": "Odbornou pomoc mohou vyhledat i lidé, kteří mají obavy o někoho ve svém okolí."}},
+    {"id": "dn-116", "vazne": true, "ok": 0, "zdroj": "https://www.116006.cz/", "cs": {"q": "Která linka nabízí pomoc obětem domácího násilí?", "a": ["116 006", "118 000", "1212"], "fakt": "Linku 116 006 provozuje Bílý kruh bezpečí. Pomoc je bezplatná, diskrétní a dostupná nonstop."}},
+
     { "id": "roadtrip", "ok": 2, "cs": { "q": "Kdo společně vydal album ROADTRIP v roce 2023?", "a": ["Separ a Ego", "Marpo a Refew", "Calin a Viktor Sheen"], "fakt": "ROADTRIP vyšlo 3. února 2023 a patří na něj také skladba Safír." } }
   ],
   "kevin": {
@@ -64,10 +70,12 @@
   },
   "plany": {
     "musis-odejit": [
-      { "id": "logo", "pred": 1770 }, { "id": "kevin", "pred": 1680 }, { "id": "bronx", "pred": 1590 },
-      { "id": "flow", "pred": 1470 }, { "id": "rytmus", "pred": 1350 }, { "id": "sampl", "pred": 1230 }, { "id": "roadtrip", "pred": 1110 }, { "id": "50cent", "pred": 990 },
-      { "id": "koolherc", "pred": 840 }, { "id": "chaozz", "pred": 690 }, { "id": "top40", "pred": 540 }, { "id": "trosky", "pred": 390 },
-      { "id": "prvnitrack", "pred": 270 }, { "id": "remake", "pred": 216 }, { "id": "klip", "pred": 162 }
+      { "id": "logo", "pred": 1770 }, { "id": "kevin", "pred": 1694 }, { "id": "bronx", "pred": 1618 }, { "id": "flow", "pred": 1542 },
+      { "id": "rapvshiphop", "pred": 1466 }, { "id": "sampl", "pred": 1390 }, { "id": "50cent", "pred": 1314 }, { "id": "freestyle", "pred": 1238 },
+      { "id": "chaozz", "pred": 1162 }, { "id": "bar", "pred": 1086 }, { "id": "trosky", "pred": 1010 }, { "id": "beatbox", "pred": 934 },
+      { "id": "my3", "pred": 858 }, { "id": "texty15", "pred": 782 }, { "id": "prvnitrack", "pred": 706 }, { "id": "remake", "pred": 630 },
+      { "id": "dn-formy", "pred": 554 }, { "id": "dn-vykazani", "pred": 478 }, { "id": "dn-158", "pred": 402 }, { "id": "dn-116kdo", "pred": 326 },
+      { "id": "dn-116", "pred": 250 }, { "id": "klip", "pred": 174 }
     ],
     "vychozi": [
       { "id": "logo", "pred": 1770 }, { "id": "kevin", "pred": 1680 }, { "id": "bronx", "pred": 1590 },
