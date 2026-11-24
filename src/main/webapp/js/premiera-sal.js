@@ -583,13 +583,16 @@
     if (window.PmZvuky) window.PmZvuky.klip();                     // při klipu hraje jen klip
     setTimeout(function () { platno.classList.remove('v-finale', 'ma-logo'); }, 1200);
   }
-  var pozdravVidet = false;
+  var pozdravVidet = false, pmSede = false;
   function tik() {
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
     if (zbyva <= 60000) zavriShort();
     if (zbyva > 0 && zbyva <= 20000) scena.classList.add('priprav');
     if (zbyva > 0 && zbyva <= 5000) jeviste.classList.add('cernobile');
+    // 5 s předem ztrácí barvy celé okno (body.pm-sede jako zbytek webu – css/effects.css) až do 19:06; klip zůstává barevný
+    var sede = zbyva <= 5000 && zbyva > -360000;
+    if (sede !== pmSede) { pmSede = sede; document.body.classList.toggle('pm-sede', sede); }
     if (window.PmZvuky) window.PmZvuky.tik(zbyva);
     var okno = zbyva <= 1560000 && zbyva > 300000 && !vyp.kviz;   // rezervované místo pro kvíz pod sálem
     if (okno !== kvizOkno) {
