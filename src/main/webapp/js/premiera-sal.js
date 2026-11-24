@@ -295,13 +295,13 @@
     }
   }
   // ---------- SKELI V SÁLE (Skeli 25. 11.): avatar na pevném místě (3. řada od plátna u uličky vpravo), když je Skeli
-  // přihlášený v sále (server: d.skeli). V 18:58:58 vstane, uličkou dojde k plátnu, otočí se a s mikrofonem odříká pozdrav
-  // (zvuk js/premiera-zvuky.js, hlas 48–31,4 s předem), pak zhasne reflektor, rozplyne se a sedí zpátky na svém místě.
-  // Když v sále není, objeví se rovnou u plátna. Snímky img/premiera/kino/skeli/ (navrhy/premiera/kino/skeli.py).
+  // přihlášený v sále (server: d.skeli). Při pozdravu (zvuk js/premiera-zvuky.js: klavír 51 s, hlas 48–31,4 s předem) se na
+  // svém místě postaví, posvítí na něj reflektor, po posledním slově si sedne – jako člověk z publika, který promluví.
+  // (Chůze uličkou a čelní záběry vypadaly jako vystřihovánky – pryč.) Když v sále není, zazní jen hlas.
+  // Snímky img/premiera/kino/skeli/ (navrhy/premiera/kino/skeli.py).
   var SKELI_SEDADLO = 27, SK = { w: 512, h: 768, top: 519, sl: 50, sr: 462 };
-  var skeliEl = null, skeliChuze = null, skeliSvetlo = null, skeliSt = null, skeliVSale = false, skeliBylTu = null, skeliRaf = 0, skeliSnimek = '';
+  var skeliEl = null, skeliSvetlo = null, skeliSt = null, skeliVSale = false;
   var SK_CESTA = '/img/premiera/kino/skeli/', SK_V = '?v=1';
-  var SK_CHUZE = ['bok', 'chuze-1', 'chuze-2', 'chuze-3', 'chuze-4', 'otocka', 'mikrofon', 'mluvi', 'mluvi2', 'srdce', 'gesto'];
   function postavSkeli(st) {
     if (!st) return;
     skeliSt = st;
@@ -320,70 +320,22 @@
     mista.forEach(function (m) { if (!pred && m.r > st.r && m.el) pred = m.el; });
     divaci.insertBefore(d, pred);
     skeliEl = d;
+    // reflektor: teplá záře kolem něj, když stojí (nad sedadlem, výška stojící postavy)
+    var sw = st.x1 - st.x0;
     skeliSvetlo = document.createElement('div'); skeliSvetlo.className = 'pm-skeli-svetlo';
-    skeliChuze = document.createElement('div'); skeliChuze.className = 'pm-skeli-chuze';
-    SK_CHUZE.forEach(function (n) {
-      var im = document.createElement('img'); im.dataset.n = n; im.src = SK_CESTA + n + '.webp' + SK_V; im.alt = ''; im.decoding = 'async';
-      if (/^(otocka|mikrofon|mluvi|mluvi2|srdce|gesto)$/.test(n)) im.className = 'pomalu';
-      skeliChuze.appendChild(im);
-    });
-    divaci.parentNode.insertBefore(skeliSvetlo, divaci.nextSibling);
-    divaci.parentNode.insertBefore(skeliChuze, skeliSvetlo.nextSibling);
+    skeliSvetlo.style.cssText = 'left:' + ((st.x0 - sw * 0.6) / W * 100) + '%;top:' + ((st.top - sw * 2.1) / H * 100) + '%;width:' + (sw * 2.2 / W * 100) + '%;height:' + (sw * 2.6 / H * 100) + '%';
+    divaci.insertBefore(skeliSvetlo, d);
     skeliScena((cas().at - cas().now) / 1000);
-  }
-  // cesta: od sedadla bokem do uličky (x 836), uličkou k plátnu; výška postavy a chodidla podle hloubky (řada sedadla)
-  var SK_ULICKA = 836, SK_PODIUM = { feet: 646, vys: 262 };   // stojí v uličce před první řadou, hlavou proti plátnu
-  function skMisto() { var sw = skeliSt.x1 - skeliSt.x0; return { x: (skeliSt.x0 + skeliSt.x1) / 2, feet: skeliSt.top + sw * 0.95, vys: sw * 2.04 }; }
-  function skUkaz(n) {
-    if (skeliSnimek === n) return; skeliSnimek = n;
-    [].forEach.call(skeliChuze.children, function (im) { im.classList.toggle('on', im.dataset.n === n); });
-  }
-  function skPoz(x, feet, vys) {
-    skeliChuze.style.left = (x / W * 100) + '%'; skeliChuze.style.top = ((feet - vys) / H * 100) + '%'; skeliChuze.style.height = (vys / H * 100) + '%';
   }
   function skeliScena(z) {
     if (!skeliEl) return;
-    var vSekvenci = z <= 62.5 && z > 27;
-    if (z > 62.5 || z <= 0) skeliBylTu = null;
-    if (vSekvenci && skeliBylTu === null) skeliBylTu = skeliVSale;   // byl v sále, když to začalo? (jinak rovnou u plátna)
-    var tu = vSekvenci ? skeliBylTu : skeliVSale;
-    // sedadlo: sedí / vstává / stojí / pryč
-    skeliEl.classList.toggle('sedi', tu && (!vSekvenci || z > 60.3));
-    skeliEl.classList.toggle('vstava', vSekvenci && z <= 62.3 && z > 61);
-    skeliEl.classList.toggle('stoji', vSekvenci && z <= 61 && z > 60.3);
-    // chůze a pódium
-    var c = null;
-    if (vSekvenci && tu && z <= 60.3 && z > 58.6) {                // krok bokem do uličky
-      var m = skMisto(), p = (60.3 - z) / 1.7;
-      c = { n: 'bok', x: m.x + (SK_ULICKA - m.x) * p, feet: m.feet, vys: m.vys, bob: true, t: p * 3, orez: skeliSt.top + 8 };   // nohy schované za opěradly řady
-    } else if (vSekvenci && tu && z <= 58.6 && z > 51.6) {          // uličkou k plátnu, zezadu
-      var m2 = skMisto(), q = (58.6 - z) / 7, krok = Math.floor((58.6 - z) / 0.3) % 4;
-      c = { n: 'chuze-' + (krok + 1), x: SK_ULICKA, feet: m2.feet + (SK_PODIUM.feet - m2.feet) * q, vys: m2.vys + (SK_PODIUM.vys - m2.vys) * q, bob: true, t: (58.6 - z) / 0.6 };
-    } else if (vSekvenci && z <= 51.6 && z > 29.6) {                // u plátna: otočka, mikrofon, proslov
-      var n = z > 50.6 ? 'otocka' : z > 48.6 ? 'mikrofon' : z > 40 ? (Math.floor((48.6 - z) / 2.4) % 2 ? 'mluvi2' : 'mluvi')
-        : z > 37 ? 'srdce' : z > 34.3 ? 'mluvi' : z > 32 ? 'gesto' : z > 31.2 ? 'mluvi' : 'mikrofon';
-      c = { n: n, x: SK_ULICKA, feet: SK_PODIUM.feet, vys: SK_PODIUM.vys };
-    }
-    skeliSvetlo.classList.toggle('on', vSekvenci && z <= 51.8 && z > 29.6);
-    skeliChuze.classList.toggle('vidi', !!c);
-    if (c) {
-      skUkaz(c.n);
-      var feet = c.feet - (c.bob ? Math.abs(Math.sin(c.t * Math.PI)) * c.vys * 0.012 : 0);
-      skPoz(c.x, feet, c.vys);
-      skeliChuze.style.setProperty('--orez', c.orez ? Math.max(0, (feet - c.orez) / c.vys * 100).toFixed(1) + '%' : '0%');
-    }
+    var stoji = skeliVSale && z <= 50.3 && z > 30.5, vstava = skeliVSale && ((z <= 51 && z > 50.3) || (z <= 30.5 && z > 29.8));
+    skeliEl.classList.toggle('sedi', skeliVSale);
+    skeliEl.classList.toggle('vstava', vstava);
+    skeliEl.classList.toggle('stoji', stoji);
+    skeliSvetlo.classList.toggle('on', skeliVSale && z <= 51 && z > 29.8);
   }
-  function skeliKrok() {
-    skeliRaf = 0;
-    var z = (cas().at - cas().now) / 1000;
-    skeliScena(z);
-    if (z > 27 && z < 63 && !document.hidden) skeliRaf = requestAnimationFrame(skeliKrok);   // plynulá chůze jen během proslovu
-  }
-  function skeliTik(zbyva) {
-    var z = zbyva / 1000;
-    if (z > 27 && z < 63) { if (!skeliRaf) skeliRaf = requestAnimationFrame(skeliKrok); }
-    else skeliScena(z);
-  }
+  function skeliTik(zbyva) { skeliScena(zbyva / 1000); }
 
   function vlna() {
     if (jeviste.classList.contains('klid') || klid || vyp.efekty) return;
