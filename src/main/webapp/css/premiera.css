@@ -367,6 +367,7 @@ main.pm .pm-velky { display: none; }
   main.pm .pm-velky { position: absolute; z-index: 7; top: 10px; left: 62px; height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
     background: rgba(0, 0, 0, .5); color: #fff; font: 600 .85rem/1 var(--font-body); cursor: pointer; display: inline-flex; align-items: center; opacity: .75; transition: opacity .3s; }
   main.pm .pm-velky:hover, main.pm .pm-velky:focus-visible { opacity: 1; }
+  main.pm.klip.v-sale.velky-sal { width: calc(100% - 32px); }   /* dlaždice premiéry má jinak nejvýš 1280 px */
   .pm.v-sale.velky-sal .pm-in { max-width: none; }
   .pm.velky-sal .pm-sal { max-width: calc((100svh - var(--header-h) - 28px) * 1672 / 941 + 360px); margin-inline: auto; }
   .pm.velky-sal .pm-sal-roz { grid-template-columns: minmax(0, 1fr) 360px; }
