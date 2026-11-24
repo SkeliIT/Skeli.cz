@@ -442,7 +442,10 @@ main.pm .pm-jeviste.fs .pm-velky, main.pm .pm-jeviste.na-celou .pm-velky, main.p
 .pm-jeviste.klid .pm-reakce { opacity: 0; }
 /* posledních 5 s (js/premiera-sal.js tik): plátno (obličeje SQUADu, odpočet, logo), smajlíci a jejich tlačítko se přelijí
    do černobílé (Skeli 24. 11.); animace, ne přechod – ať se nepřepíšou přechody, které prvky už mají */
-.pm-jeviste.cernobile .pm-scena, .pm-jeviste.cernobile .pm-reakce, .pm-jeviste.cernobile .pm-spoust { animation: pm-cernobile 4.5s ease-in forwards; }   /* od 5 s pozvolna ztrácí barvu – celá scéna jedním filtrem */
+/* šednutí ve dvou krocích (Skeli 24. 11.): od 9 s sál, diváci a smajlíci (okno přes body.pm-sede) – poslední obličeje už svítí na šedém;
+   od 5 s, až svítí všech 7, šedne i plátno s obličeji */
+.pm-jeviste.sede .pm-scena > :not(.pm-platno), .pm-jeviste.sede .pm-reakce, .pm-jeviste.sede .pm-spoust { animation: pm-cernobile 3s ease-in forwards; }
+.pm-jeviste.cernobile .pm-platno { animation: pm-cernobile 4.5s ease-in forwards; }
 /* zbytek okna šedne přes body.pm-sede (css/effects.css); obrázky sálu už šedne filtr scény, ne každý zvlášť (plynulost při jízdě kamery) */
 body.pm-sede .pm-jeviste img { animation: none; }
 @keyframes pm-cernobile { to { filter: grayscale(1); } }
@@ -600,7 +603,10 @@ main.pm .pm-pop-rada button { width: 44px; height: 44px; border-radius: 12px; bo
   padding: 7px; font-size: 24px; line-height: 1; display: grid; place-items: center; transition: transform .12s; }
 main.pm .pm-pop-rada button:hover, main.pm .pm-pop-rada button:focus-visible { transform: scale(1.12); border-color: var(--accent); }
 .pm-pop-rada button img, .pm-pop-rada button .pm-tvar { width: 30px; height: 30px; }   /* pevná velikost: 100 % v tlačítku nefunguje */
-@media (max-width: 420px) { .pm-pop-rada { grid-template-columns: repeat(7, 38px); gap: 4px; } main.pm .pm-pop-rada button { width: 38px; height: 40px; padding: 5px; font-size: 21px; } }
+/* telefon: okénko smajlíků hustší a menší (Skeli 24. 11.), tlačítka pořád 40 px vysoká na prst */
+@media (max-width: 600px) { .pm-pop { padding: 8px; gap: 5px; border-radius: 14px; bottom: 58px; } .pm-pop h4 { font-size: .6rem; max-width: 280px; }
+  .pm-pop-rada { grid-template-columns: repeat(7, 36px); gap: 3px; } main.pm .pm-pop-rada button { width: 36px; height: 40px; padding: 4px; font-size: 19px; border-radius: 10px; }
+  .pm-pop-rada button img, .pm-pop-rada button .pm-tvar { width: 24px; height: 24px; } }
 .pm-sal.bez-reakci .pm-reakce-roh { display: none; }
 .pm-hlaska { position: absolute; z-index: 7; left: 50%; top: 4%; translate: -50% 0; padding: 6px 14px; border-radius: 99px; background: rgba(0, 0, 0, .7); color: #fff;
   font: 400 1.3rem/1 'Bebas Neue', var(--font-body), sans-serif; letter-spacing: .1em; opacity: 0; transition: opacity .4s; pointer-events: none; white-space: nowrap; }
