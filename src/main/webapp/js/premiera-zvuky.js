@@ -14,7 +14,8 @@
   if (!C || !window.fetch) return;
   var CESTA = '/sounds/premiera/', VERZE = '1';
   var ATMO = { 'atmo-hovor': 0, 'atmo-ticho': 0.22, 'atmo-dest': 0.16, 'atmo-hukot': 0.2 };   // hlasitost (hovor podle lidí)
-  var OSTATNI = ['kviz-napeti', 'kviz-vir', 'kviz-uder', 'vlna', 'finale-stoupani', 'finale-projektor', 'finale-ton'];
+  var OSTATNI = ['kviz-napeti', 'kviz-vir', 'kviz-uder', 'vlna', 'finale-stoupani', 'finale-projektor', 'finale-ton',
+    'joint-1', 'joint-2', 'joint-3', 'joint-4'];   // joint = Skeliho nahrávka: cvaknutí zapalovače a nahulení (4 varianty)
   var ac = null, master = null, buf = {}, nacita = {}, smycky = {}, lidi = 1, zapnuto = false, vFinale = false, vir = null, napeti = null;
 
   // ---------- PROGRAM ODPOČTU (Skeli 24. 11.): hudba z Mixkitu (Stock Music Free License – smí na web, ne jako samostatná
@@ -201,7 +202,10 @@
           g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6); o.connect(g); g.connect(master); g.connect(dozvuk()); o.start(t); o.stop(t + 0.65); })(); break;
         case 'tlesk': sum(0, 0.06, 0.18, 'highpass', 1400); sum(0.11, 0.06, 0.14, 'highpass', 1600); break;
         case 'oslava': ton(1046.5, 0, 0.05, 0.4); ton(1318.5, 0.06, 0.05, 0.4); ton(1568, 0.12, 0.05, 0.7); break;
-        case 'joint': sum(0, 0.7, 0.05, 'lowpass', 900, 300); bublina(0.7, 0.25); break;           // vydechnutí
+        case 'joint': (function () {                                                              // Skeliho nahrávka, náhodná varianta
+          var j = 'joint-' + (1 + Math.floor(Math.random() * 4));
+          if (buf[j]) hraj(j, 0.7, { nabeh: 0.005 }); else { nacti(j).catch(function () {}); sum(0, 0.7, 0.05, 'lowpass', 900, 300); }
+        })(); break;
         default: bublina(1, 0.3);
       }
     },

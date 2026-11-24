@@ -52,8 +52,8 @@
   function postavSal() {
     if (postaveno) return; postaveno = true;
     var j = function (r) { if (!r.ok) throw new Error(r.status); return r.json(); };
-    Promise.all([fetch('/img/premiera/kino/divaci.json?v=2').then(j), fetch('/img/premiera/kino/sedadla.json?v=1').then(j),
-      fetch('/img/premiera/kino/ruce.json?v=1').then(j).catch(function () { return {}; })]).then(function (r) {
+    Promise.all([fetch('/img/premiera/kino/divaci.json?v=3').then(j), fetch('/img/premiera/kino/sedadla.json?v=1').then(j),
+      fetch('/img/premiera/kino/ruce.json?v=2').then(j).catch(function () { return {}; })]).then(function (r) {
       var meta = r[0], sedadla = r[1], RUCE = r[2] || {};
       // pořadí obsazování: nejdřív k prostřední uličce, kterou vidí i telefon na výšku (výřez ±380 px kolem uličky
       // na x = 836) – jinak by si první návštěvník sedl na kraj mimo obraz a vypadalo by to, že se nic nestalo;
@@ -90,14 +90,14 @@
         d.style.setProperty('--zpozdeni', (xc / W * 1.2 + st.r * 0.03).toFixed(2) + 's');   // vlna jde zleva doprava
         // obrázek má pod rameny nakreslené vlastní opěradlo: ořízne se po stejné křivce (při vlně zůstane schované)
         var im = document.createElement('img');
-        im.className = 'zaklad'; im.src = '/img/premiera/kino/' + String(m.f).replace('.png', '.webp'); im.alt = ''; im.decoding = 'async';
+        im.className = 'zaklad'; im.src = '/img/premiera/kino/' + String(m.f).replace('.png', '.webp') + '?v=2';   // v=2: nový Hitman (24. 11.) im.alt = ''; im.decoding = 'async';
         im.style.cssText = 'left:' + (bok / w2 * 100).toFixed(2) + '%;width:' + (w / w2 * 100).toFixed(2) + '%;top:' + (nad / h * 100).toFixed(2)
           + '%;clip-path:polygon(' + krivka(top, m.h * k, left, w).join(',') + ')';
         d.appendChild(im);
         if (ruka) {                                                  // stejný divák s rukama nahoře, leží pixel na pixelu na prvním
           var vys = (m.h + ruka.nad) * k, horni = top - ruka.nad * k;
           var r2 = document.createElement('img');
-          r2.className = 'ruce'; r2.src = '/img/premiera/kino/' + ruka.f + '?v=1'; r2.alt = ''; r2.decoding = 'async';
+          r2.className = 'ruce'; r2.src = '/img/premiera/kino/' + ruka.f + '?v=2'; r2.alt = ''; r2.decoding = 'async';
           r2.style.cssText = 'top:' + ((horni - top2) / h * 100).toFixed(2) + '%;clip-path:polygon(' + krivka(horni, vys, left2, w2).join(',') + ')';
           d.appendChild(r2); d.classList.add('ma-ruce');
         }
