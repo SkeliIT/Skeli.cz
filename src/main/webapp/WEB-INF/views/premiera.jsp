@@ -136,6 +136,8 @@
 
     <button type="button" class="pm-jsemtu" id="pmJsemTu" data-done="<%= WebUtils.escapeHtml(t.getProperty("pm.hereDone")) %>"><%= WebUtils.escapeHtml(t.getProperty("pm.here")) %></button>
     <p class="pm-spolu"><%= WebUtils.escapeHtml(t.getProperty("pm.together")) %></p>
+    <%-- nepřihlášeným: v sále se dá psát do chatu jen s účtem – rovnou nabídnout přihlášení / registraci --%>
+    <% if (pmUid == null) { %><p class="pm-prihlaseni"><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.loginHint")) %> <a href="/login.jsp?next=/premiera"><%= WebUtils.escapeHtml(t.getProperty("btn.login")) %></a> · <a href="/register.jsp"><%= WebUtils.escapeHtml(t.getProperty("btn.register")) %></a></p><% } %>
 
     <div class="pm-odkazy">
       <a class="pm-btn pm-btn-ghost" href="<%= WebUtils.escapeHtml((String) request.getAttribute("songHref")) %>"><i class="fa-solid fa-align-left" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.lyrics")) %></a>
