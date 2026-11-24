@@ -144,6 +144,8 @@
   }
   function pustVideo() {
     if (hraje || !yt) return; hraje = true;
+    var odkaz = $('pmYtOdkaz');                                 // záloha: klip přímo na YouTube, kdyby vložený přehrávač nešel
+    if (odkaz) { odkaz.querySelector('a').href = 'https://www.youtube.com/watch?v=' + yt; odkaz.hidden = false; }
     var uplynulo = now() - at;
     $('pmVideo').hidden = false;
     if (uplynulo > LIVE_MS) {                                   // záznam: klasický přehrávač od začátku, pustí si ho sám

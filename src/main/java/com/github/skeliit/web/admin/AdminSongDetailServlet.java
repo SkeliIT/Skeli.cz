@@ -61,6 +61,10 @@ public class AdminSongDetailServlet extends HttpServlet {
             req.setAttribute("lyricLangs", songs.lyricLanguages(song.id));
             req.setAttribute("premiere", new com.github.skeliit.dao.PremiereDao().forSong(song.id));   // premiéra s odpočtem
             req.setAttribute("premiereVideo", new com.github.skeliit.dao.PremiereDao().pendingVideo(song.id));   // neveřejné video čekající na premiéru (jen admin)
+            // nouzové vypínače kinosálu (chat, reakce, efekty, kvíz): co je teď vypnuté
+            java.util.Map<String, Boolean> pmOff = new java.util.LinkedHashMap<>();
+            for (String s : com.github.skeliit.service.PremiereLive.SWITCHES) pmOff.put(s, com.github.skeliit.service.PremiereLive.off(s));
+            req.setAttribute("premiereOff", pmOff);
             // „Hledáme pomoc s textem“: je zapnutá, v jakém jazyce, od kdy; a co návštěvníci poslali
             String[] helpWanted = help.wanted(song.id);
             req.setAttribute("helpOn", helpWanted != null);
@@ -188,6 +192,16 @@ public class AdminSongDetailServlet extends HttpServlet {
                     String yt = AdminVideoServlet.youtubeId(req.getParameter("youtube"));
                     new com.github.skeliit.dao.PremiereDao().setVideo(id, yt);
                     resp.sendRedirect(hub + "&msg=" + (yt == null ? "premiere_video_cleared" : "premiere_video_saved") + "#premiere");
+                }
+                case "premiere_switch" -> {
+                    // nouzový vypínač kinosálu (co = chat / reakce / efekty / kviz, nebo vse = nouzový režim); platí hned,
+                    // prohlížeče diváků se ho dozví při dalším dotazu (3–5 s). Odpočet, sál a klip běží vždy dál.
+                    String co = String.valueOf(req.getParameter("co"));
+                    boolean vyp = "1".equals(req.getParameter("vyp"));
+                    for (String s : com.github.skeliit.service.PremiereLive.SWITCHES) {
+                        if ("vse".equals(co) || s.equals(co)) com.github.skeliit.service.PremiereLive.setOff(s, vyp);
+                    }
+                    resp.sendRedirect(hub + "&msg=switch_saved#premiere-vypinace");
                 }
                 case "clear_release" -> {
                     new com.github.skeliit.dao.PremiereDao().set(id, null, null);

@@ -19,6 +19,7 @@
         <c:when test="${param.msg == 'video_deleted'}">Video je smazané z celého webu a synchronizace z YouTube ho už nevrátí.</c:when>
         <c:when test="${param.msg == 'release_saved'}">Premiéra uložená – na webu běží odpočet.</c:when>
         <c:when test="${param.msg == 'release_cleared'}">Premiéra zrušená.</c:when>
+        <c:when test="${param.msg == 'switch_saved'}">Vypínače sálu uložené – diváci to uvidí do pár vteřin.</c:when>
         <c:when test="${param.msg == 'premiere_video_saved'}">Video k premiéře uložené. Na webu ho do premiéry nikdo neuvidí.</c:when>
         <c:when test="${param.msg == 'premiere_video_cleared'}">Video k premiéře odebrané.</c:when>
         <c:when test="${param.msg == 'bad_release'}">Datum a čas premiéry se nepodařilo přečíst.</c:when>
@@ -184,6 +185,34 @@
       <c:if test="${not empty premiereVideo}">
         <p class="premiere-state"><i class="fa-solid fa-lock" aria-hidden="true"></i> Čeká na premiéru – vidíš ho jen ty:</p>
         <div class="premiere-preview"><iframe src="https://www.youtube-nocookie.com/embed/<c:out value='${premiereVideo}'/>" title="Náhled videa k premiéře" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy"></iframe></div>
+      </c:if>
+      <%-- NOUZOVÉ VYPÍNAČE kinosálu (service/PremiereLive, app_settings premiere_off_*): platí pro všechny diváky do pár
+           vteřin; odpočet, sál a klip běží vždy dál. Nouzový režim = vypnout všechno najednou. --%>
+      <c:if test="${not empty premiere}">
+        <div class="premiere-switches" id="premiere-vypinace">
+          <h4><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Nouzové vypínače sálu</h4>
+          <p class="text-dim">Když se něco pokazí nebo je chat zahlcený. Platí pro všechny diváky do pár vteřin. Odpočet, sál a klip běží vždy dál.</p>
+          <c:forEach var="sw" items="${premiereOff}">
+            <form method="post" action="/admin/song" class="admin-inline-form">
+              <input type="hidden" name="csrf" value="${csrf}">
+              <input type="hidden" name="id" value="${song.id}">
+              <input type="hidden" name="action" value="premiere_switch">
+              <input type="hidden" name="co" value="${sw.key}">
+              <input type="hidden" name="vyp" value="${sw.value ? '0' : '1'}">
+              <span>${sw.key == 'chat' ? 'Chat' : sw.key == 'reakce' ? 'Smajlíci a vlna' : sw.key == 'efekty' ? 'Efekty (vlna, létání)' : 'Kvíz'}:
+                <b>${sw.value ? 'VYPNUTO' : 'zapnuto'}</b></span>
+              <button type="submit" class="${sw.value ? '' : 'btn-delete'}">${sw.value ? 'Zapnout' : 'Vypnout'}</button>
+            </form>
+          </c:forEach>
+          <form method="post" action="/admin/song" class="admin-inline-form">
+            <input type="hidden" name="csrf" value="${csrf}">
+            <input type="hidden" name="id" value="${song.id}">
+            <input type="hidden" name="action" value="premiere_switch">
+            <input type="hidden" name="co" value="vse">
+            <button type="submit" name="vyp" value="1" class="btn-delete"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Nouzový režim (vypnout vše)</button>
+            <button type="submit" name="vyp" value="0">Vše zapnout</button>
+          </form>
+        </div>
       </c:if>
       <c:if test="${not empty premiere}">
         <form method="post" action="/admin/song" class="admin-inline-form">

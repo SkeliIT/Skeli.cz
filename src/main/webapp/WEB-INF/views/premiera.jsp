@@ -154,6 +154,8 @@
           <% } else { %>
           <a class="pm-psani pm-prihlas" href="/login.jsp?next=/premiera"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.chatLogin")) %></a>
           <% } %>
+          <%-- zprávy z chatu jsou komentáře pod klipem – ať to každý ví dřív, než napíše něco osobního (audit 25. 11.) --%>
+          <p class="pm-chat-verejne"><%= WebUtils.escapeHtml(t.getProperty("pm.chatPublic")) %></p>
           <p class="pm-chat-info" id="pmChatInfo" role="status" hidden></p>
           <div class="pm-pripnuto" id="pmPripnuto" hidden></div>
           <div class="pm-zpravy" id="pmZpravy"></div>
@@ -167,6 +169,17 @@
           <p class="pm-nal-text" id="pmNalText"></p><div class="pm-nalady" id="pmNalady"></div></div>
       </div>
     </section>
+    <%-- upozornění na téma klipu a kontakty na pomoc (audit 25. 11.): na stránce vždy – před premiérou, při ní i jako záznam --%>
+    <aside class="pm-pomoc" aria-labelledby="pmPomocNadpis">
+      <p class="pm-pomoc-cw"><b><%= WebUtils.escapeHtml(t.getProperty("pm.cwTitle")) %>:</b> <%= WebUtils.escapeHtml(t.getProperty("pm.cw")) %></p>
+      <h2 class="pm-pomoc-h" id="pmPomocNadpis"><%= WebUtils.escapeHtml(t.getProperty("pm.helpTitle")) %></h2>
+      <ul class="pm-pomoc-linky">
+        <li><a href="tel:116006">116 006</a> <%= WebUtils.escapeHtml(t.getProperty("pm.help1")) %></li>
+        <li><a href="tel:158">158</a> <%= WebUtils.escapeHtml(t.getProperty("pm.help2")) %></li>
+        <li><a href="tel:116111">116 111</a> <%= WebUtils.escapeHtml(t.getProperty("pm.help3")) %></li>
+      </ul>
+      <p class="pm-pomoc-cz"><%= WebUtils.escapeHtml(t.getProperty("pm.helpCz")) %></p>
+    </aside>
 
     <div class="pm-video" id="pmVideo" hidden>
       <div class="pm-tvare" id="pmTvare" aria-hidden="true"><% for (int fi = 1; fi <= 7; fi++) { %><img src="/img/faces/face-<%= fi %>.webp" alt="" width="44" height="44"><% } %></div>
@@ -177,6 +190,8 @@
       <small><%= WebUtils.escapeHtml(t.getProperty("pm.tapVideo")) %></small>
     </div>
     <p class="pm-konec" id="pmKonec" hidden><%= WebUtils.escapeHtml(t.getProperty("pm.end")) %></p>
+    <%-- záloha: až server vydá video (v čas premiéry), odkaz na YouTube pro ty, komu vložený přehrávač nejde (js/premiera.js) --%>
+    <p class="pm-yt-odkaz" id="pmYtOdkaz" hidden><a target="_blank" rel="noopener"><i class="fab fa-youtube" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.ytOpen")) %></a></p>
     <p class="pm-probehla" hidden id="pmProbehla"><%= WebUtils.escapeHtml(t.getProperty("pm.over").replace("{when}", pm.getWhen())) %></p>
 
     <button type="button" class="pm-jsemtu" id="pmJsemTu" data-done="<%= WebUtils.escapeHtml(t.getProperty("pm.hereDone")) %>"><%= WebUtils.escapeHtml(t.getProperty("pm.here")) %></button>

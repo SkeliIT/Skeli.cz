@@ -574,7 +574,7 @@
     // klip premiéry patří na jeviště, tlačítko zvuku a „Konec“ pod něj
     jeviste.insertBefore($('pmVideo'), vrstva);
     var hl = sal.querySelector('.pm-sal-hl');
-    hl.appendChild($('pmZvuk')); hl.appendChild($('pmKonec'));
+    hl.appendChild($('pmZvuk')); hl.appendChild($('pmKonec')); hl.appendChild($('pmYtOdkaz'));
     if (window.skeliUpoutavkyZavri) window.skeliUpoutavkyZavri();
     postavSal();
     try { sessionStorage.setItem('pmSal', '1'); } catch (e) { /* nevadí */ }
