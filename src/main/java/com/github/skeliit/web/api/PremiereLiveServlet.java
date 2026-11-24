@@ -88,6 +88,10 @@ public class PremiereLiveServlet extends HttpServlet {
             }
             out.put("lidi", PremiereLive.people());
             out.put("reakce", PremiereLive.counts());
+            if (odpocet(room, now)) {                                    // mexická vlna jen během 30 min odpočtu
+                out.put("tlesk", PremiereLive.tleskPocet(now));
+                if (PremiereLive.vlnaAt() > now - 10_000) out.put("vlna", PremiereLive.vlnaAt());
+            }
 
             HttpSession s = req.getSession(false);
             Viewer viewer = CommentsApiServlet.viewer(s);
@@ -139,7 +143,9 @@ public class PremiereLiveServlet extends HttpServlet {
                 if (!RequestLimiter.tryAcquire("pmreact", k, 6, 1000) || !RequestLimiter.tryAcquire("pmreactip", req.getRemoteAddr(), 30, 1000)) {
                     write(resp, 429, Map.of("error", "slow")); return;
                 }
-                if (!PremiereLive.react(req.getParameter("r"))) { write(resp, 400, Map.of("error", "r")); return; }
+                String r = req.getParameter("r");
+                if (!PremiereLive.react(r)) { write(resp, 400, Map.of("error", "r")); return; }
+                if ("tlesk".equals(r) && odpocet(room, now)) PremiereLive.tleskni(now);   // vlna jen během 30 min odpočtu
                 write(resp, 200, Map.of("ok", true));
                 return;
             }
@@ -169,6 +175,10 @@ public class PremiereLiveServlet extends HttpServlet {
             write(resp, 503, Map.of("error", "busy"));
         }
     }
+
+    /** Je právě 30 min odpočet (jen tehdy běží vlna, kvíz a náladoměr – při premiéře už jen smajlíci)? */
+    private static boolean odpocet(Room room, long now) { long z = room.at - now; return z > 0 && z <= OPEN_ODPOCET_MS; }
+    static final long OPEN_ODPOCET_MS = 30 * 60 * 1000L;
 
     /** Zpráva pro prohlížeč: jen to, co chat ukazuje (text se v prohlížeči vždy vkládá jako čistý text). */
     private static Map<String, Object> item(HttpServletRequest req, CommentItem it) {

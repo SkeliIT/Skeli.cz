@@ -52,8 +52,9 @@
   function postavSal() {
     if (postaveno) return; postaveno = true;
     var j = function (r) { if (!r.ok) throw new Error(r.status); return r.json(); };
-    Promise.all([fetch('/img/premiera/kino/divaci.json?v=1').then(j), fetch('/img/premiera/kino/sedadla.json?v=1').then(j)]).then(function (r) {
-      var meta = r[0], sedadla = r[1];
+    Promise.all([fetch('/img/premiera/kino/divaci.json?v=2').then(j), fetch('/img/premiera/kino/sedadla.json?v=1').then(j),
+      fetch('/img/premiera/kino/ruce.json?v=1').then(j).catch(function () { return {}; })]).then(function (r) {
+      var meta = r[0], sedadla = r[1], RUCE = r[2] || {};
       // pořadí obsazování: nejdřív k prostřední uličce, kterou vidí i telefon na výšku (výřez ±380 px kolem uličky
       // na x = 836) – jinak by si první návštěvník sedl na kraj mimo obraz a vypadalo by to, že se nic nestalo;
       // pak dál od uličky, přední řada až nakonec
@@ -69,18 +70,36 @@
         // silueta o 14 % užší než sedadlo, vycentrovaná; ramena (m.top) na horní hraně opěradla
         var m = st.m, k = (st.x1 - st.x0) / (m.sr - m.sl) * 0.86, xc = (st.x0 + st.x1) / 2;
         var left = xc - (m.sr - m.sl) * k / 2 - m.sl * k, top = st.top - m.top * k, w = m.w * k;
-        var dno = Math.max.apply(null, st.c.map(function (p) { return p[1]; })), h = dno - top + 1;
-        // spodek siluety přesně po křivce opěradla (clip-path: nic se nepřekresluje každý snímek)
-        var body = ['0% 0%', '100% 0%'].concat(st.c.slice().reverse().map(function (p) {
-          return ((p[0] - left) / w * 100).toFixed(2) + '% ' + ((p[1] - top) / h * 100).toFixed(2) + '%';
-        }));
+        // nad hlavou a do stran místo pro zvednuté ruce (mexická vlna – img/premiera/kino/ruce.json: nad, bok)
+        var ruka = RUCE[m.f];
+        var nad = Math.max(w * 0.35, ruka ? ruka.nad * k : 0), top2 = top - nad;
+        var bok = ruka ? ruka.bok * k : 0, left2 = left - bok, w2 = w + 2 * bok;
+        var dno = Math.max.apply(null, st.c.map(function (p) { return p[1]; })), h = dno - top2 + 1;
+        // ořez po křivce opěradla (co je pod ní, schová sedadlo), po stranách vodorovně až k okrajům; clip-path = nic
+        // se nepřekresluje každý snímek
+        var krivka = function (y0, vys, l0, ww) {
+          var c = st.c, Y = function (y) { return ((y - y0) / vys * 100).toFixed(2) + '%'; }, X = function (x) { return ((x - l0) / ww * 100).toFixed(2) + '%'; };
+          return ['0% 0%', '100% 0%', '100% ' + Y(c[c.length - 1][1])].concat(c.slice().reverse().map(function (p) { return X(p[0]) + ' ' + Y(p[1]); }), ['0% ' + Y(c[0][1])]);
+        };
         var d = document.createElement('div');
         d.className = 'pm-divak';
-        d.style.cssText = 'left:' + (left / W * 100) + '%;top:' + (top / H * 100) + '%;width:' + (w / W * 100) + '%;height:'
-          + (h / H * 100) + '%;clip-path:polygon(' + body.join(',') + ')';
+        d.style.cssText = 'left:' + (left2 / W * 100) + '%;top:' + (top2 / H * 100) + '%;width:' + (w2 / W * 100) + '%;height:'
+          + (h / H * 100) + '%;clip-path:polygon(' + krivka(top2, h, left2, w2).join(',') + ')';
+        d.style.setProperty('--zpozdeni', (xc / W * 1.2 + st.r * 0.03).toFixed(2) + 's');   // vlna jde zleva doprava
+        // obrázek má pod rameny nakreslené vlastní opěradlo: ořízne se po stejné křivce (při vlně zůstane schované)
         var im = document.createElement('img');
-        im.src = '/img/premiera/kino/' + String(m.f).replace('.png', '.webp'); im.alt = ''; im.decoding = 'async';
-        d.appendChild(im); divaci.appendChild(d);
+        im.className = 'zaklad'; im.src = '/img/premiera/kino/' + String(m.f).replace('.png', '.webp'); im.alt = ''; im.decoding = 'async';
+        im.style.cssText = 'left:' + (bok / w2 * 100).toFixed(2) + '%;width:' + (w / w2 * 100).toFixed(2) + '%;top:' + (nad / h * 100).toFixed(2)
+          + '%;clip-path:polygon(' + krivka(top, m.h * k, left, w).join(',') + ')';
+        d.appendChild(im);
+        if (ruka) {                                                  // stejný divák s rukama nahoře, leží pixel na pixelu na prvním
+          var vys = (m.h + ruka.nad) * k, horni = top - ruka.nad * k;
+          var r2 = document.createElement('img');
+          r2.className = 'ruce'; r2.src = '/img/premiera/kino/' + ruka.f + '?v=1'; r2.alt = ''; r2.decoding = 'async';
+          r2.style.cssText = 'top:' + ((horni - top2) / h * 100).toFixed(2) + '%;clip-path:polygon(' + krivka(horni, vys, left2, w2).join(',') + ')';
+          d.appendChild(r2); d.classList.add('ma-ruce');
+        }
+        divaci.appendChild(d);
         st.el = d;
       });
       mista = sedadla;
@@ -112,26 +131,47 @@
     usad(n);
   }
 
-  // ---------- smajlíci ----------
-  var SMAJL = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'srdce', 'ohen', 'joint'];
-  var tlacitka = {}, naObrazovce = 0;
-  function obsah(k, el) {
-    if (k.charAt(0) === 'f') {
-      var im = document.createElement('img'); im.src = '/img/faces/face-' + k.slice(1) + '.webp'; im.alt = ''; im.width = 44; im.height = 44;
-      el.appendChild(im);
-    } else if (k === 'joint') {                                  // pás 7 políček: v tlačítku stojí, v letu dohořívá (css/premiera.css)
-      var okno = document.createElement('span'), pas = document.createElement('span');
-      okno.className = 'pm-joint'; okno.setAttribute('aria-hidden', 'true');
-      okno.appendChild(pas); el.appendChild(okno);
-    } else el.textContent = k === 'srdce' ? '❤️' : '🔥';
+  // ---------- smajlíci: svítící tlačítko v rohu sálu → okénko se 7 obličeji SQUADu (barvy podle nálady) a 7 smajlíky ----------
+  var TVARE = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7'];
+  var EMOJI = { srdce: '❤️', ohen: '🔥', smich: '😂', wow: '😮', tlesk: '👏', oslava: '🎉' };
+  var SMAJL = TVARE.concat(['srdce', 'ohen', 'smich', 'wow', 'tlesk', 'oslava', 'joint']);
+  var NALADY = String(T.tMoods || '').split('|');                  // „naštvaný – štve mě to|…“ (7 nálad v jazyce stránky)
+  var naObrazovce = 0, spoust = $('pmSpoust'), pop = $('pmPop');
+  var nadpisT = pop.querySelector('.pm-pop-tvare'), nadpisE = pop.querySelector('.pm-pop-emoji');
+  function obsah(k, el, ikona) {
+    if (k.charAt(0) === 'f') {                                    // obličej = maska z obrázku obarvená podle nálady (css)
+      var t = document.createElement('span'); t.className = 'pm-tvar pm-tvar-' + k; el.appendChild(t);
+    } else if (k === 'joint') {
+      if (ikona) {                                                // v okénku: celý joint (1. políčko pásu)
+        var im = document.createElement('img'); im.src = '/img/premiera/kino/joint-ikona.webp'; im.alt = ''; im.width = 30; im.height = 30; el.appendChild(im);
+      } else {                                                    // v letu: pás 7 políček, dohořívá (css/premiera.css)
+        var okno = document.createElement('span'), pas = document.createElement('span');
+        okno.className = 'pm-joint'; okno.setAttribute('aria-hidden', 'true');
+        okno.appendChild(pas); el.appendChild(okno);
+      }
+    } else el.textContent = EMOJI[k];
   }
   SMAJL.forEach(function (k) {
-    var b = document.createElement('button');
-    b.type = 'button'; b.setAttribute('aria-label', T.tReact);
-    obsah(k, b);
-    b.addEventListener('click', function () { moje(k); });
-    $('pmLista').appendChild(b); tlacitka[k] = b;
+    var b = document.createElement('button'), tvar = k.charAt(0) === 'f';
+    b.type = 'button';
+    var popis = tvar ? NALADY[+k.slice(1) - 1] : T.tReact;
+    b.setAttribute('aria-label', popis || T.tReact); b.title = popis || '';
+    obsah(k, b, true);
+    // u obličeje se v nadpisu ukáže, jakou náladu znamená (najetí myší, ťuknutí, klávesnice)
+    var ukaz = function () { if (tvar && popis) nadpisT.textContent = 'SKELO SQUAD · ' + popis; };
+    b.addEventListener('mouseenter', ukaz); b.addEventListener('focus', ukaz);
+    b.addEventListener('click', function (e) { e.stopPropagation(); ukaz(); moje(k); });
+    pop.querySelector(tvar ? '.pm-pop-rada-t' : '.pm-pop-rada-e').appendChild(b);
   });
+  function zavriPop() { pop.hidden = true; spoust.setAttribute('aria-expanded', 'false'); }
+  spoust.addEventListener('click', function (e) {
+    e.stopPropagation();
+    pop.hidden = !pop.hidden; spoust.setAttribute('aria-expanded', String(!pop.hidden));
+    if (!pop.hidden) { pop.classList.remove('otevri'); void pop.offsetWidth; pop.classList.add('otevri'); }
+  });
+  pop.addEventListener('click', function (e) { e.stopPropagation(); });
+  document.addEventListener('click', function () { if (!pop.hidden) zavriPop(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) { zavriPop(); spoust.focus(); } });
   var odeslano = {}, odeslanoCas = [];
   function moje(k) {
     var t = Date.now();
@@ -139,11 +179,14 @@
     if (odeslanoCas.length >= 5) return;                         // víc než 5 za sekundu nepošleme (server pustí 6)
     odeslanoCas.push(t);
     vypust(k, true);
-    zivy({ action: 'react', r: k }).then(function (r) { if (r.ok) odeslano[k] = (odeslano[k] || 0) + 1; }).catch(function () { /* nevadí */ });
+    zivy({ action: 'react', r: k }).then(function (r) {
+      if (r.ok) odeslano[k] = (odeslano[k] || 0) + 1;
+      if (k === 'tlesk' && Date.now() + 400 < dalsi) dalsi = Date.now() + 400;   // potlesk: hned ukázat kroužek vlny
+    }).catch(function () { /* nevadí */ });
   }
   function vypust(k, ja) {
     if (jeviste.classList.contains('klid') || vyp.efekty || klid) {   // při klipu nic přes obraz: jen blikne tlačítko
-      var b = tlacitka[k]; if (b) { b.classList.remove('puls'); void b.offsetWidth; b.classList.add('puls'); }
+      spoust.classList.remove('puls'); void spoust.offsetWidth; spoust.classList.add('puls');
       return;
     }
     if (naObrazovce >= (slaby() ? 10 : 30)) return;              // pojistka: víc naráz neletí
@@ -152,7 +195,7 @@
     e.style.right = (1 + Math.random() * 9) + '%';              // úzký pruh u pravého okraje (jako živé vysílání)
     e.style.setProperty('--dx', (Math.random() * -60) + 'px');
     e.style.setProperty('--vyska', -(vrstva.clientHeight * (0.65 + Math.random() * 0.3)) + 'px');
-    obsah(k, e);
+    obsah(k, e, false);
     naObrazovce++;
     var pryc = function () { if (e.parentNode) { e.remove(); naObrazovce--; } };
     e.addEventListener('animationend', pryc);
@@ -171,6 +214,30 @@
     fronta.sort(function () { return Math.random() - 0.5; }).slice(0, slaby() ? 6 : 14).forEach(function (k) {
       setTimeout(function () { if (!document.hidden) vypust(k, false); }, Math.random() * 2800);   // rozložit do dalšího dotazu
     });
+  }
+
+  // ---------- MEXICKÁ VLNA: o čase rozhoduje server (8 potlesků 👏 za 3 s od kohokoli) → všichni naráz ----------
+  // Kroužek kolem tlačítka smajlíků se plní potleskem; diváci s pózou „ruce nahoře“ se do ní prolnou, ostatní nadskočí.
+  var VLNA_PRAH = 8, vlnaPosledni = 0, hlaskaT = 0;
+  function hlaska(text) {
+    var h = $('pmHlaska'); h.textContent = text; h.classList.add('videt');
+    clearTimeout(hlaskaT); hlaskaT = setTimeout(function () { h.classList.remove('videt'); }, 2600);
+  }
+  function vlnaStav(d) {
+    var n = typeof d.tlesk === 'number' ? d.tlesk : 0;
+    spoust.style.setProperty('--vlnaK', Math.min(1, n / VLNA_PRAH).toFixed(3));
+    spoust.classList.toggle('tleska', n > 0);
+    nadpisE.textContent = n > 0 ? T.tReactEmoji + ' · ' + T.tWaveCount.replace('{n}', Math.min(n, VLNA_PRAH)).replace('{p}', VLNA_PRAH) : T.tReactEmoji;
+    if (d.vlna && d.vlna !== vlnaPosledni) {
+      vlnaPosledni = d.vlna;
+      var za = d.vlna - cas().now;
+      if (za > -1500) setTimeout(vlna, Math.max(0, za));
+    }
+  }
+  function vlna() {
+    if (jeviste.classList.contains('klid') || klid || vyp.efekty) return;
+    hlaska(T.tWave);
+    mista.slice(0, ukazano).forEach(function (m) { m.el.classList.remove('vlna'); void m.el.offsetWidth; m.el.classList.add('vlna'); });
   }
 
   // ---------- chat ----------
@@ -271,6 +338,7 @@
     sal.classList.toggle('bez-chatu', !!vyp.chat);
     if (typeof d.lidi === 'number') ukazLidi(d.lidi);
     if (d.reakce) ciziReakce(d.reakce);
+    vlnaStav(d);
     if (vyp.chat) { chybaChatu = true; oznam(T.tOff); }
     else if (chybaChatu) { chybaChatu = false; oznam(''); }
     if (d.chat) d.chat.forEach(zprava);

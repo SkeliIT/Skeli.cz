@@ -84,7 +84,11 @@
              data-t-quiz-voted="<%= WebUtils.escapeHtml(t.getProperty("pm.quizVoted")) %>"
              data-t-quiz-closed="<%= WebUtils.escapeHtml(t.getProperty("pm.quizClosed")) %>"
              data-t-quiz-hit="<%= WebUtils.escapeHtml(t.getProperty("pm.quizHit")) %>"
-             data-t-quiz-none="<%= WebUtils.escapeHtml(t.getProperty("pm.quizNone")) %>">
+             data-t-quiz-none="<%= WebUtils.escapeHtml(t.getProperty("pm.quizNone")) %>"
+             data-t-moods="<%= WebUtils.escapeHtml(t.getProperty("pm.moods")) %>"
+             data-t-react-emoji="<%= WebUtils.escapeHtml(t.getProperty("pm.reactEmoji")) %>"
+             data-t-wave-count="<%= WebUtils.escapeHtml(t.getProperty("pm.waveCount")) %>"
+             data-t-wave="<%= WebUtils.escapeHtml(t.getProperty("pm.wave")) %>">
       <div class="pm-sal-roz">
         <div class="pm-sal-hl">
           <div class="pm-jeviste" id="pmJeviste">
@@ -110,10 +114,18 @@
               <div class="pm-tma"></div>
             </div>
             <div class="pm-reakce" id="pmReakce" aria-hidden="true"></div>
+            <%-- smajlíci: svítící tlačítko v rohu sálu (i na celé obrazovce), okénko s obličeji SQUADu a smajlíky; kroužek = potlesk do vlny --%>
+            <div class="pm-reakce-roh">
+              <button type="button" class="pm-spoust" id="pmSpoust" aria-expanded="false" aria-controls="pmPop" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.react")) %>"><span class="pm-tvar pm-tvar-f7" aria-hidden="true"></span></button>
+              <div class="pm-pop" id="pmPop" hidden>
+                <h4 class="pm-pop-tvare">SKELO SQUAD</h4><div class="pm-pop-rada pm-pop-rada-t"></div>
+                <h4 class="pm-pop-emoji"><%= WebUtils.escapeHtml(t.getProperty("pm.reactEmoji")) %></h4><div class="pm-pop-rada pm-pop-rada-e"></div>
+              </div>
+            </div>
+            <div class="pm-hlaska" id="pmHlaska" aria-live="polite"></div>
             <button type="button" class="pm-celo" id="pmCelo" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
           </div>
           <div class="pm-kviz-bar" id="pmKvizBar" hidden></div>
-          <div class="pm-lista" id="pmLista"></div>
         </div>
         <aside class="pm-chat"><div class="pm-chat-in">
           <h2 class="pm-chat-h"><span><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.chat")) %></span><span id="pmChatLidi"></span></h2>

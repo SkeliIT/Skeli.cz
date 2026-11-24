@@ -33,6 +33,8 @@ class PremiereLiveTest {
         assertFalse(PremiereLive.react("<script>"));
         assertFalse(PremiereLive.react(null));
         assertEquals(PremiereLive.REACTIONS.length, PremiereLive.counts().size());
+        assertTrue(PremiereLive.react("tlesk"));
+        assertTrue(PremiereLive.react("smich"));
     }
 
     @Test
@@ -41,5 +43,18 @@ class PremiereLiveTest {
         PremiereLive.seen("testklic123456");
         PremiereLive.seen("testklic123456");   // stejný prohlížeč se počítá jednou
         assertEquals(pred + 1, PremiereLive.people());
+    }
+
+    @Test
+    void vlnaPriOsmiPotleskachProVsechnyNaraz() {
+        long t = 5_000_000_000L;                                  // vlastní hodiny, ať se test nepotká s jinými
+        for (int i = 0; i < PremiereLive.VLNA_PRAH - 1; i++) PremiereLive.tleskni(t + i * 100);
+        assertTrue(PremiereLive.vlnaAt() < t, "7 potlesků ještě vlnu nespustí");
+        assertEquals(PremiereLive.VLNA_PRAH - 1, PremiereLive.tleskPocet(t + 800));
+        PremiereLive.tleskni(t + 900);
+        assertEquals(t + 900 + PremiereLive.VLNA_ZPOZDENI_MS, PremiereLive.vlnaAt(), "8. potlesk = vlna o 3,5 s později pro všechny");
+        assertEquals(0, PremiereLive.tleskPocet(t + 1000), "po spuštění se počítá znovu od nuly");
+        for (int i = 0; i < 10; i++) PremiereLive.tleskni(t + 2000 + i);
+        assertEquals(t + 900 + PremiereLive.VLNA_ZPOZDENI_MS, PremiereLive.vlnaAt(), "během pauzy další vlna nevznikne");
     }
 }

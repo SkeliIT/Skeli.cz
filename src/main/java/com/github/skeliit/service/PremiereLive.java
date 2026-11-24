@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class PremiereLive {
     private PremiereLive() {}
 
-    /** Smajlíci: 7 obličejů SKELO SQUAD (f1–f7) + srdce, oheň a joint. Jiné klíče server nepřijme. */
-    public static final String[] REACTIONS = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "srdce", "ohen", "joint"};
+    /** Smajlíci: 7 obličejů SKELO SQUAD (f1–f7) + srdce, oheň, smích, wow, potlesk, oslava a joint. Jiné klíče server nepřijme. */
+    public static final String[] REACTIONS = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "srdce", "ohen", "smich", "wow", "tlesk", "oslava", "joint"};
     static final long PRESENT_MS = 20_000;
     private static final int MAX_PEOPLE = 20_000;   // pojistka paměti: víc klíčů se nepamatuje (počítá se dál jen do tohohle)
 
@@ -63,6 +63,31 @@ public final class PremiereLive {
         for (String r : REACTIONS) { AtomicLong a = COUNTS.get(r); out.put(r, a == null ? 0 : a.get()); }
         return out;
     }
+
+    // ---------- MEXICKÁ VLNA: 8 potlesků 👏 (od kohokoli) za 3 s → vlna pro všechny naráz ----------
+    // Server určí jeden čas začátku (o 3,5 s později, ať ho stihnou dostat všichni – sál se ptá každé ~3 s), pak 7 s pauza.
+    // Jen během 30 min odpočtu (to hlídá servlet). Pamatují se jen časy potlesků, ne kdo tleskal.
+    public static final int VLNA_PRAH = 8;
+    public static final long VLNA_OKNO_MS = 3_000, VLNA_ZPOZDENI_MS = 3_500, VLNA_PAUZA_MS = 7_000;
+    private static final java.util.Deque<Long> TLESK = new java.util.ArrayDeque<>();
+    private static volatile long vlnaAt = 0;
+
+    /** Potlesk během odpočtu: přičte a když je jich dost, naplánuje vlnu. */
+    public static synchronized void tleskni(long now) {
+        while (!TLESK.isEmpty() && now - TLESK.peekFirst() > VLNA_OKNO_MS) TLESK.pollFirst();
+        if (now < vlnaAt + VLNA_PAUZA_MS) return;                    // vlna běží nebo je pauza: potlesk se nepočítá
+        TLESK.addLast(now);
+        if (TLESK.size() >= VLNA_PRAH) { vlnaAt = now + VLNA_ZPOZDENI_MS; TLESK.clear(); }
+    }
+
+    /** Kolik potlesků je teď ve hře (pro kroužek kolem tlačítka smajlíků). */
+    public static synchronized int tleskPocet(long now) {
+        while (!TLESK.isEmpty() && now - TLESK.peekFirst() > VLNA_OKNO_MS) TLESK.pollFirst();
+        return now < vlnaAt + VLNA_PAUZA_MS ? 0 : TLESK.size();
+    }
+
+    /** Čas začátku poslední vlny (0 = žádná). */
+    public static long vlnaAt() { return vlnaAt; }
 
     // ---------- nouzové vypínače ----------
     public static final String[] SWITCHES = {"chat", "reakce", "efekty", "kviz"};
