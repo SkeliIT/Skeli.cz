@@ -719,12 +719,15 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 .pm-nal-fs-pas i { display: block; flex-basis: 0; background: var(--c); transition: flex-grow .8s; }
 
 /* SKELI V SÁLE (js/premiera-sal.js): avatar na pevném místě – sedí / vstává / stojí při pozdravu, reflektor nad ním */
-.pm-skeli img.f { opacity: 0; transition: opacity .55s ease; }
-.pm-skeli img.zaklad { transition: transform .9s cubic-bezier(.2, .8, .2, 1), opacity .55s ease; }
-.pm-skeli[data-s]:not([data-s=""]) img.zaklad { opacity: 0; }
-.pm-skeli[data-s="vstava"] img.f-vstava, .pm-skeli[data-s="stoji"] img.f-stoji, .pm-skeli[data-s="otocka"] img.f-otocka,
-.pm-skeli[data-s="mikrofon"] img.f-mikrofon, .pm-skeli[data-s="mluvi"] img.f-mluvi, .pm-skeli[data-s="mluvi2"] img.f-mluvi2,
-.pm-skeli[data-s="srdce"] img.f-srdce, .pm-skeli[data-s="gesto"] img.f-gesto { opacity: 1; }
+/* postoje se prolínají PŘES sebe (js skSnimek): nový nahoře se objeví, starý zmizí až potom – nikdy průhledný */
+.pm-skeli img.f, .pm-skeli img.zaklad { opacity: 0; transition: opacity .38s ease; }
+.pm-skeli img.zaklad { transition: transform .9s cubic-bezier(.2, .8, .2, 1), opacity .38s ease; }
+.pm-skeli img.on { opacity: 1; }
+.pm-skeli img.hned { transition: none; }
+/* vstávání a stání: malý pohyb nahoru, ať to působí jako zvedání (ne jen výměna obrázku) */
+.pm-skeli img.f-vstava.on { animation: sk-zvedni .5s ease-out both; }
+.pm-skeli img.f-stoji.on { animation: sk-zvedni .45s ease-out both; }
+@keyframes sk-zvedni { from { transform: translateY(3.5%); } to { transform: none; } }
 /* stojí čelem: celá postava stejně velká jako „stojí zezadu“ (hlava nahoře ve 1,7 %, celková výška 120 % prvku –
    nohy pod opěradlem se ořízne křivka sedadla), uprostřed sedadla */
 .pm-divak.pm-skeli img.celem { left: 50%; top: 1.7%; width: auto; height: 120%; max-width: none; transform: translateX(-50%); }

@@ -304,12 +304,12 @@
   var DIVAK_SIRE = 0.76, DIVAK_ZAPUST = 0.07;   // ramena 76 % šířky sedadla, o 7 % šířky sedadla níž za opěradlo
   var SKELI_SEDADLO = 27, SK = { w: 512, h: 768, top: 519, sl: 50, sr: 462 };
   var skeliEl = null, skeliSvetlo = null, skeliSt = null, skeliVSale = false;
-  var SK_CESTA = '/img/premiera/kino/skeli/', SK_V = '?v=1';
+  var SK_CESTA = '/img/premiera/kino/skeli/', SK_V = '?v=2';   // v=2: světlejší (25. 11.)
   function postavSkeli(st) {
     if (!st) return;
     skeliSt = st;
     // stejně menší a zapuštěný jako ostatní diváci (sedadlo v obrázku se ořízne po křivce, nevadí, že nesedí přesně)
-    var sw = st.x1 - st.x0, k = sw / (SK.sr - SK.sl) * DIVAK_SIRE / 0.86, xc = (st.x0 + st.x1) / 2;
+    var sw = st.x1 - st.x0, k = sw / (SK.sr - SK.sl) * 0.78, xc = (st.x0 + st.x1) / 2;   // Skeli: celý za opěradlem (rukáv nepřečuhuje)
     var left = xc - (SK.sl + SK.sr) / 2 * k, top = st.top - SK.top * k + sw * DIVAK_ZAPUST, w = SK.w * k, h = SK.h * k;
     var horni = Math.min.apply(null, st.c.map(function (p) { return p[1]; }));
     var Y = function (y) { return ((y - top) / h * 100).toFixed(2) + '%'; }, X = function (x) { return ((x - left) / w * 100).toFixed(2) + '%'; };
@@ -318,7 +318,7 @@
     d.className = 'pm-divak ma-ruce pm-skeli';
     d.style.cssText = 'left:' + (left / W * 100) + '%;top:' + (top / H * 100) + '%;width:' + (w / W * 100) + '%;height:' + (h / H * 100) + '%;clip-path:polygon(' + poly.join(',') + ')';
     d.style.setProperty('--zpozdeni', (((st.x0 + st.x1) / 2) / W * 1.2 + st.r * 0.03).toFixed(2) + 's');
-    [['sedi', 'zaklad'], ['ruce', 'ruce'], ['vstava', 'f f-vstava'], ['stoji', 'f f-stoji'], ['otocka', 'f celem f-otocka'], ['mikrofon', 'f celem f-mikrofon'],
+    [['sedi', 'zaklad on'], ['ruce', 'ruce'], ['vstava', 'f f-vstava'], ['stoji', 'f f-stoji'], ['otocka', 'f celem f-otocka'], ['mikrofon', 'f celem f-mikrofon'],
       ['mluvi', 'f celem f-mluvi'], ['mluvi2', 'f celem f-mluvi2'], ['srdce', 'f celem f-srdce'], ['gesto', 'f celem f-gesto']].forEach(function (x) {
       var im = document.createElement('img'); im.className = x[1]; im.src = SK_CESTA + x[0] + '.webp' + SK_V; im.alt = ''; im.decoding = 'async'; d.appendChild(im);
     });
@@ -342,10 +342,21 @@
         : z > 31.2 ? 'mluvi' : z > 30.6 ? 'mikrofon' : z > 30 ? 'otocka' : z > 29.4 ? 'stoji' : 'vstava';
     }
     skeliEl.classList.toggle('sedi', skeliVSale);
-    if (skeliEl.dataset.s !== s) skeliEl.dataset.s = s;
+    if (skeliEl.dataset.s !== s) { skeliEl.dataset.s = s; skSnimek(s); }
     skeliSvetlo.classList.toggle('on', skeliVSale && z <= 51 && z > 29.4);
   }
   function skeliTik(zbyva) { skeliScena(zbyva / 1000); }
+  // jako v animaci: nový postoj se plynule položí přes starý (nikdy není průhledný – Skeli: „problikávám“), starý zmizí až pak
+  var skVrch = 10, skMinuly = null;
+  function skSnimek(s) {
+    var im = skeliEl.querySelector(s ? 'img.f-' + s : 'img.zaklad');
+    if (!im) return;
+    if (!skMinuly) skMinuly = skeliEl.querySelector('img.zaklad');
+    if (im === skMinuly) return;
+    var stary = skMinuly; skMinuly = im;
+    im.style.zIndex = ++skVrch; im.classList.add('on');
+    setTimeout(function () { if (stary !== skMinuly) { stary.classList.add('hned'); stary.classList.remove('on'); void stary.offsetWidth; stary.classList.remove('hned'); } }, 420);
+  }
 
   function vlna() {
     if (jeviste.classList.contains('klid') || klid || vyp.efekty) return;
@@ -353,7 +364,7 @@
     hlaska(T.tWave);
     if (window.PmZvuky) window.PmZvuky.vlna();
     mista.slice(0, ukazano).forEach(function (m) { m.el.classList.remove('vlna'); void m.el.offsetWidth; m.el.classList.add('vlna'); });
-    if (skeliEl && skeliEl.classList.contains('sedi')) { skeliEl.classList.remove('vlna'); void skeliEl.offsetWidth; skeliEl.classList.add('vlna'); }
+    if (skeliEl && skeliEl.classList.contains('sedi') && !skeliEl.dataset.s) { skeliEl.classList.remove('vlna'); void skeliEl.offsetWidth; skeliEl.classList.add('vlna'); }
   }
 
   // ---------- chat ----------
