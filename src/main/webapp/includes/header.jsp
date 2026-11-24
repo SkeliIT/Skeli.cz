@@ -160,8 +160,11 @@
          catch (java.sql.SQLException ex) { pongPub = Boolean.TRUE; }   // bez databáze raději nic neříkat
        }
        pongAnon = !Boolean.TRUE.equals(pongPub);
-     } %>
-  <body<%= String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin") ? " class=\"is-admin\"" : "" %><%= session.getAttribute("username") != null && !com.github.skeliit.web.auth.EmailVerification.isVerified(session) ? " data-unverified" : "" %><%= pongAnon ? " data-pong-anon" : "" %>>
+     }
+     // černobílý web kolem premiéry (js/effects.js přepne body.pm-sede podle času); ne v sále (/premiera) a ne v adminu
+     String pmSedeUri = String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI());
+     long[] pmSede = pmSedeUri.startsWith(ctx + "/premiera") || pmSedeUri.startsWith(ctx + "/admin") ? null : com.github.skeliit.dao.PremiereDao.sedeOkno(); %>
+  <body<%= String.valueOf(fwdUri != null ? fwdUri : request.getRequestURI()).startsWith(ctx + "/admin") ? " class=\"is-admin\"" : "" %><%= session.getAttribute("username") != null && !com.github.skeliit.web.auth.EmailVerification.isVerified(session) ? " data-unverified" : "" %><%= pongAnon ? " data-pong-anon" : "" %><%= pmSede != null ? " data-pm-sede=\"" + pmSede[0] + "," + pmSede[1] + "," + System.currentTimeMillis() + "\"" : "" %>>
     <%-- na stránce písně vede přepínač rovnou na adresu písně v daném jazyce (/en/song/…), jinak by
          adresa /cs/song/… nechala text česky; jinde jen ?lang= --%>
     <% @SuppressWarnings("unchecked") java.util.Map<String, String> songLangs = (java.util.Map<String, String>) request.getAttribute("hreflang");

@@ -232,11 +232,7 @@ html.low-fx .pm-okno { box-shadow: none; }
    30 min před startem: barvy webu se vysají (body.pm-sede), z karty premiéry se roztáhne velké okno s ulicí
    nakreslenou jako výkres; po premiéře se okno smrskne zpátky do karty a barvy se vrátí.
    ===================================================================== */
-/* barvy webu do šeda: sytost barev (js/effects.js je přelévá 4 s) na nulu, fotka v pozadí černobílá a tmavší */
-body.pm-sede { --a1s: 0% !important; --a2s: 0% !important; }
-body .bg-slides, body::before, .masthead { transition: filter 5s ease; }
-body.pm-sede .bg-slides, body.pm-sede::before { filter: grayscale(1) brightness(.45); }
-body.pm-sede .masthead { filter: grayscale(1); }
+/* barvy webu do šeda (body.pm-sede) jsou v css/effects.css – platí na celém webu 30 min před premiérou až do konce klipu */
 
 /* hrdina úvodu: nejdřív zmizí jméno, citát a tlačítka (karta zůstane), pak celý obsah pod oknem */
 .hero .uh-in > * { transition: opacity 1.2s ease, filter 1.2s ease; }
@@ -444,6 +440,10 @@ main.pm .pm-jeviste.fs .pm-velky, main.pm .pm-jeviste.na-celou .pm-velky, main.p
 /* smajlíci: proud u pravého okraje (jako živé vysílání); při klipu nic přes obraz */
 .pm-reakce { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; transition: opacity .8s; }
 .pm-jeviste.klid .pm-reakce { opacity: 0; }
+/* posledních 5 s (js/premiera-sal.js tik): plátno (obličeje SQUADu, odpočet, logo), smajlíci a jejich tlačítko se přelijí
+   do černobílé (Skeli 24. 11.); animace, ne přechod – ať se nepřepíšou přechody, které prvky už mají */
+.pm-jeviste.cernobile .pm-platno, .pm-jeviste.cernobile .pm-reakce, .pm-jeviste.cernobile .pm-spoust { animation: pm-cernobile 2.5s ease forwards; }
+@keyframes pm-cernobile { to { filter: grayscale(1); } }
 .pm-let { position: absolute; bottom: -10px; right: 2%; width: 38px; height: 38px; font-size: 30px; line-height: 38px; text-align: center;
   animation: pm-let 2.8s cubic-bezier(.25, .5, .3, 1) forwards; }
 .pm-let.moje { width: 46px; height: 46px; font-size: 36px; line-height: 46px; }

@@ -555,7 +555,8 @@
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
     if (zbyva <= 60000) zavriShort();
-    if (zbyva > 0 && zbyva <= 20000) scena.classList.add('priprav');   // vrstvu kamery připravit předem, jinak jízda na slabší grafice skočí
+    if (zbyva > 0 && zbyva <= 20000) scena.classList.add('priprav');
+    if (zbyva > 0 && zbyva <= 5000) jeviste.classList.add('cernobile');   // posledních 5 s barvy do černobílé   // vrstvu kamery připravit předem, jinak jízda na slabší grafice skočí
     if (zbyva > 0 && zbyva <= 15000) { najed(); if (window.PmZvuky) window.PmZvuky.finale(zbyva); }
     if (zbyva > 0 && zbyva <= 8000) finale7(zbyva);
     if (zbyva <= 0 && !jeviste.classList.contains('hraje')) pust();

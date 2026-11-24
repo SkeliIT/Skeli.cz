@@ -826,3 +826,24 @@
   slides();   // once: the layer is not part of the page that PJAX swaps
   document.addEventListener('pjax:done', function () { init(document.querySelector('main') || document); });
 })();
+
+// Černobílý web kolem premiéry (Skeli 24. 11.): od 30 min před startem do konce klipu + 5 min se vysají barvy
+// (body.pm-sede v css/premiera.css: sytost barev na nulu, fotka v pozadí černobílá). Okno posílá server v data-pm-sede
+// „od,do,čas serveru“ (includes/header.jsp, ne v sále /premiera). Body při PJAX zůstává, takže stačí jeden časovač.
+// Na testu a lokálně jde vyzkoušet ?pmSede=1 (platí do zavření záložky), ?pmSede=0 vypne.
+(function () {
+  var b = document.body; if (!b) return;
+  var host = location.hostname, zkouska = host === 'localhost' || host.indexOf('test.') === 0;
+  if (zkouska) {
+    var q = /[?&]pmSede=([01])/.exec(location.search);
+    try { if (q) sessionStorage.setItem('pmSede', q[1]); if (sessionStorage.getItem('pmSede') === '1') { b.classList.add('pm-sede'); return; } } catch (e) { /* bez úložiště */ }
+  }
+  var a = String(b.getAttribute('data-pm-sede') || '').split(','), od = +a[0], dd = +a[1], posun = (+a[2] || Date.now()) - Date.now();
+  if (!od || !dd) return;
+  function tik() {
+    var n = Date.now() + posun, za = n < od ? od - n : n < dd ? dd - n : 0;
+    b.classList.toggle('pm-sede', n >= od && n < dd);
+    if (za > 0) setTimeout(tik, Math.min(za + 300, 6 * 3600 * 1000));
+  }
+  tik();
+})();

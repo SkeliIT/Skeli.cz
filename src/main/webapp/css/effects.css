@@ -1983,3 +1983,11 @@ main.lyric-page.has-floor::after { content: ""; position: absolute; z-index: -1;
   .pt-hero .pt-who-text { margin-top: -48px; }
   .pt-hero .acct-name { font-size: clamp(2.6rem, 5vw, 4rem); }
 }
+
+/* ČERNOBÍLÝ WEB KOLEM PREMIÉRY (Skeli 24. 11.; body.pm-sede přepíná js/effects.js podle času ze serveru): od 30 min před
+   startem do konce klipu + 5 min se barvy vysají – sytost barev webu (přelévá se 4 s) na nulu, fotka v pozadí černobílá
+   a tmavší, logo v hlavičce šedé. Jen proměnné a filtr na nehybné vrstvě – slabé telefony to nezatíží. Sál (/premiera) ne. */
+body.pm-sede { --a1s: 0% !important; --a2s: 0% !important; }
+body .bg-slides, body::before, .masthead { transition: filter 5s ease; }
+body.pm-sede .bg-slides, body.pm-sede::before { filter: grayscale(1) brightness(.45); }
+body.pm-sede .masthead { filter: grayscale(1); }

@@ -19,6 +19,29 @@ public class PremiereDao {
             + "COALESCE((SELECT CONCAT('/yt-thumb/', v.youtube_id, '/mqdefault.jpg') FROM videos v WHERE v.song_id = s.id "
             + "ORDER BY v.published_at DESC, v.id DESC LIMIT 1), s.preview_image_url), s.release_at FROM songs s ";
 
+    /** Černobílý web (Skeli 24. 11.): od 30 min před premiérou do konce klipu + 5 min (klip do 5 min → 10 min po startu). */
+    public static final long SEDE_PRED_MS = 30L * 60 * 1000, SEDE_PO_MS = 10L * 60 * 1000;
+    private static volatile long[] sedeCache;          // {od, do} nebo {0, 0}
+    private static volatile long sedeCteno;
+
+    /**
+     * Okno černobílého webu kolem nejbližší premiéry {od, do} v epoch ms, nebo null, když žádné nehrozí do 24 h.
+     * Čte se na každé stránce (includes/header.jsp), proto z mezipaměti obnovované nejvýš jednou za minutu.
+     */
+    public static long[] sedeOkno() {
+        long now = System.currentTimeMillis();
+        if (now - sedeCteno > 60_000) {
+            long[] okno = {0, 0};
+            try {
+                Premiere p = new PremiereDao().forHome();
+                if (p != null) okno = new long[] {p.at - SEDE_PRED_MS, p.at + SEDE_PO_MS};
+            } catch (SQLException e) { /* bez databáze: web zůstane barevný */ }
+            sedeCache = okno; sedeCteno = now;
+        }
+        long[] o = sedeCache;
+        return o == null || o[0] == 0 || now >= o[1] || o[0] - now > 24L * 3600 * 1000 ? null : o;
+    }
+
     /** Premiéra pro úvod: nejbližší budoucí, jinak ta, která vyšla v posledních 3 dnech; nebo null. */
     public Premiere forHome() throws SQLException {
         long now = System.currentTimeMillis();
