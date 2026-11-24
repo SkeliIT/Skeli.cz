@@ -71,8 +71,9 @@
       sedadla.slice().sort(function (a, b) { return a.r - b.r; }).forEach(function (st) {
         // silueta o 14 % užší než sedadlo, vycentrovaná; ramena (m.top) na horní hraně opěradla; celý obrázek ale nikdy
         // širší než sedadlo (Skeli 24. 11.: široké postavy visely přes sousední sedadlo s rovnou hranou)
-        var m = st.m, k = Math.min((st.x1 - st.x0) / (m.sr - m.sl) * 0.86, (st.x1 - st.x0) / m.w), xc = (st.x0 + st.x1) / 2;
-        var left = xc - (m.sr - m.sl) * k / 2 - m.sl * k, top = st.top - m.top * k, w = m.w * k;
+        // Skeli 25. 11.: menší (ramena se vejdou do šířky sedadla, nic nepřečuhuje uříznuté) a zapuštění níž za opěradlo
+        var m = st.m, sw = st.x1 - st.x0, k = Math.min(sw / (m.sr - m.sl) * DIVAK_SIRE, sw * 0.9 / m.w), xc = (st.x0 + st.x1) / 2;
+        var left = xc - (m.sr - m.sl) * k / 2 - m.sl * k, top = st.top - m.top * k + sw * DIVAK_ZAPUST, w = m.w * k;
         // nad hlavou a do stran místo pro zvednuté ruce (mexická vlna – img/premiera/kino/ruce.json: nad, bok)
         var ruka = RUCE[m.f];
         var nad = Math.max(w * 0.35, ruka ? ruka.nad * k : 0), top2 = top - nad;
@@ -299,13 +300,16 @@
   // svém místě postaví, posvítí na něj reflektor, po posledním slově si sedne – jako člověk z publika, který promluví.
   // (Chůze uličkou a čelní záběry vypadaly jako vystřihovánky – pryč.) Když v sále není, zazní jen hlas.
   // Snímky img/premiera/kino/skeli/ (navrhy/premiera/kino/skeli.py).
+  var DIVAK_SIRE = 0.76, DIVAK_ZAPUST = 0.07;   // ramena 76 % šířky sedadla, o 7 % šířky sedadla níž za opěradlo
   var SKELI_SEDADLO = 27, SK = { w: 512, h: 768, top: 519, sl: 50, sr: 462 };
   var skeliEl = null, skeliSvetlo = null, skeliSt = null, skeliVSale = false;
   var SK_CESTA = '/img/premiera/kino/skeli/', SK_V = '?v=1';
   function postavSkeli(st) {
     if (!st) return;
     skeliSt = st;
-    var k = (st.x1 - st.x0) / (SK.sr - SK.sl), left = st.x0 - SK.sl * k, top = st.top - SK.top * k, w = SK.w * k, h = SK.h * k;
+    // stejně menší a zapuštěný jako ostatní diváci (sedadlo v obrázku se ořízne po křivce, nevadí, že nesedí přesně)
+    var sw = st.x1 - st.x0, k = sw / (SK.sr - SK.sl) * DIVAK_SIRE / 0.86, xc = (st.x0 + st.x1) / 2;
+    var left = xc - (SK.sl + SK.sr) / 2 * k, top = st.top - SK.top * k + sw * DIVAK_ZAPUST, w = SK.w * k, h = SK.h * k;
     var horni = Math.min.apply(null, st.c.map(function (p) { return p[1]; }));
     var Y = function (y) { return ((y - top) / h * 100).toFixed(2) + '%'; }, X = function (x) { return ((x - left) / w * 100).toFixed(2) + '%'; };
     var poly = ['0% 0%', '100% 0%', '100% ' + Y(horni)].concat(st.c.slice().reverse().map(function (p) { return X(p[0]) + ' ' + Y(p[1]); }), ['0% ' + Y(horni)]);
@@ -321,7 +325,6 @@
     divaci.insertBefore(d, pred);
     skeliEl = d;
     // reflektor: teplá záře kolem něj, když stojí (nad sedadlem, výška stojící postavy)
-    var sw = st.x1 - st.x0;
     skeliSvetlo = document.createElement('div'); skeliSvetlo.className = 'pm-skeli-svetlo';
     skeliSvetlo.style.cssText = 'left:' + ((st.x0 - sw * 0.6) / W * 100) + '%;top:' + ((st.top - sw * 2.1) / H * 100) + '%;width:' + (sw * 2.2 / W * 100) + '%;height:' + (sw * 2.6 / H * 100) + '%';
     divaci.insertBefore(skeliSvetlo, d);
