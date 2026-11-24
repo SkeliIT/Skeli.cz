@@ -147,6 +147,16 @@ class PremiereQuizTest {
     }
 
     @Test
+    void vazneOtazkyNikdyZaSebou() {
+        for (int p = 0; p < 300; p++) {
+            var plan = PremiereQuiz.plan("musis-odejit", "premiera@" + p);
+            for (int i = 1; i < plan.size(); i++)
+                assertFalse(PremiereQuiz.obsah().otazky().get(plan.get(i).id()).vazne() && PremiereQuiz.obsah().otazky().get(plan.get(i - 1).id()).vazne(),
+                        "dvě vážné otázky za sebou v premiéře " + p);
+        }
+    }
+
+    @Test
     void procentaNikdyNeklamou() {
         assertArrayEquals(new int[] {99, 1, 0}, PremiereQuiz.procenta(new int[] {999, 1, 0}, 1000));
         assertEquals(5, PremiereQuiz.kategorie(7, 7));

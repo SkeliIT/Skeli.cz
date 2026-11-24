@@ -101,15 +101,31 @@ public final class PremiereQuiz {
     /**
      * Plán konkrétní premiéry: otázky úplně náhodně na přeskáčku (Skeli 25. 11.: „žádná pravidla ani témata“), časy
      * zůstávají. Zamíchá se podle klíče premiéry, takže všichni diváci (i po obnovení stránky) mají stejné pořadí
-     * a žádná otázka se neopakuje; jiná premiéra = jiné pořadí.
+     * a žádná otázka se neopakuje; jiná premiéra = jiné pořadí. Vážné otázky (domácí násilí) se rozloží po celém kvízu
+     * s rozestupem – nikdy dvě za sebou (Skeli 25. 11.).
      */
     static List<Bod> plan(String slug, String premiera) {
         List<Bod> zaklad = plan(slug);
-        List<String> ids = new ArrayList<>();
-        for (Bod b : zaklad) ids.add(b.id());
-        java.util.Collections.shuffle(ids, new java.util.Random(premiera.hashCode()));
+        java.util.Random nahoda = new java.util.Random(premiera.hashCode());
+        List<String> vazne = new ArrayList<>(), ostatni = new ArrayList<>();
+        for (Bod b : zaklad) (obsah().otazky().get(b.id()).vazne() ? vazne : ostatni).add(b.id());
+        java.util.Collections.shuffle(vazne, nahoda);
+        java.util.Collections.shuffle(ostatni, nahoda);
+        int n = zaklad.size();
+        String[] ids = new String[n];
+        if (!vazne.isEmpty() && vazne.size() * 2 <= n) {
+            // vážné na rozestoupená místa (krok n/v ≥ 2 → nikdy vedle sebe), začátek náhodně posunutý
+            double krok = (double) n / vazne.size();
+            double posun = nahoda.nextDouble() * (krok - 1);
+            for (int k = 0; k < vazne.size(); k++) ids[(int) Math.floor(k * krok + posun)] = vazne.get(k);
+        } else {
+            ostatni.addAll(vazne);                                   // (nemělo by nastat) bez rozestupu
+            java.util.Collections.shuffle(ostatni, nahoda);
+        }
+        int j = 0;
+        for (int i = 0; i < n; i++) if (ids[i] == null) ids[i] = ostatni.get(j++);
         List<Bod> out = new ArrayList<>();
-        for (int i = 0; i < zaklad.size(); i++) out.add(new Bod(ids.get(i), zaklad.get(i).pred()));
+        for (int i = 0; i < n; i++) out.add(new Bod(ids[i], zaklad.get(i).pred()));
         return out;
     }
 
