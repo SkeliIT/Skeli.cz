@@ -156,9 +156,9 @@
   // ---------- ZVUČKY ŤUKNUTÍ NA SMAJLÍKY (Skeli 24. 11.: „ať je zábavné tam klikat“) – syntéza v prohlížeči, nic se nestahuje
   // kromě Skeliho vlastních nahraných „prasknutí bublinky“ (sounds/bublina-1..4.wav, pár kB). Obličeje SQUADu = tóny
   // D moll pentatoniky (víc ťuknutí za sebou = melodie), smajlíci každý svůj krátký zvuk; vše s jemným dozvukem sálu.
-  var NOTY = [293.66, 349.23, 392, 440, 523.25, 587.33, 698.46], kDozvuk = null;
+  var NOTY = [146.83, 174.61, 196, 220, 261.63, 293.66, 349.23], kDozvuk = null;   // o oktávu níž – temné, ne veselé (Skeli 24. 11.)
   function dozvuk() {
-    if (!kDozvuk) { var c = ac.createConvolver(), w = ac.createGain(); c.buffer = odezva(2.2); w.gain.value = 0.3; c.connect(w); w.connect(master); kDozvuk = c; }
+    if (!kDozvuk) { var c = ac.createConvolver(), w = ac.createGain(); c.buffer = odezva(2.2); w.gain.value = 0.45; c.connect(w); w.connect(master); kDozvuk = c; }
     return kDozvuk;
   }
   function ton(f, za, hl, delka, typ) {                           // měkký úder paličky: sinus + o oktávu výš tišeji
@@ -194,20 +194,20 @@
     klik: function (k) {
       if (!zapnuto || !ac) return;
       nactiBubliny();
-      if (k.charAt(0) === 'f') { var n = +k.slice(1) - 1; ton(NOTY[n] || 440, 0, 0.13, 1.1); bublina(0.85 + n * 0.07, 0.3); return; }
+      if (k.charAt(0) === 'f') { var n = +k.slice(1) - 1; ton(NOTY[n] || 220, 0, 0.12, 1.8); sum(0, 0.09, 0.05, 'lowpass', 160); return; }   // hluboký tón + měkké ťuknutí
       switch (k) {
         case 'srdce': ton(110, 0, 0.16, 0.35); ton(98, 0.17, 0.12, 0.45); break;                     // lub-dub
-        case 'ohen': sum(0, 0.45, 0.09, 'bandpass', 500, 2600); break;                              // švihnutí
-        case 'smich': ton(587.33, 0, 0.07, 0.25); ton(698.46, 0.08, 0.07, 0.25); ton(880, 0.16, 0.07, 0.4); break;
-        case 'wow': (function () { var t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(260, t); o.frequency.exponentialRampToValueAtTime(520, t + 0.4);
+        case 'ohen': sum(0, 0.55, 0.08, 'bandpass', 250, 1100); break;                              // tlumené švihnutí
+        case 'smich': ton(220, 0, 0.08, 0.5); ton(174.61, 0.14, 0.07, 0.8); break;                    // dva klesající tlumené tóny
+        case 'wow': (function () { var t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain(); o.frequency.setValueAtTime(330, t); o.frequency.exponentialRampToValueAtTime(196, t + 0.5);   // hluboké „ůů“ dolů
           g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6); o.connect(g); g.connect(master); g.connect(dozvuk()); o.start(t); o.stop(t + 0.65); })(); break;
-        case 'tlesk': sum(0, 0.06, 0.18, 'highpass', 1400); sum(0.11, 0.06, 0.14, 'highpass', 1600); break;
-        case 'oslava': ton(1046.5, 0, 0.05, 0.4); ton(1318.5, 0.06, 0.05, 0.4); ton(1568, 0.12, 0.05, 0.7); break;
+        case 'tlesk': sum(0, 0.07, 0.14, 'bandpass', 900); sum(0.12, 0.07, 0.1, 'bandpass', 1000); break;   // tlumeně, jako ze zadních řad
+        case 'oslava': ton(146.83, 0, 0.07, 2.2, 'triangle'); ton(220, 0.02, 0.05, 2.0); ton(293.66, 0.04, 0.04, 1.8); break;   // temný zvon
         case 'joint': (function () {                                                              // Skeliho nahrávka, náhodná varianta
           var j = 'joint-' + (1 + Math.floor(Math.random() * 4));
           if (buf[j]) hraj(j, 0.7, { nabeh: 0.005 }); else { nacti(j).catch(function () {}); sum(0, 0.7, 0.05, 'lowpass', 900, 300); }
         })(); break;
-        default: bublina(1, 0.3);
+        default: sum(0, 0.09, 0.06, 'lowpass', 160);
       }
     },
     vypnuto: vypnuto,
