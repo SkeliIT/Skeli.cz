@@ -276,6 +276,101 @@
     if (d.chat) d.chat.forEach(zprava);
     if ('pin' in d) pripnuto(d.pin);
     prazdno();
+    kvizStav(d.kviz);
+  }
+
+  // ---------- KVÍZ na plátně (řídí ho server: service/PremiereQuiz – čas, hlasy, výsledek, Kevin) ----------
+  // Otázka 12 s, pak výsledek 14 s. Správnou odpověď a zajímavost pošle server až po konci hlasování. Prohlížeč se zeptá
+  // přesně v okamžiku, kdy otázka začíná a kdy končí hlasování (pole dalsi / do), takže všichni vidí totéž.
+  var kvizEl = $('pmKviz'), kvizBar = $('pmKvizBar'), kevinEl = $('pmKvizKevin'), kviz = null;
+  var mojeOdp = {};
+  try { mojeOdp = JSON.parse(sessionStorage.getItem('pmKvizMoje') || '{}'); } catch (e) { /* bez úložiště */ }
+  function naplanuj(t) {                                         // t = čas serveru, kdy se zeptat
+    var za = t - cas().now;
+    if (za > 0 && Date.now() + za < dalsi) dalsi = Date.now() + za;
+  }
+  function kvizKlic(i) { return song + '@' + cas().at + '#' + i; }
+  function kvizSkryj() {
+    if (!kviz) return;
+    kviz = null;
+    platno.classList.remove('ma-kviz');
+    kvizBar.hidden = true; kvizBar.textContent = '';
+    kevinEl.hidden = true;
+  }
+  function kvizStav(k) {
+    if (k && k.dalsi) naplanuj(k.dalsi);
+    if (!k || !k.faze) { kvizSkryj(); return; }
+    naplanuj(k.do + 300);                                        // hned po konci fáze znovu (výsledek / návrat k odpočtu)
+    if (!kviz || kviz.i !== k.i || kviz.faze !== k.faze) kvizKresli(k);
+  }
+  function odpovedi(k, kde, velke) {
+    var box = document.createElement('div'); box.className = velke ? 'pm-kv-tlacitka' : 'pm-kv-odpovedi';
+    k.a.forEach(function (a, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'pm-kv-odp'; b.dataset.i = i;
+      var t = document.createElement('span'); t.className = 't'; t.textContent = 'ABC'.charAt(i) + ' · ' + a;
+      b.appendChild(t);
+      if (!velke) { var p = document.createElement('span'); p.className = 'pct'; b.appendChild(p); var pas = document.createElement('i'); b.insertBefore(pas, t); }
+      b.addEventListener('click', function (e) { e.stopPropagation(); hlasuj(i); });
+      box.appendChild(b);
+    });
+    kde.appendChild(box);
+  }
+  function kvizKresli(k) {
+    kviz = k;
+    zavriShort();
+    var moje = mojeOdp[kvizKlic(k.i)];
+    kvizEl.textContent = ''; kvizBar.textContent = '';
+    var nad = document.createElement('div'); nad.className = 'pm-kv-nadpis'; nad.textContent = T.tQuiz;
+    var q = document.createElement('div'); q.className = 'pm-kv-otazka'; q.textContent = k.q;
+    kvizEl.appendChild(nad); kvizEl.appendChild(q);
+    odpovedi(k, kvizEl, false);
+    odpovedi(k, kvizBar, true);
+    var stav = document.createElement('p'); stav.className = 'pm-kv-stav'; stav.setAttribute('role', 'status'); kvizBar.appendChild(stav);
+    kvizEl.classList.toggle('vysledek', k.faze === 'vysledek');
+    kevinEl.hidden = true;
+    if (k.faze === 'otazka') {
+      var cas2 = document.createElement('div'); cas2.className = 'pm-kv-cas'; var pr = document.createElement('i'); cas2.appendChild(pr); kvizEl.appendChild(cas2);
+      var zbyva = Math.max(0, k.do - cas().now);
+      pr.style.transitionDuration = zbyva + 'ms';
+      requestAnimationFrame(function () { requestAnimationFrame(function () { pr.style.transform = 'scaleX(0)'; }); });   // proužek času ubývá
+      if (k.hlasoval || moje != null) oznacMoje(moje, true);
+      else stav.textContent = T.tQuizTap;
+    } else {
+      var celkem = k.hlasu || 0;
+      document.querySelectorAll('.pm-kv-odp').forEach(function (b) {
+        var i = +b.dataset.i;
+        b.disabled = true;
+        if (i === k.ok) { b.classList.add('ok'); b.querySelector('.t').textContent += ' ✓'; }
+        if (k.pct && b.querySelector('.pct')) {
+          b.querySelector('.pct').textContent = k.pct[i] + ' %';
+          b.querySelector('i').style.transform = 'scaleX(' + (k.pct[i] / 100) + ')';
+        }
+      });
+      if (moje != null) oznacMoje(moje, false);
+      var f = document.createElement('div'); f.className = 'pm-kv-fakt'; f.textContent = k.fakt; kvizEl.appendChild(f);
+      stav.textContent = celkem ? T.tQuizHit.replace('{p}', k.pct[k.ok]) : T.tQuizNone;
+      var f2 = document.createElement('p'); f2.className = 'pm-kv-fakt-bar'; f2.textContent = k.fakt; kvizBar.appendChild(f2);   // čitelně i na telefonu
+      if (k.kevin) { kevinEl.querySelector('span').textContent = k.kevin; kevinEl.hidden = false; }
+    }
+    platno.classList.add('ma-kviz');
+    kvizBar.hidden = false;
+  }
+  function oznacMoje(i, hlasovani) {
+    document.querySelectorAll('.pm-kv-odp').forEach(function (b) {
+      if (+b.dataset.i === i) b.classList.add('moje');
+      if (hlasovani) b.disabled = true;
+    });
+    if (hlasovani) kvizBar.querySelector('.pm-kv-stav').textContent = T.tQuizVoted;
+  }
+  function hlasuj(i) {
+    if (!kviz || kviz.faze !== 'otazka' || mojeOdp[kvizKlic(kviz.i)] != null) return;
+    var klicO = kvizKlic(kviz.i);
+    mojeOdp[klicO] = i;
+    try { sessionStorage.setItem('pmKvizMoje', JSON.stringify(mojeOdp)); } catch (e) { /* nevadí */ }
+    oznacMoje(i, true);
+    zivy({ action: 'kviz', i: String(kviz.i), odp: String(i) }).then(function (r) {
+      if (r.status === 409 && kviz) kvizBar.querySelector('.pm-kv-stav').textContent = T.tQuizClosed;
+    }).catch(function () { /* výsledek se ukáže i tak */ });
   }
 
   // ---------- upoutávka na plátně ----------
@@ -286,7 +381,7 @@
   }
   function pustShort() {
     var c = cas();
-    if (c.at - c.now <= 60000) return;                           // poslední minuta patří premiéře
+    if (c.at - c.now <= 60000 || kviz) return;                   // poslední minuta patří premiéře, během kvízu je plátno jeho
     if (shortV) { zavriShort(); return; }                        // druhé ťuknutí zavře
     if (window.skeliUpoutavkyZavri) window.skeliUpoutavkyZavri();
     shortV = document.createElement('video');

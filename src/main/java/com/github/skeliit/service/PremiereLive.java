@@ -65,7 +65,7 @@ public final class PremiereLive {
     }
 
     // ---------- nouzové vypínače ----------
-    public static final String[] SWITCHES = {"chat", "reakce", "efekty"};
+    public static final String[] SWITCHES = {"chat", "reakce", "efekty", "kviz"};
     private static volatile Map<String, Boolean> offCache = Map.of();
     private static volatile long offRead = 0;
 

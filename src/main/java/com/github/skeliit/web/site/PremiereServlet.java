@@ -97,7 +97,7 @@ public class PremiereServlet extends HttpServlet {
     }
 
     /** „Musíš odejít“ → „musis-odejit“. */
-    static String slug(String name) {
+    public static String slug(String name) {
         if (name == null) return "";
         String s = Normalizer.normalize(name, Normalizer.Form.NFD).replaceAll("\\p{M}", "").toLowerCase(Locale.ROOT);
         return s.replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");

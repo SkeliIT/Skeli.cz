@@ -78,7 +78,13 @@
              data-t-reported="<%= WebUtils.escapeHtml(t.getProperty("flash.reported")) %>"
              data-t-pin="<%= WebUtils.escapeHtml(t.getProperty("cmt.pin")) %>"
              data-t-unpin="<%= WebUtils.escapeHtml(t.getProperty("cmt.unpin")) %>"
-             data-t-react="<%= WebUtils.escapeHtml(t.getProperty("pm.react")) %>">
+             data-t-react="<%= WebUtils.escapeHtml(t.getProperty("pm.react")) %>"
+             data-t-quiz="<%= WebUtils.escapeHtml(t.getProperty("pm.quiz")) %>"
+             data-t-quiz-tap="<%= WebUtils.escapeHtml(t.getProperty("pm.quizTap")) %>"
+             data-t-quiz-voted="<%= WebUtils.escapeHtml(t.getProperty("pm.quizVoted")) %>"
+             data-t-quiz-closed="<%= WebUtils.escapeHtml(t.getProperty("pm.quizClosed")) %>"
+             data-t-quiz-hit="<%= WebUtils.escapeHtml(t.getProperty("pm.quizHit")) %>"
+             data-t-quiz-none="<%= WebUtils.escapeHtml(t.getProperty("pm.quizNone")) %>">
       <div class="pm-sal-roz">
         <div class="pm-sal-hl">
           <div class="pm-jeviste" id="pmJeviste">
@@ -92,17 +98,21 @@
                   <div class="pm-pl-lidi" id="pmSalLidi"></div>
                   <% if (teaser != null && !pm.isOut()) { %><div class="pm-pl-tip"><i class="fa-solid fa-play" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.teaser")) %></div><% } %>
                 </div>
+                <div class="pm-kviz" id="pmKviz" aria-live="polite"></div>
                 <div class="pm-pl-finale" aria-hidden="true">
                   <div class="pm-pl-tvare" id="pmSalTvare"><% for (int fi = 1; fi <= 7; fi++) { %><img src="/img/faces/face-<%= fi %>.webp" alt="" width="44" height="44"><% } %></div>
                   <div class="pm-pl-logo"></div>
                 </div>
               </div>
               <div class="pm-divaci" id="pmDivaci"></div>
+              <%-- Kevinova poznámka k výsledku kvízu: pod plátnem nad hlavami diváků, nikdy přes otázku ani odpočet --%>
+              <div class="pm-kviz-kevin" id="pmKvizKevin" hidden><i class="fa-solid fa-paw" aria-hidden="true"></i> <span></span></div>
               <div class="pm-tma"></div>
             </div>
             <div class="pm-reakce" id="pmReakce" aria-hidden="true"></div>
             <button type="button" class="pm-celo" id="pmCelo" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
           </div>
+          <div class="pm-kviz-bar" id="pmKvizBar" hidden></div>
           <div class="pm-lista" id="pmLista"></div>
         </div>
         <aside class="pm-chat"><div class="pm-chat-in">

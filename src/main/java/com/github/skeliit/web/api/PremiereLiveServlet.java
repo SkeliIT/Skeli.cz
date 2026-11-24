@@ -8,7 +8,10 @@ import com.github.skeliit.dao.CommentDao.Viewer;
 import com.github.skeliit.dao.PremiereDao;
 import com.github.skeliit.model.CommentItem;
 import com.github.skeliit.security.RequestLimiter;
+import com.github.skeliit.I18n;
 import com.github.skeliit.service.PremiereLive;
+import com.github.skeliit.service.PremiereQuiz;
+import com.github.skeliit.web.site.PremiereServlet;
 import com.github.skeliit.web.auth.EmailVerification;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -44,18 +47,19 @@ public class PremiereLiveServlet extends HttpServlet {
     /** Odkazy v chatu nechceme (spam, podvody): adresa, www. nebo „něco.cz“. */
     static final Pattern LINK = Pattern.compile("(?i)(https?://|www\\.|\\b[a-z0-9-]{2,}\\.(cz|sk|com|net|org|eu|io|me|ly|gg|tv|to|app|xyz|info|ru|de|link|site|online|shop)\\b)");
 
-    private record Room(long at, String target) {}
+    /** Místnost: čas premiéry, video (cíl chatu), název písně (plán kvízu) a klíč premiéry (odděluje výsledky kvízu). */
+    private record Room(long at, String target, String name, String key) {}
 
     private Room room(HttpServletRequest req) throws SQLException {
         String song = req.getParameter("song");
         if ("sim".equals(song)) {
             String host = req.getServerName();
             if (!"localhost".equals(host) && !host.startsWith("test.")) return null;
-            try { return new Room(Long.parseLong(req.getParameter("simAt")), "pmSimChat01"); } catch (Exception e) { return null; }
+            try { long at = Long.parseLong(req.getParameter("simAt")); return new Room(at, "pmSimChat01", "Musíš odejít", "sim@" + at); } catch (Exception e) { return null; }
         }
         if (song == null || !song.matches("[0-9a-fA-F-]{8,40}")) return null;
         PremiereDao.Live live = new PremiereDao().live(song);
-        return live == null ? null : new Room(live.at, live.videoId);
+        return live == null ? null : new Room(live.at, live.videoId, live.name, song + "@" + live.at);
     }
 
     @Override
@@ -76,6 +80,12 @@ public class PremiereLiveServlet extends HttpServlet {
 
             String k = req.getParameter("k");
             if (k != null && KEY.matcher(k).matches()) PremiereLive.seen(k);
+            else k = null;
+            // kvíz na plátně (jen během odpočtu; správná odpověď až po konci hlasování – service/PremiereQuiz)
+            if (!vyp.get("kviz")) {
+                Map<String, Object> kviz = PremiereQuiz.stav(room.key, PremiereServlet.slug(room.name), room.at, now, I18n.current(req), k);
+                if (kviz != null) out.put("kviz", kviz);
+            }
             out.put("lidi", PremiereLive.people());
             out.put("reakce", PremiereLive.counts());
 
@@ -110,6 +120,17 @@ public class PremiereLiveServlet extends HttpServlet {
             if (room == null) { write(resp, 404, Map.of("error", "song")); return; }
             long now = System.currentTimeMillis();
             String action = String.valueOf(req.getParameter("action"));
+            if ("kviz".equals(action)) {
+                if (PremiereLive.off("kviz")) { write(resp, 409, Map.of("error", "off")); return; }
+                String k = req.getParameter("k");
+                if (k == null || !KEY.matcher(k).matches()) { write(resp, 400, Map.of("error", "k")); return; }
+                int i, odp;
+                try { i = Integer.parseInt(req.getParameter("i")); odp = Integer.parseInt(req.getParameter("odp")); } catch (Exception e) { write(resp, 400, Map.of("error", "i")); return; }
+                int r = PremiereQuiz.hlasuj(room.key, PremiereServlet.slug(room.name), room.at, now, i, odp, k, req.getRemoteAddr());
+                if (r == 0) write(resp, 200, Map.of("ok", true));
+                else write(resp, r, Map.of("error", r == 409 ? "closed" : r == 429 ? "slow" : "bad"));
+                return;
+            }
             if ("react".equals(action)) {
                 if (PremiereLive.off("reakce")) { write(resp, 409, Map.of("error", "off")); return; }
                 String k = req.getParameter("k");

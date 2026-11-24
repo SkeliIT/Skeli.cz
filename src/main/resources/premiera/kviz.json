@@ -1,0 +1,79 @@
+{
+  "_popis": "Kvíz na plátně kinosálu premiéry (service/PremiereQuiz). Otázky: ok = index správné odpovědi (0 = A, 1 = B, 2 = C); texty po jazycích (chybí-li jazyk, použije se cs). premiera = otázka jen pro danou premiéru (slug názvu písně), jinak obecná. Plány: pro každou premiéru seznam {id, pred = sekund před startem, kdy se otázka objeví}; 12 s hlasování + 14 s výsledek, poslední musí skončit nejpozději 2 min před startem (hlídá PremiereQuizTest). Obsah schválil Skeli 25. 11. 2026 (revize ChatGPT); fakta u ROADTRIP a Trosek zkrácená na ověřené.",
+  "otazky": [
+    { "id": "logo", "ok": 1, "cs": { "q": "Kolik smajlíků tvoří logo SKELO SQUAD?", "a": ["Pět", "Sedm", "Devět"], "fakt": "Každý ze sedmi smajlíků představuje jiný výraz a náladu." } },
+    { "id": "kevin", "ok": 0, "cs": { "q": "Jak se jmenuje kočičí maskot Skeli.cz?", "a": ["Kevin", "Chester", "Felix"], "fakt": "Kevin je nejen maskotem webu, ale také soupeřem ve hře CatSmash." } },
+    { "id": "klip", "premiera": "musis-odejit", "ok": 2, "cs": { "q": "Jak se jmenuje klip, který má dnes premiéru?", "a": ["Neohlížej se", "Je čas jít", "Musíš odejít"], "fakt": "Skladba vyšla už v roce 2025 a před premiérou klipu byla dostupná na Spotify." } },
+    { "id": "catsmash", "ok": 0, "cs": { "q": "Jak se jmenuje hra, ve které soupeříš s Kevinem?", "a": ["CatSmash", "CatStrike", "PawPong"], "fakt": "CatSmash je minihra inspirovaná ping-pongem, ve které rozhoduje postřeh a rychlost reakcí." } },
+
+    { "id": "texty15", "ok": 1, "cs": { "q": "V kolika letech začal Skeli psát vlastní texty?", "a": ["Ve 12 letech", "V 15 letech", "V 19 letech"], "fakt": "První vlastní texty začal Skeli psát ještě před vznikem svého prvního tracku v roce 2008." } },
+    { "id": "prvnitrack", "ok": 0, "cs": { "q": "Jak se jmenoval Skeliho první track z roku 2008?", "a": ["Poslední soud", "První kapitola", "Bez pravidel"], "fakt": "Poslední soud byl diss track, kterým Skeli v roce 2008 odstartoval svou hudební tvorbu." } },
+    { "id": "50cent", "ok": 2, "cs": { "q": "Který rapper přivedl Skeliho k hip hopu?", "a": ["Eminem", "2Pac", "50 Cent"], "fakt": "Jednou ze zásadních skladeb pro Skeliho byla Candy Shop od 50 Centa." } },
+    { "id": "audacity", "ok": 1, "cs": { "q": "V jakém programu Skeli začínal nahrávat?", "a": ["FL Studio", "Audacity", "BandLab"], "fakt": "Skeli začínal v Audacity, později přešel na BandLab a nakonec na FL Studio." } },
+    { "id": "remake", "ok": 0, "cs": { "q": "Kterou skladbu Skeli předělal v roce 2025?", "a": ["Já už vím", "Tik Tak", "Tisíc kousků"], "fakt": "Původní verze skladby Já už vím pochází z roku 2016. Remake vznikl o devět let později." } },
+
+    { "id": "bronx", "ok": 2, "cs": { "q": "Ve které části New Yorku se zrodil hip hop?", "a": ["Brooklyn", "Manhattan", "Bronx"], "fakt": "Hip hop se začal formovat na komunitních večírcích v newyorském Bronxu." } },
+    { "id": "70leta", "ok": 0, "cs": { "q": "Ve kterém desetiletí vznikala hiphopová kultura?", "a": ["70. léta", "80. léta", "90. léta"], "fakt": "Za symbolické datum zrodu hip hopu se považuje 11. srpen 1973." } },
+    { "id": "koolherc", "ok": 1, "cs": { "q": "Který DJ hrál na legendární party 11. 8. 1973?", "a": ["Grandmaster Flash", "DJ Kool Herc", "DJ Premier"], "fakt": "DJ Kool Herc pomocí dvou gramofonů prodlužoval rytmické pasáže skladeb určené k tanci." } },
+    { "id": "top40", "ok": 2, "cs": { "q": "Který hiphopový singl první pronikl do US Top 40?", "a": ["The Message", "Walk This Way", "Rapper’s Delight"], "fakt": "Rapper’s Delight od The Sugarhill Gang vyšel v roce 1979 a do Billboard Top 40 pronikl v lednu 1980." } },
+    { "id": "rapvshiphop", "ok": 0, "cs": { "q": "Jaký je vztah mezi rapem a hiphopovou kulturou?", "a": ["Rap je součást hip hopu", "Jde o totéž", "Hip hop je druh rapu"], "fakt": "Hip hop je širší kultura zahrnující hudební, taneční i výtvarné projevy." } },
+    { "id": "elementy", "ok": 1, "cs": { "q": "Co nepatří mezi čtyři tradiční elementy hip hopu?", "a": ["Graffiti", "Beatbox", "Breaking"], "fakt": "Tradičními čtyřmi elementy jsou MCing, DJing, breaking a graffiti. Beatbox je další součástí kultury." } },
+    { "id": "paty", "ok": 2, "cs": { "q": "Co označuje pátý element v pojetí Zulu Nation?", "a": ["Skateboarding", "Hudební produkce", "Znalost"], "fakt": "Universal Zulu Nation zdůrazňuje znalost sebe sama a porozumění kultuře jako pátý element hip hopu." } },
+
+    { "id": "mc", "ok": 1, "cs": { "q": "Co v hiphopové kultuře znamená zkratka MC?", "a": ["Music Creator", "Master of Ceremonies", "Microphone Master"], "fakt": "MC původně pomáhal uvádět vystoupení a povzbuzovat publikum. Později se jeho role rozvíjela v rap." } },
+    { "id": "flow", "ok": 0, "cs": { "q": "Co označuje rapper slovem flow?", "a": ["Způsob přednesu", "Hlasitost mikrofonu", "Tempo instrumentálu"], "fakt": "Flow zahrnuje rytmus, frázování, důrazy a způsob, jakým rapper zasazuje slova do hudby." } },
+    { "id": "sampl", "ok": 2, "cs": { "q": "Co je to samplování?", "a": ["Ladění hlasu", "Zrychlování skladby", "Využití části nahrávky"], "fakt": "Samplováním lze využít část existující zvukové nahrávky při tvorbě nové hudby." } },
+    { "id": "freestyle", "ok": 1, "cs": { "q": "Jak se říká rapování vymyšlenému přímo na místě?", "a": ["Double time", "Freestyle", "Playback"], "fakt": "Improvizovaný freestyle prověřuje slovní zásobu, kreativitu a pohotovost rappera." } },
+    { "id": "cypher", "ok": 0, "cs": { "q": "Co označuje v hip hopu pojem cypher?", "a": ["Kruh účinkujících", "Tajný pseudonym", "Druh mikrofonu"], "fakt": "V cypheru se mohou střídat rappeři, tanečníci nebo beatboxeři a předvádět své schopnosti." } },
+    { "id": "battle", "ok": 2, "cs": { "q": "Co je hlavní podstatou rapového battlu?", "a": ["Soutěž v hlasitosti", "Nejrychlejší beat", "Slovní souboj"], "fakt": "Rapový battle staví proti sobě interprety, kteří soutěží pomocí textu, techniky a slovní kreativity." } },
+    { "id": "bar", "ok": 1, "cs": { "q": "Co v hudebním počítání znamená jeden bar?", "a": ["Jeden refrén", "Jeden takt", "Jednu sloku"], "fakt": "V běžném čtyřčtvrťovém taktu má jeden bar čtyři doby. Rapové sloky často obsahují 16 taktů." } },
+    { "id": "scratch", "ok": 0, "cs": { "q": "Jak vzniká scratch při práci s gramofonem?", "a": ["Pohybem vinylu", "Úderem na mikrofon", "Zrychlením bicích"], "fakt": "DJ pohybuje vinylovou deskou vpřed a vzad pod přenoskou a vytváří charakteristické zvuky." } },
+    { "id": "beatbox", "ok": 2, "cs": { "q": "Jak se nazývá napodobování bicích pomocí úst?", "a": ["Vocoder", "Ad-lib", "Beatbox"], "fakt": "Beatbox využívá ústa, rty, jazyk a hlas k vytváření rytmů a dalších hudebních zvuků." } },
+
+    { "id": "chaozz", "ok": 1, "cs": { "q": "Kdo vydal v roce 1996 album …a nastal chaos?", "a": ["PSH", "Chaozz", "Indy & Wich"], "fakt": "Chaozz se v 90. letech proslavili také skladbami Policie a Planeta opic." } },
+    { "id": "psh", "ok": 0, "cs": { "q": "Jak se jmenuje debutové album skupiny PSH?", "a": ["Repertoár", "My 3", "Toxic Funk"], "fakt": "Repertoár vyšel v roce 2001. Zkratka PSH znamená Peneři strýčka Homeboye." } },
+    { "id": "trosky", "ok": 2, "cs": { "q": "Ve které slovenské skupině působili Vec a Midi?", "a": ["Kontrafakt", "L.U.Z.A.", "Trosky"], "fakt": "Trosky vydaly album v roce 1997. V roce 2018 se kvůli jeho výročí znovu sešly na festivalu Pohoda." } },
+    { "id": "my3", "ok": 1, "cs": { "q": "Kdo vydal v roce 2002 české rapové album My 3?", "a": ["Supercrooo", "Indy & Wich", "Chaozz"], "fakt": "My 3 vyšlo v roce 2002 a patří mezi významná alba rané české hiphopové scény." } },
+    { "id": "rytmus", "ok": 1, "cs": { "q": "Jaké je občanské jméno rappera Rytmuse?", "a": ["Michal Straka", "Patrik Vrbovský", "Jakub Vlček"], "fakt": "Patrik Vrbovský se proslavil jako Rytmus, člen slovenské skupiny Kontrafakt." } },
+    { "id": "bengoro", "ok": 2, "cs": { "q": "Který slovenský rapper vydal album Bengoro?", "a": ["Separ", "Majk Spirit", "Rytmus"], "fakt": "Bengoro je debutové sólové album Rytmuse z roku 2006." } },
+    { "id": "zijemelenraz", "ok": 0, "cs": { "q": "Kdo s Robertem Burianem vydal hit Žijeme len raz?", "a": ["Ego", "Separ", "Majk Spirit"], "fakt": "Skladba Žijeme len raz vyšla v roce 2012. Robert Burian je zároveň jejím producentem." } },
+    { "id": "logic", "ok": 1, "cs": { "q": "Který český rapper dříve vystupoval jako Logic?", "a": ["Calin", "Yzomandias", "Viktor Sheen"], "fakt": "Yzomandias je jednou ze zakládajících osobností českého hudebního labelu Milion+." } },
+    { "id": "roadtrip", "ok": 2, "cs": { "q": "Kdo společně vydal album ROADTRIP v roce 2023?", "a": ["Separ a Ego", "Marpo a Refew", "Calin a Viktor Sheen"], "fakt": "ROADTRIP vyšlo 3. února 2023 a patří na něj také skladba Safír." } }
+  ],
+  "kevin": {
+    "cs": [
+      ["Tak tohle byla spíš kolektivní improvizace než vědomostní kvíz. Oceňuji tvůrčí přístup.",
+       "Původně jsem chtěl připravit těžší otázky. Po tomto výsledku své rozhodnutí přehodnocuji.",
+       "Dobrá zpráva je, že jsme se právě něco naučili. Ta druhá zpráva je vidět na plátně."],
+      ["Odvážné odpovědi. Správných bylo trochu méně, ale odvahu vám rozhodně upřít nemohu.",
+       "Vidím, že kreativita dnes dostala přednost před fakty. Naštěstí jsme pořád na začátku.",
+       "Tahle otázka zjevně nebyla součástí domácí přípravy. Pojďme napravit reputaci sálu."],
+      ["Sál je rozdělený téměř napůl. Ještě že kvůli tomu nemusíme pořádat mimořádné volby.",
+       "Část sálu věděla, část doufala. Výsledkem je poměrně vyrovnaný souboj obou přístupů.",
+       "Napínavější výsledek, než jsem čekal. Skoro jako finále pořádného rapového battlu."],
+      ["Slušný výsledek. Začínám mít podezření, že tu sedí skuteční znalci. To se mi líbí.",
+       "Velmi solidní výsledek. Tohle publikum evidentně neposlouchá hudbu jen jako kulisu.",
+       "Vypadá to, že zdejší hudební znalosti sahají o něco dál než k obyčejnému tlačítku Play."],
+      ["Tak tady se někdo vyzná. Příště budu zřejmě muset připravit trochu náročnější otázky.",
+       "Výborný výsledek. Pomalu začínám pochybovat o správně nastavené obtížnosti našeho kvízu.",
+       "Působivé. Kdyby se za znalosti hudby rozdávaly diplomy, máme tady skoro celou promoci."],
+      ["Sto procent? Buď jste všichni znalci, nebo jsem opravdu hrubě podcenil obtížnost otázky.",
+       "Bez jediné chyby. Výjimečně nemám žádnou ironickou poznámku. A to už je co říct.",
+       "Perfektní výsledek. Začínám mít pocit, že byste příští kvíz měli připravovat místo mě."]
+    ]
+  },
+  "plany": {
+    "musis-odejit": [
+      { "id": "logo", "pred": 1770 }, { "id": "kevin", "pred": 1680 }, { "id": "bronx", "pred": 1590 },
+      { "id": "flow", "pred": 1470 }, { "id": "rytmus", "pred": 1350 }, { "id": "sampl", "pred": 1230 }, { "id": "roadtrip", "pred": 1110 }, { "id": "50cent", "pred": 990 },
+      { "id": "koolherc", "pred": 840 }, { "id": "chaozz", "pred": 690 }, { "id": "top40", "pred": 540 }, { "id": "trosky", "pred": 390 },
+      { "id": "prvnitrack", "pred": 270 }, { "id": "remake", "pred": 216 }, { "id": "klip", "pred": 162 }
+    ],
+    "vychozi": [
+      { "id": "logo", "pred": 1770 }, { "id": "kevin", "pred": 1680 }, { "id": "bronx", "pred": 1590 },
+      { "id": "mc", "pred": 1470 }, { "id": "freestyle", "pred": 1350 }, { "id": "cypher", "pred": 1230 }, { "id": "psh", "pred": 1110 }, { "id": "texty15", "pred": 990 },
+      { "id": "70leta", "pred": 840 }, { "id": "my3", "pred": 690 }, { "id": "bengoro", "pred": 540 }, { "id": "logic", "pred": 390 },
+      { "id": "audacity", "pred": 270 }, { "id": "catsmash", "pred": 216 }, { "id": "beatbox", "pred": 162 }
+    ]
+  }
+}

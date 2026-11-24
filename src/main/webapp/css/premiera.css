@@ -500,3 +500,45 @@ html.low-fx .pm-scena { transition: none; }
 html.low-fx .pm-let { animation-duration: 1.8s; }
 html.low-fx .pm-zp { animation: none; }
 @media (prefers-reduced-motion: reduce) { .pm-scena { transition: none; } .pm-let { display: none; } .pm-divak img { transition: none; } }
+
+/* ---------- KVÍZ na plátně (js/premiera-sal.js, service/PremiereQuiz) ----------
+   Jen horní část plátna (spodek zakrývají hlavy diváků). Odpovědi jdou ťuknout přímo na plátně (i na celé obrazovce)
+   i velkými tlačítky pod sálem (telefon). Správná odpověď = zelená + ✓ (pozná se i bez rozlišování barev). */
+.pm-kviz { position: absolute; inset: 0; display: grid; align-content: start; gap: 1.5cqw; padding: 3cqw 5cqw; text-align: left; opacity: 0; pointer-events: none; transition: opacity .6s; }
+.pm-platno.ma-kviz .pm-kviz { opacity: 1; pointer-events: auto; }
+.pm-platno.ma-kviz .pm-pl-text > :not(.pm-pl-odpocet) { opacity: 0; }
+.pm-platno.ma-kviz .pm-pl-odpocet { position: absolute; right: 3cqw; top: 2.4cqw; margin: 0; font-size: 4.4cqw; }
+.pm-kv-nadpis { font: 400 2.5cqw/1 'Bebas Neue', var(--font-body), sans-serif; letter-spacing: .3em; color: var(--accent); }
+.pm-kv-otazka { font: 400 4.4cqw/1.1 'Bebas Neue', var(--font-body), sans-serif; letter-spacing: .03em; color: #fff; padding-right: 12cqw; }
+.pm-kv-odpovedi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4cqw; }
+main.pm .pm-kv-odpovedi .pm-kv-odp { position: relative; display: grid; justify-items: center; gap: .6cqw; padding: 1.3cqw .8cqw; border-radius: 1cqw; overflow: hidden; cursor: pointer;
+  font: 400 3cqw/1.05 'Bebas Neue', var(--font-body), sans-serif; letter-spacing: .04em; color: #eee; text-align: center;
+  background: rgba(255, 255, 255, .07); border: .25cqw solid rgba(255, 255, 255, .16); }
+.pm-kv-odpovedi .pm-kv-odp i { position: absolute; inset: 0; transform-origin: 0 50%; transform: scaleX(0); background: rgba(255, 255, 255, .12); transition: transform .7s; }
+.pm-kv-odpovedi .pm-kv-odp span { position: relative; }
+.pm-kv-odp.moje { border-color: var(--accent) !important; box-shadow: 0 0 0 .2cqw var(--accent) inset; }
+.pm-kv-odp:disabled { cursor: default; }
+.pm-kviz.vysledek .pm-kv-odp.ok { border-color: #4ade80; color: #fff; }
+.pm-kviz.vysledek .pm-kv-odp.ok i { background: rgba(74, 222, 128, .32); }
+.pm-kviz.vysledek .pm-kv-odp:not(.ok) { opacity: .75; }
+.pm-kv-fakt { font: 500 2.8cqw/1.3 var(--font-body), sans-serif; color: #e8e8ee; max-width: 92%; }
+.pm-kv-fakt-bar { margin: 0; text-align: center; color: var(--text); font-size: .9rem; line-height: 1.4; }   /* zajímavost i pod sálem normálním písmem */
+.pm-kv-cas { height: .6cqw; border-radius: 9px; background: rgba(255, 255, 255, .15); overflow: hidden; }
+.pm-kv-cas i { display: block; height: 100%; background: var(--accent); transform-origin: 0 50%; transition: transform linear; }
+/* Kevinova poznámka: pod plátnem nad hlavami diváků */
+.pm-kviz-kevin { position: absolute; z-index: 3; left: 50%; top: 50.5%; translate: -50% 0; width: 46%; padding: .7% 1.2%; border-radius: 999px;
+  background: rgba(10, 10, 14, .82); border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); color: #fff; text-align: center;
+  font: 500 clamp(11px, 1.05vw, 15px)/1.3 var(--font-body), sans-serif; animation: pm-kv-kevin .5s ease-out; }
+.pm-kviz-kevin i { color: var(--accent); }
+.pm-kviz-kevin[hidden] { display: none; }
+@keyframes pm-kv-kevin { from { opacity: 0; transform: translateY(6px); } }
+/* lišta s velkými tlačítky odpovědí pod sálem (telefon, ťukací plochy aspoň 44 px) */
+.pm-kviz-bar { display: grid; gap: 8px; padding: 10px; background: var(--panel); border-top: 1px solid var(--panel-border); }
+.pm-kv-tlacitka { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+main.pm .pm-kv-tlacitka .pm-kv-odp { min-height: 46px; padding: 6px 8px; border-radius: 12px; border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--text); font: 600 .9rem/1.2 var(--font-body), sans-serif; cursor: pointer; }
+main.pm .pm-kv-tlacitka .pm-kv-odp.moje { background: var(--accent); color: var(--accent-ink); }
+.pm-kv-tlacitka .pm-kv-odp.ok { border-color: #4ade80; }
+.pm-kv-stav { margin: 0; text-align: center; color: var(--text-dim); font-size: .85rem; }
+@media (max-width: 420px) { .pm-kv-tlacitka { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .pm-kv-cas i, .pm-kv-odpovedi .pm-kv-odp i { transition: none; } .pm-kviz-kevin { animation: none; } }
