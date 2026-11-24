@@ -345,7 +345,7 @@ html.low-fx .pmu-tvare img.on { filter: none; }
    odpočet Bebas Neue (css/karaoke-fonts.css, připojené v premiera.jsp). Chat má pevnou výšku (nikdy nezvětší stránku),
    nejnovější zpráva nahoře. */
 .pm.v-sale .pm-hlavni, .pm.v-sale .pm-jsemtu, .pm.v-sale .pm-spolu { display: none; }
-.pm.v-sale .pm-in { max-width: 1280px; padding: 12px 16px 60px; }
+.pm.v-sale .pm-in { max-width: 1280px; padding: 12px 16px 60px; grid-template-columns: minmax(0, 1fr); min-height: 0; align-content: start; justify-items: stretch; }   /* i na PC jeden široký sloupec (čekárna má dva) */
 .pm.v-sale .pm-foto, .pm.v-sale .pm-prechod { opacity: .35; }
 .pm-sal { width: 100%; text-align: left; border-radius: 24px; overflow: hidden; background: #050507;
   border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); box-shadow: 0 0 60px -24px var(--accent), 0 30px 80px -40px #000; }
