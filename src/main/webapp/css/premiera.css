@@ -686,7 +686,7 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 .pm-zkouska button { min-height: 40px; padding: 0 12px; border-radius: 99px; border: 1px solid #f5c542; background: none; color: inherit; font: inherit; cursor: pointer; }
 
 /* věta u chatu: zprávy zůstanou veřejně pod klipem (audit 25. 11.) */
-.pm-chat-verejne { margin: 6px 12px 0; color: var(--text-dim); font-size: var(--fs-small); line-height: 1.35; }
+.pm-chat-verejne { margin: 5px 14px 0; color: var(--text-dim); opacity: .7; font: 400 .66rem/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: 0; text-transform: none; }   /* nenápadně (Skeli: kazilo atmosféru) */
 /* záložní odkaz na YouTube (js/premiera.js, až po startu) */
 .pm-yt-odkaz { margin: 8px 0 0; text-align: center; font-size: .9rem; }
 .pm-yt-odkaz a { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; color: var(--text-dim); }

@@ -157,7 +157,7 @@
           <a class="pm-psani pm-prihlas" href="/login.jsp?next=/premiera"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.chatLogin")) %></a>
           <% } %>
           <%-- zprávy z chatu jsou komentáře pod klipem – ať to každý ví dřív, než napíše něco osobního (audit 25. 11.) --%>
-          <p class="pm-chat-verejne"><%= WebUtils.escapeHtml(t.getProperty("pm.chatPublic")) %></p>
+          <p class="pm-chat-verejne"><span aria-hidden="true">ⓘ</span> <%= WebUtils.escapeHtml(t.getProperty("pm.chatPublic")) %></p>
           <p class="pm-chat-info" id="pmChatInfo" role="status" hidden></p>
           <div class="pm-pripnuto" id="pmPripnuto" hidden></div>
           <div class="pm-zpravy" id="pmZpravy"></div>
