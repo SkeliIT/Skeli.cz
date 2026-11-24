@@ -360,6 +360,18 @@ html.low-fx .pmu-tvare img.on { filter: none; }
   .pm-sal { border-radius: 18px; }
   .pm.v-sale .pm-in { padding-left: 8px; padding-right: 8px; }
 }
+/* VELKÝ SÁL na PC (Skeli 24. 11.: sál nesmí být okénko mezi kartami): sál s chatem přes celou šířku okna, ale jen tak
+   velký, aby se jeviště celé vešlo na výšku pod lištu webu. Tlačítko Menší / Větší sál (js/premiera-sal.js, pamatuje se). */
+main.pm .pm-velky { display: none; }
+@media (min-width: 1100px) and (orientation: landscape) {
+  main.pm .pm-velky { position: absolute; z-index: 7; top: 10px; left: 62px; height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
+    background: rgba(0, 0, 0, .5); color: #fff; font: 600 .85rem/1 var(--font-body); cursor: pointer; display: inline-flex; align-items: center; opacity: .75; transition: opacity .3s; }
+  main.pm .pm-velky:hover, main.pm .pm-velky:focus-visible { opacity: 1; }
+  .pm.v-sale.velky-sal .pm-in { max-width: none; }
+  .pm.velky-sal .pm-sal { max-width: calc((100svh - var(--header-h) - 28px) * 1672 / 941 + 360px); margin-inline: auto; }
+  .pm.velky-sal .pm-sal-roz { grid-template-columns: minmax(0, 1fr) 360px; }
+}
+main.pm .pm-jeviste.fs .pm-velky, main.pm .pm-jeviste.na-celou .pm-velky, main.pm .pm-jeviste:fullscreen .pm-velky { display: none; }   /* na celé obrazovce nedává smysl */
 
 /* jeviště = výřez se scénou; PC a na šířku celý sál, telefon na výšku střed (plátno a ulička) */
 .pm-jeviste { position: relative; overflow: hidden; aspect-ratio: 1672 / 941; background: #000; }

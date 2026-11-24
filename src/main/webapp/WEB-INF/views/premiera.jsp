@@ -91,7 +91,9 @@
              data-t-wave="<%= WebUtils.escapeHtml(t.getProperty("pm.wave")) %>"
              data-t-prog="<%= WebUtils.escapeHtml(t.getProperty("pm.prog")) %>"
              data-t-mood-text="<%= WebUtils.escapeHtml(t.getProperty("pm.moodText")) %>"
-             data-t-mood-none="<%= WebUtils.escapeHtml(t.getProperty("pm.moodNone")) %>">
+             data-t-mood-none="<%= WebUtils.escapeHtml(t.getProperty("pm.moodNone")) %>"
+             data-t-bigger="<%= WebUtils.escapeHtml(t.getProperty("pm.bigger")) %>"
+             data-t-smaller="<%= WebUtils.escapeHtml(t.getProperty("pm.smaller")) %>">
       <div class="pm-sal-roz">
         <div class="pm-sal-hl">
           <div class="pm-jeviste" id="pmJeviste">
@@ -133,6 +135,8 @@
               <button type="button" data-rezim="vyp"><%= WebUtils.escapeHtml(t.getProperty("pm.fsOff")) %><span class="pm-fs-nove" id="pmFsNove"></span></button>
             </div>
             <button type="button" class="pm-celo" id="pmCelo" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
+            <%-- jen PC: sál přes celou šířku okna, nebo menší v obsahu stránky (text dá js/premiera-sal.js) --%>
+            <button type="button" class="pm-velky" id="pmVelky"></button>
           </div>
           <div class="pm-kviz-bar" id="pmKvizBar" hidden></div>
         </div>

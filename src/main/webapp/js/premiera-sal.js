@@ -590,6 +590,22 @@
     else { dalsi = 0; spust(); }
   });
 
+  // ---------- VELKÝ SÁL na PC: sál přes celou šířku okna (výchozí), nebo menší v obsahu stránky; volba se pamatuje ----------
+  // (tlačítko je vidět jen na širokém PC – css/premiera.css; na telefonu třída nic nemění)
+  var velkyBtn = $('pmVelky');
+  function velkySal(on) {
+    root.classList.toggle('velky-sal', on);
+    velkyBtn.textContent = on ? T.tSmaller : T.tBigger;
+  }
+  var velkyChci = true;
+  try { velkyChci = localStorage.getItem('pmVelky') !== '0'; } catch (e) { /* bez úložiště: velký */ }
+  velkySal(velkyChci);
+  velkyBtn.addEventListener('click', function () {
+    var on = !root.classList.contains('velky-sal');
+    velkySal(on);
+    try { localStorage.setItem('pmVelky', on ? '1' : '0'); } catch (e) { /* nevadí */ }
+  });
+
   // ---------- chat na celé obrazovce: skutečný chat se přesune do sálu (vše funguje dál), vpravo ve 3 režimech ----------
   var chatEl = document.querySelector('.pm-chat'), chatDomov = chatEl.parentNode, prepinac = $('pmFsPrepinac'), nepreceteno = 0;
   function naCelou() { return document.fullscreenElement === jeviste || document.webkitFullscreenElement === jeviste || jeviste.classList.contains('na-celou'); }
