@@ -419,7 +419,7 @@ main.pm .pm-jeviste.fs .pm-velky, main.pm .pm-jeviste.na-celou .pm-velky, main.p
 /* posledních 7 s: obličeje na tep srdce nad odpočtem, logo SKELO SQUAD pod ním (odpočet zůstává vidět) */
 .pm-pl-finale { position: absolute; inset: 0; opacity: 0; transition: opacity .8s; pointer-events: none; }
 .pm-pl-tvare { position: absolute; left: 0; right: 0; top: 7%; display: flex; justify-content: center; gap: 2.2cqw; }
-.pm-pl-tvare .pm-tvar { width: 7.5cqw; height: 7.5cqw; opacity: .08; transform: scale(.94); transition: opacity .9s ease, transform .9s ease, filter .9s ease; }   /* barvy nálad (Skeli: napřed barevné) */
+.pm-pl-tvare .pm-tvar { width: 7.5cqw; height: 7.5cqw; opacity: .08; transform: scale(.7); transition: opacity .25s ease-out, transform .45s cubic-bezier(.2, 1.7, .4, 1), filter .4s ease; }   /* naskočí rychle s „pružinou“ (Skeli: ať si toho lidi všimnou) */   /* barvy nálad (Skeli: napřed barevné) */
 .pm-pl-tvare .pm-tvar.on { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 .6cqw var(--c)); }
 .pm-pl-logo { position: absolute; left: 50%; bottom: 3%; translate: -50% 0; width: 46cqw; aspect-ratio: 6556 / 1144; background: #fff; opacity: 0;
   transform: scale(.85); transition: opacity .6s, transform 1.2s cubic-bezier(.2, .8, .2, 1);

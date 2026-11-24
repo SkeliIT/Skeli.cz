@@ -12,7 +12,7 @@
 (function () {
   var C = window.AudioContext || window.webkitAudioContext;
   if (!C || !window.fetch) return;
-  var CESTA = '/sounds/premiera/', VERZE = '4';
+  var CESTA = '/sounds/premiera/', VERZE = '5';
   var ATMO = { 'atmo-hovor': 0, 'atmo-ticho': 0.22, 'atmo-dest': 0.16, 'atmo-hukot': 0.2 };   // hlasitost (hovor podle lidí)
   var OSTATNI = ['kviz-napeti', 'kviz-vir', 'kviz-uder', 'vlna', 'finale-stoupani', 'finale-projektor', 'finale-ton',
     'joint-1', 'joint-2', 'joint-3', 'joint-4', 'finale-uvod', 'finale-start'];   // joint = Skeliho nahrávka: cvaknutí zapalovače a nahulení (4 varianty)
@@ -34,12 +34,11 @@
     [856, 616, 'hudba-4', true],       // Delirium – Eugenio Mininni
     [616, 566, '', true],
     [566, 326, 'hudba-5', false],      // Fallen (Asper), druhá část – jen hudba
-    [326, 250, '', true],              // posledních 5 min bez hudby, jen sál…
-    [250, 192, '', false],             // …v 18:56 pozdrav od Skeliho, podkres po něm ještě ~20 s dohraje (hovor ztichne)…
-    [192, 30, '', true],               // …a zase ztichlý sál…
-    [30, 20, '', false]                // …30 s předem sál ztichne, začne hluboký dech (finale-uvod); pak finále
+    [326, 60, '', true],               // posledních 5 min bez hudby, jen sál…
+    [60, 0, '', false]                 // …minutu předem sál ztichne: hluboký dech (52–38 s), pozdrav od Skeliho (klavír 37 s, hlas 34–17 s),
+                                       // v 15 s start kamery a finále (Skeli 24. 11.: povídání těsně před posledními 15 s)
   ];
-  var HOVOR_OD = 5, HUDBA_HL = 0.2, POZDRAV_OD = 240;    // pozdrav = hlas v 18:56:00, podkres 3 s předem
+  var HOVOR_OD = 5, HUDBA_HL = 0.2, POZDRAV_OD = 34;     // pozdrav = hlas v 18:59:26, podkres 3 s předem, do startu kamery (15 s) se přelije
   var predfinale = false, hovorSmi = false, hudba = null, kvizTise = false, posledniZ = 1e9, pozdravBezi = false;
 
   function vypnuto() { try { return localStorage.getItem('soundMuted') === '1'; } catch (e) { return false; } }
@@ -124,13 +123,14 @@
     Promise.all([nacti('pozdrav-hlas'), nacti('pozdrav-podkres')]).then(function () {
       if (!zapnuto || vFinale) return;
       var uz = POZDRAV_OD + 3 - posledniZ;                          // s od začátku podkresu
-      if (uz > 40) return;                                         // podkres 48 s (po hlase ještě ~20 s dohraje a 9 s doznívá)
+      if (uz > 21) return;                                         // pozdě: hlas by už skoro skončil
       var t = ac.currentTime, PH = 0.22, POD = PH * 0.6;
       var p = hraj('pozdrav-podkres', PH, { od: Math.max(0, uz), nabeh: uz < 1 ? 2 : 0.5 });
       if (p) {                                                     // pod hlasem (3 s → 19,6 s podkresu) ztišit
         var g = p.g.gain, a = t + Math.max(0.6, 3 - uz), b = t + Math.max(0.7, 19.6 - uz);
         g.setValueAtTime(PH, a - 0.4); g.linearRampToValueAtTime(POD, a + 0.3);
-        g.setValueAtTime(POD, b - 0.2); g.linearRampToValueAtTime(PH * 1.15, b + 2.5);   // po posledním slově hudba zase naplno
+        g.setValueAtTime(POD, b - 0.2); g.linearRampToValueAtTime(PH * 1.15, b + 0.8);   // po posledním slově hudba zase naplno…
+        ztlum(p, Math.max(0.2, posledniZ - 17.6), 2.6);              // …a do startu kamery (15 s) se přelije do ticha
       }
       var hlasOd = Math.max(0, uz - 3);
       if (hlasOd < 16) {
@@ -232,10 +232,10 @@
       if (seg && i + 1 < PLAN.length && PLAN[i + 1][2] && z - PLAN[i + 1][0] < 40) nacti(PLAN[i + 1][2]).catch(function () {});   // další skladbu dopředu
       if (!pozdravBezi && z <= POZDRAV_OD + 3 && z > POZDRAV_OD - 15) pozdrav();
       // 30 s předem: „už se něco děje“ – hluboký dech dechů graduje a v 15 s předá startu kamery
-      if (!predfinale && z <= 30 && z > 15.5 && buf['finale-uvod']) {
+      if (!predfinale && z <= 52 && z > 38.5 && buf['finale-uvod']) {   // minutu předem: hluboký dech graduje a předá klavíru pozdravu
         predfinale = true;
-        var u = hraj('finale-uvod', 0.34, { od: Math.max(0, 30 - z), nabeh: 2 });
-        if (u) ztlum(u, Math.max(0, z - 15.4), 1.3);
+        var u = hraj('finale-uvod', 0.34, { od: Math.max(0, 52 - z), nabeh: 2 });
+        if (u) ztlum(u, Math.max(0, z - 38.2), 1.6);
       }
     },
     lidi: function (n) {

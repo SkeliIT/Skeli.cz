@@ -223,7 +223,7 @@
 
   // ---------- PROGRAM VEČERA (časy podle začátku premiéry, pražský čas) ----------
   (function () {
-    var ol = $('pmProgram'), at = cas().at, casy = [at - 30 * 60000, at - 25 * 60000, at - 4 * 60000, at, at + 4 * 60000];   // 18:56 pozdrav (js/premiera-zvuky.js)
+    var ol = $('pmProgram'), at = cas().at, casy = [at - 30 * 60000, at - 25 * 60000, at - 34000, at, at + 4 * 60000];   // 18:59:26 pozdrav (js/premiera-zvuky.js)
     var f = window.Intl ? new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' }) : null;
     String(T.tProg || '').split('|').forEach(function (t, i) {
       var li = document.createElement('li'), b = document.createElement('b'), sp = document.createElement('span');
@@ -559,7 +559,7 @@
     scena.style.setProperty('--ty', '20%');
   }
   // údery 7,5–2,1 s před startem (každý o něco silnější), šepot 1,4 s předem – stejně jako v ukázce a v premiera.js
-  var TEPY = [7.5, 6.6, 5.7, 4.8, 3.9, 3.0, 2.1], SEPOT = 1.4;
+  var TEPY = [11, 10, 9, 8, 7, 6, 5], SEPOT = 1.4;   // Skeli 24. 11.: obličeje dřív (do 5 s všech 7 barevných, pak šednou)
   function finale7(zbyva) {
     if (finale) return; finale = true;
     var tv = [].slice.call(document.querySelectorAll('#pmSalTvare .pm-tvar'));
@@ -575,7 +575,7 @@
       }, Math.max(0, d));
     });
     setTimeout(function () { platno.classList.add('ma-logo'); var z = zvuk(); if (z && zbyva > SEPOT * 1000 - 300) z.sepot(0.09); }, Math.max(0, zbyva - SEPOT * 1000));
-    setTimeout(function () { scena.classList.add('tma'); }, Math.max(0, zbyva - TEPY[0] * 1000));   // od 1. úderu sál postupně do tmy
+    setTimeout(function () { scena.classList.add('tma'); }, Math.max(0, zbyva - 7500));              // od 7,5 s sál postupně do tmy
     setTimeout(function () { jeviste.classList.add('klid'); }, Math.max(0, zbyva - 3000));          // 3 s předem nic nelétá přes obraz
   }
   function pust() {
@@ -600,9 +600,9 @@
       if (!kviz) { if (okno) kvizCekani(); else { kvizBar.hidden = true; kvizBar.textContent = ''; kvizBar.style.minHeight = ''; kvizVyska = 0; } }
     }
     if (kvizOkno && !kviz) kvizCekaniText();                 // hudba odpočtu, hovor podle lidí, pozdrav v 18:56
-    if (!pozdravVidet && zbyva <= 240000 && zbyva > 225000) { pozdravVidet = true; hlaska('🎙️ ' + (String(T.tProg || '').split('|')[2] || '')); }   // posledních 5 s barvy do černobílé   // vrstvu kamery připravit předem, jinak jízda na slabší grafice skočí
+    if (!pozdravVidet && zbyva <= 34000 && zbyva > 20000) { pozdravVidet = true; hlaska('🎙️ ' + (String(T.tProg || '').split('|')[2] || '')); }   // posledních 5 s barvy do černobílé   // vrstvu kamery připravit předem, jinak jízda na slabší grafice skočí
     if (zbyva > 0 && zbyva <= 15000) { najed(); if (window.PmZvuky) window.PmZvuky.finale(zbyva); }
-    if (zbyva > 0 && zbyva <= 8000) finale7(zbyva);
+    if (zbyva > 0 && zbyva <= 12000) finale7(zbyva);
     if (zbyva <= 0 && !jeviste.classList.contains('hraje')) pust();
     if (Date.now() >= dalsi) dotaz();
   }
