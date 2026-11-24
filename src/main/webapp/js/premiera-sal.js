@@ -24,6 +24,7 @@
   var cas = function () { return window.skeliPmCas ? window.skeliPmCas() : { now: Date.now(), at: +root.dataset.at, zvuk: false }; };
   var cislo = window.Intl ? new Intl.NumberFormat(lang) : null;
   var datum = window.Intl ? new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
+  var hodiny = window.Intl ? new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit' }) : null;
   var vyp = {};                                                 // nouzové vypínače z adminu (chat, reakce, efekty)
 
   // ---------- klíč prohlížeče: počítá „v sále“, v téhle záložce přežije i obnovení stránky ----------
@@ -211,7 +212,11 @@
     var t = document.createElement('div'); t.className = 'pm-zp-t';
     var b = document.createElement('b'); b.textContent = z.jmeno || T.tDeleted;
     var kdy = document.createElement('time');
-    if (z.cas) { var d = new Date(z.cas); kdy.dateTime = d.toISOString(); kdy.textContent = datum ? datum.format(d) : d.toLocaleString(); }
+    if (z.cas) {                                                  // dnešní zpráva jen čas, starší i s datem
+      var d = new Date(z.cas), dnes = d.toDateString() === new Date().toDateString();
+      kdy.dateTime = d.toISOString();
+      kdy.textContent = dnes && hodiny ? hodiny.format(d) : datum ? datum.format(d) : d.toLocaleString();
+    }
     var p = document.createElement('p'); p.textContent = z.text;   // vždy čistý text, nikdy HTML
     t.appendChild(b); t.appendChild(kdy); t.appendChild(p);
     el.appendChild(f); el.appendChild(t);
