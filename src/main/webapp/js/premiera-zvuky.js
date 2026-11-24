@@ -47,15 +47,18 @@
     g.gain.linearRampToValueAtTime(hlasitost, t + (o.nabeh || 0.05));
     s.connect(g); g.connect(master);
     s.start(t, Math.min(o.od || 0, Math.max(0, buf[k].duration - 0.1)));
-    var z = { g: g, s: s };
+    var z = { g: g, s: s, v: hlasitost };                            // v = hlasitost, ze které se později ztišuje
     s.onended = function () { try { g.disconnect(); } catch (e) { /* už odpojeno */ } };
     return z;
   }
   function ztlum(z, za, delka) {                                   // plynule do ticha a zastavit
     if (!z || !ac) return;
     var t = ac.currentTime + (za || 0), d = delka || 0.5;
+    // POZOR: gain.value hned po vytvoření ukazuje výchozí 1 (plná hlasitost), ne naplánovanou – ztišení naplánované
+    // dopředu by zvuk nejdřív skokem zesílilo (Skeli 24. 11.: projektor 2 s před startem zesílil). Proto z vlastní hlasitosti.
+    var od = za > 0 ? z.v : Math.min(z.v, z.g.gain.value);
     try {
-      z.g.gain.cancelScheduledValues(t); z.g.gain.setValueAtTime(z.g.gain.value, t);
+      z.g.gain.cancelScheduledValues(t); z.g.gain.setValueAtTime(od, t);
       z.g.gain.linearRampToValueAtTime(0.0001, t + d); z.s.stop(t + d + 0.05);
     } catch (e) { /* už skončil */ }
   }
@@ -84,7 +87,7 @@
     lidi: function (n) {
       lidi = n;
       var z = smycky['atmo-hovor'];
-      if (z && ac) z.g.gain.setTargetAtTime(hovorHlasitost(), ac.currentTime, 2);   // příchody lidí plynule
+      if (z && ac) { z.v = hovorHlasitost(); z.g.gain.setTargetAtTime(z.v, ac.currentTime, 2); }   // příchody lidí plynule
     },
     // faze 'otazka' (zbyva = ms do konce hlasování) / 'vysledek'
     kviz: function (faze, zbyva) {
