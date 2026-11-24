@@ -694,3 +694,9 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 
 /* telefon: létající smajlíci menší (Skeli 24. 11.: na úzké obrazovce moc velcí) */
 @media (max-width: 600px) { .pm-let { width: 28px; height: 28px; font-size: 22px; line-height: 28px; } .pm-let.moje { width: 34px; height: 34px; font-size: 27px; line-height: 34px; } }
+
+/* kvíz: místo pod sálem rezervované celou dobu kvízu (18:34–18:55, js drží největší výšku), mezi otázkami odpočet – nic neposkakuje */
+.pm-sal.kviz-okno .pm-kviz-bar { min-height: 118px; align-content: center; }
+@media (max-width: 900px) { .pm-sal.kviz-okno .pm-kviz-bar { min-height: 150px; } }
+@media (max-width: 420px) { .pm-sal.kviz-okno .pm-kviz-bar { min-height: 230px; } }
+.pm-kv-cekej { margin: 0; text-align: center; color: var(--text-dim); font-size: .9rem; letter-spacing: .04em; font-variant-numeric: tabular-nums; }

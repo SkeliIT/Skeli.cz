@@ -94,6 +94,8 @@
              data-t-mood-none="<%= WebUtils.escapeHtml(t.getProperty("pm.moodNone")) %>"
              data-t-bigger="<%= WebUtils.escapeHtml(t.getProperty("pm.bigger")) %>"
              data-t-smaller="<%= WebUtils.escapeHtml(t.getProperty("pm.smaller")) %>"
+             data-t-quiz-first="<%= WebUtils.escapeHtml(t.getProperty("pm.quizFirst")) %>"
+             data-t-quiz-next="<%= WebUtils.escapeHtml(t.getProperty("pm.quizNext")) %>"
              data-t-sound-on="<%= WebUtils.escapeHtml(t.getProperty("pm.soundOn")) %>"
              data-t-sound-off="<%= WebUtils.escapeHtml(t.getProperty("pm.soundOff")) %>">
       <div class="pm-sal-roz">

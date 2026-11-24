@@ -407,15 +407,32 @@
     if (za > 0 && Date.now() + za < dalsi) dalsi = Date.now() + za;
   }
   function kvizKlic(i) { return song + '@' + cas().at + '#' + i; }
+  // Místo pod sálem je rezervované celou dobu kvízu (třída kviz-okno, 18:34–18:55): mezi otázkami v něm běží odpočet do další
+  // otázky a výška se drží na největší dosavadní – nic pod sálem neposkakuje (Skeli 24. 11.).
+  var kvizOkno = false, kvizDalsi = 0, kvizBylo = false, kvizVyska = 0;
+  function kvizDrzVysku() {
+    requestAnimationFrame(function () { var v = kvizBar.offsetHeight; if (kvizOkno && v > kvizVyska) { kvizVyska = v; kvizBar.style.minHeight = v + 'px'; } });
+  }
+  function kvizCekani() {
+    kvizBar.textContent = ''; kvizBar.hidden = false;
+    var p = document.createElement('p'); p.className = 'pm-kv-cekej'; kvizBar.appendChild(p);
+    kvizCekaniText(); kvizDrzVysku();
+  }
+  function kvizCekaniText() {
+    var p = kvizBar.querySelector('.pm-kv-cekej'); if (!p) return;
+    var za = kvizDalsi - cas().now;
+    p.textContent = za > 0 && za < 1800000 ? (kvizBylo ? T.tQuizNext : T.tQuizFirst).replace('{t}', text(za)) : T.tQuiz;
+  }
   function kvizSkryj() {
-    if (!kviz) return;
+    if (!kviz) { if (kvizOkno && !kvizBar.querySelector('.pm-kv-cekej')) kvizCekani(); return; }
     kviz = null;
     platno.classList.remove('ma-kviz');
-    kvizBar.hidden = true; kvizBar.textContent = '';
+    kvizBar.textContent = '';
     kevinEl.hidden = true;
+    if (kvizOkno) kvizCekani(); else kvizBar.hidden = true;
   }
   function kvizStav(k) {
-    if (k && k.dalsi) naplanuj(k.dalsi);
+    if (k && k.dalsi) { naplanuj(k.dalsi); kvizDalsi = k.dalsi; }
     if (!k || !k.faze) { kvizSkryj(); return; }
     naplanuj(k.do + 300);                                        // hned po konci fáze znovu (výsledek / návrat k odpočtu)
     if (!kviz || kviz.i !== k.i || kviz.faze !== k.faze) kvizKresli(k);
@@ -470,7 +487,7 @@
       if (k.kevin) { kevinEl.querySelector('span').textContent = k.kevin; kevinEl.hidden = false; }
     }
     platno.classList.add('ma-kviz');
-    kvizBar.hidden = false;
+    kvizBar.hidden = false; kvizBylo = true; kvizDrzVysku();
     if (window.PmZvuky) window.PmZvuky.kviz(k.faze, k.do - cas().now);   // napětí, bubnový vír, úder při odhalení
   }
   function oznacMoje(i, hlasovani) {
@@ -562,7 +579,13 @@
     if (zbyva <= 60000) zavriShort();
     if (zbyva > 0 && zbyva <= 20000) scena.classList.add('priprav');
     if (zbyva > 0 && zbyva <= 5000) jeviste.classList.add('cernobile');
-    if (window.PmZvuky) window.PmZvuky.tik(zbyva);                 // hudba odpočtu, hovor podle lidí, pozdrav v 18:56
+    if (window.PmZvuky) window.PmZvuky.tik(zbyva);
+    var okno = zbyva <= 1560000 && zbyva > 300000 && !vyp.kviz;   // rezervované místo pro kvíz pod sálem
+    if (okno !== kvizOkno) {
+      kvizOkno = okno; sal.classList.toggle('kviz-okno', okno);
+      if (!kviz) { if (okno) kvizCekani(); else { kvizBar.hidden = true; kvizBar.textContent = ''; kvizBar.style.minHeight = ''; kvizVyska = 0; } }
+    }
+    if (kvizOkno && !kviz) kvizCekaniText();                 // hudba odpočtu, hovor podle lidí, pozdrav v 18:56
     if (!pozdravVidet && zbyva <= 240000 && zbyva > 225000) { pozdravVidet = true; hlaska('🎙️ ' + (String(T.tProg || '').split('|')[2] || '')); }   // posledních 5 s barvy do černobílé   // vrstvu kamery připravit předem, jinak jízda na slabší grafice skočí
     if (zbyva > 0 && zbyva <= 15000) { najed(); if (window.PmZvuky) window.PmZvuky.finale(zbyva); }
     if (zbyva > 0 && zbyva <= 8000) finale7(zbyva);
