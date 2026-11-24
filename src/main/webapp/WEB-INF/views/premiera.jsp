@@ -169,9 +169,8 @@
           <p class="pm-nal-text" id="pmNalText"></p><div class="pm-nalady" id="pmNalady"></div></div>
       </div>
     </section>
-    <%-- upozornění na téma klipu a kontakty na pomoc (audit 25. 11.): na stránce vždy – před premiérou, při ní i jako záznam --%>
+    <%-- kontakty na pomoc (audit 25. 11.; větu s upozorněním na obsah Skeli nechtěl): na stránce vždy – před premiérou, při ní i jako záznam --%>
     <aside class="pm-pomoc" aria-labelledby="pmPomocNadpis">
-      <p class="pm-pomoc-cw"><b><%= WebUtils.escapeHtml(t.getProperty("pm.cwTitle")) %>:</b> <%= WebUtils.escapeHtml(t.getProperty("pm.cw")) %></p>
       <h2 class="pm-pomoc-h" id="pmPomocNadpis"><%= WebUtils.escapeHtml(t.getProperty("pm.helpTitle")) %></h2>
       <ul class="pm-pomoc-linky">
         <li><a href="tel:116006">116 006</a> <%= WebUtils.escapeHtml(t.getProperty("pm.help1")) %></li>

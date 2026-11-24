@@ -220,7 +220,7 @@
 
   // ---------- PROGRAM VEČERA (časy podle začátku premiéry, pražský čas) ----------
   (function () {
-    var ol = $('pmProgram'), at = cas().at, casy = [at - 30 * 60000, at - 25 * 60000, at, at + 4 * 60000];
+    var ol = $('pmProgram'), at = cas().at, casy = [at - 30 * 60000, at - 25 * 60000, at - 4 * 60000, at, at + 4 * 60000];   // 18:56 pozdrav (js/premiera-zvuky.js)
     var f = window.Intl ? new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' }) : null;
     String(T.tProg || '').split('|').forEach(function (t, i) {
       var li = document.createElement('li'), b = document.createElement('b'), sp = document.createElement('span');
@@ -237,8 +237,8 @@
     obsah(k, b, true);
     var pct = document.createElement('span'); pct.className = 'pm-nal-pct'; pct.textContent = '0\u00a0%';
     var jm = document.createElement('b'); jm.textContent = cast[0] || '';
-    var po = document.createElement('small'); po.textContent = cast[1] || '';
-    b.appendChild(pct); b.appendChild(jm); b.appendChild(po);
+    b.title = cast.join(' – ');                                   // vysvětlení nálady jen po najetí (Skeli: moc textu)
+    b.appendChild(pct); b.appendChild(jm);
     b.setAttribute('aria-pressed', 'false');
     b.addEventListener('click', function () {
       zivy({ action: 'nalada', f: k }).then(function () { if (Date.now() + 300 < dalsi) dalsi = Date.now() + 300; }).catch(function () { /* nevadí */ });
@@ -552,12 +552,15 @@
     if (window.PmZvuky) window.PmZvuky.klip();                     // při klipu hraje jen klip
     setTimeout(function () { platno.classList.remove('v-finale', 'ma-logo'); }, 1200);
   }
+  var pozdravVidet = false;
   function tik() {
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
     if (zbyva <= 60000) zavriShort();
     if (zbyva > 0 && zbyva <= 20000) scena.classList.add('priprav');
-    if (zbyva > 0 && zbyva <= 5000) jeviste.classList.add('cernobile');   // posledních 5 s barvy do černobílé   // vrstvu kamery připravit předem, jinak jízda na slabší grafice skočí
+    if (zbyva > 0 && zbyva <= 5000) jeviste.classList.add('cernobile');
+    if (window.PmZvuky) window.PmZvuky.tik(zbyva);                 // hudba odpočtu, hovor podle lidí, pozdrav v 18:56
+    if (!pozdravVidet && zbyva <= 240000 && zbyva > 225000) { pozdravVidet = true; hlaska('🎙️ ' + (String(T.tProg || '').split('|')[2] || '')); }   // posledních 5 s barvy do černobílé   // vrstvu kamery připravit předem, jinak jízda na slabší grafice skočí
     if (zbyva > 0 && zbyva <= 15000) { najed(); if (window.PmZvuky) window.PmZvuky.finale(zbyva); }
     if (zbyva > 0 && zbyva <= 8000) finale7(zbyva);
     if (zbyva <= 0 && !jeviste.classList.contains('hraje')) pust();
