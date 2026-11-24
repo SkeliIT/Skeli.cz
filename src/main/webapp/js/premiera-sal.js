@@ -332,7 +332,7 @@
     skeliScena((cas().at - cas().now) / 1000);
   }
   // cesta: od sedadla bokem do uličky (x 836), uličkou k plátnu; výška postavy a chodidla podle hloubky (řada sedadla)
-  var SK_ULICKA = 836, SK_PODIUM = { feet: 585, vys: 180 };
+  var SK_ULICKA = 836, SK_PODIUM = { feet: 646, vys: 262 };   // stojí v uličce před první řadou, hlavou proti plátnu
   function skMisto() { var sw = skeliSt.x1 - skeliSt.x0; return { x: (skeliSt.x0 + skeliSt.x1) / 2, feet: skeliSt.top + sw * 0.95, vys: sw * 2.04 }; }
   function skUkaz(n) {
     if (skeliSnimek === n) return; skeliSnimek = n;
@@ -355,7 +355,7 @@
     var c = null;
     if (vSekvenci && tu && z <= 60.3 && z > 58.6) {                // krok bokem do uličky
       var m = skMisto(), p = (60.3 - z) / 1.7;
-      c = { n: 'bok', x: m.x + (SK_ULICKA - m.x) * p, feet: m.feet, vys: m.vys, bob: true, t: p * 3 };
+      c = { n: 'bok', x: m.x + (SK_ULICKA - m.x) * p, feet: m.feet, vys: m.vys, bob: true, t: p * 3, orez: skeliSt.top + 8 };   // nohy schované za opěradly řady
     } else if (vSekvenci && tu && z <= 58.6 && z > 51.6) {          // uličkou k plátnu, zezadu
       var m2 = skMisto(), q = (58.6 - z) / 7, krok = Math.floor((58.6 - z) / 0.3) % 4;
       c = { n: 'chuze-' + (krok + 1), x: SK_ULICKA, feet: m2.feet + (SK_PODIUM.feet - m2.feet) * q, vys: m2.vys + (SK_PODIUM.vys - m2.vys) * q, bob: true, t: (58.6 - z) / 0.6 };
@@ -368,7 +368,9 @@
     skeliChuze.classList.toggle('vidi', !!c);
     if (c) {
       skUkaz(c.n);
-      skPoz(c.x, c.feet - (c.bob ? Math.abs(Math.sin(c.t * Math.PI)) * c.vys * 0.012 : 0), c.vys);
+      var feet = c.feet - (c.bob ? Math.abs(Math.sin(c.t * Math.PI)) * c.vys * 0.012 : 0);
+      skPoz(c.x, feet, c.vys);
+      skeliChuze.style.setProperty('--orez', c.orez ? Math.max(0, (feet - c.orez) / c.vys * 100).toFixed(1) + '%' : '0%');
     }
   }
   function skeliKrok() {
