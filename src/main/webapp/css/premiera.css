@@ -377,7 +377,7 @@ html.low-fx .pmu-tvare img.on { filter: none; }
 .pm-pl-odpocet { font: 400 15cqw/1 'Bebas Neue', var(--font-body), sans-serif; letter-spacing: .03em; color: var(--accent);
   font-variant-numeric: tabular-nums; margin-top: .8cqw; text-shadow: 0 0 3cqw color-mix(in srgb, var(--accent) 55%, transparent); }
 .pm-pl-lidi, .pm-pl-tip { font: 400 2.8cqw/1 'Bebas Neue', var(--font-body), sans-serif; color: #ccc; margin-top: 1cqw; letter-spacing: .14em; }
-.pm-pl-tip { color: #999; font-size: 2.4cqw; }
+.pm-pl-tip { color: #d6d6d6; font-size: 2.8cqw; margin-top: 1.6cqw; }   /* ťuknutí na plátno pustí upoutávku – musí být vidět */
 .pm.is-soon .pm-pl-tip, .pm:not(.is-wait) .pm-pl-tip { display: none; }
 .pm-pl-short { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: contain; background: #000; }
 .pm-platno.hraje-short .pm-pl-text { opacity: 0; }
