@@ -1,5 +1,5 @@
 {
-  "_popis": "Kvíz na plátně kinosálu premiéry (service/PremiereQuiz). Otázky: ok = index správné odpovědi (0 = A, 1 = B, 2 = C); texty po jazycích (chybí-li jazyk, použije se cs). premiera = otázka jen pro danou premiéru (slug názvu písně), jinak obecná. Plány: pro každou premiéru seznam {id, pred = sekund před startem, kdy se otázka objeví}; 12 s hlasování + 14 s výsledek, poslední musí skončit nejpozději 2 min před startem (hlídá PremiereQuizTest). Obsah schválil Skeli 25. 11. 2026 (revize ChatGPT); fakta u ROADTRIP a Trosek zkrácená na ověřené. vazne = vážné téma (domácí násilí): Kevin nekomentuje; zdroj = odkaz, ze kterého je fakt ověřený. Plán musis-odejit = Skeliho výběr 25. 11. (17 otázek) + 5 o domácím násilí.",
+  "_popis": "Kvíz na plátně kinosálu premiéry (service/PremiereQuiz). Otázky: ok = index správné odpovědi (0 = A, 1 = B, 2 = C); texty po jazycích (chybí-li jazyk, použije se cs). premiera = otázka jen pro danou premiéru (slug názvu písně), jinak obecná. Plány: pro každou premiéru seznam {id, pred = sekund před startem, kdy se otázka objeví}; 12 s hlasování + 14 s výsledek, kvíz začíná 25 min předem (18:35) a poslední otázka musí skončit nejpozději 5 min před startem (hlídá PremiereQuizTest). Obsah schválil Skeli 25. 11. 2026 (revize ChatGPT); fakta u ROADTRIP a Trosek zkrácená na ověřené. vazne = vážné téma (domácí násilí): Kevin nekomentuje; zdroj = odkaz, ze kterého je fakt ověřený. Plán musis-odejit = Skeliho výběr 25. 11. (17 otázek) + 5 o domácím násilí.",
   "otazky": [
     { "id": "logo", "ok": 1, "cs": { "q": "Kolik smajlíků tvoří logo SKELO SQUAD?", "a": ["Pět", "Sedm", "Devět"], "fakt": "Každý ze sedmi smajlíků představuje jiný výraz a náladu." } },
     { "id": "kevin", "ok": 0, "cs": { "q": "Jak se jmenuje kočičí maskot Skeli.cz?", "a": ["Kevin", "Chester", "Felix"], "fakt": "Kevin je nejen maskotem webu, ale také soupeřem ve hře CatSmash." } },
@@ -70,18 +70,18 @@
   },
   "plany": {
     "musis-odejit": [
-      { "id": "logo", "pred": 1770 }, { "id": "kevin", "pred": 1694 }, { "id": "bronx", "pred": 1618 }, { "id": "flow", "pred": 1542 },
-      { "id": "rapvshiphop", "pred": 1466 }, { "id": "sampl", "pred": 1390 }, { "id": "50cent", "pred": 1314 }, { "id": "freestyle", "pred": 1238 },
-      { "id": "chaozz", "pred": 1162 }, { "id": "bar", "pred": 1086 }, { "id": "trosky", "pred": 1010 }, { "id": "beatbox", "pred": 934 },
-      { "id": "my3", "pred": 858 }, { "id": "texty15", "pred": 782 }, { "id": "prvnitrack", "pred": 706 }, { "id": "remake", "pred": 630 },
-      { "id": "dn-formy", "pred": 554 }, { "id": "dn-vykazani", "pred": 478 }, { "id": "dn-158", "pred": 402 }, { "id": "dn-116kdo", "pred": 326 },
-      { "id": "dn-116", "pred": 250 }, { "id": "klip", "pred": 174 }
+      { "id": "logo", "pred": 1500 }, { "id": "kevin", "pred": 1445 }, { "id": "bronx", "pred": 1390 }, { "id": "flow", "pred": 1335 },
+      { "id": "rapvshiphop", "pred": 1280 }, { "id": "sampl", "pred": 1225 }, { "id": "50cent", "pred": 1170 }, { "id": "freestyle", "pred": 1115 },
+      { "id": "chaozz", "pred": 1060 }, { "id": "bar", "pred": 1005 }, { "id": "trosky", "pred": 950 }, { "id": "beatbox", "pred": 895 },
+      { "id": "my3", "pred": 840 }, { "id": "texty15", "pred": 785 }, { "id": "prvnitrack", "pred": 730 }, { "id": "remake", "pred": 675 },
+      { "id": "dn-formy", "pred": 620 }, { "id": "dn-vykazani", "pred": 565 }, { "id": "dn-158", "pred": 510 }, { "id": "dn-116kdo", "pred": 455 },
+      { "id": "dn-116", "pred": 400 }, { "id": "klip", "pred": 345 }
     ],
     "vychozi": [
-      { "id": "logo", "pred": 1770 }, { "id": "kevin", "pred": 1680 }, { "id": "bronx", "pred": 1590 },
-      { "id": "mc", "pred": 1470 }, { "id": "freestyle", "pred": 1350 }, { "id": "cypher", "pred": 1230 }, { "id": "psh", "pred": 1110 }, { "id": "texty15", "pred": 990 },
-      { "id": "70leta", "pred": 840 }, { "id": "my3", "pred": 690 }, { "id": "bengoro", "pred": 540 }, { "id": "logic", "pred": 390 },
-      { "id": "audacity", "pred": 270 }, { "id": "catsmash", "pred": 216 }, { "id": "beatbox", "pred": 162 }
+      { "id": "logo", "pred": 1500 }, { "id": "kevin", "pred": 1417 }, { "id": "bronx", "pred": 1334 },
+      { "id": "mc", "pred": 1251 }, { "id": "freestyle", "pred": 1168 }, { "id": "cypher", "pred": 1085 }, { "id": "psh", "pred": 1002 }, { "id": "texty15", "pred": 919 },
+      { "id": "70leta", "pred": 836 }, { "id": "my3", "pred": 753 }, { "id": "bengoro", "pred": 670 }, { "id": "logic", "pred": 587 },
+      { "id": "audacity", "pred": 504 }, { "id": "catsmash", "pred": 421 }, { "id": "beatbox", "pred": 338 }
     ]
   }
 }

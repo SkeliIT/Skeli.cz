@@ -28,14 +28,14 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
  *       hlášku vybírá podle skutečné (nezaokrouhlené) úspěšnosti a během jedné premiéry ji neopakuje.</li>
  *   <li>Jednotlivé premiéry se nepletou: klíč = uuid písně + čas premiéry (simulace „sim@čas“).</li>
  * </ul>
- * Kvíz běží jen během 30 min odpočtu a poslední otázka skončí nejpozději 2 min před startem (hlídá PremiereQuizTest).
+ * Kvíz začíná 25 min před premiérou a poslední otázka skončí nejpozději 5 min před startem (hlídá PremiereQuizTest).
  * Po restartu serveru se rozpracované hlasy ztratí – přijatelné (jde o hru).
  */
 public final class PremiereQuiz {
     private PremiereQuiz() {}
 
     public static final long HLASOVANI_MS = 12_000, VYSLEDEK_MS = 14_000;
-    static final long KONEC_PRED_MS = 120_000;          // poslední 2 minuty patří premiéře
+    static final long KONEC_PRED_MS = 300_000;          // posledních 5 minut patří premiéře (Skeli 25. 11.)
     static final int MIN_HLASU_KEVIN = 5;
     private static final int MAX_NA_IP = 5;
 

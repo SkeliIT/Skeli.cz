@@ -80,6 +80,7 @@ class PremiereQuizTest {
         assertFalse(s.containsKey("fakt"));
         assertFalse(s.containsKey("pct"));
         assertNull(PremiereQuiz.stav("p1", "musis-odejit", at, at - 60_000, "cs", null), "poslední minuty bez kvízu");
+        assertNull(PremiereQuiz.stav("p1", "musis-odejit", at, at - 280_000, "cs", null), "posledních 5 minut bez kvízu");
     }
 
     @Test
