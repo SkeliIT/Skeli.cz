@@ -29,6 +29,7 @@ class PremiereLiveTest {
         long pred = PremiereLive.counts().get("f3");
         assertTrue(PremiereLive.react("f3"));
         assertEquals(pred + 1, PremiereLive.counts().get("f3"));
+        assertTrue(PremiereLive.react("joint"));
         assertFalse(PremiereLive.react("<script>"));
         assertFalse(PremiereLive.react(null));
         assertEquals(PremiereLive.REACTIONS.length, PremiereLive.counts().size());
