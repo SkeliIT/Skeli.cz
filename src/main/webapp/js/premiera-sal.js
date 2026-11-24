@@ -65,8 +65,24 @@
         st.poradi = (vidi ? 0 : 20) + [1.2, 0.6, 0.2, 0, 0.8, 3][st.r] + stred * 6 + Math.random() * 0.6;
       });
       sedadla.sort(function (a, b) { return a.poradi - b.poradi; });
-      var lide = meta.slice().sort(function () { return Math.random() - 0.5; });   // každý návštěvník vidí jiné rozesazení
-      sedadla.forEach(function (st, i) { st.m = lide[i % lide.length]; });
+      // kdo kde sedí (Skeli 25. 11.): menší postavy (nižší nad opěradlem vůči ramenům) dál od kamery, větší blíž; uvnitř řady
+      // náhodně (každý návštěvník vidí jiné rozesazení); Hitman (divák 23) jen jednou, uprostřed sálu; stejná postava ne vedle sebe
+      var vyska = function (m) { return m.top / (m.sr - m.sl); };
+      var hitman = meta.filter(function (m) { return /divak-23\./.test(m.f); })[0];
+      var lide = meta.filter(function (m) { return m !== hitman; }).sort(function (a, b) { return vyska(a) - vyska(b); });
+      var poradiMist = sedadla.slice().sort(function (a, b) { return a.r - b.r || Math.random() - 0.5; });   // od nejvzdálenější řady
+      poradiMist.forEach(function (st, i) { st.m = lide[Math.min(lide.length - 1, Math.floor(i * lide.length / poradiMist.length))]; });
+      var vedle = function (a, b) { return a.r === b.r && Math.abs((a.x0 + a.x1) - (b.x0 + b.x1)) / 2 < (a.x1 - a.x0) * 1.6; };
+      poradiMist.forEach(function (a) {                              // dvojník hned vedle → prohodit s někým jiným v téže řadě
+        var soused = poradiMist.filter(function (b) { return b !== a && b.m === a.m && vedle(a, b); })[0];
+        if (!soused) return;
+        var jiny = poradiMist.filter(function (b) { return b.r === a.r && b.m !== a.m && !poradiMist.some(function (c) { return c !== b && c.m === a.m && vedle(b, c); }); })[0];
+        if (jiny) { var t = jiny.m; jiny.m = a.m; a.m = t; }
+      });
+      if (hitman) {
+        var stred = poradiMist.filter(function (st) { return st.r >= 1 && st.r <= 3; });
+        (stred[Math.floor(Math.random() * stred.length)] || poradiMist[0]).m = hitman;
+      }
       // do stránky od zadních řad k předním (bližší silueta překryje vzdálenější)
       sedadla.slice().sort(function (a, b) { return a.r - b.r; }).forEach(function (st) {
         // silueta o 14 % užší než sedadlo, vycentrovaná; ramena (m.top) na horní hraně opěradla; celý obrázek ale nikdy
