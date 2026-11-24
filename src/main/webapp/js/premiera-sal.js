@@ -277,6 +277,7 @@
   }
   function vlna() {
     if (jeviste.classList.contains('klid') || klid || vyp.efekty) return;
+    if (cas().at - cas().now <= 15000) return;                     // posledních 15 s patří jízdě kamery a tmě
     hlaska(T.tWave);
     if (window.PmZvuky) window.PmZvuky.vlna();
     mista.slice(0, ukazano).forEach(function (m) { m.el.classList.remove('vlna'); void m.el.offsetWidth; m.el.classList.add('vlna'); });
@@ -554,6 +555,7 @@
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
     if (zbyva <= 60000) zavriShort();
+    if (zbyva > 0 && zbyva <= 20000) scena.classList.add('priprav');   // vrstvu kamery připravit předem, jinak jízda na slabší grafice skočí
     if (zbyva > 0 && zbyva <= 15000) { najed(); if (window.PmZvuky) window.PmZvuky.finale(zbyva); }
     if (zbyva > 0 && zbyva <= 8000) finale7(zbyva);
     if (zbyva <= 0 && !jeviste.classList.contains('hraje')) pust();
