@@ -12,7 +12,7 @@
 (function () {
   var C = window.AudioContext || window.webkitAudioContext;
   if (!C || !window.fetch) return;
-  var CESTA = '/sounds/premiera/', VERZE = '5';
+  var CESTA = '/sounds/premiera/', VERZE = '6';
   var ATMO = { 'atmo-hovor': 0, 'atmo-ticho': 0.22, 'atmo-dest': 0.16, 'atmo-hukot': 0.2 };   // hlasitost (hovor podle lidí)
   var OSTATNI = ['kviz-napeti', 'kviz-vir', 'kviz-uder', 'vlna', 'finale-stoupani', 'finale-projektor', 'finale-ton',
     'joint-1', 'joint-2', 'joint-3', 'joint-4', 'finale-uvod', 'finale-start'];   // joint = Skeliho nahrávka: cvaknutí zapalovače a nahulení (4 varianty)
@@ -34,11 +34,11 @@
     [856, 616, 'hudba-4', true],       // Delirium – Eugenio Mininni
     [616, 566, '', true],
     [566, 326, 'hudba-5', false],      // Fallen (Asper), druhá část – jen hudba
-    [326, 60, '', true],               // posledních 5 min bez hudby, jen sál…
-    [60, 0, '', false]                 // …minutu předem sál ztichne: hluboký dech (52–38 s), pozdrav od Skeliho (klavír 37 s, hlas 34–17 s),
-                                       // v 15 s start kamery a finále (Skeli 24. 11.: povídání těsně před posledními 15 s)
+    [326, 70, '', true],               // posledních 5 min bez hudby, jen sál…
+    [70, 0, '', false]                 // …70 s předem sál ztichne: hluboký dech (68–52 s), pozdrav od Skeliho (klavír 51 s, hlas 48–31 s,
+                                       // klavír po něm ~12 s dohraje frázi a sám se rozplyne do 17 s), 2 s ticho, v 15 s start kamery
   ];
-  var HOVOR_OD = 5, HUDBA_HL = 0.2, POZDRAV_OD = 34;     // pozdrav = hlas v 18:59:26, podkres 3 s předem, do startu kamery (15 s) se přelije
+  var HOVOR_OD = 5, HUDBA_HL = 0.2, POZDRAV_OD = 48;     // pozdrav = hlas v 18:59:12, podkres 3 s předem; po hlase klavír dohraje frázi (soubor 34 s, sám dozní)
   var predfinale = false, hovorSmi = false, hudba = null, kvizTise = false, posledniZ = 1e9, pozdravBezi = false;
 
   function vypnuto() { try { return localStorage.getItem('soundMuted') === '1'; } catch (e) { return false; } }
@@ -129,8 +129,7 @@
       if (p) {                                                     // pod hlasem (3 s → 19,6 s podkresu) ztišit
         var g = p.g.gain, a = t + Math.max(0.6, 3 - uz), b = t + Math.max(0.7, 19.6 - uz);
         g.setValueAtTime(PH, a - 0.4); g.linearRampToValueAtTime(POD, a + 0.3);
-        g.setValueAtTime(POD, b - 0.2); g.linearRampToValueAtTime(PH * 1.15, b + 0.8);   // po posledním slově hudba zase naplno…
-        ztlum(p, Math.max(0.2, posledniZ - 17.6), 2.6);              // …a do startu kamery (15 s) se přelije do ticha
+        g.setValueAtTime(POD, b - 0.2); g.linearRampToValueAtTime(PH * 1.15, b + 2.5);   // po posledním slově hudba zase naplno, fráze dohraje sama (dozní v souboru)
       }
       var hlasOd = Math.max(0, uz - 3);
       if (hlasOd < 16) {
@@ -232,10 +231,10 @@
       if (seg && i + 1 < PLAN.length && PLAN[i + 1][2] && z - PLAN[i + 1][0] < 40) nacti(PLAN[i + 1][2]).catch(function () {});   // další skladbu dopředu
       if (!pozdravBezi && z <= POZDRAV_OD + 3 && z > POZDRAV_OD - 15) pozdrav();
       // 30 s předem: „už se něco děje“ – hluboký dech dechů graduje a v 15 s předá startu kamery
-      if (!predfinale && z <= 52 && z > 38.5 && buf['finale-uvod']) {   // minutu předem: hluboký dech graduje a předá klavíru pozdravu
+      if (!predfinale && z <= 68 && z > 52.5 && buf['finale-uvod']) {   // 70 s předem: hluboký dech graduje a předá klavíru pozdravu
         predfinale = true;
-        var u = hraj('finale-uvod', 0.34, { od: Math.max(0, 52 - z), nabeh: 2 });
-        if (u) ztlum(u, Math.max(0, z - 38.2), 1.6);
+        var u = hraj('finale-uvod', 0.34, { od: Math.max(0, 68 - z), nabeh: 2 });
+        if (u) ztlum(u, Math.max(0, z - 52.3), 1.6);
       }
     },
     lidi: function (n) {

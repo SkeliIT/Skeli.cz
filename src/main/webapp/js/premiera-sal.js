@@ -223,7 +223,7 @@
 
   // ---------- PROGRAM VEČERA (časy podle začátku premiéry, pražský čas) ----------
   (function () {
-    var ol = $('pmProgram'), at = cas().at, casy = [at - 30 * 60000, at - 25 * 60000, at - 34000, at, at + 4 * 60000];   // 18:59:26 pozdrav (js/premiera-zvuky.js)
+    var ol = $('pmProgram'), at = cas().at, casy = [at - 30 * 60000, at - 25 * 60000, at - 48000, at, at + 4 * 60000];   // 18:59:12 pozdrav (js/premiera-zvuky.js)
     var f = window.Intl ? new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' }) : null;
     String(T.tProg || '').split('|').forEach(function (t, i) {
       var li = document.createElement('li'), b = document.createElement('b'), sp = document.createElement('span');
@@ -600,7 +600,7 @@
       if (!kviz) { if (okno) kvizCekani(); else { kvizBar.hidden = true; kvizBar.textContent = ''; kvizBar.style.minHeight = ''; kvizVyska = 0; } }
     }
     if (kvizOkno && !kviz) kvizCekaniText();                 // hudba odpočtu, hovor podle lidí, pozdrav v 18:56
-    if (!pozdravVidet && zbyva <= 34000 && zbyva > 20000) { pozdravVidet = true; hlaska('🎙️ ' + (String(T.tProg || '').split('|')[2] || '')); }   // posledních 5 s barvy do černobílé   // vrstvu kamery připravit předem, jinak jízda na slabší grafice skočí
+    if (!pozdravVidet && zbyva <= 48000 && zbyva > 34000) { pozdravVidet = true; hlaska('🎙️ ' + (String(T.tProg || '').split('|')[2] || '')); }   // posledních 5 s barvy do černobílé   // vrstvu kamery připravit předem, jinak jízda na slabší grafice skočí
     if (zbyva > 0 && zbyva <= 15000) { najed(); if (window.PmZvuky) window.PmZvuky.finale(zbyva); }
     if (zbyva > 0 && zbyva <= 12000) finale7(zbyva);
     if (zbyva <= 0 && !jeviste.classList.contains('hraje')) pust();
