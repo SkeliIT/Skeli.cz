@@ -55,6 +55,8 @@
     Promise.all([fetch('/img/premiera/kino/divaci.json?v=3').then(j), fetch('/img/premiera/kino/sedadla.json?v=1').then(j),
       fetch('/img/premiera/kino/ruce.json?v=2').then(j).catch(function () { return {}; })]).then(function (r) {
       var meta = r[0], sedadla = r[1], RUCE = r[2] || {};
+      var skeliMisto = sedadla[SKELI_SEDADLO];                        // Skeliho pevné místo – nikdo jiný tam nesedne
+      sedadla = sedadla.filter(function (st) { return st !== skeliMisto; });
       // pořadí obsazování: nejdřív k prostřední uličce, kterou vidí i telefon na výšku (výřez ±380 px kolem uličky
       // na x = 836) – jinak by si první návštěvník sedl na kraj mimo obraz a vypadalo by to, že se nic nestalo;
       // pak dál od uličky, přední řada až nakonec
@@ -105,6 +107,7 @@
         st.el = d;
       });
       mista = sedadla;
+      postavSkeli(skeliMisto);
       usad(lidi);
     }).catch(function () { postaveno = false; });
   }
@@ -126,7 +129,7 @@
     if (ukazano < cil) { mista[ukazano].el.classList.add('sedi'); ukazano++; }
     if (ukazano < cil) casovac = setTimeout(dalsiDivak, 500 + Math.random() * 900);
   }
-  var zkouskaLidi = 0;                                           // jen zkouška (panel na konci souboru)
+  var zkouskaLidi = 0, zkouskaSkeli = false;                                           // jen zkouška (panel na konci souboru)
   function ukazLidi(n) {
     lidi = n;
     var t = T.tLidi.replace('{n}', cislo ? cislo.format(n) : n);
@@ -291,12 +294,102 @@
       if (za > -1500) setTimeout(vlna, Math.max(0, za));
     }
   }
+  // ---------- SKELI V SÁLE (Skeli 25. 11.): avatar na pevném místě (3. řada od plátna u uličky vpravo), když je Skeli
+  // přihlášený v sále (server: d.skeli). V 18:58:58 vstane, uličkou dojde k plátnu, otočí se a s mikrofonem odříká pozdrav
+  // (zvuk js/premiera-zvuky.js, hlas 48–31,4 s předem), pak zhasne reflektor, rozplyne se a sedí zpátky na svém místě.
+  // Když v sále není, objeví se rovnou u plátna. Snímky img/premiera/kino/skeli/ (navrhy/premiera/kino/skeli.py).
+  var SKELI_SEDADLO = 27, SK = { w: 512, h: 768, top: 519, sl: 50, sr: 462 };
+  var skeliEl = null, skeliChuze = null, skeliSvetlo = null, skeliSt = null, skeliVSale = false, skeliBylTu = null, skeliRaf = 0, skeliSnimek = '';
+  var SK_CESTA = '/img/premiera/kino/skeli/', SK_V = '?v=1';
+  var SK_CHUZE = ['bok', 'chuze-1', 'chuze-2', 'chuze-3', 'chuze-4', 'otocka', 'mikrofon', 'mluvi', 'mluvi2', 'srdce', 'gesto'];
+  function postavSkeli(st) {
+    if (!st) return;
+    skeliSt = st;
+    var k = (st.x1 - st.x0) / (SK.sr - SK.sl), left = st.x0 - SK.sl * k, top = st.top - SK.top * k, w = SK.w * k, h = SK.h * k;
+    var horni = Math.min.apply(null, st.c.map(function (p) { return p[1]; }));
+    var Y = function (y) { return ((y - top) / h * 100).toFixed(2) + '%'; }, X = function (x) { return ((x - left) / w * 100).toFixed(2) + '%'; };
+    var poly = ['0% 0%', '100% 0%', '100% ' + Y(horni)].concat(st.c.slice().reverse().map(function (p) { return X(p[0]) + ' ' + Y(p[1]); }), ['0% ' + Y(horni)]);
+    var d = document.createElement('div');
+    d.className = 'pm-divak ma-ruce pm-skeli';
+    d.style.cssText = 'left:' + (left / W * 100) + '%;top:' + (top / H * 100) + '%;width:' + (w / W * 100) + '%;height:' + (h / H * 100) + '%;clip-path:polygon(' + poly.join(',') + ')';
+    d.style.setProperty('--zpozdeni', (((st.x0 + st.x1) / 2) / W * 1.2 + st.r * 0.03).toFixed(2) + 's');
+    [['sedi', 'zaklad'], ['ruce', 'ruce'], ['vstava', 'vstava'], ['stoji', 'stoji']].forEach(function (x) {
+      var im = document.createElement('img'); im.className = x[1]; im.src = SK_CESTA + x[0] + '.webp' + SK_V; im.alt = ''; im.decoding = 'async'; d.appendChild(im);
+    });
+    var pred = null;                                               // bližší řady se kreslí přes vzdálenější
+    mista.forEach(function (m) { if (!pred && m.r > st.r && m.el) pred = m.el; });
+    divaci.insertBefore(d, pred);
+    skeliEl = d;
+    skeliSvetlo = document.createElement('div'); skeliSvetlo.className = 'pm-skeli-svetlo';
+    skeliChuze = document.createElement('div'); skeliChuze.className = 'pm-skeli-chuze';
+    SK_CHUZE.forEach(function (n) {
+      var im = document.createElement('img'); im.dataset.n = n; im.src = SK_CESTA + n + '.webp' + SK_V; im.alt = ''; im.decoding = 'async';
+      if (/^(otocka|mikrofon|mluvi|mluvi2|srdce|gesto)$/.test(n)) im.className = 'pomalu';
+      skeliChuze.appendChild(im);
+    });
+    divaci.parentNode.insertBefore(skeliSvetlo, divaci.nextSibling);
+    divaci.parentNode.insertBefore(skeliChuze, skeliSvetlo.nextSibling);
+    skeliScena((cas().at - cas().now) / 1000);
+  }
+  // cesta: od sedadla bokem do uličky (x 836), uličkou k plátnu; výška postavy a chodidla podle hloubky (řada sedadla)
+  var SK_ULICKA = 836, SK_PODIUM = { feet: 585, vys: 180 };
+  function skMisto() { var sw = skeliSt.x1 - skeliSt.x0; return { x: (skeliSt.x0 + skeliSt.x1) / 2, feet: skeliSt.top + sw * 0.95, vys: sw * 2.04 }; }
+  function skUkaz(n) {
+    if (skeliSnimek === n) return; skeliSnimek = n;
+    [].forEach.call(skeliChuze.children, function (im) { im.classList.toggle('on', im.dataset.n === n); });
+  }
+  function skPoz(x, feet, vys) {
+    skeliChuze.style.left = (x / W * 100) + '%'; skeliChuze.style.top = ((feet - vys) / H * 100) + '%'; skeliChuze.style.height = (vys / H * 100) + '%';
+  }
+  function skeliScena(z) {
+    if (!skeliEl) return;
+    var vSekvenci = z <= 62.5 && z > 27;
+    if (z > 62.5 || z <= 0) skeliBylTu = null;
+    if (vSekvenci && skeliBylTu === null) skeliBylTu = skeliVSale;   // byl v sále, když to začalo? (jinak rovnou u plátna)
+    var tu = vSekvenci ? skeliBylTu : skeliVSale;
+    // sedadlo: sedí / vstává / stojí / pryč
+    skeliEl.classList.toggle('sedi', tu && (!vSekvenci || z > 60.3));
+    skeliEl.classList.toggle('vstava', vSekvenci && z <= 62.3 && z > 61);
+    skeliEl.classList.toggle('stoji', vSekvenci && z <= 61 && z > 60.3);
+    // chůze a pódium
+    var c = null;
+    if (vSekvenci && tu && z <= 60.3 && z > 58.6) {                // krok bokem do uličky
+      var m = skMisto(), p = (60.3 - z) / 1.7;
+      c = { n: 'bok', x: m.x + (SK_ULICKA - m.x) * p, feet: m.feet, vys: m.vys, bob: true, t: p * 3 };
+    } else if (vSekvenci && tu && z <= 58.6 && z > 51.6) {          // uličkou k plátnu, zezadu
+      var m2 = skMisto(), q = (58.6 - z) / 7, krok = Math.floor((58.6 - z) / 0.3) % 4;
+      c = { n: 'chuze-' + (krok + 1), x: SK_ULICKA, feet: m2.feet + (SK_PODIUM.feet - m2.feet) * q, vys: m2.vys + (SK_PODIUM.vys - m2.vys) * q, bob: true, t: (58.6 - z) / 0.6 };
+    } else if (vSekvenci && z <= 51.6 && z > 29.6) {                // u plátna: otočka, mikrofon, proslov
+      var n = z > 50.6 ? 'otocka' : z > 48.6 ? 'mikrofon' : z > 40 ? (Math.floor((48.6 - z) / 2.4) % 2 ? 'mluvi2' : 'mluvi')
+        : z > 37 ? 'srdce' : z > 34.3 ? 'mluvi' : z > 32 ? 'gesto' : z > 31.2 ? 'mluvi' : 'mikrofon';
+      c = { n: n, x: SK_ULICKA, feet: SK_PODIUM.feet, vys: SK_PODIUM.vys };
+    }
+    skeliSvetlo.classList.toggle('on', vSekvenci && z <= 51.8 && z > 29.6);
+    skeliChuze.classList.toggle('vidi', !!c);
+    if (c) {
+      skUkaz(c.n);
+      skPoz(c.x, c.feet - (c.bob ? Math.abs(Math.sin(c.t * Math.PI)) * c.vys * 0.012 : 0), c.vys);
+    }
+  }
+  function skeliKrok() {
+    skeliRaf = 0;
+    var z = (cas().at - cas().now) / 1000;
+    skeliScena(z);
+    if (z > 27 && z < 63 && !document.hidden) skeliRaf = requestAnimationFrame(skeliKrok);   // plynulá chůze jen během proslovu
+  }
+  function skeliTik(zbyva) {
+    var z = zbyva / 1000;
+    if (z > 27 && z < 63) { if (!skeliRaf) skeliRaf = requestAnimationFrame(skeliKrok); }
+    else skeliScena(z);
+  }
+
   function vlna() {
     if (jeviste.classList.contains('klid') || klid || vyp.efekty) return;
     if (cas().at - cas().now <= 15000) return;                     // posledních 15 s patří jízdě kamery a tmě
     hlaska(T.tWave);
     if (window.PmZvuky) window.PmZvuky.vlna();
     mista.slice(0, ukazano).forEach(function (m) { m.el.classList.remove('vlna'); void m.el.offsetWidth; m.el.classList.add('vlna'); });
+    if (skeliEl && skeliEl.classList.contains('sedi')) { skeliEl.classList.remove('vlna'); void skeliEl.offsetWidth; skeliEl.classList.add('vlna'); }
   }
 
   // ---------- chat ----------
@@ -396,7 +489,8 @@
     vyp = d.vyp || {};
     sal.classList.toggle('bez-reakci', !!vyp.reakce);
     sal.classList.toggle('bez-chatu', !!vyp.chat);
-    if (typeof d.lidi === 'number') ukazLidi(zkouskaLidi || d.lidi);   // při zkoušce počet z panelu (konec souboru)
+    if (typeof d.lidi === 'number') ukazLidi(zkouskaLidi || d.lidi);
+    skeliVSale = !!d.skeli || zkouskaSkeli;                             // Skeli (účet umělce) je v sále   // při zkoušce počet z panelu (konec souboru)
     if (d.reakce) ciziReakce(d.reakce);
     vlnaStav(d);
     naladaStav(d.nalady);
@@ -596,6 +690,7 @@
     var sede = zbyva <= 9000 && zbyva > -360000;
     if (sede !== pmSede) { pmSede = sede; document.body.classList.toggle('pm-sede', sede); }
     if (window.PmZvuky) window.PmZvuky.tik(zbyva);
+    skeliTik(zbyva);
     var okno = zbyva <= 1560000 && zbyva > 300000 && !vyp.kviz;   // rezervované místo pro kvíz pod sálem
     if (okno !== kvizOkno) {
       kvizOkno = okno; sal.classList.toggle('kviz-okno', okno);
@@ -733,9 +828,12 @@
   if (song === 'sim') (function () {
     var p = document.createElement('div'); p.className = 'pm-zkouska';
     p.innerHTML = '<b>🧪 Zkouška</b><label>Lidí v sále: <output>–</output><input type="range" min="1" max="45" value="1"></label>'
-      + '<button type="button" data-a="vlna">🌊 Vlna teď</button><label><input type="checkbox"> Publikum posílá smajlíky</label>';
+      + '<button type="button" data-a="vlna">🌊 Vlna teď</button><label><input type="checkbox"> Publikum posílá smajlíky</label>'
+      + '<label><input type="checkbox" data-a="skeli" checked> Skeli je v sále</label>';
+    zkouskaSkeli = true;
     document.body.appendChild(p);
     var r = p.querySelector('input[type=range]'), o = p.querySelector('output'), ch = p.querySelector('input[type=checkbox]');
+    p.querySelector('[data-a=skeli]').addEventListener('change', function (e) { zkouskaSkeli = e.target.checked; skeliVSale = zkouskaSkeli; });
     r.addEventListener('input', function () { zkouskaLidi = +r.value; o.textContent = r.value; ukazLidi(zkouskaLidi); });
     p.querySelector('[data-a=vlna]').addEventListener('click', vlna);
     setInterval(function () {

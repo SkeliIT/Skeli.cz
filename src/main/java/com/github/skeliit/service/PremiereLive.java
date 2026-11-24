@@ -41,6 +41,11 @@ public final class PremiereLive {
         }
     }
 
+    // Skeli (účet umělce) v sále: jeho avatar sedí na svém pevném místě (js/premiera-sal.js) – jen čas, žádný klíč ani účet
+    private static volatile long skeliDo = 0;
+    public static void skeliSeen(long now) { skeliDo = now + PRESENT_MS; }
+    public static boolean skeliVSale(long now) { return now < skeliDo; }
+
     /** Kolik lidí je teď v sále (ozvali se za posledních 20 s). */
     public static int people() {
         long now = System.currentTimeMillis();

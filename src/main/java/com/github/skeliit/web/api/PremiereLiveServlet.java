@@ -111,6 +111,8 @@ public class PremiereLiveServlet extends HttpServlet {
             ja.put("overen", viewer.userId() != null && EmailVerification.isVerified(s));
             ja.put("skeli", viewer.artist() || viewer.admin());
             out.put("ja", ja);
+            if (viewer.artist() && k != null) PremiereLive.skeliSeen(now);   // Skeli sám je v sále → jeho avatar si sedne
+            out.put("skeli", PremiereLive.skeliVSale(now));
             write(resp, 200, out);
         } catch (SQLException e) {
             write(resp, 503, Map.of("error", "busy"));
