@@ -466,13 +466,13 @@ a.pm-prihlas { justify-content: center; align-items: center; min-height: 64px; c
 .pm-pripnuto { margin: 8px 12px 0; padding: 8px 10px; border-radius: 10px; font-size: .88rem; overflow-wrap: anywhere;
   background: color-mix(in srgb, #ffd23f 12%, transparent); border: 1px solid color-mix(in srgb, #ffd23f 40%, transparent); }
 .pm-sal.bez-chatu .pm-psani, .pm-sal.bez-chatu .pm-zpravy { display: none; }
-.pm-zpravy { overflow-y: auto; overscroll-behavior: contain; padding: 8px 12px 14px; display: grid; gap: 10px; align-content: start; }
+.pm-zpravy { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 8px 12px 14px; display: grid; gap: 10px; align-content: start; }
 .pm-zp { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 0 8px; font-size: .92rem; animation: pm-zp-nova .35s ease-out; }
 @keyframes pm-zp-nova { from { opacity: 0; transform: translateY(-6px); } }
 .pm-zp-foto { width: 28px; height: 28px; border-radius: 50%; background: var(--panel-border); object-fit: cover; }
 .pm-zp-t { min-width: 0; }
 .pm-zp-t b { font-weight: 600; margin-right: 6px; }
-.pm-zp-t time { color: var(--text-dim); font-size: var(--fs-small); }
+.pm-zp-t time { color: var(--text-dim); font-size: var(--fs-small); white-space: nowrap; }
 .pm-zp-t p { margin: 2px 0 0; overflow-wrap: anywhere; white-space: pre-wrap; }
 .pm-zp.skeli b::after { content: "★ SKELI"; font-size: var(--fs-small); color: #141414; background: #ffd23f; padding: 0 5px; border-radius: 4px; margin-left: 6px; }
 main.pm .pm-zp-vic { width: 40px; height: 40px; margin: -8px -8px 0 0; border: 0; background: none; color: var(--text-dim); font-size: 20px; cursor: pointer; border-radius: 50%; }
