@@ -72,7 +72,7 @@ class PremiereQuizTest {
     @Test
     void behemHlasovaniSeSpravnaOdpovedNeprozradi() {
         long at = 10_000_000L;
-        var plan = PremiereQuiz.plan("musis-odejit");
+        var plan = PremiereQuiz.plan("musis-odejit", "p1");
         long start = at - plan.get(0).pred() * 1000L;
         Map<String, Object> s = PremiereQuiz.stav("p1", "musis-odejit", at, start + 1000, "cs", "klicprohlizece1");
         assertEquals("otazka", s.get("faze"));
@@ -85,7 +85,7 @@ class PremiereQuizTest {
     @Test
     void hlasovaniJednouAJenVcas() {
         long at = 10_000_000L;
-        var plan = PremiereQuiz.plan("musis-odejit");
+        var plan = PremiereQuiz.plan("musis-odejit", "p2");
         long start = at - plan.get(0).pred() * 1000L;
         assertEquals(0, PremiereQuiz.hlasuj("p2", "musis-odejit", at, start + 500, 0, 1, "klicprohlizece1", "1.1.1.1"));
         assertEquals(409, PremiereQuiz.hlasuj("p2", "musis-odejit", at, start + 600, 0, 2, "klicprohlizece1", "1.1.1.1"), "dvakrát");
@@ -105,11 +105,14 @@ class PremiereQuizTest {
     @Test
     void kevinPodleSkutecneUspesnosti() {
         long at = 10_000_000L;
-        var plan = PremiereQuiz.plan("musis-odejit");
-        long start = at - plan.get(1).pred() * 1000L;             // 2. otázka: Kevin komentuje
-        int ok = PremiereQuiz.obsah().otazky().get(plan.get(1).id()).ok();
+        var plan = PremiereQuiz.plan("musis-odejit", "p4");
+        int i = -1;                                               // první otázka, kterou Kevin komentuje (2., 4., 7., …) a není vážná
+        for (int n = 0; n < plan.size() && i < 0; n++)
+            if ((n % 5 == 1 || n % 5 == 3) && !PremiereQuiz.obsah().otazky().get(plan.get(n).id()).vazne()) i = n;
+        long start = at - plan.get(i).pred() * 1000L;
+        int ok = PremiereQuiz.obsah().otazky().get(plan.get(i).id()).ok();
         for (int n = 0; n < 6; n++)
-            assertEquals(0, PremiereQuiz.hlasuj("p4", "musis-odejit", at, start + 100, 1, n < 5 ? ok : (ok + 1) % 3, "klicprohlizece" + n, "2.2.2." + n));
+            assertEquals(0, PremiereQuiz.hlasuj("p4", "musis-odejit", at, start + 100, i, n < 5 ? ok : (ok + 1) % 3, "klicprohlizece" + n, "2.2.2." + n));
         Map<String, Object> v = PremiereQuiz.stav("p4", "musis-odejit", at, start + 12_500, "cs", null);
         assertEquals(6, v.get("hlasu"));
         String k = (String) v.get("kevin");
@@ -121,7 +124,7 @@ class PremiereQuizTest {
     @Test
     void uVazneOtazkyKevinMlci() {
         long at = 10_000_000L;
-        var plan = PremiereQuiz.plan("musis-odejit");
+        var plan = PremiereQuiz.plan("musis-odejit", "p5");
         int i = -1;
         for (int n = 0; n < plan.size(); n++) if (PremiereQuiz.obsah().otazky().get(plan.get(n).id()).vazne()) { i = n; break; }
         assertTrue(i >= 0, "plán má otázky o domácím násilí");
@@ -131,6 +134,16 @@ class PremiereQuizTest {
         Map<String, Object> v = PremiereQuiz.stav("p5", "musis-odejit", at, start + 12_500, "cs", null);
         assertEquals(5, v.get("hlasu"));
         assertNull(v.get("kevin"), "100 % a 5 hlasů, ale vážné téma → Kevin mlčí");
+    }
+
+    @Test
+    void poradiNahodneAleProVsechnyStejne() {
+        var a = PremiereQuiz.plan("musis-odejit", "uuid@1");
+        assertEquals(a, PremiereQuiz.plan("musis-odejit", "uuid@1"), "stejná premiéra = stejné pořadí pro všechny");
+        assertNotEquals(a, PremiereQuiz.plan("musis-odejit", "uuid@2"), "jiná premiéra = jiné pořadí");
+        assertEquals(new HashSet<>(PremiereQuiz.plan("musis-odejit").stream().map(PremiereQuiz.Bod::id).toList()),
+                new HashSet<>(a.stream().map(PremiereQuiz.Bod::id).toList()), "stejné otázky, žádná navíc ani dvakrát");
+        for (int i = 0; i < a.size(); i++) assertEquals(PremiereQuiz.plan("musis-odejit").get(i).pred(), a.get(i).pred(), "časy zůstávají");
     }
 
     @Test

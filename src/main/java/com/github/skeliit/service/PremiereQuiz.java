@@ -91,11 +91,26 @@ public final class PremiereQuiz {
         }
     }
 
-    /** Plán pro premiéru podle slugu názvu písně („musis-odejit“), jinak výchozí. */
+    /** Plán pro premiéru podle slugu názvu písně („musis-odejit“), jinak výchozí – v pořadí, jak je v kviz.json. */
     static List<Bod> plan(String slug) {
         Obsah o = obsah();
         List<Bod> p = slug == null ? null : o.plany().get(slug);
         return p != null ? p : o.plany().get("vychozi");
+    }
+
+    /**
+     * Plán konkrétní premiéry: otázky úplně náhodně na přeskáčku (Skeli 25. 11.: „žádná pravidla ani témata“), časy
+     * zůstávají. Zamíchá se podle klíče premiéry, takže všichni diváci (i po obnovení stránky) mají stejné pořadí
+     * a žádná otázka se neopakuje; jiná premiéra = jiné pořadí.
+     */
+    static List<Bod> plan(String slug, String premiera) {
+        List<Bod> zaklad = plan(slug);
+        List<String> ids = new ArrayList<>();
+        for (Bod b : zaklad) ids.add(b.id());
+        java.util.Collections.shuffle(ids, new java.util.Random(premiera.hashCode()));
+        List<Bod> out = new ArrayList<>();
+        for (int i = 0; i < zaklad.size(); i++) out.add(new Bod(ids.get(i), zaklad.get(i).pred()));
+        return out;
     }
 
     // ---------- stav (jen v paměti) ----------
@@ -123,7 +138,7 @@ public final class PremiereQuiz {
      * tehdy). Během hlasování NIKDY neobsahuje správnou odpověď ani zajímavost.
      */
     public static Map<String, Object> stav(String premiera, String slug, long at, long now, String jazyk, String klic) {
-        List<Bod> plan = plan(slug);
+        List<Bod> plan = plan(slug, premiera);
         Map<String, Object> out = new LinkedHashMap<>();
         Long dalsi = null;
         for (Bod b : plan) {
@@ -220,7 +235,7 @@ public final class PremiereQuiz {
     /** Hlas: 0 = přijat; 409 = mimo hlasování / už hlasoval; 400 = špatná odpověď; 429 = moc hlasů z jedné adresy. */
     public static int hlasuj(String premiera, String slug, long at, long now, int index, int odpoved, String klic, String ip) {
         if (odpoved < 0 || odpoved > 2) return 400;
-        List<Bod> plan = plan(slug);
+        List<Bod> plan = plan(slug, premiera);
         int i = aktualni(plan, at, now);
         if (i < 0 || i != index) return 409;
         long start = at - plan.get(i).pred() * 1000L;
