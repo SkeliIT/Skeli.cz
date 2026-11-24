@@ -436,7 +436,9 @@ main.pm .pm-celo { position: absolute; z-index: 7; top: 10px; left: 10px; width:
 main.pm .pm-celo:hover, main.pm .pm-celo:focus-visible { opacity: 1; }
 /* na celé obrazovce jen sál (a klip), scéna vycentrovaná a co největší */
 .pm-jeviste:fullscreen, .pm-jeviste.na-celou { aspect-ratio: auto; width: 100vw; height: 100vh; height: 100dvh; background: #000; }
-.pm-jeviste.na-celou { position: fixed; inset: 0; z-index: 1000; }
+.pm-jeviste.na-celou { position: fixed; inset: 0; z-index: 2147483000; }   /* nad menu webu i lištou souhlasu */
+html:has(.pm-jeviste.na-celou) { overflow: hidden; }                  /* stránka pod sálem se neposouvá */
+main.pm:has(.pm-jeviste.na-celou) { z-index: 2147483000; }          /* main má vlastní vrstvu (isolation) – nad menu musí celý */
 .pm-jeviste:fullscreen .pm-scena, .pm-jeviste.na-celou .pm-scena { width: min(100vw, 177.7vh); height: auto; top: 50%; translate: -50% -50%; }
 
 /* lišta smajlíků pod jevištěm */

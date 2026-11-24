@@ -485,7 +485,14 @@
     if (document.fullscreenElement || document.webkitFullscreenElement) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
     if (jeviste.classList.contains('na-celou')) { jeviste.classList.remove('na-celou'); return; }
     var go = jeviste.requestFullscreen || jeviste.webkitRequestFullscreen;
-    if (go) { go.call(jeviste); return; }
-    jeviste.classList.add('na-celou');                             // nouzově: sál přes celé okno prohlížeče
+    var nouze = function () { jeviste.classList.add('na-celou'); };   // nouzově: sál přes celé okno prohlížeče
+    if (go) {
+      try {                                                        // prohlížeč může celou obrazovku odmítnout → nouzově přes okno
+        var p = go.call(jeviste);
+        if (p && p.catch) p.catch(nouze);
+      } catch (e) { nouze(); }
+      return;
+    }
+    nouze();
   });
 })();
