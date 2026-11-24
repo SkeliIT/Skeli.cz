@@ -46,6 +46,18 @@ class PremiereLiveTest {
     }
 
     @Test
+    void naladomerJednaNaladaNaProhlizec() {
+        assertTrue(PremiereLive.nalada("naladaprohlizec01", "f3"));
+        assertTrue(PremiereLive.nalada("naladaprohlizec01", "f7"));          // změna nálady, ne druhý hlas
+        assertFalse(PremiereLive.nalada("naladaprohlizec01", "f9"));
+        assertFalse(PremiereLive.nalada("naladaprohlizec01", "<b>"));
+        var n = PremiereLive.nalady("naladaprohlizec01");
+        assertEquals("f7", n.get("moje"));
+        assertTrue((Integer) n.get("f7") >= 1);
+        assertEquals(8, n.size(), "7 obličejů + moje");
+    }
+
+    @Test
     void vlnaPriOsmiPotleskachProVsechnyNaraz() {
         long t = 5_000_000_000L;                                  // vlastní hodiny, ať se test nepotká s jinými
         for (int i = 0; i < PremiereLive.VLNA_PRAH - 1; i++) PremiereLive.tleskni(t + i * 100);

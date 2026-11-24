@@ -88,7 +88,10 @@
              data-t-moods="<%= WebUtils.escapeHtml(t.getProperty("pm.moods")) %>"
              data-t-react-emoji="<%= WebUtils.escapeHtml(t.getProperty("pm.reactEmoji")) %>"
              data-t-wave-count="<%= WebUtils.escapeHtml(t.getProperty("pm.waveCount")) %>"
-             data-t-wave="<%= WebUtils.escapeHtml(t.getProperty("pm.wave")) %>">
+             data-t-wave="<%= WebUtils.escapeHtml(t.getProperty("pm.wave")) %>"
+             data-t-prog="<%= WebUtils.escapeHtml(t.getProperty("pm.prog")) %>"
+             data-t-mood-text="<%= WebUtils.escapeHtml(t.getProperty("pm.moodText")) %>"
+             data-t-mood-none="<%= WebUtils.escapeHtml(t.getProperty("pm.moodNone")) %>">
       <div class="pm-sal-roz">
         <div class="pm-sal-hl">
           <div class="pm-jeviste" id="pmJeviste">
@@ -147,6 +150,13 @@
           <div class="pm-pripnuto" id="pmPripnuto" hidden></div>
           <div class="pm-zpravy" id="pmZpravy"></div>
         </div></aside>
+      </div>
+      <%-- pod sálem: program večera (časy podle začátku premiéry, js) a náladoměr (jen během 30 min odpočtu) --%>
+      <div class="pm-pod">
+        <div class="pm-karta pm-program"><h3><%= WebUtils.escapeHtml(t.getProperty("pm.progTitle")) %></h3>
+          <ol class="pm-prog" id="pmProgram" data-nazev="<%= pmName %>"></ol></div>
+        <div class="pm-karta pm-nalada" id="pmNalada" hidden><h3><%= WebUtils.escapeHtml(t.getProperty("pm.moodTitle")) %></h3>
+          <p class="pm-nal-text" id="pmNalText"></p><div class="pm-nalady" id="pmNalady"></div></div>
       </div>
     </section>
 

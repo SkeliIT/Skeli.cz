@@ -89,6 +89,27 @@ public final class PremiereLive {
     /** Čas začátku poslední vlny (0 = žádná). */
     public static long vlnaAt() { return vlnaAt; }
 
+    // ---------- NÁLADOMĚR: každý prohlížeč má jednu náladu (f1–f7), jde ji změnit; jen během odpočtu (hlídá servlet) ----------
+    // Klíč je náhodný řetězec z prohlížeče (ne účet); po restartu serveru se zapomene.
+    private static final Map<String, String> NALADY = new ConcurrentHashMap<>();
+
+    /** Nastaví náladu prohlížeče; false = neznámý obličej. */
+    public static boolean nalada(String klic, String f) {
+        if (f == null || !f.matches("f[1-7]")) return false;
+        if (NALADY.size() < MAX_PEOPLE || NALADY.containsKey(klic)) NALADY.put(klic, f);
+        return true;
+    }
+
+    /** Počty nálad celého sálu (f1–f7, i nuly) a nálada tohoto prohlížeče pod klíčem „moje“. */
+    public static Map<String, Object> nalady(String klic) {
+        Map<String, Object> out = new LinkedHashMap<>();
+        int[] n = new int[7];
+        for (String f : NALADY.values()) n[f.charAt(1) - '1']++;
+        for (int i = 0; i < 7; i++) out.put("f" + (i + 1), n[i]);
+        if (klic != null && NALADY.containsKey(klic)) out.put("moje", NALADY.get(klic));
+        return out;
+    }
+
     // ---------- nouzové vypínače ----------
     public static final String[] SWITCHES = {"chat", "reakce", "efekty", "kviz"};
     private static volatile Map<String, Boolean> offCache = Map.of();

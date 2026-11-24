@@ -91,6 +91,7 @@ public class PremiereLiveServlet extends HttpServlet {
             if (odpocet(room, now)) {                                    // mexická vlna jen během 30 min odpočtu
                 out.put("tlesk", PremiereLive.tleskPocet(now));
                 if (PremiereLive.vlnaAt() > now - 10_000) out.put("vlna", PremiereLive.vlnaAt());
+                out.put("nalady", PremiereLive.nalady(k));
             }
 
             HttpSession s = req.getSession(false);
@@ -133,6 +134,15 @@ public class PremiereLiveServlet extends HttpServlet {
                 int r = PremiereQuiz.hlasuj(room.key, PremiereServlet.slug(room.name), room.at, now, i, odp, k, req.getRemoteAddr());
                 if (r == 0) write(resp, 200, Map.of("ok", true));
                 else write(resp, r, Map.of("error", r == 409 ? "closed" : r == 429 ? "slow" : "bad"));
+                return;
+            }
+            if ("nalada".equals(action)) {                               // náladoměr: jen během 30 min odpočtu
+                String k = req.getParameter("k");
+                if (k == null || !KEY.matcher(k).matches()) { write(resp, 400, Map.of("error", "k")); return; }
+                if (!odpocet(room, now)) { write(resp, 409, Map.of("error", "closed")); return; }
+                if (!RequestLimiter.tryAcquire("pmnalada", k, 10, 10_000)) { write(resp, 429, Map.of("error", "slow")); return; }
+                if (!PremiereLive.nalada(k, req.getParameter("f"))) { write(resp, 400, Map.of("error", "f")); return; }
+                write(resp, 200, Map.of("ok", true));
                 return;
             }
             if ("react".equals(action)) {

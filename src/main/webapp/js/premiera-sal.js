@@ -216,6 +216,46 @@
     });
   }
 
+  // ---------- PROGRAM VEČERA (časy podle začátku premiéry, pražský čas) ----------
+  (function () {
+    var ol = $('pmProgram'), at = cas().at, casy = [at - 30 * 60000, at - 25 * 60000, at, at + 4 * 60000];
+    var f = window.Intl ? new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' }) : null;
+    String(T.tProg || '').split('|').forEach(function (t, i) {
+      var li = document.createElement('li'), b = document.createElement('b'), sp = document.createElement('span');
+      b.textContent = f ? f.format(new Date(casy[i])) : ''; sp.textContent = t.replace('{name}', ol.dataset.nazev);
+      li.appendChild(b); li.appendChild(sp); ol.appendChild(li);
+    });
+  })();
+
+  // ---------- NÁLADOMĚR: jeden obličej na prohlížeč (jde změnit), procenta celého sálu; jen během 30 min odpočtu ----------
+  var nalBox = $('pmNalady'), nalKarta = $('pmNalada'), nalTlac = {};
+  TVARE.forEach(function (k, i) {
+    var b = document.createElement('button'); b.type = 'button'; b.dataset.k = k;
+    var cast = String(NALADY[i] || '').split(' – ');
+    obsah(k, b, true);
+    var pct = document.createElement('span'); pct.className = 'pm-nal-pct'; pct.textContent = '0\u00a0%';
+    var jm = document.createElement('b'); jm.textContent = cast[0] || '';
+    var po = document.createElement('small'); po.textContent = cast[1] || '';
+    b.appendChild(pct); b.appendChild(jm); b.appendChild(po);
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', function () {
+      zivy({ action: 'nalada', f: k }).then(function () { if (Date.now() + 300 < dalsi) dalsi = Date.now() + 300; }).catch(function () { /* nevadí */ });
+      Object.keys(nalTlac).forEach(function (x) { nalTlac[x].classList.toggle('on', x === k); nalTlac[x].setAttribute('aria-pressed', String(x === k)); });
+    });
+    nalBox.appendChild(b); nalTlac[k] = b;
+  });
+  function naladaStav(n) {
+    nalKarta.hidden = !n;
+    if (!n) return;
+    var suma = 0, max = 'f1';
+    TVARE.forEach(function (k) { suma += n[k] || 0; if ((n[k] || 0) > (n[max] || 0)) max = k; });
+    TVARE.forEach(function (k) {
+      nalTlac[k].querySelector('.pm-nal-pct').textContent = (suma ? Math.round((n[k] || 0) / suma * 100) : 0) + '\u00a0%';
+      nalTlac[k].classList.toggle('on', n.moje === k); nalTlac[k].setAttribute('aria-pressed', String(n.moje === k));
+    });
+    $('pmNalText').textContent = suma ? T.tMoodText.replace('{m}', String(NALADY[+max.slice(1) - 1] || '').split(' – ')[0]).replace('{p}', Math.round((n[max] || 0) / suma * 100)) : T.tMoodNone;
+  }
+
   // ---------- MEXICKÁ VLNA: o čase rozhoduje server (8 potlesků 👏 za 3 s od kohokoli) → všichni naráz ----------
   // Kroužek kolem tlačítka smajlíků se plní potleskem; diváci s pózou „ruce nahoře“ se do ní prolnou, ostatní nadskočí.
   var VLNA_PRAH = 8, vlnaPosledni = 0, hlaskaT = 0;
@@ -340,6 +380,7 @@
     if (typeof d.lidi === 'number') ukazLidi(d.lidi);
     if (d.reakce) ciziReakce(d.reakce);
     vlnaStav(d);
+    naladaStav(d.nalady);
     if (vyp.chat) { chybaChatu = true; oznam(T.tOff); }
     else if (chybaChatu) { chybaChatu = false; oznam(''); }
     if (d.chat) d.chat.forEach(zprava);

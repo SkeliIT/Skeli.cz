@@ -622,3 +622,27 @@ main.pm .pm-fs-prepinac button.on { background: var(--accent); color: var(--acce
 .pm-jeviste.fs-vyp .pm-chat { display: none; }
 .pm-jeviste.fs-cely .pm-reakce-roh { right: calc(min(340px, 86vw) + 14px); }   /* smajlíci uhnou chatu */
 .pm-jeviste.fs-maly .pm-reakce-roh { right: calc(min(320px, 72vw) + 26px); }
+
+/* ---------- POD SÁLEM: program večera a náladoměr (ukázka Neon) ---------- */
+.pm-pod { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; padding: 14px; border-top: 1px solid var(--panel-border); }
+@media (max-width: 900px) { .pm-pod { grid-template-columns: minmax(0, 1fr); padding: 10px; } }
+.pm-karta { border-radius: 18px; padding: 16px; background: var(--panel); border: 1px solid var(--panel-border); color: var(--text); }
+.pm-karta[hidden] { display: none; }
+.pm-karta h3 { margin: 0 0 10px; font: 400 1.5rem/1 'Bebas Neue', var(--font-body), sans-serif; letter-spacing: .08em; }
+.pm-prog { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.pm-prog li { display: grid; grid-template-columns: 4.2em 1fr; gap: 10px; align-items: baseline; }
+.pm-prog b { font: 400 1.35rem/1 'Bebas Neue', var(--font-body), sans-serif; color: var(--accent); }
+.pm-nal-text { margin: 0 0 10px; color: var(--text-dim); font-size: .88rem; }
+.pm-nalady { display: grid; grid-template-columns: repeat(auto-fill, minmax(82px, 1fr)); gap: 8px; }   /* PC: všech 7 v řadě, telefon 3–4 */
+main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; align-content: start; min-width: 0; padding: 10px 6px; border-radius: 14px; cursor: pointer;
+  border: 1px solid var(--panel-border); background: none; color: var(--text); }
+.pm-nalady button .pm-tvar { width: 38px; height: 38px; }
+.pm-nalady button.on { border-color: var(--accent); box-shadow: 0 0 14px -4px var(--accent); }
+.pm-nal-pct { font: 400 1.15rem/1 'Bebas Neue', var(--font-body), sans-serif; }
+.pm-nalady b { font-size: .8rem; }
+.pm-nalady small { font-size: var(--fs-small); color: var(--text-dim); line-height: 1.25; text-align: center; }
+/* telefon na šířku: sál se vejde na výšku obrazovky (pod hlavičku), spodní řady sedadel se oříznou; plátno a smajlíci vidět */
+@media (orientation: landscape) and (max-height: 520px) {
+  .pm-jeviste { aspect-ratio: auto; height: calc(100svh - var(--header-h, 64px) - 12px); }
+  .pm-jeviste.na-celou, .pm-jeviste:fullscreen { height: 100dvh; }
+}
