@@ -123,6 +123,12 @@
               </div>
             </div>
             <div class="pm-hlaska" id="pmHlaska" aria-live="polite"></div>
+            <%-- chat na celé obrazovce: vždy vpravo, přepínač Celý / Malý (roh vpravo dole) / Vyp; chat se sem při celé obrazovce přesune (js) --%>
+            <div class="pm-fs-prepinac" id="pmFsPrepinac" role="group" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.fsChat")) %>">
+              <button type="button" data-rezim="cely"><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.fsFull")) %></button>
+              <button type="button" data-rezim="maly"><%= WebUtils.escapeHtml(t.getProperty("pm.fsSmall")) %></button>
+              <button type="button" data-rezim="vyp"><%= WebUtils.escapeHtml(t.getProperty("pm.fsOff")) %><span class="pm-fs-nove" id="pmFsNove"></span></button>
+            </div>
             <button type="button" class="pm-celo" id="pmCelo" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
           </div>
           <div class="pm-kviz-bar" id="pmKvizBar" hidden></div>

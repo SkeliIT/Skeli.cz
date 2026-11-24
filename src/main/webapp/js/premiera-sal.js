@@ -295,6 +295,7 @@
     el.className = 'pm-zp' + (z.skeli ? ' skeli' : '');
     telo(z, el); akce(z, el);
     zpravy.insertBefore(el, zpravy.firstChild);                   // nejnovější nahoře
+    if (typeof fsNovaZprava === 'function') fsNovaZprava();
     while (zpravy.children.length > 120) zpravy.lastChild.remove();   // v paměti nejvýš 120
   }
   function pripnuto(z) {
@@ -547,6 +548,35 @@
     if (document.hidden) zastav();
     else { dalsi = 0; spust(); }
   });
+
+  // ---------- chat na celé obrazovce: skutečný chat se přesune do sálu (vše funguje dál), vpravo ve 3 režimech ----------
+  var chatEl = document.querySelector('.pm-chat'), chatDomov = chatEl.parentNode, prepinac = $('pmFsPrepinac'), nepreceteno = 0;
+  function naCelou() { return document.fullscreenElement === jeviste || document.webkitFullscreenElement === jeviste || jeviste.classList.contains('na-celou'); }
+  function fsRezim(r) {
+    jeviste.classList.remove('fs-cely', 'fs-maly', 'fs-vyp'); jeviste.classList.add('fs-' + r);
+    prepinac.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.rezim === r); b.setAttribute('aria-pressed', String(b.dataset.rezim === r)); });
+    if (r !== 'vyp') { nepreceteno = 0; $('pmFsNove').textContent = ''; }
+    try { localStorage.setItem('pmFsRezim', r); } catch (e) { /* nevadí */ }
+  }
+  prepinac.querySelectorAll('button').forEach(function (b) { b.addEventListener('click', function () { fsRezim(b.dataset.rezim); }); });
+  function fsZmena() {
+    var fs = naCelou();
+    if (fs && chatEl.parentNode !== jeviste) {
+      jeviste.appendChild(chatEl); jeviste.classList.add('fs');
+      var r = 'maly'; try { r = localStorage.getItem('pmFsRezim') || 'maly'; } catch (e) { /* malý */ }
+      fsRezim(r);
+    } else if (!fs && chatEl.parentNode === jeviste) {
+      chatDomov.appendChild(chatEl);
+      jeviste.classList.remove('fs', 'fs-cely', 'fs-maly', 'fs-vyp');
+    }
+  }
+  document.addEventListener('fullscreenchange', fsZmena);
+  document.addEventListener('webkitfullscreenchange', fsZmena);
+  new MutationObserver(fsZmena).observe(jeviste, { attributes: true, attributeFilter: ['class'] });   // nouzové „přes okno“
+  function fsNovaZprava() {
+    if (!jeviste.classList.contains('fs-vyp')) return;
+    nepreceteno++; $('pmFsNove').textContent = nepreceteno > 9 ? '9+' : nepreceteno;
+  }
 
   // ---------- celá obrazovka: PC a Android celý sál; iPhone stránku na celou obrazovku nepustí – tam aspoň klip ----------
   $('pmCelo').addEventListener('click', function () {
