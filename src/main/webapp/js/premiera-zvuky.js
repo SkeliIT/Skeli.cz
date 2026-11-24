@@ -179,7 +179,21 @@
     var s = ac.createBufferSource(), g = ac.createGain(); s.buffer = b; s.playbackRate.value = rychlost; g.gain.value = hl;
     s.connect(g); g.connect(master); s.start();
   }
-  var sumBuf = null, bubliny = [];
+  var sumBuf = null, bubliny = [], strunaBuf = {};
+  // drnkací struna (Skeli vybral 24. 11. v navrhy/premiera/zvuky-kina/smajlici.html): fyzikální model drnknutí (Karplus-Strong) –
+  // krátký šum ve smyčce dlouhé jako perioda tónu zní jako harfa/kytara. Každý tón se spočítá jen jednou (slabé telefony).
+  function struna(f, hl) {
+    var sr = ac.sampleRate, klic = Math.round(f);
+    if (!strunaBuf[klic]) {
+      var n = Math.floor(sr * 2.6), b = ac.createBuffer(1, n, sr), d = b.getChannelData(0), p = Math.round(sr / f), ring = new Float32Array(p), ix = 0, prev = 0;
+      for (var i = 0; i < p; i++) ring[i] = (Math.random() * 2 - 1) * 0.9;
+      for (var j = 0; j < n; j++) { var v = ring[ix]; ring[ix] = 0.996 * 0.5 * (v + prev); prev = v; d[j] = v; ix = (ix + 1) % p; }
+      strunaBuf[klic] = b;
+    }
+    var s = ac.createBufferSource(), lp = ac.createBiquadFilter(), g = ac.createGain();
+    s.buffer = strunaBuf[klic]; lp.type = 'lowpass'; lp.frequency.value = f * 6; g.gain.value = hl;
+    s.connect(lp); lp.connect(g); g.connect(master); g.connect(dozvuk()); s.start();
+  }
   function nactiBubliny() {
     if (bubliny.length) return;
     [1, 2, 3, 4].forEach(function (n) {
@@ -193,7 +207,7 @@
     klik: function (k) {
       if (!zapnuto || !ac) return;
       nactiBubliny();
-      if (k.charAt(0) === 'f') { var n = +k.slice(1) - 1; ton(NOTY[n] || 220, 0, 0.12, 1.8); sum(0, 0.09, 0.05, 'lowpass', 160); return; }   // hluboký tón + měkké ťuknutí
+      if (k.charAt(0) === 'f') { var n = +k.slice(1) - 1; struna(NOTY[n] || 220, 0.5); return; }   // obličeje SQUADu: drnknutí struny (harfa)
       switch (k) {
         case 'srdce': ton(110, 0, 0.16, 0.35); ton(98, 0.17, 0.12, 0.45); break;                     // lub-dub
         case 'ohen': sum(0, 0.55, 0.08, 'bandpass', 250, 1100); break;                              // tlumené švihnutí
