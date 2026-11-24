@@ -53,10 +53,12 @@
     var j = function (r) { if (!r.ok) throw new Error(r.status); return r.json(); };
     Promise.all([fetch('/img/premiera/kino/divaci.json?v=1').then(j), fetch('/img/premiera/kino/sedadla.json?v=1').then(j)]).then(function (r) {
       var meta = r[0], sedadla = r[1];
-      // pořadí obsazování: nejdřív prostřední řady u uličky, pak vzdálenější, přední řada až nakonec
+      // pořadí obsazování: nejdřív k prostřední uličce, kterou vidí i telefon na výšku (výřez ±380 px kolem uličky
+      // na x = 836) – jinak by si první návštěvník sedl na kraj mimo obraz a vypadalo by to, že se nic nestalo;
+      // pak dál od uličky, přední řada až nakonec
       sedadla.forEach(function (st) {
-        var stred = Math.abs((st.x0 + st.x1) / 2 - 836) / 836;
-        st.poradi = [3, 2, 1, 0, 1.5, 6][st.r] + stred * 2 + Math.random() * 0.9;
+        var stred = Math.abs((st.x0 + st.x1) / 2 - 836) / 836, vidi = st.x0 >= 456 && st.x1 <= 1216;
+        st.poradi = (vidi ? 0 : 20) + [1.2, 0.6, 0.2, 0, 0.8, 3][st.r] + stred * 6 + Math.random() * 0.6;
       });
       sedadla.sort(function (a, b) { return a.poradi - b.poradi; });
       var lide = meta.slice().sort(function () { return Math.random() - 0.5; });   // každý návštěvník vidí jiné rozesazení
@@ -84,7 +86,24 @@
       usad(lidi);
     }).catch(function () { postaveno = false; });
   }
-  function usad(n) { mista.forEach(function (m, i) { m.el.classList.toggle('sedi', i < n); }); }
+  // Kdo odejde, zmizí hned. Kdo přijde, objeví se až za 3–5 s (ať si toho člověk stihne všimnout), další
+  // z téže várky po 0,5–1,4 s. Při vstupu: kdo už v sále sedí, je vidět hned, ty sám si sedneš za 3–5 s.
+  var ukazano = 0, cil = 0, casovac = 0, prvni = true;
+  function usad(n) {
+    if (!mista.length) return;
+    cil = Math.min(n, mista.length);
+    while (ukazano > cil) { ukazano--; mista[ukazano].el.classList.remove('sedi'); }
+    if (prvni && cil > 0) {
+      prvni = false;
+      for (; ukazano < cil - 1; ukazano++) mista[ukazano].el.classList.add('sedi');
+    }
+    if (ukazano < cil && !casovac) casovac = setTimeout(dalsiDivak, 3000 + Math.random() * 2000);
+  }
+  function dalsiDivak() {
+    casovac = 0;
+    if (ukazano < cil) { mista[ukazano].el.classList.add('sedi'); ukazano++; }
+    if (ukazano < cil) casovac = setTimeout(dalsiDivak, 500 + Math.random() * 900);
+  }
   function ukazLidi(n) {
     lidi = n;
     var t = T.tLidi.replace('{n}', cislo ? cislo.format(n) : n);
