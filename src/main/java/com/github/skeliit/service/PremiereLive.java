@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class PremiereLive {
     private PremiereLive() {}
 
-    /** Smajlíci: 7 obličejů SKELO SQUAD (f1–f7) + srdce a oheň. Jiné klíče server nepřijme. */
-    public static final String[] REACTIONS = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "srdce", "ohen"};
+    /** Smajlíci: 7 obličejů SKELO SQUAD (f1–f7) + srdce, oheň a joint. Jiné klíče server nepřijme. */
+    public static final String[] REACTIONS = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "srdce", "ohen", "joint"};
     static final long PRESENT_MS = 20_000;
     private static final int MAX_PEOPLE = 20_000;   // pojistka paměti: víc klíčů se nepamatuje (počítá se dál jen do tohohle)
 

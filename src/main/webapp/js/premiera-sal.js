@@ -112,12 +112,16 @@
   }
 
   // ---------- smajlíci ----------
-  var SMAJL = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'srdce', 'ohen'];
+  var SMAJL = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'srdce', 'ohen', 'joint'];
   var tlacitka = {}, naObrazovce = 0;
   function obsah(k, el) {
     if (k.charAt(0) === 'f') {
       var im = document.createElement('img'); im.src = '/img/faces/face-' + k.slice(1) + '.webp'; im.alt = ''; im.width = 44; im.height = 44;
       el.appendChild(im);
+    } else if (k === 'joint') {                                  // pás 7 políček: v tlačítku stojí, v letu dohořívá (css/premiera.css)
+      var okno = document.createElement('span'), pas = document.createElement('span');
+      okno.className = 'pm-joint'; okno.setAttribute('aria-hidden', 'true');
+      okno.appendChild(pas); el.appendChild(okno);
     } else el.textContent = k === 'srdce' ? '❤️' : '🔥';
   }
   SMAJL.forEach(function (k) {
