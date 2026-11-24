@@ -72,7 +72,10 @@
         // silueta o 14 % užší než sedadlo, vycentrovaná; ramena (m.top) na horní hraně opěradla; celý obrázek ale nikdy
         // širší než sedadlo (Skeli 24. 11.: široké postavy visely přes sousední sedadlo s rovnou hranou)
         // Skeli 25. 11.: menší (ramena se vejdou do šířky sedadla, nic nepřečuhuje uříznuté) a zapuštění níž za opěradlo
-        var m = st.m, sw = st.x1 - st.x0, k = Math.min(sw / (m.sr - m.sl) * DIVAK_SIRE, sw * 0.9 / m.w), xc = (st.x0 + st.x1) / 2;
+        // velikost napůl podle ramen a napůl podle výšky nad opěradlem (obrázky od ChatGPT mají různé proporce 0,80–1,18 –
+        // samotná ramena dělala z někoho obra a z někoho trpaslíka; Skeli 25. 11.)
+        var m = st.m, sw = st.x1 - st.x0, kR = sw / (m.sr - m.sl) * DIVAK_SIRE, kV = sw * DIVAK_SIRE / m.top;
+        var k = Math.min(Math.sqrt(kR * kV), sw * 0.9 / m.w), xc = (st.x0 + st.x1) / 2;
         var left = xc - (m.sr - m.sl) * k / 2 - m.sl * k, top = st.top - m.top * k + sw * DIVAK_ZAPUST, w = m.w * k;
         // nad hlavou a do stran místo pro zvednuté ruce (mexická vlna – img/premiera/kino/ruce.json: nad, bok)
         var ruka = RUCE[m.f];
@@ -355,7 +358,7 @@
     if (im === skMinuly) return;
     var stary = skMinuly; skMinuly = im;
     im.style.zIndex = ++skVrch; im.classList.add('on');
-    setTimeout(function () { if (stary !== skMinuly) { stary.classList.add('hned'); stary.classList.remove('on'); void stary.offsetWidth; stary.classList.remove('hned'); } }, 420);
+    setTimeout(function () { if (stary !== skMinuly) { stary.classList.add('hned'); stary.classList.remove('on'); void stary.offsetWidth; stary.classList.remove('hned'); } }, 260);
   }
 
   function vlna() {

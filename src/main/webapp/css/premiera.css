@@ -720,8 +720,8 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 
 /* SKELI V SÁLE (js/premiera-sal.js): avatar na pevném místě – sedí / vstává / stojí při pozdravu, reflektor nad ním */
 /* postoje se prolínají PŘES sebe (js skSnimek): nový nahoře se objeví, starý zmizí až potom – nikdy průhledný */
-.pm-skeli img.f, .pm-skeli img.zaklad { opacity: 0; transition: opacity .38s ease; }
-.pm-skeli img.zaklad { transition: transform .9s cubic-bezier(.2, .8, .2, 1), opacity .38s ease; }
+.pm-skeli img.f, .pm-skeli img.zaklad { opacity: 0; transition: opacity .24s ease; }
+.pm-skeli img.zaklad { transition: transform .9s cubic-bezier(.2, .8, .2, 1), opacity .24s ease; }
 .pm-skeli img.on { opacity: 1; }
 .pm-skeli img.hned { transition: none; }
 /* vstávání a stání: malý pohyb nahoru, ať to působí jako zvedání (ne jen výměna obrázku) */
