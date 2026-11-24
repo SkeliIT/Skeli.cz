@@ -12,7 +12,7 @@
 (function () {
   var C = window.AudioContext || window.webkitAudioContext;
   if (!C || !window.fetch) return;
-  var CESTA = '/sounds/premiera/', VERZE = '1';
+  var CESTA = '/sounds/premiera/', VERZE = '2';
   var ATMO = { 'atmo-hovor': 0, 'atmo-ticho': 0.22, 'atmo-dest': 0.16, 'atmo-hukot': 0.2 };   // hlasitost (hovor podle lidí)
   var OSTATNI = ['kviz-napeti', 'kviz-vir', 'kviz-uder', 'vlna', 'finale-stoupani', 'finale-projektor', 'finale-ton',
     'joint-1', 'joint-2', 'joint-3', 'joint-4'];   // joint = Skeliho nahrávka: cvaknutí zapalovače a nahulení (4 varianty)
@@ -35,8 +35,8 @@
     [616, 566, '', true],
     [566, 326, 'hudba-5', false],      // Fallen (Asper), druhá část – jen hudba
     [326, 250, '', true],              // posledních 5 min bez hudby, jen sál…
-    [250, 215, '', false],             // …v 18:56 pozdrav od Skeliho (hovor ztichne)…
-    [215, 20, '', true]                // …a zase ztichlý sál; pak finále
+    [250, 192, '', false],             // …v 18:56 pozdrav od Skeliho, podkres po něm ještě ~20 s dohraje (hovor ztichne)…
+    [192, 20, '', true]                // …a zase ztichlý sál; pak finále
   ];
   var HOVOR_OD = 5, HUDBA_HL = 0.2, POZDRAV_OD = 240;    // pozdrav = hlas v 18:56:00, podkres 3 s předem
   var hovorSmi = false, hudba = null, kvizTise = false, posledniZ = 1e9, pozdravBezi = false;
@@ -123,13 +123,13 @@
     Promise.all([nacti('pozdrav-hlas'), nacti('pozdrav-podkres')]).then(function () {
       if (!zapnuto || vFinale) return;
       var uz = POZDRAV_OD + 3 - posledniZ;                          // s od začátku podkresu
-      if (uz > 20) return;
+      if (uz > 40) return;                                         // podkres 48 s (po hlase ještě ~20 s dohraje a 9 s doznívá)
       var t = ac.currentTime, PH = 0.22, POD = PH * 0.6;
       var p = hraj('pozdrav-podkres', PH, { od: Math.max(0, uz), nabeh: uz < 1 ? 2 : 0.5 });
       if (p) {                                                     // pod hlasem (3 s → 19,6 s podkresu) ztišit
         var g = p.g.gain, a = t + Math.max(0.6, 3 - uz), b = t + Math.max(0.7, 19.6 - uz);
         g.setValueAtTime(PH, a - 0.4); g.linearRampToValueAtTime(POD, a + 0.3);
-        g.setValueAtTime(POD, b - 0.2); g.linearRampToValueAtTime(PH, b + 1.2);
+        g.setValueAtTime(POD, b - 0.2); g.linearRampToValueAtTime(PH * 1.15, b + 2.5);   // po posledním slově hudba zase naplno
       }
       var hlasOd = Math.max(0, uz - 3);
       if (hlasOd < 16) {
