@@ -124,6 +124,7 @@
     if (ukazano < cil) { mista[ukazano].el.classList.add('sedi'); ukazano++; }
     if (ukazano < cil) casovac = setTimeout(dalsiDivak, 500 + Math.random() * 900);
   }
+  var zkouskaLidi = 0;                                           // jen zkouška (panel na konci souboru)
   function ukazLidi(n) {
     lidi = n;
     var t = T.tLidi.replace('{n}', cislo ? cislo.format(n) : n);
@@ -380,7 +381,7 @@
     vyp = d.vyp || {};
     sal.classList.toggle('bez-reakci', !!vyp.reakce);
     sal.classList.toggle('bez-chatu', !!vyp.chat);
-    if (typeof d.lidi === 'number') ukazLidi(d.lidi);
+    if (typeof d.lidi === 'number') ukazLidi(zkouskaLidi || d.lidi);   // při zkoušce počet z panelu (konec souboru)
     if (d.reakce) ciziReakce(d.reakce);
     vlnaStav(d);
     naladaStav(d.nalady);
@@ -681,4 +682,20 @@
     }
     nouze();
   });
+
+  // ---------- ZKOUŠKA (jen simulace ?pmSim – server ji pustí jen na testu a lokálně): ruční počet lidí v sále, vlna na
+  //            tlačítko a hraní diváci se smajlíky. Texty jen česky schválně: panel vidí jen Skeli při zkoušce. ----------
+  if (song === 'sim') (function () {
+    var p = document.createElement('div'); p.className = 'pm-zkouska';
+    p.innerHTML = '<b>🧪 Zkouška</b><label>Lidí v sále: <output>–</output><input type="range" min="1" max="45" value="1"></label>'
+      + '<button type="button" data-a="vlna">🌊 Vlna teď</button><label><input type="checkbox"> Publikum posílá smajlíky</label>';
+    document.body.appendChild(p);
+    var r = p.querySelector('input[type=range]'), o = p.querySelector('output'), ch = p.querySelector('input[type=checkbox]');
+    r.addEventListener('input', function () { zkouskaLidi = +r.value; o.textContent = r.value; ukazLidi(zkouskaLidi); });
+    p.querySelector('[data-a=vlna]').addEventListener('click', vlna);
+    setInterval(function () {
+      if (!ch.checked || document.hidden || !vSale) return;
+      if (Math.random() < Math.min(0.9, (zkouskaLidi || 1) / 15)) vypust(SMAJL[Math.floor(Math.random() * SMAJL.length)], false);
+    }, 500);
+  })();
 })();

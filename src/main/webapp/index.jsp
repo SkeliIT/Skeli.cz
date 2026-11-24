@@ -103,7 +103,7 @@
       </div>
     </div>
     <% } else { %>
-    <a class="hero-latest hero-premiere<%= premiere.isOut() ? " is-out" : "" %>" href="<%= premiere.isOut() ? "/?pmZnovu=1" : "/premiera" %>" data-premiere="<%= premiere.at %>">
+    <a class="hero-latest hero-premiere<%= premiere.isOut() ? " is-out" : "" %>" href="/premiera" data-premiere="<%= premiere.at %>">
       <% if (premiere.thumb != null) { %><img src="<%= com.github.skeliit.WebUtils.escapeHtml(premiere.thumb) %>" alt="" width="104" height="58"><% } %>
       <span>
         <small><span class="dot"></span><span class="hp-soon"><%= t.getProperty("premiere.soon") %></span><span class="hp-out"><%= t.getProperty("premiere.out") %></span> · <%= pKind %></small>
@@ -133,55 +133,9 @@
     </div>
     <% if (premiere != null && System.currentTimeMillis() < premiere.at + 15 * 60 * 1000) {
          String pmT = com.github.skeliit.WebUtils.escapeHtml(premiere.name); %>
-    <%-- premiéra na úvodu (js/premiera-uvod.js): 30 min předem se úvod promění v ulici nakreslenou jako výkres, lidé jiskrami
-         odkrývají skutečnou ulici, posledních 10 s smajlíci na tep srdce, ve 0 klip v rámečku. Do té doby skryté. --%>
-    <div class="pmu" id="pmUvod" hidden data-at="<%= premiere.at %>" data-now="<%= System.currentTimeMillis() %>"
-         data-song="<%= com.github.skeliit.WebUtils.escapeHtml(premiere.uuid) %>" data-sim="<%= pmSim ? "1" : "0" %>" data-znovu="<%= pmZnovu ? "1" : "0" %>"<% if (pmSim) { %> data-sim-yt="LJ7ER355Hgg"<% } %>
-         data-t-lide-one="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pmu.people.one")) %>"
-         data-t-lide-few="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pmu.people.few")) %>"
-         data-t-lide-many="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pmu.people.many")) %>"
-         data-t-lide-other="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pmu.people.other")) %>"
-         data-t-hint2="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pmu.hint2")) %>"
-         data-t-znovu="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pmu.z.title")) %>"
-         data-t-faster="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pmu.z.faster")) %>"
-         data-t-normal="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pmu.z.normal")) %>"
-         data-t-naodpocet="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pmu.z.countdown")) %>"
-         data-t-naklip="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pmu.z.clip")) %>"
-         data-t-start="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.start")) %>"
-         data-t-yt="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.ytNote")) %>">
-      <div class="pmu-scena" aria-hidden="true">
-        <canvas class="pmu-foto"></canvas><canvas class="pmu-cary"></canvas><canvas class="pmu-svetlo"></canvas>
-      </div>
-      <div class="pmu-hlava">
-        <span class="pmu-stitek"><span class="pmu-tecka" aria-hidden="true"></span><span class="pmu-st-cek"><%= t.getProperty("pmu.tag") %></span><span class="pmu-st-zive"><%= t.getProperty("pm.live") %></span></span>
-        <h2 class="pmu-nazev"><%= pmT %></h2>
-      </div>
-      <div class="pmu-ram" id="pmuRam">
-        <div class="pmu-tvare" aria-hidden="true"><% for (int fi = 1; fi <= 7; fi++) { %><img src="/img/faces/face-<%= fi %>.webp" alt="" width="44" height="44"><% } %></div>
-        <div class="pmu-video" id="pmuVideo"><span class="pmu-kota" aria-hidden="true">16 : 9</span></div>
-        <div class="pmu-zvuk" id="pmuZvuk" hidden><button type="button" class="btn btn-ghost" id="pmuUnmute"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> <%= t.getProperty("pm.unmute") %></button><small><%= t.getProperty("pm.tapVideo") %></small></div>
-        <p class="pmu-diky" id="pmuDiky" hidden><%= t.getProperty("pmu.thanks") %></p>
-      </div>
-      <div class="pmu-dole">
-        <div class="pmu-akce">
-          <button type="button" class="pmu-jsemtu" id="pmuJsemTu" data-done="<%= com.github.skeliit.WebUtils.escapeHtml(t.getProperty("pm.hereDone")) %>"><%= t.getProperty("pm.here") %></button>
-          <p class="pmu-stav" id="pmuStav"></p>
-          <p class="pmu-napoveda" id="pmuNapoveda"><%= t.getProperty("pmu.hint") %></p>
-        </div>
-        <div class="pmu-razitko">
-          <div class="pmu-r-velke"><small><%= t.getProperty("pmu.r.project") %></small><%= pmT %></div>
-          <div><small><%= t.getProperty("pmu.r.author") %></small>SKELI</div>
-          <div><small><%= t.getProperty("pmu.r.site") %></small>SKELO SQUAD</div>
-          <div><small><%= t.getProperty("pmu.r.when") %></small><%= premiere.getWhen() %></div>
-          <div><small><%= t.getProperty("pmu.r.built") %></small><span id="pmuPostaveno">0 %</span></div>
-          <div class="pmu-r-odpocet"><small><%= t.getProperty("pmu.r.left") %></small><span id="pmuOdpocet">--:--</span></div>
-        </div>
-      </div>
-      <div class="pmu-zablesk" aria-hidden="true"></div>
-    </div>
+    <%-- stará proměna úvodu (ulice jako výkres, js/premiera-uvod.js) je vypnutá: Skeli 24. 11. – místo ní kinosál na /premiera
+         a černobílý web (body.pm-sede); kód zůstává do úklidu po premiéře. Styly karty premiéry na úvodu: --%>
     <link rel="stylesheet" href="/css/premiera.css?v=<%= assetVersion %>">
-    <script src="/js/yt-clock.js?v=<%= assetVersion %>"></script>
-    <script src="/js/premiera-uvod.js?v=<%= assetVersion %>"></script>
     <% } %>
     <div class="smoke-edge b" aria-hidden="true"><canvas></canvas></div>
   </section>

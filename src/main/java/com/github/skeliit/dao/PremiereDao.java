@@ -19,8 +19,8 @@ public class PremiereDao {
             + "COALESCE((SELECT CONCAT('/yt-thumb/', v.youtube_id, '/mqdefault.jpg') FROM videos v WHERE v.song_id = s.id "
             + "ORDER BY v.published_at DESC, v.id DESC LIMIT 1), s.preview_image_url), s.release_at FROM songs s ";
 
-    /** Černobílý web (Skeli 24. 11.): od 30 min před premiérou do konce klipu + 5 min (klip do 5 min → 10 min po startu). */
-    public static final long SEDE_PRED_MS = 30L * 60 * 1000, SEDE_PO_MS = 10L * 60 * 1000;
+    /** Černobílý web (Skeli 24. 11.): od 30 min před premiérou do 19:06 (Skeli 24. 11.: klip + chvilka). */
+    public static final long SEDE_PRED_MS = 30L * 60 * 1000, SEDE_PO_MS = 6L * 60 * 1000;
     private static volatile long[] sedeCache;          // {od, do} nebo {0, 0}
     private static volatile long sedeCteno;
 

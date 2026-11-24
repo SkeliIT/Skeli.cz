@@ -666,3 +666,13 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
   .pm-jeviste { aspect-ratio: auto; height: calc(100svh - var(--header-h, 64px) - 12px); }
   .pm-jeviste.na-celou, .pm-jeviste:fullscreen { height: 100dvh; }
 }
+
+/* ZKOUŠKA (jen simulace ?pmSim na testu, js/premiera-sal.js na konci): panel vlevo dole – počet lidí, vlna, smajlíky publika */
+.pm-zkouska { position: fixed; z-index: 90; left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+  max-width: calc(100vw - 24px); padding: 10px 14px; border-radius: 14px; background: rgba(10, 10, 14, .92); color: #f2f2f5;
+  border: 1px dashed #f5c542; font: 600 .85rem/1.3 var(--font-body); }
+.pm-zkouska label { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; }
+.pm-zkouska input[type=range] { width: 160px; }
+.pm-zkouska input[type=checkbox] { width: 20px; height: 20px; }
+.pm-zkouska output { min-width: 2ch; color: #f5c542; }
+.pm-zkouska button { min-height: 40px; padding: 0 12px; border-radius: 99px; border: 1px solid #f5c542; background: none; color: inherit; font: inherit; cursor: pointer; }
