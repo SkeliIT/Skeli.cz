@@ -12,7 +12,7 @@
 (function () {
   var C = window.AudioContext || window.webkitAudioContext;
   if (!C || !window.fetch) return;
-  var CESTA = '/sounds/premiera/', VERZE = '2';
+  var CESTA = '/sounds/premiera/', VERZE = '3';
   var ATMO = { 'atmo-hovor': 0, 'atmo-ticho': 0.22, 'atmo-dest': 0.16, 'atmo-hukot': 0.2 };   // hlasitost (hovor podle lidí)
   var OSTATNI = ['kviz-napeti', 'kviz-vir', 'kviz-uder', 'vlna', 'finale-stoupani', 'finale-projektor', 'finale-ton',
     'joint-1', 'joint-2', 'joint-3', 'joint-4'];   // joint = Skeliho nahrávka: cvaknutí zapalovače a nahulení (4 varianty)
@@ -258,7 +258,7 @@
       var s = zbyva / 1000;
       ztlum(napeti, 0, 0.5); ztlum(vir, 0, 0.3); hudbaStop(1.5);
       atmoStop(Math.max(1, s - 1.5));                                 // atmosféra utichne do tmy
-      if (buf['finale-stoupani']) { var st = hraj('finale-stoupani', 0.5, { od: Math.max(0, 15 - s), nabeh: 1.5 }); ztlum(st, s - 0.4, 0.4); }
+      if (buf['finale-stoupani']) { var st = hraj('finale-stoupani', 0.5,   /* „Tep a tajemno“ (Mixkit), Skeli 24. 11. místo pištivých houslí */ { od: Math.max(0, 15 - s), nabeh: 1.5 }); ztlum(st, s - 0.4, 0.4); }
       if (buf['finale-projektor']) { var pr = hraj('finale-projektor', 0.3, { od: Math.max(0, 15 - s), nabeh: 2.5 }); ztlum(pr, Math.max(0, s - 2), 1.8); }
       if (buf['finale-ton'] && s > 7.5) { var tn = hraj('finale-ton', 0.4, { za: s - 7.5, nabeh: 1 }); ztlum(tn, s - 0.3, 0.3); }   // od zhasnutí sálu
     },
