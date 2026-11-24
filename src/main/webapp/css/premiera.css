@@ -592,3 +592,14 @@ main.pm .pm-pop-rada button:hover, main.pm .pm-pop-rada button:focus-visible { t
 @keyframes pm-ruce-nahoru { 0% { opacity: 0; } 13%, 70% { opacity: 1; } 86%, 100% { opacity: 0; } }
 @keyframes pm-ruce-dolu { 0% { opacity: 1; } 13%, 70% { opacity: 0; } 86%, 100% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .pm-divak.vlna:not(.ma-ruce) img { animation: none; } .pm-pop.otevri { animation: none; } }
+
+/* ---------- NEON chat (ukázka kino-ucesani, Skeli vybral 24. 11.): svítící panel, nadpis štětcem, zprávy v bublinách ---------- */
+.pm-chat { margin: 12px 12px 12px 0; border-radius: 22px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 24px -6px var(--accent), inset 0 0 30px -18px var(--accent); }
+@media (max-width: 900px) { .pm-chat { margin: 8px; border-top: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); } }
+.pm-chat-h span:first-child { font: 400 1.9rem/1 'Comforter Brush', cursive; text-transform: none; letter-spacing: 0; color: #fff; text-shadow: 0 0 10px var(--accent); }
+.pm-chat-h span:first-child i { font-size: 1rem; vertical-align: middle; margin-right: 6px; text-shadow: none; }
+body.light .pm-chat-h span:first-child { color: var(--accent); text-shadow: none; }
+.pm-zp-t p { display: inline-block; max-width: 100%; margin-top: 4px; padding: 6px 10px; border-radius: 4px 14px 14px 14px; background: rgba(255, 255, 255, .06); }
+body.light .pm-zp-t p { background: rgba(0, 0, 0, .05); }
+.pm-zp.skeli .pm-zp-t p { background: color-mix(in srgb, #ffd23f 14%, transparent); }
