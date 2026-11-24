@@ -297,8 +297,9 @@
   }
   // ---------- SKELI V SÁLE (Skeli 25. 11.): avatar na pevném místě (3. řada od plátna u uličky vpravo), když je Skeli
   // přihlášený v sále (server: d.skeli). Při pozdravu (zvuk js/premiera-zvuky.js: klavír 51 s, hlas 48–31,4 s předem) se na
-  // svém místě postaví, posvítí na něj reflektor, po posledním slově si sedne – jako člověk z publika, který promluví.
-  // (Chůze uličkou a čelní záběry vypadaly jako vystřihovánky – pryč.) Když v sále není, zazní jen hlas.
+  // svém místě postaví, otočí se čelem k divákům (za ním plátno → silueta), mluví do mikrofonu, otočí se zpátky a sedne si.
+  // Všechny záběry jsou v jednom prvku na jeho sedadle: spodek těla kryje opěradlo, diváci blíž ke kameře ho překryjí.
+  // (Chůze uličkou vypadala jako vystřihovánky – pryč.) Když v sále není, zazní jen hlas.
   // Snímky img/premiera/kino/skeli/ (navrhy/premiera/kino/skeli.py).
   var DIVAK_SIRE = 0.76, DIVAK_ZAPUST = 0.07;   // ramena 76 % šířky sedadla, o 7 % šířky sedadla níž za opěradlo
   var SKELI_SEDADLO = 27, SK = { w: 512, h: 768, top: 519, sl: 50, sr: 462 };
@@ -317,7 +318,8 @@
     d.className = 'pm-divak ma-ruce pm-skeli';
     d.style.cssText = 'left:' + (left / W * 100) + '%;top:' + (top / H * 100) + '%;width:' + (w / W * 100) + '%;height:' + (h / H * 100) + '%;clip-path:polygon(' + poly.join(',') + ')';
     d.style.setProperty('--zpozdeni', (((st.x0 + st.x1) / 2) / W * 1.2 + st.r * 0.03).toFixed(2) + 's');
-    [['sedi', 'zaklad'], ['ruce', 'ruce'], ['vstava', 'vstava'], ['stoji', 'stoji']].forEach(function (x) {
+    [['sedi', 'zaklad'], ['ruce', 'ruce'], ['vstava', 'f f-vstava'], ['stoji', 'f f-stoji'], ['otocka', 'f celem f-otocka'], ['mikrofon', 'f celem f-mikrofon'],
+      ['mluvi', 'f celem f-mluvi'], ['mluvi2', 'f celem f-mluvi2'], ['srdce', 'f celem f-srdce'], ['gesto', 'f celem f-gesto']].forEach(function (x) {
       var im = document.createElement('img'); im.className = x[1]; im.src = SK_CESTA + x[0] + '.webp' + SK_V; im.alt = ''; im.decoding = 'async'; d.appendChild(im);
     });
     var pred = null;                                               // bližší řady se kreslí přes vzdálenější
@@ -332,11 +334,16 @@
   }
   function skeliScena(z) {
     if (!skeliEl) return;
-    var stoji = skeliVSale && z <= 50.3 && z > 30.5, vstava = skeliVSale && ((z <= 51 && z > 50.3) || (z <= 30.5 && z > 29.8));
+    // vstane, otočí se k divákům, mluví (střídá záběry, ruka na srdci, gesto), otočí se zpátky, sedne si
+    var s = '';
+    if (skeliVSale && z <= 51 && z > 28.8) {
+      s = z > 50.3 ? 'vstava' : z > 49.6 ? 'stoji' : z > 49 ? 'otocka' : z > 48.4 ? 'mikrofon'
+        : z > 40 ? (Math.floor((48.4 - z) / 2.4) % 2 ? 'mluvi2' : 'mluvi') : z > 37 ? 'srdce' : z > 34.3 ? 'mluvi' : z > 32 ? 'gesto'
+        : z > 31.2 ? 'mluvi' : z > 30.6 ? 'mikrofon' : z > 30 ? 'otocka' : z > 29.4 ? 'stoji' : 'vstava';
+    }
     skeliEl.classList.toggle('sedi', skeliVSale);
-    skeliEl.classList.toggle('vstava', vstava);
-    skeliEl.classList.toggle('stoji', stoji);
-    skeliSvetlo.classList.toggle('on', skeliVSale && z <= 51 && z > 29.8);
+    if (skeliEl.dataset.s !== s) skeliEl.dataset.s = s;
+    skeliSvetlo.classList.toggle('on', skeliVSale && z <= 51 && z > 29.4);
   }
   function skeliTik(zbyva) { skeliScena(zbyva / 1000); }
 

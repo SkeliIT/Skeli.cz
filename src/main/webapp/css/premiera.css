@@ -719,10 +719,15 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 .pm-nal-fs-pas i { display: block; flex-basis: 0; background: var(--c); transition: flex-grow .8s; }
 
 /* SKELI V SÁLE (js/premiera-sal.js): avatar na pevném místě – sedí / vstává / stojí při pozdravu, reflektor nad ním */
-.pm-skeli img.vstava, .pm-skeli img.stoji { opacity: 0; transition: opacity .6s ease; }
-.pm-skeli img.zaklad { transition: transform .9s cubic-bezier(.2, .8, .2, 1), opacity .6s ease; }
-.pm-skeli.vstava img.vstava, .pm-skeli.stoji img.stoji { opacity: 1; }
-.pm-skeli.vstava img.zaklad, .pm-skeli.stoji img.zaklad, .pm-skeli.stoji img.vstava { opacity: 0; }
+.pm-skeli img.f { opacity: 0; transition: opacity .55s ease; }
+.pm-skeli img.zaklad { transition: transform .9s cubic-bezier(.2, .8, .2, 1), opacity .55s ease; }
+.pm-skeli[data-s]:not([data-s=""]) img.zaklad { opacity: 0; }
+.pm-skeli[data-s="vstava"] img.f-vstava, .pm-skeli[data-s="stoji"] img.f-stoji, .pm-skeli[data-s="otocka"] img.f-otocka,
+.pm-skeli[data-s="mikrofon"] img.f-mikrofon, .pm-skeli[data-s="mluvi"] img.f-mluvi, .pm-skeli[data-s="mluvi2"] img.f-mluvi2,
+.pm-skeli[data-s="srdce"] img.f-srdce, .pm-skeli[data-s="gesto"] img.f-gesto { opacity: 1; }
+/* stojí čelem: celá postava stejně velká jako „stojí zezadu“ (hlava nahoře ve 1,7 %, celková výška 120 % prvku –
+   nohy pod opěradlem se ořízne křivka sedadla), uprostřed sedadla */
+.pm-divak.pm-skeli img.celem { left: 50%; top: 1.7%; width: auto; height: 120%; max-width: none; transform: translateX(-50%); }
 /* reflektor: teplá záře kolem stojícího Skeliho (pod ním, silueta proti ní vynikne) */
 .pm-skeli-svetlo { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity 1.6s;
   background: radial-gradient(closest-side, rgba(255, 214, 160, .42), rgba(255, 190, 120, .15) 60%, transparent); }
