@@ -843,3 +843,25 @@ main.pm .pm-kdo-volby button[aria-pressed="true"] { border-color: var(--accent);
 .pm-pop-vlna { margin: 0; max-width: 344px; color: #8f8f9c; font: 300 .82rem/1.35 'Oswald', sans-serif; letter-spacing: .03em; }
 .pm-pop-vlna[hidden] { display: none; }
 @media (max-width: 600px) { .pm-pop-vlna { max-width: 280px; font-size: .74rem; } }
+/* ---------- SMAJLÍCI NA ÚZKÉ OBRAZOVCE (Skeli 25. 11.: tlačítko i okénko moc rozsáhlé): menší tlačítko, hustší okénko, menší
+   létající smajlíci. Na dotyk drží tlačítka v okénku aspoň 38 px na výšku, s myší (zúžené okno na PC) můžou být menší. ---------- */
+@media (max-width: 600px) {
+  main.pm .pm-spoust { width: 44px; height: 44px; padding: 9px; }
+  .pm-spoust .pm-tvar { width: 26px; height: 26px; }
+  .pm-reakce-roh { right: 10px; bottom: 10px; }
+  .pm-pop { padding: 7px; gap: 4px; bottom: 52px; border-radius: 14px; background: rgba(14, 14, 18, .9); }
+  .pm-pop h4 { font-size: .56rem; max-width: 250px; }
+  .pm-pop-rada { grid-template-columns: repeat(7, 33px); gap: 3px; }
+  main.pm .pm-pop-rada button { width: 33px; height: 38px; padding: 4px; font-size: 17px; border-radius: 9px; }
+  .pm-pop-rada button img, .pm-pop-rada button .pm-tvar { width: 22px; height: 22px; }
+  .pm-pop-vlna { max-width: 250px; font-size: .7rem; }
+  main.pm .pm-pop-zvuk { width: 34px; height: 34px; font-size: 13px; }
+  .pm-let { width: 24px; height: 24px; font-size: 19px; line-height: 24px; }
+  .pm-let.moje { width: 30px; height: 30px; font-size: 24px; line-height: 30px; }
+}
+@media (max-width: 600px) and (pointer: fine) {
+  .pm-pop-rada { grid-template-columns: repeat(7, 30px); }
+  main.pm .pm-pop-rada button { width: 30px; height: 30px; padding: 3px; font-size: 16px; }
+  .pm-pop-rada button img, .pm-pop-rada button .pm-tvar { width: 20px; height: 20px; }
+  main.pm .pm-pop-zvuk { width: 30px; height: 30px; font-size: 12px; }
+}
