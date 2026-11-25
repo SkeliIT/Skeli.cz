@@ -373,7 +373,7 @@
     if (d.vlna && d.vlna !== vlnaPosledni) {
       vlnaPosledni = d.vlna;
       var za = d.vlna - cas().now;
-      if (za > -1500) setTimeout(vlna, Math.max(0, za));
+      if (za > -5000) setTimeout(vlna, Math.max(0, za));   // pozdní dotaz (pomalý telefon): vlna hned, ne vůbec (stejně jako mávnutí)
     }
   }
   // ---------- SKELI V SÁLE (Skeli 25. 11.): avatar na pevném místě (3. řada od plátna u uličky vpravo), když je Skeli
@@ -609,7 +609,8 @@
     if (d.mava && d.mava !== mavaPosledni) {                           // Skeli zamával: u všech naráz
       mavaPosledni = d.mava;
       var zaM = d.mava - cas().now;
-      if (zaM > -1500) setTimeout(mavej, Math.max(0, zaM));
+      // dotaz chodí jen každé 3–6 s: kdo se o mávnutí dozví pozdě, zamává hned (dřív −1,5 s = telefon ho skoro vždy propásl, Skeli 25. 11.)
+      if (zaM > -7000) setTimeout(mavej, Math.max(0, zaM));
     }
     Object.keys(zkouskaVyp).forEach(function (x) { if (zkouskaVyp[x]) vyp[x] = true; });   // jen zkouška: vypínače z panelu
     sal.classList.toggle('bez-reakci', !!vyp.reakce);
