@@ -693,6 +693,8 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 .pm-zkouska .pm-zk-cas input[type=range] { flex: 1; width: auto; min-width: 140px; }
 .pm-zk-skoky { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 100%; }
 .pm-zk-skoky button { padding: 0 10px; font-size: .8rem; }
+.pm-zk-vyp { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; flex: 1 1 100%; color: #f5c542; }
+.pm-zk-vyp label { color: #f2f2f5; }
 
 /* věta u chatu: zprávy zůstanou veřejně pod klipem (audit 25. 11.) */
 .pm-chat-verejne { margin: 5px 14px 0; color: var(--text-dim); opacity: .7; font: 400 .66rem/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: 0; text-transform: none; }   /* nenápadně (Skeli: kazilo atmosféru) */

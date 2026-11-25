@@ -104,6 +104,23 @@ class PremiereQuizTest {
     }
 
     @Test
+    void smysleneHlasyJenVeZkousce() {
+        long at = 10_000_000L;
+        // ostrá premiéra (klíč „uuid@čas“): smyšlení diváci ze zkušebního panelu nesmí nic přičíst
+        var plan = PremiereQuiz.plan("musis-odejit", "abc-uuid@" + at);
+        long start = at - plan.get(0).pred() * 1000L;
+        PremiereQuiz.simHlasy("abc-uuid@" + at, "musis-odejit", at, start + 11_000, 30);
+        assertEquals(0, PremiereQuiz.stav("abc-uuid@" + at, "musis-odejit", at, start + 13_000, "cs", null).get("hlasu"));
+        // zkouška (klíč „sim@čas“): 30 smyšlených diváků, každý jednou, i když se prohlížeč ptá víckrát
+        var planSim = PremiereQuiz.plan("musis-odejit", "sim@" + at);
+        long startSim = at - planSim.get(0).pred() * 1000L;
+        PremiereQuiz.simHlasy("sim@" + at, "musis-odejit", at, startSim + 4_000, 30);
+        PremiereQuiz.simHlasy("sim@" + at, "musis-odejit", at, startSim + 10_000, 30);
+        PremiereQuiz.simHlasy("sim@" + at, "musis-odejit", at, startSim + 11_000, 30);
+        assertEquals(30, PremiereQuiz.stav("sim@" + at, "musis-odejit", at, startSim + 13_000, "cs", null).get("hlasu"));
+    }
+
+    @Test
     void kevinPodleSkutecneUspesnosti() {
         long at = 10_000_000L;
         var plan = PremiereQuiz.plan("musis-odejit", "p4");
