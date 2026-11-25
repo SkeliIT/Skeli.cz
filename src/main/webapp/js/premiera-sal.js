@@ -770,7 +770,7 @@
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
     if (zbyva <= 60000) zavriShort();
-    if (zbyva > 0 && zbyva <= 20000) scena.classList.add('priprav');
+    if (zbyva > 0 && zbyva <= 20000) { scena.classList.add('priprav'); panDomu(); }
     if (zbyva > 0 && zbyva <= 5000) jeviste.classList.add('cernobile');
     // 9 s předem ztrácí barvy celé okno (body.pm-sede jako zbytek webu – css/effects.css) až do 19:06; klip zůstává barevný
     if (zbyva > 0 && zbyva <= 9000) jeviste.classList.add('sede');   // od 9 s šedne sál a celé okno, plátno s obličeji až od 5 s
@@ -794,6 +794,42 @@
     if (Date.now() >= dalsi) dotaz();
   }
 
+  // ---------- TELEFON NA VÝŠKU: rozhlížení po sále prstem do stran (Skeli 25. 11.: na mobilu je vidět jen střed sálu) ----------
+  // Svislé posouvání stránky zůstává (touch-action: pan-y v css). Po vstupu se sál jednou jemně sám rozhlédne (ať je vidět, že
+  // to jde); od přípravy finále (20 s předem) se obraz plynule vrátí doprostřed – kamera najíždí na plátno.
+  var panMq = window.matchMedia ? window.matchMedia('(orientation: portrait) and (max-width: 900px)') : null;
+  var pan = 0, panTah = null, panAnim = 0;
+  function panMez() { return Math.max(0, (scena.offsetWidth - jeviste.clientWidth) / 2); }
+  function panNastav(x) { var m = panMez(); pan = Math.max(-m, Math.min(m, x)); scena.style.setProperty('--pan', pan.toFixed(1) + 'px'); }
+  function panJed(cil, ms, hotovo) {                                 // plynulý posun (rozhlédnutí, návrat doprostřed)
+    cancelAnimationFrame(panAnim);
+    var od = pan, t0 = performance.now();
+    (function krok(t) {
+      var k = Math.min(1, (t - t0) / ms), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      panNastav(od + (cil - od) * e);
+      if (k < 1) panAnim = requestAnimationFrame(krok); else if (hotovo) hotovo();
+    })(t0);
+  }
+  function panSmi() { return panMq && panMq.matches && !scena.classList.contains('priprav') && !jeviste.classList.contains('fs'); }
+  jeviste.addEventListener('pointerdown', function (e) {
+    if (!panSmi() || e.pointerType === 'mouse' || e.target.closest('button, a, .pm-pop, .pm-chat')) return;
+    cancelAnimationFrame(panAnim);
+    panTah = { x: e.clientX, y: e.clientY, p: pan, tah: false };
+  });
+  jeviste.addEventListener('pointermove', function (e) {
+    if (!panTah) return;
+    var dx = e.clientX - panTah.x, dy = e.clientY - panTah.y;
+    if (!panTah.tah && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) panTah.tah = true;
+    if (panTah.tah) panNastav(panTah.p + dx);
+  });
+  ['pointerup', 'pointercancel'].forEach(function (u) { jeviste.addEventListener(u, function () { panTah = null; }); });
+  function panUkazka() {                                             // jednou po vstupu: doleva, doprava, doprostřed
+    if (!panSmi() || klid || slaby()) return;
+    var m = panMez() * 0.6;
+    setTimeout(function () { panJed(m, 1400, function () { panJed(-m, 2200, function () { panJed(0, 1300); }); }); }, 1800);
+  }
+  function panDomu() { if (pan && !panTah) panJed(0, 900); }        // finále: zpátky doprostřed
+
   // ---------- vstup do sálu ----------
   var vSale = false, timer = 0;
   function spust() { if (vSale && !timer && !document.hidden) { tik(); timer = setInterval(tik, 250); } }
@@ -807,6 +843,7 @@
     hl.appendChild($('pmZvuk')); hl.appendChild($('pmKonec')); hl.appendChild($('pmYtOdkaz'));
     if (window.skeliUpoutavkyZavri) window.skeliUpoutavkyZavri();
     postavSal();
+    panUkazka();
     try { sessionStorage.setItem('pmSal', '1'); } catch (e) { /* nevadí */ }
     dalsi = 0; spust();
     zvukSal(!sam || cas().zvuk);                                   // zvuk sálu jen po ťuknutí (jinak tlačítko 🔊)
@@ -861,10 +898,26 @@
     b.classList.toggle('vyp', !on);
     b.setAttribute('aria-label', on ? T.tSoundOff : T.tSoundOn); b.title = on ? T.tSoundOff : T.tSoundOn;
   }
+  // Skeli 25. 11.: při vstupu musí zvuk hrát bez dalšího klikání. Ťuknutí na Vstoupit (nebo na volbu postavy) zvuk zapne
+  // vždycky (i když byl dřív na webu vypnutý). Když se sál otevře sám (od 18:30, po obnovení stránky), prohlížeč zvuk bez
+  // ťuknutí nepustí – naskočí při prvním ťuknutí kamkoli (jen když ho člověk dřív sám nevypnul).
   function zvukSal(gesto) {
     var Z = window.PmZvuky;
-    if (Z && gesto && !Z.vypnuto()) Z.start(cas().at - cas().now);
+    if (Z && gesto) { if (Z.zapni(cas().at - cas().now) && window.skeliPmZvukPovolen) window.skeliPmZvukPovolen(); }
+    else if (Z && !Z.bezi() && !Z.vypnuto()) zvukPrvniTuk();
     zvukKresli();
+  }
+  function zvukPrvniTuk() {
+    var UDALOSTI = ['pointerup', 'keydown', 'click'];
+    var odeber = function () { UDALOSTI.forEach(function (u) { document.removeEventListener(u, pust, true); }); };
+    var pust = function (e) {
+      odeber();
+      if (e.target && e.target.closest && e.target.closest('#pmZvukSal')) return;   // ťuknutí na 🔊 si poradí samo
+      var Z = window.PmZvuky;
+      if (Z && !Z.bezi() && !Z.vypnuto() && Z.start(cas().at - cas().now) && window.skeliPmZvukPovolen) window.skeliPmZvukPovolen();
+      zvukKresli();
+    };
+    UDALOSTI.forEach(function (u) { document.addEventListener(u, pust, true); });
   }
   $('pmZvukSal').addEventListener('click', function () {
     var Z = window.PmZvuky;

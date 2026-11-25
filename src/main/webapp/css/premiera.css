@@ -930,3 +930,8 @@ main.pm .pm-tlesk:active { transform: scale(.92); }
     height: 64px; width: auto; color: var(--accent); opacity: .7; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent)); }
   .pm.v-sale .pm-odkazy, .pm.v-sale.is-wait .pm-odkazy { justify-content: center; grid-column: 1 / -1; width: 100%; margin-top: 16px; }
 }
+/* telefon na výšku: sál jde posouvat prstem do stran (js: --pan), svisle se stránka posouvá dál */
+@media (orientation: portrait) and (max-width: 900px) {
+  .pm-scena { translate: calc(-50% + var(--pan, 0px)) 0; }
+  .pm-jeviste { touch-action: pan-y; }
+}
