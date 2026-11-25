@@ -829,7 +829,31 @@
     var m = panMez() * 0.6;
     setTimeout(function () { panJed(m, 1400, function () { panJed(-m, 2200, function () { panJed(0, 1300); }); }); }, 1800);
   }
-  function panDomu() { if (pan && !panTah) panJed(0, 900); }        // finále: zpátky doprostřed
+  function panDomu() { if (pan && !panTah) panJed(0, 900); naklZpet(); }   // finále: zpátky doprostřed, bez náklonu
+
+  // ---------- PC: sál se jemně natáčí za myší (jako ukázka v karaoke, Skeli 25. 11.) – rozhlížení po kině. Jedno otočení
+  //            kolem osy kolmé na směr kurzoru (css rotate + mírné přiblížení, ať se neodkryjí okraje); max. jednou za snímek.
+  //            Ne na slabém zařízení, při omezení pohybu a od přípravy finále (kamera najíždí na plátno). ----------
+  var naklMq = window.matchMedia ? window.matchMedia('(hover: hover) and (pointer: fine)') : null, naklRaf = 0, naklXY = null;
+  function naklZpet() { naklXY = null; scena.classList.remove('naklon'); }
+  jeviste.addEventListener('pointermove', function (e) {
+    if (e.pointerType !== 'mouse' || !naklMq || !naklMq.matches || klid || slaby() || vyp.efekty) return;
+    if (scena.classList.contains('priprav') || jeviste.classList.contains('hraje')) { naklZpet(); return; }
+    var r = jeviste.getBoundingClientRect();
+    naklXY = [(e.clientX - r.left) / r.width - 0.5, (e.clientY - r.top) / r.height - 0.5];
+    if (naklRaf) return;
+    naklRaf = requestAnimationFrame(function () {
+      naklRaf = 0;
+      if (!naklXY) return;
+      var x = naklXY[0], y = naklXY[1], uhel = Math.min(1, Math.sqrt(x * x + y * y) * 2) * 3.2;   // nejvýš ~3°
+      scena.style.setProperty('--osa', (-y).toFixed(3) + ' ' + x.toFixed(3) + ' 0');
+      scena.style.setProperty('--uhel', uhel.toFixed(2) + 'deg');
+      scena.style.setProperty('--lx', (-x * 4.6).toFixed(2) + '%');   // pohled se posune ke kurzoru (odkryje se ta strana)
+      scena.style.setProperty('--ly', (-y * 4.6).toFixed(2) + '%');
+      scena.classList.add('naklon');
+    });
+  });
+  jeviste.addEventListener('pointerleave', naklZpet);
 
   // ---------- vstup do sálu ----------
   var vSale = false, timer = 0;
