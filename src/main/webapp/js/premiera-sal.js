@@ -428,7 +428,8 @@
   //            z ničeho nic otočí, jednou zvedne ruku a otočí se zpět (žádný nápis ani reflektor). Snímky mava-1..4 (navrhy/premiera/kino/skeli-mava.py).
   var jaUmelec = false, mavaPosledni = 0, mavaBezi = false;
   // [snímek, ms od začátku]: otočí se, jednou zvedne ruku a chvilku ji podrží, spustí ji a otočí se zpět (Skeli 25. 11.: 3× vypadalo divně)
-  var MAVA = [['mava-1', 0], ['mava-2', 450], ['mava-3', 1200], ['mava-4', 1650], ['mava-3', 3000], ['mava-2', 3500], ['mava-1', 4250], ['', 4850]];
+  // zpátky bez snímku s hlavou doprava (mava-1) – z ohlédnutí rovnou do sedu (Skeli 25. 11.)
+  var MAVA = [['mava-1', 0], ['mava-2', 450], ['mava-3', 1200], ['mava-4', 1650], ['mava-3', 3000], ['mava-2', 3500], ['', 4300]];
   function mavej() {
     if (mavaBezi || !skeliEl || !skeliVSale || !skeliEl.classList.contains('sedi') || skeliEl.dataset.s) return;   // ne při pozdravu
     mavaBezi = true;
