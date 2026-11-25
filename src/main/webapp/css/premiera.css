@@ -418,7 +418,9 @@ body.light .pm-sal-img { background-image: url(/img/premiera/kino/sal-svetly.web
 .pm-tma { position: absolute; inset: -2%; z-index: 3; background: #000; opacity: 0; pointer-events: none; transition: opacity 2.8s ease; }
 .pm-scena.jede .pm-tma { opacity: .4; transition-duration: 4s; }
 .pm-scena.tma .pm-tma { opacity: .96; transition-duration: 5s; transition-timing-function: cubic-bezier(.4, 0, .6, 1); }
-.pm-scena.tma .pm-platno { z-index: 4; }
+/* plátno nad tmavou vrstvou už od přípravy finále (20 s), ne až při zhasnutí (7,5 s): dřív v 7,5 s skočilo z 40% tmy do plného
+   jasu = probliknutí a změna barev (Skeli 25. 11.) */
+.pm-scena.priprav .pm-platno, .pm-scena.jede .pm-platno, .pm-scena.tma .pm-platno { z-index: 4; }
 
 /* posledních 7 s: obličeje na tep srdce nad odpočtem, logo SKELO SQUAD pod ním (odpočet zůstává vidět) */
 .pm-pl-finale { position: absolute; inset: 0; opacity: 0; transition: opacity .8s; pointer-events: none; }
