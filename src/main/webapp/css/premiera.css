@@ -387,7 +387,9 @@ main.pm .pm-jeviste.fs .pm-velky, main.pm .pm-jeviste.na-celou .pm-velky, main.p
   transform: translateY(var(--ty, 0%)) scale(var(--zoom, 1)); transition: transform 13s cubic-bezier(.45, 0, .2, 1); }
 .pm-scena.jede, .pm-scena.priprav { will-change: transform; }   /* priprav = 20 s předem (js), ať jízda kamery neskočí */
 @media (orientation: landscape), (min-width: 901px) { .pm-scena { width: 100%; height: auto; } }
-.pm-sal-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pm-sal-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: url(/img/premiera/kino/sal.webp?v=1) center / 100% 100% no-repeat; }
+/* světlý motiv: světlý sál od Skeliho (25. 11.) – stejné rozložení, sedadla.json sedí i na něm (ověřeno obrysy) */
+body.light .pm-sal-img { background-image: url(/img/premiera/kino/sal-svetly.webp?v=1); }
 
 /* plátno s názvem a odpočtem; diváci sedí PŘED ním (záře plátna se přes hlavy nekreslí) */
 .pm-platno { position: absolute; z-index: 1; left: 26.2%; top: 11.37%; width: 47.85%; height: 37.2%; display: grid; place-items: center;

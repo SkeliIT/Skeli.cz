@@ -102,7 +102,8 @@
         <div class="pm-sal-hl">
           <div class="pm-jeviste" id="pmJeviste">
             <div class="pm-scena" id="pmScena">
-              <img class="pm-sal-img" src="/img/premiera/kino/sal.webp" alt="" width="1672" height="941" decoding="async">
+              <%-- obrázek sálu je pozadí ve stylu: tmavý / světlý podle motivu, stáhne se jen ten jeden (css/premiera.css) --%>
+              <div class="pm-sal-img" aria-hidden="true"></div>
               <div class="pm-platno<%= teaser != null && !pm.isOut() ? " ma-short" : "" %>" id="pmPlatno"<% if (teaser != null && !pm.isOut()) { %> role="button" tabindex="0" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.teaserPlay")) %>" data-short="<%= teaser[0] %>"<% } %>>
                 <div class="pm-pl-text">
                   <div class="pm-pl-napis"><%= pmName %></div>
