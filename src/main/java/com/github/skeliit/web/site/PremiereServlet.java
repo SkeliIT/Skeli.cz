@@ -37,6 +37,8 @@ public class PremiereServlet extends HttpServlet {
         if (req.getParameter("pmSim") != null && ("localhost".equals(host) || host.startsWith("test."))) {
             long sec = 3 * 24 * 3600;
             try { sec = Long.parseLong(req.getParameter("pmSim")); } catch (NumberFormatException e) { /* výchozí 3 dny */ }
+            // zkouška ukazuje časy ostré premiéry (Skeli 25. 11.: „špatné časy“) – jinak by byly podle zkušebního startu (teď + sec)
+            if (p != null) req.setAttribute("pmSimOstraAt", p.at);
             p = new Premiere(0, "sim", "Musíš odejít", "clip", null, System.currentTimeMillis() + sec * 1000);
         }
         if (p == null) { resp.sendRedirect("/"); return; }

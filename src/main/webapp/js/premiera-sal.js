@@ -306,7 +306,7 @@
 
   // ---------- PROGRAM VEČERA (časy podle začátku premiéry, pražský čas) ----------
   (function () {
-    var ol = $('pmProgram'), at = cas().at, casy = [at - 30 * 60000, at - 25 * 60000, at - 48000, at, at + 4 * 60000];   // 18:59:12 pozdrav (js/premiera-zvuky.js)
+    var ol = $('pmProgram'), at = +ol.dataset.ostraAt || cas().at, casy = [at - 30 * 60000, at - 25 * 60000, at - 48000, at, at + 4 * 60000];   // 18:59:12 pozdrav (js/premiera-zvuky.js)
     var f = window.Intl ? new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Prague' }) : null;
     String(T.tProg || '').split('|').forEach(function (t, i) {
       var li = document.createElement('li'), b = document.createElement('b'), sp = document.createElement('span');

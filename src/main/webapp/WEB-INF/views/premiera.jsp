@@ -109,7 +109,9 @@
               <div class="pm-platno<%= teaser != null && !pm.isOut() ? " ma-short" : "" %>" id="pmPlatno"<% if (teaser != null && !pm.isOut()) { %> role="button" tabindex="0" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.teaserPlay")) %>" data-short="<%= teaser[0] %>"<% } %>>
                 <div class="pm-pl-text">
                   <div class="pm-pl-napis"><%= pmName %></div>
-                  <div class="pm-pl-kdy"><%= WebUtils.escapeHtml(t.getProperty("pm.title")) %> · <%= WebUtils.escapeHtml(pm.getWhen()) %></div>
+                  <% Long pmOstraAt = (Long) request.getAttribute("pmSimOstraAt");   // zkouška: datum ostré premiéry
+                     String pmKdy = pmOstraAt != null ? new com.github.skeliit.model.Premiere(0, "", "", "", null, pmOstraAt).getWhen() : pm.getWhen(); %>
+                  <div class="pm-pl-kdy"><%= WebUtils.escapeHtml(t.getProperty("pm.title")) %> · <%= WebUtils.escapeHtml(pmKdy) %></div>
                   <div class="pm-pl-odpocet" id="pmSalOdpocet">--:--</div>
                   <div class="pm-pl-lidi" id="pmSalLidi"></div>
                   <% if (teaser != null && !pm.isOut()) { %><div class="pm-pl-tip"><i class="fa-solid fa-play" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.teaser")) %></div><% } %>
@@ -199,7 +201,7 @@
     <div class="pm-dole">
     <div class="pm-podsal">
       <div class="pm-karta pm-program"><h3><%= WebUtils.escapeHtml(t.getProperty("pm.progTitle")) %></h3>
-        <ol class="pm-prog" id="pmProgram" data-nazev="<%= pmName %>"></ol>
+        <ol class="pm-prog" id="pmProgram" data-nazev="<%= pmName %>"<% if (request.getAttribute("pmSimOstraAt") != null) { %> data-ostra-at="<%= request.getAttribute("pmSimOstraAt") %>"<% } %>></ol>
         <span class="squad-mark pm-program-logo" aria-hidden="true"></span></div>
       <div class="pm-karta pm-nalada" id="pmNalada" hidden><h3><%= WebUtils.escapeHtml(t.getProperty("pm.moodTitle")) %></h3>
         <p class="pm-nal-text" id="pmNalText"></p><div class="pm-nalady" id="pmNalady"></div></div>

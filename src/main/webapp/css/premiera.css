@@ -402,7 +402,9 @@ body.light .pm-sal-img { background-image: url(/img/premiera/kino/sal-svetly.web
   font-variant-numeric: tabular-nums; margin-top: .8cqw; text-shadow: 0 0 3cqw color-mix(in srgb, var(--accent) 55%, transparent); }
 .pm-pl-lidi, .pm-pl-tip { font: 400 2.8cqw/1 'Bebas Neue', var(--font-body), sans-serif; color: #ccc; margin-top: 1cqw; letter-spacing: .14em; }
 .pm-pl-tip { color: #d6d6d6; font-size: 2.8cqw; margin-top: 1.6cqw; }   /* ťuknutí na plátno pustí upoutávku – musí být vidět */
-.pm.is-soon .pm-pl-tip, .pm:not(.is-wait) .pm-pl-tip { display: none; }
+/* poslední minuta: „Upoutávka“ jen plynule zmizí, místo zůstane (Skeli 25. 11.: ostatní texty poskočily) */
+.pm-pl-tip { transition: opacity .8s ease; }
+.pm.is-soon .pm-pl-tip, .pm:not(.is-wait) .pm-pl-tip { opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility 0s .8s; }
 .pm-pl-short { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: contain; background: #000; }
 .pm-platno.hraje-short .pm-pl-text { opacity: 0; }
 
