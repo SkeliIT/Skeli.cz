@@ -1032,3 +1032,24 @@ body:has(main.pm.v-sale) { transition: --a1h 3s ease-in, --a1s 3s ease-in, --a1l
 /* upoutávka končí 2 minuty předem spolu s datem (Skeli 25. 11.) – nápis jen zmizí, místo zůstane */
 .pm-platno.bez-kdy .pm-pl-tip { opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility 0s .8s; }
 .pm-platno.bez-kdy { cursor: default; }
+
+/* ---------- příběh „Jak jsem si místo premiéry postavil kino“ (Skeli 25. 11.): pod kartami, přes celou šířku; zavřený = nadpis,
+   první odstavec a „Číst dál“ (details/summary, bez JS). Text Oswald jako komentáře, řádky nejvýš ~70 znaků. ---------- */
+.pm-pribeh { grid-column: 1 / -1; width: 100%; max-width: 1280px; margin: 16px auto 0; padding: 16px 18px; border-radius: 18px; text-align: left;
+  background: color-mix(in srgb, var(--panel) 88%, transparent); border: 1px solid var(--panel-border); color: var(--text); }
+.pm-pribeh > summary { list-style: none; cursor: pointer; }
+.pm-pribeh > summary::-webkit-details-marker { display: none; }
+.pm-pribeh-h { margin: 0 0 10px; font: 400 2.1rem/1.05 'Comforter Brush', 'Oswald', cursive; letter-spacing: 0; text-transform: none;
+  color: #fff; text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent); }
+body.light .pm-pribeh-h { color: var(--accent); text-shadow: none; }
+.pm-pribeh h3 { margin: 18px 0 6px; font: 500 1.12rem/1.3 'Oswald', var(--font-text); letter-spacing: .02em; color: var(--accent); }
+.pm-pribeh summary h3 { margin-top: 0; }
+.pm-pribeh p { max-width: 70ch; margin: 0 0 10px; font: 300 var(--fs-text)/1.6 var(--font-text); }
+.pm-pribeh-vic { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 16px; margin-top: 2px; border-radius: 99px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); color: var(--accent); font: 500 .95rem/1 'Oswald', var(--font-text); letter-spacing: .04em; }
+.pm-pribeh-vic::before { content: attr(data-vic) " ▾"; }
+.pm-pribeh[open] .pm-pribeh-vic::before { content: attr(data-min) " ▴"; }
+.pm-pribeh > summary:hover .pm-pribeh-vic, .pm-pribeh > summary:focus-visible .pm-pribeh-vic { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.pm-pribeh > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 10px; }
+.pm-pribeh .pm-pribeh-podpis { margin-top: 14px; font: 400 1.6rem/1 'Comforter Brush', 'Oswald', cursive; color: var(--accent); }
+@media (max-width: 600px) { .pm-pribeh { padding: 14px; } .pm-pribeh-h { font-size: 1.8rem; } }

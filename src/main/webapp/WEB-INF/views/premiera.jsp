@@ -219,6 +219,22 @@
       </ul>
       <p class="pm-pomoc-cz"><%= WebUtils.escapeHtml(t.getProperty("pm.helpCz")) %></p>
     </aside>
+    <%-- příběh „Jak jsem si místo premiéry postavil kino“ (Skeli 25. 11.): vidět nadpis a první odstavec, zbytek se rozbalí
+         (details = funguje i bez JS). V překladech \n = nový odstavec. --%>
+    <details class="pm-pribeh">
+      <summary>
+        <h2 class="pm-pribeh-h"><%= WebUtils.escapeHtml(t.getProperty("pm.story.title")) %></h2>
+        <h3><%= WebUtils.escapeHtml(t.getProperty("pm.story.h1")) %></h3>
+        <p><%= WebUtils.escapeHtml(t.getProperty("pm.story.lead")) %></p>
+        <span class="pm-pribeh-vic" data-vic="<%= WebUtils.escapeHtml(t.getProperty("pm.story.more")) %>" data-min="<%= WebUtils.escapeHtml(t.getProperty("pm.story.less")) %>" aria-hidden="true"></span>
+      </summary>
+      <% for (int si = 1; si <= 8; si++) {
+           if (si > 1) { %><h3><%= WebUtils.escapeHtml(t.getProperty("pm.story.h" + si)) %></h3><% }
+           for (String odst : t.getProperty("pm.story.t" + si, "").split("\n")) { %>
+      <p><%= WebUtils.escapeHtml(odst) %></p>
+      <% } } %>
+      <p class="pm-pribeh-podpis"><%= WebUtils.escapeHtml(t.getProperty("pm.story.sign")) %></p>
+    </details>
     </div>
 
     <div class="pm-video" id="pmVideo" hidden>
