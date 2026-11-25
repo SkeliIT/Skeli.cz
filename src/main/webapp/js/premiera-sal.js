@@ -210,7 +210,7 @@
   SMAJL.forEach(function (k) {
     var b = document.createElement('button'), tvar = k.charAt(0) === 'f';
     b.type = 'button';
-    var popis = tvar ? NALADY[+k.slice(1) - 1] : T.tReact;
+    var popis = tvar ? String(NALADY[+k.slice(1) - 1] || '').split(' – ')[0] : (k === 'tlesk' ? T.tWaveHint : T.tReact);   // obličej: jen název nálady
     b.setAttribute('aria-label', popis || T.tReact); b.title = (popis || '') + (tvar ? ' · ' + k.slice(1) + ' / ' + 'QWERTZU'.charAt(+k.slice(1) - 1) : '');
     obsah(k, b, true);
     // u obličeje se v nadpisu ukáže, jakou náladu znamená (najetí myší, ťuknutí, klávesnice)
@@ -743,6 +743,7 @@
     if (sede !== pmSede) { pmSede = sede; document.body.classList.toggle('pm-sede', sede); }
     if (window.PmZvuky) window.PmZvuky.tik(zbyva, c.now);
     skeliTik(zbyva);
+    $('pmPopVlna').hidden = !(zbyva <= OTEVRI_SAM && zbyva > 15000);   // věta o vlně jen když vlna jde (server: 30 min odpočtu)
     var okno = zbyva <= 1560000 && zbyva > 300000 && !vyp.kviz;   // rezervované místo pro kvíz pod sálem
     if (okno !== kvizOkno) {
       kvizOkno = okno; sal.classList.toggle('kviz-okno', okno);

@@ -839,3 +839,7 @@ main.pm .pm-kdo-volby button:hover, main.pm .pm-kdo-volby button:focus-visible {
 main.pm .pm-kdo-volby button[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 18px -6px var(--accent); }
 .pm-kdo-volby img { width: 100%; max-width: 120px; height: auto; aspect-ratio: 181 / 270; object-fit: contain; filter: drop-shadow(0 0 6px rgba(255, 170, 60, .35)); }
 @media (prefers-reduced-motion: reduce) { main.pm .pm-kdo-volby button:hover { transform: none; } }
+/* nenápadná věta o vlně v okénku smajlíků (jen během 30 min odpočtu) */
+.pm-pop-vlna { margin: 0; max-width: 344px; color: #8f8f9c; font: 300 .82rem/1.35 'Oswald', sans-serif; letter-spacing: .03em; }
+.pm-pop-vlna[hidden] { display: none; }
+@media (max-width: 600px) { .pm-pop-vlna { max-width: 280px; font-size: .74rem; } }
