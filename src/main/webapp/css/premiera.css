@@ -920,3 +920,13 @@ main.pm .pm-tlesk:active { transform: scale(.92); }
 .pm-zk-odkaz { position: fixed; z-index: 90; left: 12px; bottom: 12px; display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px;
   border-radius: 99px; border: 1px dashed #f5c542; background: rgba(10, 10, 14, .92); color: #f5c542; font: 600 .9rem/1 var(--font-body); text-decoration: none; }
 .pm-zk-odkaz:hover, .pm-zk-odkaz:focus-visible { background: #f5c542; color: #111; }
+/* ---------- pod sálem na PC (Skeli 25. 11.): program a kontakty stejně vysoké, v prázdném místě pod programem logo SKELO SQUAD
+   se smajlíky, Text písně a Sdílet uprostřed pod oběma kartami ---------- */
+.pm-program-logo { display: none; }
+@media (min-width: 1100px) {
+  .pm.v-sale .pm-dole > .pm-podsal:has(> .pm-nalada[hidden]) { grid-template-rows: 1fr; }
+  .pm.v-sale .pm-dole .pm-program { display: flex; flex-direction: column; }
+  .pm.v-sale .pm-dole .pm-podsal:has(> .pm-nalada[hidden]) .pm-program-logo { display: block; align-self: center; margin: auto 0 4px; padding-top: 16px;
+    height: 64px; width: auto; color: var(--accent); opacity: .7; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent)); }
+  .pm.v-sale .pm-odkazy, .pm.v-sale.is-wait .pm-odkazy { justify-content: center; grid-column: 1 / -1; width: 100%; margin-top: 16px; }
+}

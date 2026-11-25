@@ -189,7 +189,8 @@
     <div class="pm-dole">
     <div class="pm-podsal">
       <div class="pm-karta pm-program"><h3><%= WebUtils.escapeHtml(t.getProperty("pm.progTitle")) %></h3>
-        <ol class="pm-prog" id="pmProgram" data-nazev="<%= pmName %>"></ol></div>
+        <ol class="pm-prog" id="pmProgram" data-nazev="<%= pmName %>"></ol>
+        <span class="squad-mark pm-program-logo" aria-hidden="true"></span></div>
       <div class="pm-karta pm-nalada" id="pmNalada" hidden><h3><%= WebUtils.escapeHtml(t.getProperty("pm.moodTitle")) %></h3>
         <p class="pm-nal-text" id="pmNalText"></p><div class="pm-nalady" id="pmNalady"></div></div>
     </div>
