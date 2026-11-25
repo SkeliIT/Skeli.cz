@@ -807,7 +807,7 @@
     if (window.PmZvuky) window.PmZvuky.klip();                     // při klipu hraje jen klip
     setTimeout(function () { platno.classList.remove('v-finale', 'ma-logo'); }, 1200);
   }
-  var pozdravVidet = false, pmSede = false, chatSkryty = false;   // chat přes sál schová jen divák sám (Skeli 25. 11.)
+  var pozdravVidet = false, pmSede = false, chatRezim = 'cely';   // chat přes sál: cely / maly / vyp – mění jen divák sám (Skeli 25. 11.)
   function tik() {
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
@@ -1046,16 +1046,22 @@
     return !!chatEl && chatEl.parentNode === chatDomov && !sal.classList.contains('chat-pryc') && getComputedStyle(chatEl).position === 'absolute';
   }
   function chatPrycKresli() {
-    sal.classList.toggle('chat-pryc', chatSkryty);
-    var b = $('pmChatTl'); b.classList.toggle('on', !chatSkryty); b.setAttribute('aria-pressed', String(!chatSkryty));
-    if (!chatSkryty) { nepreceteno = 0; $('pmFsNove').textContent = $('pmChatNove').textContent = ''; }
+    sal.classList.toggle('chat-pryc', chatRezim === 'vyp');
+    sal.classList.toggle('chat-maly', chatRezim === 'maly');
+    chatEl.querySelectorAll('.pm-chat-rezim button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.rezim === chatRezim)); });
+    if (chatRezim !== 'vyp') { nepreceteno = 0; $('pmFsNove').textContent = $('pmChatNove').textContent = ''; }
   }
-  try { chatSkryty = localStorage.getItem('pmChatSkryty') === '1'; } catch (e) { /* ukázaný */ }
+  function chatNastav(r) {
+    chatRezim = r; chatPrycKresli();
+    try { localStorage.setItem('pmChatRezim', r); } catch (e) { /* jen teď */ }
+  }
+  try {
+    chatRezim = localStorage.getItem('pmChatRezim') || (localStorage.getItem('pmChatSkryty') === '1' ? 'vyp' : 'cely');
+  } catch (e) { /* velký */ }
+  if (!/^(cely|maly|vyp)$/.test(chatRezim)) chatRezim = 'cely';
   chatPrycKresli();
-  $('pmChatTl').addEventListener('click', function () {
-    chatSkryty = !chatSkryty; chatPrycKresli();
-    try { localStorage.setItem('pmChatSkryty', chatSkryty ? '1' : '0'); } catch (e) { /* jen teď */ }
-  });
+  chatEl.querySelectorAll('.pm-chat-rezim button').forEach(function (b) { b.addEventListener('click', function () { chatNastav(b.dataset.rezim); }); });
+  $('pmChatTl').addEventListener('click', function () { chatNastav('cely'); });   // skrytý chat zpět
 
   // ---------- celá obrazovka: PC a Android celý sál; iPhone stránku na celou obrazovku nepustí – tam aspoň klip ----------
   $('pmCeloVen').addEventListener('click', function () { $('pmCelo').click(); });   // tlačítko pod sálem (v sále jen k návratu)

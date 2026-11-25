@@ -167,7 +167,13 @@
           </div>
         </div>
         <aside class="pm-chat"><div class="pm-chat-in">
-          <h2 class="pm-chat-h"><span><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.chat")) %></span><span id="pmChatLidi"></span></h2>
+          <h2 class="pm-chat-h"><span><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.chat")) %></span><span id="pmChatLidi"></span>
+            <%-- jen PC s chatem přes sál (Skeli 25. 11.): velký / malý v rohu / skrýt; skrytý vrátí tlačítko Chat v sále --%>
+            <span class="pm-chat-rezim" role="group">
+              <button type="button" data-rezim="cely" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.fsFull")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.fsFull")) %>"><i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i></button>
+              <button type="button" data-rezim="maly" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.fsSmall")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.fsSmall")) %>"><i class="fa-solid fa-down-left-and-up-right-to-center" aria-hidden="true"></i></button>
+              <button type="button" data-rezim="vyp" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.fsOff")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.fsOff")) %>"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </span></h2>
           <% if (pmUid != null) { %>
           <form class="pm-psani" id="pmPsani">
             <input type="text" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="<%= WebUtils.escapeHtml(t.getProperty("pm.chatPh")) %>" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.chatPh")) %>">

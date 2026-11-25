@@ -776,7 +776,7 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
   body.light .pm-sal-roz > .pm-chat .pm-chat-h span:first-child { color: #fff; text-shadow: 0 0 10px var(--accent); }
   .pm-sal.chat-pryc .pm-sal-roz > .pm-chat { opacity: 0; visibility: hidden; }
   .pm-sal:not(.chat-pryc) .pm-jeviste:not(.fs) .pm-reakce-roh { right: calc(min(340px, 27cqw) + 26px); }   /* smajlíci vedle chatu */
-  .pm-sal .pm-jeviste:not(.fs) .pm-chat-tl { display: inline-flex; }   /* chat přes sál: tlačítko Chat vždy (schovat / vrátit – jen divák sám) */
+  .pm-sal.chat-pryc .pm-jeviste:not(.fs) .pm-chat-tl { display: inline-flex; }   /* skrytý chat přes sál: tlačítko Chat ho vrátí */
   main.pm .pm-chat-tl { position: absolute; z-index: 10; top: 10px; right: 10px; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, .25); background: rgba(0, 0, 0, .5); color: #fff; font: 600 .85rem/1 var(--font-body); cursor: pointer; }
   main.pm .pm-chat-tl.on { right: calc(min(340px, 27cqw) + 24px); border-color: var(--accent); }   /* chat ukázaný: tlačítko vedle něj ho schová */
@@ -975,4 +975,18 @@ main.pm .pm-psani-pop button:hover, main.pm .pm-psani-pop button:focus-visible {
 .pm-jeviste.fs.hraje.fs-maly .pm-chat { bottom: 64px; }
 @media (min-width: 1200px) {
   .pm-sal:has(.pm-jeviste.hraje) .pm-sal-roz > .pm-chat { top: 64px; height: calc(100cqw * 941 / 1672 - 122px); }
+}
+/* ---------- přepínač chatu přes sál v jeho hlavičce (jen PC ≥1200, jinak je chat vedle / pod sálem): velký, malý, skrýt ---------- */
+.pm-chat-rezim { display: none; }
+@media (min-width: 1200px) {
+  .pm-sal-roz > .pm-chat .pm-chat-rezim { display: inline-flex; gap: 2px; margin-left: auto; }
+  .pm-sal-roz > .pm-chat .pm-chat-h { align-items: center; }
+  main.pm .pm-chat-rezim button { width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px; background: none; color: #b9b9c4; font-size: 12px;
+    cursor: pointer; display: grid; place-items: center; }
+  main.pm .pm-chat-rezim button:hover, main.pm .pm-chat-rezim button:focus-visible { color: #fff; background: rgba(255, 255, 255, .1); }
+  main.pm .pm-chat-rezim button[aria-pressed="true"] { color: var(--accent); }
+  /* malý chat: v pravém dolním rohu sálu, smajlíci vedle něj */
+  .pm-sal.chat-maly .pm-sal-roz > .pm-chat { top: auto; bottom: 12px; width: min(300px, 24cqw); height: calc(100cqw * 941 / 1672 * .46); }
+  .pm-sal.chat-maly .pm-jeviste:not(.fs) .pm-reakce-roh { right: calc(min(300px, 24cqw) + 26px); }
+  .pm-sal.chat-maly:has(.pm-jeviste.hraje) .pm-sal-roz > .pm-chat { top: auto; bottom: 64px; height: calc(100cqw * 941 / 1672 * .4); }
 }
