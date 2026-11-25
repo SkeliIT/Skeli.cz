@@ -171,7 +171,10 @@
           <% if (pmUid != null) { %>
           <form class="pm-psani" id="pmPsani">
             <input type="text" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="<%= WebUtils.escapeHtml(t.getProperty("pm.chatPh")) %>" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.chatPh")) %>">
+            <button type="button" class="pm-psani-smajl" id="pmPsaniSmajl" aria-expanded="false" aria-controls="pmPsaniPop"
+                    aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.chatEmoji")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.chatEmoji")) %>"><span aria-hidden="true">😊</span></button>
             <button type="submit"><%= WebUtils.escapeHtml(t.getProperty("common.send")) %></button>
+            <div class="pm-psani-pop" id="pmPsaniPop" hidden></div>
           </form>
           <% } else { %>
           <a class="pm-psani pm-prihlas" href="/login.jsp?next=/premiera"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.chatLogin")) %></a>

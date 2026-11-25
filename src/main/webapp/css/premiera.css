@@ -958,3 +958,13 @@ html.low-fx .pm-scena.naklon { rotate: none; scale: none; translate: -50% 0; }
 .pm-kviz-kevin { display: none !important; }   /* stará bublina přes sál se nepoužívá */
 /* finále (Skeli 25. 11.): obličeje na plátně se objevují z ničeho (bez siluety předem), každý ve své barvě; sál a okno šednou
    od 10,5 s (černobílé dřív než 5. obličej), od 5. obličeje (7 s) šedne i plátno s obličeji – js/premiera-sal.js tik() */
+/* smajlíci do zprávy v chatu (Skeli 25. 11.): 😊 vedle psaní, okénko s emoji pod polem */
+.pm-psani { position: relative; }
+main.pm .pm-psani .pm-psani-smajl { flex: none; width: 44px; padding: 0; background: rgba(255, 255, 255, .06); border: 1px solid var(--panel-border);
+  color: inherit; font-size: 20px; font-weight: 400; display: grid; place-items: center; }
+main.pm .pm-psani .pm-psani-smajl[aria-expanded="true"] { border-color: var(--accent); }
+.pm-psani-pop { position: absolute; z-index: 12; left: 10px; right: 10px; top: calc(100% - 4px); display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 4px; padding: 8px; border-radius: 14px; background: rgba(14, 14, 18, .96); border: 1px solid var(--accent); box-shadow: 0 16px 40px -12px #000; }
+.pm-psani-pop[hidden] { display: none; }
+main.pm .pm-psani-pop button { min-height: 40px; padding: 0; border: 0; border-radius: 10px; background: none; color: inherit; font-size: 22px; font-weight: 400; cursor: pointer; }
+main.pm .pm-psani-pop button:hover, main.pm .pm-psani-pop button:focus-visible { background: rgba(255, 255, 255, .1); }

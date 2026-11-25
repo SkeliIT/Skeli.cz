@@ -542,9 +542,36 @@
     var b = document.createElement('b'); b.textContent = '📌 ' + (z.jmeno || T.tDeleted) + ': ';
     box.appendChild(b); box.appendChild(document.createTextNode(z.text));
   }
+  // SMAJLÍCI DO ZPRÁVY (Skeli 25. 11.): tlačítko 😊 u psaní → okénko s emoji, ťuknutí vloží smajlíka na místo kurzoru.
+  // Emoji jsou obyčejné znaky textu – zpráva zůstává čistý text (nikdy HTML). Nejvýš 200 znaků jako dřív.
+  var EMOJI_CHAT = ['😂', '😍', '🔥', '❤️', '👏', '😮', '😢', '🙏', '💯', '🎉', '😎', '🤯', '👍', '😅', '🥺', '💪', '🖤', '🎬', '🍿', '🎤'];
+  var smajlB = $('pmPsaniSmajl'), smajlPop = $('pmPsaniPop');
+  if (form && smajlB && smajlPop) {
+    var vstup = form.querySelector('input');
+    EMOJI_CHAT.forEach(function (em) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = em; b.setAttribute('aria-label', em);
+      b.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (vstup.value.length + em.length > 200) return;
+        var a = vstup.selectionStart == null ? vstup.value.length : vstup.selectionStart, z = vstup.selectionEnd == null ? a : vstup.selectionEnd;
+        vstup.setRangeText(em, a, z, 'end');
+        vstup.focus();
+      });
+      smajlPop.appendChild(b);
+    });
+    var smajlZavri = function () { smajlPop.hidden = true; smajlB.setAttribute('aria-expanded', 'false'); };
+    smajlB.addEventListener('click', function (e) {
+      e.stopPropagation();
+      smajlPop.hidden = !smajlPop.hidden; smajlB.setAttribute('aria-expanded', String(!smajlPop.hidden));
+    });
+    smajlPop.addEventListener('click', function (e) { e.stopPropagation(); });
+    document.addEventListener('click', function () { if (!smajlPop.hidden) smajlZavri(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !smajlPop.hidden) { smajlZavri(); smajlB.focus(); } });
+    form.addEventListener('submit', smajlZavri);
+  }
   if (form) form.addEventListener('submit', function (e) {
     e.preventDefault();
-    var input = form.querySelector('input'), btn = form.querySelector('button'), text = input.value.trim();
+    var input = form.querySelector('input'), btn = form.querySelector('button[type=submit]'), text = input.value.trim();
     if (!text) return;
     btn.disabled = true;
     zivy({ action: 'chat', text: text }).then(function (r) {
