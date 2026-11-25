@@ -815,6 +815,7 @@
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
     if (zbyva <= 60000) zavriShort();
+    platno.classList.toggle('bez-kdy', zbyva <= 120000);               // 2 min předem zmizí „Premiéra · datum“ (Skeli 25. 11.)
     if (zbyva > 0 && zbyva <= 20000) { scena.classList.add('priprav'); panDomu(); }
     if (zbyva > 0 && zbyva <= 7000) jeviste.classList.add('cernobile');   // s 5. obličejem (7 s) šedne i plátno s obličeji (Skeli 25. 11.)
     // 10,5 s předem ztrácí barvy celé okno (body.pm-sede jako zbytek webu – css/effects.css) až do 19:06; klip zůstává barevný
