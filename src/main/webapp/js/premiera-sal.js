@@ -508,7 +508,9 @@
   function srdce(el, on) {
     el.classList.toggle('srdce', on);
     var b = el.querySelector('.pm-zp-srdce');
-    if (b) { b.textContent = on ? '❤️' : '♡'; if (b.tagName === 'BUTTON') b.setAttribute('aria-pressed', String(on)); }
+    if (!b) return;
+    if (b.tagName === 'BUTTON') { b.textContent = on ? '❤️' : '♡'; b.setAttribute('aria-pressed', String(on)); }
+    else b.textContent = on ? '❤️' : '';                         // ostatní vidí jen dané srdíčko, prázdné ♡ nikdy
   }
   function akce(z, el) {
     var moznosti = [];
