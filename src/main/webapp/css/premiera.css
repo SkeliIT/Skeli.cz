@@ -868,3 +868,7 @@ main.pm .pm-kdo-volby button[aria-pressed="true"] { border-color: var(--accent);
   .pm-pop-rada button img, .pm-pop-rada button .pm-tvar { width: 20px; height: 20px; }
   main.pm .pm-pop-zvuk { width: 30px; height: 30px; font-size: 12px; }
 }
+/* světlý sál: plátno je bílé → texty na něm tmavé (jinak podnadpis a „V sále“ nejsou vidět) */
+body.light .pm-pl-napis { color: #2b2320; text-shadow: 0 0 1.2cqw rgba(255, 255, 255, .7), 0 0 3cqw color-mix(in srgb, var(--accent) 55%, transparent); }
+body.light .pm-pl-kdy { color: #3f3f46; }
+body.light .pm-pl-lidi, body.light .pm-pl-tip { color: #4d4d55; }
