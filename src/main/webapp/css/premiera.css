@@ -1083,3 +1083,41 @@ main.pm button.pm-zp-srdce { min-width: 32px; min-height: 32px; margin: -8px 0 -
   color: var(--text-dim); cursor: pointer; font-size: 1rem; vertical-align: middle; }
 main.pm button.pm-zp-srdce:hover, main.pm button.pm-zp-srdce:focus-visible { color: #ff5a7a; background: rgba(255, 255, 255, .08); }
 @media (pointer: coarse) { main.pm button.pm-zp-srdce, main.pm .pm-pin-pryc { min-width: 40px; min-height: 40px; } }
+
+/* ---------- CHAT NA TELEFONU (Skeli 26. 11.: „úplně nepoužitelný“) – vzor YouTube/Twitch živých přenosů: kompaktní řádky
+   „jméno text“ bez bublin, malé písmo, připnutí na jeden řádek (ťuknutím se rozbalí), hláška malým písmem a sama zmizí (js),
+   na výšku víc místa chatu, plovoucí 💬 webu schované (překrývalo Odeslat), na šířku v celé obrazovce víc zpráv. ---------- */
+.pm-chat-info { font: 500 .8rem/1.35 var(--font-system); letter-spacing: 0; text-transform: none; }
+@media (max-width: 900px), (max-height: 500px) {
+  .pm-zpravy { gap: 6px; padding: 6px 10px 8px; }
+  .pm-zp { grid-template-columns: 20px minmax(0, 1fr) auto; gap: 0 6px; font-size: 14px; line-height: 1.35; animation: none; }
+  .pm-zp-foto { width: 20px; height: 20px; margin-top: 1px; }
+  .pm-zp-t b { margin-right: 4px; }
+  .pm-zp-t time { font-size: 11px; margin-right: 4px; }
+  .pm-zp-t p, .pm-zp.skeli .pm-zp-t p { display: inline; width: auto; margin: 0; padding: 0; background: none; border-radius: 0; }
+  .pm-zp.pripnuta .pm-zp-t p { box-shadow: none; color: #ffd23f; }
+  .pm-zp.skeli b::after { padding: 0 3px; margin-left: 4px; }
+  main.pm .pm-zp-vic { width: 32px; height: 28px; margin: -4px -6px 0 0; font-size: 16px; }
+  main.pm button.pm-zp-srdce { min-width: 28px; min-height: 28px; margin: -6px 0; }
+  /* připnuté: jen první na jednom řádku, ťuknutím (třída otevreno, js) se rozbalí všechny */
+  .pm-pripnuto { margin: 6px 10px 0; padding: 4px 8px; font-size: 13px; max-height: 6.5rem; }
+  .pm-pripnuto:not(.otevreno) .pm-pin:not(:first-child) { display: none; }
+  .pm-pripnuto:not(.otevreno) .pm-pin { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pm-pripnuto:not(.otevreno) .pm-pin-pryc { float: right; margin: -4px -4px 0 4px; }
+  .pm-pripnuto { cursor: pointer; }
+  .pm-chat-info { margin: 4px 10px 0; font-size: .75rem; }
+  .pm-psani { padding: 6px 8px; }
+  .pm-chat-in > .pm-chat-verejne { font-size: .6rem; margin: 0 10px 6px; }
+  body:has(main.pm) .chat-dock { display: none; }               /* plovoucí 💬 zpráv webu by zakrylo Odeslat */
+}
+/* na výšku: sál o kus nižší, chat vyšší (dřív 52 + 42 % výšky a na zprávy zbyly dva řádky) */
+@media (orientation: portrait) and (max-width: 900px) {
+  .pm-jeviste { height: 44svh; }
+  .pm-chat { height: 52svh; min-height: 300px; }
+}
+/* na šířku v celé obrazovce: malý chat vyšší, bez rámečku navíc – ať jsou vidět zprávy, ne jen psaní */
+@media (max-height: 500px) {
+  .pm-jeviste.fs-maly .pm-chat { top: 58px; bottom: 8px; height: auto; width: min(300px, 40vw); background: rgba(8, 8, 12, .5); }
+  .pm-jeviste.fs-cely .pm-chat-in { top: 50px; }
+  .pm-jeviste.fs .pm-chat-verejne { display: none; }
+}

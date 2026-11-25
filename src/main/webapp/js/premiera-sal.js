@@ -489,7 +489,13 @@
 
   // ---------- chat ----------
   var zpravy = $('pmZpravy'), info = $('pmChatInfo'), form = $('pmPsani'), posledni = 0;
-  function oznam(text) { info.textContent = text || ''; info.hidden = !text; }
+  // hláška pod připnutím sama zmizí za 4 s (Skeli 26. 11.: „Díky, komentář jsme předali…“ zůstávala a brala místo zprávám);
+  // jen „chat je vypnutý“ zůstává, dokud platí
+  var oznamT = 0;
+  function oznam(text) {
+    clearTimeout(oznamT); info.textContent = text || ''; info.hidden = !text;
+    if (text && text !== T.tOff) oznamT = setTimeout(function () { info.hidden = true; }, 4000);
+  }
   function prazdno() {
     var p = zpravy.querySelector('.pm-zp-prazdno');
     if (zpravy.querySelector('.pm-zp')) { if (p) p.remove(); return; }
@@ -598,13 +604,15 @@
       if (z.pripnout) {
         var x = document.createElement('button'); x.type = 'button'; x.className = 'pm-pin-pryc'; x.textContent = '✕';
         x.setAttribute('aria-label', T.tUnpin); x.title = T.tUnpin;
-        x.addEventListener('click', function () { r.remove(); if (!box.children.length) box.hidden = true; pripni(z.id, false); });
+        x.addEventListener('click', function (e) { e.stopPropagation(); r.remove(); if (!box.children.length) box.hidden = true; pripni(z.id, false); });
         r.appendChild(x);
       }
       box.appendChild(r);
     });
     zpravy.querySelectorAll('.pm-zp').forEach(function (el) { el.classList.toggle('pripnuta', !!ids[el.dataset.id]); });
   }
+  // telefon: připnuté na jeden řádek, ťuknutí rozbalí / sbalí všechny (css .otevreno)
+  $('pmPripnuto').addEventListener('click', function () { this.classList.toggle('otevreno'); });
   function srdceStav(seznam) {
     if (!Array.isArray(seznam)) return;
     var ids = {}; seznam.forEach(function (i) { ids[i] = true; });
