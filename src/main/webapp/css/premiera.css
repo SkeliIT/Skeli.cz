@@ -110,7 +110,7 @@ main.pm .pm-pustit { position: absolute; inset: 0; width: 100%; display: grid; p
   transition: opacity 1s 3s, max-height .6s 4s, margin .6s 4s; }
 .pm.ma-tvare .pm-tvare { display: flex; }
 .pm.is-live .pm-tvare { opacity: 0; max-height: 0; margin: 0; }
-.pm-tvare img { width: clamp(30px, 9vw, 48px); height: auto; opacity: .1; transform: scale(.8); transition: opacity .25s, transform .35s, filter .35s; }
+.pm-tvare img { width: clamp(30px, 9vw, 48px); height: auto; opacity: 0; transform: scale(.8); transition: opacity .25s, transform .35s, filter .35s; }
 .pm-tvare img.on { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 5px var(--pm-zlata)) drop-shadow(0 0 14px #ff8a3d); }
 body.light .pm-tvare img { filter: invert(1); }
 body.light .pm-tvare img.on { filter: invert(1) drop-shadow(0 0 4px #ff8a3d); }
@@ -423,7 +423,7 @@ body.light .pm-sal-img { background-image: url(/img/premiera/kino/sal-svetly.web
 /* posledních 7 s: obličeje na tep srdce nad odpočtem, logo SKELO SQUAD pod ním (odpočet zůstává vidět) */
 .pm-pl-finale { position: absolute; inset: 0; opacity: 0; transition: opacity .8s; pointer-events: none; }
 .pm-pl-tvare { position: absolute; left: 0; right: 0; top: 7%; display: flex; justify-content: center; gap: 2.2cqw; }
-.pm-pl-tvare .pm-tvar { width: 7.5cqw; height: 7.5cqw; opacity: .08; transform: scale(.7); transition: opacity .25s ease-out, transform .45s cubic-bezier(.2, 1.7, .4, 1), filter .4s ease; }   /* naskočí rychle s „pružinou“ (Skeli: ať si toho lidi všimnou) */   /* barvy nálad (Skeli: napřed barevné) */
+.pm-pl-tvare .pm-tvar { width: 7.5cqw; height: 7.5cqw; opacity: 0; transform: scale(.7); transition: opacity .25s ease-out, transform .45s cubic-bezier(.2, 1.7, .4, 1), filter .4s ease; }   /* naskočí rychle s „pružinou“ (Skeli: ať si toho lidi všimnou) */   /* barvy nálad (Skeli: napřed barevné) */
 .pm-pl-tvare .pm-tvar.on { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 .6cqw var(--c)); }
 .pm-pl-logo { position: absolute; left: 50%; bottom: 3%; translate: -50% 0; width: 46cqw; aspect-ratio: 6556 / 1144; background: #fff; opacity: 0;
   transform: scale(.85); transition: opacity .6s, transform 1.2s cubic-bezier(.2, .8, .2, 1);
@@ -956,3 +956,5 @@ html.low-fx .pm-scena.naklon { rotate: none; scale: none; translate: -50% 0; }
 .pm-kv-kevin { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 2px 0 0; color: var(--text); font-size: .92rem; line-height: 1.35; }
 .pm-kv-kevin img { flex: none; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 0 0 2px var(--accent); }
 .pm-kviz-kevin { display: none !important; }   /* stará bublina přes sál se nepoužívá */
+/* finále (Skeli 25. 11.): obličeje na plátně se objevují z ničeho (bez siluety předem), každý ve své barvě; sál a okno šednou
+   od 10,5 s (černobílé dřív než 5. obličej), od 5. obličeje (7 s) šedne i plátno s obličeji – js/premiera-sal.js tik() */

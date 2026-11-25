@@ -779,10 +779,10 @@
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
     if (zbyva <= 60000) zavriShort();
     if (zbyva > 0 && zbyva <= 20000) { scena.classList.add('priprav'); panDomu(); }
-    if (zbyva > 0 && zbyva <= 5000) jeviste.classList.add('cernobile');
-    // 9 s předem ztrácí barvy celé okno (body.pm-sede jako zbytek webu – css/effects.css) až do 19:06; klip zůstává barevný
-    if (zbyva > 0 && zbyva <= 9000) jeviste.classList.add('sede');   // od 9 s šedne sál a celé okno, plátno s obličeji až od 5 s
-    var sede = zbyva <= 9000 && zbyva > -360000;
+    if (zbyva > 0 && zbyva <= 7000) jeviste.classList.add('cernobile');   // s 5. obličejem (7 s) šedne i plátno s obličeji (Skeli 25. 11.)
+    // 10,5 s předem ztrácí barvy celé okno (body.pm-sede jako zbytek webu – css/effects.css) až do 19:06; klip zůstává barevný
+    if (zbyva > 0 && zbyva <= 10500) jeviste.classList.add('sede');   // od 10,5 s šedne sál a celé okno – černobílé dřív než 5. obličej (7 s)
+    var sede = zbyva <= 10500 && zbyva > -360000;
     if (sede !== pmSede) { pmSede = sede; document.body.classList.toggle('pm-sede', sede); }
     if (window.PmZvuky) window.PmZvuky.tik(zbyva, c.now);
     skeliTik(zbyva);
