@@ -855,8 +855,14 @@ main.pm .pm-kdo-volby button[aria-pressed="true"] { border-color: var(--accent);
 .pm-pop-vlna[hidden] { display: none; }
 @media (max-width: 600px) { .pm-pop-vlna { max-width: 280px; font-size: .74rem; } }
 /* ---------- SMAJLÍCI NA ÚZKÉ OBRAZOVCE (Skeli 25. 11.: tlačítko i okénko moc rozsáhlé): menší tlačítko, hustší okénko, menší
-   létající smajlíci. Na dotyk drží tlačítka v okénku aspoň 38 px na výšku, s myší (zúžené okno na PC) můžou být menší. ---------- */
-@media (max-width: 600px) {
+   létající smajlíci. Na dotyk drží tlačítka v okénku aspoň 38 px na výšku, s myší (zúžené okno na PC) můžou být menší.
+   Platí i pro telefon na šířku (nízká obrazovka): dřív tam bylo okénko z PC a zakrylo skoro celý sál (Skeli 25. 11.). ---------- */
+@media (max-width: 600px), (max-height: 500px) {
+  /* jen dvě řady ikon a vedle nich zvuk, bez nadpisů a vysvětlení: „jen taková blbůstka“ */
+  .pm-pop { grid-template-columns: auto auto; align-items: end; }
+  .pm-pop h4, .pm-pop .pm-pop-vlna { display: none; }
+  .pm-pop-rada { grid-column: 1; }
+  main.pm .pm-pop-zvuk { grid-column: 2; grid-row: 1 / span 2; margin: 0; }
   main.pm .pm-spoust { width: 44px; height: 44px; padding: 9px; }
   .pm-spoust .pm-tvar { width: 26px; height: 26px; }
   .pm-reakce-roh { right: 10px; bottom: 10px; }

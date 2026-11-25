@@ -223,13 +223,19 @@
     pop.querySelector(tvar ? '.pm-pop-rada-t' : '.pm-pop-rada-e').appendChild(b);
   });
   $('pmTlesk').addEventListener('click', function (e) { e.stopPropagation(); moje('tlesk'); });   // potlesk jedním ťuknutím
-  function zavriPop() { pop.hidden = true; spoust.setAttribute('aria-expanded', 'false'); }
+  // okénko se samo zavře po 8 s bez ťuknutí a při posunu sálu prstem (Skeli 25. 11.: na telefonu nešlo s ním hnout)
+  var popTimer = 0;
+  function popOdpocet() { clearTimeout(popTimer); popTimer = setTimeout(function () { if (!pop.hidden) zavriPop(); }, 8000); }
+  function zavriPop() { clearTimeout(popTimer); pop.hidden = true; spoust.setAttribute('aria-expanded', 'false'); }
   spoust.addEventListener('click', function (e) {
     e.stopPropagation();
     pop.hidden = !pop.hidden; spoust.setAttribute('aria-expanded', String(!pop.hidden));
-    if (!pop.hidden) { pop.classList.remove('otevri'); void pop.offsetWidth; pop.classList.add('otevri'); }
+    if (!pop.hidden) { pop.classList.remove('otevri'); void pop.offsetWidth; pop.classList.add('otevri'); popOdpocet(); } else clearTimeout(popTimer);
   });
-  pop.addEventListener('click', function (e) { e.stopPropagation(); });
+  pop.addEventListener('click', function (e) { e.stopPropagation(); popOdpocet(); });
+  document.addEventListener('pointerdown', function (e) {
+    if (!pop.hidden && !e.target.closest('.pm-pop, .pm-spoust')) zavriPop();
+  });
   document.addEventListener('click', function () { if (!pop.hidden) zavriPop(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) { zavriPop(); spoust.focus(); } });
   // KLÁVESNICE (Skeli 25. 11.): obličeje SQUADu se dají zahrát jako na klavír, zleva doprava 1–7 nebo Q W E R T Z U.
