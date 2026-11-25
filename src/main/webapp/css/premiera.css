@@ -900,3 +900,19 @@ main.pm .pm-kdo-volby button { min-height: 72px; align-content: center; }
 .pm:not(.v-sale) .pm-pomoc { display: none; }
 main.pm .pm-nastroje #pmMavni { color: var(--accent); }   /* jen Skeli: ať ho najde */
 main.pm .pm-nastroje #pmMavni[hidden] { display: none; }
+/* ---------- POTLESK DO VLNY (Skeli 25. 11.): malé tlačítko 👏 vlevo od smajlíků, kolem něj kroužek plněný potleskem všech
+   a pod ním počet (3/8); plný kroužek = mexická vlna. Jen během 30 min odpočtu (js), do kina nezasahuje. ---------- */
+.pm-reakce-roh { display: flex; align-items: center; gap: 12px; }
+main.pm .pm-tlesk { position: relative; width: 42px; height: 42px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; display: grid; place-items: center;
+  background: rgba(17, 17, 17, .85); box-shadow: 0 0 0 1px rgba(255, 255, 255, .18); font-size: 19px; line-height: 1; transition: transform .12s; }
+main.pm .pm-tlesk[hidden] { display: none; }
+main.pm .pm-tlesk:active { transform: scale(.92); }
+.pm-tlesk::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; pointer-events: none; opacity: .55; transition: opacity .4s;
+  background: conic-gradient(#ffd23f calc(var(--vlnaK, 0) * 360deg), rgba(255, 255, 255, .14) 0);
+  -webkit-mask: radial-gradient(circle, transparent 64%, #000 66%); mask: radial-gradient(circle, transparent 64%, #000 66%); }
+.pm-tlesk.tleska::after { opacity: 1; }
+.pm-tlesk b { position: absolute; left: 50%; bottom: -17px; translate: -50% 0; font: 400 .78rem/1 'Bebas Neue', var(--font-body), sans-serif; letter-spacing: .04em;
+  color: #ffd23f; text-shadow: 0 1px 3px #000; white-space: nowrap; }
+.pm-spoust::after { display: none; }                                   /* kroužek je teď u 👏 */
+.pm-jeviste.klid .pm-tlesk { display: none; }
+@media (max-width: 600px) { main.pm .pm-tlesk { width: 38px; height: 38px; font-size: 17px; } .pm-reakce-roh { gap: 10px; } }

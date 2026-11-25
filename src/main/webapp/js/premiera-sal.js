@@ -219,6 +219,7 @@
     b.addEventListener('click', function (e) { e.stopPropagation(); ukaz(); moje(k); });
     pop.querySelector(tvar ? '.pm-pop-rada-t' : '.pm-pop-rada-e').appendChild(b);
   });
+  $('pmTlesk').addEventListener('click', function (e) { e.stopPropagation(); moje('tlesk'); });   // potlesk jedním ťuknutím
   function zavriPop() { pop.hidden = true; spoust.setAttribute('aria-expanded', 'false'); }
   spoust.addEventListener('click', function (e) {
     e.stopPropagation();
@@ -360,8 +361,10 @@
   }
   function vlnaStav(d) {
     var n = typeof d.tlesk === 'number' ? d.tlesk : 0;
-    spoust.style.setProperty('--vlnaK', Math.min(1, n / VLNA_PRAH).toFixed(3));
-    spoust.classList.toggle('tleska', n > 0);
+    var tl = $('pmTlesk');                                         // kroužek u tlačítka 👏 vedle smajlíků
+    tl.style.setProperty('--vlnaK', Math.min(1, n / VLNA_PRAH).toFixed(3));
+    tl.classList.toggle('tleska', n > 0);
+    $('pmTleskN').textContent = n > 0 ? Math.min(n, VLNA_PRAH) + '/' + VLNA_PRAH : '';
     nadpisE.textContent = n > 0 ? T.tReactEmoji + ' · ' + T.tWaveCount.replace('{n}', Math.min(n, VLNA_PRAH)).replace('{p}', VLNA_PRAH) : T.tReactEmoji;
     if (d.vlna && d.vlna !== vlnaPosledni) {
       vlnaPosledni = d.vlna;
@@ -774,7 +777,7 @@
     if (sede !== pmSede) { pmSede = sede; document.body.classList.toggle('pm-sede', sede); }
     if (window.PmZvuky) window.PmZvuky.tik(zbyva, c.now);
     skeliTik(zbyva);
-    $('pmPopVlna').hidden = !(zbyva <= OTEVRI_SAM && zbyva > 15000);   // věta o vlně jen když vlna jde (server: 30 min odpočtu)
+    $('pmPopVlna').hidden = $('pmTlesk').hidden = !(zbyva <= OTEVRI_SAM && zbyva > 15000);   // vlna jde jen v 30 min odpočtu (server)
     var okno = zbyva <= 1560000 && zbyva > 300000 && !vyp.kviz;   // rezervované místo pro kvíz pod sálem
     if (okno !== kvizOkno) {
       kvizOkno = okno; sal.classList.toggle('kviz-okno', okno);

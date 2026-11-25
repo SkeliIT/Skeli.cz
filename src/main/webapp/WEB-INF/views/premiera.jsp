@@ -126,6 +126,9 @@
             <div class="pm-reakce" id="pmReakce" aria-hidden="true"></div>
             <%-- smajlíci: svítící tlačítko v rohu sálu (i na celé obrazovce), okénko s obličeji SQUADu a smajlíky; kroužek = potlesk do vlny --%>
             <div class="pm-reakce-roh">
+              <%-- potlesk do vlny (Skeli 25. 11.): ťuknutí = 👏, kroužek se plní potleskem všech, plný = vlna; jen během 30 min odpočtu --%>
+              <button type="button" class="pm-tlesk" id="pmTlesk" hidden aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.waveHint")) %>"
+                      title="<%= WebUtils.escapeHtml(t.getProperty("pm.waveHint")) %>"><span aria-hidden="true">👏</span><b id="pmTleskN"></b></button>
               <button type="button" class="pm-spoust" id="pmSpoust" aria-expanded="false" aria-controls="pmPop" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.react")) %>"><span class="pm-tvar pm-tvar-f7" aria-hidden="true"></span></button>
               <div class="pm-pop" id="pmPop" hidden>
                 <h4 class="pm-pop-tvare">SKELO SQUAD</h4><div class="pm-pop-rada pm-pop-rada-t"></div>
