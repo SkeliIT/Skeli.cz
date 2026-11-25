@@ -216,10 +216,22 @@
     e.preventDefault();
     moje(TVARE[n]);
   });
+  // ZVUKY SMAJLÍKŮ zvlášť (Skeli 25. 11.): vypínač dole v okénku, pamatuje se; hudba a zvuky sálu hrají dál
+  var smajlZvuk = true, popZvuk = $('pmPopZvuk');
+  try { smajlZvuk = localStorage.getItem('pmSmajlZvuk') !== '0'; } catch (e) { /* bez úložiště: zapnuto */ }
+  function smajlZvukKresli() {
+    popZvuk.classList.toggle('vyp', !smajlZvuk); popZvuk.setAttribute('aria-pressed', String(smajlZvuk));
+    popZvuk.querySelector('span').textContent = smajlZvuk ? popZvuk.dataset.on : popZvuk.dataset.off;
+  }
+  popZvuk.addEventListener('click', function () {
+    smajlZvuk = !smajlZvuk; smajlZvukKresli();
+    try { localStorage.setItem('pmSmajlZvuk', smajlZvuk ? '1' : '0'); } catch (e) { /* jen teď */ }
+  });
+  smajlZvukKresli();
   var odeslano = {}, odeslanoCas = [];
   function moje(k) {
     var t = Date.now();
-    if (window.PmZvuky) window.PmZvuky.klik(k);                    // zvuček jen pro toho, kdo ťukl (js/premiera-zvuky.js) – i při rychlém hraní
+    if (window.PmZvuky && smajlZvuk) window.PmZvuky.klik(k);                    // zvuček jen pro toho, kdo ťukl (js/premiera-zvuky.js) – i při rychlém hraní
     odeslanoCas = odeslanoCas.filter(function (x) { return t - x < 1000; });
     if (odeslanoCas.length >= 5) return;                         // víc než 5 za sekundu nepošleme (server pustí 6)
     odeslanoCas.push(t);
