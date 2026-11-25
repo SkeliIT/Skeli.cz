@@ -818,9 +818,9 @@ body.light .pm-pomoc-linky a, body.light .pm-prog b { text-shadow: none; }
 .pm-pomoc-t b { font-weight: 500; color: var(--text); }
 .pm-pomoc-t small { font-size: .86em; line-height: 1.4; color: var(--text-dim); }
 /* vypínač zvuků smajlíků dole v okénku (vypnuto = přeškrtnutý reproduktor jako u zvuku sálu) */
-main.pm .pm-pop-zvuk { display: flex; align-items: center; gap: 8px; min-height: 40px; margin-top: 2px; padding: 0 10px; border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, .1); background: rgba(255, 255, 255, .04); color: #b9b9c4; font: 600 .7rem/1 var(--font-body), sans-serif;
-  letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+main.pm .pm-pop-zvuk { justify-self: end; display: grid; place-items: center; width: 40px; height: 40px; margin-top: 2px; padding: 0; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .04); color: #c9c9d4; font-size: 15px; cursor: pointer; transition: color .2s, border-color .2s; }
+main.pm .pm-pop-zvuk.vyp { color: #7d7d8a; }
 main.pm .pm-pop-zvuk:hover, main.pm .pm-pop-zvuk:focus-visible { color: #fff; border-color: var(--accent); }
 main.pm .pm-pop-zvuk i { position: relative; width: 18px; text-align: center; }
 main.pm .pm-pop-zvuk.vyp i::after { content: ""; position: absolute; left: -2px; top: 50%; width: 22px; height: 2px; border-radius: 2px; background: currentColor;

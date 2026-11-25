@@ -132,7 +132,7 @@
                 <p class="pm-pop-vlna" id="pmPopVlna" hidden><%= WebUtils.escapeHtml(t.getProperty("pm.waveHint")) %></p>
                 <%-- zvuky ťuknutí zvlášť (Skeli 25. 11.: někoho můžou otravovat, ale hudbu a sál chce slyšet) – js/premiera-sal.js --%>
                 <button type="button" class="pm-pop-zvuk" id="pmPopZvuk" aria-pressed="true" data-on="<%= WebUtils.escapeHtml(t.getProperty("pm.reactSoundOn")) %>"
-                        data-off="<%= WebUtils.escapeHtml(t.getProperty("pm.reactSoundOff")) %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i><span></span></button>
+                        data-off="<%= WebUtils.escapeHtml(t.getProperty("pm.reactSoundOff")) %>"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
               </div>
             </div>
             <div class="pm-hlaska" id="pmHlaska" aria-live="polite"></div>

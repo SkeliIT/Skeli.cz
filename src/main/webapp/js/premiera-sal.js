@@ -246,7 +246,8 @@
   try { smajlZvuk = localStorage.getItem('pmSmajlZvuk') !== '0'; } catch (e) { /* bez úložiště: zapnuto */ }
   function smajlZvukKresli() {
     popZvuk.classList.toggle('vyp', !smajlZvuk); popZvuk.setAttribute('aria-pressed', String(smajlZvuk));
-    popZvuk.querySelector('span').textContent = smajlZvuk ? popZvuk.dataset.on : popZvuk.dataset.off;
+    var popis = smajlZvuk ? popZvuk.dataset.on : popZvuk.dataset.off;   // jen ikona (Skeli 25. 11.), text pro čtečky a při najetí
+    popZvuk.setAttribute('aria-label', popis); popZvuk.title = popis;
   }
   popZvuk.addEventListener('click', function () {
     smajlZvuk = !smajlZvuk; smajlZvukKresli();
