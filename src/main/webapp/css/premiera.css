@@ -496,17 +496,18 @@ body.light .pm-lista button img { filter: invert(1); }
 .pm-chat-h span:last-child { color: var(--text-dim); text-transform: none; letter-spacing: 0; font-weight: 400; }
 .pm-psani { display: flex; gap: 6px; padding: 10px; border-bottom: 1px solid var(--panel-border); }
 .pm-psani input { flex: 1; min-width: 0; min-height: 44px; border-radius: 10px; border: 1px solid var(--panel-border); background: rgba(0, 0, 0, .3);
-  color: var(--text); padding: 0 10px; font: inherit; font-size: 16px; }   /* 16 px: iPhone pak při psaní nepřibližuje stránku */
+  color: var(--text); padding: 0 10px; font: 400 16px/1.3 var(--font-system); }   /* 16 px: iPhone pak při psaní nepřibližuje stránku */
+@media (pointer: fine) { .pm-psani input { font-size: 15px; } }   /* na PC s myší menší (přiblížení tam nehrozí) */
 body.light .pm-psani input { background: #fff; }
 main.pm .pm-psani button { min-height: 44px; padding: 0 14px; border-radius: 10px; border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 700; cursor: pointer; }
 .pm-psani button:disabled { opacity: .6; cursor: default; }
 a.pm-prihlas { justify-content: center; align-items: center; min-height: 64px; color: var(--accent); text-decoration: none; font-weight: 600; }
 .pm-chat-info { margin: 8px 12px 0; font-size: .85rem; color: var(--accent); }
-.pm-pripnuto { margin: 8px 12px 0; padding: 8px 10px; border-radius: 10px; font-size: .88rem; overflow-wrap: anywhere;
+.pm-pripnuto { margin: 8px 12px 0; padding: 8px 10px; border-radius: 10px; font-family: var(--font-system); font-size: .88rem; overflow-wrap: anywhere;
   background: color-mix(in srgb, #ffd23f 12%, transparent); border: 1px solid color-mix(in srgb, #ffd23f 40%, transparent); }
 .pm-sal.bez-chatu .pm-psani, .pm-sal.bez-chatu .pm-zpravy { display: none; }
 .pm-zpravy { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 8px 12px 14px; display: grid; gap: 10px; align-content: start; }
-.pm-zp { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 0 8px; font-size: .92rem; animation: pm-zp-nova .35s ease-out; }
+.pm-zp { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 0 8px; font-family: var(--font-system); font-size: .92rem; animation: pm-zp-nova .35s ease-out; }
 @keyframes pm-zp-nova { from { opacity: 0; transform: translateY(-6px); } }
 .pm-zp-foto { width: 28px; height: 28px; border-radius: 50%; background: var(--panel-border); object-fit: cover; }
 .pm-zp-t { min-width: 0; }

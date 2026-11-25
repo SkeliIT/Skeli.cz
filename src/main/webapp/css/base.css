@@ -26,6 +26,8 @@
   --font-text: 'Oswald', 'Exo 2', system-ui, sans-serif;
   /* The brush of the SKELOSQUAD sign, for the burnt-in quote on the home page */
   --font-brush: 'Comforter Brush', 'Oswald', cursive;
+  /* Systémové písmo telefonu/počítače: chat premiéry (Skeli 25. 11.: hlavní písmo je na psaní moc široké) */
+  --font-system: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   /* Type scale: h1 > h2 > h3 > h4 > body > card text > small */
   --fs-h1: clamp(1.9rem, 4.2vw, 2.7rem);
