@@ -990,7 +990,7 @@ main.pm .pm-psani-pop button:hover, main.pm .pm-psani-pop button:focus-visible {
   .pm-sal.chat-maly .pm-jeviste:not(.fs) .pm-reakce-roh { right: calc(min(300px, 24cqw) + 26px); }
   .pm-sal.chat-maly:has(.pm-jeviste.hraje) .pm-sal-roz > .pm-chat { top: auto; bottom: 64px; height: calc(100cqw * 941 / 1672 * .4); }
 }
-@media (min-width: 1200px) { .pm-sal.chat-maly .pm-sal-roz > .pm-chat #pmChatLidi { display: none; } }   /* malý chat: počet je na plátně */
+@media (min-width: 1200px) { .pm-sal-roz > .pm-chat #pmChatLidi { display: none; } }   /* chat přes sál: počet je na plátně, v hlavičce je místo pro přepínač */
 /* ---------- posledních 15 s (Skeli 25. 11.): čísla 10–8 byla na šedém plátně špatně vidět (barva webu už šedla) a každá část
    šedla jinou rychlostí. Od finále (12 s) bílá čísla s tmavou září – čitelná na světlém plátně i po zhasnutí; barvy webu
    (chat, tlačítka) šednou na stránce premiéry stejně jako sál: 3 s, stejná křivka. ---------- */
