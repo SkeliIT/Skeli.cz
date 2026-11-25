@@ -872,3 +872,10 @@ main.pm .pm-kdo-volby button[aria-pressed="true"] { border-color: var(--accent);
 body.light .pm-pl-napis { color: #2b2320; text-shadow: 0 0 1.2cqw rgba(255, 255, 255, .7), 0 0 3cqw color-mix(in srgb, var(--accent) 55%, transparent); }
 body.light .pm-pl-kdy { color: #3f3f46; }
 body.light .pm-pl-lidi, body.light .pm-pl-tip { color: #4d4d55; }
+/* světlý sál: kvíz na bílém plátně tmavě (otázka, odpovědi, zajímavost, proužek času) */
+body.light .pm-kv-otazka { color: #24242a; }
+body.light .pm-kv-fakt { color: #33333a; }
+body.light main.pm .pm-kv-odpovedi .pm-kv-odp { color: #26262c; background: rgba(0, 0, 0, .05); border-color: rgba(0, 0, 0, .18); }
+body.light .pm-kv-odpovedi .pm-kv-odp i { background: rgba(0, 0, 0, .1); }
+body.light .pm-kviz.vysledek .pm-kv-odp.ok { color: #14532d; border-color: #16a34a; }
+body.light .pm-kv-cas { background: rgba(0, 0, 0, .12); }
