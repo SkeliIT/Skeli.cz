@@ -174,14 +174,15 @@
           <div class="pm-zpravy" id="pmZpravy"></div>
         </div></aside>
       </div>
-      <%-- pod sálem: program večera (časy podle začátku premiéry, js) a náladoměr (jen během 30 min odpočtu) --%>
-      <div class="pm-pod">
-        <div class="pm-karta pm-program"><h3><%= WebUtils.escapeHtml(t.getProperty("pm.progTitle")) %></h3>
-          <ol class="pm-prog" id="pmProgram" data-nazev="<%= pmName %>"></ol></div>
-        <div class="pm-karta pm-nalada" id="pmNalada" hidden><h3><%= WebUtils.escapeHtml(t.getProperty("pm.moodTitle")) %></h3>
-          <p class="pm-nal-text" id="pmNalText"></p><div class="pm-nalady" id="pmNalady"></div></div>
-      </div>
     </section>
+    <%-- pod sálem, MIMO jeho rámeček (Skeli 25. 11.: rámeček obepíná jen kino a chat): program večera (časy podle začátku
+         premiéry, js) a náladoměr (jen během 30 min odpočtu); vidět jen v sále (css .pm:not(.v-sale)) --%>
+    <div class="pm-podsal">
+      <div class="pm-karta pm-program"><h3><%= WebUtils.escapeHtml(t.getProperty("pm.progTitle")) %></h3>
+        <ol class="pm-prog" id="pmProgram" data-nazev="<%= pmName %>"></ol></div>
+      <div class="pm-karta pm-nalada" id="pmNalada" hidden><h3><%= WebUtils.escapeHtml(t.getProperty("pm.moodTitle")) %></h3>
+        <p class="pm-nal-text" id="pmNalText"></p><div class="pm-nalady" id="pmNalady"></div></div>
+    </div>
     <%-- kontakty na pomoc (audit 25. 11.; větu s upozorněním na obsah Skeli nechtěl): na stránce vždy – před premiérou, při ní i jako záznam --%>
     <aside class="pm-pomoc" aria-labelledby="pmPomocNadpis">
       <h2 class="pm-pomoc-h" id="pmPomocNadpis"><%= WebUtils.escapeHtml(t.getProperty("pm.helpTitle")) %></h2>

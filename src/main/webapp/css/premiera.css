@@ -654,10 +654,11 @@ main.pm .pm-fs-prepinac button.on { background: var(--accent); color: var(--acce
 .pm-jeviste.fs-maly .pm-reakce-roh { right: calc(min(320px, 72vw) + 26px); }
 
 /* ---------- POD SÁLEM: program večera a náladoměr (ukázka Neon) ---------- */
-.pm-pod { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; padding: 14px; border-top: 1px solid var(--panel-border); }
+.pm-podsal { grid-column: 1 / -1; width: 100%; max-width: 1280px; margin: 18px auto 0; display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; text-align: left; }
+.pm:not(.v-sale) .pm-podsal { display: none; }                     /* jen v sále */
 /* program sám (náladoměr je jen v posledních 30 min) = uprostřed pod sálem (Skeli 25. 11.) */
-.pm-pod:has(> .pm-nalada[hidden]) { grid-template-columns: minmax(0, 640px); justify-content: center; }
-@media (max-width: 900px) { .pm-pod { grid-template-columns: minmax(0, 1fr); padding: 10px; } }
+.pm-podsal:has(> .pm-nalada[hidden]) { grid-template-columns: minmax(0, 640px); justify-content: center; }
+@media (max-width: 900px) { .pm-podsal { grid-template-columns: minmax(0, 1fr); margin-top: 12px; } }
 .pm-karta { border-radius: 18px; padding: 16px; background: var(--panel); border: 1px solid var(--panel-border); color: var(--text); }
 .pm-karta[hidden] { display: none; }
 .pm-karta h3 { margin: 0 0 10px; font: 400 1.5rem/1 'Bebas Neue', var(--font-body), sans-serif; letter-spacing: .08em; }
