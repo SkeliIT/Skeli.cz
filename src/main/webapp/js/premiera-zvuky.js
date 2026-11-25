@@ -38,13 +38,12 @@
     [70, 0, '', false]                 // …70 s předem sál ztichne: hluboký dech (68–52 s), pozdrav od Skeliho (klavír 51 s, hlas 48–31 s,
                                        // klavír po něm ~12 s dohraje frázi a sám se rozplyne do 17 s), 2 s ticho, v 15 s start kamery
   ];
-  // PŘED ODPOČTEM (Skeli 25. 11.: „ať to přiláká zvědavce“): sál je otevřený celý den a jen občas v něm hraje filmová
-  // melodie – každých 15 min jedna skladba podle hodin serveru (všichni slyší totéž), pak ticho, jen sál. Od 18:30 PLAN.
+  // PŘED ODPOČTEM (Skeli 25. 11.): sál je otevřený celý den a hraje v něm pořád náš výběr filmových melodií dokola,
+  // mezi skladbami náhodná pauza 5/8/12/24 s, kdy je slyšet jen ambient sálu. Každý prohlížeč má svůj sled (začne náhodnou
+  // skladbou). Od 18:30 hraje program premiéry (PLAN) pro všechny stejně.
   // Mixkit, Stock Music Free License (navrhy/premiera/hudba-pred, Skeliho výběr ve vyber.json hudbaPred 25. 11.).
-  // Tlačítko ♫ v sále (js/premiera-sal.js): divák si výběr pustí sám hned – hraje dokola za sebou, dokud ho nevypne nebo
-  // nezačne odpočet (od 18:30 hraje program premiéry pro všechny).
-  var PRED = ['pred-577', 'pred-606', 'pred-615', 'pred-545', 'pred-546', 'pred-714'], PRED_KOLO = 900;
-  var vlastni = null;                                      // {i: skladba, od: z (s do startu), kdy začala}
+  var PRED = ['pred-577', 'pred-606', 'pred-615', 'pred-545', 'pred-546', 'pred-714'], PAUZY = [5, 8, 12, 24];
+  var pred = null;                                         // {i: skladba, od: z (s do startu), kdy začne / začala}
   var HOVOR_OD = 5, HUDBA_HL = 0.2, POZDRAV_OD = 48;     // pozdrav = hlas v 18:59:12, podkres 3 s předem; po hlase klavír dohraje frázi (soubor 34 s, sám dozní)
   var docasne = [];                                        // jednorázové zvuky (pozdrav, finále) – jen kvůli posuvníku zkoušky
   var predfinale = false, hovorSmi = false, hudba = null, kvizTise = false, posledniZ = 1e9, pozdravBezi = false;
@@ -248,15 +247,15 @@
       var z = zbyva / 1000, seg = null;
       posledniZ = z;
       for (var i = 0; i < PLAN.length; i++) if (z <= PLAN[i][0] && z > PLAN[i][1]) { seg = PLAN[i]; break; }
-      if (vlastni && z > PLAN[0][0]) {                              // divák si pustil náš výběr (♫): skladby za sebou dokola
-        var k0 = PRED[vlastni.i % PRED.length];
-        if (buf[k0] && vlastni.od - z > buf[k0].duration + 1) { vlastni.i++; vlastni.od = z; k0 = PRED[vlastni.i % PRED.length]; }
-        seg = [vlastni.od, 0, k0, false];
-      } else if (vlastni) vlastni = null;                         // začal odpočet: dál hraje program premiéry
-      if (!seg && z > PLAN[0][0] && ted && PRED.length) {           // před odpočtem: skladba kola od jeho začátku, po ní ticho
-        var s = ted / 1000, kolo = Math.floor(s / PRED_KOLO);
-        seg = [Math.round(z + s - kolo * PRED_KOLO), 0, PRED[kolo % PRED.length], false];   // [0] = začátek kola (s do startu)
-      }
+      if (!seg && z > PLAN[0][0] && PRED.length) {                 // před odpočtem: náš výběr dokola s pauzami
+        if (!pred) pred = { i: Math.floor(Math.random() * PRED.length), od: z };
+        var k0 = PRED[pred.i % PRED.length];
+        if (buf[k0] && pred.od - z > buf[k0].duration + 0.5) {       // dohrála: pauza, pak další
+          pred.i++; pred.od = z - PAUZY[Math.floor(Math.random() * PAUZY.length)]; k0 = PRED[pred.i % PRED.length];
+        }
+        if (z > pred.od) { seg = [pred.od, 0, '', false]; nacti(k0).catch(function () {}); }   // pauza: jen ambient, další se načte
+        else seg = [pred.od, 0, k0, false];
+      } else if (pred && z <= PLAN[0][0]) pred = null;              // začal odpočet: dál program premiéry
       var smi = !!(seg && seg[3]);
       if (smi !== hovorSmi) { hovorSmi = smi; this.lidi(lidi); }
       var chci = seg && seg[2] ? seg[2] + '@' + seg[0] : '', mam = hudba ? hudba.k + '@' + hudba.od : '';
@@ -306,28 +305,19 @@
     schovej: function (ano) { if (!ac) return; if (ano) ac.suspend(); else if (zapnuto) ac.resume(); },
     vypni: function () {
       try { localStorage.setItem('soundMuted', '1'); } catch (e) { /* jen pro tuto stránku */ }
-      zapnuto = false; vlastni = null; atmoStop(0.4); hudbaStop(0.4); ztlum(napeti, 0, 0.2); ztlum(vir, 0, 0.2);
+      zapnuto = false; pred = null; atmoStop(0.4); hudbaStop(0.4); ztlum(napeti, 0, 0.2); ztlum(vir, 0, 0.2);
     },
     zapni: function (doPremiery) {
       try { localStorage.removeItem('soundMuted'); } catch (e) { /* nevadí */ }
       return this.start(doPremiery);
     },
     bezi: function () { return zapnuto; },
-    // ♫ v sále: pustit / zastavit náš výběr (jen před odpočtem); vrací, jestli teď hraje
-    hudba: function (on, doPremiery) {
-      if (on && zapnuto && doPremiery > PLAN[0][0] * 1000) {
-        vlastni = { i: Math.floor(Math.random() * PRED.length), od: doPremiery / 1000 };
-        hudbaStop(1.5); this.tik(doPremiery, 0);
-      } else if (!on && vlastni) { vlastni = null; hudbaStop(2); }
-      return !!vlastni;
-    },
-    hraje: function () { return !!vlastni; },
     // jen zkouška (?pmSim, posuvník času v sále): všechno rychle ztišit a začít znovu podle nového času (doPremiery v ms)
     skok: function (doPremiery) {
       if (!ac) return;
       atmoStop(0.2); hudbaStop(0.2); ztlum(napeti, 0, 0.1); ztlum(vir, 0, 0.1); napeti = vir = null;
       docasne.forEach(function (z) { ztlum(z, 0, 0.2); }); docasne = [];
-      vFinale = false; predfinale = false; pozdravBezi = false; kvizTise = false; hovorSmi = false; posledniZ = doPremiery / 1000;
+      vFinale = false; predfinale = false; pred = null; pozdravBezi = false; kvizTise = false; hovorSmi = false; posledniZ = doPremiery / 1000;
       if (zapnuto && doPremiery > 0) atmoStart();
     }
   };

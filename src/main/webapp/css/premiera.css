@@ -365,12 +365,6 @@ main.pm .pm-zvuk-sal[hidden] { display: none; }
 main.pm .pm-zvuk-sal:hover, main.pm .pm-zvuk-sal:focus-visible { opacity: 1; }
 main.pm .pm-zvuk-sal.vyp { opacity: .6; }
 main.pm .pm-zvuk-sal.vyp::after { content: ""; position: absolute; width: 26px; height: 2px; border-radius: 2px; background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .6); transform: rotate(-45deg); }
-/* ♫ náš výběr hudby (jen před odpočtem) – nenápadný, při hraní jemně svítí */
-main.pm .pm-hudba { position: absolute; z-index: 7; top: 10px; left: 62px; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
-  background: rgba(0, 0, 0, .5); color: #fff; font: 400 20px/1 system-ui, sans-serif; cursor: pointer; display: grid; place-items: center; opacity: .75; transition: opacity .3s, box-shadow .3s, color .3s; }
-main.pm .pm-hudba[hidden] { display: none; }
-main.pm .pm-hudba:hover, main.pm .pm-hudba:focus-visible { opacity: 1; }
-main.pm .pm-hudba.hraje { opacity: 1; color: var(--accent); border-color: var(--accent); box-shadow: 0 0 14px -4px var(--accent); }
 main.pm .pm-velky { display: none; }
 @media (min-width: 1100px) and (orientation: landscape) {
   main.pm .pm-nastroje .pm-velky { display: inline-flex; }
@@ -784,10 +778,9 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 }
 
 /* ---------- tlačítka pod sálem (Skeli 25. 11.): celá obrazovka a Menší / Větší sál mimo obraz, komorně; v sále zůstává
-   zvuk (vypnutý = hned vidět), ♫ a jen na celé obrazovce ⛶ k návratu ---------- */
+   zvuk (vypnutý = hned vidět) a jen na celé obrazovce ⛶ k návratu ---------- */
 .pm-jeviste:not(.fs) .pm-celo { display: none; }
 .pm-jeviste.fs .pm-zvuk-sal { left: 62px; }
-.pm-jeviste.fs .pm-hudba { left: 114px; }
 .pm-nastroje { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 2px 6px; padding: 2px 10px; }
 main.pm .pm-nastroje button { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 10px; border: 0; border-radius: 10px;
   background: none; color: rgba(255, 255, 255, .55); font: 500 .74rem/1 var(--font-body); letter-spacing: .04em; cursor: pointer; transition: color .3s, background .3s; }

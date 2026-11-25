@@ -769,32 +769,14 @@
     if (Z && gesto && !Z.vypnuto()) Z.start(cas().at - cas().now);
     zvukKresli();
   }
-  // ♫ = pustit si náš výběr skladeb hned (jen před odpočtem, Skeli 25. 11.: „ať tam není pořád jen ambient“); zapne i zvuk
-  function hudbaKresli() {
-    var b = $('pmHudba'), Z = window.PmZvuky, c = cas(), on = !!(Z && Z.hraje());
-    b.hidden = !Z || !Z.hudba || c.at - c.now <= OTEVRI_SAM;
-    b.classList.toggle('hraje', on); b.setAttribute('aria-pressed', String(on));
-    b.setAttribute('aria-label', on ? T.tMusicOff : T.tMusicOn); b.title = on ? T.tMusicOff : T.tMusicOn;
-  }
-  $('pmHudba').addEventListener('click', function () {
-    var Z = window.PmZvuky, c = cas();
-    if (!Z) return;
-    if (Z.hraje()) Z.hudba(false);
-    else {
-      if (!Z.bezi() && Z.zapni(c.at - c.now) && window.skeliPmZvukPovolen) window.skeliPmZvukPovolen();
-      Z.hudba(true, c.at - c.now);
-    }
-    zvukKresli(); hudbaKresli();
-  });
   $('pmZvukSal').addEventListener('click', function () {
     var Z = window.PmZvuky;
     if (!Z) return;
     if (Z.bezi()) Z.vypni();
     else if (Z.zapni(cas().at - cas().now) && window.skeliPmZvukPovolen) window.skeliPmZvukPovolen();
-    zvukKresli(); hudbaKresli();
+    zvukKresli();
   });
-  zvukKresli(); hudbaKresli();
-  setInterval(function () { if (vSale && !document.hidden) hudbaKresli(); }, 2000);   // v 18:30 tlačítko zmizí
+  zvukKresli();
 
   // ---------- VELKÝ SÁL na PC: sál přes celou šířku okna (výchozí), nebo menší v obsahu stránky; volba se pamatuje ----------
   // (tlačítko je vidět jen na širokém PC – css/premiera.css; na telefonu třída nic nemění)

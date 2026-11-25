@@ -97,7 +97,6 @@
              data-t-quiz-first="<%= WebUtils.escapeHtml(t.getProperty("pm.quizFirst")) %>"
              data-t-quiz-next="<%= WebUtils.escapeHtml(t.getProperty("pm.quizNext")) %>"
              data-t-sound-on="<%= WebUtils.escapeHtml(t.getProperty("pm.soundOn")) %>"
-             data-t-music-on="<%= WebUtils.escapeHtml(t.getProperty("pm.musicOn")) %>" data-t-music-off="<%= WebUtils.escapeHtml(t.getProperty("pm.musicOff")) %>"
              data-t-sound-off="<%= WebUtils.escapeHtml(t.getProperty("pm.soundOff")) %>">
       <div class="pm-sal-roz">
         <div class="pm-sal-hl">
@@ -144,11 +143,10 @@
             <button type="button" class="pm-celo" id="pmCelo" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
             <%-- zvuk sálu (js/premiera-zvuky.js): zapnout / vypnout, stejný vypínač jako zvuky webu --%>
             <button type="button" class="pm-zvuk-sal" id="pmZvukSal"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
-            <button type="button" class="pm-hudba" id="pmHudba" aria-pressed="false" hidden><span aria-hidden="true">♫</span></button>
           </div>
           <div class="pm-kviz-bar" id="pmKvizBar" hidden></div>
           <%-- pod sálem, nenápadně (Skeli 25. 11.: ať nejsou v obraze): celá obrazovka a (jen PC) Menší / Větší sál – text dá js.
-               V sále zůstává jen zvuk (hned vidět, že je vypnutý), ♫ a na celé obrazovce ⛶ k návratu. --%>
+               V sále zůstává jen zvuk (hned vidět, že je vypnutý) a na celé obrazovce ⛶ k návratu. --%>
           <div class="pm-nastroje">
             <button type="button" id="pmCeloVen"><i class="fa-solid fa-expand" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.full")) %></button>
             <button type="button" class="pm-velky" id="pmVelky"></button>
