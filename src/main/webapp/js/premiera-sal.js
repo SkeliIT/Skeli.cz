@@ -702,7 +702,7 @@
     if (zbyva > 0 && zbyva <= 9000) jeviste.classList.add('sede');   // od 9 s šedne sál a celé okno, plátno s obličeji až od 5 s
     var sede = zbyva <= 9000 && zbyva > -360000;
     if (sede !== pmSede) { pmSede = sede; document.body.classList.toggle('pm-sede', sede); }
-    if (window.PmZvuky) window.PmZvuky.tik(zbyva);
+    if (window.PmZvuky) window.PmZvuky.tik(zbyva, c.now);
     skeliTik(zbyva);
     var okno = zbyva <= 1560000 && zbyva > 300000 && !vyp.kviz;   // rezervované místo pro kvíz pod sálem
     if (okno !== kvizOkno) {

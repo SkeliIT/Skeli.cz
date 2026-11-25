@@ -38,6 +38,10 @@
     [70, 0, '', false]                 // …70 s předem sál ztichne: hluboký dech (68–52 s), pozdrav od Skeliho (klavír 51 s, hlas 48–31 s,
                                        // klavír po něm ~12 s dohraje frázi a sám se rozplyne do 17 s), 2 s ticho, v 15 s start kamery
   ];
+  // PŘED ODPOČTEM (Skeli 25. 11.: „ať to přiláká zvědavce“): sál je otevřený celý den a jen občas v něm hraje filmová
+  // melodie – každých 15 min jedna skladba podle hodin serveru (všichni slyší totéž), pak ticho, jen sál. Od 18:30 PLAN.
+  // Mixkit, Stock Music Free License (navrhy/premiera/hudba-pred, Skeliho výběr ve vyber.json hudbaPred).
+  var PRED = ['pred-577', 'pred-601', 'pred-606', 'pred-597', 'pred-615'], PRED_KOLO = 900;
   var HOVOR_OD = 5, HUDBA_HL = 0.2, POZDRAV_OD = 48;     // pozdrav = hlas v 18:59:12, podkres 3 s předem; po hlase klavír dohraje frázi (soubor 34 s, sám dozní)
   var docasne = [];                                        // jednorázové zvuky (pozdrav, finále) – jen kvůli posuvníku zkoušky
   var predfinale = false, hovorSmi = false, hudba = null, kvizTise = false, posledniZ = 1e9, pozdravBezi = false;
@@ -236,11 +240,15 @@
       return true;
     },
     // každou čtvrtvteřinu ze sálu (js/premiera-sal.js tik): podle programu přepne hudbu, hovor a pustí pozdrav
-    tik: function (zbyva) {
+    tik: function (zbyva, ted) {
       if (!zapnuto || vFinale || !ac) return;
       var z = zbyva / 1000, seg = null;
       posledniZ = z;
       for (var i = 0; i < PLAN.length; i++) if (z <= PLAN[i][0] && z > PLAN[i][1]) { seg = PLAN[i]; break; }
+      if (!seg && z > PLAN[0][0] && ted && PRED.length) {           // před odpočtem: skladba kola od jeho začátku, po ní ticho
+        var s = ted / 1000, kolo = Math.floor(s / PRED_KOLO);
+        seg = [Math.round(z + s - kolo * PRED_KOLO), 0, PRED[kolo % PRED.length], false];   // [0] = začátek kola (s do startu)
+      }
       var smi = !!(seg && seg[3]);
       if (smi !== hovorSmi) { hovorSmi = smi; this.lidi(lidi); }
       var chci = seg && seg[2] ? seg[2] + '@' + seg[0] : '', mam = hudba ? hudba.k + '@' + hudba.od : '';

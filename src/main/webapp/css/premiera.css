@@ -657,6 +657,8 @@ main.pm .pm-fs-prepinac button.on { background: var(--accent); color: var(--acce
 
 /* ---------- POD SÁLEM: program večera a náladoměr (ukázka Neon) ---------- */
 .pm-pod { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; padding: 14px; border-top: 1px solid var(--panel-border); }
+/* program sám (náladoměr je jen v posledních 30 min) = uprostřed pod sálem (Skeli 25. 11.) */
+.pm-pod:has(> .pm-nalada[hidden]) { grid-template-columns: minmax(0, 640px); justify-content: center; }
 @media (max-width: 900px) { .pm-pod { grid-template-columns: minmax(0, 1fr); padding: 10px; } }
 .pm-karta { border-radius: 18px; padding: 16px; background: var(--panel); border: 1px solid var(--panel-border); color: var(--text); }
 .pm-karta[hidden] { display: none; }
