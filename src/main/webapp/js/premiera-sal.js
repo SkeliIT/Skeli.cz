@@ -1026,13 +1026,26 @@
   // ---------- chat na celé obrazovce: skutečný chat se přesune do sálu (vše funguje dál), vpravo ve 3 režimech ----------
   var chatEl = document.querySelector('.pm-chat'), chatDomov = chatEl.parentNode, prepinac = $('pmFsPrepinac'), nepreceteno = 0;
   function naCelou() { return document.fullscreenElement === jeviste || document.webkitFullscreenElement === jeviste || jeviste.classList.contains('na-celou'); }
+  // Celý / Malý je jedno tlačítko (Skeli 25. 11.): ťuknutí přepne velikost, z „Vyp“ vrátí poslední velikost
+  var fsVel = prepinac.querySelector('[data-rezim="vel"]'), fsPosledni = 'maly';
   function fsRezim(r) {
+    if (r !== 'cely' && r !== 'maly' && r !== 'vyp') r = 'maly';
+    if (r !== 'vyp') fsPosledni = r;
     jeviste.classList.remove('fs-cely', 'fs-maly', 'fs-vyp'); jeviste.classList.add('fs-' + r);
-    prepinac.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.rezim === r); b.setAttribute('aria-pressed', String(b.dataset.rezim === r)); });
+    prepinac.querySelectorAll('button').forEach(function (b) {
+      var on = b === fsVel ? r !== 'vyp' : b.dataset.rezim === r;
+      b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on));
+    });
+    fsVel.querySelector('span').textContent = fsPosledni === 'cely' ? fsVel.dataset.cely : fsVel.dataset.maly;
     if (r !== 'vyp') { nepreceteno = 0; $('pmFsNove').textContent = ''; }
     try { localStorage.setItem('pmFsRezim', r); } catch (e) { /* nevadí */ }
   }
-  prepinac.querySelectorAll('button').forEach(function (b) { b.addEventListener('click', function () { fsRezim(b.dataset.rezim); }); });
+  prepinac.querySelectorAll('button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b !== fsVel) fsRezim(b.dataset.rezim);
+      else fsRezim(jeviste.classList.contains('fs-cely') ? 'maly' : jeviste.classList.contains('fs-maly') ? 'cely' : fsPosledni);
+    });
+  });
   function fsZmena() {
     var fs = naCelou();
     if (fs && chatEl.parentNode !== jeviste) {
@@ -1061,7 +1074,9 @@
   function chatPrycKresli() {
     sal.classList.toggle('chat-pryc', chatRezim === 'vyp');
     sal.classList.toggle('chat-maly', chatRezim === 'maly');
-    chatEl.querySelectorAll('.pm-chat-rezim button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.rezim === chatRezim)); });
+    chatEl.querySelectorAll('.pm-chat-rezim button[data-rezim]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.rezim === chatRezim)); });
+    var vel = chatEl.querySelector('.pm-chat-vel');   // jedno tlačítko velký / malý: popisek = co ťuknutí udělá
+    if (vel) { var co = chatRezim === 'maly' ? vel.dataset.cely : vel.dataset.maly; vel.title = co; vel.setAttribute('aria-label', co); }
     if (chatRezim !== 'vyp') { nepreceteno = 0; $('pmFsNove').textContent = $('pmChatNove').textContent = ''; }
   }
   function chatNastav(r) {
@@ -1073,7 +1088,8 @@
   } catch (e) { /* velký */ }
   if (!/^(cely|maly|vyp)$/.test(chatRezim)) chatRezim = 'cely';
   chatPrycKresli();
-  chatEl.querySelectorAll('.pm-chat-rezim button').forEach(function (b) { b.addEventListener('click', function () { chatNastav(b.dataset.rezim); }); });
+  chatEl.querySelectorAll('.pm-chat-rezim button[data-rezim]').forEach(function (b) { b.addEventListener('click', function () { chatNastav(b.dataset.rezim); }); });
+  chatEl.querySelector('.pm-chat-vel').addEventListener('click', function () { chatNastav(chatRezim === 'cely' ? 'maly' : 'cely'); });
   $('pmChatTl').addEventListener('click', function () { chatNastav('cely'); });   // skrytý chat zpět
 
   // ---------- celá obrazovka: PC a Android celý sál; iPhone stránku na celou obrazovku nepustí – tam aspoň klip ----------

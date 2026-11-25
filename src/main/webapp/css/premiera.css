@@ -1053,3 +1053,12 @@ body.light .pm-pribeh-h { color: var(--accent); text-shadow: none; }
 .pm-pribeh > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 10px; }
 .pm-pribeh .pm-pribeh-podpis { margin-top: 14px; font: 400 1.6rem/1 'Comforter Brush', 'Oswald', cursive; color: var(--accent); }
 @media (max-width: 600px) { .pm-pribeh { padding: 14px; } .pm-pribeh-h { font-size: 1.8rem; } }
+
+/* ---------- tenká hlavička chatu (Skeli 25. 11.: na telefonu víc místa na sál i zprávy) – platí všude, kde chat je ---------- */
+.pm-chat-h { padding: 5px 12px; align-items: center; min-height: 40px; }
+.pm-chat-h span:first-child { font-size: 1.35rem; }
+.pm-chat-h span:first-child i { font-size: .8rem; margin-right: 4px; }
+#pmChatLidi { font-size: .7rem; letter-spacing: .06em; }
+/* jedno tlačítko velký / malý: velký chat ukazuje „zmenšit“, malý „zvětšit“ */
+.pm-chat-vel .ik-zvetsit, .pm-sal.chat-maly .pm-chat-vel .ik-zmensit { display: none; }
+.pm-sal.chat-maly .pm-chat-vel .ik-zvetsit { display: inline; }

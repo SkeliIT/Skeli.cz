@@ -146,8 +146,8 @@
             <div class="pm-hlaska" id="pmHlaska" aria-live="polite"></div>
             <%-- chat na celé obrazovce: vždy vpravo, přepínač Celý / Malý (roh vpravo dole) / Vyp; chat se sem při celé obrazovce přesune (js) --%>
             <div class="pm-fs-prepinac" id="pmFsPrepinac" role="group" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.fsChat")) %>">
-              <button type="button" data-rezim="cely"><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.fsFull")) %></button>
-              <button type="button" data-rezim="maly"><%= WebUtils.escapeHtml(t.getProperty("pm.fsSmall")) %></button>
+              <%-- Celý / Malý jedním tlačítkem (Skeli 25. 11.): text ukazuje, jaký chat je teď; ťuknutí přepne (js) --%>
+              <button type="button" data-rezim="vel" data-cely="<%= WebUtils.escapeHtml(t.getProperty("pm.fsFull")) %>" data-maly="<%= WebUtils.escapeHtml(t.getProperty("pm.fsSmall")) %>"><i class="fa-solid fa-comments" aria-hidden="true"></i> <span><%= WebUtils.escapeHtml(t.getProperty("pm.fsFull")) %></span></button>
               <button type="button" data-rezim="vyp"><%= WebUtils.escapeHtml(t.getProperty("pm.fsOff")) %><span class="pm-fs-nove" id="pmFsNove"></span></button>
             </div>
             <%-- chat přes sál (PC): ve finále a při klipu zmizí z obrazu, tímhle se vrátí (js/premiera-sal.js) --%>
@@ -172,8 +172,8 @@
           <h2 class="pm-chat-h"><span><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.chat")) %></span><span id="pmChatLidi"></span>
             <%-- jen PC s chatem přes sál (Skeli 25. 11.): velký / malý v rohu / skrýt; skrytý vrátí tlačítko Chat v sále --%>
             <span class="pm-chat-rezim" role="group">
-              <button type="button" data-rezim="cely" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.fsFull")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.fsFull")) %>"><i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i></button>
-              <button type="button" data-rezim="maly" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.fsSmall")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.fsSmall")) %>"><i class="fa-solid fa-down-left-and-up-right-to-center" aria-hidden="true"></i></button>
+              <%-- velký / malý jedním tlačítkem (Skeli 25. 11.): ikona ukazuje, co ťuknutí udělá; popisek nastaví js --%>
+              <button type="button" class="pm-chat-vel" data-cely="<%= WebUtils.escapeHtml(t.getProperty("pm.fsFull")) %>" data-maly="<%= WebUtils.escapeHtml(t.getProperty("pm.fsSmall")) %>"><i class="fa-solid fa-up-right-and-down-left-from-center ik-zvetsit" aria-hidden="true"></i><i class="fa-solid fa-down-left-and-up-right-to-center ik-zmensit" aria-hidden="true"></i></button>
               <button type="button" data-rezim="vyp" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.fsOff")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.fsOff")) %>"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </span></h2>
           <% if (pmUid != null) { %>
