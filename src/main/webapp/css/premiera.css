@@ -896,3 +896,5 @@ body.light .pm-kv-cas { background: rgba(0, 0, 0, .12); }
 }
 .pm-kdo-volby img[hidden] { display: none; }
 main.pm .pm-kdo-volby button { min-height: 72px; align-content: center; }
+/* kontakty na pomoc jen pod kinosálem, ne v čekárně před vstupem (Skeli 25. 11.: zazní i přímo v klipu) */
+.pm:not(.v-sale) .pm-pomoc { display: none; }

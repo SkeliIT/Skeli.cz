@@ -186,7 +186,7 @@
       <div class="pm-karta pm-nalada" id="pmNalada" hidden><h3><%= WebUtils.escapeHtml(t.getProperty("pm.moodTitle")) %></h3>
         <p class="pm-nal-text" id="pmNalText"></p><div class="pm-nalady" id="pmNalady"></div></div>
     </div>
-    <%-- kontakty na pomoc (audit 25. 11.; větu s upozorněním na obsah Skeli nechtěl): na stránce vždy – před premiérou, při ní i jako záznam --%>
+    <%-- kontakty na pomoc (audit 25. 11.): jen pod kinosálem, v čekárně ne (Skeli 25. 11., css .pm:not(.v-sale)) --%>
     <aside class="pm-pomoc" aria-labelledby="pmPomocNadpis">
       <h2 class="pm-pomoc-h" id="pmPomocNadpis"><%= WebUtils.escapeHtml(t.getProperty("pm.helpTitle")) %></h2>
       <p class="pm-pomoc-uvod"><%= WebUtils.escapeHtml(t.getProperty("pm.helpIntro")) %></p>
