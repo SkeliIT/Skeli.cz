@@ -883,8 +883,8 @@ body.light .pm-kv-cas { background: rgba(0, 0, 0, .12); }
 .pm-dole { grid-column: 1 / -1; width: 100%; display: grid; gap: 0; }
 @media (min-width: 1100px) {
   .pm.v-sale .pm-dole { max-width: 1280px; margin: 18px auto 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
-  .pm.v-sale .pm-dole > .pm-podsal { margin: 0; max-width: none; grid-template-columns: minmax(0, 1fr); align-content: start; }   /* program, pod ním náladoměr */
-  .pm.v-sale .pm-dole > .pm-pomoc { margin: 0; max-width: none; }
+  .pm.v-sale .pm-dole > .pm-podsal { grid-column: auto; margin: 0; max-width: none; grid-template-columns: minmax(0, 1fr); align-content: start; }   /* program, pod ním náladoměr */
+  .pm.v-sale .pm-dole > .pm-pomoc { grid-column: auto; margin: 0; max-width: none; }
   .pm.v-sale .pm-dole > .pm-podsal > .pm-karta, .pm.v-sale .pm-dole > .pm-pomoc { height: 100%; }
   .pm.v-sale .pm-dole > .pm-podsal:has(> .pm-nalada:not([hidden])) > .pm-karta { height: auto; }
 }
