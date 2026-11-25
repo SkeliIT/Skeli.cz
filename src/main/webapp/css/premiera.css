@@ -378,7 +378,11 @@ main.pm .pm-velky { display: none; }
 main.pm .pm-jeviste.fs .pm-velky, main.pm .pm-jeviste.na-celou .pm-velky, main.pm .pm-jeviste:fullscreen .pm-velky { display: none; }   /* na celé obrazovce nedává smysl */
 
 /* jeviště = výřez se scénou; PC a na šířku celý sál, telefon na výšku střed (plátno a ulička) */
-.pm-jeviste { position: relative; overflow: hidden; aspect-ratio: 1672 / 941; background: #000; }
+.pm-jeviste { position: relative; overflow: hidden; aspect-ratio: 1672 / 941; background: #000; border-radius: 22px; }
+/* rohy jako všude na webu a jako chat vedle (Skeli 25. 11.: ostré rohy u chatu a dole); na celé obrazovce bez zakulacení */
+.pm-jeviste:fullscreen, .pm-jeviste.na-celou { border-radius: 0; }
+.pm-jeviste:-webkit-full-screen { border-radius: 0; }   /* starší Safari (zvlášť: neznámý výběr by zrušil celé pravidlo) */
+@media (max-width: 900px) { .pm-jeviste { border-radius: 18px; } }
 @media (orientation: portrait) and (max-width: 900px) { .pm-jeviste { aspect-ratio: auto; height: 52svh; } }
 .pm-scena { position: absolute; top: 0; left: 50%; height: 100%; aspect-ratio: 1672 / 941; translate: -50% 0;
   transform-origin: 50.1% 30%;                     /* střed plátna */
@@ -685,7 +689,7 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 .pm-zkouska output { min-width: 2ch; color: #f5c542; }
 .pm-zkouska button { min-height: 40px; padding: 0 12px; border-radius: 99px; border: 1px solid #f5c542; background: none; color: inherit; font: inherit; cursor: pointer; }
 /* posuvník času přes celou šířku panelu, skoky na důležité chvíle; panel jde schovat (na telefonu zabírá hodně místa) */
-.pm-zkouska { max-height: 60vh; overflow-y: auto; }
+.pm-zkouska { max-height: 60vh; overflow-y: auto; max-width: min(720px, calc(100vw - 24px)); }   /* nezakrývat celý sál */
 .pm-zk-telo { display: contents; }
 .pm-zkouska.sbaleno .pm-zk-telo { display: none; }
 .pm-zk-cas { flex: 1 1 100%; }
