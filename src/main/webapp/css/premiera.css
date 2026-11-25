@@ -776,11 +776,10 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
   body.light .pm-sal-roz > .pm-chat .pm-chat-h span:first-child { color: #fff; text-shadow: 0 0 10px var(--accent); }
   .pm-sal.chat-pryc .pm-sal-roz > .pm-chat { opacity: 0; visibility: hidden; }
   .pm-sal:not(.chat-pryc) .pm-jeviste:not(.fs) .pm-reakce-roh { right: calc(min(340px, 27cqw) + 26px); }   /* smajlíci vedle chatu */
-  .pm-sal-roz > .pm-sal-hl .pm-jeviste:not(.fs) .pm-chat-tl { display: none; }
-  .pm-sal.chat-pryc .pm-jeviste:not(.fs) .pm-chat-tl, .pm-sal .pm-jeviste:not(.fs) .pm-chat-tl.on { display: inline-flex; }
+  .pm-sal .pm-jeviste:not(.fs) .pm-chat-tl { display: inline-flex; }   /* chat přes sál: tlačítko Chat vždy (schovat / vrátit – jen divák sám) */
   main.pm .pm-chat-tl { position: absolute; z-index: 10; top: 10px; right: 10px; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, .25); background: rgba(0, 0, 0, .5); color: #fff; font: 600 .85rem/1 var(--font-body); cursor: pointer; }
-  main.pm .pm-chat-tl.on { right: calc(min(340px, 27cqw) + 24px); border-color: var(--accent); }   /* chat vrácený přes klip: tlačítko vedle něj ho zase schová */
+  main.pm .pm-chat-tl.on { right: calc(min(340px, 27cqw) + 24px); border-color: var(--accent); }   /* chat ukázaný: tlačítko vedle něj ho schová */
 }
 
 /* ---------- tlačítka pod sálem (Skeli 25. 11.): celá obrazovka a Menší / Větší sál mimo obraz, komorně; v sále zůstává
