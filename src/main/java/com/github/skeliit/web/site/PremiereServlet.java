@@ -40,6 +40,8 @@ public class PremiereServlet extends HttpServlet {
             p = new Premiere(0, "sim", "Musíš odejít", "clip", null, System.currentTimeMillis() + sec * 1000);
         }
         if (p == null) { resp.sendRedirect("/"); return; }
+        // tlačítko „Zkouška celé premiéry“ (Skeli 25. 11.: nemusí si pamatovat ?pmSim) – jen na testu a lokálně, nikdy na www
+        req.setAttribute("pmZkouskaOdkaz", ("localhost".equals(host) || host.startsWith("test.")) && !"sim".equals(p.uuid));
         // stav se mění v čase: nikdy ze staré mezipaměti
         resp.setHeader("Cache-Control", "no-store");
         req.setAttribute("premiere", p);

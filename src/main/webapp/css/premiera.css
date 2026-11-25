@@ -916,3 +916,7 @@ main.pm .pm-tlesk:active { transform: scale(.92); }
 .pm-spoust::after { display: none; }                                   /* kroužek je teď u 👏 */
 .pm-jeviste.klid .pm-tlesk { display: none; }
 @media (max-width: 600px) { main.pm .pm-tlesk { width: 38px; height: 38px; font-size: 17px; } .pm-reakce-roh { gap: 10px; } }
+/* jen test: odkaz na zkoušku celé premiéry (vlevo dole jako panel zkoušky) */
+.pm-zk-odkaz { position: fixed; z-index: 90; left: 12px; bottom: 12px; display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px;
+  border-radius: 99px; border: 1px dashed #f5c542; background: rgba(10, 10, 14, .92); color: #f5c542; font: 600 .9rem/1 var(--font-body); text-decoration: none; }
+.pm-zk-odkaz:hover, .pm-zk-odkaz:focus-visible { background: #f5c542; color: #111; }

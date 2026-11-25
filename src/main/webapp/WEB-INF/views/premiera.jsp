@@ -16,7 +16,9 @@
 <link rel="stylesheet" href="/css/premiera.css?v=<%= assetVersion %>">
 <link rel="stylesheet" href="/css/karaoke-fonts.css?v=<%= assetVersion %>">
 <% String pmBg = (String) request.getAttribute("pmBackground"); %>
-<main class="pm is-wait<%= pmBg != null ? " klip" : "" %>" data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>" data-song="<%= WebUtils.escapeHtml(pm.uuid) %>"<% if ("sim".equals(pm.uuid)) { %> data-sim-yt="LJ7ER355Hgg"<% } %> data-at="<%= pm.at %>" data-now="<%= request.getAttribute("serverNow") %>"
+<main class="pm is-wait<%= pmBg != null ? " klip" : "" %>" data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>" data-song="<%= WebUtils.escapeHtml(pm.uuid) %>"<% if ("sim".equals(pm.uuid)) { %> data-sim-yt="LJ7ER355Hgg"<% } %> data-at="<%= pm.at %>" data-now="<%= request.getAttribute("serverNow") %>
+  <%-- jen test a localhost (PremiereServlet): odkaz na zkoušku celého večera od 18:30 – texty jen česky, vidí ho jen Skeli při zkoušce --%>
+  <% if (Boolean.TRUE.equals(request.getAttribute("pmZkouskaOdkaz"))) { %><a class="pm-zk-odkaz" href="/premiera?pmSim=1800">🧪 Zkouška celé premiéry</a><% } %>"
       data-t-day="<%= WebUtils.escapeHtml(t.getProperty("premiere.d")) %>"
       data-t-soon="<%= WebUtils.escapeHtml(t.getProperty("pm.soonNow")) %>"
       data-t-left="<%= WebUtils.escapeHtml(t.getProperty("pm.left")) %>"
