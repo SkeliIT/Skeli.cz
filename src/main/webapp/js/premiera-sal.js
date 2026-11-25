@@ -795,7 +795,7 @@
       setTimeout(function () {
         tv[i].classList.add('on');
         platno.classList.remove('tep'); void platno.offsetWidth; platno.classList.add('tep');
-        var z = zvuk(); if (z) z.srdce(0.55 + i * 0.07);
+        var z = zvuk(); if (z) z.srdce(i < 4 ? 0.55 + i * 0.07 : 1);   // poslední tři naplno (hraje už stoupání finále)
       }, Math.max(0, d));
     });
     setTimeout(function () { platno.classList.add('ma-logo'); var z = zvuk(); if (z && zbyva > SEPOT * 1000 - 300) z.sepot(0.09); }, Math.max(0, zbyva - SEPOT * 1000));

@@ -967,3 +967,12 @@ main.pm .pm-psani .pm-psani-smajl[aria-expanded="true"] { border-color: var(--ac
 .pm-psani-pop[hidden] { display: none; }
 main.pm .pm-psani-pop button { min-height: 40px; padding: 0; border: 0; border-radius: 10px; background: none; color: inherit; font-size: 22px; font-weight: 400; cursor: pointer; }
 main.pm .pm-psani-pop button:hover, main.pm .pm-psani-pop button:focus-visible { background: rgba(255, 255, 255, .1); }
+/* ---------- KLIP (YouTube přehrávač přes jeviště, třída hraje): naše ovládání a chat mimo horní lištu YouTube (název vlevo,
+   ikony vpravo) a spodní lištu s ovládáním (Skeli 25. 11.: chat ležel na ikonách YouTube) ---------- */
+.pm-jeviste.hraje .pm-celo, .pm-jeviste.hraje .pm-zvuk-sal, .pm-jeviste.hraje .pm-fs-prepinac, main.pm .pm-jeviste.hraje .pm-chat-tl { top: 66px; }
+.pm-jeviste.hraje .pm-reakce-roh { bottom: 64px; }
+.pm-jeviste.fs.hraje.fs-cely .pm-chat { top: 60px; bottom: 56px; }
+.pm-jeviste.fs.hraje.fs-maly .pm-chat { bottom: 64px; }
+@media (min-width: 1200px) {
+  .pm-sal:has(.pm-jeviste.hraje) .pm-sal-roz > .pm-chat { top: 64px; height: calc(100cqw * 941 / 1672 - 122px); }
+}

@@ -317,7 +317,8 @@
       atmoStop(Math.max(1, s - 1.5));                                 // atmosféra utichne do tmy
       if (buf['finale-stoupani']) { var st = hraj('finale-stoupani', 0.5,   /* „Tep a tajemno“ (Mixkit), Skeli 24. 11. místo pištivých houslí */ { od: Math.max(0, 15 - s), nabeh: 1.5 }); ztlum(st, s - 0.4, 0.4); docasne.push(st); }
       if (buf['finale-projektor']) { var pr = hraj('finale-projektor', 0.3, { od: Math.max(0, 15 - s), nabeh: 2.5 }); ztlum(pr, Math.max(0, s - 2), 1.8); docasne.push(pr); }
-      if (buf['finale-ton'] && s > 7.5) { var tn = hraj('finale-ton', 0.4, { za: s - 7.5, nabeh: 1 }); ztlum(tn, s - 0.3, 0.3); docasne.push(tn); }   // od zhasnutí sálu
+      // tón až po posledním úderu srdce (5 s): od 7,5 s přehlušoval poslední tři údery – stejně hluboké frekvence (Skeli 25. 11.)
+      if (buf['finale-ton'] && s > 4.6) { var tn = hraj('finale-ton', 0.4, { za: s - 4.6, nabeh: 0.8 }); ztlum(tn, s - 0.3, 0.3); docasne.push(tn); }
     },
     klip: function () { vFinale = true; atmoStop(0.6); hudbaStop(0.6); ztlum(napeti, 0, 0.3); ztlum(vir, 0, 0.3); },
     schovej: function (ano) { if (!ac) return; if (ano) ac.suspend(); else if (zapnuto) ac.resume(); },
