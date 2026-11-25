@@ -6,6 +6,7 @@
 #     pip install fonttools brotli
 #     python tools/fa-subset.py
 # Plná písma (.ttf) zůstávají v repozitáři, z nich se .woff2 vždy znovu vyrobí.
+import hashlib
 import pathlib
 import re
 import subprocess
@@ -51,6 +52,14 @@ def main():
         subprocess.check_call([sys.executable, "-m", "fontTools.subset", str(src), "--unicodes=" + ",".join(cps),
                                "--flavor=woff2", "--layout-features=*", "--no-hinting", f"--output-file={dst}"])
         print(f"{font}: {dst.stat().st_size} B")
+    # číslo verze do adres písem v all.min.css (?v=otisk obsahu): prohlížeč si písmo drží den – bez nové adresy by nové
+    # ikony ukázal prázdné (25. 11.: tlačítko s rukou bylo neviditelné). Styl má verzi z assetVersion (header.jsp).
+    css_path = FA / "css/all.min.css"
+    css = css_path.read_text("utf-8")
+    for font in ("fa-solid-900", "fa-brands-400", "fa-regular-400"):
+        otisk = hashlib.sha1((FA / f"webfonts/{font}.woff2").read_bytes()).hexdigest()[:8]
+        css = re.sub(r"(webfonts/" + font + r"\.woff2)(\?v=[0-9a-f]+)?", lambda m: m.group(1) + "?v=" + otisk, css)
+    css_path.write_text(css, "utf-8", newline="")
     print(f"ikon: {len(used)}, znaků: {len(cps)}")
 
 

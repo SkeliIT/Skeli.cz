@@ -133,7 +133,7 @@
     <link rel="apple-touch-icon" href="<%= ctx %>/apple-touch-icon.png" />
     <meta name="theme-color" content="#09090b" />
     <%-- icons and fonts from our own server: no visitor IP goes to Google or a CDN (privacy) --%>
-    <link rel="stylesheet" href="<%= ctx %>/vendor/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="<%= ctx %>/vendor/fontawesome/css/all.min.css?v=<%= assetVersion %>">
     <link rel="stylesheet" href="<%= ctx %>/fonts/fonts.css?v=<%= assetVersion %>">
     <!-- Skeli.cz CSS -->
     <link rel="stylesheet" href="<%= ctx %>/css/base.css?v=<%= assetVersion %>">

@@ -14,7 +14,7 @@
     if (s !== '0' && (s === '1' || sessionStorage.getItem('fxLowNow') === '1' || (c && c.saveData) || (m && m <= 4 && matchMedia('(pointer: coarse)').matches))) document.documentElement.classList.add('low-fx');
   })(); } catch (e) { /* bez úložiště normálně */ }</script>
   <title><%= t.getProperty("chat.title") %></title>
-  <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css?v=<%= assetVersion %>">
   <link rel="stylesheet" href="/fonts/fonts.css?v=<%= assetVersion %>">
   <link rel="stylesheet" href="/css/base.css?v=<%= assetVersion %>">
   <link rel="stylesheet" href="/css/components.css?v=<%= assetVersion %>">
