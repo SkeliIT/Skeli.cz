@@ -52,11 +52,28 @@
   function kontext() {
     if (!ac) {
       ac = new C();
-      master = ac.createGain(); master.gain.value = 0.9; master.connect(ac.destination);
+      master = ac.createGain(); master.gain.value = MASTER; master.connect(ac.destination);
+      ztlumPodVideem();
     }
     if (ac.state === 'suspended') ac.resume();
     return ac;
   }
+  // UPOUTÁVKA (Skeli 25. 11.): když na stránce hraje video se zvukem (upoutávka na plátně v sále – js/premiera-sal.js, nebo
+  // okénko upoutávky – js/upoutavka.js), hudba i sál se plynule ztiší skoro do ticha a po upoutávce se zase vrátí.
+  // Události videa nebublají, proto se poslouchá v zachytávací fázi na celém dokumentu.
+  // Zavřená upoutávka zmizí ze stránky dřív, než dorazí její „pause“ → stav hlídá i tik (4× za s), hlasitost se mění jen při změně.
+  var MASTER = 0.9, POD_VIDEEM = 0.06, podVideem = false;
+  function ztlumPodVideem() {
+    if (!master || !ac) return;
+    var hraje = Array.prototype.some.call(document.querySelectorAll('video'), function (v) { return !v.paused && !v.ended && !v.muted && v.volume > 0; });
+    if (hraje === podVideem) return;
+    podVideem = hraje;
+    master.gain.cancelScheduledValues(ac.currentTime);
+    master.gain.setTargetAtTime(hraje ? MASTER * POD_VIDEEM : MASTER, ac.currentTime, hraje ? 0.15 : 0.6);
+  }
+  ['play', 'playing', 'pause', 'ended', 'volumechange', 'emptied'].forEach(function (u) {
+    document.addEventListener(u, function (e) { if (e.target && e.target.tagName === 'VIDEO') setTimeout(ztlumPodVideem, 0); }, true);
+  });
   function nacti(k) {
     if (buf[k]) return Promise.resolve(buf[k]);
     if (!nacita[k]) {
@@ -243,6 +260,7 @@
     },
     // každou čtvrtvteřinu ze sálu (js/premiera-sal.js tik): podle programu přepne hudbu, hovor a pustí pozdrav
     tik: function (zbyva, ted) {
+      ztlumPodVideem();
       if (!zapnuto || vFinale || !ac) return;
       var z = zbyva / 1000, seg = null;
       posledniZ = z;
