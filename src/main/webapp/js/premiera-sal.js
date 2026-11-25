@@ -807,7 +807,7 @@
     if (window.PmZvuky) window.PmZvuky.klip();                     // při klipu hraje jen klip
     setTimeout(function () { platno.classList.remove('v-finale', 'ma-logo'); }, 1200);
   }
-  var pozdravVidet = false, pmSede = false, chatPryc = false, chatChci = false, CHAT_PRYC_PO = 240000;   // klip ~4 min (program: 19:04)
+  var pozdravVidet = false, pmSede = false, chatPryc = false, chatChci = false, CHAT_PRYC_PO = 260000;   // klip 4:15 (Skeli 25. 11.) + 5 s: chat se vrátí až po klipu
   function tik() {
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
