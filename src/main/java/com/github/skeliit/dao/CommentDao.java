@@ -98,7 +98,7 @@ public class CommentDao {
                 + "WHERE c." + k.targetCol + " = ? AND c.parent_id IS NULL AND c.id > ? "
                 + (pinnedOnly ? "AND c.pinned_at IS NOT NULL " : "")
                 + "AND NOT " + BlockDao.blockedBy("c.user_id")
-                + (pinnedOnly ? " ORDER BY c.pinned_at DESC LIMIT 1" : " ORDER BY c.id DESC LIMIT ?");
+                + (pinnedOnly ? " ORDER BY c.pinned_at DESC LIMIT 5" : " ORDER BY c.id DESC LIMIT ?");   // chat: nejvýš 5 připnutých, nejstarší nahoře
         List<CommentItem> out = new ArrayList<>();
         try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, target);
@@ -327,9 +327,12 @@ public class CommentDao {
      * Pins a top-level comment (only one per lyric or clip, the previous one is unpinned) or unpins it.
      * "updated_at = updated_at" keeps the clip table's ON UPDATE from marking it as edited.
      */
-    public void pin(Kind k, Ref ref, boolean on) throws SQLException {
+    public void pin(Kind k, Ref ref, boolean on) throws SQLException { pin(k, ref, on, true); }
+
+    /** {@code only} = false: chat premiéry – další připnutí se přidá pod předchozí (Skeli 26. 11.), nic se neodepne. */
+    public void pin(Kind k, Ref ref, boolean on, boolean only) throws SQLException {
         try (Connection c = Db.get()) {
-            if (on) {
+            if (on && only) {
                 try (PreparedStatement ps = c.prepareStatement("UPDATE " + k.table
                         + " SET pinned_at = NULL, updated_at = updated_at WHERE " + k.targetCol + " = ? AND pinned_at IS NOT NULL")) {
                     ps.setString(1, ref.target());
@@ -353,6 +356,18 @@ public class CommentDao {
     }
 
     public boolean isPinned(Kind k, int id) throws SQLException { return flag(k, id, "pinned_at"); }
+
+    /** Chat premiéry: id posledních zpráv se srdíčkem od umělce – při každém dotazu, ať srdíčko uvidí všichni i u starších zpráv. */
+    public List<Integer> heartedIds(Kind k, String target, int limit) throws SQLException {
+        List<Integer> out = new ArrayList<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT id FROM " + k.table + " WHERE "
+                + k.targetCol + " = ? AND parent_id IS NULL AND hearted_at IS NOT NULL ORDER BY id DESC LIMIT ?")) {
+            ps.setString(1, target);
+            ps.setInt(2, Math.max(1, Math.min(limit, 500)));
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) out.add(rs.getInt(1)); }
+        }
+        return out;
+    }
 
     public boolean isHearted(Kind k, int id) throws SQLException { return flag(k, id, "hearted_at"); }
 

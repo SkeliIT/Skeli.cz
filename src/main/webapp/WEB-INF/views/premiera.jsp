@@ -80,6 +80,8 @@
              data-t-reported="<%= WebUtils.escapeHtml(t.getProperty("flash.reported")) %>"
              data-t-pin="<%= WebUtils.escapeHtml(t.getProperty("cmt.pin")) %>"
              data-t-unpin="<%= WebUtils.escapeHtml(t.getProperty("cmt.unpin")) %>"
+             data-t-heart="<%= WebUtils.escapeHtml(t.getProperty("cmt.heart")) %>"
+             data-t-hearted="<%= WebUtils.escapeHtml(t.getProperty("cmt.hearted")) %>"
              data-t-react="<%= WebUtils.escapeHtml(t.getProperty("pm.react")) %>"
              data-t-quiz="<%= WebUtils.escapeHtml(t.getProperty("pm.quiz")) %>"
              data-t-quiz-tap="<%= WebUtils.escapeHtml(t.getProperty("pm.quizTap")) %>"

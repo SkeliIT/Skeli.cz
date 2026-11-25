@@ -135,7 +135,8 @@ public class CommentsApiServlet extends HttpServlet {
                 }
                 case "pin" -> {
                     if (ref.parentId() != null || !(viewer.artist() || viewer.admin())) { answer(resp, back, 403, null); return; }
-                    dao.pin(kind, ref, "1".equals(req.getParameter("on")));
+                    // vic=1: chat premiéry připíná víc zpráv pod sebe; komentáře pod písní dál jen jednu
+                    dao.pin(kind, ref, "1".equals(req.getParameter("on")), !"1".equals(req.getParameter("vic")));
                     answer(resp, back, 200, Map.of("pinned", dao.isPinned(kind, ref.id())));
                 }
                 case "heart" -> {

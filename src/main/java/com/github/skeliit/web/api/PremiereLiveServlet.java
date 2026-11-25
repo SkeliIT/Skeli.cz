@@ -108,8 +108,13 @@ public class PremiereLiveServlet extends HttpServlet {
                 List<Map<String, Object>> chat = new ArrayList<>();
                 for (CommentItem it : dao.recent(Kind.VIDEO, room.target, viewer, after, after > 0 ? 60 : 40, false)) chat.add(item(req, it));
                 out.put("chat", chat);
-                List<CommentItem> pin = dao.recent(Kind.VIDEO, room.target, viewer, 0, 1, true);
-                out.put("pin", pin.isEmpty() ? null : item(req, pin.get(0)));
+                // připnuté zprávy (víc pod sebou, nejstarší nahoře) a srdíčka od Skeliho – při každém dotazu, ať se změna ukáže
+                // u všech i u zpráv, které už mají (Skeli 26. 11.)
+                List<Map<String, Object>> piny = new ArrayList<>();
+                for (CommentItem it : dao.recent(Kind.VIDEO, room.target, viewer, 0, 5, true)) piny.add(item(req, it));
+                out.put("piny", piny);
+                out.put("pin", piny.isEmpty() ? null : piny.get(0));   // starý skript (do obnovení stránky) ukáže aspoň první
+                out.put("srdce", dao.heartedIds(Kind.VIDEO, room.target, 300));
             }
             Map<String, Object> ja = new LinkedHashMap<>();
             ja.put("prihlasen", viewer.userId() != null);
@@ -220,6 +225,8 @@ public class PremiereLiveServlet extends HttpServlet {
         m.put("nahlasit", it.canReport);
         m.put("pripnout", it.canPin);
         m.put("pripnuto", it.pinned);
+        m.put("srdce", it.hearted);                     // srdíčko od Skeliho
+        m.put("srdcovat", it.canHeart && !it.artist);   // jen účet umělce, ne u vlastních zpráv
         return m;
     }
 

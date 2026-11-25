@@ -495,10 +495,26 @@
     if (zpravy.querySelector('.pm-zp')) { if (p) p.remove(); return; }
     if (!p && !vyp.chat) { p = document.createElement('p'); p.className = 'pm-zp-prazdno'; p.textContent = T.tEmpty; zpravy.appendChild(p); }
   }
+  // PŘIPNUTÍ (Skeli 26. 11.): zpráva zůstává na svém místě (zlatý rámeček 📌) a její kopie se přilepí nahoru pod hlavičku;
+  // další připnutá pod ni (nejvýš 5). Odepnutí ji jen sundá shora – v chatu zůstane, kde byla, kontext se neztratí.
+  function pripni(id, on) {
+    var el = zpravy.querySelector('.pm-zp[data-id="' + id + '"]');
+    if (el) el.classList.toggle('pripnuta', on);                  // hned, server to potvrdí při dalším dotazu
+    posli('/api/comments', { kind: 'video', action: 'pin', id: String(id), on: on ? '1' : '0', vic: '1' })
+      .then(function (r) { if (!r.ok) { oznam(T.tErr); if (el) el.classList.toggle('pripnuta', !on); } dalsi = 0; })
+      .catch(function () { oznam(T.tErr); });
+  }
+  // SRDÍČKO od Skeliho (Skeli 26. 11.): ♡ u zpráv návštěvníků vidí jen účet umělce, ❤️ pak vidí všichni; autor dostane upozornění
+  function srdce(el, on) {
+    el.classList.toggle('srdce', on);
+    var b = el.querySelector('.pm-zp-srdce');
+    if (b) { b.textContent = on ? '❤️' : '♡'; if (b.tagName === 'BUTTON') b.setAttribute('aria-pressed', String(on)); }
+  }
   function akce(z, el) {
     var moznosti = [];
-    if (z.pripnout) moznosti.push([z.pripnuto ? T.tUnpin : T.tPin, function () {
-      posli('/api/comments', { kind: 'video', action: 'pin', id: String(z.id), on: z.pripnuto ? '0' : '1' }).then(function () { dalsi = 0; });
+    // text Připnout / Odepnout podle toho, jestli je zpráva právě připnutá (stav se mění i bez nového vykreslení)
+    if (z.pripnout) moznosti.push([function () { return el.classList.contains('pripnuta') ? T.tUnpin : T.tPin; }, function () {
+      pripni(z.id, !el.classList.contains('pripnuta'));
     }]);
     if (z.nahlasit) moznosti.push([T.tReport, function () {
       if (!confirm(T.tReportQ)) return;
@@ -511,12 +527,18 @@
     var b = document.createElement('button');
     b.type = 'button'; b.className = 'pm-zp-vic'; b.textContent = '⋯'; b.setAttribute('aria-label', T.tMore); b.setAttribute('aria-expanded', 'false');
     var radek = document.createElement('div'); radek.className = 'pm-zp-akce'; radek.hidden = true;
+    var popisky = [];
     moznosti.forEach(function (m) {
-      var x = document.createElement('button'); x.type = 'button'; x.textContent = m[0];
+      var x = document.createElement('button'); x.type = 'button';
+      popisky.push(function () { x.textContent = typeof m[0] === 'function' ? m[0]() : m[0]; });
       x.addEventListener('click', function () { radek.hidden = true; b.setAttribute('aria-expanded', 'false'); m[1](); });
       radek.appendChild(x);
     });
-    b.addEventListener('click', function () { radek.hidden = !radek.hidden; b.setAttribute('aria-expanded', String(!radek.hidden)); });
+    popisky.forEach(function (f) { f(); });
+    b.addEventListener('click', function () {
+      popisky.forEach(function (f) { f(); });                     // Připnout / Odepnout podle aktuálního stavu
+      radek.hidden = !radek.hidden; b.setAttribute('aria-expanded', String(!radek.hidden));
+    });
     el.appendChild(b); el.appendChild(radek);
   }
   function telo(z, el) {
@@ -532,25 +554,59 @@
       kdy.textContent = dnes && hodiny ? hodiny.format(d) : datum ? datum.format(d) : d.toLocaleString();
     }
     var p = document.createElement('p'); p.textContent = z.text;   // vždy čistý text, nikdy HTML
-    t.appendChild(b); t.appendChild(kdy); t.appendChild(p);
+    t.appendChild(b); t.appendChild(kdy);
+    if (z.srdcovat) {                                             // účet umělce: ♡ jedním ťuknutím
+      var sb = document.createElement('button'); sb.type = 'button'; sb.className = 'pm-zp-srdce';
+      sb.setAttribute('aria-label', T.tHeart || '❤️'); sb.title = T.tHeart || '';
+      sb.addEventListener('click', function () {
+        var on = !el.classList.contains('srdce'); srdce(el, on);
+        posli('/api/comments', { kind: 'video', action: 'heart', id: String(z.id), on: on ? '1' : '0' })
+          .then(function (r) { if (!r.ok) { srdce(el, !on); oznam(T.tErr); } dalsi = 0; })
+          .catch(function () { srdce(el, !on); oznam(T.tErr); });
+      });
+      t.appendChild(sb);
+    } else {
+      var ss = document.createElement('span'); ss.className = 'pm-zp-srdce'; ss.title = T.tHearted || ''; t.appendChild(ss);
+    }
+    t.appendChild(p);
     el.appendChild(f); el.appendChild(t);
+    srdce(el, !!z.srdce);
   }
   function zprava(z) {
     if (!z || typeof z.id !== 'number' || z.id <= posledni) return;
     posledni = z.id;
     var el = document.createElement('div');
-    el.className = 'pm-zp' + (z.skeli ? ' skeli' : '');
+    el.className = 'pm-zp' + (z.skeli ? ' skeli' : '') + (z.pripnuto ? ' pripnuta' : '');
+    el.dataset.id = z.id;
     telo(z, el); akce(z, el);
     zpravy.insertBefore(el, zpravy.firstChild);                   // nejnovější nahoře
     if (typeof fsNovaZprava === 'function') fsNovaZprava();
     while (zpravy.children.length > 120) zpravy.lastChild.remove();   // v paměti nejvýš 120
   }
-  function pripnuto(z) {
-    var box = $('pmPripnuto');
-    box.hidden = !z; box.textContent = '';
-    if (!z) return;
-    var b = document.createElement('b'); b.textContent = '📌 ' + (z.jmeno || T.tDeleted) + ': ';
-    box.appendChild(b); box.appendChild(document.createTextNode(z.text));
+  // připnuté nahoře: jedna zpráva pod druhou; Skeli (pripnout) má u každé ✕ = odepnout. Zprávy v chatu dostanou rámeček podle seznamu.
+  function pripnute(piny) {
+    var box = $('pmPripnuto'), ids = {};
+    piny = Array.isArray(piny) ? piny : [];
+    box.hidden = !piny.length; box.textContent = '';
+    piny.forEach(function (z) {
+      ids[z.id] = true;
+      var r = document.createElement('div'); r.className = 'pm-pin';
+      var b = document.createElement('b'); b.textContent = '📌 ' + (z.jmeno || T.tDeleted) + ': ';
+      r.appendChild(b); r.appendChild(document.createTextNode(z.text));   // čistý text
+      if (z.pripnout) {
+        var x = document.createElement('button'); x.type = 'button'; x.className = 'pm-pin-pryc'; x.textContent = '✕';
+        x.setAttribute('aria-label', T.tUnpin); x.title = T.tUnpin;
+        x.addEventListener('click', function () { r.remove(); if (!box.children.length) box.hidden = true; pripni(z.id, false); });
+        r.appendChild(x);
+      }
+      box.appendChild(r);
+    });
+    zpravy.querySelectorAll('.pm-zp').forEach(function (el) { el.classList.toggle('pripnuta', !!ids[el.dataset.id]); });
+  }
+  function srdceStav(seznam) {
+    if (!Array.isArray(seznam)) return;
+    var ids = {}; seznam.forEach(function (i) { ids[i] = true; });
+    zpravy.querySelectorAll('.pm-zp').forEach(function (el) { srdce(el, !!ids[el.dataset.id]); });
   }
   // SMAJLÍCI DO ZPRÁVY (Skeli 25. 11.): tlačítko 😊 u psaní → okénko s emoji, ťuknutí vloží smajlíka na místo kurzoru.
   // Emoji jsou obyčejné znaky textu – zpráva zůstává čistý text (nikdy HTML). Nejvýš 200 znaků jako dřív.
@@ -629,7 +685,8 @@
     if (vyp.chat) { chybaChatu = true; oznam(T.tOff); }
     else if (chybaChatu) { chybaChatu = false; oznam(''); }
     if (d.chat && !vyp.chat) d.chat.forEach(zprava);
-    if ('pin' in d) pripnuto(d.pin);
+    if ('piny' in d) pripnute(d.piny);
+    if ('srdce' in d) srdceStav(d.srdce);
     prazdno();
     kvizStav(vyp.kviz ? null : d.kviz);
   }

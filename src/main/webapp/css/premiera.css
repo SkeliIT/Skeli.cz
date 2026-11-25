@@ -1062,3 +1062,22 @@ body.light .pm-pribeh-h { color: var(--accent); text-shadow: none; }
 /* jedno tlačítko velký / malý: velký chat ukazuje „zmenšit“, malý „zvětšit“ */
 .pm-chat-vel .ik-zvetsit, .pm-sal.chat-maly .pm-chat-vel .ik-zmensit { display: none; }
 .pm-sal.chat-maly .pm-chat-vel .ik-zvetsit { display: inline; }
+
+/* ---------- připnuté zprávy a srdíčko od Skeliho v chatu (Skeli 26. 11.) ----------
+   nahoře pod hlavičkou kopie připnutých (víc pod sebou, max. ~třetina chatu, pak posuvník), v chatu zůstává zpráva na místě
+   se zlatým rámečkem; ❤️ vidí všichni, ♡ (tlačítko) jen účet umělce */
+.pm-pripnuto { display: grid; gap: 4px; max-height: 32%; overflow-y: auto; padding: 6px 8px; }
+.pm-pripnuto[hidden] { display: none; }
+.pm-pin { display: flex; align-items: flex-start; gap: 6px; }
+.pm-pin b { white-space: nowrap; }
+main.pm .pm-pin-pryc { flex: none; margin: -6px -6px -6px auto; width: 32px; height: 32px; border: 0; border-radius: 50%; background: none;
+  color: var(--text-dim); cursor: pointer; font-size: 13px; }
+main.pm .pm-pin-pryc:hover, main.pm .pm-pin-pryc:focus-visible { color: var(--text); background: rgba(255, 255, 255, .1); }
+.pm-zp.pripnuta .pm-zp-t p { box-shadow: inset 0 0 0 1px color-mix(in srgb, #ffd23f 70%, transparent); border-radius: 8px; padding: 2px 6px; }
+.pm-zp.pripnuta .pm-zp-t b::before { content: "📌 "; }
+.pm-zp-srdce { margin-left: 6px; font-size: .85rem; line-height: 1; }
+span.pm-zp-srdce:empty { display: none; }
+main.pm button.pm-zp-srdce { min-width: 32px; min-height: 32px; margin: -8px 0 -8px 2px; padding: 0; border: 0; border-radius: 50%; background: none;
+  color: var(--text-dim); cursor: pointer; font-size: 1rem; vertical-align: middle; }
+main.pm button.pm-zp-srdce:hover, main.pm button.pm-zp-srdce:focus-visible { color: #ff5a7a; background: rgba(255, 255, 255, .08); }
+@media (pointer: coarse) { main.pm button.pm-zp-srdce, main.pm .pm-pin-pryc { min-width: 40px; min-height: 40px; } }
