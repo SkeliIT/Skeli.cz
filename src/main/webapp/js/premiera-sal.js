@@ -429,7 +429,8 @@
   var jaUmelec = false, mavaPosledni = 0, mavaBezi = false;
   // [snímek, ms od začátku]: otočí se, jednou zvedne ruku a chvilku ji podrží, spustí ji a otočí se zpět (Skeli 25. 11.: 3× vypadalo divně)
   // otočka přes Skeliho mezisnímek (hlava z profilu doleva) – mava-1 s hlavou doprava cukal na druhou stranu, vyřazený (Skeli 25. 11.)
-  var MAVA = [['mava-mezi', 0], ['mava-2', 500], ['mava-3', 1200], ['mava-4', 1650], ['mava-3', 3000], ['mava-2', 3500], ['mava-mezi', 4200], ['', 4800]];
+  // Skeli 25. 11.: otočka rychle (snímky po ~0,27 s, prolnutí 0,24 s), jen ruka nahoře chvilku počká (~1,6 s)
+  var MAVA = [['mava-mezi', 0], ['mava-2', 260], ['mava-3', 540], ['mava-4', 800], ['mava-3', 2400], ['mava-2', 2680], ['mava-mezi', 2960], ['', 3240]];
   function mavej() {
     if (mavaBezi || !skeliEl || !skeliVSale || !skeliEl.classList.contains('sedi') || skeliEl.dataset.s) return;   // ne při pozdravu
     mavaBezi = true;
