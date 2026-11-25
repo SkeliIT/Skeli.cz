@@ -13,6 +13,7 @@
   function audio() {
     if (ac) { if (ac.state === 'suspended') ac.resume(); return ac; }
     var C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* iPhone: hrát i v tichém režimu (iOS 17+) */ }
     ac = new C();
     // za kompresorem společné zesílení celého setu: +4 dB (×1,585) – na mobilu bylo srdce, šepot i vítr skoro neslyšet (Skeli 23. 11.)
     out = ac.createDynamicsCompressor(); out.threshold.value = -14; out.ratio.value = 4;

@@ -51,6 +51,8 @@
   function vypnuto() { try { return localStorage.getItem('soundMuted') === '1'; } catch (e) { return false; } }
   function kontext() {
     if (!ac) {
+      // iPhone v tichém režimu (přepínač na boku) Web Audio ztlumí – „přehrávání“ hraje i tak, jako video (iOS 17+, Skeli 26. 11.)
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* starší prohlížeč */ }
       ac = new C();
       master = ac.createGain(); master.gain.value = MASTER; master.connect(ac.destination);
       ztlumPodVideem();
