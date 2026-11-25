@@ -426,8 +426,8 @@
     }
     skeliEl.classList.toggle('sedi', skeliVSale);
     if (skeliEl.dataset.s !== s) {
-      var mluvi = /^(mluvi|mluvi2|srdce|gesto)$/.test(s) && /^(mluvi|mluvi2|srdce|gesto)$/.test(skeliEl.dataset.s || '');
-      if (!mavaBezi) skeliEl.classList.toggle('mava', !mluvi);         // otáčení rychlým prolnutím, mluvení pomalým
+      // celý proslov rychlým prolnutím (Skeli 25. 11.: při pomalém byly při mluvení vidět dva Skeliové přes sebe – „dvojník“)
+      if (!mavaBezi) skeliEl.classList.add('mava');
       skeliEl.dataset.s = s; skSnimek(s);
       if (!s && !mavaBezi) setTimeout(function () { if (!skeliEl.dataset.s && !mavaBezi) skeliEl.classList.remove('mava'); }, 300);
     }
