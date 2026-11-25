@@ -159,10 +159,11 @@
                V sále zůstává jen zvuk (hned vidět, že je vypnutý) a na celé obrazovce ⛶ k návratu. --%>
           <div class="pm-nastroje">
             <%-- jen pro účet umělce (Skeli), když sedí v sále: jeho postava se u všech otočí a zamává (js/premiera-sal.js) --%>
-            <button type="button" id="pmMavni" hidden><%= WebUtils.escapeHtml(t.getProperty("pm.waveHello")) %></button>
-            <button type="button" id="pmKdoZmen"><i class="fa-solid fa-user" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.whoChange")) %></button>
-            <button type="button" id="pmCeloVen"><i class="fa-solid fa-expand" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.full")) %></button>
-            <button type="button" class="pm-velky" id="pmVelky"></button>
+            <%-- jen ikony (Skeli 25. 11.), text je nápověda při najetí a pro čtečky --%>
+            <button type="button" id="pmMavni" hidden aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.waveHello")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.waveHello")) %>"><i class="fa-solid fa-hand" aria-hidden="true"></i></button>
+            <button type="button" id="pmKdoZmen" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.whoChange")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.whoChange")) %>"><i class="fa-solid fa-user" aria-hidden="true"></i></button>
+            <button type="button" id="pmCeloVen" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
+            <button type="button" class="pm-velky" id="pmVelky"><i class="fa-solid fa-down-left-and-up-right-to-center" aria-hidden="true"></i></button>
           </div>
         </div>
         <aside class="pm-chat"><div class="pm-chat-in">

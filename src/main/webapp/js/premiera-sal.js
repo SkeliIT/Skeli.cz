@@ -933,7 +933,9 @@
   var velkyBtn = $('pmVelky');
   function velkySal(on) {
     root.classList.toggle('velky-sal', on);
-    velkyBtn.textContent = on ? T.tSmaller : T.tBigger;
+    var popis = on ? T.tSmaller : T.tBigger;                       // jen ikona, text jako nápověda (Skeli 25. 11.)
+    velkyBtn.querySelector('i').className = 'fa-solid ' + (on ? 'fa-down-left-and-up-right-to-center' : 'fa-up-right-and-down-left-from-center');
+    velkyBtn.setAttribute('aria-label', popis); velkyBtn.title = popis;
   }
   var velkyChci = true;
   try { velkyChci = localStorage.getItem('pmVelky') !== '0'; } catch (e) { /* bez úložiště: velký */ }

@@ -935,3 +935,6 @@ main.pm .pm-tlesk:active { transform: scale(.92); }
   .pm-scena { translate: calc(-50% + var(--pan, 0px)) 0; }
   .pm-jeviste { touch-action: pan-y; }
 }
+/* lišta pod sálem jen s ikonami (Skeli 25. 11.) */
+main.pm .pm-nastroje button { min-width: 40px; justify-content: center; padding: 0 10px; font-size: 15px; }
+main.pm .pm-nastroje { gap: 2px 4px; }
