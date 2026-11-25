@@ -783,6 +783,12 @@
   }
   // před prvním vstupem okénko „Kdo si dnes sedne do sálu?“ (ťuknutí na postavu = vstup i se zvukem); Esc / zavřít = vstup bez volby
   var kdo = $('pmKdo'), kdoVstup = false;
+  // pomalý mobilní signál: silueta, která se nenačte, se schová (dlaždice zůstane s nápisem, bez ikonky rozbitého obrázku)
+  kdo.querySelectorAll('img').forEach(function (im) {
+    var pryc = function () { im.hidden = true; };
+    im.addEventListener('error', pryc);
+    if (im.complete && !im.naturalWidth && im.getAttribute('src')) im.addEventListener('load', function () { im.hidden = false; });
+  });
   function kdoOtevri(proVstup) {
     if (!kdo.showModal) { if (proVstup) vstup(false); return; }    // starý prohlížeč: bez otázky
     kdoVstup = proVstup;

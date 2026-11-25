@@ -894,3 +894,5 @@ body.light .pm-kv-cas { background: rgba(0, 0, 0, .12); }
   .pm.v-sale .pm-dole .pm-nalady button .pm-tvar { width: 32px; height: 32px; }
   .pm.v-sale .pm-dole .pm-nalady b { font: 500 .78rem/1.1 'Barlow Condensed', 'Oswald', sans-serif; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
 }
+.pm-kdo-volby img[hidden] { display: none; }
+main.pm .pm-kdo-volby button { min-height: 72px; align-content: center; }
