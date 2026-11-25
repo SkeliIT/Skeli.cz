@@ -547,15 +547,15 @@
   var EMOJI_CHAT = ['😂', '😍', '🔥', '❤️', '👏', '😮', '😢', '🙏', '💯', '🎉', '😎', '🤯', '👍', '😅', '🥺', '💪', '🖤', '🎬', '🍿', '🎤'];
   var smajlB = $('pmPsaniSmajl'), smajlPop = $('pmPsaniPop');
   if (form && smajlB && smajlPop) {
-    var vstup = form.querySelector('input');
+    var pole = form.querySelector('input');   // POZOR: ne „vstup“ – tak se jmenuje funkce, která otevírá sál
     EMOJI_CHAT.forEach(function (em) {
       var b = document.createElement('button'); b.type = 'button'; b.textContent = em; b.setAttribute('aria-label', em);
       b.addEventListener('click', function (e) {
         e.preventDefault();
-        if (vstup.value.length + em.length > 200) return;
-        var a = vstup.selectionStart == null ? vstup.value.length : vstup.selectionStart, z = vstup.selectionEnd == null ? a : vstup.selectionEnd;
-        vstup.setRangeText(em, a, z, 'end');
-        vstup.focus();
+        if (pole.value.length + em.length > 200) return;
+        var a = pole.selectionStart == null ? pole.value.length : pole.selectionStart, z = pole.selectionEnd == null ? a : pole.selectionEnd;
+        pole.setRangeText(em, a, z, 'end');
+        pole.focus();
       });
       smajlPop.appendChild(b);
     });
