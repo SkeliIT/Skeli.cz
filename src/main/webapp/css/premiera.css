@@ -1011,3 +1011,13 @@ body:has(main.pm.v-sale) { transition: --a1h 3s ease-in, --a1s 3s ease-in, --a1l
 /* 2 minuty předem „Premiéra · datum“ na plátně plynule zmizí, místo zůstane (ostatní texty neposkočí) */
 .pm-pl-kdy { transition: opacity .8s ease; }
 .pm-platno.bez-kdy .pm-pl-kdy { opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility 0s .8s; }
+/* ---------- CHAT JAKO MESSENGER (Skeli 25. 11.): psaní dole, zprávy nad ním, nejnovější dole u psaní. Pořadí v HTML zůstává
+   (js vkládá nejnovější na začátek seznamu) – column-reverse ho vykreslí odspodu a posuvník drží dole u nejnovější. ---------- */
+.pm-chat-in { grid-template-rows: auto auto auto minmax(0, 1fr) auto auto; }
+.pm-chat-in > .pm-chat-h { order: 0; }
+.pm-chat-in > .pm-pripnuto { order: 1; }
+.pm-chat-in > .pm-chat-info { order: 2; }
+.pm-chat-in > .pm-zpravy { order: 3; display: flex; flex-direction: column-reverse; justify-content: flex-start; }
+.pm-chat-in > .pm-chat-verejne { order: 4; margin: 4px 14px 2px; }
+.pm-chat-in > .pm-psani { order: 5; border-bottom: 0; border-top: 1px solid var(--panel-border); }
+.pm-psani-pop { top: auto; bottom: calc(100% + 4px); }   /* smajlíci do zprávy nad polem pro psaní */
