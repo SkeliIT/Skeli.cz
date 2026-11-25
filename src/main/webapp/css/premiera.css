@@ -947,3 +947,5 @@ main.pm .pm-nastroje { gap: 2px 4px; }
 }
 html.low-fx .pm-scena.naklon { rotate: none; scale: none; translate: -50% 0; }
 @media (prefers-reduced-motion: reduce) { .pm-scena.naklon { rotate: none; scale: none; } }
+/* Skeli mává: krátké prolnutí snímků (0,09 s) – při dlouhém byl vidět „duch“ předchozí pózy mimo postavu (Skeli 25. 11.) */
+.pm-skeli.mava img.f, .pm-skeli.mava img.zaklad { transition-duration: .09s; }

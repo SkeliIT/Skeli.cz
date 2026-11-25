@@ -433,12 +433,12 @@
   var MAVA = [['mava-mezi', 0], ['mava-2', 260], ['mava-3', 540], ['mava-4', 800], ['mava-3', 2400], ['mava-2', 2680], ['mava-mezi', 2960], ['', 3240]];
   function mavej() {
     if (mavaBezi || !skeliEl || !skeliVSale || !skeliEl.classList.contains('sedi') || skeliEl.dataset.s) return;   // ne při pozdravu
-    mavaBezi = true;
+    mavaBezi = true; skeliEl.classList.add('mava');
     MAVA.forEach(function (x) {
       setTimeout(function () {
-        if (skeliEl.dataset.s) { mavaBezi = false; return; }          // mezitím začal pozdrav: ten má přednost
+        if (skeliEl.dataset.s) { mavaBezi = false; skeliEl.classList.remove('mava'); return; }   // mezitím začal pozdrav: ten má přednost
         skSnimek(x[0]);
-        if (!x[0]) mavaBezi = false;
+        if (!x[0]) { mavaBezi = false; setTimeout(function () { skeliEl.classList.remove('mava'); }, 150); }
       }, x[1]);
     });
   }
@@ -457,7 +457,8 @@
     if (im === skMinuly) return;
     var stary = skMinuly; skMinuly = im;
     im.style.zIndex = ++skVrch; im.classList.add('on');
-    setTimeout(function () { if (stary !== skMinuly) { stary.classList.add('hned'); stary.classList.remove('on'); void stary.offsetWidth; stary.classList.remove('hned'); } }, 260);
+    var pryc = skeliEl.classList.contains('mava') ? 100 : 260;      // mávání: krátké prolnutí, ať za postavou nezůstává „duch“
+    setTimeout(function () { if (stary !== skMinuly) { stary.classList.add('hned'); stary.classList.remove('on'); void stary.offsetWidth; stary.classList.remove('hned'); } }, pryc);
   }
 
   function vlna() {
