@@ -1018,6 +1018,6 @@ body:has(main.pm.v-sale) { transition: --a1h 3s ease-in, --a1s 3s ease-in, --a1l
 .pm-chat-in > .pm-pripnuto { order: 1; }
 .pm-chat-in > .pm-chat-info { order: 2; }
 .pm-chat-in > .pm-zpravy { order: 3; display: flex; flex-direction: column-reverse; justify-content: flex-start; }
-.pm-chat-in > .pm-chat-verejne { order: 4; margin: 4px 14px 2px; }
-.pm-chat-in > .pm-psani { order: 5; border-bottom: 0; border-top: 1px solid var(--panel-border); }
+.pm-chat-in > .pm-psani { order: 4; border-bottom: 0; border-top: 1px solid var(--panel-border); }
+.pm-chat-in > .pm-chat-verejne { order: 5; margin: 0 14px 8px; }   /* upozornění úplně dole pod psaním (Skeli 25. 11.) */
 .pm-psani-pop { top: auto; bottom: calc(100% + 4px); }   /* smajlíci do zprávy nad polem pro psaní */
