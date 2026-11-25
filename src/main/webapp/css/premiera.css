@@ -812,3 +812,8 @@ body.light .pm-pomoc-linky a, body.light .pm-prog b { text-shadow: none; }
   .pm-pomoc-linky li { grid-template-columns: 6.1rem 1fr; gap: 10px; }
   .pm-pomoc-linky a { font-size: 1.6rem; }
 }
+/* kontakty: úvodní věta, u linky název a pod ním popis (Skeliho texty 25. 11.) */
+.pm-pomoc-uvod { margin: -4px 0 14px; color: var(--text-dim); font: 500 .95rem/1.5 'Barlow Condensed', 'Oswald', sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+.pm-pomoc-t { display: grid; gap: 2px; min-width: 0; }
+.pm-pomoc-t b { font-weight: 500; color: var(--text); }
+.pm-pomoc-t small { font-size: .86em; line-height: 1.4; color: var(--text-dim); }

@@ -180,10 +180,13 @@
     <%-- kontakty na pomoc (audit 25. 11.; větu s upozorněním na obsah Skeli nechtěl): na stránce vždy – před premiérou, při ní i jako záznam --%>
     <aside class="pm-pomoc" aria-labelledby="pmPomocNadpis">
       <h2 class="pm-pomoc-h" id="pmPomocNadpis"><%= WebUtils.escapeHtml(t.getProperty("pm.helpTitle")) %></h2>
+      <p class="pm-pomoc-uvod"><%= WebUtils.escapeHtml(t.getProperty("pm.helpIntro")) %></p>
       <ul class="pm-pomoc-linky">
-        <li><a href="tel:116006">116 006</a> <%= WebUtils.escapeHtml(t.getProperty("pm.help1")) %></li>
-        <li><a href="tel:158">158</a> <%= WebUtils.escapeHtml(t.getProperty("pm.help2")) %></li>
-        <li><a href="tel:116111">116 111</a> <%= WebUtils.escapeHtml(t.getProperty("pm.help3")) %></li>
+        <% String[][] pmLinky = {{"116006", "116 006", "1"}, {"158", "158", "2"}, {"116111", "116 111", "3"}};
+           for (String[] l : pmLinky) { %>
+        <li><a href="tel:<%= l[0] %>"><%= l[1] %></a><span class="pm-pomoc-t"><b><%= WebUtils.escapeHtml(t.getProperty("pm.help" + l[2])) %></b>
+          <small><%= WebUtils.escapeHtml(t.getProperty("pm.help" + l[2] + "d")) %></small></span></li>
+        <% } %>
       </ul>
       <p class="pm-pomoc-cz"><%= WebUtils.escapeHtml(t.getProperty("pm.helpCz")) %></p>
     </aside>
