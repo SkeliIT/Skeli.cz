@@ -602,6 +602,8 @@
                 const noPjax = ['/auth/', '/karaoke', '/premiera', '/lyrics/', '/texty', '/admin', '/logout', '/login.jsp', '/register.jsp', '/uzivatel.jsp', '/nastaveni.jsp', '/profile.jsp'];
                 if (noPjax.some(p => href.includes(p))) return;
                 if (document.body.classList.contains('is-admin')) return;   // z adminu ven vždy celou stránkou (jiné pozadí a patička)
+                // ze sálu premiéry a z karaoke kina ven vždy celou stránkou: jinak by hudba a zvuky sálu hrály dál (Skeli 25. 11.)
+                if (/^\/(premiera|premiere|karaoke|karaoke-kino)(\/|$)/.test(location.pathname)) return;
                 e.preventDefault();
                 navigate(href, true);
               });
