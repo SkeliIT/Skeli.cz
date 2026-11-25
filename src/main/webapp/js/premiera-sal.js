@@ -754,7 +754,7 @@
   }
   function pustShort() {
     var c = cas();
-    if (c.at - c.now <= 60000 || kviz) return;                   // poslední minuta patří premiéře, během kvízu je plátno jeho
+    if (c.at - c.now <= 120000 || kviz) return;                  // poslední 2 minuty patří premiéře, během kvízu je plátno jeho
     if (shortV) { zavriShort(); return; }                        // druhé ťuknutí zavře
     if (window.skeliUpoutavkyZavri) window.skeliUpoutavkyZavri();
     shortV = document.createElement('video');
@@ -816,7 +816,7 @@
   function tik() {
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
-    if (zbyva <= 60000) zavriShort();
+    if (zbyva <= 120000) zavriShort();                                   // upoutávka končí 2 min předem (Skeli 25. 11.)
     platno.classList.toggle('bez-kdy', zbyva <= 120000);               // 2 min předem zmizí „Premiéra · datum“ (Skeli 25. 11.)
     if (zbyva > 0 && zbyva <= 20000) { scena.classList.add('priprav'); panDomu(); }
     if (zbyva > 0 && zbyva <= 7000) jeviste.classList.add('cernobile');   // s 5. obličejem (7 s) šedne i plátno s obličeji (Skeli 25. 11.)

@@ -1022,3 +1022,6 @@ body:has(main.pm.v-sale) { transition: --a1h 3s ease-in, --a1s 3s ease-in, --a1l
 .pm-chat-in > .pm-psani { grid-row: 5; border-bottom: 0; border-top: 1px solid var(--panel-border); }
 .pm-chat-in > .pm-chat-verejne { grid-row: 6; margin: 0 14px 8px; }   /* upozornění úplně dole pod psaním (Skeli 25. 11.) */
 .pm-psani-pop { top: auto; bottom: calc(100% + 4px); }   /* smajlíci do zprávy nad polem pro psaní */
+/* upoutávka končí 2 minuty předem spolu s datem (Skeli 25. 11.) – nápis jen zmizí, místo zůstane */
+.pm-platno.bez-kdy .pm-pl-tip { opacity: 0; visibility: hidden; transition: opacity .8s ease, visibility 0s .8s; }
+.pm-platno.bez-kdy { cursor: default; }
