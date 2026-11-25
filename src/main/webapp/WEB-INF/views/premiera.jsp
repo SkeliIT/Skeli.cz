@@ -178,6 +178,8 @@
     </section>
     <%-- pod sálem, MIMO jeho rámeček (Skeli 25. 11.: rámeček obepíná jen kino a chat): program večera (časy podle začátku
          premiéry, js) a náladoměr (jen během 30 min odpočtu); vidět jen v sále (css .pm:not(.v-sale)) --%>
+    <%-- pod sálem: program (jen v sále) a kontakty; na PC v sále vedle sebe (Skeli 25. 11.: kratší stránka), jinak pod sebou --%>
+    <div class="pm-dole">
     <div class="pm-podsal">
       <div class="pm-karta pm-program"><h3><%= WebUtils.escapeHtml(t.getProperty("pm.progTitle")) %></h3>
         <ol class="pm-prog" id="pmProgram" data-nazev="<%= pmName %>"></ol></div>
@@ -197,6 +199,7 @@
       </ul>
       <p class="pm-pomoc-cz"><%= WebUtils.escapeHtml(t.getProperty("pm.helpCz")) %></p>
     </aside>
+    </div>
 
     <div class="pm-video" id="pmVideo" hidden>
       <div class="pm-tvare" id="pmTvare" aria-hidden="true"><% for (int fi = 1; fi <= 7; fi++) { %><img src="/img/faces/face-<%= fi %>.webp" alt="" width="44" height="44"><% } %></div>
