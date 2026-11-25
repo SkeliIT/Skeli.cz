@@ -3,7 +3,7 @@
   "otazky": [
     { "id": "logo", "ok": 1, "cs": { "q": "Kolik smajlíků tvoří logo SKELO SQUAD?", "a": ["Pět", "Sedm", "Devět"], "fakt": "Každý ze sedmi smajlíků představuje jiný výraz a náladu." } },
     { "id": "kevin", "ok": 0, "cs": { "q": "Jak se jmenuje kočičí maskot Skeli.cz?", "a": ["Kevin", "Chester", "Felix"], "fakt": "Kevin je nejen maskotem webu, ale také soupeřem ve hře CatSmash." } },
-    { "id": "klip", "premiera": "musis-odejit", "ok": 2, "cs": { "q": "Jak se jmenuje klip, který má dnes premiéru?", "a": ["Neohlížej se", "Je čas jít", "Musíš odejít"], "fakt": "Skladbu inspiroval skutečný příběh, který mi vyprávěla jedna kamarádka." } },
+    { "id": "klip", "premiera": "musis-odejit", "ok": 2, "cs": { "q": "Jak se jmenuje klip, který má dnes premiéru?", "a": ["Neohlížej se", "Je čas jít", "Musíš odejít"], "fakt": "Text byl inspirován skutečným příběhem, který mi vyprávěla kamarádka." } },
     { "id": "catsmash", "ok": 0, "cs": { "q": "Jak se jmenuje hra, ve které soupeříš s Kevinem?", "a": ["CatSmash", "CatStrike", "PawPong"], "fakt": "CatSmash je minihra inspirovaná ping-pongem, ve které rozhoduje postřeh a rychlost reakcí." } },
 
     { "id": "texty15", "ok": 1, "cs": { "q": "V kolika letech začal Skeli psát vlastní texty?", "a": ["Ve 12 letech", "V 15 letech", "V 19 letech"], "fakt": "První vlastní texty začal Skeli psát ještě před vznikem svého prvního tracku v roce 2008." } },
