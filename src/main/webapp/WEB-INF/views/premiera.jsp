@@ -17,8 +17,6 @@
 <link rel="stylesheet" href="/css/karaoke-fonts.css?v=<%= assetVersion %>">
 <% String pmBg = (String) request.getAttribute("pmBackground"); %>
 <main class="pm is-wait<%= pmBg != null ? " klip" : "" %>" data-csrf="<%= com.github.skeliit.filter.CsrfFilter.token(session) %>" data-song="<%= WebUtils.escapeHtml(pm.uuid) %>"<% if ("sim".equals(pm.uuid)) { %> data-sim-yt="LJ7ER355Hgg"<% } %> data-at="<%= pm.at %>" data-now="<%= request.getAttribute("serverNow") %>
-  <%-- jen test a localhost (PremiereServlet): odkaz na zkoušku celého večera od 18:30 – texty jen česky, vidí ho jen Skeli při zkoušce --%>
-  <% if (Boolean.TRUE.equals(request.getAttribute("pmZkouskaOdkaz"))) { %><a class="pm-zk-odkaz" href="/premiera?pmSim=1800">🧪 Zkouška celé premiéry</a><% } %>"
       data-t-day="<%= WebUtils.escapeHtml(t.getProperty("premiere.d")) %>"
       data-t-soon="<%= WebUtils.escapeHtml(t.getProperty("pm.soonNow")) %>"
       data-t-left="<%= WebUtils.escapeHtml(t.getProperty("pm.left")) %>"
@@ -26,6 +24,8 @@
       data-t-start="<%= WebUtils.escapeHtml(t.getProperty("pm.start")) %>"
       data-t-yt="<%= WebUtils.escapeHtml(t.getProperty("pm.ytNote")) %>"
       data-t-busy="<%= WebUtils.escapeHtml(t.getProperty("pm.busy")) %>">
+  <%-- jen test a localhost (PremiereServlet): odkaz na zkoušku celého večera od 18:30 – texty jen česky, vidí ho jen Skeli při zkoušce --%>
+  <% if (Boolean.TRUE.equals(request.getAttribute("pmZkouskaOdkaz"))) { %><a class="pm-zk-odkaz" href="/premiera?pmSim=1800">🧪 Zkouška celé premiéry</a><% } %>"
   <%-- pozadí: rozmazaná úvodní fotka klipu (img/premiera/pozadi-<název>.webp, bez svítících oken), jinak fotka ulice s okny --%>
   <div class="pm-foto" aria-hidden="true">
     <% if (pmBg != null) { %>
