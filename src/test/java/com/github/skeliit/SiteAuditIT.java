@@ -180,6 +180,7 @@ class SiteAuditIT {
                 if (((Number) r.get("overflow")).intValue() > 1)
                     errors.add(at + ": stránka přečuhuje do strany o " + r.get("overflow") + " px – " + r.get("wide"));
                 for (String k : untranslated((String) r.get("text"))) errors.add(at + ": nepřeložený text „" + k + "“");
+                for (String k : brokenValues((String) r.get("text"))) errors.add(at + ": na stránce je „" + k + "“ (chybí hodnota ve skriptu)");
                 if (!((List<?>) r.get("images")).isEmpty()) errors.add(at + ": rozbité obrázky " + r.get("images"));
                 if (dv.touch()) {
                     String reach = String.valueOf(js.executeScript(MENU_REACH));
@@ -207,6 +208,14 @@ class SiteAuditIT {
         List<String> out = new ArrayList<>();
         Matcher m = Pattern.compile("\\b[a-z][a-zA-Z0-9]*(?:\\.[a-zA-Z0-9_]+)+\\b").matcher(text == null ? "" : text);
         while (m.find()) if (keys.contains(m.group()) && !out.contains(m.group())) out.add(m.group());
+        return out;
+    }
+
+    /** „undefined“ / „NaN“ ve viditelném textu = skript nedostal hodnotu (25. 11.: plátno ukazovalo „1 UNDEFINED“ místo dnů). */
+    static List<String> brokenValues(String text) {
+        List<String> out = new ArrayList<>();
+        Matcher m = Pattern.compile("(?i)\\b(undefined|NaN)\\b").matcher(text == null ? "" : text);
+        while (m.find()) if (!out.contains(m.group())) out.add(m.group());
         return out;
     }
 
