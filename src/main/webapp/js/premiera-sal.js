@@ -720,6 +720,7 @@
         var hl = document.createElement('img'); hl.src = '/img/premiera/kino/kevin-hlava.webp'; hl.alt = 'Kevin'; hl.width = 40; hl.height = 40; hl.decoding = 'async';
         var tx = document.createElement('span'); tx.textContent = k.kevin;
         kv.appendChild(hl); kv.appendChild(tx); kvizBar.appendChild(kv);
+        kevinEl.querySelector('span').textContent = k.kevin; kevinEl.hidden = false;   // na celé obrazovce (proužek pod sálem tam není)
       }
     }
     platno.classList.add('ma-kviz');

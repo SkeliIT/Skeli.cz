@@ -124,7 +124,7 @@
               </div>
               <div class="pm-divaci" id="pmDivaci"></div>
               <%-- Kevinova poznámka k výsledku kvízu: pod plátnem nad hlavami diváků, nikdy přes otázku ani odpočet --%>
-              <div class="pm-kviz-kevin" id="pmKvizKevin" hidden><i class="fa-solid fa-paw" aria-hidden="true"></i> <span></span></div>
+              <div class="pm-kviz-kevin" id="pmKvizKevin" hidden><img src="/img/premiera/kino/kevin-hlava.webp" alt="Kevin" width="40" height="40" loading="lazy" decoding="async"> <span></span></div>
               <div class="pm-tma"></div>
             </div>
             <div class="pm-reakce" id="pmReakce" aria-hidden="true"></div>

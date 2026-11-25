@@ -768,7 +768,8 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 .pm-chat-tl { display: none; }
 @media (min-width: 1200px) {
   .pm-sal-roz, .pm.velky-sal .pm-sal-roz { grid-template-columns: minmax(0, 1fr); position: relative; container-type: inline-size; }
-  .pm.velky-sal .pm-sal { max-width: calc((100svh - var(--header-h) - 28px) * 1672 / 941); }
+  .pm.velky-sal .pm-sal { max-width: calc((100svh - var(--header-h) - 28px - 52px) * 1672 / 941); }   /* + lišta ikon pod sálem (Skeli 25. 11.) */
+  .pm.velky-sal .pm-sal.kviz-okno { max-width: calc((100svh - var(--header-h) - 28px - 52px - 150px) * 1672 / 941); }   /* kvíz: i proužek s Kevinem */
   .pm-sal-roz > .pm-chat { position: absolute; z-index: 9; top: 12px; right: 12px; width: min(340px, 27cqw); height: calc(100cqw * 941 / 1672 - 24px);
     min-height: 0; margin: 0; --text: #f2f2f5; --text-dim: #b9b9c4; --panel-border: rgba(255, 255, 255, .12); color: var(--text);
     background: rgba(10, 10, 14, .42); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
@@ -958,7 +959,10 @@ html.low-fx .pm-scena.naklon { rotate: none; scale: none; translate: -50% 0; }
 /* Kevinova hláška v proužku kvízu pod sálem (ne přes sál), s fotkou hlavy */
 .pm-kv-kevin { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 2px 0 0; color: var(--text); font-size: .92rem; line-height: 1.35; }
 .pm-kv-kevin img { flex: none; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 0 0 2px var(--accent); }
-.pm-kviz-kevin { display: none !important; }   /* stará bublina přes sál se nepoužívá */
+.pm-kviz-kevin { display: none !important; }   /* bublina přes sál jen na celé obrazovce (jinak je Kevin v proužku pod sálem) */
+.pm-jeviste.fs .pm-kviz-kevin:not([hidden]), .pm-jeviste:fullscreen .pm-kviz-kevin:not([hidden]), .pm-jeviste.na-celou .pm-kviz-kevin:not([hidden]) {
+  display: flex !important; align-items: center; gap: .8%; top: 50.5%; width: 46%; }
+.pm-kviz-kevin img { flex: none; width: 2.6cqw; min-width: 28px; height: auto; aspect-ratio: 1; border-radius: 50%; box-shadow: 0 0 0 2px var(--accent); }
 /* finále (Skeli 25. 11.): obličeje na plátně se objevují z ničeho (bez siluety předem), každý ve své barvě; sál a okno šednou
    od 10,5 s (černobílé dřív než 5. obličej), od 5. obličeje (7 s) šedne i plátno s obličeji – js/premiera-sal.js tik() */
 /* smajlíci do zprávy v chatu (Skeli 25. 11.): 😊 vedle psaní, okénko s emoji pod polem */
