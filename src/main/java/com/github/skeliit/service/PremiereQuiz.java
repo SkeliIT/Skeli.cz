@@ -255,6 +255,28 @@ public final class PremiereQuiz {
         return 0;
     }
 
+    /**
+     * Jen simulace na testu (?pmSim, klíč „sim@…“): {@code n} smyšlených diváků hlasuje postupně během prvních 9 s otázky,
+     * asi 60 % správně – jako skutečný sál, ať jde vyzkoušet procenta i Kevinovy hlášky. Každý smyšlený divák hlasuje jednou.
+     */
+    public static void simHlasy(String premiera, String slug, long at, long now, int n) {
+        if (!premiera.startsWith("sim@") || n <= 0) return;
+        List<Bod> plan = plan(slug, premiera);
+        int i = aktualni(plan, at, now);
+        if (i < 0) return;
+        long start = at - plan.get(i).pred() * 1000L;
+        if (now >= start + HLASOVANI_MS) return;
+        Kolo kolo = KOLA.computeIfAbsent(premiera + "#" + i, x -> new Kolo());
+        if (kolo.vysledek != null) return;
+        int ok = obsah().otazky().get(plan.get(i).id()).ok();
+        int kolik = (int) Math.min(n, Math.ceil(n * (now - start) / 9000.0));
+        for (int j = 0; j < kolik; j++) {
+            java.util.Random r = new java.util.Random(premiera.hashCode() * 31L + i * 1000L + j);
+            int odp = r.nextDouble() < 0.6 ? ok : (ok + 1 + r.nextInt(2)) % 3;
+            if (kolo.kdo.add("sim-" + j)) kolo.hlasy.incrementAndGet(odp);
+        }
+    }
+
     /** Jen pro testy: zapomenout stav. */
     static void vycisti() { KOLA.clear(); POUZITE_HLASKY.clear(); }
 }

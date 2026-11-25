@@ -238,6 +238,9 @@
   // kinosál (js/premiera-sal.js) jede podle stejných hodin serveru a ví, jestli smí hrát zvuk
   window.skeliPmCas = function () { return { now: now(), at: at, zvuk: klepnuto }; };
   // ťuknutí na 🔊 v sále (js/premiera-sal.js) platí jako ťuknutí na Vstoupit: srdce, šepot i klip se zvukem
+  // jen zkouška (?pmSim): posuvník času v sále posune start premiéry (server dostává simAt, takže kvíz jede s ním);
+  // když už klip běží, posunout nejde (vrátí false) a sál stránku znovu načte od nového času
+  if (root.dataset.simYt) window.skeliPmSimPosun = function (doStartu) { if (hraje || yt) return false; at = now() + doStartu; return true; };
   window.skeliPmZvukPovolen = function () { klepnuto = true; if (window.SquadZvuk) window.SquadZvuk.odemkni(); };
 
   // první dotaz hned: přesný čas a (po premiéře) video

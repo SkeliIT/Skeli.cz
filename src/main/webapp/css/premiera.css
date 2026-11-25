@@ -684,6 +684,15 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 .pm-zkouska input[type=checkbox] { width: 20px; height: 20px; }
 .pm-zkouska output { min-width: 2ch; color: #f5c542; }
 .pm-zkouska button { min-height: 40px; padding: 0 12px; border-radius: 99px; border: 1px solid #f5c542; background: none; color: inherit; font: inherit; cursor: pointer; }
+/* posuvník času přes celou šířku panelu, skoky na důležité chvíle; panel jde schovat (na telefonu zabírá hodně místa) */
+.pm-zkouska { max-height: 60vh; overflow-y: auto; }
+.pm-zk-telo { display: contents; }
+.pm-zkouska.sbaleno .pm-zk-telo { display: none; }
+.pm-zk-cas { flex: 1 1 100%; }
+.pm-zk-cas output { min-width: 15ch; font-variant-numeric: tabular-nums; }
+.pm-zkouska .pm-zk-cas input[type=range] { flex: 1; width: auto; min-width: 140px; }
+.pm-zk-skoky { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 100%; }
+.pm-zk-skoky button { padding: 0 10px; font-size: .8rem; }
 
 /* věta u chatu: zprávy zůstanou veřejně pod klipem (audit 25. 11.) */
 .pm-chat-verejne { margin: 5px 14px 0; color: var(--text-dim); opacity: .7; font: 400 .66rem/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: 0; text-transform: none; }   /* nenápadně (Skeli: kazilo atmosféru) */

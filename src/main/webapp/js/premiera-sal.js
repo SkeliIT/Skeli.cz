@@ -129,7 +129,7 @@
       });
       mista = sedadla;
       postavSkeli(skeliMisto);
-      usad(lidi);
+      usad(Math.max(0, lidi - (skeliVSale ? 1 : 0)));          // Skeliho avatar je jeden z lidí (ukazLidi)
     }).catch(function () { postaveno = false; });
   }
   // Kdo odejde, zmizí hned. Kdo přijde, objeví se až za 3–5 s (ať si toho člověk stihne všimnout), další
@@ -150,12 +150,14 @@
     if (ukazano < cil) { mista[ukazano].el.classList.add('sedi'); ukazano++; }
     if (ukazano < cil) casovac = setTimeout(dalsiDivak, 500 + Math.random() * 900);
   }
-  var zkouskaLidi = 0, zkouskaSkeli = false;                                           // jen zkouška (panel na konci souboru)
+  var zkouskaLidi = 0, zkouskaSkeli = false, zkouskaHlasy = 0;                                          // jen zkouška (panel na konci souboru)
   function ukazLidi(n) {
     lidi = n;
     var t = T.tLidi.replace('{n}', cislo ? cislo.format(n) : n);
     $('pmSalLidi').textContent = t; $('pmChatLidi').textContent = t;
-    usad(n);
+    // Skeli (účet umělce) je jeden z těch lidí: sedí na svém pevném místě, takže obecných diváků je o jednoho míň
+    // (jinak sál ukázal „V sále: 1“ a seděli v něm dva – Skeli 25. 11.)
+    usad(Math.max(0, n - (skeliVSale ? 1 : 0)));
     if (window.PmZvuky) window.PmZvuky.lidi(n);                    // hovor v sále sílí s počtem lidí
   }
 
@@ -184,7 +186,7 @@
     var b = document.createElement('button'), tvar = k.charAt(0) === 'f';
     b.type = 'button';
     var popis = tvar ? NALADY[+k.slice(1) - 1] : T.tReact;
-    b.setAttribute('aria-label', popis || T.tReact); b.title = popis || '';
+    b.setAttribute('aria-label', popis || T.tReact); b.title = (popis || '') + (tvar ? ' · ' + k.slice(1) + ' / ' + 'QWERTZU'.charAt(+k.slice(1) - 1) : '');
     obsah(k, b, true);
     // u obličeje se v nadpisu ukáže, jakou náladu znamená (najetí myší, ťuknutí, klávesnice)
     var ukaz = function () { if (tvar && popis) nadpisT.textContent = 'SKELO SQUAD · ' + popis; };
@@ -201,14 +203,27 @@
   pop.addEventListener('click', function (e) { e.stopPropagation(); });
   document.addEventListener('click', function () { if (!pop.hidden) zavriPop(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pop.hidden) { zavriPop(); spoust.focus(); } });
+  // KLÁVESNICE (Skeli 25. 11.): obličeje SQUADu se dají zahrát jako na klavír, zleva doprava 1–7 nebo Q W E R T Z U.
+  // e.code = poloha klávesy, ne napsaný znak: na české klávesnici horní řada píše +ěščřžý a Z leží tam, kde má anglická Y.
+  // Při psaní do chatu (nebo s Ctrl/Alt) klávesy nic nedělají.
+  var KLAVESY = {};
+  ['Digit', 'Numpad'].forEach(function (p) { for (var i = 1; i <= 7; i++) KLAVESY[p + i] = i - 1; });
+  ['KeyQ', 'KeyW', 'KeyE', 'KeyR', 'KeyT', 'KeyY', 'KeyU'].forEach(function (c, i) { KLAVESY[c] = i; });
+  document.addEventListener('keydown', function (e) {
+    var n = KLAVESY[e.code], c = e.target;
+    if (n == null || !vSale || e.repeat || e.ctrlKey || e.altKey || e.metaKey || sal.classList.contains('bez-reakci')) return;
+    if (c && (c.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(c.tagName))) return;
+    e.preventDefault();
+    moje(TVARE[n]);
+  });
   var odeslano = {}, odeslanoCas = [];
   function moje(k) {
     var t = Date.now();
+    if (window.PmZvuky) window.PmZvuky.klik(k);                    // zvuček jen pro toho, kdo ťukl (js/premiera-zvuky.js) – i při rychlém hraní
     odeslanoCas = odeslanoCas.filter(function (x) { return t - x < 1000; });
     if (odeslanoCas.length >= 5) return;                         // víc než 5 za sekundu nepošleme (server pustí 6)
     odeslanoCas.push(t);
     vypust(k, true);
-    if (window.PmZvuky) window.PmZvuky.klik(k);                    // zvuček jen pro toho, kdo ťukl (js/premiera-zvuky.js)
     zivy({ action: 'react', r: k }).then(function (r) {
       if (r.ok) odeslano[k] = (odeslano[k] || 0) + 1;
       if (k === 'tlesk' && Date.now() + 400 < dalsi) dalsi = Date.now() + 400;   // potlesk: hned ukázat kroužek vlny
@@ -473,7 +488,7 @@
   function dotaz() {
     if (ptam || document.hidden) return;
     ptam = true; dalsi = Date.now() + interval();
-    var q = '?song=' + encodeURIComponent(song) + '&k=' + klic + '&po=' + posledni + (song === 'sim' ? '&simAt=' + cas().at : '');
+    var q = '?song=' + encodeURIComponent(song) + '&k=' + klic + '&po=' + posledni + (song === 'sim' ? '&simAt=' + cas().at + (zkouskaHlasy ? '&simHlasy=' + zkouskaHlasy : '') : '');
     fetch('/api/premiere/live' + q, { cache: 'no-store', credentials: 'same-origin' })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(prijato)
@@ -484,8 +499,8 @@
     vyp = d.vyp || {};
     sal.classList.toggle('bez-reakci', !!vyp.reakce);
     sal.classList.toggle('bez-chatu', !!vyp.chat);
-    if (typeof d.lidi === 'number') ukazLidi(zkouskaLidi || d.lidi);
-    skeliVSale = !!d.skeli || zkouskaSkeli;                             // Skeli (účet umělce) je v sále   // při zkoušce počet z panelu (konec souboru)
+    skeliVSale = !!d.skeli || zkouskaSkeli;                             // Skeli (účet umělce) je v sále (dřív než počet: ukazLidi ho odečte)
+    if (typeof d.lidi === 'number') ukazLidi(zkouskaLidi || d.lidi);   // při zkoušce počet z panelu (konec souboru)
     if (d.reakce) ciziReakce(d.reakce);
     vlnaStav(d);
     naladaStav(d.nalady);
@@ -650,8 +665,10 @@
   }
   // údery 7,5–2,1 s před startem (každý o něco silnější), šepot 1,4 s předem – stejně jako v ukázce a v premiera.js
   var TEPY = [11, 10, 9, 8, 7, 6, 5], SEPOT = 1.4;   // Skeli 24. 11.: obličeje dřív (do 5 s všech 7 barevných, pak šednou)
+  var finaleCasy = [];                                            // časovače finále (posuvník zkoušky je umí zrušit)
   function finale7(zbyva) {
     if (finale) return; finale = true;
+    var setTimeout = function (f, ms) { finaleCasy.push(window.setTimeout(f, ms)); };
     var tv = [].slice.call(document.querySelectorAll('#pmSalTvare .pm-tvar'));
     var zvuk = function () { return cas().zvuk && window.SquadZvuk ? window.SquadZvuk : null; };
     platno.classList.add('v-finale');
@@ -818,21 +835,105 @@
     nouze();
   });
 
-  // ---------- ZKOUŠKA (jen simulace ?pmSim – server ji pustí jen na testu a lokálně): ruční počet lidí v sále, vlna na
-  //            tlačítko a hraní diváci se smajlíky. Texty jen česky schválně: panel vidí jen Skeli při zkoušce. ----------
+  // ---------- ZKOUŠKA (jen simulace ?pmSim – server ji pustí jen na testu a lokálně). Texty jen česky schválně: panel vidí
+  //            jen Skeli při zkoušce. Posuvník času projede celý večer 18:30 → start klipu (Skeli 25. 11.: „hledat chyby“):
+  //            posune start premiéry (server dostává simAt, takže kvíz, vlna i Skeliho pozdrav jedou podle něj), sál vrátí
+  //            jednorázové věci (finále, kvíz, zvuky) a zbytek si dopočítá jako divák, který přišel v tu chvíli. Když už běží
+  //            klip a jde se zpátky, stránka se znovu načte od nového času (volby panelu zůstanou v adrese).
+  //            Diváci: ruční počet, plný sál, nebo příchody jako na premiéře (podle času); smyšlení diváci hlasují v kvízu
+  //            (server, jen simulace – stejně jako na premiéře se pak ukážou procenta a Kevin). ----------
+  function zkouskaReset() {
+    finaleCasy.forEach(clearTimeout); finaleCasy = [];
+    najeto = false; finale = false; pozdravVidet = false;
+    scena.classList.remove('priprav', 'jede', 'tma'); scena.style.removeProperty('--zoom'); scena.style.removeProperty('--ty');
+    jeviste.classList.remove('cernobile', 'sede', 'klid');
+    platno.classList.remove('v-finale', 'ma-logo', 'tep', 'ma-kviz');
+    document.querySelectorAll('#pmSalTvare .pm-tvar').forEach(function (t) { t.classList.remove('on'); });
+    kviz = null; kvizBylo = false; kvizDalsi = 0; kvizVyska = 0; kvizOkno = false;
+    sal.classList.remove('kviz-okno'); kvizEl.textContent = ''; kvizBar.textContent = ''; kvizBar.hidden = true; kvizBar.style.minHeight = '';
+    kevinEl.hidden = true;
+    dalsi = 0;                                                     // hned se zeptat serveru (kvíz podle nového času)
+  }
   if (song === 'sim') (function () {
+    var q = new URLSearchParams(location.search);
+    var cis = function (k, d) { var x = parseInt(q.get(k), 10); return isNaN(x) ? d : x; };
+    var SKOKY = [['18:30 otevření', -1800], ['18:35 kvíz', -1505], ['18:53 vážné otázky', -425], ['18:58:50 pozdrav', -70],
+      ['18:59:40 finále', -20], ['19:00 klip', -4]];
     var p = document.createElement('div'); p.className = 'pm-zkouska';
-    p.innerHTML = '<b>🧪 Zkouška</b><label>Lidí v sále: <output>–</output><input type="range" min="1" max="45" value="1"></label>'
-      + '<button type="button" data-a="vlna">🌊 Vlna teď</button><label><input type="checkbox"> Publikum posílá smajlíky</label>'
-      + '<label><input type="checkbox" data-a="skeli" checked> Skeli je v sále</label>';
-    zkouskaSkeli = true;
+    p.innerHTML = '<b>🧪 Zkouška</b><button type="button" data-a="sbal" aria-expanded="true">Schovat</button>'
+      + '<div class="pm-zk-telo">'
+      + '<label class="pm-zk-cas">Čas <output data-o="cas">–</output><input type="range" data-a="cas" min="-1800" max="15" step="1"></label>'
+      + '<div class="pm-zk-skoky">' + SKOKY.map(function (s) { return '<button type="button" data-skok="' + s[1] + '">' + s[0] + '</button>'; }).join('') + '</div>'
+      + '<label>Lidí v sále <output data-o="lidi">–</output><input type="range" data-a="lidi" min="1" max="45"></label>'
+      + '<button type="button" data-a="plny">🎟️ Plný sál</button>'
+      + '<label><input type="checkbox" data-a="prichody"> Přicházejí jako na premiéře</label>'
+      + '<label><input type="checkbox" data-a="hlasy"> Diváci hlasují v kvízu</label>'
+      + '<label><input type="checkbox" data-a="smajl"> Publikum posílá smajlíky</label>'
+      + '<button type="button" data-a="vlna">🌊 Vlna teď</button>'
+      + '<label><input type="checkbox" data-a="skeli"> Skeli je v sále</label></div>';
     document.body.appendChild(p);
-    var r = p.querySelector('input[type=range]'), o = p.querySelector('output'), ch = p.querySelector('input[type=checkbox]');
-    p.querySelector('[data-a=skeli]').addEventListener('change', function (e) { zkouskaSkeli = e.target.checked; skeliVSale = zkouskaSkeli; });
-    r.addEventListener('input', function () { zkouskaLidi = +r.value; o.textContent = r.value; ukazLidi(zkouskaLidi); });
-    p.querySelector('[data-a=vlna]').addEventListener('click', vlna);
+    var el = function (a) { return p.querySelector('[data-a=' + a + ']'); };
+    var casR = el('cas'), casO = p.querySelector('[data-o=cas]'), lidiR = el('lidi'), lidiO = p.querySelector('[data-o=lidi]');
+    var prichody = el('prichody'), hlasy = el('hlasy'), smajl = el('smajl'), skeliCh = el('skeli');
+    // volby z adresy (po znovunačtení zůstanou); výchozí: plný sál, příchody jako na premiéře, diváci hlasují, Skeli v sále
+    lidiR.value = cis('pmLidi', 45); prichody.checked = cis('pmPrichody', 1) === 1; hlasy.checked = cis('pmHlasy', 1) === 1;
+    smajl.checked = cis('pmSmajl', 0) === 1; skeliCh.checked = cis('pmSkeli', 1) === 1;
+    zkouskaSkeli = skeliCh.checked;
+    var sbal = el('sbal');
+    sbal.addEventListener('click', function () {
+      var on = p.classList.toggle('sbaleno');
+      sbal.textContent = on ? 'Ukázat' : 'Schovat'; sbal.setAttribute('aria-expanded', String(!on));
+    });
+
+    function sekund() { var c = cas(); return Math.round((c.now - c.at) / 1000); }   // od startu klipu (před startem záporné)
+    function popis(sek) {
+      var t = 19 * 3600 + sek, h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, x = ((t % 60) + 60) % 60;
+      return h + ':' + dva(m) + ':' + dva(x) + (sek < 0 ? ' · za ' + text(-sek * 1000) : ' · klip');
+    }
+    // diváci: ruční počet, nebo podle času jako na premiéře (v 18:30 asi pětina, od 18:50 celý počet z posuvníku)
+    function pocetLidi() {
+      var cil = +lidiR.value;
+      if (!prichody.checked) return cil;
+      var k = Math.max(0, Math.min(1, (sekund() + 1800) / 1200));
+      return Math.max(1, Math.round(cil * (0.2 + 0.8 * k)));
+    }
+    function obnovLidi() {
+      var n = pocetLidi();
+      lidiO.textContent = prichody.checked ? n + ' / ' + lidiR.value : lidiR.value;
+      zkouskaHlasy = hlasy.checked ? Math.max(0, n - 1) : 0;    // hlasují všichni kromě tebe (ty ťukáš sám)
+      if (n !== zkouskaLidi) { zkouskaLidi = n; ukazLidi(n); }
+    }
+    function adresa(sek) {                                         // volby panelu do adresy (pro znovunačtení)
+      q.set('pmSim', String(-sek)); q.set('pmLidi', lidiR.value); q.set('pmPrichody', prichody.checked ? '1' : '0');
+      q.set('pmHlasy', hlasy.checked ? '1' : '0'); q.set('pmSmajl', smajl.checked ? '1' : '0'); q.set('pmSkeli', skeliCh.checked ? '1' : '0');
+      return location.pathname + '?' + q.toString();
+    }
+    function skoc(sek) {
+      if (!window.skeliPmSimPosun || !window.skeliPmSimPosun(-sek * 1000)) { location.href = adresa(sek); return; }   // klip už běží
+      zkouskaReset();
+      if (window.PmZvuky && window.PmZvuky.skok) window.PmZvuky.skok(-sek * 1000);
+      zavriShort();
+      obnovLidi(); tik();
+      try { history.replaceState(null, '', adresa(sek)); } catch (e) { /* nevadí */ }
+    }
+    var tahne = false;
+    casR.addEventListener('input', function () { tahne = true; casO.textContent = popis(+casR.value); });
+    casR.addEventListener('change', function () { tahne = false; skoc(+casR.value); });
+    p.querySelectorAll('[data-skok]').forEach(function (b) { b.addEventListener('click', function () { skoc(+b.dataset.skok); }); });
+    lidiR.addEventListener('input', obnovLidi);
+    prichody.addEventListener('change', obnovLidi);
+    hlasy.addEventListener('change', obnovLidi);
+    el('plny').addEventListener('click', function () { lidiR.value = 45; obnovLidi(); });
+    skeliCh.addEventListener('change', function () { zkouskaSkeli = skeliCh.checked; skeliVSale = zkouskaSkeli; ukazLidi(zkouskaLidi); });
+    el('vlna').addEventListener('click', vlna);
+    function kazdouVterinu() {
+      if (document.hidden) return;
+      if (!tahne) { var s = sekund(); casR.value = s; casO.textContent = popis(s); }
+      obnovLidi();
+    }
+    kazdouVterinu(); setInterval(kazdouVterinu, 1000);
     setInterval(function () {
-      if (!ch.checked || document.hidden || !vSale) return;
+      if (!smajl.checked || document.hidden || !vSale) return;
       if (Math.random() < Math.min(0.9, (zkouskaLidi || 1) / 15)) vypust(SMAJL[Math.floor(Math.random() * SMAJL.length)], false);
     }, 500);
   })();

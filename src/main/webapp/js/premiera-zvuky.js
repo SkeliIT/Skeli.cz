@@ -39,6 +39,7 @@
                                        // klavír po něm ~12 s dohraje frázi a sám se rozplyne do 17 s), 2 s ticho, v 15 s start kamery
   ];
   var HOVOR_OD = 5, HUDBA_HL = 0.2, POZDRAV_OD = 48;     // pozdrav = hlas v 18:59:12, podkres 3 s předem; po hlase klavír dohraje frázi (soubor 34 s, sám dozní)
+  var docasne = [];                                        // jednorázové zvuky (pozdrav, finále) – jen kvůli posuvníku zkoušky
   var predfinale = false, hovorSmi = false, hudba = null, kvizTise = false, posledniZ = 1e9, pozdravBezi = false;
 
   function vypnuto() { try { return localStorage.getItem('soundMuted') === '1'; } catch (e) { return false; } }
@@ -126,7 +127,8 @@
       if (uz > 21) return;                                         // pozdě: hlas by už skoro skončil
       var t = ac.currentTime, PH = 0.22, POD = PH * 0.6;
       var p = hraj('pozdrav-podkres', PH, { od: Math.max(0, uz), nabeh: uz < 1 ? 2 : 0.5 });
-      if (p) {                                                     // pod hlasem (3 s → 19,6 s podkresu) ztišit
+      if (p) {
+        docasne.push(p);                                                     // pod hlasem (3 s → 19,6 s podkresu) ztišit
         var g = p.g.gain, a = t + Math.max(0.6, 3 - uz), b = t + Math.max(0.7, 19.6 - uz);
         g.setValueAtTime(PH, a - 0.4); g.linearRampToValueAtTime(POD, a + 0.3);
         g.setValueAtTime(POD, b - 0.2); g.linearRampToValueAtTime(PH * 1.15, b + 2.5);   // po posledním slově hudba zase naplno, fráze dohraje sama (dozní v souboru)
@@ -138,6 +140,7 @@
         conv.buffer = odezva(2.2); pre.delayTime.value = 0.025; wet.gain.value = 0.16 * 1.4;
         s.connect(dry); dry.connect(master); s.connect(pre); pre.connect(conv); conv.connect(wet); wet.connect(master);
         s.start(t + Math.max(0, 3 - uz), hlasOd);
+        docasne.push({ g: dry, s: s, v: 1 });
       }
     }).catch(function () { /* bez pozdravu */ });
   }
@@ -248,7 +251,7 @@
       if (!predfinale && z <= 68 && z > 52.5 && buf['finale-uvod']) {   // 70 s předem: hluboký dech graduje a předá klavíru pozdravu
         predfinale = true;
         var u = hraj('finale-uvod', 0.34, { od: Math.max(0, 68 - z), nabeh: 2 });
-        if (u) ztlum(u, Math.max(0, z - 52.3), 1.6);
+        if (u) { docasne.push(u); ztlum(u, Math.max(0, z - 52.3), 1.6); }
       }
     },
     lidi: function (n) {
@@ -276,12 +279,12 @@
       if (!zapnuto || vFinale) return;
       vFinale = true;
       var s = zbyva / 1000;
-      if (buf['finale-start'] && s > 13) hraj('finale-start', 0.5, { nabeh: 0.01 });   // start kamery: hluboký švih s úderem
+      if (buf['finale-start'] && s > 13) docasne.push(hraj('finale-start', 0.5, { nabeh: 0.01 }));   // start kamery: hluboký švih s úderem
       ztlum(napeti, 0, 0.5); ztlum(vir, 0, 0.3); hudbaStop(1.5);
       atmoStop(Math.max(1, s - 1.5));                                 // atmosféra utichne do tmy
-      if (buf['finale-stoupani']) { var st = hraj('finale-stoupani', 0.5,   /* „Tep a tajemno“ (Mixkit), Skeli 24. 11. místo pištivých houslí */ { od: Math.max(0, 15 - s), nabeh: 1.5 }); ztlum(st, s - 0.4, 0.4); }
-      if (buf['finale-projektor']) { var pr = hraj('finale-projektor', 0.3, { od: Math.max(0, 15 - s), nabeh: 2.5 }); ztlum(pr, Math.max(0, s - 2), 1.8); }
-      if (buf['finale-ton'] && s > 7.5) { var tn = hraj('finale-ton', 0.4, { za: s - 7.5, nabeh: 1 }); ztlum(tn, s - 0.3, 0.3); }   // od zhasnutí sálu
+      if (buf['finale-stoupani']) { var st = hraj('finale-stoupani', 0.5,   /* „Tep a tajemno“ (Mixkit), Skeli 24. 11. místo pištivých houslí */ { od: Math.max(0, 15 - s), nabeh: 1.5 }); ztlum(st, s - 0.4, 0.4); docasne.push(st); }
+      if (buf['finale-projektor']) { var pr = hraj('finale-projektor', 0.3, { od: Math.max(0, 15 - s), nabeh: 2.5 }); ztlum(pr, Math.max(0, s - 2), 1.8); docasne.push(pr); }
+      if (buf['finale-ton'] && s > 7.5) { var tn = hraj('finale-ton', 0.4, { za: s - 7.5, nabeh: 1 }); ztlum(tn, s - 0.3, 0.3); docasne.push(tn); }   // od zhasnutí sálu
     },
     klip: function () { vFinale = true; atmoStop(0.6); hudbaStop(0.6); ztlum(napeti, 0, 0.3); ztlum(vir, 0, 0.3); },
     schovej: function (ano) { if (!ac) return; if (ano) ac.suspend(); else if (zapnuto) ac.resume(); },
@@ -293,6 +296,14 @@
       try { localStorage.removeItem('soundMuted'); } catch (e) { /* nevadí */ }
       return this.start(doPremiery);
     },
-    bezi: function () { return zapnuto; }
+    bezi: function () { return zapnuto; },
+    // jen zkouška (?pmSim, posuvník času v sále): všechno rychle ztišit a začít znovu podle nového času (doPremiery v ms)
+    skok: function (doPremiery) {
+      if (!ac) return;
+      atmoStop(0.2); hudbaStop(0.2); ztlum(napeti, 0, 0.1); ztlum(vir, 0, 0.1); napeti = vir = null;
+      docasne.forEach(function (z) { ztlum(z, 0, 0.2); }); docasne = [];
+      vFinale = false; predfinale = false; pozdravBezi = false; kvizTise = false; hovorSmi = false; posledniZ = doPremiery / 1000;
+      if (zapnuto && doPremiery > 0) atmoStart();
+    }
   };
 })();

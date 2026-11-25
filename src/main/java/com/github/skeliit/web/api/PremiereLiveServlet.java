@@ -83,6 +83,10 @@ public class PremiereLiveServlet extends HttpServlet {
             else k = null;
             // kvíz na plátně (jen během odpočtu; správná odpověď až po konci hlasování – service/PremiereQuiz)
             if (!vyp.get("kviz")) {
+                if ("sim".equals(req.getParameter("song"))) {             // simulace: smyšlení diváci hlasují (room() už ověřil test/localhost)
+                    try { PremiereQuiz.simHlasy(room.key, PremiereServlet.slug(room.name), room.at, now, Math.min(200, Integer.parseInt(req.getParameter("simHlasy")))); }
+                    catch (NumberFormatException e) { /* bez smyšlených hlasů */ }
+                }
                 Map<String, Object> kviz = PremiereQuiz.stav(room.key, PremiereServlet.slug(room.name), room.at, now, I18n.current(req), k);
                 if (kviz != null) out.put("kviz", kviz);
             }
