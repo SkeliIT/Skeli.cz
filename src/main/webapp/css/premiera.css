@@ -940,7 +940,7 @@ main.pm .pm-nastroje button { min-width: 40px; justify-content: center; padding:
 main.pm .pm-nastroje { gap: 2px 4px; }
 /* PC: sál se jemně natáčí za myší (js: --osa, --uhel); perspektiva na jevišti, přiblížení skryje okraje */
 .pm-jeviste { perspective: 1600px; }
-.pm-scena.naklon { rotate: var(--osa, 0 1 0) var(--uhel, 0deg); scale: 1.05; }
+.pm-scena.naklon { rotate: var(--osa, 0 1 0) var(--uhel, 0deg); scale: 1.1; }   /* 1,1: při kraji okraj ujede ~55 px – 1,05 nestačilo (černý ořez) */
 @media (hover: hover) and (pointer: fine) {   /* rozhlížení: posun pohledu ke kurzoru, plynule (telefon má posun prstem bez zpoždění) */
   .pm-scena { transition: transform 13s cubic-bezier(.45, 0, .2, 1), rotate .8s ease-out, scale .8s ease-out, translate .8s ease-out; }
   .pm-scena.naklon { translate: calc(-50% + var(--lx, 0%)) var(--ly, 0%); }

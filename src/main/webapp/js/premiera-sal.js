@@ -79,14 +79,14 @@
     d.style.setProperty('--zpozdeni', (xc / W * 1.2 + st.r * 0.03).toFixed(2) + 's');   // vlna jde zleva doprava
     // obrázek má pod rameny nakreslené vlastní opěradlo: ořízne se po stejné křivce (při vlně zůstane schované)
     var im = document.createElement('img');
-    im.className = 'zaklad'; im.src = '/img/premiera/kino/' + String(m.f).replace('.png', '.webp') + '?v=2';   // v=2: nový Hitman (24. 11.) im.alt = ''; im.decoding = 'async';
+    im.className = 'zaklad'; im.src = '/img/premiera/kino/' + String(m.f).replace('.png', '.webp') + '?v=3'; im.alt = ''; im.decoding = 'async';   // v=3: Hitmanovo tetování výš (25. 11.)
     im.style.cssText = 'left:' + (bok / w2 * 100).toFixed(2) + '%;width:' + (w / w2 * 100).toFixed(2) + '%;top:' + (nad / h * 100).toFixed(2)
       + '%;clip-path:polygon(' + krivka(top, m.h * k, left, w).join(',') + ')';
     d.appendChild(im);
     if (ruka) {                                                  // stejný divák s rukama nahoře, leží pixel na pixelu na prvním
       var vys = (m.h + ruka.nad) * k, horni = top - ruka.nad * k;
       var r2 = document.createElement('img');
-      r2.className = 'ruce'; r2.src = '/img/premiera/kino/' + ruka.f + '?v=2'; r2.alt = ''; r2.decoding = 'async';
+      r2.className = 'ruce'; r2.src = '/img/premiera/kino/' + ruka.f + '?v=3'; r2.alt = ''; r2.decoding = 'async';
       r2.style.cssText = 'top:' + ((horni - top2) / h * 100).toFixed(2) + '%;clip-path:polygon(' + krivka(horni, vys, left2, w2).join(',') + ')';
       d.appendChild(r2); d.classList.add('ma-ruce');
     }
@@ -381,7 +381,7 @@
   var DIVAK_SIRE = 0.76, DIVAK_ZAPUST = 0.07;   // ramena 76 % šířky sedadla, o 7 % šířky sedadla níž za opěradlo
   var SKELI_SEDADLO = 27, SK = { w: 512, h: 768, top: 519, sl: 50, sr: 462 };
   var skeliEl = null, skeliSvetlo = null, skeliSt = null, skeliVSale = false;
-  var SK_CESTA = '/img/premiera/kino/skeli/', SK_V = '?v=2';   // v=2: světlejší (25. 11.)
+  var SK_CESTA = '/img/premiera/kino/skeli/', SK_V = '?v=3';   // v=3: mávání přegenerované (25. 11.)
   function postavSkeli(st) {
     if (!st) return;
     skeliSt = st;
@@ -849,7 +849,7 @@
       scena.style.setProperty('--osa', (-y).toFixed(3) + ' ' + x.toFixed(3) + ' 0');
       scena.style.setProperty('--uhel', uhel.toFixed(2) + 'deg');
       scena.style.setProperty('--lx', (-x * 4.6).toFixed(2) + '%');   // pohled se posune ke kurzoru (odkryje se ta strana)
-      scena.style.setProperty('--ly', (-y * 4.6).toFixed(2) + '%');
+      scena.style.setProperty('--ly', (-y * 3).toFixed(2) + '%');      // svisle míň: střed přiblížení je v 30 % výšky (nahoře rezervy méně)
       scena.classList.add('naklon');
     });
   });
