@@ -113,7 +113,8 @@
       // dvakrát v jedné řadě (v přední řadě vypadala jako klon)
       var vyska = function (m) { return m.top / (m.sr - m.sl); };
       var hitman = meta.filter(function (m) { return /divak-23\./.test(m.f); })[0];
-      var lide = meta.filter(function (m) { return m !== hitman; }).sort(function (a, b) { return vyska(a) - vyska(b); });
+      var drdol = meta.filter(function (m) { return /divak-19\./.test(m.f); })[0];   // výrazný účes: taky jen jednou (Skeli 25. 11.)
+      var lide = meta.filter(function (m) { return m !== hitman && m !== drdol; }).sort(function (a, b) { return vyska(a) - vyska(b); });
       var poradiMist = sedadla.slice().sort(function (a, b) { return a.r - b.r || Math.random() - 0.5; });   // od nejvzdálenější řady
       poradiMist.forEach(function (st, i) { st.m = lide[Math.min(lide.length - 1, Math.floor(i * lide.length / poradiMist.length))]; });
       var vRade = function (r, m, krome) { return poradiMist.some(function (c) { return c !== krome && c.r === r && c.m === m; }); };
@@ -123,10 +124,12 @@
           .sort(function (x, y) { return Math.abs(x.r - a.r) - Math.abs(y.r - a.r); })[0];
         if (jiny) { var t = jiny.m; jiny.m = a.m; a.m = t; }
       });
-      if (hitman) {
-        var stred = poradiMist.filter(function (st) { return st.r >= 1 && st.r <= 3; });
-        (stred[Math.floor(Math.random() * stred.length)] || poradiMist[0]).m = hitman;
-      }
+      var stred = poradiMist.filter(function (st) { return st.r >= 1 && st.r <= 3; });
+      [hitman, drdol].forEach(function (m) {                          // každý jen jednou, uprostřed sálu, nikdy na stejném místě
+        if (!m) return;
+        var volna = stred.filter(function (st) { return st.m !== hitman && st.m !== drdol; });
+        (volna[Math.floor(Math.random() * volna.length)] || poradiMist[0]).m = m;
+      });
       // do stránky od zadních řad k předním (bližší silueta překryje vzdálenější)
       sedadla.slice().sort(function (a, b) { return a.r - b.r; }).forEach(function (st) {
         st.el = divakEl(st, st.m); divaci.appendChild(st.el);
@@ -158,7 +161,7 @@
   // ---------- MOJE POSTAVA (Skeli 25. 11.): před vstupem se zeptáme muž / žena / nechci říkat a na tvém místě se objeví taková
   //            postava. Volba zůstává JEN v prohlížeči (localStorage pmPostava): server ji nedostane, ostatní ji nevidí.
   //            Čísla = img/premiera/kino/divak-N (rozdělené podle siluety; 22 dredy a 23 Hitman ne). ----------
-  var POSTAVY = { muz: [2, 4, 7, 10, 11, 13, 15, 17, 19, 21], zena: [1, 3, 5, 8, 12, 14, 16, 18, 20], nic: [6, 9] };
+  var POSTAVY = { muz: [2, 4, 7, 10, 11, 13, 15, 17, 21], zena: [1, 3, 5, 8, 12, 14, 16, 18, 20], nic: [6, 9] };
   var mojeIdx = -1, jaSkeli = false, postava = '';
   try { postava = localStorage.getItem('pmPostava') || ''; } catch (e) { /* bez úložiště: zeptat se */ }
   if (!POSTAVY[postava]) postava = '';

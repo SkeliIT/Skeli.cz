@@ -990,3 +990,4 @@ main.pm .pm-psani-pop button:hover, main.pm .pm-psani-pop button:focus-visible {
   .pm-sal.chat-maly .pm-jeviste:not(.fs) .pm-reakce-roh { right: calc(min(300px, 24cqw) + 26px); }
   .pm-sal.chat-maly:has(.pm-jeviste.hraje) .pm-sal-roz > .pm-chat { top: auto; bottom: 64px; height: calc(100cqw * 941 / 1672 * .4); }
 }
+@media (min-width: 1200px) { .pm-sal.chat-maly .pm-sal-roz > .pm-chat #pmChatLidi { display: none; } }   /* malý chat: počet je na plátně */
