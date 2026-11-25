@@ -365,8 +365,15 @@ main.pm .pm-zvuk-sal[hidden] { display: none; }
 main.pm .pm-zvuk-sal:hover, main.pm .pm-zvuk-sal:focus-visible { opacity: 1; }
 main.pm .pm-zvuk-sal.vyp { opacity: .6; }
 main.pm .pm-zvuk-sal.vyp::after { content: ""; position: absolute; width: 26px; height: 2px; border-radius: 2px; background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .6); transform: rotate(-45deg); }
+/* ♫ náš výběr hudby (jen před odpočtem) – nenápadný, při hraní jemně svítí */
+main.pm .pm-hudba { position: absolute; z-index: 7; top: 10px; left: 114px; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
+  background: rgba(0, 0, 0, .5); color: #fff; font: 400 20px/1 system-ui, sans-serif; cursor: pointer; display: grid; place-items: center; opacity: .75; transition: opacity .3s, box-shadow .3s, color .3s; }
+main.pm .pm-hudba[hidden] { display: none; }
+main.pm .pm-hudba:hover, main.pm .pm-hudba:focus-visible { opacity: 1; }
+main.pm .pm-hudba.hraje { opacity: 1; color: var(--accent); border-color: var(--accent); box-shadow: 0 0 14px -4px var(--accent); }
 main.pm .pm-velky { display: none; }
 @media (min-width: 1100px) and (orientation: landscape) {
+  main.pm .pm-hudba:not([hidden]) ~ .pm-velky { left: 166px; }
   main.pm .pm-velky { position: absolute; z-index: 7; top: 10px; left: 114px; height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
     background: rgba(0, 0, 0, .5); color: #fff; font: 600 .85rem/1 var(--font-body); cursor: pointer; display: inline-flex; align-items: center; opacity: .75; transition: opacity .3s; }
   main.pm .pm-velky:hover, main.pm .pm-velky:focus-visible { opacity: 1; }
@@ -752,3 +759,29 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 .pm-skeli-svetlo { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity 1.6s;
   background: radial-gradient(closest-side, rgba(255, 214, 160, .42), rgba(255, 190, 120, .15) 60%, transparent); }
 .pm-skeli-svetlo.on { opacity: 1; }
+
+/* ---------- CHAT PŘES SÁL (Skeli 25. 11., náhled navrhy/premiera/chat-sklo varianta B): na PC od 1200 px je kino přes celou
+   šířku a chat je kouřové sklo v pravé části obrazu (výška = výška jeviště, 100cqw = šířka sálu). Pod 1200 px a na telefonu
+   zůstává chat vedle / pod sálem (přes menší obraz by zakryl plátno). Slabé zařízení (html.low-fx): bez živého rozmazání.
+   Ve finále a při klipu chat z obrazu zmizí (třída chat-pryc, js/premiera-sal.js) a vrátí ho tlačítko Chat. ---------- */
+.pm-chat-tl { display: none; }
+@media (min-width: 1200px) {
+  .pm-sal-roz, .pm.velky-sal .pm-sal-roz { grid-template-columns: minmax(0, 1fr); position: relative; container-type: inline-size; }
+  .pm.velky-sal .pm-sal { max-width: calc((100svh - var(--header-h) - 28px) * 1672 / 941); }
+  .pm-sal-roz > .pm-chat { position: absolute; z-index: 9; top: 12px; right: 12px; width: min(340px, 27cqw); height: calc(100cqw * 941 / 1672 - 24px);
+    min-height: 0; margin: 0; --text: #f2f2f5; --text-dim: #b9b9c4; --panel-border: rgba(255, 255, 255, .12); color: var(--text);
+    background: rgba(10, 10, 14, .42); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+    border: 1px solid rgba(255, 255, 255, .14); box-shadow: 0 10px 40px -20px #000; transition: opacity .6s, visibility .6s; }
+  html.low-fx .pm-sal-roz > .pm-chat { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(10, 10, 14, .84); }
+  .pm-sal-roz > .pm-chat .pm-psani { border-bottom-color: rgba(255, 255, 255, .1); }
+  .pm-sal-roz > .pm-chat .pm-psani input, body.light .pm-sal-roz > .pm-chat .pm-psani input { background: rgba(255, 255, 255, .07); border-color: rgba(255, 255, 255, .1); color: #f2f2f5; }
+  .pm-sal-roz > .pm-chat .pm-zp-t p, body.light .pm-sal-roz > .pm-chat .pm-zp-t p { background: rgba(255, 255, 255, .1); }
+  body.light .pm-sal-roz > .pm-chat .pm-chat-h span:first-child { color: #fff; text-shadow: 0 0 10px var(--accent); }
+  .pm-sal.chat-pryc .pm-sal-roz > .pm-chat { opacity: 0; visibility: hidden; }
+  .pm-sal:not(.chat-pryc) .pm-jeviste:not(.fs) .pm-reakce-roh { right: calc(min(340px, 27cqw) + 26px); }   /* smajlíci vedle chatu */
+  .pm-sal-roz > .pm-sal-hl .pm-jeviste:not(.fs) .pm-chat-tl { display: none; }
+  .pm-sal.chat-pryc .pm-jeviste:not(.fs) .pm-chat-tl, .pm-sal .pm-jeviste:not(.fs) .pm-chat-tl.on { display: inline-flex; }
+  main.pm .pm-chat-tl { position: absolute; z-index: 10; top: 10px; right: 10px; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, .25); background: rgba(0, 0, 0, .5); color: #fff; font: 600 .85rem/1 var(--font-body); cursor: pointer; }
+  main.pm .pm-chat-tl.on { right: calc(min(340px, 27cqw) + 24px); border-color: var(--accent); }   /* chat vrácený přes klip: tlačítko vedle něj ho zase schová */
+}

@@ -97,6 +97,7 @@
              data-t-quiz-first="<%= WebUtils.escapeHtml(t.getProperty("pm.quizFirst")) %>"
              data-t-quiz-next="<%= WebUtils.escapeHtml(t.getProperty("pm.quizNext")) %>"
              data-t-sound-on="<%= WebUtils.escapeHtml(t.getProperty("pm.soundOn")) %>"
+             data-t-music-on="<%= WebUtils.escapeHtml(t.getProperty("pm.musicOn")) %>" data-t-music-off="<%= WebUtils.escapeHtml(t.getProperty("pm.musicOff")) %>"
              data-t-sound-off="<%= WebUtils.escapeHtml(t.getProperty("pm.soundOff")) %>">
       <div class="pm-sal-roz">
         <div class="pm-sal-hl">
@@ -138,10 +139,13 @@
               <button type="button" data-rezim="maly"><%= WebUtils.escapeHtml(t.getProperty("pm.fsSmall")) %></button>
               <button type="button" data-rezim="vyp"><%= WebUtils.escapeHtml(t.getProperty("pm.fsOff")) %><span class="pm-fs-nove" id="pmFsNove"></span></button>
             </div>
+            <%-- chat přes sál (PC): ve finále a při klipu zmizí z obrazu, tímhle se vrátí (js/premiera-sal.js) --%>
+            <button type="button" class="pm-chat-tl" id="pmChatTl" aria-pressed="false"><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.chat")) %><span class="pm-fs-nove" id="pmChatNove"></span></button>
             <button type="button" class="pm-celo" id="pmCelo" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
             <%-- jen PC: sál přes celou šířku okna, nebo menší v obsahu stránky (text dá js/premiera-sal.js) --%>
             <%-- zvuk sálu (js/premiera-zvuky.js): zapnout / vypnout, stejný vypínač jako zvuky webu --%>
             <button type="button" class="pm-zvuk-sal" id="pmZvukSal"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+            <button type="button" class="pm-hudba" id="pmHudba" aria-pressed="false" hidden><span aria-hidden="true">♫</span></button>
             <button type="button" class="pm-velky" id="pmVelky"></button>
           </div>
           <div class="pm-kviz-bar" id="pmKvizBar" hidden></div>

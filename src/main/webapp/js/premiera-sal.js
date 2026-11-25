@@ -237,7 +237,8 @@
     if (naObrazovce >= (slaby() ? 10 : 30)) return;              // pojistka: víc naráz neletí
     var e = document.createElement('div');
     e.className = 'pm-let' + (ja ? ' moje' : '');
-    e.style.right = (1 + Math.random() * 9) + '%';              // úzký pruh u pravého okraje (jako živé vysílání)
+    var uhni = chatPresSal() ? chatEl.offsetWidth / Math.max(1, vrstva.clientWidth) * 100 + 1 : 0;   // chat přes sál: letí vedle něj
+    e.style.right = (uhni + 1 + Math.random() * 9) + '%';       // úzký pruh u pravého okraje (jako živé vysílání)
     e.style.setProperty('--dx', (Math.random() * -60) + 'px');
     e.style.setProperty('--vyska', -(vrstva.clientHeight * (0.65 + Math.random() * 0.3)) + 'px');
     obsah(k, e, false);
@@ -691,7 +692,7 @@
     if (window.PmZvuky) window.PmZvuky.klip();                     // při klipu hraje jen klip
     setTimeout(function () { platno.classList.remove('v-finale', 'ma-logo'); }, 1200);
   }
-  var pozdravVidet = false, pmSede = false;
+  var pozdravVidet = false, pmSede = false, chatPryc = false, chatChci = false, CHAT_PRYC_PO = 240000;   // klip ~4 min (program: 19:04)
   function tik() {
     var c = cas(), zbyva = c.at - c.now;
     odpocet.textContent = zbyva > 0 ? text(zbyva) : T.tLive;
@@ -714,6 +715,8 @@
     if (zbyva > 0 && zbyva <= 15000) { najed(); if (window.PmZvuky) window.PmZvuky.finale(zbyva); }
     if (zbyva > 0 && zbyva <= 12000) finale7(zbyva);
     if (zbyva <= 0 && !jeviste.classList.contains('hraje')) pust();
+    var pryc = zbyva <= 20000 && zbyva > -CHAT_PRYC_PO;              // chat přes sál: finále a klip patří obrazu
+    if (pryc !== chatPryc) { chatPryc = pryc; if (!pryc) chatChci = false; chatPrycKresli(); }
     if (Date.now() >= dalsi) dotaz();
   }
 
@@ -766,14 +769,32 @@
     if (Z && gesto && !Z.vypnuto()) Z.start(cas().at - cas().now);
     zvukKresli();
   }
+  // ♫ = pustit si náš výběr skladeb hned (jen před odpočtem, Skeli 25. 11.: „ať tam není pořád jen ambient“); zapne i zvuk
+  function hudbaKresli() {
+    var b = $('pmHudba'), Z = window.PmZvuky, c = cas(), on = !!(Z && Z.hraje());
+    b.hidden = !Z || !Z.hudba || c.at - c.now <= OTEVRI_SAM;
+    b.classList.toggle('hraje', on); b.setAttribute('aria-pressed', String(on));
+    b.setAttribute('aria-label', on ? T.tMusicOff : T.tMusicOn); b.title = on ? T.tMusicOff : T.tMusicOn;
+  }
+  $('pmHudba').addEventListener('click', function () {
+    var Z = window.PmZvuky, c = cas();
+    if (!Z) return;
+    if (Z.hraje()) Z.hudba(false);
+    else {
+      if (!Z.bezi() && Z.zapni(c.at - c.now) && window.skeliPmZvukPovolen) window.skeliPmZvukPovolen();
+      Z.hudba(true, c.at - c.now);
+    }
+    zvukKresli(); hudbaKresli();
+  });
   $('pmZvukSal').addEventListener('click', function () {
     var Z = window.PmZvuky;
     if (!Z) return;
     if (Z.bezi()) Z.vypni();
     else if (Z.zapni(cas().at - cas().now) && window.skeliPmZvukPovolen) window.skeliPmZvukPovolen();
-    zvukKresli();
+    zvukKresli(); hudbaKresli();
   });
-  zvukKresli();
+  zvukKresli(); hudbaKresli();
+  setInterval(function () { if (vSale && !document.hidden) hudbaKresli(); }, 2000);   // v 18:30 tlačítko zmizí
 
   // ---------- VELKÝ SÁL na PC: sál přes celou šířku okna (výchozí), nebo menší v obsahu stránky; volba se pamatuje ----------
   // (tlačítko je vidět jen na širokém PC – css/premiera.css; na telefonu třída nic nemění)
@@ -816,9 +837,23 @@
   document.addEventListener('webkitfullscreenchange', fsZmena);
   new MutationObserver(fsZmena).observe(jeviste, { attributes: true, attributeFilter: ['class'] });   // nouzové „přes okno“
   function fsNovaZprava() {
-    if (!jeviste.classList.contains('fs-vyp')) return;
-    nepreceteno++; $('pmFsNove').textContent = nepreceteno > 9 ? '9+' : nepreceteno;
+    var schovany = sal.classList.contains('chat-pryc') && window.matchMedia('(min-width: 1200px)').matches;
+    if (!jeviste.classList.contains('fs-vyp') && !schovany) return;
+    nepreceteno++; $('pmFsNove').textContent = $('pmChatNove').textContent = nepreceteno > 9 ? '9+' : nepreceteno;
   }
+
+  // ---------- CHAT PŘES SÁL (PC od 1200 px, Skeli 25. 11. varianta B; css/premiera.css na konci): chat je sklo v pravé části
+  //            obrazu. Od 20 s před startem do 4 min po něm z obrazu zmizí (jízda kamery, klip), tlačítko Chat ho vrátí. ----------
+  function chatPresSal() {
+    return !!chatEl && chatEl.parentNode === chatDomov && !sal.classList.contains('chat-pryc') && getComputedStyle(chatEl).position === 'absolute';
+  }
+  function chatPrycKresli() {
+    var p = chatPryc && !chatChci;
+    sal.classList.toggle('chat-pryc', p);
+    var b = $('pmChatTl'); b.classList.toggle('on', chatChci); b.setAttribute('aria-pressed', String(chatChci));
+    if (!p) { nepreceteno = 0; $('pmFsNove').textContent = $('pmChatNove').textContent = ''; }
+  }
+  $('pmChatTl').addEventListener('click', function () { chatChci = !chatChci; chatPrycKresli(); });
 
   // ---------- celá obrazovka: PC a Android celý sál; iPhone stránku na celou obrazovku nepustí – tam aspoň klip ----------
   $('pmCelo').addEventListener('click', function () {
