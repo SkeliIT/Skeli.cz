@@ -359,24 +359,21 @@ html.low-fx .pmu-tvare img.on { filter: none; }
 /* VELKÝ SÁL na PC (Skeli 24. 11.: sál nesmí být okénko mezi kartami): sál s chatem přes celou šířku okna, ale jen tak
    velký, aby se jeviště celé vešlo na výšku pod lištu webu. Tlačítko Menší / Větší sál (js/premiera-sal.js, pamatuje se). */
 /* zvuk sálu (js/premiera-zvuky.js) hned vedle celé obrazovky; vypnutý = přeškrtnutý reproduktor */
-main.pm .pm-zvuk-sal { position: absolute; z-index: 7; top: 10px; left: 62px; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
+main.pm .pm-zvuk-sal { position: absolute; z-index: 7; top: 10px; left: 10px; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
   background: rgba(0, 0, 0, .5); color: #fff; font-size: 17px; cursor: pointer; display: grid; place-items: center; opacity: .75; transition: opacity .3s; }
 main.pm .pm-zvuk-sal[hidden] { display: none; }
 main.pm .pm-zvuk-sal:hover, main.pm .pm-zvuk-sal:focus-visible { opacity: 1; }
 main.pm .pm-zvuk-sal.vyp { opacity: .6; }
 main.pm .pm-zvuk-sal.vyp::after { content: ""; position: absolute; width: 26px; height: 2px; border-radius: 2px; background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .6); transform: rotate(-45deg); }
 /* ♫ náš výběr hudby (jen před odpočtem) – nenápadný, při hraní jemně svítí */
-main.pm .pm-hudba { position: absolute; z-index: 7; top: 10px; left: 114px; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
+main.pm .pm-hudba { position: absolute; z-index: 7; top: 10px; left: 62px; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
   background: rgba(0, 0, 0, .5); color: #fff; font: 400 20px/1 system-ui, sans-serif; cursor: pointer; display: grid; place-items: center; opacity: .75; transition: opacity .3s, box-shadow .3s, color .3s; }
 main.pm .pm-hudba[hidden] { display: none; }
 main.pm .pm-hudba:hover, main.pm .pm-hudba:focus-visible { opacity: 1; }
 main.pm .pm-hudba.hraje { opacity: 1; color: var(--accent); border-color: var(--accent); box-shadow: 0 0 14px -4px var(--accent); }
 main.pm .pm-velky { display: none; }
 @media (min-width: 1100px) and (orientation: landscape) {
-  main.pm .pm-hudba:not([hidden]) ~ .pm-velky { left: 166px; }
-  main.pm .pm-velky { position: absolute; z-index: 7; top: 10px; left: 114px; height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25);
-    background: rgba(0, 0, 0, .5); color: #fff; font: 600 .85rem/1 var(--font-body); cursor: pointer; display: inline-flex; align-items: center; opacity: .75; transition: opacity .3s; }
-  main.pm .pm-velky:hover, main.pm .pm-velky:focus-visible { opacity: 1; }
+  main.pm .pm-nastroje .pm-velky { display: inline-flex; }
   main.pm.klip.v-sale.velky-sal { width: calc(100% - 32px); }   /* dlaždice premiéry má jinak nejvýš 1280 px */
   .pm.v-sale.velky-sal .pm-in { max-width: none; }
   .pm.velky-sal .pm-sal { max-width: calc((100svh - var(--header-h) - 28px) * 1672 / 941 + 360px); margin-inline: auto; }
@@ -785,3 +782,15 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
     border: 1px solid rgba(255, 255, 255, .25); background: rgba(0, 0, 0, .5); color: #fff; font: 600 .85rem/1 var(--font-body); cursor: pointer; }
   main.pm .pm-chat-tl.on { right: calc(min(340px, 27cqw) + 24px); border-color: var(--accent); }   /* chat vrácený přes klip: tlačítko vedle něj ho zase schová */
 }
+
+/* ---------- tlačítka pod sálem (Skeli 25. 11.): celá obrazovka a Menší / Větší sál mimo obraz, komorně; v sále zůstává
+   zvuk (vypnutý = hned vidět), ♫ a jen na celé obrazovce ⛶ k návratu ---------- */
+.pm-jeviste:not(.fs) .pm-celo { display: none; }
+.pm-jeviste.fs .pm-zvuk-sal { left: 62px; }
+.pm-jeviste.fs .pm-hudba { left: 114px; }
+.pm-nastroje { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 2px 6px; padding: 2px 10px; }
+main.pm .pm-nastroje button { display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 10px; border: 0; border-radius: 10px;
+  background: none; color: rgba(255, 255, 255, .55); font: 500 .74rem/1 var(--font-body); letter-spacing: .04em; cursor: pointer; transition: color .3s, background .3s; }
+main.pm .pm-nastroje button:hover, main.pm .pm-nastroje button:focus-visible { color: #fff; background: rgba(255, 255, 255, .06); }
+main.pm .pm-nastroje .pm-velky { display: none; }
+@media (min-width: 1100px) and (orientation: landscape) { main.pm .pm-nastroje .pm-velky { display: inline-flex; } }

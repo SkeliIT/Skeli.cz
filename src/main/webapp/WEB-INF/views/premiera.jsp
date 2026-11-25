@@ -142,13 +142,17 @@
             <%-- chat přes sál (PC): ve finále a při klipu zmizí z obrazu, tímhle se vrátí (js/premiera-sal.js) --%>
             <button type="button" class="pm-chat-tl" id="pmChatTl" aria-pressed="false"><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.chat")) %><span class="pm-fs-nove" id="pmChatNove"></span></button>
             <button type="button" class="pm-celo" id="pmCelo" aria-label="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>" title="<%= WebUtils.escapeHtml(t.getProperty("pm.full")) %>"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
-            <%-- jen PC: sál přes celou šířku okna, nebo menší v obsahu stránky (text dá js/premiera-sal.js) --%>
             <%-- zvuk sálu (js/premiera-zvuky.js): zapnout / vypnout, stejný vypínač jako zvuky webu --%>
             <button type="button" class="pm-zvuk-sal" id="pmZvukSal"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
             <button type="button" class="pm-hudba" id="pmHudba" aria-pressed="false" hidden><span aria-hidden="true">♫</span></button>
-            <button type="button" class="pm-velky" id="pmVelky"></button>
           </div>
           <div class="pm-kviz-bar" id="pmKvizBar" hidden></div>
+          <%-- pod sálem, nenápadně (Skeli 25. 11.: ať nejsou v obraze): celá obrazovka a (jen PC) Menší / Větší sál – text dá js.
+               V sále zůstává jen zvuk (hned vidět, že je vypnutý), ♫ a na celé obrazovce ⛶ k návratu. --%>
+          <div class="pm-nastroje">
+            <button type="button" id="pmCeloVen"><i class="fa-solid fa-expand" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.full")) %></button>
+            <button type="button" class="pm-velky" id="pmVelky"></button>
+          </div>
         </div>
         <aside class="pm-chat"><div class="pm-chat-in">
           <h2 class="pm-chat-h"><span><i class="fa-solid fa-comments" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.chat")) %></span><span id="pmChatLidi"></span></h2>

@@ -856,6 +856,7 @@
   $('pmChatTl').addEventListener('click', function () { chatChci = !chatChci; chatPrycKresli(); });
 
   // ---------- celá obrazovka: PC a Android celý sál; iPhone stránku na celou obrazovku nepustí – tam aspoň klip ----------
+  $('pmCeloVen').addEventListener('click', function () { $('pmCelo').click(); });   // tlačítko pod sálem (v sále jen k návratu)
   $('pmCelo').addEventListener('click', function () {
     if (document.fullscreenElement || document.webkitFullscreenElement) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
     if (jeviste.classList.contains('na-celou')) { jeviste.classList.remove('na-celou'); return; }
