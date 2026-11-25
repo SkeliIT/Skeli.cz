@@ -748,7 +748,10 @@ main.pm .pm-nalady button { display: grid; gap: 3px; justify-items: center; alig
 @keyframes sk-zvedni { from { transform: translateY(3.5%); } to { transform: none; } }
 /* stojí čelem: celá postava stejně velká jako „stojí zezadu“ (hlava nahoře ve 1,7 %, celková výška 120 % prvku –
    nohy pod opěradlem se ořízne křivka sedadla), uprostřed sedadla */
-.pm-divak.pm-skeli img.celem { left: 50%; top: 1.7%; width: auto; height: 120%; max-width: none; transform: translateX(-50%); }
+.pm-divak.pm-skeli img.celem { left: 50%; top: 1.7%; width: auto; height: 149%; max-width: none; transform: translateX(-50%); }
+/* Skeli 25. 11.: při proslovu stejné měřítko jako když sedí (hlava ~135 px v obrázku 512×768): čelní záběry 120 % → 149 %,
+   vstávání ×1,13 kolem horní hrany opěradla; malé „stojí zezadu“ se v proslovu už nepoužívá (hlava by se nevešla do prvku) */
+.pm-skeli img.f-vstava { transform-origin: 50% 67.6%; scale: 1.13; }
 /* reflektor: teplá záře kolem stojícího Skeliho (pod ním, silueta proti ní vynikne) */
 .pm-skeli-svetlo { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity 1.6s;
   background: radial-gradient(closest-side, rgba(255, 214, 160, .42), rgba(255, 190, 120, .15) 60%, transparent); }
@@ -949,3 +952,7 @@ html.low-fx .pm-scena.naklon { rotate: none; scale: none; translate: -50% 0; }
 @media (prefers-reduced-motion: reduce) { .pm-scena.naklon { rotate: none; scale: none; } }
 /* Skeli mává: krátké prolnutí snímků (0,09 s) – při dlouhém byl vidět „duch“ předchozí pózy mimo postavu (Skeli 25. 11.) */
 .pm-skeli.mava img.f, .pm-skeli.mava img.zaklad { transition-duration: .09s; }
+/* Kevinova hláška v proužku kvízu pod sálem (ne přes sál), s fotkou hlavy */
+.pm-kv-kevin { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 2px 0 0; color: var(--text); font-size: .92rem; line-height: 1.35; }
+.pm-kv-kevin img { flex: none; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 0 0 2px var(--accent); }
+.pm-kviz-kevin { display: none !important; }   /* stará bublina přes sál se nepoužívá */

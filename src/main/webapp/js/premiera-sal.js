@@ -415,9 +415,9 @@
     // vstane, otočí se k divákům, mluví (střídá záběry, ruka na srdci, gesto), otočí se zpátky, sedne si
     var s = '';
     if (skeliVSale && z <= 51 && z > 28.8) {
-      s = z > 50.3 ? 'vstava' : z > 49.6 ? 'stoji' : z > 49 ? 'otocka' : z > 48.4 ? 'mikrofon'
+      s = z > 50.3 ? 'vstava' : z > 49.6 ? 'vstava' : z > 49 ? 'otocka' : z > 48.4 ? 'mikrofon'
         : z > 40 ? (Math.floor((48.4 - z) / 2.4) % 2 ? 'mluvi2' : 'mluvi') : z > 37 ? 'srdce' : z > 34.3 ? 'mluvi' : z > 32 ? 'gesto'
-        : z > 31.2 ? 'mluvi' : z > 30.6 ? 'mikrofon' : z > 30 ? 'otocka' : z > 29.4 ? 'stoji' : 'vstava';
+        : z > 31.2 ? 'mluvi' : z > 30.6 ? 'mikrofon' : z > 30 ? 'otocka' : z > 29.4 ? 'vstava' : 'vstava';
     }
     skeliEl.classList.toggle('sedi', skeliVSale);
     if (skeliEl.dataset.s !== s) { skeliEl.dataset.s = s; skSnimek(s); }
@@ -677,7 +677,13 @@
       var f = document.createElement('div'); f.className = 'pm-kv-fakt'; f.textContent = k.fakt; kvizEl.appendChild(f);
       stav.textContent = celkem ? T.tQuizHit.replace('{p}', k.pct[k.ok]) : T.tQuizNone;
       var f2 = document.createElement('p'); f2.className = 'pm-kv-fakt-bar'; f2.textContent = k.fakt; kvizBar.appendChild(f2);   // čitelně i na telefonu
-      if (k.kevin) { kevinEl.querySelector('span').textContent = k.kevin; kevinEl.hidden = false; }
+      // Kevin (Skeli 25. 11.): ne přes sál (překážel), ale v proužku kvízu pod sálem, s malou fotkou hlavy – ať je jasné, kdo mluví
+      if (k.kevin) {
+        var kv = document.createElement('p'); kv.className = 'pm-kv-kevin';
+        var hl = document.createElement('img'); hl.src = '/img/premiera/kino/kevin-hlava.webp'; hl.alt = 'Kevin'; hl.width = 40; hl.height = 40; hl.decoding = 'async';
+        var tx = document.createElement('span'); tx.textContent = k.kevin;
+        kv.appendChild(hl); kv.appendChild(tx); kvizBar.appendChild(kv);
+      }
     }
     platno.classList.add('ma-kviz');
     kvizBar.hidden = false; kvizBylo = true; kvizDrzVysku();
