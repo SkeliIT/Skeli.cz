@@ -1000,3 +1000,5 @@ main.pm .pm-psani-pop button:hover, main.pm .pm-psani-pop button:focus-visible {
   transition: color .6s ease, text-shadow .6s ease; }
 .pm-platno.v-finale.tep .pm-pl-odpocet { animation: none; }
 body:has(main.pm.v-sale) { transition: --a1h 3s ease-in, --a1s 3s ease-in, --a1l 3s ease-in, --a2h 3s ease-in, --a2s 3s ease-in, --a2l 3s ease-in; }
+/* plátno připravené na šednutí od 7 s předem (vlastní vrstva hned od přípravy finále) – žádné překreslení = žádné probliknutí */
+.pm-scena.priprav .pm-platno { will-change: filter; }
