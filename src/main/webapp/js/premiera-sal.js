@@ -397,7 +397,7 @@
     d.style.setProperty('--zpozdeni', (((st.x0 + st.x1) / 2) / W * 1.2 + st.r * 0.03).toFixed(2) + 's');
     [['sedi', 'zaklad on'], ['ruce', 'ruce'], ['vstava', 'f f-vstava'], ['stoji', 'f f-stoji'], ['otocka', 'f celem f-otocka'], ['mikrofon', 'f celem f-mikrofon'],
       ['mluvi', 'f celem f-mluvi'], ['mluvi2', 'f celem f-mluvi2'], ['srdce', 'f celem f-srdce'], ['gesto', 'f celem f-gesto'],
-      ['mava-1', 'f f-mava-1'], ['mava-2', 'f f-mava-2'], ['mava-3', 'f f-mava-3'], ['mava-4', 'f f-mava-4']].forEach(function (x) {
+      ['mava-mezi', 'f f-mava-mezi'], ['mava-2', 'f f-mava-2'], ['mava-3', 'f f-mava-3'], ['mava-4', 'f f-mava-4']].forEach(function (x) {
       var im = document.createElement('img'); im.className = x[1]; im.src = SK_CESTA + x[0] + '.webp' + SK_V; im.alt = ''; im.decoding = 'async'; d.appendChild(im);
     });
     var pred = null;                                               // bližší řady se kreslí přes vzdálenější
@@ -428,8 +428,8 @@
   //            z ničeho nic otočí, jednou zvedne ruku a otočí se zpět (žádný nápis ani reflektor). Snímky mava-1..4 (navrhy/premiera/kino/skeli-mava.py).
   var jaUmelec = false, mavaPosledni = 0, mavaBezi = false;
   // [snímek, ms od začátku]: otočí se, jednou zvedne ruku a chvilku ji podrží, spustí ji a otočí se zpět (Skeli 25. 11.: 3× vypadalo divně)
-  // zpátky bez snímku s hlavou doprava (mava-1) – z ohlédnutí rovnou do sedu (Skeli 25. 11.)
-  var MAVA = [['mava-1', 0], ['mava-2', 450], ['mava-3', 1200], ['mava-4', 1650], ['mava-3', 3000], ['mava-2', 3500], ['', 4300]];
+  // otočka přes Skeliho mezisnímek (hlava z profilu doleva) – mava-1 s hlavou doprava cukal na druhou stranu, vyřazený (Skeli 25. 11.)
+  var MAVA = [['mava-mezi', 0], ['mava-2', 500], ['mava-3', 1200], ['mava-4', 1650], ['mava-3', 3000], ['mava-2', 3500], ['mava-mezi', 4200], ['', 4800]];
   function mavej() {
     if (mavaBezi || !skeliEl || !skeliVSale || !skeliEl.classList.contains('sedi') || skeliEl.dataset.s) return;   // ne při pozdravu
     mavaBezi = true;
