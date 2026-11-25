@@ -49,12 +49,55 @@
 
   // ---------- sedadla a diváci ----------
   var mista = [], lidi = 0, postaveno = false;
+  // jedna postava na sedadle (i znovu: tvoje místo podle volby postavy – mojePostava)
+  var RUCE = {}, metaVse = [];
+  function divakEl(st, m) {
+    // silueta o 14 % užší než sedadlo, vycentrovaná; ramena (m.top) na horní hraně opěradla; celý obrázek ale nikdy
+    // širší než sedadlo (Skeli 24. 11.: široké postavy visely přes sousední sedadlo s rovnou hranou)
+    // Skeli 25. 11.: menší (ramena se vejdou do šířky sedadla, nic nepřečuhuje uříznuté) a zapuštění níž za opěradlo
+    // velikost napůl podle ramen a napůl podle výšky nad opěradlem (obrázky od ChatGPT mají různé proporce 0,80–1,18 –
+    // samotná ramena dělala z někoho obra a z někoho trpaslíka; Skeli 25. 11.)
+    var sw = st.x1 - st.x0, kR = sw / (m.sr - m.sl) * DIVAK_SIRE, kV = sw * DIVAK_SIRE / m.top;
+    var k = Math.min(Math.sqrt(kR * kV), sw * 0.9 / m.w), xc = (st.x0 + st.x1) / 2;
+    var left = xc - (m.sr - m.sl) * k / 2 - m.sl * k, top = st.top - m.top * k + sw * DIVAK_ZAPUST, w = m.w * k;
+    // nad hlavou a do stran místo pro zvednuté ruce (mexická vlna – img/premiera/kino/ruce.json: nad, bok)
+    var ruka = RUCE[m.f];
+    var nad = Math.max(w * 0.35, ruka ? ruka.nad * k : 0), top2 = top - nad;
+    var bok = ruka ? ruka.bok * k : 0, left2 = left - bok, w2 = w + 2 * bok;
+    var dno = Math.max.apply(null, st.c.map(function (p) { return p[1]; })), h = dno - top2 + 1;
+    // ořez po křivce opěradla (co je pod ní, schová sedadlo); vedle sedadla až ve výšce horní hrany opěradla (tam stojí
+    // opěradlo souseda – dřív ve výšce rohu, tělo pak viselo přes sousední sedadlo); clip-path = nic se nepřekresluje
+    var horni = Math.min.apply(null, st.c.map(function (p) { return p[1]; }));
+    var krivka = function (y0, vys, l0, ww) {
+      var c = st.c, Y = function (y) { return ((y - y0) / vys * 100).toFixed(2) + '%'; }, X = function (x) { return ((x - l0) / ww * 100).toFixed(2) + '%'; };
+      return ['0% 0%', '100% 0%', '100% ' + Y(horni)].concat(c.slice().reverse().map(function (p) { return X(p[0]) + ' ' + Y(p[1]); }), ['0% ' + Y(horni)]);
+    };
+    var d = document.createElement('div');
+    d.className = 'pm-divak';
+    d.style.cssText = 'left:' + (left2 / W * 100) + '%;top:' + (top2 / H * 100) + '%;width:' + (w2 / W * 100) + '%;height:'
+      + (h / H * 100) + '%;clip-path:polygon(' + krivka(top2, h, left2, w2).join(',') + ')';
+    d.style.setProperty('--zpozdeni', (xc / W * 1.2 + st.r * 0.03).toFixed(2) + 's');   // vlna jde zleva doprava
+    // obrázek má pod rameny nakreslené vlastní opěradlo: ořízne se po stejné křivce (při vlně zůstane schované)
+    var im = document.createElement('img');
+    im.className = 'zaklad'; im.src = '/img/premiera/kino/' + String(m.f).replace('.png', '.webp') + '?v=2';   // v=2: nový Hitman (24. 11.) im.alt = ''; im.decoding = 'async';
+    im.style.cssText = 'left:' + (bok / w2 * 100).toFixed(2) + '%;width:' + (w / w2 * 100).toFixed(2) + '%;top:' + (nad / h * 100).toFixed(2)
+      + '%;clip-path:polygon(' + krivka(top, m.h * k, left, w).join(',') + ')';
+    d.appendChild(im);
+    if (ruka) {                                                  // stejný divák s rukama nahoře, leží pixel na pixelu na prvním
+      var vys = (m.h + ruka.nad) * k, horni = top - ruka.nad * k;
+      var r2 = document.createElement('img');
+      r2.className = 'ruce'; r2.src = '/img/premiera/kino/' + ruka.f + '?v=2'; r2.alt = ''; r2.decoding = 'async';
+      r2.style.cssText = 'top:' + ((horni - top2) / h * 100).toFixed(2) + '%;clip-path:polygon(' + krivka(horni, vys, left2, w2).join(',') + ')';
+      d.appendChild(r2); d.classList.add('ma-ruce');
+    }
+    return d;
+  }
   function postavSal() {
     if (postaveno) return; postaveno = true;
     var j = function (r) { if (!r.ok) throw new Error(r.status); return r.json(); };
     Promise.all([fetch('/img/premiera/kino/divaci.json?v=3').then(j), fetch('/img/premiera/kino/sedadla.json?v=1').then(j),
       fetch('/img/premiera/kino/ruce.json?v=2').then(j).catch(function () { return {}; })]).then(function (r) {
-      var meta = r[0], sedadla = r[1], RUCE = r[2] || {};
+      var meta = r[0], sedadla = r[1]; RUCE = r[2] || {}; metaVse = meta;
       var skeliMisto = sedadla[SKELI_SEDADLO];                        // Skeliho pevné místo – nikdo jiný tam nesedne
       sedadla = sedadla.filter(function (st) { return st !== skeliMisto; });
       // pořadí obsazování: nejdřív k prostřední uličce, kterou vidí i telefon na výšku (výřez ±380 px kolem uličky
@@ -86,46 +129,7 @@
       }
       // do stránky od zadních řad k předním (bližší silueta překryje vzdálenější)
       sedadla.slice().sort(function (a, b) { return a.r - b.r; }).forEach(function (st) {
-        // silueta o 14 % užší než sedadlo, vycentrovaná; ramena (m.top) na horní hraně opěradla; celý obrázek ale nikdy
-        // širší než sedadlo (Skeli 24. 11.: široké postavy visely přes sousední sedadlo s rovnou hranou)
-        // Skeli 25. 11.: menší (ramena se vejdou do šířky sedadla, nic nepřečuhuje uříznuté) a zapuštění níž za opěradlo
-        // velikost napůl podle ramen a napůl podle výšky nad opěradlem (obrázky od ChatGPT mají různé proporce 0,80–1,18 –
-        // samotná ramena dělala z někoho obra a z někoho trpaslíka; Skeli 25. 11.)
-        var m = st.m, sw = st.x1 - st.x0, kR = sw / (m.sr - m.sl) * DIVAK_SIRE, kV = sw * DIVAK_SIRE / m.top;
-        var k = Math.min(Math.sqrt(kR * kV), sw * 0.9 / m.w), xc = (st.x0 + st.x1) / 2;
-        var left = xc - (m.sr - m.sl) * k / 2 - m.sl * k, top = st.top - m.top * k + sw * DIVAK_ZAPUST, w = m.w * k;
-        // nad hlavou a do stran místo pro zvednuté ruce (mexická vlna – img/premiera/kino/ruce.json: nad, bok)
-        var ruka = RUCE[m.f];
-        var nad = Math.max(w * 0.35, ruka ? ruka.nad * k : 0), top2 = top - nad;
-        var bok = ruka ? ruka.bok * k : 0, left2 = left - bok, w2 = w + 2 * bok;
-        var dno = Math.max.apply(null, st.c.map(function (p) { return p[1]; })), h = dno - top2 + 1;
-        // ořez po křivce opěradla (co je pod ní, schová sedadlo); vedle sedadla až ve výšce horní hrany opěradla (tam stojí
-        // opěradlo souseda – dřív ve výšce rohu, tělo pak viselo přes sousední sedadlo); clip-path = nic se nepřekresluje
-        var horni = Math.min.apply(null, st.c.map(function (p) { return p[1]; }));
-        var krivka = function (y0, vys, l0, ww) {
-          var c = st.c, Y = function (y) { return ((y - y0) / vys * 100).toFixed(2) + '%'; }, X = function (x) { return ((x - l0) / ww * 100).toFixed(2) + '%'; };
-          return ['0% 0%', '100% 0%', '100% ' + Y(horni)].concat(c.slice().reverse().map(function (p) { return X(p[0]) + ' ' + Y(p[1]); }), ['0% ' + Y(horni)]);
-        };
-        var d = document.createElement('div');
-        d.className = 'pm-divak';
-        d.style.cssText = 'left:' + (left2 / W * 100) + '%;top:' + (top2 / H * 100) + '%;width:' + (w2 / W * 100) + '%;height:'
-          + (h / H * 100) + '%;clip-path:polygon(' + krivka(top2, h, left2, w2).join(',') + ')';
-        d.style.setProperty('--zpozdeni', (xc / W * 1.2 + st.r * 0.03).toFixed(2) + 's');   // vlna jde zleva doprava
-        // obrázek má pod rameny nakreslené vlastní opěradlo: ořízne se po stejné křivce (při vlně zůstane schované)
-        var im = document.createElement('img');
-        im.className = 'zaklad'; im.src = '/img/premiera/kino/' + String(m.f).replace('.png', '.webp') + '?v=2';   // v=2: nový Hitman (24. 11.) im.alt = ''; im.decoding = 'async';
-        im.style.cssText = 'left:' + (bok / w2 * 100).toFixed(2) + '%;width:' + (w / w2 * 100).toFixed(2) + '%;top:' + (nad / h * 100).toFixed(2)
-          + '%;clip-path:polygon(' + krivka(top, m.h * k, left, w).join(',') + ')';
-        d.appendChild(im);
-        if (ruka) {                                                  // stejný divák s rukama nahoře, leží pixel na pixelu na prvním
-          var vys = (m.h + ruka.nad) * k, horni = top - ruka.nad * k;
-          var r2 = document.createElement('img');
-          r2.className = 'ruce'; r2.src = '/img/premiera/kino/' + ruka.f + '?v=2'; r2.alt = ''; r2.decoding = 'async';
-          r2.style.cssText = 'top:' + ((horni - top2) / h * 100).toFixed(2) + '%;clip-path:polygon(' + krivka(horni, vys, left2, w2).join(',') + ')';
-          d.appendChild(r2); d.classList.add('ma-ruce');
-        }
-        divaci.appendChild(d);
-        st.el = d;
+        st.el = divakEl(st, st.m); divaci.appendChild(st.el);
       });
       mista = sedadla;
       postavSkeli(skeliMisto);
@@ -141,6 +145,7 @@
     while (ukazano > cil) { ukazano--; mista[ukazano].el.classList.remove('sedi'); }
     if (prvni && cil > 0) {
       prvni = false;
+      mojeIdx = cil - 1; mojePostava();                           // ty si sedneš jako poslední z těch, kdo tu jsou
       for (; ukazano < cil - 1; ukazano++) mista[ukazano].el.classList.add('sedi');
     }
     if (ukazano < cil && !casovac) casovac = setTimeout(dalsiDivak, 3000 + Math.random() * 2000);
@@ -149,6 +154,26 @@
     casovac = 0;
     if (ukazano < cil) { mista[ukazano].el.classList.add('sedi'); ukazano++; }
     if (ukazano < cil) casovac = setTimeout(dalsiDivak, 500 + Math.random() * 900);
+  }
+  // ---------- MOJE POSTAVA (Skeli 25. 11.): před vstupem se zeptáme muž / žena / nechci říkat a na tvém místě se objeví taková
+  //            postava. Volba zůstává JEN v prohlížeči (localStorage pmPostava): server ji nedostane, ostatní ji nevidí.
+  //            Čísla = img/premiera/kino/divak-N (rozdělené podle siluety; 22 dredy a 23 Hitman ne). ----------
+  var POSTAVY = { muz: [2, 4, 7, 10, 11, 13, 15, 17, 19, 21], zena: [1, 3, 5, 8, 12, 14, 16, 18, 20], nic: [6, 9] };
+  var mojeIdx = -1, jaSkeli = false, postava = '';
+  try { postava = localStorage.getItem('pmPostava') || ''; } catch (e) { /* bez úložiště: zeptat se */ }
+  if (!POSTAVY[postava]) postava = '';
+  function mojePostava() {
+    var st = mista[mojeIdx];
+    if (!st || !st.el || !postava || (jaSkeli && song !== 'sim')) return;   // Skeli má vlastního avatara (při zkoušce ne)
+    var cislo = function (m) { return +((/divak-(\d+)\./.exec(m.f) || [])[1]); };
+    var vRade = mista.filter(function (x) { return x !== st && x.r === st.r; }).map(function (x) { return x.m; });
+    var moznosti = metaVse.filter(function (m) { return POSTAVY[postava].indexOf(cislo(m)) >= 0; });
+    var volne = moznosti.filter(function (m) { return vRade.indexOf(m) < 0; });   // ať nemáš dvojníka v řadě
+    var z = volne.length ? volne : moznosti, m = z[Math.floor(Math.random() * z.length)];
+    if (!m || m === st.m) return;
+    var el = divakEl(st, m);
+    if (st.el.classList.contains('sedi')) el.classList.add('sedi');
+    divaci.replaceChild(el, st.el); st.el = el; st.m = m;
   }
   var zkouskaLidi = 0, zkouskaSkeli = false, zkouskaHlasy = 0, zkouskaVyp = {};                                          // jen zkouška (panel na konci souboru)
   function ukazLidi(n) {
@@ -510,6 +535,7 @@
   }
   function prijato(d) {
     vyp = d.vyp || {};
+    jaSkeli = !!(d.ja && d.ja.skeli);
     Object.keys(zkouskaVyp).forEach(function (x) { if (zkouskaVyp[x]) vyp[x] = true; });   // jen zkouška: vypínače z panelu
     sal.classList.toggle('bez-reakci', !!vyp.reakce);
     sal.classList.toggle('bez-chatu', !!vyp.chat);
@@ -753,7 +779,24 @@
       window.scrollTo({ top: Math.max(0, sal.getBoundingClientRect().top + window.scrollY - hh - 8), behavior: 'smooth' });
     }
   }
-  $('pmJsemTu').addEventListener('click', function () { vstup(false); });   // premiera.js k tomu odemkne zvuk
+  // před prvním vstupem okénko „Kdo si dnes sedne do sálu?“ (ťuknutí na postavu = vstup i se zvukem); Esc / zavřít = vstup bez volby
+  var kdo = $('pmKdo'), kdoVstup = false;
+  function kdoOtevri(proVstup) {
+    if (!kdo.showModal) { if (proVstup) vstup(false); return; }    // starý prohlížeč: bez otázky
+    kdoVstup = proVstup;
+    kdo.querySelectorAll('[data-postava]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.postava === postava)); });
+    kdo.showModal();
+  }
+  kdo.querySelectorAll('[data-postava]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      postava = b.dataset.postava;
+      try { localStorage.setItem('pmPostava', postava); } catch (e) { /* jen teď */ }
+      mojePostava(); kdo.close();
+    });
+  });
+  kdo.addEventListener('close', function () { if (kdoVstup && !vSale) vstup(false); kdoVstup = false; });
+  $('pmKdoZmen').addEventListener('click', function () { kdoOtevri(false); });
+  $('pmJsemTu').addEventListener('click', function () { if (postava) vstup(false); else kdoOtevri(true); });   // premiera.js k tomu odemkne zvuk
   function maOtevritSam() {
     var c = cas(), z = c.at - c.now, uz = false;
     try { uz = sessionStorage.getItem('pmSal') === '1'; } catch (e) { /* nevadí */ }

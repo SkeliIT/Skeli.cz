@@ -825,3 +825,17 @@ main.pm .pm-pop-zvuk:hover, main.pm .pm-pop-zvuk:focus-visible { color: #fff; bo
 main.pm .pm-pop-zvuk i { position: relative; width: 18px; text-align: center; }
 main.pm .pm-pop-zvuk.vyp i::after { content: ""; position: absolute; left: -2px; top: 50%; width: 22px; height: 2px; border-radius: 2px; background: currentColor;
   transform: rotate(-45deg); }
+/* ---------- KDO SI SEDNE DO SÁLU (Skeli 25. 11.): okénko před vstupem – 3 siluety proti plátnu, vybraná svítí ---------- */
+.pm-kdo { width: min(560px, calc(100vw - 32px)); padding: 22px 20px 20px; border-radius: 22px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  background: #0d0d12; color: #f2f2f5; box-shadow: 0 0 50px -16px var(--accent), 0 30px 80px -30px #000; text-align: center; }
+.pm-kdo::backdrop { background: rgba(0, 0, 0, .72); }
+.pm-kdo h2 { margin: 0 0 8px; font: 400 2.2rem/1.05 'Comforter Brush', 'Oswald', cursive; color: #fff; text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent); }
+.pm-kdo p { margin: 0 auto 16px; max-width: 42ch; color: #b9b9c4; font: 300 1rem/1.45 'Oswald', sans-serif; letter-spacing: .02em; }
+.pm-kdo-volby { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+main.pm .pm-kdo-volby button { display: grid; gap: 8px; justify-items: center; padding: 12px 6px 10px; border-radius: 16px; cursor: pointer; color: #f2f2f5;
+  border: 1px solid rgba(255, 255, 255, .12); background: radial-gradient(ellipse at 50% 20%, #7f87ab 0%, #3a3f5c 55%, #15161f 100%);   /* jako plátno za diváky */
+  font: 500 .95rem/1.2 'Barlow Condensed', 'Oswald', sans-serif; letter-spacing: .06em; text-transform: uppercase; transition: border-color .2s, transform .15s; }
+main.pm .pm-kdo-volby button:hover, main.pm .pm-kdo-volby button:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
+main.pm .pm-kdo-volby button[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 18px -6px var(--accent); }
+.pm-kdo-volby img { width: 100%; max-width: 120px; height: auto; aspect-ratio: 181 / 270; object-fit: contain; filter: drop-shadow(0 0 6px rgba(255, 170, 60, .35)); }
+@media (prefers-reduced-motion: reduce) { main.pm .pm-kdo-volby button:hover { transform: none; } }

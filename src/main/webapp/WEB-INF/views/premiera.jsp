@@ -151,6 +151,7 @@
           <%-- pod sálem, nenápadně (Skeli 25. 11.: ať nejsou v obraze): celá obrazovka a (jen PC) Menší / Větší sál – text dá js.
                V sále zůstává jen zvuk (hned vidět, že je vypnutý) a na celé obrazovce ⛶ k návratu. --%>
           <div class="pm-nastroje">
+            <button type="button" id="pmKdoZmen"><i class="fa-solid fa-user" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.whoChange")) %></button>
             <button type="button" id="pmCeloVen"><i class="fa-solid fa-expand" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.full")) %></button>
             <button type="button" class="pm-velky" id="pmVelky"></button>
           </div>
@@ -207,6 +208,17 @@
     <p class="pm-yt-odkaz" id="pmYtOdkaz" hidden><a target="_blank" rel="noopener"><i class="fab fa-youtube" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.ytOpen")) %></a></p>
     <p class="pm-probehla" hidden id="pmProbehla"><%= WebUtils.escapeHtml(t.getProperty("pm.over").replace("{when}", pm.getWhen())) %></p>
 
+    <%-- kdo si sedne do sálu (js/premiera-sal.js): volba zůstává jen v prohlížeči --%>
+    <dialog class="pm-kdo" id="pmKdo" aria-labelledby="pmKdoH">
+      <h2 id="pmKdoH"><%= WebUtils.escapeHtml(t.getProperty("pm.whoTitle")) %></h2>
+      <p><%= WebUtils.escapeHtml(t.getProperty("pm.whoText")) %></p>
+      <div class="pm-kdo-volby">
+        <% String[][] pmKdo = {{"muz", "4", "pm.whoMan"}, {"zena", "3", "pm.whoWoman"}, {"nic", "6", "pm.whoNone"}};
+           for (String[] k : pmKdo) { %>
+        <button type="button" data-postava="<%= k[0] %>" aria-pressed="false"><img src="/img/premiera/kino/divak-<%= k[1] %>.webp?v=2" alt="" width="181" height="270" loading="lazy" decoding="async"><span><%= WebUtils.escapeHtml(t.getProperty(k[2])) %></span></button>
+        <% } %>
+      </div>
+    </dialog>
     <button type="button" class="pm-jsemtu" id="pmJsemTu" data-done="<%= WebUtils.escapeHtml(t.getProperty("pm.hereDone")) %>"><%= WebUtils.escapeHtml(t.getProperty("pm.here")) %></button>
     <p class="pm-spolu"><%= WebUtils.escapeHtml(t.getProperty("pm.together")) %></p>
     <%-- nepřihlášeným: v sále se dá psát do chatu jen s účtem – rovnou nabídnout přihlášení / registraci --%>
