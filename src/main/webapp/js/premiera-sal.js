@@ -422,10 +422,10 @@
   }
   function skeliTik(zbyva) { skeliScena(zbyva / 1000); }
   // ---------- SKELI MÁVÁ (Skeli 25. 11.): tlačítko pod sálem vidí jen účet umělce; server řekne čas a postava se u všech
-  //            z ničeho nic otočí a zamává (žádný nápis ani reflektor). Snímky mava-1..4 (navrhy/premiera/kino/skeli-mava.py).
+  //            z ničeho nic otočí, jednou zvedne ruku a otočí se zpět (žádný nápis ani reflektor). Snímky mava-1..4 (navrhy/premiera/kino/skeli-mava.py).
   var jaUmelec = false, mavaPosledni = 0, mavaBezi = false;
-  var MAVA = [['mava-1', 0], ['mava-2', 450], ['mava-3', 1250], ['mava-4', 1800], ['mava-3', 2350], ['mava-4', 2900], ['mava-3', 3450],
-    ['mava-4', 4000], ['mava-2', 4700], ['mava-1', 5500], ['', 6100]];   // [snímek, ms od začátku]: otočí se, 3× zamává, otočí se zpět
+  // [snímek, ms od začátku]: otočí se, jednou zvedne ruku a chvilku ji podrží, spustí ji a otočí se zpět (Skeli 25. 11.: 3× vypadalo divně)
+  var MAVA = [['mava-1', 0], ['mava-2', 450], ['mava-3', 1200], ['mava-4', 1650], ['mava-3', 3000], ['mava-2', 3500], ['mava-1', 4250], ['', 4850]];
   function mavej() {
     if (mavaBezi || !skeliEl || !skeliVSale || !skeliEl.classList.contains('sedi') || skeliEl.dataset.s) return;   // ne při pozdravu
     mavaBezi = true;
