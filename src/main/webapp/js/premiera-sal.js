@@ -413,15 +413,22 @@
   function skeliScena(z) {
     if (!skeliEl) return;
     // vstane, otočí se k divákům, mluví (střídá záběry, ruka na srdci, gesto), otočí se zpátky, sedne si
+    // Skeli 25. 11.: otočka k divákům i zpátky rychle (kroky po 0,3 s, krátké prolnutí jako u mávání – rozdíly mezi snímky
+    // nejsou vidět), pomalé prolnutí jen mezi záběry při mluvení
     var s = '';
-    if (skeliVSale && z <= 51 && z > 28.8) {
-      s = z > 50.3 ? 'vstava' : z > 49.6 ? 'vstava' : z > 49 ? 'otocka' : z > 48.4 ? 'mikrofon'
+    if (skeliVSale && z <= 49.4 && z > 30.3) {
+      s = z > 49.1 ? 'vstava' : z > 48.8 ? 'otocka' : z > 48.4 ? 'mikrofon'
         : z > 40 ? (Math.floor((48.4 - z) / 2.4) % 2 ? 'mluvi2' : 'mluvi') : z > 37 ? 'srdce' : z > 34.3 ? 'mluvi' : z > 32 ? 'gesto'
-        : z > 31.2 ? 'mluvi' : z > 30.6 ? 'mikrofon' : z > 30 ? 'otocka' : z > 29.4 ? 'vstava' : 'vstava';
+        : z > 31.2 ? 'mluvi' : z > 30.9 ? 'mikrofon' : z > 30.6 ? 'otocka' : 'vstava';
     }
     skeliEl.classList.toggle('sedi', skeliVSale);
-    if (skeliEl.dataset.s !== s) { skeliEl.dataset.s = s; skSnimek(s); }
-    skeliSvetlo.classList.toggle('on', skeliVSale && z <= 51 && z > 29.4);
+    if (skeliEl.dataset.s !== s) {
+      var mluvi = /^(mluvi|mluvi2|srdce|gesto)$/.test(s) && /^(mluvi|mluvi2|srdce|gesto)$/.test(skeliEl.dataset.s || '');
+      if (!mavaBezi) skeliEl.classList.toggle('mava', !mluvi);         // otáčení rychlým prolnutím, mluvení pomalým
+      skeliEl.dataset.s = s; skSnimek(s);
+      if (!s && !mavaBezi) setTimeout(function () { if (!skeliEl.dataset.s && !mavaBezi) skeliEl.classList.remove('mava'); }, 300);
+    }
+    skeliSvetlo.classList.toggle('on', skeliVSale && z <= 49.4 && z > 30.3);
   }
   function skeliTik(zbyva) { skeliScena(zbyva / 1000); }
   // ---------- SKELI MÁVÁ (Skeli 25. 11.): tlačítko pod sálem vidí jen účet umělce; server řekne čas a postava se u všech
