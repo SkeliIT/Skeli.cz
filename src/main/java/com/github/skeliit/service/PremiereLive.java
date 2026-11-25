@@ -3,6 +3,7 @@ package com.github.skeliit.service;
 import com.github.skeliit.dao.AppSettingsDao;
 
 import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -81,23 +82,33 @@ public final class PremiereLive {
         return out;
     }
 
-    // ---------- MEXICKÁ VLNA: 8 potlesků 👏 (od kohokoli) za 3 s → vlna pro všechny naráz ----------
-    // Server určí jeden čas začátku (o 3,5 s později, ať ho stihnou dostat všichni – sál se ptá každé ~3 s), pak 7 s pauza.
-    // Jen během 30 min odpočtu (to hlídá servlet). Pamatují se jen časy potlesků, ne kdo tleskal.
-    public static final int VLNA_PRAH = 8;
-    public static final long VLNA_OKNO_MS = 3_000, VLNA_ZPOZDENI_MS = 3_500, VLNA_PAUZA_MS = 7_000;
+    // ---------- MEXICKÁ VLNA (Skeli 25. 11.: ať ji nerozjede jeden člověk): sčítají se potlesky 👏 za posledních 10 s, každý
+    // prohlížeč přidá nejvýš 1 za 2 s (jeden člověk tedy nejvýš 5). Laťka podle sálu: 2 potlesky na diváka, nejméně 10, nejvýš 30
+    // → plný sál potřebuje aspoň 6 tleskajících, vždy aspoň 2. Server určí jeden čas začátku (o 3,5 s později, ať ho stihnou
+    // dostat všichni – sál se ptá každé ~3 s), pak 7 s pauza. Jen během 30 min odpočtu (hlídá servlet). Klíče prohlížečů jen
+    // v paměti po dobu okna, žádný účet.
+    public static final int VLNA_MIN = 10, VLNA_MAX = 30;
+    public static final long VLNA_OKNO_MS = 10_000, VLNA_ZA_KOLIK_MS = 2_000, VLNA_ZPOZDENI_MS = 3_500, VLNA_PAUZA_MS = 7_000;
     private static final java.util.Deque<Long> TLESK = new java.util.ArrayDeque<>();
+    private static final Map<String, Long> TLESK_KDO = new HashMap<>();
     private static volatile long vlnaAt = 0;
 
-    /** Potlesk během odpočtu: přičte a když je jich dost, naplánuje vlnu. */
-    public static synchronized void tleskni(long now) {
+    /** Kolik potlesků je potřeba na vlnu při {@code lidi} lidech v sále. */
+    public static int vlnaPrah(int lidi) { return Math.max(VLNA_MIN, Math.min(VLNA_MAX, lidi * 2)); }
+
+    /** Potlesk během odpočtu od prohlížeče {@code klic}: přičte (nejvýš 1 za 2 s) a když je jich dost, naplánuje vlnu. */
+    public static synchronized void tleskni(String klic, long now, int prah) {
         while (!TLESK.isEmpty() && now - TLESK.peekFirst() > VLNA_OKNO_MS) TLESK.pollFirst();
+        TLESK_KDO.values().removeIf(t -> now - t > VLNA_OKNO_MS);
         if (now < vlnaAt + VLNA_PAUZA_MS) return;                    // vlna běží nebo je pauza: potlesk se nepočítá
+        Long minule = TLESK_KDO.get(klic);
+        if (minule != null && now - minule < VLNA_ZA_KOLIK_MS) return;   // tentýž divák moc rychle: nepočítá se
+        TLESK_KDO.put(klic, now);
         TLESK.addLast(now);
-        if (TLESK.size() >= VLNA_PRAH) { vlnaAt = now + VLNA_ZPOZDENI_MS; TLESK.clear(); }
+        if (TLESK.size() >= prah) { vlnaAt = now + VLNA_ZPOZDENI_MS; TLESK.clear(); TLESK_KDO.clear(); }
     }
 
-    /** Kolik potlesků je teď ve hře (pro kroužek kolem tlačítka smajlíků). */
+    /** Kolik potlesků je teď ve hře (pro kroužek kolem tlačítka 👏). */
     public static synchronized int tleskPocet(long now) {
         while (!TLESK.isEmpty() && now - TLESK.peekFirst() > VLNA_OKNO_MS) TLESK.pollFirst();
         return now < vlnaAt + VLNA_PAUZA_MS ? 0 : TLESK.size();

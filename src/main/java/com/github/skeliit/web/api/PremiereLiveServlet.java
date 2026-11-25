@@ -94,6 +94,7 @@ public class PremiereLiveServlet extends HttpServlet {
             out.put("reakce", PremiereLive.counts());
             if (odpocet(room, now)) {                                    // mexická vlna jen během 30 min odpočtu
                 out.put("tlesk", PremiereLive.tleskPocet(now));
+                out.put("tleskPrah", PremiereLive.vlnaPrah(PremiereLive.people()));
                 if (PremiereLive.vlnaAt() > now - 10_000) out.put("vlna", PremiereLive.vlnaAt());
                 out.put("nalady", PremiereLive.nalady(k));
             }
@@ -170,7 +171,7 @@ public class PremiereLiveServlet extends HttpServlet {
                 }
                 String r = req.getParameter("r");
                 if (!PremiereLive.react(r)) { write(resp, 400, Map.of("error", "r")); return; }
-                if ("tlesk".equals(r) && odpocet(room, now)) PremiereLive.tleskni(now);   // vlna jen během 30 min odpočtu
+                if ("tlesk".equals(r) && odpocet(room, now)) PremiereLive.tleskni(k, now, PremiereLive.vlnaPrah(PremiereLive.people()));   // vlna jen během 30 min odpočtu
                 write(resp, 200, Map.of("ok", true));
                 return;
             }

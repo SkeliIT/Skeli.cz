@@ -58,15 +58,25 @@ class PremiereLiveTest {
     }
 
     @Test
-    void vlnaPriOsmiPotleskachProVsechnyNaraz() {
+    void vlnuNerozjedeJedenClovek() {
         long t = 5_000_000_000L;                                  // vlastní hodiny, ať se test nepotká s jinými
-        for (int i = 0; i < PremiereLive.VLNA_PRAH - 1; i++) PremiereLive.tleskni(t + i * 100);
-        assertTrue(PremiereLive.vlnaAt() < t, "7 potlesků ještě vlnu nespustí");
-        assertEquals(PremiereLive.VLNA_PRAH - 1, PremiereLive.tleskPocet(t + 800));
-        PremiereLive.tleskni(t + 900);
-        assertEquals(t + 900 + PremiereLive.VLNA_ZPOZDENI_MS, PremiereLive.vlnaAt(), "8. potlesk = vlna o 3,5 s později pro všechny");
-        assertEquals(0, PremiereLive.tleskPocet(t + 1000), "po spuštění se počítá znovu od nuly");
-        for (int i = 0; i < 10; i++) PremiereLive.tleskni(t + 2000 + i);
-        assertEquals(t + 900 + PremiereLive.VLNA_ZPOZDENI_MS, PremiereLive.vlnaAt(), "během pauzy další vlna nevznikne");
+        int prah = PremiereLive.vlnaPrah(45);
+        assertEquals(30, prah, "plný sál: 30 potlesků");
+        assertEquals(10, PremiereLive.vlnaPrah(2), "málo lidí: nejméně 10");
+        assertEquals(16, PremiereLive.vlnaPrah(8));
+        // jeden divák ťuká 10× za vteřinu po 10 s: počítá se jen 1 za 2 s → 5, vlna nevznikne
+        for (int i = 0; i < 100; i++) PremiereLive.tleskni("jedenclovek01", t + i * 100, prah);
+        assertTrue(PremiereLive.vlnaAt() < t, "jeden člověk vlnu nespustí");
+        assertTrue(PremiereLive.tleskPocet(t + 9_950) <= 5);
+        // 6 lidí, každý 5× (po 2 s) v 10 s = 30 → vlna o 3,5 s později pro všechny
+        long t2 = t + 60_000;
+        long posledni = 0;
+        for (int kolo = 0; kolo < 5; kolo++)
+            for (int c = 0; c < 6; c++) { posledni = t2 + kolo * 2_000 + c * 10; PremiereLive.tleskni("divak" + c + "xxxxxxxx", posledni, prah); }
+        assertEquals(posledni + PremiereLive.VLNA_ZPOZDENI_MS, PremiereLive.vlnaAt(), "30. potlesk = vlna");
+        assertEquals(0, PremiereLive.tleskPocet(posledni + 100), "po spuštění se počítá znovu od nuly");
+        long vlna = PremiereLive.vlnaAt();
+        for (int c = 0; c < 40; c++) PremiereLive.tleskni("pauza" + c + "xxxxxxxx", posledni + 1_000 + c, prah);
+        assertEquals(vlna, PremiereLive.vlnaAt(), "během pauzy další vlna nevznikne");
     }
 }

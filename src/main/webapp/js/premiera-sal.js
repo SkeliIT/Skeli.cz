@@ -357,7 +357,7 @@
 
   // ---------- MEXICKÁ VLNA: o čase rozhoduje server (8 potlesků 👏 za 3 s od kohokoli) → všichni naráz ----------
   // Kroužek kolem tlačítka smajlíků se plní potleskem; diváci s pózou „ruce nahoře“ se do ní prolnou, ostatní nadskočí.
-  var VLNA_PRAH = 8, vlnaPosledni = 0, hlaskaT = 0;
+  var VLNA_PRAH = 30, vlnaPosledni = 0, hlaskaT = 0;   // laťku posílá server (tleskPrah: 10–30 podle sálu)
   function hlaska(text) {
     var h = $('pmHlaska'); h.textContent = text; h.classList.add('videt');
     clearTimeout(hlaskaT); hlaskaT = setTimeout(function () { h.classList.remove('videt'); }, 2600);
@@ -365,6 +365,7 @@
   function vlnaStav(d) {
     var n = typeof d.tlesk === 'number' ? d.tlesk : 0;
     var tl = $('pmTlesk');                                         // kroužek u tlačítka 👏 vedle smajlíků
+    if (typeof d.tleskPrah === 'number' && d.tleskPrah > 0) VLNA_PRAH = d.tleskPrah;
     tl.style.setProperty('--vlnaK', Math.min(1, n / VLNA_PRAH).toFixed(3));
     tl.classList.toggle('tleska', n > 0);
     $('pmTleskN').textContent = n > 0 ? Math.min(n, VLNA_PRAH) + '/' + VLNA_PRAH : '';
