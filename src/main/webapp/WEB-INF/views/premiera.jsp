@@ -153,6 +153,8 @@
           <%-- pod sálem, nenápadně (Skeli 25. 11.: ať nejsou v obraze): celá obrazovka a (jen PC) Menší / Větší sál – text dá js.
                V sále zůstává jen zvuk (hned vidět, že je vypnutý) a na celé obrazovce ⛶ k návratu. --%>
           <div class="pm-nastroje">
+            <%-- jen pro účet umělce (Skeli), když sedí v sále: jeho postava se u všech otočí a zamává (js/premiera-sal.js) --%>
+            <button type="button" id="pmMavni" hidden><%= WebUtils.escapeHtml(t.getProperty("pm.waveHello")) %></button>
             <button type="button" id="pmKdoZmen"><i class="fa-solid fa-user" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.whoChange")) %></button>
             <button type="button" id="pmCeloVen"><i class="fa-solid fa-expand" aria-hidden="true"></i> <%= WebUtils.escapeHtml(t.getProperty("pm.full")) %></button>
             <button type="button" class="pm-velky" id="pmVelky"></button>

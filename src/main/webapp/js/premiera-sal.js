@@ -393,7 +393,8 @@
     d.style.cssText = 'left:' + (left / W * 100) + '%;top:' + (top / H * 100) + '%;width:' + (w / W * 100) + '%;height:' + (h / H * 100) + '%;clip-path:polygon(' + poly.join(',') + ')';
     d.style.setProperty('--zpozdeni', (((st.x0 + st.x1) / 2) / W * 1.2 + st.r * 0.03).toFixed(2) + 's');
     [['sedi', 'zaklad on'], ['ruce', 'ruce'], ['vstava', 'f f-vstava'], ['stoji', 'f f-stoji'], ['otocka', 'f celem f-otocka'], ['mikrofon', 'f celem f-mikrofon'],
-      ['mluvi', 'f celem f-mluvi'], ['mluvi2', 'f celem f-mluvi2'], ['srdce', 'f celem f-srdce'], ['gesto', 'f celem f-gesto']].forEach(function (x) {
+      ['mluvi', 'f celem f-mluvi'], ['mluvi2', 'f celem f-mluvi2'], ['srdce', 'f celem f-srdce'], ['gesto', 'f celem f-gesto'],
+      ['mava-1', 'f f-mava-1'], ['mava-2', 'f f-mava-2'], ['mava-3', 'f f-mava-3'], ['mava-4', 'f f-mava-4']].forEach(function (x) {
       var im = document.createElement('img'); im.className = x[1]; im.src = SK_CESTA + x[0] + '.webp' + SK_V; im.alt = ''; im.decoding = 'async'; d.appendChild(im);
     });
     var pred = null;                                               // bližší řady se kreslí přes vzdálenější
@@ -420,6 +421,28 @@
     skeliSvetlo.classList.toggle('on', skeliVSale && z <= 51 && z > 29.4);
   }
   function skeliTik(zbyva) { skeliScena(zbyva / 1000); }
+  // ---------- SKELI MÁVÁ (Skeli 25. 11.): tlačítko pod sálem vidí jen účet umělce; server řekne čas a postava se u všech
+  //            z ničeho nic otočí a zamává (žádný nápis ani reflektor). Snímky mava-1..4 (navrhy/premiera/kino/skeli-mava.py).
+  var jaUmelec = false, mavaPosledni = 0, mavaBezi = false;
+  var MAVA = [['mava-1', 0], ['mava-2', 450], ['mava-3', 1250], ['mava-4', 1800], ['mava-3', 2350], ['mava-4', 2900], ['mava-3', 3450],
+    ['mava-4', 4000], ['mava-2', 4700], ['mava-1', 5500], ['', 6100]];   // [snímek, ms od začátku]: otočí se, 3× zamává, otočí se zpět
+  function mavej() {
+    if (mavaBezi || !skeliEl || !skeliVSale || !skeliEl.classList.contains('sedi') || skeliEl.dataset.s) return;   // ne při pozdravu
+    mavaBezi = true;
+    MAVA.forEach(function (x) {
+      setTimeout(function () {
+        if (skeliEl.dataset.s) { mavaBezi = false; return; }          // mezitím začal pozdrav: ten má přednost
+        skSnimek(x[0]);
+        if (!x[0]) mavaBezi = false;
+      }, x[1]);
+    });
+  }
+  $('pmMavni').addEventListener('click', function () {
+    var b = $('pmMavni'); b.disabled = true;
+    zivy({ action: 'mavni' }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.at) { mavaPosledni = d.at; setTimeout(mavej, Math.max(0, d.at - cas().now)); }
+    }).catch(function () { /* nevadí */ }).then(function () { setTimeout(function () { b.disabled = false; }, 8000); });
+  });
   // jako v animaci: nový postoj se plynule položí přes starý (nikdy není průhledný – Skeli: „problikávám“), starý zmizí až pak
   var skVrch = 10, skMinuly = null;
   function skSnimek(s) {
@@ -537,6 +560,13 @@
   function prijato(d) {
     vyp = d.vyp || {};
     jaSkeli = !!(d.ja && d.ja.skeli);
+    jaUmelec = !!(d.ja && d.ja.umelec);
+    $('pmMavni').hidden = !(jaUmelec && skeliVSale);
+    if (d.mava && d.mava !== mavaPosledni) {                           // Skeli zamával: u všech naráz
+      mavaPosledni = d.mava;
+      var zaM = d.mava - cas().now;
+      if (zaM > -1500) setTimeout(mavej, Math.max(0, zaM));
+    }
     Object.keys(zkouskaVyp).forEach(function (x) { if (zkouskaVyp[x]) vyp[x] = true; });   // jen zkouška: vypínače z panelu
     sal.classList.toggle('bez-reakci', !!vyp.reakce);
     sal.classList.toggle('bez-chatu', !!vyp.chat);

@@ -46,6 +46,18 @@ public final class PremiereLive {
     public static void skeliSeen(long now) { skeliDo = now + PRESENT_MS; }
     public static boolean skeliVSale(long now) { return now < skeliDo; }
 
+    // Skeli mává divákům (tlačítko vidí jen účet umělce, Skeli 25. 11.): jen čas začátku, ať se jeho postava otočí u všech
+    // naráz. Nejvýš jednou za MAVA_PAUZA_MS (animace trvá ~7 s).
+    public static final long MAVA_PAUZA_MS = 10_000, MAVA_ZPOZDENI_MS = 1_500;
+    private static volatile long mavaAt = 0;
+    /** Vrátí false, když předchozí mávnutí ještě neskončilo. */
+    public static synchronized boolean mavni(long now) {
+        if (now < mavaAt + MAVA_PAUZA_MS - MAVA_ZPOZDENI_MS) return false;
+        mavaAt = now + MAVA_ZPOZDENI_MS;                                 // chvilka, ať se to stihne dozvědět i ostatní
+        return true;
+    }
+    public static long mavaAt() { return mavaAt; }
+
     /** Kolik lidí je teď v sále (ozvali se za posledních 20 s). */
     public static int people() {
         long now = System.currentTimeMillis();

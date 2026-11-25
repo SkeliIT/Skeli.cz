@@ -114,9 +114,11 @@ public class PremiereLiveServlet extends HttpServlet {
             ja.put("prihlasen", viewer.userId() != null);
             ja.put("overen", viewer.userId() != null && EmailVerification.isVerified(s));
             ja.put("skeli", viewer.artist() || viewer.admin());
+            ja.put("umelec", viewer.artist());                              // tlačítko „Zamávat divákům“
             out.put("ja", ja);
             if (viewer.artist() && k != null) PremiereLive.skeliSeen(now);   // Skeli sám je v sále → jeho avatar si sedne
             out.put("skeli", PremiereLive.skeliVSale(now));
+            if (PremiereLive.mavaAt() > now - 8_000) out.put("mava", PremiereLive.mavaAt());   // Skeli mává (js/premiera-sal.js)
             write(resp, 200, out);
         } catch (SQLException e) {
             write(resp, 503, Map.of("error", "busy"));
@@ -149,6 +151,13 @@ public class PremiereLiveServlet extends HttpServlet {
                 if (!RequestLimiter.tryAcquire("pmnalada", k, 10, 10_000)) { write(resp, 429, Map.of("error", "slow")); return; }
                 if (!PremiereLive.nalada(k, req.getParameter("f"))) { write(resp, 400, Map.of("error", "f")); return; }
                 write(resp, 200, Map.of("ok", true));
+                return;
+            }
+            if ("mavni".equals(action)) {                                // Skeli mává divákům: jen účet umělce
+                HttpSession s = req.getSession(false);
+                if (!CommentsApiServlet.viewer(s).artist()) { write(resp, 403, Map.of("error", "skeli")); return; }
+                if (!PremiereLive.mavni(now)) { write(resp, 429, Map.of("error", "slow")); return; }
+                write(resp, 200, Map.of("ok", true, "at", PremiereLive.mavaAt()));
                 return;
             }
             if ("react".equals(action)) {
