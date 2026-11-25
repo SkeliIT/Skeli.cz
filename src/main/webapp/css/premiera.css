@@ -892,5 +892,5 @@ body.light .pm-kv-cas { background: rgba(0, 0, 0, .12); }
   .pm.v-sale .pm-dole .pm-nalady { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
   .pm.v-sale .pm-dole main.pm .pm-nalady button, main.pm.v-sale .pm-dole .pm-nalady button { padding: 8px 2px; }
   .pm.v-sale .pm-dole .pm-nalady button .pm-tvar { width: 32px; height: 32px; }
-  .pm.v-sale .pm-dole .pm-nalady b { font-size: .7rem; overflow-wrap: anywhere; }
+  .pm.v-sale .pm-dole .pm-nalady b { font: 500 .78rem/1.1 'Barlow Condensed', 'Oswald', sans-serif; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
 }
