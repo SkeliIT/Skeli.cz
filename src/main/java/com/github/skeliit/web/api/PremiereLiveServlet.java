@@ -115,6 +115,10 @@ public class PremiereLiveServlet extends HttpServlet {
                 out.put("piny", piny);
                 out.put("pin", piny.isEmpty() ? null : piny.get(0));   // starý skript (do obnovení stránky) ukáže aspoň první
                 out.put("srdce", dao.heartedIds(Kind.VIDEO, room.target, 300));
+                // opravené zprávy za posledních 30 min: [{id, text}] – prohlížeč přepíše jen ty, které má vykreslené
+                List<Map<String, Object>> upravy = new ArrayList<>();
+                dao.editedSince(Kind.VIDEO, room.target, viewer, 30).forEach((id, text) -> upravy.add(Map.of("id", id, "text", text)));
+                out.put("upravy", upravy);
             }
             Map<String, Object> ja = new LinkedHashMap<>();
             ja.put("prihlasen", viewer.userId() != null);
@@ -225,6 +229,8 @@ public class PremiereLiveServlet extends HttpServlet {
         m.put("nahlasit", it.canReport);
         m.put("pripnout", it.canPin);
         m.put("pripnuto", it.pinned);
+        m.put("upravit", it.canEdit);                   // autor (nebo admin) může zprávu opravit i po odeslání
+        m.put("upraveno", it.edited != null);
         m.put("srdce", it.hearted);                     // srdíčko od Skeliho
         m.put("srdcovat", it.canHeart && !it.artist);   // jen účet umělce, ne u vlastních zpráv
         return m;

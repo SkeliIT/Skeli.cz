@@ -518,8 +518,47 @@
     if (b.tagName === 'BUTTON') { b.textContent = on ? '❤️' : '♡'; b.setAttribute('aria-pressed', String(on)); }
     else b.textContent = on ? '❤️' : '';                         // ostatní vidí jen dané srdíčko, prázdné ♡ nikdy
   }
+  // OPRAVA ZPRÁVY po odeslání (Skeli 26. 11.): autor má v ⋯ „Upravit“ – text se změní přímo v bublině (pole + Uložit / Zrušit),
+  // ostatním doběhne oprava při dalším dotazu (server posílá upravy). Vždy čistý text, nejvýš 200 znaků jako psaní.
+  function oznacUpraveno(el) {
+    if (el.querySelector('.pm-zp-upr')) return;
+    var s = document.createElement('small'); s.className = 'pm-zp-upr'; s.textContent = T.tEdited || '';
+    var kdy = el.querySelector('.pm-zp-t time'); if (kdy) kdy.after(s);
+  }
+  function upravZpravu(z, el) {
+    var p = el.querySelector('.pm-zp-t p');
+    if (!p || el.classList.contains('upravuje')) return;
+    el.classList.add('upravuje');
+    var f = document.createElement('form'); f.className = 'pm-zp-uprava';
+    var i = document.createElement('input'); i.type = 'text'; i.maxLength = 200; i.value = p.textContent; i.setAttribute('aria-label', T.tEdit);
+    var ok = document.createElement('button'); ok.type = 'submit'; ok.textContent = T.tSave;
+    var ne = document.createElement('button'); ne.type = 'button'; ne.textContent = T.tCancel;
+    function konec() { f.remove(); p.hidden = false; el.classList.remove('upravuje'); }
+    ne.addEventListener('click', konec);
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = i.value.trim();
+      if (!text || text === p.textContent) { konec(); return; }
+      ok.disabled = true;
+      posli('/api/comments', { kind: 'video', action: 'edit', id: String(z.id), content: text }).then(function (r) {
+        if (r.ok) { p.textContent = text; oznacUpraveno(el); konec(); } else { oznam(T.tErr); ok.disabled = false; }
+      }).catch(function () { oznam(T.tErr); ok.disabled = false; });
+    });
+    f.appendChild(i); f.appendChild(ok); f.appendChild(ne);
+    p.hidden = true; p.after(f); i.focus();
+  }
+  function upravyStav(seznam) {
+    if (!Array.isArray(seznam)) return;
+    seznam.forEach(function (u) {
+      var el = zpravy.querySelector('.pm-zp[data-id="' + u.id + '"]');
+      if (!el || el.classList.contains('upravuje')) return;
+      var p = el.querySelector('.pm-zp-t p');
+      if (p && p.textContent !== u.text) { p.textContent = u.text; oznacUpraveno(el); }   // čistý text
+    });
+  }
   function akce(z, el) {
     var moznosti = [];
+    if (z.upravit) moznosti.push([T.tEdit, function () { upravZpravu(z, el); }]);
     // text Připnout / Odepnout podle toho, jestli je zpráva právě připnutá (stav se mění i bez nového vykreslení)
     if (z.pripnout) moznosti.push([function () { return el.classList.contains('pripnuta') ? T.tUnpin : T.tPin; }, function () {
       pripni(z.id, !el.classList.contains('pripnuta'));
@@ -697,6 +736,7 @@
     if (d.chat && !vyp.chat) d.chat.forEach(zprava);
     if ('piny' in d) pripnute(d.piny);
     if ('srdce' in d) srdceStav(d.srdce);
+    if ('upravy' in d) upravyStav(d.upravy);
     prazdno();
     kvizStav(vyp.kviz ? null : d.kviz);
   }

@@ -1125,3 +1125,14 @@ main.pm button.pm-zp-srdce:hover, main.pm button.pm-zp-srdce:focus-visible { col
 /* hláška přes sál (🎙️ Pár slov od Skeliho…, vlna) na úzkém telefonu na dva řádky – na jednom přetekla přes okraj (Skeli 26. 11.) */
 @media (max-width: 600px) { .pm-hlaska { white-space: normal; max-width: calc(100% - 24px); width: max-content; text-align: center;
   font-size: .95rem; line-height: 1.15; padding: 6px 12px; border-radius: 14px; } }
+
+/* oprava zprávy po odeslání (Skeli 26. 11.): pole přímo místo bubliny, Uložit / Zrušit; „upraveno“ malé za časem */
+.pm-zp-uprava { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.pm-zp-uprava input { flex: 1 1 160px; min-width: 0; min-height: 40px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--accent);
+  background: rgba(0, 0, 0, .3); color: var(--text); font: 400 16px/1.3 var(--font-system); }
+@media (pointer: fine) { .pm-zp-uprava input { font-size: 14px; } }
+body.light .pm-zp-uprava input { background: #fff; }
+main.pm .pm-zp-uprava button { min-height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--panel-border); background: none;
+  color: var(--text); cursor: pointer; font: 600 .85rem var(--font-system); }
+main.pm .pm-zp-uprava button[type=submit] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.pm-zp-upr { margin-right: 4px; color: var(--text-dim); font: italic 400 11px var(--font-system); }

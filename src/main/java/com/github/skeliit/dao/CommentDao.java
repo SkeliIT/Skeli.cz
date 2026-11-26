@@ -357,6 +357,23 @@ public class CommentDao {
 
     public boolean isPinned(Kind k, int id) throws SQLException { return flag(k, id, "pinned_at"); }
 
+    /**
+     * Chat premiéry: zprávy upravené v posledních {@code minutes} minutách (id → nový text), ať oprava doběhne ke všem,
+     * kdo už starou verzi mají na obrazovce (Skeli 26. 11.). Blokace platí jako v {@link #recent}.
+     */
+    public Map<Integer, String> editedSince(Kind k, String target, Viewer viewer, int minutes) throws SQLException {
+        Map<Integer, String> out = new java.util.LinkedHashMap<>();
+        try (Connection c = Db.get(); PreparedStatement ps = c.prepareStatement("SELECT c.id, c.content FROM " + k.table + " c WHERE c."
+                + k.targetCol + " = ? AND c.parent_id IS NULL AND c.updated_at > c.created_at AND c.updated_at > NOW() - INTERVAL ? MINUTE "
+                + "AND NOT " + BlockDao.blockedBy("c.user_id") + " ORDER BY c.id DESC LIMIT 100")) {
+            ps.setString(1, target);
+            ps.setInt(2, Math.max(1, Math.min(minutes, 120)));
+            if (viewer.userId() == null) ps.setNull(3, Types.INTEGER); else ps.setInt(3, viewer.userId());
+            try (ResultSet rs = ps.executeQuery()) { while (rs.next()) out.put(rs.getInt(1), rs.getString(2)); }
+        }
+        return out;
+    }
+
     /** Chat premiéry: id posledních zpráv se srdíčkem od umělce – při každém dotazu, ať srdíčko uvidí všichni i u starších zpráv. */
     public List<Integer> heartedIds(Kind k, String target, int limit) throws SQLException {
         List<Integer> out = new ArrayList<>();
